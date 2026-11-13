@@ -1,0 +1,729 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // =========================================================================
+    // GLOBAL HELPERS & TRUSTED AUTH PREDICATES
+    // =========================================================================
+
+    function isSignedIn() {
+      return request.auth != null && request.auth.uid != null;
+    }
+
+    function isNonAnonymous() {
+      return isSignedIn()
+        && request.auth.token.get('firebase', {}).get('sign_in_provider', '') != 'anonymous';
+    }
+
+    function isEmailVerified() {
+      return isNonAnonymous()
+        && request.auth.token.get('email_verified', false) == true;
+    }
+
+    function hasUserDoc() {
+      return exists(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    function userDocData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isBlockedOrRevokedUser() {
+      return hasUserDoc() && (
+        userDocData().get('blocked', false) == true
+        || userDocData().get('status', 'active') == 'blocked'
+        || userDocData().get('revokedAdmin', false) == true
+      );
+    }
+
+    function isTrustedAdminEmail() {
+      return isEmailVerified()
+        && !isBlockedOrRevokedUser()
+        && request.auth.token.get('email', '') is string
+        && request.auth.token.get('email', '').lower() in [
+          'zdpaliyal@gmail.com',
+          'jagdishpaliyaljat@gmail.com'
+        ];
+    }
+
+    function hasAdminClaim() {
+      return isNonAnonymous()
+        && !isBlockedOrRevokedUser()
+        && (!hasUserDoc() || userDocData().get('role', 'student') == 'admin')
+        && (
+          request.auth.token.get('admin', false) == true
+          || request.auth.token.get('role', '') == 'admin'
+        );
+    }
+
+    function isServerApprovedAdminDoc() {
+      return isNonAnonymous()
+        && hasUserDoc()
+        && !isBlockedOrRevokedUser()
+        && userDocData().get('role', 'student') == 'admin';
+    }
+
+    function isRootAdmin() {
+      return isTrustedAdminEmail() || hasAdminClaim();
+    }
+
+    function isAdmin() {
+      // Admin authorization strictly requires verified super-admin email allowlist,
+      // non-revoked custom admin claim, or a non-blocked /users/{uid} record with role == 'admin'.
+      // Blocked or revoked users cannot regain admin access through any secondary path.
+      return isRootAdmin() || isServerApprovedAdminDoc();
+    }
+
+    function isOwner(userId) {
+      return isNonAnonymous()
+        && request.auth.uid == userId
+        && !isBlockedOrRevokedUser();
+    }
+
+    function isValidId(id) {
+      return id is string
+        && id.size() > 0
+        && id.size() <= 128
+        && id != '.'
+        && id != '..'
+        && id.matches('^[a-zA-Z0-9_\\.\\-]+$');
+    }
+
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+
+    function isValidStudentUserCreate(userId) {
+      return incoming().get('role', 'student') == 'student'
+        && incoming().get('blocked', false) == false
+        && incoming().get('status', 'active') == 'active'
+        && incoming().get('isAdmin', false) == false
+        && incoming().get('isPremium', false) == false
+        && !incoming().keys().hasAny(['subscription', 'premiumUntil', 'adminClaims', 'revokedAdmin'])
+        && incoming().get('uid', userId) == userId
+        && incoming().keys().size() <= 30;
+    }
+
+    function isValidStudentUserUpdate() {
+      return !incoming().diff(existing()).affectedKeys().hasAny([
+          'role',
+          'uid',
+          'isAdmin',
+          'blocked',
+          'status',
+          'isPremium',
+          'subscription',
+          'premiumUntil',
+          'adminClaims',
+          'revokedAdmin',
+          'createdAt'
+        ])
+        && incoming().get('role', 'student') == existing().get('role', 'student')
+        && incoming().keys().size() <= 30;
+    }
+
+    function isValidMcqFields() {
+      return (!('text' in incoming()) || (incoming().text is string && incoming().text.size() > 0 && incoming().text.size() <= 20000))
+        && (!('question' in incoming()) || (incoming().question is string && incoming().question.size() > 0 && incoming().question.size() <= 20000))
+        && (!('options' in incoming()) || (incoming().options is list && incoming().options.size() <= 12))
+        && (!('correctIndex' in incoming()) || (incoming().correctIndex is int && incoming().correctIndex >= -1 && incoming().correctIndex <= 11))
+        && incoming().keys().size() <= 60;
+    }
+
+    function isValidLeaderboardPayload() {
+      return incoming().keys().hasOnly([
+          'id',
+          'testId',
+          'testTitle',
+          'userId',
+          'userName',
+          'userPhoto',
+          'score',
+          'maxScore',
+          'accuracy',
+          'timeSpentSeconds',
+          'submittedAt',
+          'updatedAt',
+          'isCurrentUser',
+          'isTest'
+        ])
+        && incoming().get('userId', '') == request.auth.uid
+        && incoming().get('score', 0) is number
+        && incoming().get('score', 0) >= 0
+        && incoming().get('score', 0) <= 100000;
+    }
+
+    function isSanitizedQuestionItem(item) {
+      return !(item is map) || !item.keys().hasAny([
+        'correctIndex',
+        'correctOption',
+        'answer',
+        'explanation',
+        'solution',
+        'importantFact',
+        'correctOptionText'
+      ]);
+    }
+
+    function isSanitizedLiveTestPayload() {
+      return !incoming().keys().hasAny(['answerKey', 'answerKeys', 'answers', 'correctAnswers'])
+        && (
+          !('questions' in incoming())
+          || !(incoming().questions is list)
+          || incoming().questions.size() == 0
+          || (
+            isSanitizedQuestionItem(incoming().questions[0])
+            && isSanitizedQuestionItem(incoming().questions[incoming().questions.size() - 1])
+          )
+        );
+    }
+
+    // =========================================================================
+    // CONNECTIVITY HEALTH PROBE (READ-ONLY)
+    // =========================================================================
+
+    match /test/{id} {
+      allow read: if id == 'connection' || isAdmin();
+      allow write: if false;
+    }
+
+    // =========================================================================
+    // USER DIRECTORY & PRIVATE STUDENT PROGRESS / HISTORY
+    // =========================================================================
+
+    match /users/{userId} {
+      allow read: if isValidId(userId) && (isOwner(userId) || isAdmin());
+      allow create: if isValidId(userId) && (
+        isAdmin() || (isOwner(userId) && isValidStudentUserCreate(userId))
+      );
+      allow update: if isValidId(userId) && (
+        isAdmin() || (isOwner(userId) && isValidStudentUserUpdate())
+      );
+      allow delete: if isValidId(userId) && isAdmin();
+
+      match /progress/{questionId} {
+        allow read: if isValidId(userId) && (isOwner(userId) || isAdmin());
+        allow create, update: if isValidId(userId) && isValidId(questionId)
+          && (isOwner(userId) || isAdmin())
+          && incoming().keys().size() <= 30;
+        allow delete: if isValidId(userId) && (isOwner(userId) || isAdmin());
+      }
+
+      match /history/{dateKey} {
+        allow read: if isValidId(userId) && (isOwner(userId) || isAdmin());
+        allow create, update: if isValidId(userId) && isValidId(dateKey)
+          && (isOwner(userId) || isAdmin())
+          && incoming().keys().size() <= 30;
+        allow delete: if isValidId(userId) && (isOwner(userId) || isAdmin());
+      }
+
+      match /attempts/{attemptId} {
+        allow read: if isValidId(userId) && (isOwner(userId) || isAdmin());
+        allow create: if isValidId(userId) && isValidId(attemptId) && (
+          isAdmin() || (
+            isOwner(userId)
+            && incoming().get('userId', userId) == userId
+            && incoming().keys().size() <= 40
+          )
+        );
+        // Student attempt records are immutable once created
+        allow update, delete: if isValidId(userId) && isAdmin();
+      }
+
+      match /{subcollection}/{docId} {
+        allow read: if isValidId(userId)
+          && subcollection in ['bookmarks', 'revision', 'stats', 'preferences']
+          && (isOwner(userId) || isAdmin());
+        allow create, update: if isValidId(userId) && isValidId(docId)
+          && subcollection in ['bookmarks', 'revision', 'stats', 'preferences']
+          && (isOwner(userId) || isAdmin())
+          && incoming().keys().size() <= 40;
+        allow delete: if isValidId(userId)
+          && subcollection in ['bookmarks', 'revision', 'stats', 'preferences']
+          && (isOwner(userId) || isAdmin());
+      }
+    }
+
+    // =========================================================================
+    // CURRICULUM & CANONICAL QUESTION BANK (PUBLIC READ, ADMIN-ONLY WRITE)
+    // =========================================================================
+
+    match /subjects/{id} {
+      allow read: if true;
+      allow create, update: if isAdmin() && isValidId(id)
+        && incoming().keys().hasAny(['name', 'title', 'id'])
+        && incoming().keys().size() <= 40;
+      allow delete: if isAdmin();
+    }
+
+    match /chapters/{id} {
+      allow read: if true;
+      allow create, update: if isAdmin() && isValidId(id)
+        && incoming().keys().hasAny(['name', 'title', 'subjectId', 'id'])
+        && incoming().keys().size() <= 40;
+      allow delete: if isAdmin();
+    }
+
+    match /topics/{id} {
+      allow read: if true;
+      allow create, update: if isAdmin() && isValidId(id)
+        && incoming().keys().hasAny(['name', 'title', 'chapterId', 'subjectId', 'id'])
+        && incoming().keys().size() <= 40;
+      allow delete: if isAdmin();
+    }
+
+    match /mcqs/{id} {
+      allow read: if true;
+      allow create: if isAdmin() && isValidId(id)
+        && incoming().keys().hasAny(['text', 'question'])
+        && isValidMcqFields();
+      allow update: if isAdmin() && isValidId(id) && isValidMcqFields();
+      allow delete: if isAdmin();
+    }
+
+    match /questions/{id} {
+      allow read: if true;
+      allow create, update: if isAdmin() && isValidId(id) && isValidMcqFields();
+      allow delete: if isAdmin();
+    }
+
+    match /question_bundles/{id} {
+      allow read: if true;
+      allow create, update: if isAdmin() && isValidId(id)
+        && incoming().keys().hasAny(['topicId', 'questions', 'id', 'bundleVersion'])
+        && incoming().keys().size() <= 30;
+      allow delete: if isAdmin();
+    }
+
+    match /archived_mcqs/{id} {
+      allow read, write: if isAdmin();
+    }
+
+    match /import_batches/{batchId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /customQuestions/{id} {
+      allow read, write: if isAdmin();
+    }
+
+    // Legacy Curriculum Collections (Admin-only write)
+    match /curriculum_subjects/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /curriculum_chapters/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /curriculum_questions/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /curriculum/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // =========================================================================
+    // PAPERS, LIVE TESTS, EXAM CATEGORIES & COACHING HIERARCHY
+    // =========================================================================
+
+    match /pyq_papers/{id} {
+      allow read: if true;
+      allow create, update: if isAdmin() && isValidId(id);
+      allow delete: if isAdmin();
+    }
+    match /pyqPapers/{id} {
+      allow read: if true;
+      allow create, update: if isAdmin() && isValidId(id);
+      allow delete: if isAdmin();
+    }
+
+    match /live_tests/{id} {
+      allow read: if true;
+      allow create, update: if isAdmin() && isValidId(id) && isSanitizedLiveTestPayload();
+      allow delete: if isAdmin();
+    }
+    match /liveTests/{id} {
+      allow read: if true;
+      allow create, update: if isAdmin() && isValidId(id) && isSanitizedLiveTestPayload();
+      allow delete: if isAdmin();
+    }
+    match /live-tests/{id} {
+      allow read: if true;
+      allow create, update: if isAdmin() && isValidId(id) && isSanitizedLiveTestPayload();
+      allow delete: if isAdmin();
+    }
+    match /tests/{id} {
+      allow read: if true;
+      allow create, update: if isAdmin() && isValidId(id) && isSanitizedLiveTestPayload();
+      allow delete: if isAdmin();
+    }
+    match /liveTestAnswerKeys/{testId} {
+      // Strictly isolated private answer keys & explanations (Admin / Server SDK only)
+      allow read, write: if isAdmin();
+    }
+
+    match /exam_categories/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /examCategories/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /coaching/{id} {
+      allow read: if true;
+      allow create, update: if isAdmin() && isValidId(id);
+      allow delete: if isAdmin();
+    }
+    match /coaching_exams/{id} {
+      allow read: if true;
+      allow create, update: if isAdmin() && isValidId(id);
+      allow delete: if isAdmin();
+    }
+    match /coaching_test_series/{id} {
+      allow read: if true;
+      allow create, update: if isAdmin() && isValidId(id);
+      allow delete: if isAdmin();
+    }
+
+    // =========================================================================
+    // CONTENT, ARTICLES, BANNERS & APP CONFIGURATION
+    // =========================================================================
+
+    match /banners/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /articles/{articleId} {
+      allow read: if (resource != null && resource.data.get('status', 'published') == 'published') || isAdmin();
+      allow create, update, delete: if isAdmin();
+
+      match /blocks/{blockId} {
+        allow read: if isAdmin() || (
+          exists(/databases/$(database)/documents/articles/$(articleId))
+          && get(/databases/$(database)/documents/articles/$(articleId)).data.get('status', 'published') == 'published'
+        );
+        allow write: if isAdmin();
+      }
+    }
+
+    match /article_categories/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /link_rules/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /metadata/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /appSettings/{settingId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /notifications/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /broadcast_notifications/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // =========================================================================
+    // PAYMENTS, SUBSCRIPTIONS & AI SCAN QUOTA (SERVER / ADMIN SDK ONLY WRITES)
+    // =========================================================================
+
+    match /premiumPlans/{planId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /payment_orders/{orderId} {
+      allow read: if isAdmin() || (
+        isNonAnonymous()
+        && !isBlockedOrRevokedUser()
+        && resource != null
+        && (resource.data.get('userId', '') == request.auth.uid || resource.data.get('customerId', '') == request.auth.uid)
+      );
+      allow create, update, delete: if false;
+    }
+
+    match /payment_events/{eventId} {
+      allow read: if isAdmin();
+      allow create, update, delete: if false;
+    }
+
+    match /user_subscriptions/{subscriptionId} {
+      allow read: if isAdmin() || (
+        isNonAnonymous()
+        && !isBlockedOrRevokedUser()
+        && (subscriptionId == request.auth.uid || (resource != null && resource.data.get('userId', '') == request.auth.uid))
+      );
+      allow create, update, delete: if false;
+    }
+
+    // Retired legacy manual payment collections: strictly locked against all client writes
+    match /paymentSubmissions/{submissionId} {
+      allow read: if isAdmin();
+      allow create, update, delete: if false;
+    }
+
+    match /subscriptions/{subscriptionId} {
+      allow read: if isAdmin() || (
+        isNonAnonymous()
+        && !isBlockedOrRevokedUser()
+        && resource != null
+        && resource.data.get('userId', '') == request.auth.uid
+      );
+      allow create, update, delete: if false;
+    }
+
+    match /scanUsage/{usageId} {
+      allow read: if isOwner(usageId) || isAdmin();
+      allow write: if isAdmin();
+    }
+
+    // =========================================================================
+    // STUDENT SUBMISSIONS, ATTEMPTS, LEADERBOARD & WEEKLY STATS
+    // =========================================================================
+
+    match /attempts/{attemptId} {
+      allow read: if isAdmin() || (
+        isNonAnonymous()
+        && !isBlockedOrRevokedUser()
+        && resource != null
+        && resource.data.get('userId', '') == request.auth.uid
+      );
+      allow create: if isValidId(attemptId) && (
+        isAdmin() || (
+          isNonAnonymous()
+          && !isBlockedOrRevokedUser()
+          && incoming().get('userId', '') == request.auth.uid
+          && incoming().keys().size() <= 40
+        )
+      );
+      // Exam attempts are immutable for students once created
+      allow update, delete: if isAdmin();
+    }
+
+    match /pyq_attempts/{attemptId} {
+      allow read: if isAdmin() || (
+        isNonAnonymous()
+        && !isBlockedOrRevokedUser()
+        && resource != null
+        && resource.data.get('userId', '') == request.auth.uid
+      );
+      allow create: if isValidId(attemptId) && (
+        isAdmin() || (
+          isNonAnonymous()
+          && !isBlockedOrRevokedUser()
+          && incoming().get('userId', '') == request.auth.uid
+          && incoming().keys().hasAll(['attemptId', 'paperId', 'userId'])
+          && incoming().get('attemptId', '') == attemptId
+          && (!('score' in incoming()) || (incoming().score is number && incoming().score >= 0 && incoming().score <= 10000))
+          && (!('correctCount' in incoming()) || (incoming().correctCount is int && incoming().correctCount >= 0 && incoming().correctCount <= 500))
+          && (!('totalQuestions' in incoming()) || (incoming().totalQuestions is int && incoming().totalQuestions >= 0 && incoming().totalQuestions <= 500))
+          && incoming().keys().size() <= 40
+        )
+      );
+      // PYQ attempts are immutable for students once submitted
+      allow update, delete: if isAdmin();
+    }
+
+    match /leaderboard/{entryId} {
+      allow read: if true;
+      allow create: if isValidId(entryId) && (
+        isAdmin() || (
+          isNonAnonymous()
+          && !isBlockedOrRevokedUser()
+          && (entryId == request.auth.uid || entryId.matches('^.*_' + request.auth.uid + '$'))
+          && isValidLeaderboardPayload()
+        )
+      );
+      allow update: if isValidId(entryId) && (
+        isAdmin() || (
+          isNonAnonymous()
+          && !isBlockedOrRevokedUser()
+          && (entryId == request.auth.uid || entryId.matches('^.*_' + request.auth.uid + '$'))
+          && existing().get('userId', '') == request.auth.uid
+          && isValidLeaderboardPayload()
+        )
+      );
+      allow delete: if isAdmin();
+    }
+
+    match /user_stats_weekly/{statsId} {
+      allow read: if isAdmin() || (
+        isNonAnonymous()
+        && !isBlockedOrRevokedUser()
+        && (
+          statsId.matches('^' + request.auth.uid + '_.*')
+          || (resource != null && resource.data.get('userId', '') == request.auth.uid)
+        )
+      );
+      allow create: if isValidId(statsId) && (
+        isAdmin() || (
+          isNonAnonymous()
+          && !isBlockedOrRevokedUser()
+          && statsId.matches('^' + request.auth.uid + '_.*')
+          && incoming().get('userId', '') == request.auth.uid
+          && incoming().get('totalAttempted', 0) is number
+          && incoming().get('totalAttempted', 0) >= 0
+          && incoming().get('totalCorrect', 0) is number
+          && incoming().get('totalCorrect', 0) >= 0
+          && incoming().get('totalCorrect', 0) <= incoming().get('totalAttempted', 0)
+          && incoming().keys().size() <= 25
+        )
+      );
+      allow update: if isValidId(statsId) && (
+        isAdmin() || (
+          isNonAnonymous()
+          && !isBlockedOrRevokedUser()
+          && statsId.matches('^' + request.auth.uid + '_.*')
+          && existing().get('userId', '') == request.auth.uid
+          && incoming().get('userId', '') == request.auth.uid
+          && incoming().get('totalAttempted', 0) is number
+          && incoming().get('totalAttempted', 0) >= existing().get('totalAttempted', 0)
+          && incoming().get('totalCorrect', 0) is number
+          && incoming().get('totalCorrect', 0) >= 0
+          && incoming().get('totalCorrect', 0) <= incoming().get('totalAttempted', 0)
+          && incoming().keys().size() <= 25
+        )
+      );
+      allow delete: if isAdmin();
+    }
+
+    match /liveTestSubmissions/{submissionId} {
+      allow read: if isAdmin() || (
+        isNonAnonymous()
+        && !isBlockedOrRevokedUser()
+        && resource != null
+        && resource.data.get('userId', '') == request.auth.uid
+      );
+      allow create: if isValidId(submissionId) && (
+        isAdmin() || (
+          isNonAnonymous()
+          && !isBlockedOrRevokedUser()
+          && incoming().get('userId', '') == request.auth.uid
+          && incoming().keys().hasAll(['submissionId', 'testId', 'userId'])
+          && incoming().get('submissionId', '') == submissionId
+          && incoming().keys().size() <= 40
+        )
+      );
+      // Live test submissions are immutable for students once submitted
+      allow update, delete: if isAdmin();
+    }
+
+    match /examPaperAnalyses/{analysisId} {
+      allow read: if isAdmin() || (
+        isNonAnonymous()
+        && !isBlockedOrRevokedUser()
+        && resource != null
+        && resource.data.get('userId', '') == request.auth.uid
+      );
+      allow create: if isValidId(analysisId) && (
+        isAdmin() || (
+          isNonAnonymous()
+          && !isBlockedOrRevokedUser()
+          && incoming().get('userId', '') == request.auth.uid
+          && incoming().keys().hasAll(['analysisId', 'userId'])
+          && incoming().keys().size() <= 40
+        )
+      );
+      allow update: if isValidId(analysisId) && (
+        isAdmin() || (
+          isNonAnonymous()
+          && !isBlockedOrRevokedUser()
+          && existing().get('userId', '') == request.auth.uid
+          && incoming().get('userId', '') == request.auth.uid
+          && incoming().keys().size() <= 40
+        )
+      );
+      allow delete: if isAdmin();
+
+      match /questions/{examQuestionId} {
+        allow read: if isAdmin() || (
+          isNonAnonymous()
+          && !isBlockedOrRevokedUser()
+          && exists(/databases/$(database)/documents/examPaperAnalyses/$(analysisId))
+          && get(/databases/$(database)/documents/examPaperAnalyses/$(analysisId)).data.get('userId', '') == request.auth.uid
+        );
+        allow create, update: if isValidId(examQuestionId) && (
+          isAdmin() || (
+            isNonAnonymous()
+            && !isBlockedOrRevokedUser()
+            && exists(/databases/$(database)/documents/examPaperAnalyses/$(analysisId))
+            && get(/databases/$(database)/documents/examPaperAnalyses/$(analysisId)).data.get('userId', '') == request.auth.uid
+            && incoming().keys().size() <= 35
+          )
+        );
+        allow delete: if isAdmin();
+      }
+    }
+
+    // =========================================================================
+    // ADMIN DIAGNOSTICS, AUDIT LOGS & SYSTEM MONITORING
+    // =========================================================================
+
+    match /_health/{id} {
+      allow read, write: if isAdmin();
+    }
+
+    match /adminAuditLogs/{id} {
+      allow read: if isAdmin();
+      allow create: if isAdmin() && isValidId(id)
+        && incoming().keys().hasAll(['id', 'adminId', 'action', 'timestamp'])
+        && incoming().keys().size() <= 20;
+      allow update, delete: if false;
+    }
+
+    match /login_attempts/{id} {
+      allow read, write: if isAdmin();
+    }
+
+    match /ai_api_configs/{id} {
+      allow read, write: if isAdmin();
+    }
+
+    match /usage_daily/{date} {
+      allow read, write: if isAdmin();
+      match /devices/{deviceId} {
+        allow read, write: if isAdmin();
+      }
+    }
+
+    match /analytics_daily/{date} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /contact_messages/{id} {
+      allow read, write: if isAdmin();
+    }
+
+    // =========================================================================
+    // DEFAULT DENY CATCH-ALL (ZERO IMPLICIT WILDCARD ALLOWS)
+    // =========================================================================
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

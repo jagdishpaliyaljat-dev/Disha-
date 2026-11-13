@@ -1,0 +1,423 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Stores user account information and role.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string", "maxLength": 100 },
+        "email": { "type": "string", "format": "email" },
+        "photoURL": { "type": "string" },
+        "role": { "type": "string", "enum": ["admin", "student"] },
+        "status": { "type": "string", "enum": ["active", "inactive", "blocked"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "lastLoginAt": { "type": "string", "format": "date-time" },
+        "targetExam": { "type": "string" },
+        "dailyGoalQuestions": { "type": "integer" },
+        "streakDays": { "type": "integer" }
+      },
+      "required": ["id", "name", "email", "role", "createdAt"]
+    },
+    "Subject": {
+      "title": "Subject",
+      "description": "Represents a study subject.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string", "maxLength": 100 },
+        "hindiName": { "type": "string", "maxLength": 100 },
+        "icon": { "type": "string" },
+        "color": { "type": "string" },
+        "description": { "type": "string" },
+        "order": { "type": "integer" }
+      },
+      "required": ["id", "name", "hindiName"]
+    },
+    "Chapter": {
+      "title": "Chapter",
+      "description": "Represents a chapter within a subject.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "subjectId": { "type": "string" },
+        "number": { "type": "integer" },
+        "title": { "type": "string", "maxLength": 200 },
+        "hindiTitle": { "type": "string", "maxLength": 200 }
+      },
+      "required": ["id", "subjectId", "number", "title", "hindiTitle"]
+    },
+    "Topic": {
+      "title": "Topic",
+      "description": "Represents a topic within a chapter.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "chapterId": { "type": "string" },
+        "subjectId": { "type": "string" },
+        "title": { "type": "string", "maxLength": 200 },
+        "hindiTitle": { "type": "string", "maxLength": 200 }
+      },
+      "required": ["id", "chapterId", "title", "hindiTitle"]
+    },
+    "MCQ": {
+      "title": "Multiple Choice Question",
+      "description": "A single MCQ in the question bank.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "topicId": { "type": "string" },
+        "chapterId": { "type": "string" },
+        "subjectId": { "type": "string" },
+        "text": { "type": "string", "maxLength": 2000 },
+        "options": { "type": "array", "items": { "type": "string" }, "minItems": 2, "maxItems": 6 },
+        "correctIndex": { "type": "integer" },
+        "explanation": { "type": "string" },
+        "importantFact": { "type": "string" },
+        "difficulty": { "type": "string", "enum": ["easy", "medium", "hard"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "isUserAdded": { "type": "boolean" }
+      },
+      "required": ["id", "topicId", "chapterId", "subjectId", "text", "options", "correctIndex", "explanation"]
+    },
+    "PYQPaper": {
+      "title": "Past Year Question Paper",
+      "description": "Official exam question paper.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "hindiTitle": { "type": "string" },
+        "examBoard": { "type": "string" },
+        "paperYear": { "type": "string" },
+        "examDate": { "type": "string" },
+        "category": { "type": "string" },
+        "description": { "type": "string" },
+        "durationMinutes": { "type": "integer" },
+        "totalMarks": { "type": "number" },
+        "marksPerQuestion": { "type": "number" },
+        "negativeMarking": { "type": "number" },
+        "questionCount": { "type": "integer" },
+        "isPublished": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "title", "hindiTitle", "examBoard", "paperYear", "durationMinutes", "totalMarks", "marksPerQuestion", "questionCount", "createdAt"]
+    },
+    "LiveTest": {
+      "title": "Live Exam Test",
+      "description": "Scheduled live test for all students.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "examCategory": { "type": "string" },
+        "status": { "type": "string", "enum": ["live", "upcoming", "ended", "draft"] },
+        "startTime": { "type": "string", "format": "date-time" },
+        "endTime": { "type": "string", "format": "date-time" },
+        "durationMinutes": { "type": "integer" },
+        "totalMarks": { "type": "number" },
+        "marksPerQuestion": { "type": "number" },
+        "negativeMarking": { "type": "number" },
+        "questionCount": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "title", "examCategory", "status", "durationMinutes", "totalMarks", "marksPerQuestion", "questionCount", "createdAt"]
+    },
+    "ExamCategory": {
+      "title": "Exam Category",
+      "description": "Categories for tests and papers.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "hindiName": { "type": "string" },
+        "order": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "name", "createdAt"]
+    },
+    "AppBanner": {
+      "title": "Application Banner",
+      "description": "Banners shown on the home screen carousel.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "subtitle": { "type": "string" },
+        "badge": { "type": "string" },
+        "color": { "type": "string" },
+        "iconName": { "type": "string" },
+        "actionLabel": { "type": "string" },
+        "actionTab": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "isActive": { "type": "boolean" },
+        "order": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "title", "subtitle", "color", "iconName", "actionLabel", "isActive", "order", "createdAt"]
+    },
+    "Attempt": {
+      "title": "User Attempt",
+      "description": "Stores user performance on a test or paper.",
+      "type": "object",
+      "properties": {
+        "attemptId": { "type": "string" },
+        "userId": { "type": "string" },
+        "testId": { "type": "string" },
+        "type": { "type": "string", "enum": ["live_test", "pyq_paper", "smart_test"] },
+        "score": { "type": "number" },
+        "totalMarks": { "type": "number" },
+        "correctCount": { "type": "integer" },
+        "wrongCount": { "type": "integer" },
+        "accuracy": { "type": "number" },
+        "timeSpentSeconds": { "type": "integer" },
+        "attemptedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["attemptId", "userId", "testId", "type", "score", "totalMarks", "correctCount", "wrongCount", "accuracy", "timeSpentSeconds", "attemptedAt"]
+    },
+    "LeaderboardEntry": {
+      "title": "Leaderboard Entry",
+      "description": "Public score for a specific test.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "testId": { "type": "string" },
+        "score": { "type": "number" },
+        "accuracy": { "type": "number" },
+        "timeSpentSeconds": { "type": "integer" },
+        "rank": { "type": "integer" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "userName", "testId", "score", "updatedAt"]
+    },
+    "ImportBatch": {
+      "title": "Import Batch Metadata",
+      "description": "Metadata for bulk MCQ import batches.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "batchId": { "type": "string" },
+        "importedBy": { "type": "string" },
+        "importedByEmail": { "type": "string" },
+        "questionCount": { "type": "integer" },
+        "questionIds": { "type": "array", "items": { "type": "string" } },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "status": { "type": "string", "enum": ["completed", "undone", "failed"] }
+      },
+      "required": ["id", "batchId", "importedBy", "questionCount", "createdAt", "status"]
+    },
+    "LoginAttempt": {
+      "title": "Login Attempt",
+      "description": "Logs for user login attempts.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "success": { "type": "boolean" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "reason": { "type": "string" }
+      },
+      "required": ["id", "email", "success", "timestamp"]
+    },
+    "AdminAuditLog": {
+      "title": "Admin Audit Log",
+      "description": "Audit trail of admin actions.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "adminId": { "type": "string" },
+        "adminEmail": { "type": "string" },
+        "action": { "type": "string" },
+        "targetUserId": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "adminId", "adminEmail", "action", "timestamp"]
+    },
+    "ArticleCategory": {
+      "title": "Article Category",
+      "description": "Custom categories for news and editorial articles.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string", "maxLength": 100 },
+        "hindiName": { "type": "string", "maxLength": 100 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "name", "createdAt"]
+    },
+    "Article": {
+      "title": "Article",
+      "description": "Editorial or news article.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string", "maxLength": 300 },
+        "content": { "type": "string" },
+        "category": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "isPublished": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "title", "content", "createdAt"]
+    },
+    "ArticleBlock": {
+      "title": "Article Content Block",
+      "description": "A single content block (paragraph, heading, table, etc.) within an article.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "type": "string" },
+        "orderIndex": { "type": "integer" },
+        "text": { "type": "string" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "type", "orderIndex"]
+    },
+    "ContactMessage": {
+      "title": "Contact Message",
+      "description": "User feedback or support contact query.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string", "maxLength": 100 },
+        "email": { "type": "string", "format": "email" },
+        "subject": { "type": "string", "maxLength": 200 },
+        "message": { "type": "string", "maxLength": 2000 },
+        "status": { "type": "string", "enum": ["unread", "read", "resolved"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "email", "message", "createdAt"]
+    },
+    "QuestionBundle": {
+      "title": "Question Bundle",
+      "description": "Grouped MCQ bundle or offline packet.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "questionIds": { "type": "array", "items": { "type": "string" } },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "title", "questionIds"]
+    },
+    "ExamPaperAnalysis": {
+      "title": "Exam Paper Analysis",
+      "description": "Detailed AI or statistical analysis for an exam paper.",
+      "type": "object",
+      "properties": {
+        "analysisId": { "type": "string" },
+        "paperId": { "type": "string" },
+        "summary": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["analysisId", "paperId"]
+    },
+    "AIApiConfig": {
+      "title": "AI API Configuration",
+      "description": "Custom configuration for AI models or keys.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "provider": { "type": "string" },
+        "enabled": { "type": "boolean" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "enabled"]
+    },
+    "DailyAnalytics": {
+      "title": "Daily Analytics",
+      "description": "Daily usage statistics and counters.",
+      "type": "object",
+      "properties": {
+        "date": { "type": "string" },
+        "activeUsers": { "type": "integer" },
+        "totalAttempts": { "type": "integer" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["date"]
+    },
+    "UserStatsWeekly": {
+      "title": "Weekly User Statistics",
+      "description": "Aggregated weekly performance for leaderboard.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "userPhoto": { "type": "string" },
+        "weekId": { "type": "string", "description": "e.g. 2024-W43" },
+        "totalAttempted": { "type": "integer" },
+        "totalCorrect": { "type": "integer" },
+        "averageAccuracy": { "type": "number" },
+        "totalPoints": { "type": "number" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "weekId", "totalAttempted", "totalCorrect", "updatedAt"]
+    },
+    "ConnectionTest": {
+      "title": "Connection Test Document",
+      "description": "Lightweight document to test server connectivity.",
+      "type": "object",
+      "properties": {
+        "status": { "type": "string" }
+      }
+    },
+    "FeatureAccessConfig": {
+      "title": "Feature Access Configuration",
+      "description": "Global feature flags, access policies for Free vs Premium tiers, and content overrides.",
+      "type": "object",
+      "properties": {
+        "version": { "type": "integer" },
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "updatedBy": { "type": "string" },
+        "features": { "type": "object" },
+        "contentOverrides": { "type": "object" }
+      },
+      "required": ["version", "updatedAt", "features"]
+    },
+    "UserQuotaUsage": {
+      "title": "User Quota Usage Record",
+      "description": "Tracks atomic consumption counts for features within a reset period.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "featureKey": { "type": "string" },
+        "periodKey": { "type": "string" },
+        "consumedCount": { "type": "integer" },
+        "tierAtConsumption": { "type": "string" },
+        "lastConsumedAt": { "type": "string", "format": "date-time" },
+        "resetAtIST": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "featureKey", "periodKey", "consumedCount"]
+    }
+  },
+  "firestore": {
+    "users": { "schema": "UserProfile", "description": "Global user directory and profiles." },
+    "subjects": { "schema": "Subject", "description": "Curriculum subjects." },
+    "chapters": { "schema": "Chapter", "description": "Curriculum chapters." },
+    "topics": { "schema": "Topic", "description": "Curriculum topics." },
+    "mcqs": { "schema": "MCQ", "description": "Main question bank." },
+    "pyq_papers": { "schema": "PYQPaper", "description": "Past Year Question Papers." },
+    "live_tests": { "schema": "LiveTest", "description": "Scheduled live mock tests." },
+    "exam_categories": { "schema": "ExamCategory", "description": "Exam boards and categories." },
+    "banners": { "schema": "AppBanner", "description": "Home screen promotional banners." },
+    "attempts": { "schema": "Attempt", "description": "History of all user test attempts." },
+    "leaderboard": { "schema": "LeaderboardEntry", "description": "Public rankings for live tests." },
+    "user_stats_weekly": { "schema": "UserStatsWeekly", "description": "Weekly performance aggregation for global leaderboard." },
+    "import_batches": { "schema": "ImportBatch", "description": "Bulk MCQ import history and rollback batches." },
+    "login_attempts": { "schema": "LoginAttempt", "description": "Log of successful and failed login attempts." },
+    "adminAuditLogs": { "schema": "AdminAuditLog", "description": "Audit trail of admin actions." },
+    "article_categories": { "schema": "ArticleCategory", "description": "Custom news article categories." },
+    "articles": { "schema": "Article", "description": "Published news and study articles." },
+    "contact_messages": { "schema": "ContactMessage", "description": "User inquiries and feedback." },
+    "question_bundles": { "schema": "QuestionBundle", "description": "Bundled question sets." },
+    "examPaperAnalyses": { "schema": "ExamPaperAnalysis", "description": "Detailed exam paper statistical analyses." },
+    "ai_api_configs": { "schema": "AIApiConfig", "description": "Configuration settings for AI APIs." },
+    "analytics_daily": { "schema": "DailyAnalytics", "description": "Daily usage statistics and counters." },
+    "articles/{articleId}/blocks": { "schema": "ArticleBlock", "description": "Content blocks for a specific article." },
+    "appSettings/featureAccessControl": { "schema": "FeatureAccessConfig", "description": "Global access policies and usage quota limits." },
+    "users/{userId}/featureUsage/{periodKey}": { "schema": "UserQuotaUsage", "description": "Per-user usage counters for quota-capped features." },
+    "test": { "schema": "ConnectionTest", "description": "Firestore connectivity health probe." }
+  }
+}

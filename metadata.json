@@ -1,0 +1,8 @@
+{
+  "name": "DISHA 20-20 (दिशा 20-20) — Competitive Exam Preparation",
+  "description": "DISHA 20-20 (दिशा 20-20) is a premier Indian competitive-exam preparation platform for RAS, REET, Patwar, 1st Grade, and RPSC exams with bilingual MCQs, PYQ Vault, Live Mock Tests, and smart analytics.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

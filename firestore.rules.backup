@@ -1,0 +1,266 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // --- GLOBAL HELPERS & PREDICATES ---
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isEmailVerified() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isAdmin() {
+      // Robust admin check (0 lookups path)
+      return isSignedIn() && 
+             (
+               (request.auth.token.email != null && 
+                request.auth.token.email.lower() in [
+                  'zdpaliyal@gmail.com',
+                  'jagdishpaliyaljat@gmail.com'
+                ])
+                ||
+                // Fallback for emergency admin UIDs
+                request.auth.uid in [
+                  'EMERGENCY_ADMIN_UID_1'
+                ]
+             );
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+
+    // --- GLOBAL SAFETY NET ---
+    match /{document=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Connectivity health probe test doc
+    match /test/{id} {
+      allow read, write: if true;
+    }
+
+    // Emergency Admin Access (Debug)
+    match /{document=**} {
+      allow read, write: if isSignedIn() && 
+                           request.auth.token.email != null && 
+                           request.auth.token.email.lower() in ['zdpaliyal@gmail.com', 'jagdishpaliyaljat@gmail.com'];
+    }
+
+    // User Directory & Private Profiles
+    match /users/{userId} {
+      allow read, write: if isValidId(userId) && (request.auth.uid == userId || isAdmin());
+      
+      match /{allSubcollections=**} {
+        allow read, write: if request.auth.uid == userId || isAdmin();
+      }
+    }
+
+    // Curriculum & Question Bank (Public Read for users, Admin for writes)
+    match /subjects/{id} { 
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /chapters/{id} { 
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /topics/{id} { 
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /mcqs/{id} { 
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /questions/{id} { 
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /question_bundles/{id} { 
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /customQuestions/{id} { 
+      allow read, write: if true; 
+    }
+    
+    // Curriculum Variations
+    match /curriculum_subjects/{id} { allow read, write: if isAdmin() || true; }
+    match /curriculum_chapters/{id} { allow read, write: if isAdmin() || true; }
+    match /curriculum_questions/{id} { allow read, write: if isAdmin() || true; }
+    match /curriculum/{id} { allow read, write: if isAdmin() || true; }
+
+    // Papers & Tests
+    match /pyq_papers/{id} { 
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /pyqPapers/{id} { 
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /live_tests/{id} { 
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /liveTests/{id} { 
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /live-tests/{id} { 
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /tests/{id} { 
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /exam_categories/{id} { 
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /examCategories/{id} { 
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Content & Articles
+    match /banners/{id} { 
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+    match /articles/{articleId} {
+      allow read: if (resource != null && resource.data.get('status', 'published') == 'published') || isAdmin();
+      allow write: if isAdmin();
+
+      match /blocks/{blockId} {
+        // Blocks are inherently part of the article. Visibility is primarily controlled at the article level.
+        // Allowing read here avoids the 10-lookup limit in batches for large articles.
+        allow read: if true;
+        allow write: if isAdmin();
+      }
+    }
+    
+    match /article_categories/{id} { 
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /link_rules/{id} { 
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // --- PREMIUM MEMBERSHIP, UPI PAYMENTS & SCAN AI RULES ---
+    match /premiumPlans/{planId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /appSettings/{settingId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /paymentSubmissions/{submissionId} {
+      allow read: if isAdmin();
+      allow create: if isSignedIn();
+      allow update, delete: if isAdmin();
+    }
+
+    match /subscriptions/{subscriptionId} {
+      allow read: if isAdmin() || (isSignedIn() && existing().userId == request.auth.uid);
+      allow create: if isSignedIn();
+      allow update, delete: if isAdmin();
+    }
+
+    match /scanUsage/{usageId} {
+      allow read, write: if isSignedIn() && (usageId == request.auth.uid || isAdmin());
+    }
+
+    // Student Interaction (Results, Leaderboard)
+    match /attempts/{attemptId} {
+      allow read: if isSignedIn() && (existing().userId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn();
+      allow update, delete: if isAdmin();
+    }
+
+    match /leaderboard/{entryId} {
+      allow read: if true;
+      allow write: if isAdmin() || isSignedIn();
+    }
+
+    match /user_stats_weekly/{statsId} {
+      allow read: if true;
+      allow write: if isAdmin() || isSignedIn();
+    }
+
+    // System, Health & Monitoring
+    match /_health/{id} { 
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /metadata/{id} { allow read: if true; allow write: if isAdmin(); }
+    match /notifications/{id} { allow read: if true; allow write: if isAdmin(); }
+    
+    match /adminAuditLogs/{id} { 
+      allow read: if isAdmin();
+      allow create: if isAdmin();
+      allow update, delete: if false;
+    }
+
+    match /login_attempts/{id} {
+      allow read: if isAdmin();
+      allow create: if true;
+      allow update, delete: if false;
+    }
+
+    match /ai_api_configs/{id} { 
+      allow read: if isAdmin();
+      allow write: if isAdmin();
+    }
+    
+    match /usage_daily/{date}/devices/{deviceId} { 
+      allow read: if isAdmin();
+      allow write: if isAdmin() || (isSignedIn() && deviceId.startsWith('dev_')); 
+    }
+
+    match /analytics_daily/{date} {
+      allow read: if isAdmin();
+      // Allow public writes for visitor tracking (increment only)
+      allow write: if true; 
+    }
+
+    match /contact_messages/{id} {
+      allow read: if isAdmin();
+      allow create: if true;
+      allow update, delete: if isAdmin();
+    }
+    
+    match /liveTestSubmissions/{submissionId} { 
+      allow read: if isAdmin() || (isSignedIn() && existing().userId == request.auth.uid);
+      allow create: if isSignedIn();
+      allow update, delete: if isAdmin();
+    }
+
+    match /examPaperAnalyses/{analysisId} { 
+      allow read: if isSignedIn() && (existing().userId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn();
+      allow update, delete: if isAdmin();
+    }
+
+    match /import_batches/{batchId} { 
+      allow read: if isAdmin();
+      allow write: if isAdmin();
+    }
+  }
+}

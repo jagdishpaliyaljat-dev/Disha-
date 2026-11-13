@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="dishaBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#800020" />
+      <stop offset="100%" stop-color="#520014" />
+    </linearGradient>
+    <linearGradient id="dishaGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E5BC6B" />
+      <stop offset="100%" stop-color="#C99A45" />
+    </linearGradient>
+    <linearGradient id="dishaSaffron" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF9540" />
+      <stop offset="100%" stop-color="#F47B20" />
+    </linearGradient>
+  </defs>
+
+  <!-- App Icon Squircle -->
+  <rect width="512" height="512" rx="118" fill="url(#dishaBg)" />
+
+  <!-- Subtle Rajasthan Jharokha Architectural Arch Frame -->
+  <path
+    d="M116 404 V196 C116 146 172 108 256 76 C340 108 396 146 396 196 V404"
+    fill="none"
+    stroke="url(#dishaGold)"
+    stroke-width="10"
+    stroke-linecap="round"
+    opacity="0.72"
+  />
+
+  <!-- Compass Horizon Circle -->
+  <circle cx="256" cy="242" r="102" fill="none" stroke="#FFF9EF" stroke-width="6" opacity="0.22" />
+  <circle cx="256" cy="128" r="7" fill="url(#dishaGold)" />
+
+  <!-- Forward Sunrise / Directional Arrow (Saffron) -->
+  <path
+    d="M158 286 C192 224 252 178 326 154 L306 134 L374 140 L338 196 L328 174 C264 196 208 238 176 294 Z"
+    fill="url(#dishaSaffron)"
+  />
+
+  <!-- Center Compass Focus Spark -->
+  <path
+    d="M256 176 L268 214 L306 226 L268 238 L256 276 L244 238 L206 226 L244 214 Z"
+    fill="#FFF9EF"
+  />
+
+  <!-- Minimal Open-Book Chevron Base (Ivory + Saffron) -->
+  <path
+    d="M126 350 C176 322 222 324 256 346 C290 324 336 322 386 350 L372 378 C328 354 288 356 256 376 C224 356 184 354 140 378 Z"
+    fill="#FFF9EF"
+  />
+  <path
+    d="M148 390 C188 370 226 372 256 390 C286 372 324 370 364 390"
+    fill="none"
+    stroke="url(#dishaGold)"
+    stroke-width="8"
+    stroke-linecap="round"
+  />
+</svg>

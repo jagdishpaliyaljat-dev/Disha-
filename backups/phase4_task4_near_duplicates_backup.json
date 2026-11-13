@@ -1,0 +1,670 @@
+{
+  "backedUpAt": "2026-11-07T14:57:02.241Z",
+  "nearDuplicatePairsCount": 8,
+  "nearDuplicateDocumentsCount": 16,
+  "preservedRslpDocumentsCount": 4,
+  "pairs": [
+    {
+      "pairNumber": 1,
+      "recommendedDecision": "KEEP_B_ARCHIVE_A",
+      "recommendedKeepId": "usr-q-topic_1b890441-cad7-4e64-82db-4e9680de9f4b-bb4f3317",
+      "reviewCandidateId": "usr-q-topic_1b890441-cad7-4e64-82db-4e9680de9f4b-7a901cc1",
+      "docA": {
+        "id": "usr-q-topic_1b890441-cad7-4e64-82db-4e9680de9f4b-7a901cc1",
+        "inMcqs": false,
+        "inQuestions": true,
+        "chapterTitle": "प्रजामंडल",
+        "topicTitle": "MCQ 1",
+        "payload": {
+          "isUserAdded": true,
+          "importedBy": "CRwHoMjTMkeA5ymmv3jUTm5iyVe2",
+          "importBatchId": "batch_1793298950864",
+          "text": "जैसलमेर प्रजामंडल की स्थापना 1945 ई. में किसने की थी?",
+          "imageUrl": null,
+          "correctIndex": 1,
+          "createdAt": "2026-10-29T18:35:50.864Z",
+          "svgContent": null,
+          "explanation": "मीतलाल व्यास ने 1945 ई. में जोधपुर में जैसलमेर प्रजामंडल की स्थापना की थी।",
+          "updatedAt": "2026-10-30T08:25:16.060Z",
+          "subjectId": "subj-1793114550283-wpeqo",
+          "options": [
+            "जयनारायण व्यास",
+            "मीतलाल व्यास",
+            "किशनलाल जोशी",
+            "हीरालाल शास्त्री"
+          ],
+          "topicId": "topic_1b890441-cad7-4e64-82db-4e9680de9f4b",
+          "importedAt": "2026-10-29T18:35:50.864Z",
+          "id": "usr-q-topic_1b890441-cad7-4e64-82db-4e9680de9f4b-7a901cc1",
+          "chapterId": "custom-ch-1793292191934-f9c1l",
+          "questionType": "single_correct"
+        }
+      },
+      "docB": {
+        "id": "usr-q-topic_1b890441-cad7-4e64-82db-4e9680de9f4b-bb4f3317",
+        "inMcqs": false,
+        "inQuestions": true,
+        "chapterTitle": "प्रजामंडल",
+        "topicTitle": "MCQ 1",
+        "payload": {
+          "explanation": "मीतलाल व्यास ने 1945 ई. में जोधपुर में जैसलमेर प्रजामंडल की स्थापना की थी।",
+          "updatedAt": "2026-10-30T08:25:24.146Z",
+          "importedBy": "CRwHoMjTMkeA5ymmv3jUTm5iyVe2",
+          "subjectId": "subj-1793114550283-wpeqo",
+          "id": "usr-q-topic_1b890441-cad7-4e64-82db-4e9680de9f4b-bb4f3317",
+          "createdAt": "2026-10-29T18:39:32.034Z",
+          "importBatchId": "batch_1793299172035",
+          "correctIndex": 1,
+          "options": [
+            "माणिक्यलाल वर्मा",
+            "मीतलाल व्यास",
+            "जयनारायण व्यास",
+            "हीरालाल शास्त्री"
+          ],
+          "svgContent": null,
+          "isUserAdded": true,
+          "imageUrl": null,
+          "topicId": "topic_1b890441-cad7-4e64-82db-4e9680de9f4b",
+          "chapterId": "custom-ch-1793292191934-f9c1l",
+          "importedAt": "2026-10-29T18:39:32.035Z",
+          "text": "जैसलमेर प्रजामंडल की स्थापना 1945 ई. में किसने की थी?",
+          "questionType": "single_correct"
+        }
+      }
+    },
+    {
+      "pairNumber": 2,
+      "recommendedDecision": "KEEP_A_ARCHIVE_B",
+      "recommendedKeepId": "usr-q-topic_1b890441-cad7-4e64-82db-4e9680de9f4b-977e2b97",
+      "reviewCandidateId": "usr-q-topic_1b890441-cad7-4e64-82db-4e9680de9f4b-a35b00e7",
+      "docA": {
+        "id": "usr-q-topic_1b890441-cad7-4e64-82db-4e9680de9f4b-977e2b97",
+        "inMcqs": false,
+        "inQuestions": true,
+        "chapterTitle": "प्रजामंडल",
+        "topicTitle": "MCQ 3",
+        "payload": {
+          "chapterId": "custom-ch-1793292191934-f9c1l",
+          "id": "usr-q-topic_1b890441-cad7-4e64-82db-4e9680de9f4b-977e2b97",
+          "importedAt": "2026-10-29T18:39:32.035Z",
+          "text": "भरतपुर प्रजामंडल की स्थापना का श्रेय किन्हें दिया गया है?",
+          "questionType": "single_correct",
+          "createdAt": "2026-10-29T18:39:32.034Z",
+          "imageUrl": null,
+          "svgContent": null,
+          "options": [
+            "किशनलाल जोशी आदि",
+            "जयनारायण व्यास आदि",
+            "सागरमल गोपा आदि",
+            "हीरालाल शास्त्री आदि"
+          ],
+          "subjectId": "subj-1793114550283-wpeqo",
+          "topicId": "custom-topic-1793306697578-t3ce7",
+          "explanation": "भरतपुर प्रजामंडल की स्थापना का श्रेय किशनलाल जोशी आदि को दिया गया है।",
+          "updatedAt": "2026-10-30T08:20:19.442Z",
+          "importedBy": "CRwHoMjTMkeA5ymmv3jUTm5iyVe2",
+          "isUserAdded": true,
+          "correctIndex": 0,
+          "importBatchId": "batch_1793299172035"
+        }
+      },
+      "docB": {
+        "id": "usr-q-topic_1b890441-cad7-4e64-82db-4e9680de9f4b-a35b00e7",
+        "inMcqs": false,
+        "inQuestions": true,
+        "chapterTitle": "प्रजामंडल",
+        "topicTitle": "MCQ 3",
+        "payload": {
+          "isUserAdded": true,
+          "correctIndex": 0,
+          "createdAt": "2026-10-29T18:35:50.864Z",
+          "options": [
+            "किशनलाल जोशी आदि",
+            "जयनारायण व्यास आदि",
+            "सागरमल गोपा आदि",
+            "माणिक्यलाल वर्मा आदि"
+          ],
+          "explanation": "भरतपुर प्रजामंडल की स्थापना का श्रेय किशनलाल जोशी आदि को दिया गया है।",
+          "topicId": "custom-topic-1793306697578-t3ce7",
+          "subjectId": "subj-1793114550283-wpeqo",
+          "importedAt": "2026-10-29T18:35:50.864Z",
+          "updatedAt": "2026-10-30T08:20:12.568Z",
+          "id": "usr-q-topic_1b890441-cad7-4e64-82db-4e9680de9f4b-a35b00e7",
+          "svgContent": null,
+          "questionType": "single_correct",
+          "text": "भरतपुर प्रजामंडल की स्थापना का श्रेय किन्हें दिया गया है?",
+          "imageUrl": null,
+          "importedBy": "CRwHoMjTMkeA5ymmv3jUTm5iyVe2",
+          "chapterId": "custom-ch-1793292191934-f9c1l",
+          "importBatchId": "batch_1793298950864"
+        }
+      }
+    },
+    {
+      "pairNumber": 3,
+      "recommendedDecision": "KEEP_A_ARCHIVE_B",
+      "recommendedKeepId": "usr-q-custom-topic-1793170599393-s4yys-3ce7f48d",
+      "reviewCandidateId": "usr-q-custom-topic-1793170599393-s4yys-86d42d44",
+      "docA": {
+        "id": "usr-q-custom-topic-1793170599393-s4yys-3ce7f48d",
+        "inMcqs": true,
+        "inQuestions": false,
+        "chapterTitle": "भौतिक प्रदेश",
+        "topicTitle": "मरुस्थल",
+        "payload": {
+          "createdAt": "2026-10-28T14:03:20.338Z",
+          "questionType": "single_correct",
+          "updatedAt": "2026-10-28T14:03:20.339Z",
+          "subjectId": "subj-1793126120889-0jzu2",
+          "text": "एक-दूसरे से जुड़े हुए बालुका स्तूपों को क्या कहा जाता है?",
+          "importedAt": "2026-10-28T14:03:20.339Z",
+          "imageUrl": null,
+          "svgContent": null,
+          "isUserAdded": true,
+          "chapterId": "custom-ch-1793170570488-95wl6",
+          "correctIndex": 2,
+          "id": "usr-q-custom-topic-1793170599393-s4yys-3ce7f48d",
+          "explanation": "एक-दूसरे से जुड़े हुए बालुका स्तूपों को नेटवर्क बालुका स्तूप कहा जाता है। इनकी प्रमुख विशेषता अनेक बालुका स्तूपों का परस्पर जुड़कर जाल जैसी संरचना बनाना है।",
+          "importBatchId": "batch_1793196200338",
+          "options": [
+            "अवरोधी बालुका स्तूप",
+            "जैविक अवरोधी बालुका स्तूप",
+            "नेटवर्क बालुका स्तूप",
+            "अनुदैर्ध्य बालुका स्तूप"
+          ],
+          "importedBy": "CRwHoMjTMkeA5ymmv3jUTm5iyVe2",
+          "topicId": "custom-topic-1793170599393-s4yys"
+        }
+      },
+      "docB": {
+        "id": "usr-q-custom-topic-1793170599393-s4yys-86d42d44",
+        "inMcqs": true,
+        "inQuestions": false,
+        "chapterTitle": "भौतिक प्रदेश",
+        "topicTitle": "मरुस्थल",
+        "payload": {
+          "questionType": "single_correct",
+          "createdAt": "2026-10-28T13:46:38.675Z",
+          "isUserAdded": true,
+          "subjectId": "subj-1793126120889-0jzu2",
+          "text": "एक-दूसरे से जुड़े हुए बालुका स्तूपों को क्या कहा जाता है?",
+          "updatedAt": "2026-10-28T13:46:38.676Z",
+          "explanation": "एक-दूसरे से जुड़े हुए बालुका स्तूपों को 'नेटवर्क बालुका स्तूप' कहा जाता है।",
+          "id": "usr-q-custom-topic-1793170599393-s4yys-86d42d44",
+          "importedAt": "2026-10-28T13:46:38.676Z",
+          "options": [
+            "बरखान बालुका स्तूप",
+            "नेटवर्क बालुका स्तूप",
+            "अवरोधी बालुका स्तूप",
+            "तारातुनुमा बालुका स्तूप"
+          ],
+          "svgContent": null,
+          "correctIndex": 1,
+          "chapterId": "custom-ch-1793170570488-95wl6",
+          "topicId": "custom-topic-1793170599393-s4yys",
+          "imageUrl": null,
+          "importBatchId": "batch_1793195198675",
+          "importedBy": "CRwHoMjTMkeA5ymmv3jUTm5iyVe2"
+        }
+      }
+    },
+    {
+      "pairNumber": 4,
+      "recommendedDecision": "KEEP_B_ARCHIVE_A",
+      "recommendedKeepId": "usr-q-custom-topic-1793631902901-tyc4n-327a7ef3",
+      "reviewCandidateId": "usr-q-custom-topic-1793631902901-tyc4n-197d041d",
+      "docA": {
+        "id": "usr-q-custom-topic-1793631902901-tyc4n-197d041d",
+        "inMcqs": true,
+        "inQuestions": false,
+        "chapterTitle": "अपवाह तंत्र और नदियां",
+        "topicTitle": "MCQ 04",
+        "payload": {
+          "options": [
+            "जोजड़ी",
+            "बांडी",
+            "वाकल",
+            "जवाई"
+          ],
+          "svgContent": null,
+          "topicId": "custom-topic-1793959310218-5v9bo",
+          "importedBy": "CRwHoMjTMkeA5ymmv3jUTm5iyVe2",
+          "createdAt": "2026-11-02T15:42:24.766Z",
+          "questionType": "single_correct",
+          "updatedAt": "2026-11-06T14:26:59.495Z",
+          "importBatchId": "batch_1793634144766",
+          "subjectId": "subj-1793126120889-0jzu2",
+          "isUserAdded": true,
+          "imageUrl": null,
+          "text": "निम्नलिखित में से कौन-सी नदी साबरमती की सहायक नदी है?",
+          "id": "usr-q-custom-topic-1793631902901-tyc4n-197d041d",
+          "explanation": "वाकल नदी साबरमती की सहायक नदियों में शामिल है।",
+          "chapterId": "custom-ch-1793631882188-aw7g0",
+          "correctIndex": 2,
+          "importedAt": "2026-11-02T15:42:24.768Z"
+        }
+      },
+      "docB": {
+        "id": "usr-q-custom-topic-1793631902901-tyc4n-327a7ef3",
+        "inMcqs": true,
+        "inQuestions": false,
+        "chapterTitle": "अपवाह तंत्र और नदियां",
+        "topicTitle": "MCQ 04",
+        "payload": {
+          "importedBy": "CRwHoMjTMkeA5ymmv3jUTm5iyVe2",
+          "importBatchId": "batch_1793634598480",
+          "explanation": "वाकल साबरमती की प्रमुख सहायक नदी है। जोजड़ी, बांडी एवं सुकड़ी लूनी नदी तंत्र से संबंधित हैं।",
+          "updatedAt": "2026-11-06T14:26:59.495Z",
+          "isUserAdded": true,
+          "questionType": "single_correct",
+          "svgContent": null,
+          "subjectId": "subj-1793126120889-0jzu2",
+          "createdAt": "2026-11-02T15:49:58.479Z",
+          "id": "usr-q-custom-topic-1793631902901-tyc4n-327a7ef3",
+          "options": [
+            "जोजड़ी",
+            "बांडी",
+            "वाकल",
+            "सुकड़ी"
+          ],
+          "text": "निम्नलिखित में से कौन-सी नदी साबरमती की सहायक नदी है?",
+          "topicId": "custom-topic-1793959310218-5v9bo",
+          "importedAt": "2026-11-02T15:49:58.481Z",
+          "imageUrl": null,
+          "chapterId": "custom-ch-1793631882188-aw7g0",
+          "correctIndex": 2
+        }
+      }
+    },
+    {
+      "pairNumber": 5,
+      "recommendedDecision": "KEEP_B_ARCHIVE_A",
+      "recommendedKeepId": "usr-q-custom-topic-1793631902901-tyc4n-c730cab3",
+      "reviewCandidateId": "usr-q-custom-topic-1793631902901-tyc4n-2e6bc288",
+      "docA": {
+        "id": "usr-q-custom-topic-1793631902901-tyc4n-2e6bc288",
+        "inMcqs": true,
+        "inQuestions": false,
+        "chapterTitle": "अपवाह तंत्र और नदियां",
+        "topicTitle": "MCQ 04",
+        "payload": {
+          "imageUrl": null,
+          "updatedAt": "2026-11-06T14:26:59.498Z",
+          "id": "usr-q-custom-topic-1793631902901-tyc4n-2e6bc288",
+          "options": [
+            "सेई जल सुरंग",
+            "मानसी-वाकल जल सुरंग",
+            "जवाई जल सुरंग",
+            "माही जल सुरंग"
+          ],
+          "importBatchId": "batch_1793634144766",
+          "subjectId": "subj-1793126120889-0jzu2",
+          "importedBy": "CRwHoMjTMkeA5ymmv3jUTm5iyVe2",
+          "isUserAdded": true,
+          "topicId": "custom-topic-1793959310218-5v9bo",
+          "questionType": "single_correct",
+          "createdAt": "2026-11-02T15:42:24.766Z",
+          "explanation": "मानसी-वाकल जल सुरंग राजस्थान की सबसे लंबी जल सुरंग है, जिसकी लंबाई लगभग 11 किमी है।",
+          "svgContent": null,
+          "correctIndex": 1,
+          "importedAt": "2026-11-02T15:42:24.768Z",
+          "chapterId": "custom-ch-1793631882188-aw7g0",
+          "text": "राजस्थान की सबसे लंबी जल सुरंग कौन-सी है?"
+        }
+      },
+      "docB": {
+        "id": "usr-q-custom-topic-1793631902901-tyc4n-c730cab3",
+        "inMcqs": true,
+        "inQuestions": false,
+        "chapterTitle": "अपवाह तंत्र और नदियां",
+        "topicTitle": "MCQ 04",
+        "payload": {
+          "svgContent": null,
+          "text": "राजस्थान की सबसे लंबी जल सुरंग कौन-सी है?",
+          "isUserAdded": true,
+          "questionType": "single_correct",
+          "explanation": "मानसी-वाकल जल सुरंग की लंबाई लगभग 11 किमी है तथा इसे राजस्थान की सबसे लंबी जल सुरंग बताया गया है।",
+          "importedBy": "CRwHoMjTMkeA5ymmv3jUTm5iyVe2",
+          "id": "usr-q-custom-topic-1793631902901-tyc4n-c730cab3",
+          "chapterId": "custom-ch-1793631882188-aw7g0",
+          "imageUrl": null,
+          "correctIndex": 1,
+          "importBatchId": "batch_1793634598480",
+          "options": [
+            "सेई जल सुरंग",
+            "मानसी-वाकल जल सुरंग",
+            "जवाई जल सुरंग",
+            "देवास जल सुरंग"
+          ],
+          "createdAt": "2026-11-02T15:49:58.479Z",
+          "subjectId": "subj-1793126120889-0jzu2",
+          "topicId": "custom-topic-1793959310218-5v9bo",
+          "updatedAt": "2026-11-06T14:26:59.498Z",
+          "importedAt": "2026-11-02T15:49:58.481Z"
+        }
+      }
+    },
+    {
+      "pairNumber": 6,
+      "recommendedDecision": "KEEP_B_ARCHIVE_A",
+      "recommendedKeepId": "usr-q-custom-topic-1793631902901-tyc4n-f356e149",
+      "reviewCandidateId": "usr-q-custom-topic-1793631902901-tyc4n-5b7d4002",
+      "docA": {
+        "id": "usr-q-custom-topic-1793631902901-tyc4n-5b7d4002",
+        "inMcqs": true,
+        "inQuestions": false,
+        "chapterTitle": "अपवाह तंत्र और नदियां",
+        "topicTitle": "MCQ 05",
+        "payload": {
+          "importBatchId": "batch_1793635160960",
+          "imageUrl": null,
+          "chapterId": "custom-ch-1793631882188-aw7g0",
+          "text": "बांडी नदी का उद्गम स्थल कौन-सा है?",
+          "importedAt": "2026-11-02T15:59:20.962Z",
+          "questionType": "single_correct",
+          "options": [
+            "देसूरी",
+            "फुलाद",
+            "पोकरण",
+            "शेरगाँव"
+          ],
+          "topicId": "custom-topic-1793959319870-pdtu2",
+          "createdAt": "2026-11-02T15:59:20.960Z",
+          "correctIndex": 1,
+          "importedBy": "CRwHoMjTMkeA5ymmv3jUTm5iyVe2",
+          "explanation": "बांडी नदी का उद्गम फुलाद, पाली क्षेत्र में होता है।",
+          "subjectId": "subj-1793126120889-0jzu2",
+          "updatedAt": "2026-11-06T14:26:59.500Z",
+          "id": "usr-q-custom-topic-1793631902901-tyc4n-5b7d4002",
+          "isUserAdded": true,
+          "svgContent": null
+        }
+      },
+      "docB": {
+        "id": "usr-q-custom-topic-1793631902901-tyc4n-f356e149",
+        "inMcqs": true,
+        "inQuestions": false,
+        "chapterTitle": "अपवाह तंत्र और नदियां",
+        "topicTitle": "MCQ 05",
+        "payload": {
+          "importedBy": "CRwHoMjTMkeA5ymmv3jUTm5iyVe2",
+          "explanation": "बांडी नदी का उद्गम फूलाद (पाली) से होता है।",
+          "isUserAdded": true,
+          "createdAt": "2026-11-02T15:24:17.829Z",
+          "svgContent": null,
+          "correctIndex": 2,
+          "options": [
+            "पोकरण (नागौर)",
+            "देसूरी (पाली)",
+            "फूलाद (पाली)",
+            "जसवंतपुरा पहाड़ी (जालोर)"
+          ],
+          "topicId": "custom-topic-1793959319870-pdtu2",
+          "text": "बांडी नदी का उद्गम स्थल कौन-सा है?",
+          "subjectId": "subj-1793126120889-0jzu2",
+          "updatedAt": "2026-11-06T14:26:59.500Z",
+          "importBatchId": "batch_1793633057830",
+          "id": "usr-q-custom-topic-1793631902901-tyc4n-f356e149",
+          "importedAt": "2026-11-02T15:24:17.833Z",
+          "chapterId": "custom-ch-1793631882188-aw7g0",
+          "imageUrl": null,
+          "questionType": "single_correct"
+        }
+      }
+    },
+    {
+      "pairNumber": 7,
+      "recommendedDecision": "KEEP_BOTH",
+      "recommendedKeepId": "BOTH",
+      "reviewCandidateId": "NONE",
+      "docA": {
+        "id": "usr-q-topic_6fe378d2-a022-4a46-a137-982685e5e645-862e33b9",
+        "inMcqs": true,
+        "inQuestions": false,
+        "chapterTitle": "राजस्थान का एकीकरण",
+        "topicTitle": "MCQ",
+        "payload": {
+          "createdAt": "2026-10-28T19:54:44.813Z",
+          "subjectId": "subj-1793114550283-wpeqo",
+          "explanation": "मत्स्य संघ का गठन अलवर, भरतपुर, धौलपुर और करौली रियासतों को मिलाकर किया गया था। इन चारों रियासतों का आकार छोटा था और वे भारत सरकार द्वारा निर्धारित मानदंडों के अनुसार स्वतंत्र अस्तित्व बनाए रखने योग्य नहीं मानी गई थीं।",
+          "updatedAt": "2026-10-28T19:54:44.814Z",
+          "importedBy": "CRwHoMjTMkeA5ymmv3jUTm5iyVe2",
+          "isUserAdded": true,
+          "correctIndex": 1,
+          "svgContent": null,
+          "importedAt": "2026-10-28T19:54:44.814Z",
+          "chapterId": "custom-ch-1793216900259-r5wpm",
+          "importBatchId": "batch_1793217284813",
+          "text": "मत्स्य संघ का गठन किन चार रियासतों को मिलाकर किया गया था?",
+          "options": [
+            "अलवर, भरतपुर, जयपुर और धौलपुर",
+            "अलवर, भरतपुर, धौलपुर और करौली",
+            "भरतपुर, धौलपुर, करौली और कोटा",
+            "अलवर, करौली, बूंदी और धौलपुर"
+          ],
+          "id": "usr-q-topic_6fe378d2-a022-4a46-a137-982685e5e645-862e33b9",
+          "imageUrl": null,
+          "topicId": "topic_6fe378d2-a022-4a46-a137-982685e5e645",
+          "questionType": "single_correct"
+        }
+      },
+      "docB": {
+        "id": "usr-q-topic_71e6775a-791a-4f7a-8596-2a4594026a1f-ecb0c0bd",
+        "inMcqs": true,
+        "inQuestions": false,
+        "chapterTitle": "राजस्थान का एकीकरण",
+        "topicTitle": "MCQ 2",
+        "payload": {
+          "text": "मत्स्य संघ का गठन किन चार रियासतों को मिलाकर किया गया था?",
+          "subjectId": "subj-1793114550283-wpeqo",
+          "importedAt": "2026-10-29T15:48:00.109Z",
+          "questionType": "single_correct",
+          "updatedAt": "2026-10-29T15:48:00.109Z",
+          "createdAt": "2026-10-29T15:48:00.108Z",
+          "imageUrl": null,
+          "isUserAdded": true,
+          "svgContent": null,
+          "id": "usr-q-topic_71e6775a-791a-4f7a-8596-2a4594026a1f-ecb0c0bd",
+          "chapterId": "custom-ch-1793216900259-r5wpm",
+          "topicId": "topic_71e6775a-791a-4f7a-8596-2a4594026a1f",
+          "importedBy": "CRwHoMjTMkeA5ymmv3jUTm5iyVe2",
+          "options": [
+            "अलवर, भरतपुर, करौली और धौलपुर",
+            "जयपुर, जोधपुर, बीकानेर और जैसलमेर",
+            "कोटा, बूंदी, झालावाड़ और टोंक",
+            "उदयपुर, डूंगरपुर, बांसवाड़ा और प्रतापगढ़"
+          ],
+          "importBatchId": "batch_1793288880108",
+          "explanation": "मत्स्य संघ का गठन 18 मार्च, 1948 को अलवर, भरतपुर, करौली और धौलपुर को मिलाकर किया गया था। आगे चलकर इस संघ के विलय का प्रश्न राजस्थान के एकीकरण का महत्वपूर्ण हिस्सा बना।",
+          "correctIndex": 0
+        }
+      }
+    },
+    {
+      "pairNumber": 8,
+      "recommendedDecision": "KEEP_B_ARCHIVE_A",
+      "recommendedKeepId": "usr-q-topic_e89b3d36-6f52-41b8-b686-f1267a4b8bc6-3f1530d5",
+      "reviewCandidateId": "usr-q-topic_c2208d91-3aec-45a4-9fec-b0bd2aaffb3e-6fd7bd9",
+      "docA": {
+        "id": "usr-q-topic_c2208d91-3aec-45a4-9fec-b0bd2aaffb3e-6fd7bd9",
+        "inMcqs": true,
+        "inQuestions": false,
+        "chapterTitle": "INDUSTRY",
+        "topicTitle": "MCQ 3",
+        "payload": {
+          "imageUrl": null,
+          "questionType": "single_correct",
+          "createdAt": "2026-10-28T17:21:41.220Z",
+          "importBatchId": "batch_1793208101220",
+          "id": "usr-q-topic_c2208d91-3aec-45a4-9fec-b0bd2aaffb3e-6fd7bd9",
+          "subjectId": "subj-1793126301974-it6mm",
+          "updatedAt": "2026-10-28T17:21:41.221Z",
+          "importedAt": "2026-10-28T17:21:41.221Z",
+          "correctIndex": 1,
+          "svgContent": null,
+          "isUserAdded": true,
+          "explanation": "राज निवेश पोर्टल को 2 मई, 2024 को सिंगल विंडो क्लियरेंस सिस्टम से जोड़ा गया।",
+          "options": [
+            "1 जनवरी, 2023",
+            "2 मई, 2024",
+            "15 अगस्त, 2024",
+            "1 अप्रैल, 2025"
+          ],
+          "importedBy": "CRwHoMjTMkeA5ymmv3jUTm5iyVe2",
+          "chapterId": "custom-ch-1793205795234-q2qgn",
+          "text": "राज निवेश पोर्टल को सिंगल विंडो क्लियरेंस सिस्टम से कब जोड़ा गया?",
+          "topicId": "topic_c2208d91-3aec-45a4-9fec-b0bd2aaffb3e"
+        }
+      },
+      "docB": {
+        "id": "usr-q-topic_e89b3d36-6f52-41b8-b686-f1267a4b8bc6-3f1530d5",
+        "inMcqs": true,
+        "inQuestions": false,
+        "chapterTitle": "INDUSTRY",
+        "topicTitle": "MCQ 2",
+        "payload": {
+          "isUserAdded": true,
+          "options": [
+            "2 मई 2022",
+            "2 मई 2023",
+            "2 मई 2024",
+            "2 मई 2025"
+          ],
+          "importBatchId": "batch_1793206741019",
+          "topicId": "topic_e89b3d36-6f52-41b8-b686-f1267a4b8bc6",
+          "svgContent": null,
+          "updatedAt": "2026-10-28T16:59:01.019Z",
+          "questionType": "single_correct",
+          "subjectId": "subj-1793126301974-it6mm",
+          "explanation": "राज निवेश पोर्टल को 2 मई 2024 को सिंगल विंडो क्लियरेंस सिस्टम से जोड़ा गया। इसका उद्देश्य निवेश प्रस्तावों की स्वीकृति को अधिक सुव्यवस्थित और सुविधाजनक बनाना है।",
+          "createdAt": "2026-10-28T16:59:01.019Z",
+          "importedBy": "CRwHoMjTMkeA5ymmv3jUTm5iyVe2",
+          "imageUrl": null,
+          "id": "usr-q-topic_e89b3d36-6f52-41b8-b686-f1267a4b8bc6-3f1530d5",
+          "importedAt": "2026-10-28T16:59:01.019Z",
+          "chapterId": "custom-ch-1793205795234-q2qgn",
+          "text": "राज निवेश पोर्टल को सिंगल विंडो क्लियरेंस सिस्टम से कब जोड़ा गया?",
+          "correctIndex": 2
+        }
+      }
+    }
+  ],
+  "preservedRslpQuestions": [
+    {
+      "id": "usr-q-custom-topic-1793693900482-xpvow-5963e7df",
+      "inMcqs": true,
+      "inQuestions": false,
+      "payload": {
+        "id": "usr-q-custom-topic-1793693900482-xpvow-5963e7df",
+        "topicId": "custom-topic-1793959456575-1gugi",
+        "updatedAt": "2026-11-06T14:26:59.520Z",
+        "subjectId": "subj-1793126120889-0jzu2",
+        "isUserAdded": true,
+        "importedBy": "CRwHoMjTMkeA5ymmv3jUTm5iyVe2",
+        "options": [
+          "ब्यावर",
+          "डूंगरपुर",
+          "बांसवाड़ा",
+          "जालौर"
+        ],
+        "createdAt": "2026-11-03T14:05:12.420Z",
+        "imageUrl": null,
+        "importBatchId": "batch_1793714712420",
+        "svgContent": null,
+        "correctIndex": 0,
+        "explanation": "ब्यावर RSLP के लाभान्वित जिलों की सूची में शामिल है।",
+        "importedAt": "2026-11-03T14:05:12.420Z",
+        "chapterId": "custom-ch-1793691805813-wj58c",
+        "text": "निम्नलिखित में से कौन-सा जिला RSLP के लाभान्वित जिलों में शामिल है?",
+        "questionType": "single_correct"
+      }
+    },
+    {
+      "id": "usr-q-custom-topic-1793693900482-xpvow-6f557464",
+      "inMcqs": true,
+      "inQuestions": false,
+      "payload": {
+        "svgContent": null,
+        "id": "usr-q-custom-topic-1793693900482-xpvow-6f557464",
+        "subjectId": "subj-1793126120889-0jzu2",
+        "updatedAt": "2026-11-06T14:26:59.520Z",
+        "correctIndex": 1,
+        "createdAt": "2026-11-03T14:05:12.420Z",
+        "isUserAdded": true,
+        "importedBy": "CRwHoMjTMkeA5ymmv3jUTm5iyVe2",
+        "explanation": "बूंदी RSLP के लाभान्वित जिलों की सूची में शामिल है।",
+        "options": [
+          "पाली",
+          "बूंदी",
+          "जोधपुर",
+          "बीकानेर"
+        ],
+        "imageUrl": null,
+        "topicId": "custom-topic-1793959456575-1gugi",
+        "chapterId": "custom-ch-1793691805813-wj58c",
+        "questionType": "single_correct",
+        "text": "निम्नलिखित में से कौन-सा जिला RSLP के लाभान्वित जिलों में शामिल है?",
+        "importedAt": "2026-11-03T14:05:12.420Z",
+        "importBatchId": "batch_1793714712420"
+      }
+    },
+    {
+      "id": "usr-q-custom-topic-1793693900482-xpvow-9132a410",
+      "inMcqs": true,
+      "inQuestions": false,
+      "payload": {
+        "correctIndex": 0,
+        "chapterId": "custom-ch-1793691805813-wj58c",
+        "explanation": "डीग RSLP के लाभान्वित जिलों की सूची में शामिल है।",
+        "id": "usr-q-custom-topic-1793693900482-xpvow-9132a410",
+        "importedAt": "2026-11-03T14:05:12.420Z",
+        "text": "RSLP के लाभान्वित जिलों में निम्नलिखित में से कौन-सा जिला शामिल है?",
+        "isUserAdded": true,
+        "updatedAt": "2026-11-06T14:26:59.523Z",
+        "imageUrl": null,
+        "options": [
+          "डीग",
+          "सीकर",
+          "चूरू",
+          "झुंझुनूं"
+        ],
+        "importBatchId": "batch_1793714712420",
+        "subjectId": "subj-1793126120889-0jzu2",
+        "questionType": "single_correct",
+        "svgContent": null,
+        "createdAt": "2026-11-03T14:05:12.420Z",
+        "topicId": "custom-topic-1793959464512-b37ef",
+        "importedBy": "CRwHoMjTMkeA5ymmv3jUTm5iyVe2"
+      }
+    },
+    {
+      "id": "usr-q-custom-topic-1793693900482-xpvow-f7c690e6",
+      "inMcqs": true,
+      "inQuestions": false,
+      "payload": {
+        "importedBy": "CRwHoMjTMkeA5ymmv3jUTm5iyVe2",
+        "questionType": "single_correct",
+        "createdAt": "2026-11-03T14:05:12.420Z",
+        "updatedAt": "2026-11-06T14:26:59.523Z",
+        "isUserAdded": true,
+        "subjectId": "subj-1793126120889-0jzu2",
+        "svgContent": null,
+        "explanation": "कोटपूतली-बहरोड़ RSLP के लाभान्वित जिलों की सूची में शामिल है।",
+        "text": "RSLP के लाभान्वित जिलों में निम्नलिखित में से कौन-सा जिला शामिल है?",
+        "topicId": "custom-topic-1793959464512-b37ef",
+        "imageUrl": null,
+        "correctIndex": 0,
+        "importedAt": "2026-11-03T14:05:12.420Z",
+        "options": [
+          "कोटपूतली-बहरोड़",
+          "श्रीगंगानगर",
+          "जैसलमेर",
+          "प्रतापगढ़"
+        ],
+        "chapterId": "custom-ch-1793691805813-wj58c",
+        "id": "usr-q-custom-topic-1793693900482-xpvow-f7c690e6",
+        "importBatchId": "batch_1793714712420"
+      }
+    }
+  ]
+}

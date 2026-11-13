@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://disha2020.in/sitemap.xml

@@ -1,0 +1,242 @@
+import React, { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "motion/react";
+import { 
+  Trophy, 
+  Award, 
+  Medal, 
+  Users, 
+  Flame, 
+  RefreshCw, 
+  CheckCircle2, 
+  Clock, 
+  Sparkles, 
+  User, 
+  ChevronRight,
+  TrendingUp,
+  Target,
+  Zap,
+  Calendar
+} from "lucide-react";
+import { UserProfile } from "../types";
+import { db, auth } from "../lib/firebase";
+import { collection, query, where, orderBy, limit, getDocs } from "firebase/firestore";
+import { guardedGetDocs } from "../utils/quotaTracker";
+import { getStartOfWeekId } from "../utils/firebaseSyncService";
+
+export interface WeeklyLeaderboardEntry {
+  userId: string;
+  userName: string;
+  userPhoto?: string;
+  weekId: string;
+  totalAttempted: number;
+  totalCorrect: number;
+  averageAccuracy: number;
+  totalPoints: number;
+  updatedAt: string;
+}
+
+interface WeeklyLeaderboardProps {
+  userProfile?: UserProfile | null;
+  className?: string;
+}
+
+const WeeklyLeaderboard: React.FC<WeeklyLeaderboardProps> = ({
+  userProfile,
+  className = "",
+}) => {
+  const [entries, setEntries] = useState<WeeklyLeaderboardEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const currentWeekId = getStartOfWeekId();
+  const currentUserId = userProfile?.id || auth.currentUser?.uid;
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function fetchLeaderboard() {
+      setLoading(true);
+      try {
+        const statsRef = collection(db, "user_stats_weekly");
+        const q = query(
+          statsRef, 
+          where("weekId", "==", currentWeekId),
+          orderBy("totalPoints", "desc"),
+          limit(20)
+        );
+        
+        const snap = await guardedGetDocs(q, "Student", "Fetch Weekly Leaderboard");
+        const cloudEntries: WeeklyLeaderboardEntry[] = [];
+        
+        if (!snap.empty) {
+          snap.forEach((docSnap) => {
+            cloudEntries.push(docSnap.data() as WeeklyLeaderboardEntry);
+          });
+        }
+
+        if (isMounted) {
+          setEntries(cloudEntries);
+          setLoading(false);
+        }
+      } catch (err) {
+        console.error("Error fetching weekly leaderboard:", err);
+        if (isMounted) setLoading(false);
+      }
+    }
+
+    fetchLeaderboard();
+    return () => { isMounted = false; };
+  }, [currentWeekId]);
+
+  const userRankIndex = entries.findIndex((e) => e.userId === currentUserId);
+  const userRank = userRankIndex !== -1 ? userRankIndex + 1 : null;
+
+  const getRankBadge = (rank: number) => {
+    if (rank === 1) return <span className="text-xl">🥇</span>;
+    if (rank === 2) return <span className="text-xl">🥈</span>;
+    if (rank === 3) return <span className="text-xl">🥉</span>;
+    return <span className="text-xs font-black text-slate-400 font-mono">#{rank}</span>;
+  };
+
+  return (
+    <div className={`bg-white dark:bg-[#111A2E] border border-slate-200/90 dark:border-slate-800 rounded-3xl overflow-hidden shadow-sm ${className}`}>
+      {/* Header */}
+      <div className="px-4 py-2.5 border-b border-slate-100 dark:border-slate-800/80 flex items-center justify-between bg-slate-50/50 dark:bg-slate-900/30">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+            <Trophy size={16} className="fill-amber-500/20" />
+          </div>
+          <div>
+            <h3 className="text-[13px] font-black text-slate-900 dark:text-white uppercase tracking-wider">Weekly Leaderboard</h3>
+            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1">
+              <Calendar size={9} />
+              <span>Week: {currentWeekId}</span>
+            </p>
+          </div>
+        </div>
+        <div className="bg-blue-600/10 text-blue-600 dark:text-blue-400 px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-wider border border-blue-600/20">
+          Rankings
+        </div>
+      </div>
+
+      {/* User's Current Standing (If ranked) */}
+      {userRank && (
+        <div className="mx-3 mt-3 p-3 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-lg shadow-blue-600/20 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-white/20 backdrop-blur-md flex flex-col items-center justify-center border border-white/30">
+              <span className="text-[7px] font-black uppercase leading-none mb-0.5">Rank</span>
+              <span className="text-xs font-black font-mono leading-none">#{userRank}</span>
+            </div>
+            <div>
+              <div className="flex items-center gap-1.5 min-w-0">
+                <span className="text-[11px] font-black truncate max-w-[120px]">{userProfile?.name || "You"}</span>
+                <span className="px-1 py-0.5 rounded bg-amber-400 text-slate-900 text-[7px] font-black uppercase shrink-0">Champion</span>
+              </div>
+              <p className="text-[9px] text-blue-100 font-bold mt-0.5">Keep pushing to reach #1!</p>
+            </div>
+          </div>
+          <div className="text-right font-mono">
+            <span className="text-xs font-black block">{entries[userRankIndex].totalPoints} pts</span>
+            <span className="text-[8px] font-bold text-emerald-300 block">{entries[userRankIndex].averageAccuracy}% Acc</span>
+          </div>
+        </div>
+      )}
+
+      {/* Main List */}
+      <div className="p-3 space-y-1.5">
+        {loading ? (
+          <div className="py-8 text-center space-y-2.5">
+            <RefreshCw className="w-5 h-5 text-blue-500 animate-spin mx-auto" />
+            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Syncing Rankings...</p>
+          </div>
+        ) : entries.length === 0 ? (
+          <div className="py-8 text-center space-y-2 bg-slate-50 dark:bg-slate-900/40 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800">
+            <Users className="w-6 h-6 text-slate-300 mx-auto" />
+            <p className="text-[11px] font-bold text-slate-400">No attempts this week yet.</p>
+            <p className="text-[9px] text-slate-500 font-medium">Start practicing to secure the top rank!</p>
+          </div>
+        ) : (
+          <div className="space-y-1.5">
+            {entries.map((entry, idx) => {
+              const rank = idx + 1;
+              const isUser = entry.userId === currentUserId;
+
+              return (
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  key={entry.userId}
+                  className={`p-2.5 rounded-2xl border flex items-center justify-between gap-2.5 transition-all ${
+                    isUser
+                      ? "bg-blue-50/50 dark:bg-blue-950/20 border-blue-500 shadow-sm ring-1 ring-blue-500/20"
+                      : "bg-white dark:bg-[#151E2D] border-slate-100 dark:border-slate-800"
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                    <div className="w-7 h-7 flex items-center justify-center shrink-0">
+                      {rank === 1 ? <span className="text-lg">🥇</span> : 
+                       rank === 2 ? <span className="text-lg">🥈</span> : 
+                       rank === 3 ? <span className="text-lg">🥉</span> : 
+                       <span className="text-[10px] font-black text-slate-400 font-mono">#{rank}</span>}
+                    </div>
+                    
+                    {/* User Avatar */}
+                    <div className="w-8 h-8 rounded-full border-2 border-white dark:border-slate-800 overflow-hidden shrink-0 bg-slate-100 dark:bg-slate-800 shadow-sm">
+                      <img 
+                        src={entry.userPhoto || `https://api.dicebear.com/7.x/avataaars/svg?seed=${entry.userName}`} 
+                        alt="Avatar" 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1">
+                        <span className={`text-[11px] font-black truncate ${isUser ? "text-blue-700 dark:text-blue-400" : "text-slate-800 dark:text-white"}`}>
+                          {entry.userName}
+                        </span>
+                        {rank <= 3 && <Sparkles size={9} className="text-amber-500 fill-amber-500" />}
+                      </div>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className="text-[8px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                          {entry.totalAttempted} Qs Attempted
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="text-right shrink-0">
+                    <div className="text-[11px] font-black text-slate-900 dark:text-white font-mono">
+                      {entry.totalPoints} <span className="text-[8px] font-bold text-slate-400">PTS</span>
+                    </div>
+                    <div className={`text-[9px] font-bold font-mono ${
+                      entry.averageAccuracy >= 80 ? "text-emerald-500" : 
+                      entry.averageAccuracy >= 60 ? "text-blue-500" : 
+                      "text-amber-500"
+                    }`}>
+                      {entry.averageAccuracy}% <span className="text-[7px] uppercase">Acc</span>
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Footer Info */}
+      <div className="px-4 py-2 bg-slate-50 dark:bg-slate-900/40 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+        <div className="flex items-center gap-1.5 text-[8px] font-black text-slate-400 uppercase tracking-widest">
+          <Zap size={9} className="text-amber-500 fill-amber-500" />
+          <span>Practice daily to earn points</span>
+        </div>
+        <button 
+          onClick={() => window.location.reload()}
+          className="text-blue-600 dark:text-blue-400 text-[8px] font-black uppercase tracking-widest hover:underline flex items-center gap-1 cursor-pointer"
+        >
+          <RefreshCw size={9} />
+          Refresh
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default WeeklyLeaderboard;

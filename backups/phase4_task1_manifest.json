@@ -1,0 +1,21 @@
+{
+  "manifestVersion": "1.0",
+  "task": "TASK_1",
+  "taskTitle": "Test Artifact Safe Deletion",
+  "targetDocumentId": "mcq_09438c73c6f03f6d33976f780ea87e31",
+  "targetCollection": "mcqs",
+  "currentValue": {
+    "id": "mcq_09438c73c6f03f6d33976f780ea87e31",
+    "text": "TEST_Question Text?",
+    "topicId": "TEST_top_1",
+    "chapterId": "TEST_ch_1",
+    "subjectId": "economics"
+  },
+  "proposedOperation": "DELETE_SINGLE_TEST_ARTIFACT",
+  "reason": "Synthetic test question created during E2E verification; 0 user references, 0 progress links.",
+  "backupReference": "phase4_task1_test_artifact_backup.json",
+  "backupNormalizedSha256": "799587eec521e2ef84351a9f802d28540980ac97ea567c4439c6b7c42f39d274",
+  "eligibilityStatus": "ELIGIBLE_FOR_DELETION",
+  "liveVerificationStatus": "LIVE_VERIFIED",
+  "userImpactRisk": "ZERO"
+}

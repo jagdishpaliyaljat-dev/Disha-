@@ -1,0 +1,1103 @@
+import * as React from "react";
+import { 
+  BookOpen, Layers, LayoutDashboard, Users, Image as ImageIcon, Terminal, Flame, X, 
+  FolderPlus, PlusCircle, Database, LayoutGrid, Settings, ShieldCheck, 
+  Upload, Sparkles, Menu, ChevronRight, Activity, Cpu, RefreshCw, Newspaper,
+  Trophy, CheckCircle2, ListFilter, ChevronDown, Trash2, AlertCircle, Building2,
+  FileCode
+} from "lucide-react";
+import { Subject, Chapter, UserQuestionsStore, UserProfile } from "../types";
+import { ConfirmDialog } from "./admin/ConfirmDialog";
+import { deleteSubject, deleteChapter, saveUserQuestionsStore } from "../utils/questionsStorage";
+import { AdminSectionLoader } from "./admin/AdminSkeletonLoaders";
+import type { SyncProgressState } from "../utils/bulkSyncService";
+import { isUserAdmin } from "../utils/userProfileStorage";
+import { getTotalDisplayCount, getCombinedSubjects, getCombinedChapters, getCombinedQuestions } from "../utils/questionsStorage";
+import { loadLocalPYQPapers, getDeletedPYQIds } from "../utils/pyqStorage";
+import { loadLocalLiveTests, getDeletedLiveTestIds } from "../utils/liveTestStorage";
+import { getDeletedBannerIds } from "../utils/bannerStorage";
+import { triggerAdminToast, AdminToastPayload } from "../utils/adminToast";
+import { auth } from "../lib/firebase";
+import { AdminQuotaAlert } from "./admin/AdminQuotaAlert";
+
+// Resilient lazy loader helper for admin subcomponents compatible with React 19
+function adminSafeLazy<T extends React.ComponentType<any>>(
+  importFn: () => Promise<any>,
+  exportName?: string
+): T {
+  return React.lazy(() =>
+    importFn().then((mod) => {
+      const component = exportName ? mod[exportName] || mod.default : mod.default || Object.values(mod)[0];
+      if (!component) {
+        throw new Error(`Admin subcomponent '${exportName || 'default'}' not found`);
+      }
+      return { default: component };
+    })
+  ) as unknown as T;
+}
+
+// Feature-wise On-Demand Lazy Loaded Admin Modules (cached automatically by React)
+const AdminDashboardSection = adminSafeLazy<any>(() => import("./admin/AdminDashboardSection"), "AdminDashboardSection");
+const AdminAnalyticsDashboard = adminSafeLazy<any>(() => import("./admin/AdminAnalyticsDashboard"), "AdminAnalyticsDashboard");
+const AdminSyllabusSection = adminSafeLazy<any>(() => import("./admin/AdminSyllabusSection"), "AdminSyllabusSection");
+const McqDuplicateScannerWidget = adminSafeLazy<any>(() => import("./admin/McqDuplicateScannerWidget"), "McqDuplicateScannerWidget");
+const AdminNewsSection = adminSafeLazy<any>(() => import("./admin/AdminNewsSectionV2"), "AdminNewsSection");
+const AdminBannerManagementSection = adminSafeLazy<any>(() => import("./admin/AdminBannerManagementSection"), "AdminBannerManagementSection");
+const AdminUserManagementSection = adminSafeLazy<any>(() => import("./admin/AdminUserManagementSection"), "AdminUserManagementSection");
+const AdminMessagesSection = adminSafeLazy<any>(() => import("./admin/AdminMessagesSection"), "AdminMessagesSection");
+const AdminNotificationBroadcastSection = adminSafeLazy<any>(() => import("./admin/AdminNotificationBroadcastSection"), "AdminNotificationBroadcastSection");
+const FirebaseDataExplorer = adminSafeLazy<any>(() => import("./admin/FirebaseDataExplorer"), "FirebaseDataExplorer");
+const FirebaseAuditConsole = adminSafeLazy<any>(() => import("./admin/FirebaseAuditConsole"), "FirebaseAuditConsole");
+const ProductionStabilityPanel = adminSafeLazy<any>(() => import("./admin/ProductionStabilityPanel"), "ProductionStabilityPanel");
+const FirebaseQuotaHealthPanel = adminSafeLazy<any>(() => import("./admin/FirebaseQuotaHealthPanel"), "FirebaseQuotaHealthPanel");
+const SyncHealthMonitorPanel = adminSafeLazy<any>(() => import("./admin/SyncHealthMonitorPanel"), "SyncHealthMonitorPanel");
+const AdminDiagnosticsSection = adminSafeLazy<any>(() => import("./admin/AdminDiagnosticsSection"), "AdminDiagnosticsSection");
+const DiagnosticReport = adminSafeLazy<any>(() => import("./admin/DiagnosticReport"), "DiagnosticReport");
+const AIApiManagementSection = adminSafeLazy<any>(() => import("./admin/AIApiManagementSection"), "AIApiManagementSection");
+const ExportDataWidget = adminSafeLazy<any>(() => import("./admin/ExportDataWidget"), "ExportDataWidget");
+const AuditLogWidget = adminSafeLazy<any>(() => import("./admin/AuditLogWidget"), "AuditLogWidget");
+const SyncProgressModal = adminSafeLazy<any>(() => import("./admin/SyncProgressModal"), "SyncProgressModal");
+const SyncConfirmationModal = adminSafeLazy<any>(() => import("./admin/SyncConfirmationModal"), "SyncConfirmationModal");
+const QATestRunnerModal = adminSafeLazy<any>(() => import("./QATestRunnerModal"), "QATestRunnerModal");
+const ManageCoachingHierarchyModal = adminSafeLazy<any>(() => import("./admin/ManageCoachingHierarchyModal"), "ManageCoachingHierarchyModal");
+
+interface AdminTabProps {
+  userProfile: UserProfile | null;
+  subjects?: Subject[];
+  chapters: Chapter[];
+  questionsStore: UserQuestionsStore;
+  onStoreUpdated?: (updatedStore: UserQuestionsStore) => void;
+  onSyncToCloud?: () => Promise<void>;
+  onShowAddSubject: () => void;
+  onShowAddChapter: (subjectId?: string) => void;
+  onShowAddTopic: (subjectId?: string, chapterId?: string) => void;
+  onShowManageSyllabus: () => void;
+  onShowAddQuestions: (chapterId?: string, topicId?: string, subjectId?: string, initialMethod?: "json" | "file" | "paste" | "manual") => void;
+  onShowManageQuestions: () => void;
+  onShowAIImport?: () => void;
+  onShowHTMLImport?: () => void;
+  onShowManagePYQVault?: () => void;
+  onShowManageLiveTests?: () => void;
+  onShowManageExamCategories: () => void;
+  onShowManageBanners: () => void;
+  onDeleteSubject?: (subjectId: string) => Promise<void>;
+  onDeleteChapter?: (chapterId: string) => Promise<void>;
+}
+
+export type AdminGroupSection = 
+  | "dashboard"
+  | "syllabus"
+  | "questions"
+  | "tests"
+  | "content"
+  | "users"
+  | "firebase"
+  | "diagnostics"
+  | "integrations"
+  | "settings";
+
+export const AdminTab: React.FC<AdminTabProps> = (props) => {
+  // Active Group Section State
+  const [activeGroup, setActiveGroup] = React.useState<AdminGroupSection>(() => {
+    if (typeof window !== "undefined") {
+      const searchParams = new URLSearchParams(window.location.search);
+      const sec = searchParams.get("section") as AdminGroupSection | null;
+      if (sec) return sec;
+      const p = window.location.pathname;
+      const h = window.location.hash;
+      if (p.includes("/admin/firebase-data") || h.includes("#admin/firebase-data")) return "firebase";
+      if (p.includes("/admin/news") || h.includes("#admin/news")) return "content";
+    }
+    return "dashboard";
+  });
+
+  // Sub-tab toggles for multi-view groups
+  const [subTabDashboard, setSubTabDashboard] = React.useState<"overview" | "analytics">("overview");
+  const [subTabContent, setSubTabContent] = React.useState<"news" | "banners">("news");
+  const [subTabUsers, setSubTabUsers] = React.useState<"directory" | "messages" | "notifications">("directory");
+  const [subTabFirebase, setSubTabFirebase] = React.useState<"diagnostics" | "explorer" | "audit" | "quota" | "sync" | "integrity">("diagnostics");
+
+  const [selectedUserForDetails, setSelectedUserForDetails] = React.useState<UserProfile | null>(null);
+  const [showQATestRunner, setShowQATestRunner] = React.useState(false);
+  const [showCoachingHierarchyModal, setShowCoachingHierarchyModal] = React.useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
+  const [syncProgress, setSyncProgress] = React.useState<SyncProgressState | null>(null);
+  const [isSyncing, setIsSyncing] = React.useState(false);
+  const [showConfirm, setShowConfirm] = React.useState(false);
+
+  // Deletion Confirmation Dialog State for Subject / Chapter
+  const [deleteConfirmTarget, setDeleteConfirmTarget] = React.useState<{
+    type: "subject" | "chapter";
+    id: string;
+    title: string;
+  } | null>(null);
+  const [isDeletingCloud, setIsDeletingCloud] = React.useState(false);
+  const [deleteNotification, setDeleteNotification] = React.useState<{ type: "success" | "error"; message: string } | null>(null);
+  const [topToast, setTopToast] = React.useState<AdminToastPayload | null>(null);
+  const [syllabusViewTab, setSyllabusViewTab] = React.useState<"subjects" | "chapters">("subjects");
+
+  React.useEffect(() => {
+    const handleToastEvent = (e: Event) => {
+      const customEvent = e as CustomEvent<AdminToastPayload>;
+      if (customEvent.detail) {
+        setTopToast(customEvent.detail);
+      }
+    };
+    window.addEventListener("quizpro_admin_toast", handleToastEvent);
+    return () => window.removeEventListener("quizpro_admin_toast", handleToastEvent);
+  }, []);
+
+  React.useEffect(() => {
+    if (topToast) {
+      const timer = setTimeout(() => {
+        setTopToast(null);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [topToast]);
+
+  const promptDeleteSubject = (id: string, title: string) => {
+    setDeleteConfirmTarget({ type: "subject", id, title });
+  };
+
+  const promptDeleteChapter = (id: string, title: string) => {
+    setDeleteConfirmTarget({ type: "chapter", id, title });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteConfirmTarget) return;
+    const { type, id, title } = deleteConfirmTarget;
+    setIsDeletingCloud(true);
+
+    try {
+      if (type === "subject") {
+        if (props.onDeleteSubject) {
+          await props.onDeleteSubject(id);
+        } else {
+          const { deleteSubjectFromCloud } = await import("../utils/firebaseSyncService");
+          const res = await deleteSubjectFromCloud(id);
+          const nextStore = deleteSubject(props.questionsStore, id);
+          saveUserQuestionsStore(nextStore);
+          props.onStoreUpdated?.(nextStore);
+          if (!res.success) {
+            throw new Error(res.message);
+          }
+        }
+        setDeleteNotification({
+          type: "success",
+          message: `Subject "${title}" deleted from Cloud & local storage.`
+        });
+        triggerAdminToast(
+          "delete",
+          "Subject Deleted from Firebase",
+          `Subject "${title}" has been deleted from Firebase Firestore.`
+        );
+      } else {
+        if (props.onDeleteChapter) {
+          await props.onDeleteChapter(id);
+        } else {
+          const { deleteChapterFromCloud } = await import("../utils/firebaseSyncService");
+          const res = await deleteChapterFromCloud(id);
+          const nextStore = deleteChapter(props.questionsStore, id);
+          saveUserQuestionsStore(nextStore);
+          props.onStoreUpdated?.(nextStore);
+          if (!res.success) {
+            throw new Error(res.message);
+          }
+        }
+        setDeleteNotification({
+          type: "success",
+          message: `Chapter "${title}" deleted from Cloud & local storage.`
+        });
+        triggerAdminToast(
+          "delete",
+          "Chapter Deleted from Firebase",
+          `Chapter "${title}" has been deleted from Firebase Firestore.`
+        );
+      }
+      setTimeout(() => setDeleteNotification(null), 3500);
+    } catch (err: any) {
+      setDeleteNotification({
+        type: "error",
+        message: err?.message || `Failed to delete ${type} from Cloud.`
+      });
+      setTimeout(() => setDeleteNotification(null), 4000);
+    } finally {
+      setIsDeletingCloud(false);
+      setDeleteConfirmTarget(null);
+    }
+  };
+
+  React.useEffect(() => {
+    const handlePopState = () => {
+      if (typeof window !== "undefined") {
+        const search = new URLSearchParams(window.location.search);
+        const sec = search.get("section") as AdminGroupSection | null;
+        const userId = search.get("userId");
+
+        if (!userId) {
+          setSelectedUserForDetails(null);
+        }
+        if (sec) {
+          setActiveGroup(sec);
+        } else if (window.location.pathname === "/admin") {
+          setActiveGroup("dashboard");
+        } else if (window.location.pathname === "/admin/firebase-data" || window.location.hash === "#admin/firebase-data") {
+          setActiveGroup("firebase");
+          setSubTabFirebase("explorer");
+        } else if (window.location.pathname === "/admin/news" || window.location.hash === "#admin/news") {
+          setActiveGroup("content");
+          setSubTabContent("news");
+        }
+      }
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
+  const handleSelectGroup = React.useCallback((group: AdminGroupSection) => {
+    setActiveGroup(group);
+    setIsSidebarOpen(false);
+    if (typeof window !== "undefined") {
+      try {
+        if (group === "firebase" && subTabFirebase === "explorer") {
+          window.history.pushState({ group }, "", "/admin/firebase-data");
+        } else if (group === "content" && subTabContent === "news") {
+          window.history.pushState({ group }, "", "/admin/news");
+        } else if (group === "dashboard") {
+          if (window.location.pathname + window.location.search !== "/admin") {
+            window.history.pushState({ group: "dashboard" }, "", "/admin");
+          }
+        } else {
+          const target = `/admin?section=${group}`;
+          if (window.location.pathname + window.location.search !== target) {
+            window.history.pushState({ group }, "", target);
+          }
+        }
+      } catch (err) {
+        console.warn("Failed to push history state:", err);
+      }
+    }
+  }, [subTabFirebase, subTabContent]);
+
+  // Compatibility helper for legacy section triggers
+  const handleLegacyNavigateSection = (sec: string) => {
+    switch (sec) {
+      case "dashboard":
+        setActiveGroup("dashboard");
+        setSubTabDashboard("overview");
+        break;
+      case "analytics":
+        setActiveGroup("dashboard");
+        setSubTabDashboard("analytics");
+        break;
+      case "curriculum":
+        setActiveGroup("syllabus");
+        break;
+      case "users":
+        setActiveGroup("users");
+        setSubTabUsers("directory");
+        break;
+      case "messages":
+        setActiveGroup("users");
+        setSubTabUsers("messages");
+        break;
+      case "plans":
+        setActiveGroup("users");
+        setSubTabUsers("directory");
+        break;
+      case "news":
+        setActiveGroup("content");
+        setSubTabContent("news");
+        break;
+      case "banners":
+        setActiveGroup("content");
+        setSubTabContent("banners");
+        break;
+      case "health":
+        setActiveGroup("firebase");
+        setSubTabFirebase("quota");
+        break;
+      case "sync-health":
+        setActiveGroup("firebase");
+        setSubTabFirebase("sync");
+        break;
+      case "firebase-data":
+        setActiveGroup("firebase");
+        setSubTabFirebase("explorer");
+        break;
+      case "firebase-audit":
+        setActiveGroup("firebase");
+        setSubTabFirebase("audit");
+        break;
+      case "ai-api":
+        setActiveGroup("integrations");
+        break;
+      default:
+        setActiveGroup("dashboard");
+    }
+  };
+
+  const [activeSyncCost, setActiveSyncCost] = React.useState<number | null>(null);
+
+  const computeSyncCost = React.useCallback(() => {
+    const combinedSubjects = props.subjects || [];
+    const combinedChapters = props.chapters;
+    const curriculumQuestions = getCombinedQuestions(combinedChapters);
+    
+    // Core curriculum deletions
+    const delCount = (props.questionsStore.deletedQuestionIds?.length || 0) + 
+                     (props.questionsStore.deletedSubjectIds?.length || 0) + 
+                     (props.questionsStore.deletedChapterIds?.length || 0) + 
+                     (props.questionsStore.deletedTopicIds?.length || 0);
+
+    let pyqCount = 0;
+    let pyqQCount = 0;
+    let pyqDelCount = 0;
+    try {
+      const papers = loadLocalPYQPapers();
+      pyqCount = papers.length;
+      papers.forEach(p => pyqQCount += (p.questions?.length || 0));
+      pyqDelCount = getDeletedPYQIds().length;
+    } catch {}
+    
+    let liveCount = 0;
+    let liveQCount = 0;
+    let liveDelCount = 0;
+    try {
+      const tests = loadLocalLiveTests();
+      liveCount = tests.length;
+      tests.forEach(t => liveQCount += (t.questions?.length || 0));
+      liveDelCount = getDeletedLiveTestIds().length;
+    } catch {}
+    
+    let bannerDelCount = 0;
+    try {
+        bannerDelCount = getDeletedBannerIds().length;
+    } catch {}
+
+    return combinedSubjects.length + combinedChapters.length + curriculumQuestions.length + 
+           pyqCount + pyqQCount + liveCount + liveQCount + 
+           delCount + pyqDelCount + liveDelCount + bannerDelCount + 1;
+  }, [props.questionsStore, props.subjects, props.chapters]);
+
+  const getSyncCost = React.useCallback(() => {
+    if (activeSyncCost !== null) return activeSyncCost;
+    return computeSyncCost();
+  }, [activeSyncCost, computeSyncCost]);
+
+  const handleSyncInit = () => {
+    const cost = computeSyncCost();
+    setActiveSyncCost(cost);
+    if (cost > 0) {
+      setShowConfirm(true);
+    } else {
+      alert("All custom data is already synced with Cloud Firestore.");
+    }
+  };
+
+  const handleSyncClick = async () => {
+    setShowConfirm(false);
+    setIsSyncing(true);
+
+    // Diagnostic Log for Sync Initialization
+    console.log("[AdminSync] Initializing bulk sync...", {
+      user: props.userProfile?.email || auth.currentUser?.email || "unknown",
+      uid: auth.currentUser?.uid || "missing",
+      isAdmin: isUserAdmin(props.userProfile),
+      recordCount: getSyncCost()
+    });
+
+    const initialProgress: SyncProgressState = {
+      status: "validating",
+      totalRecords: getSyncCost(),
+      validRecords: 0,
+      invalidRecords: 0,
+      existingRecords: 0,
+      uploadedRecords: 0,
+      updatedRecords: 0,
+      skippedRecords: 0,
+      failedRecords: 0,
+      currentBatch: 0,
+      totalBatches: 0,
+      progressPercentage: 0,
+      currentStatusMessage: "Validating data records and preparing cloud sync...",
+      errorDetails: []
+    };
+    setSyncProgress(initialProgress);
+
+    try {
+      const { executeBulkSync } = await import("../utils/bulkSyncService");
+      const report = await executeBulkSync(props.questionsStore, (p) => setSyncProgress(p));
+      if (report.success) {
+        // Clear deleted IDs from store after successful sync
+        const syncedStore: UserQuestionsStore = {
+          ...props.questionsStore,
+          deletedQuestionIds: [],
+          deletedSubjectIds: [],
+          deletedChapterIds: [],
+          deletedTopicIds: [],
+        };
+        
+        // Clear deletions from other storage modules
+        try {
+          const { clearDeletedPYQIds } = await import("../utils/pyqStorage");
+          const { clearDeletedLiveTestIds } = await import("../utils/liveTestStorage");
+          const { clearDeletedBannerIds } = await import("../utils/bannerStorage");
+          clearDeletedPYQIds();
+          clearDeletedLiveTestIds();
+          clearDeletedBannerIds();
+        } catch (clearErr) {
+          console.warn("Could not clear supplemental deleted ID lists:", clearErr);
+        }
+
+        if (props.onStoreUpdated) {
+          props.onStoreUpdated(syncedStore);
+        }
+      } else if (props.onStoreUpdated) {
+        props.onStoreUpdated(props.questionsStore);
+      }
+    } catch (e: any) {
+      console.error("Bulk sync error:", e);
+      const errMsg = e?.message || "Sync failed unexpectedly.";
+      setSyncProgress({
+        status: "error",
+        totalRecords: getSyncCost(),
+        validRecords: 0,
+        invalidRecords: 0,
+        existingRecords: 0,
+        uploadedRecords: 0,
+        updatedRecords: 0,
+        skippedRecords: 0,
+        failedRecords: 1,
+        currentBatch: 0,
+        totalBatches: 0,
+        progressPercentage: 0,
+        currentStatusMessage: errMsg,
+        errorDetails: [errMsg]
+      });
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  const combinedSubjectsList = React.useMemo(() => (props.subjects && props.subjects.length > 0 ? props.subjects : getCombinedSubjects(props.questionsStore)), [props.subjects, props.questionsStore]);
+  const combinedChaptersList = React.useMemo(() => (props.chapters && props.chapters.length > 0 ? props.chapters : getCombinedChapters(props.questionsStore)), [props.chapters, props.questionsStore]);
+  const subjectCount = React.useMemo(() => combinedSubjectsList.length, [combinedSubjectsList]);
+  const questionCount = React.useMemo(() => {
+    return combinedChaptersList.reduce((acc, ch) => {
+      return acc + (ch.topics || []).reduce((tAcc, t) => tAcc + (t.questions || []).length, 0);
+    }, 0);
+  }, [combinedChaptersList]);
+
+  // Nav Groups definition mapping to the requested professional structure
+  const navGroupItems: {
+    id: AdminGroupSection;
+    title: string;
+    icon: any;
+    badge?: string;
+  }[] = React.useMemo(() => [
+    {
+      id: "dashboard",
+      title: "Overview",
+      icon: LayoutDashboard,
+    },
+    {
+      id: "syllabus",
+      title: "Syllabus",
+      icon: Layers,
+      badge: `${subjectCount}`,
+    },
+    {
+      id: "questions",
+      title: "Question Bank",
+      icon: Database,
+      badge: `${questionCount}`,
+    },
+    {
+      id: "tests",
+      title: "Exams & Tests",
+      icon: Trophy,
+    },
+    {
+      id: "content",
+      title: "News & Banners",
+      icon: Newspaper,
+    },
+    {
+      id: "users",
+      title: "Students",
+      icon: Users,
+    },
+    {
+      id: "firebase",
+      title: "Database Explorer",
+      icon: Terminal,
+    },
+    {
+      id: "diagnostics",
+      title: "Diagnostics Report",
+      icon: Activity,
+    },
+    {
+      id: "integrations",
+      title: "AI API Config",
+      icon: Cpu,
+    },
+    {
+      id: "settings",
+      title: "System Settings",
+      icon: Settings,
+    },
+  ], [subjectCount, questionCount]);
+
+  const mobileBottomShortcuts: { id: AdminGroupSection; label: string; icon: any }[] = React.useMemo(() => [
+    { id: "dashboard", label: "Overview", icon: LayoutDashboard },
+    { id: "syllabus", label: "Syllabus", icon: Layers },
+    { id: "questions", label: "Questions", icon: Database },
+    { id: "tests", label: "Tests", icon: Trophy },
+    { id: "users", label: "Users", icon: Users },
+  ], []);
+
+  if (!isUserAdmin(props.userProfile)) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center p-6 text-center">
+        <div className="w-16 h-16 rounded-2xl bg-rose-500/10 text-rose-600 flex items-center justify-center mb-4">
+          <ShieldCheck className="w-8 h-8" />
+        </div>
+        <h2 className="text-xl font-black text-slate-900 dark:text-white">Access Denied</h2>
+        <p className="text-xs text-slate-500 max-w-sm mt-1">
+          This portal is restricted to DISHA 20-20 Administrators. Please sign in with an authorized account.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen flex flex-col bg-white dark:bg-[#0B1220] text-slate-900 dark:text-slate-100 font-sans selection:bg-blue-100 selection:text-blue-900">
+      
+      {/* 1. Sticky Compact Header */}
+      <header className="sticky top-0 z-40 bg-white/80 dark:bg-[#0B1220]/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+        <div className="max-w-screen-2xl mx-auto flex items-center justify-between px-4 h-14 sm:h-16">
+          
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="lg:hidden p-2 -ml-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              aria-label="Toggle Menu"
+            >
+              {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-[#800020] text-[#FFF9EF] flex items-center justify-center font-black text-sm shadow-sm">
+                D
+              </div>
+              <h1 className="text-base font-bold tracking-tight text-slate-900 dark:text-white hidden xs:block">
+                DISHA 20-20 Admin
+              </h1>
+            </div>
+            
+            <div className="hidden md:flex items-center gap-2 text-slate-300 dark:text-slate-700 ml-2">
+              <span className="text-xs">/</span>
+              <span className="text-xs font-medium text-slate-500 capitalize">{activeGroup.replace('_', ' ')}</span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 sm:gap-4">
+            <button
+              onClick={handleSyncInit}
+              className={`p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors ${isSyncing ? "animate-spin text-blue-600" : ""}`}
+              title="Cloud Sync"
+            >
+              <RefreshCw className="w-5 h-5" />
+            </button>
+            
+            <button
+              className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors relative"
+              title="Notifications"
+            >
+              <Activity className="w-5 h-5" />
+              <span className="absolute top-2 right-2 w-2 h-2 bg-rose-500 rounded-full border-2 border-white dark:border-[#0B1220]"></span>
+            </button>
+
+            <div className="h-6 w-px bg-slate-200 dark:bg-slate-800 hidden sm:block"></div>
+
+            <button className="flex items-center gap-2 pl-1 pr-1 sm:pr-2 py-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+              <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-xs font-bold text-slate-600 dark:text-slate-400">
+                {props.userProfile?.name?.charAt(0) || "A"}
+              </div>
+              <span className="text-sm font-medium text-slate-700 dark:text-slate-300 hidden sm:inline">{props.userProfile?.name?.split(' ')[0] || "Admin"}</span>
+              <ChevronDown className="w-4 h-4 text-slate-400 hidden sm:inline" />
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <div className="flex flex-1 overflow-hidden">
+        
+        {/* Mobile Backdrop Overlay */}
+        {isSidebarOpen && (
+          <div
+            onClick={() => setIsSidebarOpen(false)}
+            className="fixed inset-0 z-40 bg-black/40 backdrop-blur-xs lg:hidden cursor-pointer"
+            aria-hidden="true"
+          />
+        )}
+
+        {/* 2. Responsive Navigation Drawer */}
+        <aside
+          className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-[#0B1220] border-r border-slate-200 dark:border-slate-800 transform ${
+            isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+          } lg:translate-x-0 transition-transform duration-200 ease-in-out lg:static lg:z-0 flex flex-col`}
+        >
+          <div className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+            <div className="px-3 mb-2">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Management</p>
+            </div>
+
+            {navGroupItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = activeGroup === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => handleSelectGroup(item.id)}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-all active:scale-[0.98] cursor-pointer touch-manipulation ${
+                    isActive
+                      ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400"
+                      : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-white"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <Icon className={`w-4 h-4 ${isActive ? "text-blue-600" : "text-slate-400 group-hover:text-slate-600"}`} />
+                    <span>{item.title}</span>
+                  </div>
+                  {item.badge && (
+                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${
+                      isActive ? "bg-blue-100 dark:bg-blue-800/30 text-blue-700" : "bg-slate-100 dark:bg-slate-800 text-slate-500"
+                    }`}>
+                      {item.badge}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="p-4 border-t border-slate-100 dark:border-slate-800">
+            <button
+              onClick={() => setShowQATestRunner(true)}
+              className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+            >
+              <Terminal className="w-4 h-4 text-slate-400" />
+              <span>QA Debug Suite</span>
+            </button>
+          </div>
+        </aside>
+
+        {/* 3. Main Content Workspace */}
+        <main className="flex-1 overflow-y-auto bg-slate-50/50 dark:bg-[#080E1A] p-4 sm:p-6 lg:p-8 pb-24 lg:pb-8">
+          <div className="max-w-screen-xl mx-auto space-y-6">
+            
+            <React.Suspense fallback={null}>
+              <AdminQuotaAlert />
+            </React.Suspense>
+            
+            {activeGroup === "dashboard" && (
+              <div className="space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <h2 className="text-xl font-bold text-slate-900 dark:text-white">Dashboard Overview</h2>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Real-time system health and student activity metrics.</p>
+                  </div>
+                  
+                  <div className="flex items-center p-1 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm self-start sm:self-auto">
+                    <button
+                      onClick={() => setSubTabDashboard("overview")}
+                      className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${
+                        subTabDashboard === "overview"
+                          ? "bg-slate-900 dark:bg-slate-700 text-white shadow-sm"
+                          : "text-slate-500 dark:text-slate-400 hover:text-slate-900"
+                      }`}
+                    >
+                      Real-time
+                    </button>
+                    <button
+                      onClick={() => setSubTabDashboard("analytics")}
+                      className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${
+                        subTabDashboard === "analytics"
+                          ? "bg-slate-900 dark:bg-slate-700 text-white shadow-sm"
+                          : "text-slate-500 dark:text-slate-400 hover:text-slate-900"
+                      }`}
+                    >
+                      Analytics
+                    </button>
+                  </div>
+                </div>
+
+                <React.Suspense fallback={<AdminSectionLoader type="metrics" title="Loading Dashboard..." />}>
+                  {subTabDashboard === "overview" ? (
+                    <AdminDashboardSection
+                      onNavigateSection={handleLegacyNavigateSection}
+                      onSelectUser={(user: any) => {
+                        setSelectedUserForDetails(user);
+                        setActiveGroup("users");
+                        setSubTabUsers("directory");
+                      }}
+                      onOpenQARunner={() => setShowQATestRunner(true)}
+                      questionsStore={props.questionsStore}
+                    />
+                  ) : (
+                    <AdminAnalyticsDashboard />
+                  )}
+                </React.Suspense>
+              </div>
+            )}
+
+            {activeGroup === "syllabus" && (
+              <React.Suspense fallback={<AdminSectionLoader type="list" title="Loading Syllabus..." />}>
+                <AdminSyllabusSection
+                  subjects={combinedSubjectsList}
+                  chapters={combinedChaptersList}
+                  onShowAddSubject={props.onShowAddSubject}
+                  onShowAddChapter={props.onShowAddChapter}
+                  onShowAddTopic={props.onShowAddTopic}
+                  onShowManageSyllabus={props.onShowManageSyllabus}
+                  onShowManageExamCategories={props.onShowManageExamCategories}
+                  promptDeleteSubject={promptDeleteSubject}
+                  promptDeleteChapter={promptDeleteChapter}
+                  isDeletingCloud={isDeletingCloud}
+                  syllabusViewTab={syllabusViewTab}
+                  setSyllabusViewTab={setSyllabusViewTab}
+                />
+              </React.Suspense>
+            )}
+
+            {/* Question Bank Section */}
+            {activeGroup === "questions" && (
+              <div className="space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <h2 className="text-xl font-bold text-slate-900">Question Repository</h2>
+                    <p className="text-xs sm:text-sm text-slate-500 font-medium">Manage thousands of MCQs and batch imports.</p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      onClick={props.onShowHTMLImport}
+                      className="px-4 py-2 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center gap-2 cursor-pointer"
+                      title="Import MCQs from HTML files or HTML source code"
+                    >
+                      <FileCode className="w-3.5 h-3.5" />
+                      <span>HTML Import MCQ</span>
+                    </button>
+                    <button onClick={props.onShowManageQuestions} className="px-4 py-2 bg-slate-900 text-white text-xs font-bold rounded-xl shadow-sm hover:bg-slate-800 transition-all cursor-pointer">
+                      Browse Repository
+                    </button>
+                    <button onClick={props.onShowAIImport} className="px-4 py-2 bg-white border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs font-bold rounded-xl shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center gap-2 cursor-pointer">
+                      <Sparkles className="w-3.5 h-3.5" />
+                      AI Import
+                    </button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                  {[
+                    { label: "Directory", action: props.onShowManageQuestions, icon: Database, isHtml: false },
+                    { label: "HTML Import", action: props.onShowHTMLImport, icon: FileCode, isHtml: true },
+                    { label: "Quick Add", action: () => props.onShowAddQuestions(undefined, undefined, undefined, "paste"), icon: PlusCircle, isHtml: false },
+                    { 
+                      label: "Deduplication", 
+                      action: () => {
+                        const el = document.getElementById("duplicate-scanner-widget");
+                        if (el) {
+                          el.scrollIntoView({ behavior: "smooth", block: "start" });
+                        }
+                      }, 
+                      icon: ListFilter,
+                      isHtml: false
+                    },
+                    { label: "Batch Upload", action: () => props.onShowAddQuestions(undefined, undefined, undefined, "file"), icon: Upload, isHtml: false },
+                  ].map((item) => (
+                    <button
+                      key={item.label}
+                      onClick={item.action}
+                      className={`p-4 bg-white dark:bg-slate-800 border rounded-xl shadow-xs flex flex-col items-center gap-2 transition-all text-center group cursor-pointer active:scale-95 ${
+                        item.isHtml
+                          ? "border-orange-300 dark:border-orange-900/60 hover:border-orange-600 bg-orange-50/20 dark:bg-orange-950/10"
+                          : "border-slate-100 dark:border-slate-800 hover:border-slate-900 dark:hover:border-slate-400"
+                      }`}
+                    >
+                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${
+                        item.isHtml
+                          ? "bg-orange-100 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400 group-hover:scale-105"
+                          : "bg-slate-50 dark:bg-slate-800 text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white"
+                      }`}>
+                        <item.icon className="w-5 h-5" />
+                      </div>
+                      <span className={`text-[11px] font-bold uppercase tracking-tight ${
+                        item.isHtml
+                          ? "text-orange-700 dark:text-orange-400 font-extrabold"
+                          : "text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white"
+                      }`}>{item.label}</span>
+                    </button>
+                  ))}
+                </div>
+
+                <div id="duplicate-scanner-widget">
+                  <React.Suspense fallback={<AdminSectionLoader type="list" />}>
+                    <McqDuplicateScannerWidget />
+                  </React.Suspense>
+                </div>
+              </div>
+            )}
+
+            {/* Exams Section */}
+            {activeGroup === "tests" && (
+              <div className="space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <h2 className="text-xl font-bold text-slate-900 dark:text-white">Exam Series & PYQs</h2>
+                    <p className="text-xs sm:text-sm text-slate-500 font-medium">Historical papers and live mock schedules.</p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      onClick={() => setShowCoachingHierarchyModal(true)}
+                      className="px-3.5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer"
+                    >
+                      <Building2 className="w-4 h-4" />
+                      <span>+ Coaching Hierarchy</span>
+                    </button>
+                    <button
+                      onClick={props.onShowManagePYQVault}
+                      className="px-3.5 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer"
+                    >
+                      <PlusCircle className="w-4 h-4" />
+                      <span>+ Add PYQ Paper</span>
+                    </button>
+                    <button
+                      onClick={props.onShowManageLiveTests}
+                      className="px-3.5 py-2.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer"
+                    >
+                      <PlusCircle className="w-4 h-4" />
+                      <span>+ Add Live Test</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Content Section */}
+            {activeGroup === "content" && (
+              <div className="space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <h2 className="text-xl font-bold text-slate-900 dark:text-white">Editorial Content</h2>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Manage articles, news feed and app-wide banners.</p>
+                  </div>
+                  <div className="flex items-center p-1 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">
+                    <button onClick={() => setSubTabContent("news")} className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${subTabContent === "news" ? "bg-slate-900 dark:bg-slate-700 text-white shadow-sm" : "text-slate-500 dark:text-slate-400"}`}>Articles</button>
+                    <button onClick={() => setSubTabContent("banners")} className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${subTabContent === "banners" ? "bg-slate-900 dark:bg-slate-700 text-white shadow-sm" : "text-slate-500 dark:text-slate-400"}`}>Banners</button>
+                  </div>
+                </div>
+
+                <React.Suspense fallback={<AdminSectionLoader type="cards" title="Loading Content..." />}>
+                  {subTabContent === "news" ? (
+                    <AdminNewsSection onBackToAdmin={() => handleSelectGroup("dashboard")} />
+                  ) : (
+                    <AdminBannerManagementSection />
+                  )}
+                </React.Suspense>
+              </div>
+            )}
+
+            {/* Users Section */}
+            {activeGroup === "users" && (
+              <div className="space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <h2 className="text-xl font-bold text-slate-900 dark:text-white">Student Directory</h2>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Manage user profiles, permissions and communication.</p>
+                  </div>
+                  <div className="flex items-center p-1 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm overflow-x-auto">
+                    <button onClick={() => setSubTabUsers("directory")} className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all whitespace-nowrap ${subTabUsers === "directory" ? "bg-slate-900 dark:bg-slate-700 text-white" : "text-slate-500"}`}>Students</button>
+                    <button onClick={() => setSubTabUsers("messages")} className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all whitespace-nowrap ${subTabUsers === "messages" ? "bg-slate-900 dark:bg-slate-700 text-white" : "text-slate-500"}`}>Inquiries</button>
+                    <button onClick={() => setSubTabUsers("notifications")} className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all whitespace-nowrap ${subTabUsers === "notifications" ? "bg-slate-900 dark:bg-slate-700 text-white" : "text-slate-500"}`}>Broadcasts</button>
+                  </div>
+                </div>
+
+                <React.Suspense fallback={<AdminSectionLoader type="cards" title="Loading Users..." />}>
+                  {subTabUsers === "directory" && (
+                    <AdminUserManagementSection
+                      initialSelectedUser={selectedUserForDetails}
+                      onClearInitialUser={() => setSelectedUserForDetails(null)}
+                    />
+                  )}
+                  {subTabUsers === "messages" && <AdminMessagesSection onBackToAdmin={() => handleSelectGroup("dashboard")} />}
+                  {subTabUsers === "notifications" && <AdminNotificationBroadcastSection />}
+                </React.Suspense>
+              </div>
+            )}
+
+            {/* Firebase Section */}
+            {activeGroup === "firebase" && (
+              <div className="space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <h2 className="text-xl font-bold text-slate-900 dark:text-white">Database Explorer</h2>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Direct access to Firestore records and audit logs.</p>
+                  </div>
+                  <div className="flex items-center p-1 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm overflow-x-auto">
+                    <button onClick={() => setSubTabFirebase("diagnostics")} className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all whitespace-nowrap ${subTabFirebase === "diagnostics" ? "bg-slate-900 dark:bg-slate-700 text-white" : "text-slate-500"}`}>Diagnostics</button>
+                    <button onClick={() => setSubTabFirebase("explorer")} className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all whitespace-nowrap ${subTabFirebase === "explorer" ? "bg-slate-900 dark:bg-slate-700 text-white" : "text-slate-500"}`}>Explorer</button>
+                    <button onClick={() => setSubTabFirebase("audit")} className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all whitespace-nowrap ${subTabFirebase === "audit" ? "bg-slate-900 dark:bg-slate-700 text-white" : "text-slate-500"}`}>Audit</button>
+                    <button onClick={() => setSubTabFirebase("quota")} className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all whitespace-nowrap ${subTabFirebase === "quota" ? "bg-slate-900 dark:bg-slate-700 text-white" : "text-slate-500"}`}>Quota</button>
+                    <button onClick={() => setSubTabFirebase("sync")} className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all whitespace-nowrap ${subTabFirebase === "sync" ? "bg-slate-900 dark:bg-slate-700 text-white" : "text-slate-500"}`}>Sync</button>
+                  </div>
+                </div>
+
+                <React.Suspense fallback={<AdminSectionLoader type="table" title="Loading Database Tools..." />}>
+                  {subTabFirebase === "diagnostics" && <AdminDiagnosticsSection userProfile={props.userProfile} subjects={combinedSubjectsList} chapters={combinedChaptersList} />}
+                  {subTabFirebase === "explorer" && <FirebaseDataExplorer userProfile={props.userProfile} />}
+                  {subTabFirebase === "audit" && <FirebaseAuditConsole userProfile={props.userProfile} />}
+                  {subTabFirebase === "quota" && (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      <ProductionStabilityPanel />
+                      <FirebaseQuotaHealthPanel onBulkSync={handleSyncInit} />
+                    </div>
+                  )}
+                  {subTabFirebase === "sync" && <SyncHealthMonitorPanel questionsStore={props.questionsStore} onStoreUpdated={props.onStoreUpdated} userProfile={props.userProfile} />}
+                </React.Suspense>
+              </div>
+            )}
+
+            {/* Diagnostics Report Section */}
+            {activeGroup === "diagnostics" && (
+              <React.Suspense fallback={<AdminSectionLoader type="cards" title="Loading Diagnostics Report..." />}>
+                <DiagnosticReport userProfile={props.userProfile} />
+              </React.Suspense>
+            )}
+
+            {/* Integrations Section */}
+            {activeGroup === "integrations" && (
+              <div className="space-y-6">
+                <div className="bg-white dark:bg-[#111A2E] p-4 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-2xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+                      <Sparkles className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h2 className="text-base font-black text-slate-900 dark:text-white">
+                        Group 8: API & Model Integrations
+                      </h2>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                        Configure Gemini API keys, provider rotation pool & quota limits
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <React.Suspense fallback={<AdminSectionLoader type="cards" title="Loading API Configurations..." />}>
+                  <AIApiManagementSection />
+                </React.Suspense>
+              </div>
+            )}
+
+            {/* Settings Section */}
+            {activeGroup === "settings" && (
+              <div className="space-y-6">
+                <div className="bg-white dark:bg-[#111A2E] p-4 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-2xl bg-slate-500/10 text-slate-600 dark:text-slate-300 flex items-center justify-center shrink-0">
+                      <Settings className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h2 className="text-base font-black text-slate-900 dark:text-white">
+                        Group 9: Application Settings & Maintenance
+                      </h2>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                        Database backup exports, system audit trail & QA debug suite
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <React.Suspense fallback={<AdminSectionLoader type="list" title="Loading Settings..." />}>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-3">
+                      <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest px-1">Backup & Registry</h3>
+                      <ExportDataWidget questionsStore={props.questionsStore} />
+                    </div>
+
+                    <div className="space-y-3">
+                      <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest px-1">QA Debug Suite</h3>
+                      <div className="p-4 bg-white dark:bg-[#111A2E] rounded-3xl border border-slate-200/80 dark:border-slate-800 space-y-3">
+                        <p className="text-xs text-slate-500 font-medium">
+                          Execute automated QA tests for questions, parser verification, and performance benchmarks.
+                        </p>
+                        <button
+                          onClick={() => setShowQATestRunner(true)}
+                          className="w-full py-3 px-4 bg-slate-900 dark:bg-slate-800 text-white rounded-2xl text-xs font-black flex items-center justify-center gap-2 active:scale-95 transition-all shadow-md"
+                        >
+                          <Terminal className="w-4 h-4 text-emerald-400" />
+                          <span>Launch Automated QA Runner</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <AuditLogWidget />
+                </React.Suspense>
+              </div>
+            )}
+
+          </div>
+        </main>
+      </div>
+
+      {/* Modals & Dialogs */}
+      {showQATestRunner && (
+        <React.Suspense fallback={null}>
+          <QATestRunnerModal isOpen={showQATestRunner} onClose={() => setShowQATestRunner(false)} />
+        </React.Suspense>
+      )}
+      {showCoachingHierarchyModal && (
+        <React.Suspense fallback={null}>
+          <ManageCoachingHierarchyModal
+            isOpen={showCoachingHierarchyModal}
+            onClose={() => setShowCoachingHierarchyModal(false)}
+          />
+        </React.Suspense>
+      )}
+      {syncProgress && (
+        <React.Suspense fallback={null}>
+          <SyncProgressModal progress={syncProgress} onClose={() => setSyncProgress(null)} />
+        </React.Suspense>
+      )}
+      {showConfirm && (
+        <React.Suspense fallback={null}>
+          <SyncConfirmationModal itemCount={getSyncCost()} onConfirm={handleSyncClick} onClose={() => setShowConfirm(false)} />
+        </React.Suspense>
+      )}
+
+      <ConfirmDialog
+        isOpen={Boolean(deleteConfirmTarget)}
+        title={deleteConfirmTarget?.type === "subject" ? "Delete Subject from Cloud" : "Delete Chapter from Cloud"}
+        message={
+          deleteConfirmTarget?.type === "subject"
+            ? `Are you sure you want to delete subject "${deleteConfirmTarget?.title}"? This action triggers deleteSubjectFromCloud, removing the subject and its associated chapters/topics from Firebase Firestore. This cannot be undone.`
+            : `Are you sure you want to delete chapter "${deleteConfirmTarget?.title}"? This action triggers deleteChapterFromCloud, removing the chapter and its associated topics/questions from Firebase Firestore. This cannot be undone.`
+        }
+        confirmText="Confirm Delete"
+        cancelText="Cancel"
+        isDeleting={isDeletingCloud}
+        onConfirm={handleConfirmDelete}
+        onClose={() => {
+          if (!isDeletingCloud) setDeleteConfirmTarget(null);
+        }}
+      />
+    </div>
+  );
+};
+
+export default AdminTab;

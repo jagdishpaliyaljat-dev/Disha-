@@ -1,0 +1,109 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: 'Plus Jakarta Sans', 'Hind', system-ui, -apple-system, sans-serif;
+  --font-hindi: 'Hind', 'Mukta', 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --color-disha-maroon: #800020;
+  --color-disha-maroon-deep: #5E0017;
+  --color-disha-saffron: #F47B20;
+  --color-disha-ivory: #FFF9EF;
+  --color-disha-charcoal: #171923;
+  --color-disha-gold: #C99A45;
+}
+
+@layer base {
+  :root {
+    color-scheme: light;
+    --disha-bg-canvas: #FFF9EF;
+    --disha-bg-surface: #FFFFFF;
+    --disha-bg-subtle: #F7EFE2;
+    --disha-border-subtle: #E8D9C0;
+    --disha-text-primary: #171923;
+    --disha-text-secondary: #52576A;
+    --disha-text-muted: #787D91;
+    --disha-accent-primary: #800020;
+    --disha-accent-secondary: #F47B20;
+    --disha-accent-gold: #C99A45;
+  }
+
+  :root.dark {
+    color-scheme: dark;
+    --disha-bg-canvas: #171923;
+    --disha-bg-surface: #1F2330;
+    --disha-bg-subtle: #252A3A;
+    --disha-border-subtle: #31374A;
+    --disha-text-primary: #FFF9EF;
+    --disha-text-secondary: #CBD2E1;
+    --disha-text-muted: #929AB0;
+    --disha-accent-primary: #F47B20;
+    --disha-accent-secondary: #C99A45;
+    --disha-accent-gold: #C99A45;
+  }
+
+  html,
+  body {
+    background-color: var(--disha-bg-canvas);
+    color: var(--disha-text-primary);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html.dark {
+    background-color: #171923;
+    color: #FFF9EF;
+  }
+
+  html.dark body {
+    background-color: #171923;
+    color: #FFF9EF;
+  }
+}
+
+@layer utilities {
+  .font-hindi {
+    font-family: var(--font-hindi);
+  }
+
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .disha-surface-canvas {
+    background-color: var(--disha-bg-canvas);
+    color: var(--disha-text-primary);
+  }
+
+  .disha-card {
+    background-color: var(--disha-bg-surface);
+    border: 1px solid var(--disha-border-subtle);
+  }
+
+  .disha-hairline {
+    border-color: var(--disha-border-subtle);
+  }
+
+  .disha-arch-divider {
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(201, 154, 69, 0.35) 20%,
+      rgba(128, 0, 32, 0.45) 50%,
+      rgba(201, 154, 69, 0.35) 80%,
+      transparent 100%
+    );
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}

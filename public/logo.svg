@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="100%" height="100%">
+  <defs>
+    <linearGradient id="ivoryCard" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFF9EF" />
+      <stop offset="100%" stop-color="#F7EFE2" />
+    </linearGradient>
+    <linearGradient id="maroonMark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#800020" />
+      <stop offset="100%" stop-color="#5E0017" />
+    </linearGradient>
+    <linearGradient id="saffronAcc" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF9540" />
+      <stop offset="100%" stop-color="#F47B20" />
+    </linearGradient>
+  </defs>
+
+  <!-- Warm Ivory Card Base with Subtle Gold Trim -->
+  <rect x="32" y="32" width="736" height="736" rx="140" fill="url(#ivoryCard)" stroke="#C99A45" stroke-width="6" />
+
+  <!-- Top Geometric Compass + Arch Emblem -->
+  <g transform="translate(400, 238)">
+    <rect x="-126" y="-126" width="252" height="252" rx="64" fill="url(#maroonMark)" />
+    <path
+      d="M-76 74 V-22 C-76 -48 -46 -70 0 -88 C46 -70 76 -48 76 -22 V74"
+      fill="none"
+      stroke="#C99A45"
+      stroke-width="6"
+      stroke-linecap="round"
+      opacity="0.85"
+    />
+    <path
+      d="M-56 20 C-34 -16 4 -44 46 -58 L34 -70 L74 -66 L52 -32 L46 -44 C10 -32 -24 -6 -44 28 Z"
+      fill="url(#saffronAcc)"
+    />
+    <path
+      d="M0 -38 L7 -16 L29 -9 L7 -2 L0 20 L-7 -2 L-29 -9 L-7 -16 Z"
+      fill="#FFF9EF"
+    />
+    <path
+      d="M-66 50 C-36 32 -12 34 0 46 C12 34 36 32 66 50 L58 66 C34 52 14 54 0 64 C-14 54 -34 52 -58 66 Z"
+      fill="#FFF9EF"
+    />
+  </g>
+
+  <!-- Devanagari Primary Wordmark: दिशा -->
+  <text
+    x="400"
+    y="495"
+    font-family="'Hind', 'Mukta', 'Noto Sans Devanagari', sans-serif"
+    font-size="112"
+    font-weight="800"
+    fill="#800020"
+    text-anchor="middle"
+  >दिशा</text>
+
+  <!-- Saffron 20-20 Pill Ribbon -->
+  <rect x="275" y="530" width="250" height="68" rx="18" fill="url(#saffronAcc)" />
+  <text
+    x="400"
+    y="578"
+    font-family="'Plus Jakarta Sans', 'Hind', sans-serif"
+    font-size="44"
+    font-weight="800"
+    fill="#FFFFFF"
+    text-anchor="middle"
+    letter-spacing="4"
+  >20-20</text>
+
+  <!-- Tagline & English Subtitle -->
+  <text
+    x="400"
+    y="658"
+    font-family="'Plus Jakarta Sans', sans-serif"
+    font-size="24"
+    font-weight="800"
+    fill="#171923"
+    text-anchor="middle"
+    letter-spacing="5"
+  >DISHA 20-20 · सही दिशा, सटीक तैयारी</text>
+</svg>

@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="index, follow" />
+    <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <meta name="bingbot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <script>
+      (function() {
+        if (typeof window === 'undefined') return;
+        window.addEventListener('unhandledrejection', function(event) {
+          var reason = event.reason;
+          var msg = reason instanceof Error ? reason.message : String(reason || '');
+          if (
+            msg.includes('WebSocket closed without opened') || 
+            msg.includes('vite:ws:disconnect') ||
+            msg.includes('INTERNAL ASSERTION FAILED') ||
+            msg.includes('Unexpected state') ||
+            msg.includes('c050') ||
+            msg.includes('b815') ||
+            msg.includes('QuotaExceededError') ||
+            msg.includes('Exceeded the quota')
+          ) {
+            event.preventDefault();
+            if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+          }
+        });
+        window.addEventListener('error', function(event) {
+          var msg = event && (event.message || (event.error instanceof Error ? event.error.message : String(event.error || '')));
+          if (
+            msg && (
+              msg.includes('WebSocket closed without opened') || 
+              msg.includes('[vite]') ||
+              msg.includes('INTERNAL ASSERTION FAILED') ||
+              msg.includes('Unexpected state') ||
+              msg.includes('c050') ||
+              msg.includes('b815') ||
+              msg.includes('QuotaExceededError') ||
+              msg.includes('Exceeded the quota')
+            )
+          ) {
+            event.preventDefault();
+            if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+          }
+        });
+        if (window.WebSocket) {
+          const NativeWebSocket = window.WebSocket;
+          function ViteSafeWebSocket(url, protocols) {
+            const isViteHmr = (Array.isArray(protocols) 
+              ? (protocols.includes('vite-hmr') || protocols.includes('vite-ping')) 
+              : (protocols === 'vite-hmr' || protocols === 'vite-ping')) || 
+              (typeof url === 'string' && (url.includes('vite-hmr') || url.includes('/@vite/')));
+
+            if (isViteHmr) {
+              const target = new EventTarget();
+              target.readyState = 1;
+              target.OPEN = 1;
+              target.CONNECTING = 0;
+              target.CLOSING = 2;
+              target.CLOSED = 3;
+              target.send = function() {};
+              target.close = function() {};
+              target.url = url;
+              target.protocol = typeof protocols === 'string' ? protocols : 'vite-hmr';
+              target.binaryType = 'blob';
+              setTimeout(function() {
+                try {
+                  target.dispatchEvent(new Event('open'));
+                } catch (e) {}
+              }, 0);
+              return target;
+            }
+            return new NativeWebSocket(url, protocols);
+          }
+          ViteSafeWebSocket.prototype = NativeWebSocket.prototype;
+          ViteSafeWebSocket.CONNECTING = 0;
+          ViteSafeWebSocket.OPEN = 1;
+          ViteSafeWebSocket.CLOSING = 2;
+          ViteSafeWebSocket.CLOSED = 3;
+          window.WebSocket = ViteSafeWebSocket;
+        }
+      })();
+    </script>
+    <title>DISHA 20-20 — Competitive Exam Preparation</title>
+    <meta name="description" content="DISHA 20-20 is a premier competitive-exam preparation platform for RAS, REET, Patwar, 1st Grade, and RPSC exams with smart MCQs, PYQ Vault, Live Mock Tests, and analytics." />
+    <meta name="keywords" content="DISHA 20-20, RAS exam preparation, Rajasthan competitive exams, REET MCQs, Patwar mock tests, 1st Grade PYQs, RPSC previous year questions, exam analytics" />
+    <meta name="author" content="DISHA 20-20 Team" />
+    <meta name="theme-color" content="#800020" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="DISHA 20-20" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="canonical" href="https://disha2020.in" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Hind:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&family=Mukta:wght@600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="dns-prefetch" href="https://firestore.googleapis.com" />
+    <link rel="dns-prefetch" href="https://identitytoolkit.googleapis.com" />
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+    
+    <!-- OpenGraph Social Cards -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://disha2020.in" />
+    <meta property="og:title" content="DISHA 20-20 — Strategic Exam Preparation & Analytics" />
+    <meta property="og:description" content="Master Rajasthan and Indian competitive exams with high-yield MCQs, official PYQ Vault, and precision performance analytics on DISHA 20-20." />
+    <meta property="og:site_name" content="DISHA 20-20" />
+    
+    <!-- Twitter / X Cards -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://disha2020.in" />
+    <meta name="twitter:title" content="DISHA 20-20 — Master Competitive Exams with Mock Tests & PYQs" />
+    <meta name="twitter:description" content="Prepare for Rajasthan and Indian competitive exams with structured MCQs, official PYQs, and smart analytics on DISHA 20-20." />
+    
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "EducationalOrganization",
+      "name": "DISHA 20-20",
+      "alternateName": "DISHA 20-20",
+      "description": "Premium Indian competitive-exam preparation platform featuring bilingual MCQs, official PYQ papers, live mock tests, and analytics.",
+      "url": "https://disha2020.in",
+      "logo": "https://disha2020.in/icon.svg",
+      "sameAs": [
+        "https://t.me/disha2020_official"
+      ],
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "INR",
+        "availability": "https://schema.org/InStock"
+      },
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://disha2020.in/?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      },
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Exam Preparation Services",
+        "itemListElement": [
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Official PYQ Vault"
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Live Mock Tests"
+            }
+          }
+        ]
+      }
+    }
+    </script>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9B8SS6TRQK"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-9B8SS6TRQK');
+    </script>
+    <script>
+      try {
+        const stored = localStorage.getItem('economic_survey_settings_v2');
+        if (stored) {
+          const s = JSON.parse(stored);
+          if (s && s.darkMode) {
+            document.documentElement.classList.add('dark');
+          }
+        }
+      } catch (e) {}
+    </script>
+    <!-- Cashfree Payment Gateway JS SDK v3 -->
+    <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

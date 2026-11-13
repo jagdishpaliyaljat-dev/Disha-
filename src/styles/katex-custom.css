@@ -1,0 +1,65 @@
+/* 
+  KaTeX Custom Styles & Mobile Responsiveness
+  Ensures math expressions render consistently and handle overflows gracefully on small screens.
+*/
+
+/* Global Container for Math Content */
+.math-content-container {
+  max-width: 100%;
+  overflow-wrap: break-word;
+  line-height: 1.6;
+}
+
+/* Handle Display Math (Block) Overflows */
+.katex-display {
+  display: block;
+  margin: 1em 0;
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.5rem 0;
+  /* Hide scrollbar for clean UI but keep functionality */
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;     /* Firefox */
+  -webkit-overflow-scrolling: touch;
+}
+
+.katex-display::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+/* Inline Math Consistency */
+.katex {
+  font-size: 1.05em !important;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Ensure math symbols inherit dark mode colors correctly */
+.dark .katex {
+  color: #F8FAFC; /* Slate 50 */
+}
+
+/* Prevent horizontal scroll on small inline expressions */
+.math-content-container .inline-block {
+  vertical-align: middle;
+}
+
+/* Tables with math content safety */
+.math-content-container table {
+  max-width: 100%;
+  overflow-x: auto;
+  display: block;
+}
+
+/* Responsive adjustments for mobile */
+@media (max-width: 640px) {
+  .katex {
+    font-size: 1em !important;
+  }
+  
+  .katex-display {
+    padding: 0.75rem 0;
+    margin: 0.75rem 0;
+  }
+}
