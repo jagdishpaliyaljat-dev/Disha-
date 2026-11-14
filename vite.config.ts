@@ -11,24 +11,27 @@ export default defineConfig(({ command }) => {
       tailwindcss(),
       VitePWA({
         registerType: 'prompt',
-        includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'icon.svg'],
+        includeAssets: [
+          'favicon.ico',
+          'favicon.png',
+          'apple-touch-icon.png',
+          'pwa-192x192.png',
+          'pwa-512x512.png',
+          'pwa-maskable-192x192.png',
+          'pwa-maskable-512x512.png',
+          'icon.svg'
+        ],
         manifest: {
           id: '/',
           name: 'DISHA 20-20 — दिशा 20-20',
           short_name: 'DISHA 20-20',
           description: 'DISHA 20-20 (दिशा 20-20) — Premium Indian competitive-exam preparation platform for RAS, REET, Patwar, and RPSC exams.',
-          theme_color: '#800020',
-          background_color: '#FFF9EF',
+          theme_color: '#FFFFFF',
+          background_color: '#FFFFFF',
           display: 'standalone',
           start_url: '/',
           scope: '/',
           icons: [
-            {
-              src: '/icon.svg',
-              sizes: 'any',
-              type: 'image/svg+xml',
-              purpose: 'any',
-            },
             {
               src: '/pwa-192x192.png',
               sizes: '192x192',
@@ -42,10 +45,28 @@ export default defineConfig(({ command }) => {
               purpose: 'any',
             },
             {
-              src: '/icon-maskable.svg',
+              src: '/pwa-maskable-192x192.png',
+              sizes: '192x192',
+              type: 'image/png',
+              purpose: 'maskable',
+            },
+            {
+              src: '/pwa-maskable-512x512.png',
+              sizes: '512x512',
+              type: 'image/png',
+              purpose: 'maskable',
+            },
+            {
+              src: '/icon.svg',
               sizes: 'any',
               type: 'image/svg+xml',
-              purpose: 'maskable',
+              purpose: 'any',
+            },
+            {
+              src: '/apple-touch-icon.png',
+              sizes: '180x180',
+              type: 'image/png',
+              purpose: 'any',
             },
           ],
         },
