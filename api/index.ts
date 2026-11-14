@@ -1,17 +1,8 @@
 import type { IncomingMessage, ServerResponse } from "http";
-// @ts-ignore - generated at build time
-import serverModule from "../dist/server.cjs";
-
-function getHandler(): ((req: any, res: any) => Promise<any>) | null {
-  const mod: any = serverModule;
-  if (typeof mod === "function") return mod;
-  if (typeof mod?.default === "function") return mod.default;
-  if (typeof mod?.default?.default === "function") return mod.default.default;
-  return null;
-}
+import app from "../server";
 
 export default async function handler(req: IncomingMessage, res: ServerResponse): Promise<void> {
-  return new Promise<void>(async (resolve) => {
+  return new Promise<void>((resolve) => {
     res.on("finish", () => resolve());
     res.on("close", () => resolve());
 
@@ -39,12 +30,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
         req.url = originalPath;
       }
 
-      const serverHandler = getHandler();
-      if (!serverHandler) {
-        throw new Error("Could not resolve serverHandler function from serverModule");
-      }
-      console.log(`[Vercel Serverless] ${req.method} ${req.url} (original: ${originalPath || "none"})`);
-      await serverHandler(req as any, res as any);
+      (app as any)(req, res);
     } catch (err: any) {
       console.error("[Vercel Serverless Handler Error]", err);
       if (!res.headersSent) {
