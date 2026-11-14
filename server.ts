@@ -225,6 +225,17 @@ export function createServerApp(deps: ServerDependencies = {}) {
   }
 
   // British English Vocabulary Audio Proxy (en-GB authentic pronunciation fallback)
+  // Health check endpoint
+  app.get('/api/health', (_req, res) => {
+    res.json({
+      status: 'ok',
+      service: 'disha-2020',
+      timestamp: new Date().toISOString(),
+      firebaseAdmin: Boolean(adminDb),
+      snapshotVersion: defaultSnapshotPublishingService.getCurrentManifest()?.snapshotVersion || 'v1',
+    });
+  });
+
   app.get('/api/pronounce-en-gb', async (req, res) => {
     const word = String(req.query.word || '').trim();
     if (!word || word.length > 100 || !/^[a-zA-Z\s'-]+$/.test(word)) {
