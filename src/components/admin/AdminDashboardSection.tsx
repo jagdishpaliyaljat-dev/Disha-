@@ -337,7 +337,7 @@ export const AdminDashboardSection: React.FC<AdminDashboardSectionProps> = ({
           
           {/* System Info Box */}
           <div className="bg-slate-900 dark:bg-[#0B1220] rounded-3xl p-6 text-white border border-slate-800 shadow-xl relative overflow-hidden">
-            <div className="absolute -right-4 -top-4 w-28 h-28 bg-indigo-500/20 rounded-full blur-2xl pointer-events-none" />
+            <div className="absolute right-0 top-0 w-28 h-28 bg-indigo-500/20 rounded-full blur-2xl pointer-events-none" />
             <div className="relative space-y-5">
               <div className="flex items-center justify-between">
                 <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center">

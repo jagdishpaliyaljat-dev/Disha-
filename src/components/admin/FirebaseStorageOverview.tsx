@@ -191,9 +191,9 @@ export const FirebaseStorageOverview: React.FC<FirebaseStorageOverviewProps> = (
   };
 
   return (
-    <div className={`bg-white dark:bg-[#111A2E] rounded-[28px] border border-slate-200/80 dark:border-slate-800 shadow-md p-5 sm:p-7 relative overflow-hidden transition-all ${className}`}>
+    <div className={`bg-white dark:bg-[#111A2E] rounded-[28px] border border-slate-200/80 dark:border-slate-800 shadow-md p-4 sm:p-7 relative overflow-hidden transition-all ${className}`}>
       {/* Subtle background glow */}
-      <div className="absolute top-0 right-0 w-72 h-72 bg-indigo-500/5 rounded-full -mr-24 -mt-24 blur-3xl pointer-events-none" />
+      <div className="absolute top-0 right-0 w-48 h-48 sm:w-72 sm:h-72 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-100 dark:border-slate-800/80">
