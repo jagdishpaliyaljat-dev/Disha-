@@ -114,6 +114,7 @@ const ManagePYQVaultModal = safeLazy<typeof import('./components/ManagePYQVaultM
 const ManageLiveTestsModal = safeLazy<typeof import('./components/ManageLiveTestsModal').ManageLiveTestsModal>(() => import('./components/ManageLiveTestsModal'), 'ManageLiveTestsModal');
 const TestSeriesPage = safeLazy<typeof import('./components/TestSeriesPage').TestSeriesPage>(() => import('./components/TestSeriesPage'), 'TestSeriesPage');
 const HTMLImportMCQModal = safeLazy<typeof import('./components/admin/HTMLImportMCQModal').HTMLImportMCQModal>(() => import('./components/admin/HTMLImportMCQModal'), 'HTMLImportMCQModal');
+const GlobalSearchModal = safeLazy<typeof import('./components/GlobalSearchModal').GlobalSearchModal>(() => import('./components/GlobalSearchModal'), 'GlobalSearchModal');
 
 // Navigation helpers for deep-linking and browser history synchronization
 function getInitialNavigationState() {
@@ -586,6 +587,19 @@ export default function App() {
   const [isHTMLImportOpen, setIsHTMLImportOpen] = React.useState(false);
   const [htmlImportChapterId, setHtmlImportChapterId] = React.useState<string | undefined>(undefined);
   const [htmlImportTopicId, setHtmlImportTopicId] = React.useState<string | undefined>(undefined);
+  const [isGlobalSearchOpen, setIsGlobalSearchOpen] = React.useState(false);
+
+  // Global Ctrl+K / Cmd+K Search Shortcut Listener
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setIsGlobalSearchOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // In-app session close that pops browser history when session=1 query exists
   const handleCloseSession = () => {
@@ -636,6 +650,7 @@ export default function App() {
       if (isManageLiveTestsOpen) { setIsManageLiveTestsOpen(false); return; }
       if (isAIImportOpen) { setIsAIImportOpen(false); return; }
       if (isHTMLImportOpen) { setIsHTMLImportOpen(false); return; }
+      if (isGlobalSearchOpen) { setIsGlobalSearchOpen(false); return; }
 
       // 4. Parse new URL after back action
       if (path === '/' || path === '/home') {
@@ -1197,6 +1212,7 @@ export default function App() {
             isAuthenticated={isAuthenticated}
             unreadNotificationsCount={unreadNotificationsCount}
             onOpenNotifications={() => setActiveTab('notifications')}
+            onOpenSearch={() => setIsGlobalSearchOpen(true)}
             onOpenLogin={() => setIsLoginOpen(true)}
             onStartSession={handleStartSession}
             onNavigateToChapter={(chapId) => {
@@ -1733,6 +1749,29 @@ export default function App() {
           onClose={() => setIsManageLiveTestsOpen(false)} 
           chapters={combinedChapters}
           subjects={combinedSubjects}
+        />
+      )}
+
+      {isGlobalSearchOpen && (
+        <GlobalSearchModal
+          isOpen={isGlobalSearchOpen}
+          onClose={() => setIsGlobalSearchOpen(false)}
+          onSelectQuestion={(q: any) => {
+            handleStartSession({
+              title: "लक्षित प्रश्न अभ्यास",
+              subtitle: `${q.examCategory || "General"} • Quick Practice`,
+              questionIds: [q.id],
+              extraQuestions: [q],
+              source: "all-chapters",
+            });
+          }}
+          onSelectTopic={(t: any) => {
+            setSelectedTopicId(t.id);
+            setActiveTab("topics");
+          }}
+          onSelectPaper={() => {
+            setActiveTab("pyq_vault");
+          }}
         />
       )}
 

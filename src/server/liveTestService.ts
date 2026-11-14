@@ -277,12 +277,17 @@ export async function gradeAndSubmitLiveTest(params: {
 
   let correctCount = 0;
   let wrongCount = 0;
+  let unattemptedECount = 0;
+  let completelyBlankCount = 0;
+
   const questionResults: Record<
     string,
     {
       selectedIndex: number;
       correctIndex: number;
       isCorrect: boolean;
+      isUnattemptedE?: boolean;
+      isCompletelyBlank?: boolean;
       explanation?: string;
       importantFact?: string;
     }
@@ -293,7 +298,18 @@ export async function gradeAndSubmitLiveTest(params: {
     if (!keyEntry) continue;
 
     const rawSel = submittedAnswers[qId];
-    if (typeof rawSel === 'number' && Number.isInteger(rawSel) && rawSel >= 0) {
+    if (rawSel === 4) {
+      // Option E (index 4): candidate intentionally filled 'अनुत्तरित प्रश्न' (0 penalty under RPSC rules)
+      unattemptedECount++;
+      questionResults[qId] = {
+        selectedIndex: 4,
+        correctIndex: keyEntry.correctIndex,
+        isCorrect: false,
+        isUnattemptedE: true,
+        ...(keyEntry.explanation ? { explanation: keyEntry.explanation } : {}),
+        ...(keyEntry.importantFact ? { importantFact: keyEntry.importantFact } : {}),
+      };
+    } else if (typeof rawSel === 'number' && Number.isInteger(rawSel) && rawSel >= 0 && rawSel <= 3) {
       const isCorrect = rawSel === keyEntry.correctIndex;
       if (isCorrect) correctCount++;
       else wrongCount++;
@@ -306,11 +322,13 @@ export async function gradeAndSubmitLiveTest(params: {
         ...(keyEntry.importantFact ? { importantFact: keyEntry.importantFact } : {}),
       };
     } else {
-      // Unattempted question: provide post-submission solution key
+      // Completely blank / unmarked question (Incurs 1/3 negative marking under RPSC rules)
+      completelyBlankCount++;
       questionResults[qId] = {
         selectedIndex: -1,
         correctIndex: keyEntry.correctIndex,
         isCorrect: false,
+        isCompletelyBlank: true,
         ...(keyEntry.explanation ? { explanation: keyEntry.explanation } : {}),
         ...(keyEntry.importantFact ? { importantFact: keyEntry.importantFact } : {}),
       };
@@ -318,10 +336,12 @@ export async function gradeAndSubmitLiveTest(params: {
   }
 
   const attemptedCount = correctCount + wrongCount;
-  const unattemptedCount = Math.max(0, totalQuestionCount - attemptedCount);
-  const rawScore = correctCount * marksPerQ - wrongCount * negMarksPerQ;
+  const unattemptedCount = unattemptedECount + completelyBlankCount;
+  const blankPenalty = completelyBlankCount * (marksPerQ / 3);
+  const rawScore = correctCount * marksPerQ - wrongCount * negMarksPerQ - blankPenalty;
   const finalScore = Math.max(0, Number(rawScore.toFixed(2)));
   const accuracy = attemptedCount > 0 ? Math.round((correctCount / attemptedCount) * 100) : 0;
+  const isRpscDisqualified = totalQuestionCount > 0 && completelyBlankCount > totalQuestionCount * 0.10;
 
   const safeUserName =
     typeof body.userName === 'string' && body.userName.trim()
@@ -340,6 +360,10 @@ export async function gradeAndSubmitLiveTest(params: {
     correctCount,
     wrongCount,
     unattemptedCount,
+    unattemptedECount,
+    completelyBlankCount,
+    blankPenalty: Number(blankPenalty.toFixed(2)),
+    isRpscDisqualified,
     accuracy,
     timeSpentSeconds: Math.round(rawTime),
     submittedAt: new Date().toISOString(),

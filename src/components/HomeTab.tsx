@@ -47,6 +47,7 @@ import {
   Sun,
   Plus,
   Compass,
+  Search,
 } from "lucide-react";
 import { BannerSlides } from "./BannerSlides";
 import { AppLogo } from "./AppLogo";
@@ -73,6 +74,7 @@ interface HomeTabProps {
   isAuthenticated?: boolean;
   onOpenLogin?: () => void;
   onOpenNotifications?: () => void;
+  onOpenSearch?: () => void;
   onStartSession: (session: MCQSession) => void;
   onNavigateToChapter: (chapterId: string) => void;
   onSelectSubject?: (subjectId: string) => void;
@@ -99,6 +101,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
   isAuthenticated = false,
   onOpenLogin,
   onOpenNotifications,
+  onOpenSearch,
   onStartSession,
   onSelectSubject,
   onShowAddSubject,
@@ -201,6 +204,17 @@ export const HomeTab: React.FC<HomeTabProps> = ({
           </div>
 
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            {onOpenSearch && (
+              <button
+                onClick={onOpenSearch}
+                className="w-10 h-10 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] hover:bg-[#EFE3CF] dark:hover:bg-[#31374A] flex items-center justify-center text-[#171923] dark:text-[#FFF9EF] active:scale-95 transition-all cursor-pointer border border-[#E8D9C0] dark:border-[#31374A]"
+                aria-label="खोजें (Ctrl+K)"
+                title="अल्ट्रा-फास्ट खोज (Ctrl+K)"
+              >
+                <Search className="w-4.5 h-4.5" />
+              </button>
+            )}
+
             <button
               onClick={onOpenNotifications || (() => onNavigateTab?.("notifications"))}
               className="relative w-10 h-10 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] hover:bg-[#EFE3CF] dark:hover:bg-[#31374A] flex items-center justify-center text-[#171923] dark:text-[#FFF9EF] active:scale-95 transition-all cursor-pointer border border-[#E8D9C0] dark:border-[#31374A]"

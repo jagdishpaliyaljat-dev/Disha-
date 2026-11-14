@@ -26,6 +26,11 @@ import {
   loadNotificationSettings,
   saveNotificationSettings
 } from "../utils/notificationsStorage";
+import {
+  getNotificationPermission,
+  requestNotificationPermission,
+  triggerLocalNotification
+} from "../utils/webPushService";
 
 interface NotificationsPageProps {
   notifications: AppNotification[];
@@ -50,6 +55,34 @@ export const NotificationsPage: React.FC<NotificationsPageProps> = ({
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [settings, setSettings] = useState<NotificationSettings>(() => loadNotificationSettings());
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [pushPermission, setPushPermission] = useState<string>(() => getNotificationPermission());
+  const [isTestingPush, setIsTestingPush] = useState(false);
+
+  const handleEnablePush = async () => {
+    const res = await requestNotificationPermission();
+    setPushPermission(res);
+    if (res === "granted") {
+      showToast("Push notifications enabled!");
+    } else if (res === "denied") {
+      showToast("Notifications blocked in browser settings.");
+    }
+  };
+
+  const handleTestPush = async () => {
+    setIsTestingPush(true);
+    const ok = await triggerLocalNotification({
+      title: "DISHA 20-20 — टेस्ट अलर्ट",
+      body: "बैकग्राउंड पुश नोटिफिकेशन सेवा सक्रिय है!",
+      url: "/",
+      tag: "test-push",
+    });
+    setIsTestingPush(false);
+    if (ok) {
+      showToast("Test notification sent!");
+    } else {
+      showToast("Please grant notification permission first.");
+    }
+  };
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -614,6 +647,57 @@ export const NotificationsPage: React.FC<NotificationsPageProps> = ({
                   className="w-5 h-5 accent-blue-600 rounded-md cursor-pointer shrink-0"
                 />
               </label>
+
+              {/* Web Push Notifications (Service Worker / Device Alert) */}
+              <div className="p-3.5 rounded-2xl bg-indigo-50/60 dark:bg-indigo-950/25 border border-indigo-100 dark:border-indigo-900/40">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3 pr-2">
+                    <div className="w-9 h-9 rounded-xl bg-indigo-100/70 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+                      <Smartphone className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h5 className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                        System Push Notifications
+                        <span className={`text-[10px] px-1.5 py-0.2 rounded font-bold uppercase ${
+                          pushPermission === "granted"
+                            ? "bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300"
+                            : pushPermission === "denied"
+                            ? "bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300"
+                            : "bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300"
+                        }`}>
+                          {pushPermission === "granted" ? "Active" : pushPermission === "denied" ? "Blocked" : "Disabled"}
+                        </span>
+                      </h5>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                        Receive exam alerts & mock test reminders when app is closed
+                      </p>
+                    </div>
+                  </div>
+                  {pushPermission !== "granted" ? (
+                    <button
+                      onClick={handleEnablePush}
+                      className="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-bold shrink-0 transition-transform active:scale-95"
+                    >
+                      Enable
+                    </button>
+                  ) : (
+                    <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
+                  )}
+                </div>
+
+                {pushPermission === "granted" && (
+                  <div className="mt-3 pt-2.5 border-t border-indigo-100 dark:border-indigo-900/40 flex justify-end">
+                    <button
+                      onClick={handleTestPush}
+                      disabled={isTestingPush}
+                      className="inline-flex items-center gap-1.5 text-[11px] font-bold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer disabled:opacity-50"
+                    >
+                      <BellRing className="w-3.5 h-3.5" />
+                      {isTestingPush ? "Sending Test..." : "Send Test Notification"}
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Sticky Save Button for Mobile Thumb Reach */}

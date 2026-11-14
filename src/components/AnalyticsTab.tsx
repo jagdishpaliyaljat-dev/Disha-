@@ -37,6 +37,7 @@ import { getLast7DaysStudyData, loadStudyHistoryFromStorage } from "../utils/sto
 import { isDueToday, getTodayDateString } from "../utils/revision";
 import ShareModal, { ShareData } from "./ShareModal";
 import { triggerHaptic, playClickSound } from "../utils/audioFeedback";
+import { AIWeaknessHeatmap } from "./AIWeaknessHeatmap";
 
 interface AnalyticsTabProps {
   progressStore: ProgressStore;
@@ -682,7 +683,19 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
           </div>
         </section>
 
-        {/* 5. 7-DAY STUDY CONSISTENCY & STREAK */}
+        {/* 5. AI WEAKNESS HEATMAP & TOPIC DIAGNOSTICS */}
+        <section className="pt-1">
+          <AIWeaknessHeatmap
+            questions={questions}
+            chapters={chapters}
+            subjects={subjects}
+            progressStore={progressStore}
+            onStartSession={onStartSession}
+            onNavigateTab={onNavigateTab}
+          />
+        </section>
+
+        {/* 6. 7-DAY STUDY CONSISTENCY & STREAK */}
         <section className="bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-3xl p-5 shadow-2xs space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">

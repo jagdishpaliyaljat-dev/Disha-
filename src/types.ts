@@ -433,6 +433,10 @@ export interface LiveTestSubmission {
   correctCount: number;
   wrongCount: number;
   unattemptedCount: number;
+  unattemptedECount?: number;
+  completelyBlankCount?: number;
+  blankPenalty?: number;
+  isRpscDisqualified?: boolean;
   accuracy: number;
   timeSpentSeconds: number;
   submittedAt: string;

@@ -536,6 +536,10 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
                           <span className="bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] text-[10px] font-black uppercase px-2.5 py-1 rounded-lg border border-[#800020]/20 dark:border-[#F47B20]/30 truncate">
                             {test.examCategory || "General Exam"}
                           </span>
+                          <span className="bg-amber-500/10 dark:bg-amber-400/15 text-amber-700 dark:text-amber-400 text-[10px] font-black uppercase px-2 py-0.5 rounded-lg border border-amber-500/25 shrink-0 flex items-center gap-1">
+                            <ShieldCheck size={11} />
+                            RPSC Option E
+                          </span>
                         </div>
 
                         <div className="flex items-center gap-1.5">
@@ -571,6 +575,12 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
                             {test.instructions}
                           </p>
                         )}
+                        <div className="mt-2 p-2.5 rounded-xl bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-800/40 text-[10.5px] leading-relaxed text-amber-900 dark:text-amber-200 flex items-start gap-2">
+                          <AlertCircle size={14} className="shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
+                          <div>
+                            <strong>RPSC 5वां विकल्प नियम:</strong> यदि प्रश्न हल नहीं करना है तो Option E ('अनुत्तरित प्रश्न') भरें। खाली छोड़ने पर 1/3 अंक कटौती तथा 10% से अधिक खाली छोड़ने पर अयोग्यता नियम लागू है।
+                          </div>
+                        </div>
                       </div>
 
                       {/* Information Grid */}
@@ -741,7 +751,14 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
                     {sub.testTitle}
                   </h3>
 
-                  <div className="grid grid-cols-3 gap-2 bg-[#FFF9EF] dark:bg-[#171923] p-3 rounded-xl border border-[#E8D9C0] dark:border-[#31374A]">
+                  {sub.isRpscDisqualified && (
+                    <div className="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-800 dark:text-rose-200 text-xs font-bold flex items-center gap-2">
+                      <AlertCircle size={15} className="shrink-0 text-rose-600 dark:text-rose-400" />
+                      <span>RPSC अयोग्य (Disqualified): 10% से अधिक प्रश्न खाली छोड़े गए</span>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-4 gap-1.5 bg-[#FFF9EF] dark:bg-[#171923] p-3 rounded-xl border border-[#E8D9C0] dark:border-[#31374A]">
                     <div className="text-center border-r border-[#E8D9C0] dark:border-[#31374A]">
                       <p className="text-[9px] text-slate-500 dark:text-slate-400 font-extrabold uppercase mb-0.5">
                         Score
@@ -756,13 +773,21 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
                       </p>
                       <p className="text-xs font-black tabular-nums">
                         <span className="text-emerald-700 dark:text-emerald-400">{sub.correctCount}</span>
-                        <span className="text-slate-400 mx-1">/</span>
+                        <span className="text-slate-400 mx-0.5">/</span>
                         <span className="text-rose-700 dark:text-rose-400">{sub.wrongCount}</span>
+                      </p>
+                    </div>
+                    <div className="text-center border-r border-[#E8D9C0] dark:border-[#31374A]">
+                      <p className="text-[9px] text-slate-500 dark:text-slate-400 font-extrabold uppercase mb-0.5">
+                        Option E
+                      </p>
+                      <p className="text-xs font-black text-amber-700 dark:text-amber-400 tabular-nums">
+                        {sub.unattemptedECount ?? 0}
                       </p>
                     </div>
                     <div className="text-center">
                       <p className="text-[9px] text-slate-500 dark:text-slate-400 font-extrabold uppercase mb-0.5">
-                        Time Spent
+                        Time
                       </p>
                       <p className="text-xs font-black text-[#171923] dark:text-[#FFF9EF] tabular-nums">
                         {Math.floor(sub.timeSpentSeconds / 60)}m

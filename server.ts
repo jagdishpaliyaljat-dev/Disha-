@@ -227,7 +227,7 @@ export function createServerApp(deps: ServerDependencies = {}) {
     try {
       const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
       const rlKey = `contact:${Array.isArray(ip) ? ip[0] : String(ip).split(',')[0].trim()}`;
-      const rl = rateLimiter.check(rlKey, { windowMs: 10 * 60 * 1000, max: 10 });
+      const rl = rateLimiter.check(rlKey, { windowMs: 10 * 60 * 1000, maxRequests: 10 });
       if (!rl.allowed) {
         return res.status(429).json({
           success: false,

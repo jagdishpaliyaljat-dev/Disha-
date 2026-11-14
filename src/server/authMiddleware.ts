@@ -1,4 +1,4 @@
-import type express from 'express';
+import type { Request, RequestHandler } from 'express';
 
 // Must strictly match firestore.rules isTrustedAdminEmail() allowlist
 export const AUTHORIZED_ADMIN_EMAILS = [
@@ -42,7 +42,7 @@ declare global {
   }
 }
 
-function extractBearerToken(req: express.Request): string | null {
+function extractBearerToken(req: Request): string | null {
   const authHeader = req.headers.authorization;
   if (typeof authHeader !== 'string') return null;
   const match = authHeader.match(/^Bearer\s+(\S+)$/i);
@@ -52,7 +52,7 @@ function extractBearerToken(req: express.Request): string | null {
 }
 
 export async function verifyAuthenticatedRequest(
-  req: express.Request,
+  req: Request,
   deps: AuthDeps,
   options: { requireAdmin?: boolean } = {}
 ): Promise<AuthVerificationResult> {
@@ -189,7 +189,7 @@ export async function verifyAuthenticatedRequest(
   };
 }
 
-export function createRequireAuthenticatedUser(getDeps: () => AuthDeps): express.RequestHandler {
+export function createRequireAuthenticatedUser(getDeps: () => AuthDeps): RequestHandler {
   return async (req, res, next) => {
     const result = await verifyAuthenticatedRequest(req, getDeps(), { requireAdmin: false });
     if (result.ok) {
@@ -200,7 +200,7 @@ export function createRequireAuthenticatedUser(getDeps: () => AuthDeps): express
   };
 }
 
-export function createRequireVerifiedAdmin(getDeps: () => AuthDeps): express.RequestHandler {
+export function createRequireVerifiedAdmin(getDeps: () => AuthDeps): RequestHandler {
   return async (req, res, next) => {
     const result = await verifyAuthenticatedRequest(req, getDeps(), { requireAdmin: true });
     if (result.ok) {

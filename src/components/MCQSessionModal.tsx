@@ -363,7 +363,11 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
       return indices;
     }
 
-    const bottomKeywords = ["all of the above", "none of the above", "above mentioned", "उपरोक्त सभी", "इनमें से कोई नहीं", "उपरोक्त में से कोई नहीं"];
+    const bottomKeywords = [
+      "all of the above", "none of the above", "above mentioned",
+      "उपरोक्त सभी", "इनमें से कोई नहीं", "उपरोक्त में से कोई नहीं",
+      "अनुत्तरित प्रश्न", "question not attempted"
+    ];
     
     const bottomIndices: number[] = [];
     const shufflableIndices: number[] = [];
@@ -624,43 +628,51 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
     }
   }, [currentIndex]);
 
-  // Options letter labels
-  const optionLabels = ["A", "B", "C", "D"];
+  // Options letter labels (Supports RPSC 5-option standard)
+  const optionLabels = ["A", "B", "C", "D", "E"];
 
-    // Option list respecting shuffleOptions setting
-    const displayedOptions = useMemo(() => {
-      if (!currentQuestion) return [];
-      
-      let baseOptions: string[] = [...currentQuestion.options];
+  // Option list respecting shuffleOptions setting and RPSC 5th Option
+  const displayedOptions = useMemo(() => {
+    if (!currentQuestion) return [];
+    
+    let baseOptions: string[] = [...currentQuestion.options];
 
-      // For match-the-following, sometimes the raw options array includes the list items themselves.
-      const qType = currentQuestion.questionType?.toLowerCase() || "";
-      const isMatch = qType === "match_following" || qType === "match_column" || qType === "match" || qType === "pair_based" || qType === "pairs";
-      
-      if (isMatch) {
-        const looksLikePairing = (text: string) => /[-–—]/.test(text) || /\([a-z]\)/i.test(text) || /,\s*\d+/.test(text);
-        const pairings = baseOptions.filter(looksLikePairing);
-        if (pairings.length >= 2) {
-          baseOptions = pairings;
-        } else if (baseOptions.length > 4) {
-          baseOptions = baseOptions.slice(-4);
-        }
+    // For match-the-following, sometimes the raw options array includes the list items themselves.
+    const qType = currentQuestion.questionType?.toLowerCase() || "";
+    const isMatch = qType === "match_following" || qType === "match_column" || qType === "match" || qType === "pair_based" || qType === "pairs";
+    
+    if (isMatch) {
+      const looksLikePairing = (text: string) => /[-–—]/.test(text) || /\([a-z]\)/i.test(text) || /,\s*\d+/.test(text);
+      const pairings = baseOptions.filter(looksLikePairing);
+      if (pairings.length >= 2) {
+        baseOptions = pairings;
+      } else if (baseOptions.length > 4) {
+        baseOptions = baseOptions.slice(-4);
       }
+    }
 
-      // Map to objects with original index
-      const base = baseOptions.map((text, idx) => ({
-        text,
-        originalIndex: idx,
-      }));
+    // RPSC 5th Option standard: append Option E if question has 4 options
+    if (baseOptions.length === 4) {
+      baseOptions.push("अनुत्तरित प्रश्न (Question not attempted)");
+    }
 
-      // Apply shuffled order if available for this question
-      const order = shuffledOptionsOrder[currentQuestion.id];
-      if (order && order.length === base.length) {
-        return order.map(originalIdx => base[originalIdx]);
-      }
+    // Map to objects with original index
+    const base = baseOptions.map((text, idx) => ({
+      text,
+      originalIndex: idx,
+    }));
 
-      return base;
-    }, [currentQuestion?.id, shuffledOptionsOrder]);
+    // Apply shuffled order if available for this question, keeping Option E at the end
+    const order = shuffledOptionsOrder[currentQuestion.id];
+    if (order && order.length === base.length) {
+      return order.map(originalIdx => base[originalIdx]);
+    }
+    if (order && base.length === 5 && order.length === 4) {
+      return [...order.map(originalIdx => base[originalIdx]), base[4]];
+    }
+
+    return base;
+  }, [currentQuestion?.id, shuffledOptionsOrder]);
 
   // Filter questions for the detailed analytics section
   const filteredAnalyticsQuestions = useMemo(() => {
@@ -759,9 +771,10 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
     if (isAdvancing || !currentQuestion) return;
 
     setSelectedOptionIndex(selectedOriginalIndex);
+    const isUnattemptedE = selectedOriginalIndex === 4;
     const isCorrect = isLiveTestSession
       ? false
-      : selectedOriginalIndex === currentQuestion.correctIndex;
+      : (!isUnattemptedE && selectedOriginalIndex === currentQuestion.correctIndex);
 
     const timeSpent = calculateQuestionElapsedSeconds();
     setQuestionTimes((prev) => ({
@@ -773,6 +786,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
     const nextEntry = {
       selectedIndex: selectedOriginalIndex,
       isCorrect,
+      isUnattemptedE,
       isSubmitted: true,
     };
     const nextResultsSnapshot = {
@@ -799,8 +813,10 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
         { isAdminPreview: session.isAdminPreview }
       );
 
-      // Update progress store
-      onUpdateProgress(currentQuestion.id, isCorrect, selectedOriginalIndex);
+      // Update progress store only if candidate actually answered (not unattempted Option E)
+      if (!isUnattemptedE) {
+        onUpdateProgress(currentQuestion.id, isCorrect, selectedOriginalIndex);
+      }
     }
 
     // Play neutral click sound in Exam Mode (DO NOT reveal correct/wrong audio during exam)
@@ -1152,7 +1168,8 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
 
     setSelectedOptionIndex(selectedOriginalIndex);
     setIsSubmitted(true);
-    const isCorrect = selectedOriginalIndex === currentQuestion.correctIndex;
+    const isUnattemptedE = selectedOriginalIndex === 4;
+    const isCorrect = !isUnattemptedE && selectedOriginalIndex === currentQuestion.correctIndex;
 
     const timeSpent = calculateQuestionElapsedSeconds();
     setQuestionTimes((prev) => ({
@@ -1165,6 +1182,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
       [currentQuestion.id]: {
         selectedIndex: selectedOriginalIndex,
         isCorrect,
+        isUnattemptedE,
         isSubmitted: true,
       },
     }));
@@ -1186,7 +1204,9 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
       { isAdminPreview: session.isAdminPreview }
     );
 
-    if (isCorrect) {
+    if (isUnattemptedE) {
+      triggerHaptic("light", settings.hapticFeedback !== false);
+    } else if (isCorrect) {
       playCorrectSound(settings.soundEffects !== false);
       triggerHaptic("success", settings.hapticFeedback !== false);
       try {
@@ -1203,7 +1223,9 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
       triggerHaptic("warning", settings.hapticFeedback !== false);
     }
 
-    onUpdateProgress(currentQuestion.id, isCorrect, selectedOriginalIndex);
+    if (!isUnattemptedE) {
+      onUpdateProgress(currentQuestion.id, isCorrect, selectedOriginalIndex);
+    }
   };
 
   const handleNextQuestionPractice = () => {
@@ -1309,6 +1331,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
         else if (e.key === "2" || e.key === "b" || e.key === "B") optIdx = 1;
         else if (e.key === "3" || e.key === "c" || e.key === "C") optIdx = 2;
         else if (e.key === "4" || e.key === "d" || e.key === "D") optIdx = 3;
+        else if (e.key === "5" || e.key === "e" || e.key === "E") optIdx = 4;
 
         if (optIdx !== null && optIdx < displayedOptions.length) {
           e.preventDefault();
@@ -1342,6 +1365,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
           else if (e.key === "2" || e.key === "b" || e.key === "B") selectedIdx = 1;
           else if (e.key === "3" || e.key === "c" || e.key === "C") selectedIdx = 2;
           else if (e.key === "4" || e.key === "d" || e.key === "D") selectedIdx = 3;
+          else if (e.key === "5" || e.key === "e" || e.key === "E") selectedIdx = 4;
 
           if (selectedIdx !== null && selectedIdx < displayedOptions.length) {
             e.preventDefault();
@@ -2353,6 +2377,11 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                   cardStyles = "bg-emerald-50 dark:bg-emerald-950/20 border-emerald-500 shadow-sm shadow-emerald-500/10";
                   labelStyles = "bg-emerald-600 text-white";
                   textStyles = "text-emerald-900 dark:text-emerald-50 font-black";
+                } else if (isSelected && opt.originalIndex === 4) {
+                  // Option E selected in practice: Unattempted neutral
+                  cardStyles = "bg-amber-50 dark:bg-amber-950/20 border-amber-500 shadow-sm shadow-amber-500/10";
+                  labelStyles = "bg-amber-600 text-white";
+                  textStyles = "text-amber-900 dark:text-amber-50 font-bold";
                 } else if (isSelected && !isCorrectOption) {
                   cardStyles = "bg-rose-50 dark:bg-rose-950/20 border-rose-500 shadow-sm shadow-rose-500/10";
                   labelStyles = "bg-rose-600 text-white";
@@ -2363,10 +2392,17 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                   textStyles = "text-slate-500 dark:text-slate-400 font-bold";
                 }
               } else if (isSelected) {
-                // Strict Exam Mode: Blue highlight without revealing correct or wrong answers
-                cardStyles = "bg-blue-600 border-blue-600 shadow-lg shadow-blue-600/20 scale-[1.02]";
-                labelStyles = "bg-white/20 text-white";
-                textStyles = "text-white font-black";
+                if (opt.originalIndex === 4) {
+                  // Option E in active test
+                  cardStyles = "bg-amber-600 border-amber-600 shadow-lg shadow-amber-600/20 scale-[1.02]";
+                  labelStyles = "bg-white/20 text-white";
+                  textStyles = "text-white font-black";
+                } else {
+                  // Strict Exam Mode: Blue highlight without revealing correct or wrong answers
+                  cardStyles = "bg-blue-600 border-blue-600 shadow-lg shadow-blue-600/20 scale-[1.02]";
+                  labelStyles = "bg-white/20 text-white";
+                  textStyles = "text-white font-black";
+                }
               }
 
               const feedbackAnimation = (!isTestMode && isSubmitted)
@@ -3568,11 +3604,30 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
   const isLive = session.testType === "live" || session.isLiveTest;
 
   const totalQuestions = questions.length;
-  const localAttempted = Object.keys(sessionResults).length;
-  const localCorrect = Object.values(sessionResults).filter((r) => r.isCorrect).length;
+
+  let localCorrect = 0;
+  let localWrong = 0;
+  let localUnattemptedE = 0;
+  let localCompletelyBlank = 0;
+
+  questions.forEach((q) => {
+    const res = sessionResults[q.id];
+    if (!res || res.selectedIndex === undefined || res.selectedIndex === null || res.selectedIndex === -1) {
+      localCompletelyBlank++;
+    } else if (res.selectedIndex === 4) {
+      localUnattemptedE++;
+    } else if (res.isCorrect) {
+      localCorrect++;
+    } else {
+      localWrong++;
+    }
+  });
+
   const totalCorrect = serverSubmission ? Number(serverSubmission.correctCount ?? localCorrect) : localCorrect;
-  const totalWrong = serverSubmission ? Number(serverSubmission.wrongCount ?? Math.max(0, localAttempted - localCorrect)) : (localAttempted - localCorrect);
-  const totalSkipped = serverSubmission ? Number(serverSubmission.unattemptedCount ?? Math.max(0, totalQuestions - totalCorrect - totalWrong)) : (totalQuestions - localAttempted);
+  const totalWrong = serverSubmission ? Number(serverSubmission.wrongCount ?? localWrong) : localWrong;
+  const totalUnattemptedE = serverSubmission ? Number(serverSubmission.unattemptedECount ?? localUnattemptedE) : localUnattemptedE;
+  const totalCompletelyBlank = serverSubmission ? Number(serverSubmission.completelyBlankCount ?? localCompletelyBlank) : localCompletelyBlank;
+  const totalSkipped = totalUnattemptedE + totalCompletelyBlank;
   const totalAttempted = totalCorrect + totalWrong;
 
   const isPerfectScore =
@@ -3583,13 +3638,16 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
   const [shareData, setShareData] = useState<ShareData | null>(null);
 
   const marksPerQ = session.marksPerQuestion || (isLive ? 2 : 1);
-  const negMarksPerQ = session.negativeMarking ?? (isLive ? 0.66 : 0.33);
+  const negMarksPerQ = session.negativeMarking ?? (isLive ? 0.66 : Number((marksPerQ / 3).toFixed(2)));
+  const blankPenaltyPerQ = Number((marksPerQ / 3).toFixed(2));
+  const blankPenalty = Number((totalCompletelyBlank * blankPenaltyPerQ).toFixed(2));
 
-  const rawScore = totalCorrect * marksPerQ - totalWrong * negMarksPerQ;
+  const rawScore = (totalCorrect * marksPerQ) - (totalWrong * negMarksPerQ) - blankPenalty;
   const obtainedMarks = serverSubmission ? Number(serverSubmission.score ?? Math.max(0, Number(rawScore.toFixed(2)))) : Math.max(0, Number(rawScore.toFixed(2)));
   const maxMarks = serverSubmission ? Number(serverSubmission.totalMarks ?? totalQuestions * marksPerQ) : totalQuestions * marksPerQ;
   const scorePercent = maxMarks > 0 ? Math.round((obtainedMarks / maxMarks) * 100) : 0;
   const accuracy = serverSubmission ? Number(serverSubmission.accuracy ?? (totalAttempted > 0 ? Math.round((totalCorrect / totalAttempted) * 100) : 0)) : (totalAttempted > 0 ? Math.round((totalCorrect / totalAttempted) * 100) : 0);
+  const isRpscDisqualified = serverSubmission ? Boolean(serverSubmission.isRpscDisqualified) : (totalQuestions > 0 && totalCompletelyBlank > totalQuestions * 0.10);
 
   const formatTime = (totalSecs: number) => {
     const mins = Math.floor(totalSecs / 60);
@@ -3599,7 +3657,7 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
 
   const handleShareResult = () => {
     const title = `🎯 I scored ${scorePercent}% (${obtainedMarks}/${maxMarks}) in "${session.title}" on DISHA 20-20!`;
-    const text = `Accuracy: ${accuracy}% | Correct: ${totalCorrect}/${totalQuestions} | Time: ${formatTime(elapsedSeconds)}.\nPractice this quiz and official PYQs with explanations on DISHA 20-20:`;
+    const text = `Accuracy: ${accuracy}% | Correct: ${totalCorrect}/${totalQuestions} | Option E: ${totalUnattemptedE} | Time: ${formatTime(elapsedSeconds)}.\nPractice this quiz and official PYQs with explanations on DISHA 20-20:`;
     setShareData({
       title,
       text,
@@ -3692,6 +3750,19 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
             </span>
           </div>
         )}
+        {/* RPSC 10% Blank Rule Disqualification Alert */}
+        {isRpscDisqualified && (
+          <div className="p-3.5 sm:p-4 rounded-2xl bg-rose-500/10 border-2 border-rose-500/30 text-rose-800 dark:text-rose-200 text-left space-y-1.5 shadow-sm">
+            <div className="flex items-center gap-2 font-black text-xs sm:text-sm text-rose-600 dark:text-rose-400">
+              <AlertCircle className="w-4 h-4 shrink-0 text-rose-600 dark:text-rose-400" />
+              <span>⚠️ RPSC नियम चेतावनी: उम्मीदवारी अयोग्य (Disqualified)!</span>
+            </div>
+            <p className="text-[11px] sm:text-xs leading-relaxed text-rose-700 dark:text-rose-300">
+              आपने <strong>{totalCompletelyBlank} प्रश्न</strong> बिना 5वां विकल्प (Option E) भरे रिक्त छोड़ दिए हैं ({((totalCompletelyBlank / Math.max(1, totalQuestions)) * 100).toFixed(1)}%)। RPSC के आधिकारिक नियम के अनुसार 10% से अधिक प्रश्न खाली छोड़ने पर अभ्यर्थी को परीक्षा से अयोग्य घोषित कर दिया जाता है।
+            </p>
+          </div>
+        )}
+
         {/* Header & Score Card: High-Fidelity Aesthetic (Scaled for Mobile Ergonomics) */}
         <motion.div 
           variants={{
@@ -3731,7 +3802,7 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
               { label: "Accuracy", value: `${accuracy}%`, color: "emerald", bg: "emerald" }
             ].map((stat, i) => (
               <motion.div 
-                key={i}
+                key={i} 
                 variants={{
                   hidden: { opacity: 0, y: 15 },
                   show: { opacity: 1, y: 0 }
@@ -3748,21 +3819,29 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
           </div>
 
           {/* Positive vs Negative Marking Breakdown */}
-          <div className="flex items-center justify-center gap-2 text-[10px] sm:text-[11px] font-black font-mono pt-1 pb-0.5 relative z-10">
+          <div className="flex flex-wrap items-center justify-center gap-2 text-[10px] sm:text-[11px] font-black font-mono pt-1 pb-0.5 relative z-10">
             <span className="px-2.5 py-1 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200/80 dark:border-emerald-800/60">
               +{Number((totalCorrect * marksPerQ).toFixed(2))} Gained
             </span>
             <span className="text-slate-300 dark:text-slate-700">•</span>
             <span className="px-2.5 py-1 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border border-rose-200/80 dark:border-rose-800/60">
-              -{Number((totalWrong * negMarksPerQ).toFixed(2))} Negative
+              -{Number((totalWrong * negMarksPerQ).toFixed(2))} Wrong (-1/3)
             </span>
+            {blankPenalty > 0 && (
+              <>
+                <span className="text-slate-300 dark:text-slate-700">•</span>
+                <span className="px-2.5 py-1 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border border-amber-200/80 dark:border-amber-800/60">
+                  -{blankPenalty} Blank Penalty
+                </span>
+              </>
+            )}
           </div>
 
           <div className="grid grid-cols-4 gap-1.5 sm:gap-2 pt-2 border-t border-slate-100 dark:border-slate-800 relative z-10">
             {[
               { label: "Correct", value: totalCorrect, color: "text-emerald-600 dark:text-emerald-400" },
               { label: "Incorrect", value: totalWrong, color: "text-rose-600 dark:text-rose-400" },
-              { label: "Skipped", value: totalSkipped, color: "text-amber-600 dark:text-amber-400" },
+              { label: "Option E", value: totalUnattemptedE, color: "text-amber-600 dark:text-amber-400" },
               { label: "Duration", value: formatTime(elapsedSeconds), color: "text-blue-600 dark:text-blue-400" }
             ].map((item, i) => (
               <motion.div 
