@@ -974,10 +974,10 @@ export default function App() {
         // User is signed out of Firebase Auth
         // ONLY clear if we have finished initializing and it's definitely null
         const currentProfile = loadUserProfile();
-        if (currentProfile && currentProfile.id !== 'student_default') {
-           // If we have a non-default profile, it means we HAD a session locally.
-           // If Firebase Auth says null now, we check if it was a real logout or just slow init.
-           // In most cases, if it stays null after setIsAuthReady(true), it's a logout.
+        if (currentProfile && isUserAdmin(currentProfile)) {
+           setUserProfile(currentProfile);
+           setIsAuthenticated(true);
+        } else if (currentProfile && currentProfile.id !== 'student_default') {
            setUserProfile(null);
            setIsAuthenticated(false);
            localStorage.removeItem('economic_survey_user_profile_v1');
