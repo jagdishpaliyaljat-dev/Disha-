@@ -39,7 +39,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
     <nav
       id="bottom-navigation-bar"
       aria-label="Primary Navigation"
-      className="fixed bottom-0 left-0 right-0 z-50 bg-[#FFF9EF]/95 dark:bg-[#171923]/95 backdrop-blur-xl border-t border-[#E8D9C0] dark:border-[#31374A] shadow-[0_-2px_12px_rgba(23,25,35,0.05)]"
+      className="fixed bottom-0 left-0 right-0 z-50 bg-[#FFF9EF]/95 dark:bg-[#171923]/95 backdrop-blur-xl border-t border-[#E8D9C0] dark:border-[#31374A] shadow-[0_-2px_12px_rgba(23,25,35,0.05)] md:hidden"
       style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
     >
       <div className="max-w-3xl mx-auto w-full flex items-center justify-around px-2 h-[58px]">

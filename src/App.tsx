@@ -13,6 +13,20 @@ import {
   ProgressStore,
   AppNotification,
 } from './types';
+import { 
+  Home, 
+  BookOpen, 
+  Trophy, 
+  Scan, 
+  BarChart2, 
+  User, 
+  ShieldCheck, 
+  Search, 
+  Sun, 
+  Moon, 
+  LogIn, 
+  Bell 
+} from 'lucide-react';
 import { BottomNav } from './components/BottomNav';
 import { OfflineIndicator } from './components/OfflineIndicator';
 import { SyncStatusIndicator } from './components/SyncStatusIndicator';
@@ -1188,6 +1202,21 @@ export default function App() {
     }
   };
 
+  const handleDesktopNavigateTab = (tab: ActiveTab) => {
+    if (tab === 'analyzer') {
+      setIsExamAnalyzerOpen(true);
+      return;
+    }
+    if (tab !== activeTab) {
+      setSelectedArticleSlug(null);
+      setSelectedSubjectId(null);
+      setSelectedChapterId(null);
+      setSelectedTopicId(null);
+      setActiveSession(null);
+      setActiveTab(tab);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#FFF9EF] dark:bg-[#171923] text-[#171923] dark:text-[#FFF9EF] flex flex-col font-sans selection:bg-[#800020] selection:text-white">
       <BrandSplashAndOnboarding allowAutoOnboarding={activeTab === 'home'} />
@@ -1197,8 +1226,132 @@ export default function App() {
       <OfflineIndicator />
       <SyncStatusIndicator isOnline={true} isSyncing={false} lastSyncedAt={null} isAdmin={isAdmin} />
 
+      {/* Desktop Top Navigation Header */}
+      <header className="hidden md:block sticky top-0 z-40 bg-[#FFF9EF]/95 dark:bg-[#171923]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] select-none shadow-xs">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
+          {/* Brand Logo */}
+          <div
+            onClick={() => handleDesktopNavigateTab('home')}
+            className="flex items-center gap-2 cursor-pointer transition-transform hover:scale-[1.02] shrink-0"
+            role="button"
+            tabIndex={0}
+            aria-label="DISHA 20-20 Home"
+          >
+            <span className="text-lg font-black tracking-wider text-[#171923] dark:text-[#FFF9EF] uppercase font-serif">
+              DISHA
+            </span>
+            <span className="px-2 py-0.5 rounded-lg bg-gradient-to-r from-[#F47B20] to-[#E06A12] text-white font-black text-xs tracking-tight shadow-xs">
+              20-20
+            </span>
+          </div>
+
+          {/* Desktop Navigation Bar */}
+          <nav aria-label="Desktop Navigation" className="hidden md:flex items-center gap-1">
+            {[
+              { id: 'home' as ActiveTab, label: 'Home', icon: Home },
+              { id: 'topics' as ActiveTab, label: 'Subjects', icon: BookOpen },
+              { id: 'live_tests' as ActiveTab, label: 'Tests', icon: Trophy },
+              { id: 'analyzer' as ActiveTab, label: 'Scan', icon: Scan },
+              { id: 'analytics' as ActiveTab, label: 'Analytics', icon: BarChart2 },
+              { id: 'profile' as ActiveTab, label: 'Profile', icon: User },
+              ...(isAdmin ? [{ id: 'admin' as ActiveTab, label: 'Admin', icon: ShieldCheck }] : []),
+            ].map((item) => {
+              const Icon = item.icon;
+              const isActive =
+                item.id === 'analyzer'
+                  ? isExamAnalyzerOpen || activeTab === 'analyzer'
+                  : item.id === 'live_tests'
+                  ? activeTab === 'live_tests' || activeTab === 'test_series'
+                  : activeTab === item.id;
+
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => handleDesktopNavigateTab(item.id)}
+                  aria-current={isActive ? 'page' : undefined}
+                  className={`px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                    isActive
+                      ? 'bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] shadow-xs'
+                      : 'text-[#52576A] dark:text-[#929AB0] hover:text-[#171923] dark:hover:text-[#FFF9EF] hover:bg-[#F7EFE2] dark:hover:bg-[#252A3A]/60'
+                  }`}
+                >
+                  <Icon className="w-4 h-4" />
+                  <span>{item.label}</span>
+                </button>
+              );
+            })}
+          </nav>
+
+          {/* Desktop Right Quick Actions */}
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={() => setIsGlobalSearchOpen(true)}
+              className="w-9 h-9 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] hover:bg-[#EFE3CF] dark:hover:bg-[#31374A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center text-[#171923] dark:text-[#FFF9EF] active:scale-95 transition-all cursor-pointer"
+              aria-label="Search"
+              title="Global Search (Ctrl+K)"
+            >
+              <Search className="w-4 h-4" />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleDesktopNavigateTab('notifications')}
+              className="relative w-9 h-9 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] hover:bg-[#EFE3CF] dark:hover:bg-[#31374A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center text-[#171923] dark:text-[#FFF9EF] active:scale-95 transition-all cursor-pointer"
+              aria-label="Notifications"
+              title="Notifications"
+            >
+              <Bell className="w-4 h-4" />
+              {unreadNotificationsCount > 0 && (
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#F47B20] ring-2 ring-[#FFF9EF] dark:ring-[#171923]" />
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setSettings((prev) => ({ ...prev, darkMode: !prev.darkMode }))}
+              className="w-9 h-9 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] hover:bg-[#EFE3CF] dark:hover:bg-[#31374A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center text-[#171923] dark:text-[#C99A45] active:scale-95 transition-all cursor-pointer"
+              aria-label={settings.darkMode ? 'Switch to Day Mode' : 'Switch to Night Mode'}
+              title={settings.darkMode ? 'Day Mode' : 'Night Mode'}
+            >
+              {settings.darkMode ? (
+                <Sun className="w-4 h-4 text-[#F47B20]" />
+              ) : (
+                <Moon className="w-4 h-4 text-[#800020]" />
+              )}
+            </button>
+
+            {!isAuthenticated ? (
+              <button
+                type="button"
+                onClick={() => setIsLoginOpen(true)}
+                className="flex items-center gap-1.5 h-9 px-3 rounded-xl bg-[#800020] hover:bg-[#5E0017] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] text-white text-xs font-extrabold shadow-xs transition-all active:scale-95 cursor-pointer"
+              >
+                <LogIn className="w-3.5 h-3.5" />
+                <span>Sign In</span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => handleDesktopNavigateTab('profile')}
+                className="w-9 h-9 rounded-full ring-2 ring-[#C99A45]/60 hover:ring-[#800020] dark:hover:ring-[#F47B20] flex items-center justify-center overflow-hidden active:scale-95 transition-all cursor-pointer bg-[#F7EFE2] dark:bg-[#252A3A]"
+                aria-label="Profile"
+                title={userProfile?.name || 'User Profile'}
+              >
+                <img
+                  src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(userProfile?.name || 'Scholar')}`}
+                  alt="Avatar"
+                  className="w-full h-full object-cover"
+                />
+              </button>
+            )}
+          </div>
+        </div>
+      </header>
+
       {/* Main Content Rendering */}
-      <main className="flex-1 pb-16">
+      <main className="flex-1 pb-16 md:pb-6">
         <React.Suspense fallback={<div className="flex items-center justify-center py-20"><div className="w-7 h-7 border-3 border-[#800020] dark:border-[#F47B20] border-t-transparent rounded-full animate-spin" /></div>}>
         {activeTab === 'home' && (
           <HomeTab

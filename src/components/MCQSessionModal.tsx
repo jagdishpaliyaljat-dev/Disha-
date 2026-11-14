@@ -1316,7 +1316,10 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
         return;
       }
 
-      if (e.key === "b" || e.key === "B") {
+      const key = e.key.toLowerCase();
+
+      // Optional Bookmark shortcut via Ctrl+B / Cmd+B
+      if ((e.ctrlKey || e.metaKey) && key === "b") {
         if (currentQuestion) {
           e.preventDefault();
           onToggleBookmark(currentQuestion.id);
@@ -1324,55 +1327,49 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
         return;
       }
 
-      // In Test Mode: numbers 1-4 or A-D directly select and auto-advance
-      if (isTestMode && !isCompleted && displayedOptions.length > 0) {
-        let optIdx: number | null = null;
-        if (e.key === "1" || e.key === "a" || e.key === "A") optIdx = 0;
-        else if (e.key === "2" || e.key === "b" || e.key === "B") optIdx = 1;
-        else if (e.key === "3" || e.key === "c" || e.key === "C") optIdx = 2;
-        else if (e.key === "4" || e.key === "d" || e.key === "D") optIdx = 3;
-        else if (e.key === "5" || e.key === "e" || e.key === "E") optIdx = 4;
+      // Keys '1'-'5' or 'a'-'e' (case-insensitive) select option 0..4
+      let optIdx: number | null = null;
+      if (key === "1" || key === "a") optIdx = 0;
+      else if (key === "2" || key === "b") optIdx = 1;
+      else if (key === "3" || key === "c") optIdx = 2;
+      else if (key === "4" || key === "d") optIdx = 3;
+      else if (key === "5" || key === "e") optIdx = 4;
 
-        if (optIdx !== null && optIdx < displayedOptions.length) {
-          e.preventDefault();
+      if (optIdx !== null && optIdx < displayedOptions.length) {
+        e.preventDefault();
+        if (isTestMode) {
           handleOptionSelectTestMode(displayedOptions[optIdx].originalIndex);
-          return;
+        } else if (!isSubmitted) {
+          handleSelectOptionPractice(displayedOptions[optIdx].originalIndex);
         }
-
-        if (e.key === "ArrowRight") {
-          e.preventDefault();
-          handleSkipQuestionTestMode();
-          return;
-        }
-        if (e.key === "ArrowLeft") {
-          e.preventDefault();
-          handleNavigateQuestionTestMode(currentIndex - 1);
-          return;
-        }
+        return;
       }
 
-      // In Standard Practice Mode
-      if (!isTestMode) {
-        if (isSubmitted) {
-          if (e.key === "Enter" || e.key === " " || e.key === "ArrowRight") {
-            e.preventDefault();
-            handleNextQuestionPractice();
-            return;
-          }
-        } else if (displayedOptions.length > 0) {
-          let selectedIdx: number | null = null;
-          if (e.key === "1" || e.key === "a" || e.key === "A") selectedIdx = 0;
-          else if (e.key === "2" || e.key === "b" || e.key === "B") selectedIdx = 1;
-          else if (e.key === "3" || e.key === "c" || e.key === "C") selectedIdx = 2;
-          else if (e.key === "4" || e.key === "d" || e.key === "D") selectedIdx = 3;
-          else if (e.key === "5" || e.key === "e" || e.key === "E") selectedIdx = 4;
-
-          if (selectedIdx !== null && selectedIdx < displayedOptions.length) {
-            e.preventDefault();
-            handleSelectOptionPractice(displayedOptions[selectedIdx].originalIndex);
-            return;
-          }
+      if (e.key === "ArrowRight") {
+        e.preventDefault();
+        if (isTestMode) {
+          handleSkipQuestionTestMode();
+        } else if (isSubmitted || currentIndex < questions.length - 1) {
+          handleNextQuestionPractice();
         }
+        return;
+      }
+
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        if (isTestMode) {
+          handleNavigateQuestionTestMode(currentIndex - 1);
+        } else if (currentIndex > 0) {
+          handlePrevQuestionPractice();
+        }
+        return;
+      }
+
+      // Space / Enter advances in practice mode after submission
+      if (!isTestMode && isSubmitted && (e.key === "Enter" || e.key === " ")) {
+        e.preventDefault();
+        handleNextQuestionPractice();
+        return;
       }
     };
 
@@ -2990,6 +2987,48 @@ function RedesignedLiveAndPYQTestView({
 
   const isCurrentMarkedForReview = Boolean(currentQuestion && reviewStates[currentQuestion.id]);
 
+  // Keyboard Shortcuts for CBT Exam Mode
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      const targetTag = target?.tagName?.toLowerCase();
+      if (targetTag === "input" || targetTag === "textarea" || target?.isContentEditable) return;
+
+      const key = e.key.toLowerCase();
+      let optIdx: number | null = null;
+      if (key === "1" || key === "a") optIdx = 0;
+      else if (key === "2" || key === "b") optIdx = 1;
+      else if (key === "3" || key === "c") optIdx = 2;
+      else if (key === "4" || key === "d") optIdx = 3;
+      else if (key === "5" || key === "e") optIdx = 4;
+
+      if (optIdx !== null && optIdx < displayedOptions.length) {
+        e.preventDefault();
+        handleSelectOption(displayedOptions[optIdx].originalIndex);
+        return;
+      }
+
+      if (e.key === "ArrowRight") {
+        e.preventDefault();
+        if (currentIndex < totalQuestions - 1) {
+          setCurrentIndex(currentIndex + 1);
+        }
+        return;
+      }
+
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        if (currentIndex > 0) {
+          setCurrentIndex(currentIndex - 1);
+        }
+        return;
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [currentIndex, totalQuestions, displayedOptions, handleSelectOption, setCurrentIndex]);
+
   return (
     <div
       className="fixed inset-0 z-[100] bg-[#FFF9EF] dark:bg-[#171923] flex flex-col w-full h-[100dvh] overflow-hidden select-none"
@@ -3068,7 +3107,7 @@ function RedesignedLiveAndPYQTestView({
 
           <button
             onClick={() => setShowPaletteDrawer(true)}
-            className="w-10 h-10 rounded-xl bg-[#800020] dark:bg-[#F47B20] text-white flex items-center justify-center shadow-md active:scale-90 transition-transform cursor-pointer"
+            className="w-10 h-10 rounded-xl bg-[#800020] dark:bg-[#F47B20] text-white flex lg:hidden items-center justify-center shadow-md active:scale-90 transition-transform cursor-pointer"
             title="Question Palette"
           >
             <Grid size={20} />
@@ -3094,64 +3133,143 @@ function RedesignedLiveAndPYQTestView({
         />
       </div>
 
-      {/* 3. QUESTION CANVAS */}
-      <main className="flex-1 overflow-y-auto overscroll-contain bg-[#FFF9EF] dark:bg-[#171923] px-4 py-5">
-        <div className="max-w-3xl mx-auto space-y-5">
-          <div className="flex items-center justify-between px-1">
-            <span className="text-[11px] font-black text-[#787D91] dark:text-[#929AB0] uppercase tracking-[0.2em] font-mono tabular-nums">Question {currentIndex + 1} / {totalQuestions}</span>
-            <div className="flex items-center gap-2">
-              <span className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-md text-[10px] font-black font-mono tabular-nums">+{session.marksPerQuestion || (isLive ? 2 : 1)}.0</span>
-              <span className="bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 px-2 py-0.5 rounded-md text-[10px] font-black font-mono tabular-nums">-{session.negativeMarking ?? (isLive ? 0.66 : 0.33)}</span>
+      {/* 3. QUESTION CANVAS & CBT SPLIT-SCREEN LAYOUT */}
+      <main className="flex-1 overflow-y-auto overscroll-contain bg-[#FFF9EF] dark:bg-[#171923] px-3 sm:px-4 py-4 sm:py-5">
+        <div className="max-w-3xl lg:max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-start">
+          {/* Left Column: Question Text & Options */}
+          <div className="lg:col-span-8 space-y-5">
+            <div className="flex items-center justify-between px-1">
+              <span className="text-[11px] font-black text-[#787D91] dark:text-[#929AB0] uppercase tracking-[0.2em] font-mono tabular-nums">Question {currentIndex + 1} / {totalQuestions}</span>
+              <div className="flex items-center gap-2">
+                <span className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-md text-[10px] font-black font-mono tabular-nums">+{session.marksPerQuestion || (isLive ? 2 : 1)}.0</span>
+                <span className="bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 px-2 py-0.5 rounded-md text-[10px] font-black font-mono tabular-nums">-{session.negativeMarking ?? (isLive ? 0.66 : 0.33)}</span>
+              </div>
+            </div>
+
+            <div className="bg-white dark:bg-[#1F2330] p-[1.06rem] sm:p-[1.7rem] rounded-[26px] border border-[#E8D9C0] dark:border-[#31374A] shadow-2xs">
+              <div className="text-[1.10rem] sm:text-[1.22rem] font-bold text-[#171923] dark:text-[#FFF9EF] leading-snug font-hindi">
+                <ParsedQuestion text={currentQuestion?.text || ""} fontSizeClass="text-[1.10rem] sm:text-[1.22rem]" question={currentQuestion} />
+              </div>
+            </div>
+
+            <div className="space-y-2.5">
+              {displayedOptions.map((opt, idx) => {
+                const isSelected = selectedOptionIndex === opt.originalIndex;
+                return (
+                  <motion.button
+                    key={`${opt.originalIndex}-${idx}`}
+                    onClick={() => handleSelectOption(opt.originalIndex)}
+                    whileTap={{ scale: 0.97 }}
+                    className={`w-full p-[0.85rem] sm:p-[1.06rem] rounded-[18px] border-2 text-left flex items-start gap-3.5 transition-all duration-200 cursor-pointer ${
+                      isSelected
+                        ? "bg-[#800020] dark:bg-[#F47B20] border-[#800020] dark:border-[#F47B20] shadow-lg shadow-[#800020]/20"
+                        : "bg-white dark:bg-[#1F2330] border-[#E8D9C0] dark:border-[#31374A] hover:border-[#800020]/50 dark:hover:border-[#F47B20]/50 shadow-2xs"
+                    }`}
+                  >
+                    <span className={`shrink-0 w-[1.53rem] h-[1.53rem] sm:w-[1.72rem] sm:h-[1.72rem] rounded-lg sm:rounded-xl flex items-center justify-center font-black text-xs sm:text-[13px] font-mono transition-all ${
+                      isSelected ? 'bg-white/20 text-white' : 'bg-[#F7EFE2] dark:bg-[#252A3A] text-[#52576A] dark:text-[#CBD2E1]'
+                    }`}>
+                      {optionLabels[idx]}
+                    </span>
+                    <div className={`flex-1 pt-0.5 font-hindi font-bold min-w-0 break-words [overflow-wrap:anywhere] text-[0.965rem] sm:text-[1.03rem] leading-snug ${
+                      isSelected ? 'text-white' : 'text-[#171923] dark:text-[#FFF9EF]'
+                    }`}>
+                      <RichText text={opt.text} />
+                    </div>
+                    {isSelected && (
+                      <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 400 }} className="mt-1">
+                        <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center">
+                          <Check size={14} className="text-[#800020] dark:text-[#F47B20]" strokeWidth={4} />
+                        </div>
+                      </motion.div>
+                    )}
+                  </motion.button>
+                );
+              })}
             </div>
           </div>
 
-          <div className="bg-white dark:bg-[#1F2330] p-[1.06rem] sm:p-[1.7rem] rounded-[26px] border border-[#E8D9C0] dark:border-[#31374A] shadow-2xs">
-            <div className="text-[1.10rem] sm:text-[1.22rem] font-bold text-[#171923] dark:text-[#FFF9EF] leading-snug font-hindi">
-              <ParsedQuestion text={currentQuestion?.text || ""} fontSizeClass="text-[1.10rem] sm:text-[1.22rem]" question={currentQuestion} />
+          {/* Right Column: CBT Sticky Question Palette (Desktop lg+ screens) */}
+          <aside className="hidden lg:flex lg:col-span-4 flex-col gap-3.5 sticky top-2 bg-white dark:bg-[#1F2330] p-5 rounded-[26px] border border-[#E8D9C0] dark:border-[#31374A] shadow-2xs">
+            <div className="flex items-center justify-between pb-3 border-b border-[#E8D9C0] dark:border-[#31374A]">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] flex items-center justify-center">
+                  <Grid size={18} />
+                </div>
+                <div>
+                  <h3 className="text-xs font-black uppercase tracking-wider text-[#171923] dark:text-[#FFF9EF]">Question Palette</h3>
+                  <p className="text-[10px] font-bold text-[#787D91] dark:text-[#929AB0]">{answeredCount} / {totalQuestions} Answered</p>
+                </div>
+              </div>
             </div>
-          </div>
 
-          <div className="space-y-2.5">
-            {displayedOptions.map((opt, idx) => {
-              const isSelected = selectedOptionIndex === opt.originalIndex;
-              return (
-                <motion.button
-                  key={`${opt.originalIndex}-${idx}`}
-                  onClick={() => handleSelectOption(opt.originalIndex)}
-                  whileTap={{ scale: 0.97 }}
-                  className={`w-full p-[0.85rem] sm:p-[1.06rem] rounded-[18px] border-2 text-left flex items-start gap-3.5 transition-all duration-200 cursor-pointer ${
-                    isSelected
-                      ? "bg-[#800020] dark:bg-[#F47B20] border-[#800020] dark:border-[#F47B20] shadow-lg shadow-[#800020]/20"
-                      : "bg-white dark:bg-[#1F2330] border-[#E8D9C0] dark:border-[#31374A] hover:border-[#800020]/50 dark:hover:border-[#F47B20]/50 shadow-2xs"
-                  }`}
-                >
-                  <span className={`shrink-0 w-[1.53rem] h-[1.53rem] sm:w-[1.72rem] sm:h-[1.72rem] rounded-lg sm:rounded-xl flex items-center justify-center font-black text-xs sm:text-[13px] font-mono transition-all ${
-                    isSelected ? 'bg-white/20 text-white' : 'bg-[#F7EFE2] dark:bg-[#252A3A] text-[#52576A] dark:text-[#CBD2E1]'
-                  }`}>
-                    {optionLabels[idx]}
-                  </span>
-                  <div className={`flex-1 pt-0.5 font-hindi font-bold min-w-0 break-words [overflow-wrap:anywhere] text-[0.965rem] sm:text-[1.03rem] leading-snug ${
-                    isSelected ? 'text-white' : 'text-[#171923] dark:text-[#FFF9EF]'
-                  }`}>
-                    <RichText text={opt.text} />
-                  </div>
-                  {isSelected && (
-                    <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 400 }} className="mt-1">
-                      <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center">
-                        <Check size={14} className="text-[#800020] dark:text-[#F47B20]" strokeWidth={4} />
-                      </div>
-                    </motion.div>
-                  )}
-                </motion.button>
-              );
-            })}
-          </div>
+            {/* Status Legend */}
+            <div className="grid grid-cols-2 gap-2 text-[10.5px] font-bold text-[#52576A] dark:text-[#CBD2E1] pb-3 border-b border-[#E8D9C0]/60 dark:border-[#31374A]/60">
+              <div className="flex items-center gap-1.5">
+                <span className="w-3 h-3 rounded-md bg-emerald-600 shrink-0" />
+                <span>Answered ({answeredCount})</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-3 h-3 rounded-md bg-amber-500 shrink-0" />
+                <span>Review ({reviewCount})</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-3 h-3 rounded-md bg-rose-600 shrink-0" />
+                <span>Unanswered ({notAnsweredCount})</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-3 h-3 rounded-md bg-[#F7EFE2] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] shrink-0" />
+                <span>Not Visited ({notVisitedCount})</span>
+              </div>
+            </div>
+
+            {/* 1..N Question Grid */}
+            <div className="max-h-[calc(100vh-340px)] min-h-[180px] overflow-y-auto pr-1">
+              <div className="grid grid-cols-5 gap-2">
+                {questions.map((q, idx) => {
+                  const isAns = Boolean(sessionResults[q.id]);
+                  const isRev = Boolean(reviewStates[q.id]);
+                  const isVis = Boolean(visitedStates[q.id]);
+                  const isCurr = idx === currentIndex;
+
+                  let bg = "bg-[#F7EFE2] dark:bg-[#252A3A] border-[#E8D9C0] dark:border-[#31374A] text-[#52576A] dark:text-[#CBD2E1]";
+                  if (isRev) bg = "bg-amber-500 border-amber-500 text-white shadow-xs shadow-amber-500/20";
+                  else if (isAns) bg = "bg-emerald-600 border-emerald-600 text-white shadow-xs shadow-emerald-600/20";
+                  else if (isVis) bg = "bg-rose-600 border-rose-600 text-white shadow-xs shadow-rose-600/20";
+
+                  return (
+                    <button
+                      key={`cbt-${q.id}-${idx}`}
+                      onClick={() => setCurrentIndex(idx)}
+                      className={`h-9 rounded-xl flex items-center justify-center font-black text-xs font-mono border-2 transition-all cursor-pointer active:scale-95 ${bg} ${
+                        isCurr ? 'ring-2 ring-[#800020] dark:ring-[#F47B20] scale-105 z-10 !border-[#800020] dark:!border-[#F47B20]' : ''
+                      }`}
+                      title={`Jump to Question ${idx + 1}`}
+                    >
+                      {idx + 1}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Quick Submit */}
+            <div className="pt-2 border-t border-[#E8D9C0] dark:border-[#31374A]">
+              <button
+                onClick={() => setShowSubmitConfirm(true)}
+                className="w-full h-10 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-md shadow-emerald-600/20 transition-all cursor-pointer"
+              >
+                <CheckCircle2 size={16} />
+                <span>Submit Exam</span>
+              </button>
+            </div>
+          </aside>
         </div>
       </main>
 
       {/* 4. SMART BOTTOM NAVIGATION */}
       <footer className="sticky bottom-0 z-30 px-4 py-3 bg-white dark:bg-[#1F2330] border-t border-[#E8D9C0] dark:border-[#31374A] shadow-[0_-4px_20px_rgba(0,0,0,0.03)] pb-[calc(12px+env(safe-area-inset-bottom,0px))]">
-        <div className="max-w-3xl mx-auto flex items-center justify-between gap-3">
+        <div className="max-w-3xl lg:max-w-7xl mx-auto flex items-center justify-between gap-3">
           <button
             onClick={() => currentIndex > 0 && setCurrentIndex(currentIndex - 1)}
             disabled={currentIndex === 0}

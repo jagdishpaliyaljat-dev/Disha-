@@ -182,8 +182,8 @@ export const HomeTab: React.FC<HomeTabProps> = ({
       className="flex flex-col w-full min-h-full bg-[#FFF9EF] dark:bg-[#171923] text-[#171923] dark:text-[#FFF9EF]"
       id="home-container"
     >
-      {/* 1. COMPACT BRAND HEADER */}
-      <header className="px-3.5 sm:px-6 py-2 bg-[#FFF9EF]/95 dark:bg-[#171923]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] sticky top-0 z-40 select-none">
+      {/* 1. COMPACT BRAND HEADER (Mobile) */}
+      <header className="px-3.5 sm:px-6 py-2 bg-[#FFF9EF]/95 dark:bg-[#171923]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] sticky top-0 z-40 select-none md:hidden">
         <div className="max-w-5xl mx-auto flex items-center justify-between gap-2">
           <div className="flex items-center gap-3 min-w-0">
             <button
