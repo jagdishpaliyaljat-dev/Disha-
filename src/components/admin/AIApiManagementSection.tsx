@@ -511,7 +511,7 @@ export const AIApiManagementSection: React.FC = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 min-w-[280px]">
+          <div className="grid grid-cols-2 gap-3 w-full sm:w-auto sm:min-w-[260px]">
             <div className="bg-slate-50 p-4 rounded-lg border border-slate-100">
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Total Keys</p>
               <p className="text-2xl font-bold text-slate-900 tabular-nums leading-none">{configs.length}</p>

@@ -114,18 +114,18 @@ export const AdminDashboardSection: React.FC<AdminDashboardSectionProps> = ({
   const quota = getQuotaStats(totalRegisteredUsers);
 
   return (
-    <div className="space-y-6 pb-12 animate-in fade-in duration-300 max-w-full overflow-x-hidden">
+    <div className="space-y-5 sm:space-y-6 pb-12 animate-in fade-in duration-300 max-w-full overflow-x-hidden">
       
       {/* SaaS Dashboard Header */}
-      <div className="p-6 sm:p-8 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-3xl border border-slate-800 shadow-xl relative overflow-hidden">
+      <div className="p-4 sm:p-8 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-3xl border border-slate-800 shadow-xl relative overflow-hidden">
         <div className="absolute right-0 top-0 bottom-0 w-96 bg-indigo-500/10 blur-3xl pointer-events-none" />
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2">
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5 sm:gap-6">
+          <div className="space-y-1.5 sm:space-y-2">
             <div className="flex items-center gap-2 text-xs font-bold text-indigo-300 uppercase tracking-widest">
               <LayoutDashboard className="w-4 h-4 text-indigo-400" />
               <span>Admin Control Center</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
+            <h1 className="text-xl sm:text-3xl font-black tracking-tight text-white">
               Welcome back, {auth.currentUser?.displayName?.split(" ")[0] || "Admin"}
             </h1>
             <p className="text-xs sm:text-sm text-slate-300 max-w-xl leading-relaxed">
@@ -133,11 +133,11 @@ export const AdminDashboardSection: React.FC<AdminDashboardSectionProps> = ({
             </p>
           </div>
 
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 shrink-0">
             <button
               onClick={checkHealth}
               disabled={isCheckingHealth || healthCooldown > 0}
-              className="h-11 px-4 bg-white/10 hover:bg-white/20 text-white rounded-2xl text-xs font-bold flex items-center gap-2 transition-all border border-white/10 backdrop-blur-md cursor-pointer disabled:opacity-50"
+              className="h-10 sm:h-11 px-3.5 sm:px-4 bg-white/10 hover:bg-white/20 text-white rounded-2xl text-xs font-bold flex items-center gap-2 transition-all border border-white/10 backdrop-blur-md cursor-pointer disabled:opacity-50 active:scale-95"
             >
               <ShieldCheck className={`w-4 h-4 ${isCheckingHealth ? "animate-spin text-amber-400" : "text-emerald-400"}`} />
               <span>{isCheckingHealth ? "Checking..." : healthCooldown > 0 ? `${healthCooldown}s` : "Health Probe"}</span>
@@ -146,7 +146,7 @@ export const AdminDashboardSection: React.FC<AdminDashboardSectionProps> = ({
             <button
               onClick={() => loadData(true)}
               disabled={refreshing || loading}
-              className="h-11 px-5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl text-xs font-extrabold flex items-center gap-2 transition-all shadow-lg shadow-indigo-600/30 cursor-pointer"
+              className="h-10 sm:h-11 px-4 sm:px-5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl text-xs font-extrabold flex items-center gap-2 transition-all shadow-lg shadow-indigo-600/30 cursor-pointer active:scale-95"
             >
               <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`} />
               <span>Sync Cloud Data</span>
@@ -156,7 +156,7 @@ export const AdminDashboardSection: React.FC<AdminDashboardSectionProps> = ({
       </div>
 
       {/* Metrics Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {[
           { 
             label: "Total Students", 
@@ -169,7 +169,7 @@ export const AdminDashboardSection: React.FC<AdminDashboardSectionProps> = ({
           { 
             label: "Live Banners", 
             value: activeBanners, 
-            sub: `${totalBanners} Total Banners Configured`, 
+            sub: `${totalBanners} Total Configured`, 
             icon: ImageIcon, 
             color: "text-emerald-600 dark:text-emerald-400", 
             bg: "bg-emerald-50 dark:bg-emerald-950/50" 
@@ -185,7 +185,7 @@ export const AdminDashboardSection: React.FC<AdminDashboardSectionProps> = ({
           { 
             label: "Estimated Daily Reads", 
             value: quota.estimatedDailyTotalForN, 
-            sub: "Firestore Daily Quota Estimate", 
+            sub: "Daily Quota Estimate", 
             icon: Activity, 
             color: "text-amber-600 dark:text-amber-400", 
             bg: "bg-amber-50 dark:bg-amber-950/50" 
@@ -193,17 +193,17 @@ export const AdminDashboardSection: React.FC<AdminDashboardSectionProps> = ({
         ].map((stat, i) => (
           <div 
             key={i} 
-            className="bg-white dark:bg-[#111A2E] p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm hover:border-indigo-500/50 transition-all space-y-3"
+            className="bg-white dark:bg-[#111A2E] p-3.5 sm:p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs hover:border-indigo-500/50 transition-all space-y-2 sm:space-y-3"
           >
             <div className="flex items-center justify-between">
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${stat.bg}`}>
-                <stat.icon className={`w-5 h-5 ${stat.color}`} />
+              <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center ${stat.bg}`}>
+                <stat.icon className={`w-4 h-4 sm:w-5 sm:h-5 ${stat.color}`} />
               </div>
-              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">{stat.label}</span>
+              <span className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider truncate">{stat.label}</span>
             </div>
             <div className="flex flex-col">
-              <span className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tabular-nums">{stat.value.toLocaleString()}</span>
-              <span className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1">{stat.sub}</span>
+              <span className="text-xl sm:text-3xl font-black text-slate-900 dark:text-white tabular-nums">{stat.value.toLocaleString()}</span>
+              <span className="text-[11px] sm:text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5 truncate">{stat.sub}</span>
             </div>
           </div>
         ))}
@@ -236,7 +236,7 @@ export const AdminDashboardSection: React.FC<AdminDashboardSectionProps> = ({
       )}
 
       {/* Quick Action Navigation Tiles */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3">
         {[
           { label: "Syllabus Tree", icon: Layers, nav: "curriculum", desc: "Manage Subjects & Topics" },
           { label: "Students", icon: Users, nav: "users", desc: "Manage User Profiles" },
@@ -247,17 +247,17 @@ export const AdminDashboardSection: React.FC<AdminDashboardSectionProps> = ({
           <button
             key={card.label}
             onClick={() => onNavigateSection(card.nav as any)}
-            className="group p-4 bg-white dark:bg-[#111A2E] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm hover:border-indigo-500/50 hover:shadow-md transition-all text-left active:scale-95 cursor-pointer"
+            className="group p-3 sm:p-4 bg-white dark:bg-[#111A2E] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs hover:border-indigo-500/50 hover:shadow-md transition-all text-left active:scale-95 cursor-pointer"
           >
-            <div className="flex items-center justify-between mb-3">
-              <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
-                <card.icon className="w-4.5 h-4.5" />
+            <div className="flex items-center justify-between mb-2.5">
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                <card.icon className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
               </div>
               <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-indigo-500 transition-colors" />
             </div>
             <div>
               <p className="text-xs font-bold text-slate-900 dark:text-white truncate">{card.label}</p>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-0.5 truncate">{card.desc}</p>
+              <p className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-0.5 truncate">{card.desc}</p>
             </div>
           </button>
         ))}
@@ -267,26 +267,26 @@ export const AdminDashboardSection: React.FC<AdminDashboardSectionProps> = ({
       <FirebaseStorageOverview />
 
       {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6">
         
-        <div className="lg:col-span-8 space-y-6">
+        <div className="lg:col-span-8 space-y-5 sm:space-y-6">
           {/* Recent Student Directory Card */}
-          <div className="bg-white dark:bg-[#111A2E] rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-hidden">
-            <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+          <div className="bg-white dark:bg-[#111A2E] rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden">
+            <div className="px-4 sm:px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                <div className="w-9 h-9 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
                   <Users className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-black text-slate-900 dark:text-white tracking-tight">Recent Student Enrolments</h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Latest registered users in Firestore</p>
+                  <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-white tracking-tight">Recent Student Enrolments</h3>
+                  <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium">Latest registered users in Firestore</p>
                 </div>
               </div>
               <button 
                 onClick={() => onNavigateSection("users")}
-                className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold transition-all cursor-pointer"
+                className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0"
               >
-                View Directory
+                Directory
               </button>
             </div>
             

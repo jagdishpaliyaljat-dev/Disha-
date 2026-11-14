@@ -221,7 +221,7 @@ export const DiagnosticReport: React.FC<DiagnosticReportProps> = ({ userProfile 
 
       {/* Simple Table Listing Counts */}
       <div className="bg-white dark:bg-[#111A2E] rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-xs">
-        <div className="p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+        <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <h3 className="text-sm font-black text-slate-900 dark:text-white flex items-center gap-2">
               <Database className="w-4 h-4 text-blue-500" />

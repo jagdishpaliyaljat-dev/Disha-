@@ -125,23 +125,23 @@ export const AdminAnalyticsDashboard: React.FC = () => {
   return (
     <div className="space-y-6 sm:space-y-8 pb-16 animate-in fade-in slide-in-from-bottom-3 duration-700">
       {/* 1. Header Section */}
-      <div className="bg-white dark:bg-[#111A2E] rounded-[32px] border border-slate-200/80 dark:border-slate-800 shadow-sm p-6 sm:p-10 relative overflow-hidden">
+      <div className="bg-white dark:bg-[#111A2E] rounded-[32px] border border-slate-200/80 dark:border-slate-800 shadow-sm p-4 sm:p-8 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 rounded-full -mr-20 -mt-20 blur-3xl" />
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6 sm:gap-8">
           <div className="space-y-4">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-600 dark:text-blue-400 text-[10px] font-black uppercase tracking-wider">
               <BarChart3 className="w-3.5 h-3.5" />
               <span>Traffic Analytics</span>
             </div>
-            <div className="space-y-2">
-              <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
+            <div className="space-y-1.5 sm:space-y-2">
+              <h1 className="text-2xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
                 Live <span className="text-blue-600">Insights</span>
               </h1>
-              <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400 font-medium max-w-xl">
+              <p className="text-xs sm:text-base text-slate-500 dark:text-slate-400 font-medium max-w-xl">
                 Track student engagement, acquisition channels, and popular content performance across the platform.
               </p>
             </div>
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
               <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
                 {(["today", "7days", "30days"] as const).map((r) => (
                   <button
@@ -177,7 +177,7 @@ export const AdminAnalyticsDashboard: React.FC = () => {
           </div>
 
           {/* Key KPI Strip */}
-          <div className="grid grid-cols-2 gap-4 sm:gap-6 min-w-[300px]">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 w-full lg:w-auto lg:min-w-[280px]">
             <div className="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-2xl border border-slate-200/50 dark:border-slate-800">
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Visits</p>
               <p className="text-2xl font-black text-slate-900 dark:text-white tabular-nums">{loading ? "..." : totalVisits.toLocaleString()}</p>

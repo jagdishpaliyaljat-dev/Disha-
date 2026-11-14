@@ -385,7 +385,7 @@ export const FirebaseQuotaHealthPanel: React.FC<{ onBulkSync: () => void }> = ({
   return (
     <div className="space-y-6 pb-12 animate-in fade-in slide-in-from-bottom-2 duration-500">
       {/* 1. Refined Header */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 sm:p-8 relative overflow-hidden">
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-8 relative overflow-hidden">
         <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">

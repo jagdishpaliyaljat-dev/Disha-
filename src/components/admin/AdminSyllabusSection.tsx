@@ -95,26 +95,26 @@ export const AdminSyllabusSection = React.memo((props: AdminSyllabusSectionProps
             ) : (
               <div className="divide-y divide-slate-100 dark:divide-slate-800">
                 {props.subjects.map((subj, idx) => (
-                  <div key={subj.id || idx} className="flex items-center justify-between p-4 hover:bg-slate-50/80 dark:hover:bg-slate-800/50 rounded-2xl transition-colors group">
-                    <div className="flex items-center gap-4">
-                      <span className="text-xs font-bold text-slate-400 tabular-nums">{(idx + 1).toString().padStart(2, '0')}</span>
-                      <div>
-                        <p className="text-sm font-bold text-slate-900 dark:text-white">{getSubjectDisplayName(subj)}</p>
+                  <div key={subj.id || idx} className="flex items-center justify-between gap-2 p-3 sm:p-4 hover:bg-slate-50/80 dark:hover:bg-slate-800/50 rounded-2xl transition-colors group">
+                    <div className="flex items-center gap-2.5 sm:gap-4 min-w-0 flex-1">
+                      <span className="text-xs font-bold text-slate-400 tabular-nums shrink-0">{(idx + 1).toString().padStart(2, '0')}</span>
+                      <div className="min-w-0">
+                        <p className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate">{getSubjectDisplayName(subj)}</p>
                         {getSubjectSecondaryName(subj) && (
-                          <p className="text-xs text-slate-400 font-hindi">{getSubjectSecondaryName(subj)}</p>
+                          <p className="text-[11px] sm:text-xs text-slate-400 font-hindi truncate">{getSubjectSecondaryName(subj)}</p>
                         )}
-                        <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">UID: {subj.id?.slice(0, 12)}</p>
+                        <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium truncate">UID: {subj.id?.slice(0, 12)}</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
                       <button 
                         onClick={() => props.onShowAddChapter(subj.id)}
-                        className="px-3 py-1.5 bg-indigo-50 dark:bg-indigo-950/50 hover:bg-indigo-100 dark:hover:bg-indigo-900 text-indigo-600 dark:text-indigo-400 rounded-xl text-xs font-bold transition-all flex items-center gap-1 cursor-pointer active:scale-95"
+                        className="px-2.5 sm:px-3 py-1.5 bg-indigo-50 dark:bg-indigo-950/50 hover:bg-indigo-100 dark:hover:bg-indigo-900 text-indigo-600 dark:text-indigo-400 rounded-xl text-xs font-bold transition-all flex items-center gap-1 cursor-pointer active:scale-95"
                       >
                         <FolderPlus className="w-3.5 h-3.5" />
                         <span>+ Chapter</span>
                       </button>
-                      <button onClick={() => props.promptDeleteSubject(subj.id, getSubjectDisplayName(subj))} className="p-2 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition-colors cursor-pointer">
+                      <button onClick={() => props.promptDeleteSubject(subj.id, getSubjectDisplayName(subj))} className="p-1.5 sm:p-2 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition-colors cursor-pointer">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
@@ -141,26 +141,26 @@ export const AdminSyllabusSection = React.memo((props: AdminSyllabusSectionProps
             ) : (
               <div className="divide-y divide-slate-100 dark:divide-slate-800">
                 {props.chapters.map((ch, idx) => (
-                  <div key={ch.id || idx} className="flex items-center justify-between p-4 hover:bg-slate-50/80 dark:hover:bg-slate-800/50 rounded-2xl transition-colors group">
-                    <div className="flex items-center gap-4">
-                      <span className="text-xs font-bold text-slate-400 tabular-nums">{(idx + 1).toString().padStart(2, '0')}</span>
-                      <div>
-                        <p className="text-sm font-bold text-slate-900 dark:text-white">{getChapterDisplayName(ch)}</p>
+                  <div key={ch.id || idx} className="flex items-center justify-between gap-2 p-3 sm:p-4 hover:bg-slate-50/80 dark:hover:bg-slate-800/50 rounded-2xl transition-colors group">
+                    <div className="flex items-center gap-2.5 sm:gap-4 min-w-0 flex-1">
+                      <span className="text-xs font-bold text-slate-400 tabular-nums shrink-0">{(idx + 1).toString().padStart(2, '0')}</span>
+                      <div className="min-w-0">
+                        <p className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate">{getChapterDisplayName(ch)}</p>
                         {getChapterSecondaryTitle(ch) && (
-                          <p className="text-xs text-slate-400 font-hindi">{getChapterSecondaryTitle(ch)}</p>
+                          <p className="text-[11px] sm:text-xs text-slate-400 font-hindi truncate">{getChapterSecondaryTitle(ch)}</p>
                         )}
-                        <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{ch.subjectId || "Unlinked Node"}</p>
+                        <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium truncate">{ch.subjectId || "Unlinked Node"}</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
                       <button 
                         onClick={() => props.onShowAddTopic(ch.subjectId, ch.id)}
-                        className="px-3 py-1.5 bg-purple-50 dark:bg-purple-950/50 hover:bg-purple-100 dark:hover:bg-purple-900 text-purple-600 dark:text-purple-400 rounded-xl text-xs font-bold transition-all flex items-center gap-1 cursor-pointer active:scale-95"
+                        className="px-2.5 sm:px-3 py-1.5 bg-purple-50 dark:bg-purple-950/50 hover:bg-purple-100 dark:hover:bg-purple-900 text-purple-600 dark:text-purple-400 rounded-xl text-xs font-bold transition-all flex items-center gap-1 cursor-pointer active:scale-95"
                       >
                         <Layers className="w-3.5 h-3.5" />
                         <span>+ Topic</span>
                       </button>
-                      <button onClick={() => props.promptDeleteChapter(ch.id, getChapterDisplayName(ch))} className="p-2 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition-colors cursor-pointer">
+                      <button onClick={() => props.promptDeleteChapter(ch.id, getChapterDisplayName(ch))} className="p-1.5 sm:p-2 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition-colors cursor-pointer">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>

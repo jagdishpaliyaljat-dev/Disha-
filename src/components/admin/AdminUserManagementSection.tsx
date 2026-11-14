@@ -470,22 +470,22 @@ export const AdminUserManagementSection: React.FC<AdminUserManagementSectionProp
   return (
     <div className="space-y-6 pb-12 animate-in fade-in slide-in-from-bottom-2 duration-500">
       {/* 1. Refined Header */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 sm:p-8 relative overflow-hidden">
-        <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div className="space-y-2">
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-8 relative overflow-hidden">
+        <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-5 sm:gap-6">
+          <div className="space-y-1.5 sm:space-y-2">
             <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
               <Users className="w-3.5 h-3.5" />
               <span>Identity Directory</span>
             </div>
-            <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Student Management</h2>
-            <p className="text-sm text-slate-500 font-medium max-w-lg leading-relaxed">
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Student Management</h2>
+            <p className="text-xs sm:text-sm text-slate-500 font-medium max-w-lg leading-relaxed">
               Manage user access, audit learning progress, and maintain educational integrity.
             </p>
           </div>
           <button 
             onClick={() => loadUsers(true)} 
             disabled={refreshing || loading} 
-            className="flex items-center justify-center gap-2 px-5 py-3 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-lg font-bold text-xs uppercase tracking-wider transition-all active:scale-[0.98] shadow-sm"
+            className="flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-lg font-bold text-xs uppercase tracking-wider transition-all active:scale-[0.98] shadow-sm self-start md:self-auto cursor-pointer"
           >
             <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin text-indigo-600" : "text-slate-400"}`} /> 
             <span>{refreshing ? "Syncing..." : "Sync Directory"}</span>
@@ -529,7 +529,7 @@ export const AdminUserManagementSection: React.FC<AdminUserManagementSectionProp
         {/* Directory Column */}
         <div className="lg:col-span-9 space-y-5">
           {/* Search & Filter Bar */}
-          <div className="sticky top-[80px] z-20 bg-white border border-slate-200 rounded-xl p-2 shadow-lg shadow-slate-100 flex flex-col gap-2">
+          <div className="sticky top-14 sm:top-16 z-20 bg-white border border-slate-200 rounded-xl p-2 shadow-sm flex flex-col gap-2">
             <div className="relative">
               <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
               <input 

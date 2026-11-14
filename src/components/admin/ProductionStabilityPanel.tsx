@@ -165,7 +165,7 @@ export const ProductionStabilityPanel: React.FC = () => {
   }, []);
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-[32px] p-8 border border-slate-200/80 dark:border-slate-800 shadow-xl space-y-8">
+    <div className="bg-white dark:bg-slate-900 rounded-[32px] p-4 sm:p-6 lg:p-8 border border-slate-200/80 dark:border-slate-800 shadow-xl space-y-6 sm:space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-6">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400">

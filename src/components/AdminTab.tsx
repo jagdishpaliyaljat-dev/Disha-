@@ -626,22 +626,22 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
       
       {/* 1. Sticky Compact Header */}
       <header className="sticky top-0 z-40 bg-white/80 dark:bg-[#0B1220]/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
-        <div className="max-w-screen-2xl mx-auto flex items-center justify-between px-4 h-14 sm:h-16">
+        <div className="max-w-screen-2xl mx-auto flex items-center justify-between px-3 sm:px-6 h-14 sm:h-16">
           
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4 min-w-0">
             <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="lg:hidden p-2 -ml-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              className="lg:hidden p-2 -ml-1 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0"
               aria-label="Toggle Menu"
             >
               {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
 
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-[#800020] text-[#FFF9EF] flex items-center justify-center font-black text-sm shadow-sm">
+            <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#800020] text-[#FFF9EF] flex items-center justify-center font-black text-xs sm:text-sm shadow-xs shrink-0">
                 D
               </div>
-              <h1 className="text-base font-bold tracking-tight text-slate-900 dark:text-white hidden xs:block">
+              <h1 className="text-sm sm:text-base font-bold tracking-tight text-slate-900 dark:text-white truncate">
                 DISHA 20-20 Admin
               </h1>
             </div>
@@ -652,45 +652,45 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
             </div>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-4">
+          <div className="flex items-center gap-1 sm:gap-3 shrink-0">
             <button
               onClick={handleSyncInit}
-              className={`p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors ${isSyncing ? "animate-spin text-blue-600" : ""}`}
+              className={`p-2 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors ${isSyncing ? "animate-spin text-blue-600" : ""}`}
               title="Cloud Sync"
             >
-              <RefreshCw className="w-5 h-5" />
+              <RefreshCw className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
             </button>
             
             <button
               onClick={() => { setActiveGroup("users"); setSubTabUsers("notifications"); }}
-              className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors relative cursor-pointer"
+              className="p-2 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors relative cursor-pointer"
               title="View Broadcasts & System Alerts"
             >
-              <Activity className="w-5 h-5" />
+              <Activity className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
               <span className="absolute top-2 right-2 w-2 h-2 bg-rose-500 rounded-full border-2 border-white dark:border-[#0B1220]"></span>
             </button>
 
-            <div className="h-6 w-px bg-slate-200 dark:bg-slate-800 hidden sm:block"></div>
+            <div className="h-5 sm:h-6 w-px bg-slate-200 dark:bg-slate-800 hidden xs:block"></div>
 
             <div className="relative" ref={adminMenuRef}>
               <button
                 onClick={() => setIsAdminMenuOpen(!isAdminMenuOpen)}
-                className="flex items-center gap-2 pl-1 pr-1 sm:pr-2 py-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                className="flex items-center gap-1.5 sm:gap-2 pl-1 pr-1 sm:pr-2 py-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                 title="Admin Account Profile"
                 aria-expanded={isAdminMenuOpen}
                 aria-haspopup="true"
               >
-                <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-xs font-bold text-slate-600 dark:text-slate-400">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-xs font-bold text-slate-600 dark:text-slate-400">
                   {props.userProfile?.name?.charAt(0) || "A"}
                 </div>
-                <span className="text-sm font-medium text-slate-700 dark:text-slate-300 hidden sm:inline">{props.userProfile?.name?.split(' ')[0] || "Admin"}</span>
-                <ChevronDown className={`w-4 h-4 text-slate-400 hidden sm:inline transition-transform duration-200 ${isAdminMenuOpen ? "rotate-180" : ""}`} />
+                <span className="text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300 hidden sm:inline">{props.userProfile?.name?.split(' ')[0] || "Admin"}</span>
+                <ChevronDown className={`w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400 hidden sm:inline transition-transform duration-200 ${isAdminMenuOpen ? "rotate-180" : ""}`} />
               </button>
 
               {isAdminMenuOpen && (
-                <div className="absolute right-0 mt-2 w-72 rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800 shadow-xl z-50 p-3 space-y-3">
+                <div className="absolute right-0 mt-2 w-72 max-w-[calc(100vw-24px)] rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800 shadow-xl z-50 p-3 space-y-3">
                   <div className="flex items-center gap-3 pb-3 border-b border-slate-100 dark:border-slate-800/80">
-                    <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-sm">
+                    <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-sm shrink-0">
                       {props.userProfile?.name?.charAt(0) || "A"}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -698,7 +698,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                         <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
                           {props.userProfile?.name || "System Admin"}
                         </p>
-                        <span className="px-1.5 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300">
+                        <span className="px-1.5 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300 shrink-0">
                           {props.userProfile?.role || "Admin"}
                         </span>
                       </div>
@@ -756,7 +756,24 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
             isSidebarOpen ? "translate-x-0" : "-translate-x-full"
           } lg:translate-x-0 transition-transform duration-200 ease-in-out lg:static lg:z-0 flex flex-col`}
         >
-          <div className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+          {/* Mobile-only Drawer Header */}
+          <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-slate-800 lg:hidden">
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-lg bg-[#800020] text-[#FFF9EF] flex items-center justify-center font-black text-xs shadow-xs">
+                D
+              </div>
+              <span className="text-sm font-bold text-slate-900 dark:text-white">Admin Navigation</span>
+            </div>
+            <button
+              onClick={() => setIsSidebarOpen(false)}
+              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              aria-label="Close sidebar"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          <div className="flex-1 overflow-y-auto py-3 px-3 space-y-1">
             <div className="px-3 mb-2">
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Management</p>
             </div>
@@ -768,19 +785,19 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                 <button
                   key={item.id}
                   onClick={() => handleSelectGroup(item.id)}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-all active:scale-[0.98] cursor-pointer touch-manipulation ${
+                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all active:scale-[0.98] cursor-pointer touch-manipulation min-h-[42px] ${
                     isActive
-                      ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400"
+                      ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-bold"
                       : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-white"
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <Icon className={`w-4 h-4 ${isActive ? "text-blue-600" : "text-slate-400 group-hover:text-slate-600"}`} />
-                    <span>{item.title}</span>
+                    <Icon className={`w-4 h-4 ${isActive ? "text-blue-600 dark:text-blue-400" : "text-slate-400 group-hover:text-slate-600"}`} />
+                    <span className="truncate">{item.title}</span>
                   </div>
                   {item.badge && (
-                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${
-                      isActive ? "bg-blue-100 dark:bg-blue-800/30 text-blue-700" : "bg-slate-100 dark:bg-slate-800 text-slate-500"
+                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md shrink-0 ${
+                      isActive ? "bg-blue-100 dark:bg-blue-800/30 text-blue-700 dark:text-blue-300" : "bg-slate-100 dark:bg-slate-800 text-slate-500"
                     }`}>
                       {item.badge}
                     </span>
@@ -790,10 +807,13 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
             })}
           </div>
 
-          <div className="p-4 border-t border-slate-100 dark:border-slate-800">
+          <div className="p-3 border-t border-slate-100 dark:border-slate-800">
             <button
-              onClick={() => setShowQATestRunner(true)}
-              className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+              onClick={() => {
+                setShowQATestRunner(true);
+                setIsSidebarOpen(false);
+              }}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors min-h-[42px] cursor-pointer"
             >
               <Terminal className="w-4 h-4 text-slate-400" />
               <span>QA Debug Suite</span>
@@ -802,38 +822,60 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
         </aside>
 
         {/* 3. Main Content Workspace */}
-        <main className="flex-1 overflow-y-auto bg-slate-50/50 dark:bg-[#080E1A] p-4 sm:p-6 lg:p-8 pb-24 lg:pb-8">
-          <div className="max-w-screen-xl mx-auto space-y-6">
+        <main className="flex-1 overflow-y-auto bg-slate-50/50 dark:bg-[#080E1A] p-3 sm:p-6 lg:p-8 pb-24 lg:pb-8">
+          <div className="max-w-screen-xl mx-auto space-y-5 sm:space-y-6">
             
+            {/* Mobile Horizontal Quick Navigation Strip (lg:hidden) */}
+            <div className="lg:hidden flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 -mx-1 px-1 touch-pan-x">
+              {navGroupItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = activeGroup === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => handleSelectGroup(item.id)}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shrink-0 cursor-pointer ${
+                      isActive
+                        ? "bg-slate-900 text-white dark:bg-blue-600 dark:text-white shadow-xs"
+                        : "bg-white dark:bg-[#111A2E] text-slate-600 dark:text-slate-400 border border-slate-200/80 dark:border-slate-800 hover:bg-slate-50"
+                    }`}
+                  >
+                    <Icon className="w-3.5 h-3.5" />
+                    <span>{item.title}</span>
+                  </button>
+                );
+              })}
+            </div>
+
             <React.Suspense fallback={null}>
               <AdminQuotaAlert />
             </React.Suspense>
             
             {activeGroup === "dashboard" && (
-              <div className="space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="space-y-5 sm:space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
                   <div>
-                    <h2 className="text-xl font-bold text-slate-900 dark:text-white">Dashboard Overview</h2>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Real-time system health and student activity metrics.</p>
+                    <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">Dashboard Overview</h2>
+                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">Real-time system health and student activity metrics.</p>
                   </div>
                   
-                  <div className="flex items-center p-1 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm self-start sm:self-auto">
+                  <div className="flex items-center p-1 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xs self-start sm:self-auto overflow-x-auto max-w-full no-scrollbar">
                     <button
                       onClick={() => setSubTabDashboard("overview")}
-                      className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
                         subTabDashboard === "overview"
-                          ? "bg-slate-900 dark:bg-slate-700 text-white shadow-sm"
-                          : "text-slate-500 dark:text-slate-400 hover:text-slate-900"
+                          ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs"
+                          : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                       }`}
                     >
                       Real-time
                     </button>
                     <button
                       onClick={() => setSubTabDashboard("analytics")}
-                      className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
                         subTabDashboard === "analytics"
-                          ? "bg-slate-900 dark:bg-slate-700 text-white shadow-sm"
-                          : "text-slate-500 dark:text-slate-400 hover:text-slate-900"
+                          ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs"
+                          : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                       }`}
                     >
                       Analytics
@@ -881,32 +923,32 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
 
             {/* Question Bank Section */}
             {activeGroup === "questions" && (
-              <div className="space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div className="space-y-1">
-                    <h2 className="text-xl font-bold text-slate-900">Question Repository</h2>
+              <div className="space-y-5 sm:space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+                  <div className="space-y-0.5">
+                    <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">Question Repository</h2>
                     <p className="text-xs sm:text-sm text-slate-500 font-medium">Manage thousands of MCQs and batch imports.</p>
                   </div>
-                  <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
                     <button
                       onClick={props.onShowHTMLImport}
-                      className="px-4 py-2 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center gap-2 cursor-pointer"
+                      className="px-3.5 py-2 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
                       title="Import MCQs from HTML files or HTML source code"
                     >
                       <FileCode className="w-3.5 h-3.5" />
-                      <span>HTML Import MCQ</span>
+                      <span>HTML Import</span>
                     </button>
-                    <button onClick={props.onShowManageQuestions} className="px-4 py-2 bg-slate-900 text-white text-xs font-bold rounded-xl shadow-sm hover:bg-slate-800 transition-all cursor-pointer">
+                    <button onClick={props.onShowManageQuestions} className="px-3.5 py-2 bg-slate-900 dark:bg-slate-700 text-white text-xs font-bold rounded-xl shadow-xs hover:bg-slate-800 dark:hover:bg-slate-600 transition-all cursor-pointer active:scale-95">
                       Browse Repository
                     </button>
-                    <button onClick={props.onShowAIImport} className="px-4 py-2 bg-white border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs font-bold rounded-xl shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center gap-2 cursor-pointer">
-                      <Sparkles className="w-3.5 h-3.5" />
+                    <button onClick={props.onShowAIImport} className="px-3.5 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs font-bold rounded-xl shadow-xs hover:bg-slate-50 dark:hover:bg-slate-700 transition-all flex items-center gap-1.5 cursor-pointer active:scale-95">
+                      <Sparkles className="w-3.5 h-3.5 text-amber-500" />
                       AI Import
                     </button>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3">
                   {[
                     { label: "Directory", action: props.onShowManageQuestions, icon: Database, isHtml: false },
                     { label: "HTML Import", action: props.onShowHTMLImport, icon: FileCode, isHtml: true },
@@ -927,20 +969,20 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                     <button
                       key={item.label}
                       onClick={item.action}
-                      className={`p-4 bg-white dark:bg-slate-800 border rounded-xl shadow-xs flex flex-col items-center gap-2 transition-all text-center group cursor-pointer active:scale-95 ${
+                      className={`p-3 sm:p-4 bg-white dark:bg-slate-800 border rounded-2xl shadow-xs flex flex-col items-center gap-2 transition-all text-center group cursor-pointer active:scale-95 ${
                         item.isHtml
                           ? "border-orange-300 dark:border-orange-900/60 hover:border-orange-600 bg-orange-50/20 dark:bg-orange-950/10"
                           : "border-slate-100 dark:border-slate-800 hover:border-slate-900 dark:hover:border-slate-400"
                       }`}
                     >
-                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${
+                      <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center transition-colors ${
                         item.isHtml
                           ? "bg-orange-100 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400 group-hover:scale-105"
                           : "bg-slate-50 dark:bg-slate-800 text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white"
                       }`}>
-                        <item.icon className="w-5 h-5" />
+                        <item.icon className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
                       </div>
-                      <span className={`text-[11px] font-bold uppercase tracking-tight ${
+                      <span className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-tight ${
                         item.isHtml
                           ? "text-orange-700 dark:text-orange-400 font-extrabold"
                           : "text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white"
@@ -959,45 +1001,45 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
 
             {/* Exams Section */}
             {activeGroup === "tests" && (
-              <div className="space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div className="space-y-1">
-                    <h2 className="text-xl font-bold text-slate-900 dark:text-white">Exam Series & PYQs</h2>
+              <div className="space-y-5 sm:space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+                  <div className="space-y-0.5">
+                    <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">Exam Series & PYQs</h2>
                     <p className="text-xs sm:text-sm text-slate-500 font-medium">Historical papers and live mock schedules.</p>
                   </div>
-                  <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
                     <button
                       onClick={() => setShowCoachingHierarchyModal(true)}
-                      className="px-3.5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer"
+                      className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
                     >
-                      <Building2 className="w-4 h-4" />
-                      <span>+ Coaching Hierarchy</span>
+                      <Building2 className="w-3.5 h-3.5" />
+                      <span>Coaching Hierarchy</span>
                     </button>
                     <button
                       onClick={props.onShowManagePYQVault}
-                      className="px-3.5 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer"
+                      className="px-3 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
                     >
-                      <PlusCircle className="w-4 h-4" />
-                      <span>+ Add PYQ Paper</span>
+                      <PlusCircle className="w-3.5 h-3.5" />
+                      <span>+ PYQ Paper</span>
                     </button>
                     <button
                       onClick={props.onShowManageLiveTests}
-                      className="px-3.5 py-2.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer"
+                      className="px-3 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
                     >
-                      <PlusCircle className="w-4 h-4" />
-                      <span>+ Add Live Test</span>
+                      <PlusCircle className="w-3.5 h-3.5" />
+                      <span>+ Live Test</span>
                     </button>
                   </div>
                 </div>
 
                 {/* Responsive Test Management Card Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                   {/* 1. Live Mock Tests Overview Card */}
-                  <div className="bg-white dark:bg-[#111A2E] rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between hover:border-rose-300 dark:hover:border-rose-900/50 transition-all group">
+                  <div className="bg-white dark:bg-[#111A2E] rounded-3xl p-5 sm:p-6 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between hover:border-rose-300 dark:hover:border-rose-900/50 transition-all group">
                     <div className="space-y-4">
                       <div className="flex items-start justify-between gap-3">
-                        <div className="w-12 h-12 rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                          <Timer className="w-6 h-6" />
+                        <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                          <Timer className="w-5.5 h-5.5 sm:w-6 sm:h-6" />
                         </div>
                         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 border border-rose-200/60 dark:border-rose-800/40">
                           <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
@@ -1024,7 +1066,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
 
                     <button
                       onClick={props.onShowManageLiveTests}
-                      className="w-full mt-5 py-3 px-4 bg-rose-600 hover:bg-rose-700 active:scale-98 text-white rounded-2xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-sm cursor-pointer"
+                      className="w-full mt-5 py-2.5 sm:py-3 px-4 bg-rose-600 hover:bg-rose-700 active:scale-98 text-white rounded-2xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer"
                     >
                       <span>Manage Live Tests</span>
                       <ArrowRight className="w-4 h-4" />
@@ -1032,11 +1074,11 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                   </div>
 
                   {/* 2. Previous Year Papers (PYQ Vault) Overview Card */}
-                  <div className="bg-white dark:bg-[#111A2E] rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between hover:border-amber-300 dark:hover:border-amber-900/50 transition-all group">
+                  <div className="bg-white dark:bg-[#111A2E] rounded-3xl p-5 sm:p-6 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between hover:border-amber-300 dark:hover:border-amber-900/50 transition-all group">
                     <div className="space-y-4">
                       <div className="flex items-start justify-between gap-3">
-                        <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                          <FileText className="w-6 h-6" />
+                        <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                          <FileText className="w-5.5 h-5.5 sm:w-6 sm:h-6" />
                         </div>
                         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/40">
                           <Archive className="w-3.5 h-3.5" />
@@ -1063,7 +1105,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
 
                     <button
                       onClick={props.onShowManagePYQVault}
-                      className="w-full mt-5 py-3 px-4 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 active:scale-98 text-white rounded-2xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-sm cursor-pointer"
+                      className="w-full mt-5 py-2.5 sm:py-3 px-4 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 active:scale-98 text-white rounded-2xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer"
                     >
                       <span>Open PYQ Vault</span>
                       <ArrowRight className="w-4 h-4" />
@@ -1071,11 +1113,11 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                   </div>
 
                   {/* 3. Coaching Hierarchy & Batches Overview Card */}
-                  <div className="bg-white dark:bg-[#111A2E] rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between hover:border-blue-300 dark:hover:border-blue-900/50 transition-all group">
+                  <div className="bg-white dark:bg-[#111A2E] rounded-3xl p-5 sm:p-6 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between hover:border-blue-300 dark:hover:border-blue-900/50 transition-all group">
                     <div className="space-y-4">
                       <div className="flex items-start justify-between gap-3">
-                        <div className="w-12 h-12 rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                          <Building2 className="w-6 h-6" />
+                        <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                          <Building2 className="w-5.5 h-5.5 sm:w-6 sm:h-6" />
                         </div>
                         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200/60 dark:border-blue-800/40">
                           Multi-Tenant
@@ -1101,7 +1143,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
 
                     <button
                       onClick={() => setShowCoachingHierarchyModal(true)}
-                      className="w-full mt-5 py-3 px-4 bg-blue-600 hover:bg-blue-700 active:scale-98 text-white rounded-2xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-sm cursor-pointer"
+                      className="w-full mt-5 py-2.5 sm:py-3 px-4 bg-blue-600 hover:bg-blue-700 active:scale-98 text-white rounded-2xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer"
                     >
                       <span>Configure Hierarchy</span>
                       <ArrowRight className="w-4 h-4" />
@@ -1113,15 +1155,15 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
 
             {/* Content Section */}
             {activeGroup === "content" && (
-              <div className="space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="space-y-5 sm:space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
                   <div>
-                    <h2 className="text-xl font-bold text-slate-900 dark:text-white">Editorial Content</h2>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Manage articles, news feed and app-wide banners.</p>
+                    <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">Editorial Content</h2>
+                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">Manage articles, news feed and app-wide banners.</p>
                   </div>
-                  <div className="flex items-center p-1 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">
-                    <button onClick={() => setSubTabContent("news")} className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${subTabContent === "news" ? "bg-slate-900 dark:bg-slate-700 text-white shadow-sm" : "text-slate-500 dark:text-slate-400"}`}>Articles</button>
-                    <button onClick={() => setSubTabContent("banners")} className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${subTabContent === "banners" ? "bg-slate-900 dark:bg-slate-700 text-white shadow-sm" : "text-slate-500 dark:text-slate-400"}`}>Banners</button>
+                  <div className="flex items-center p-1 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xs overflow-x-auto max-w-full no-scrollbar self-start sm:self-auto">
+                    <button onClick={() => setSubTabContent("news")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${subTabContent === "news" ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}>Articles</button>
+                    <button onClick={() => setSubTabContent("banners")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${subTabContent === "banners" ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}>Banners</button>
                   </div>
                 </div>
 
@@ -1137,16 +1179,16 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
 
             {/* Users Section */}
             {activeGroup === "users" && (
-              <div className="space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="space-y-5 sm:space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
                   <div>
-                    <h2 className="text-xl font-bold text-slate-900 dark:text-white">Student Directory</h2>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Manage user profiles, permissions and communication.</p>
+                    <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">Student Directory</h2>
+                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">Manage user profiles, permissions and communication.</p>
                   </div>
-                  <div className="flex items-center p-1 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm overflow-x-auto">
-                    <button onClick={() => setSubTabUsers("directory")} className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all whitespace-nowrap ${subTabUsers === "directory" ? "bg-slate-900 dark:bg-slate-700 text-white" : "text-slate-500"}`}>Students</button>
-                    <button onClick={() => setSubTabUsers("messages")} className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all whitespace-nowrap ${subTabUsers === "messages" ? "bg-slate-900 dark:bg-slate-700 text-white" : "text-slate-500"}`}>Inquiries</button>
-                    <button onClick={() => setSubTabUsers("notifications")} className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all whitespace-nowrap ${subTabUsers === "notifications" ? "bg-slate-900 dark:bg-slate-700 text-white" : "text-slate-500"}`}>Broadcasts</button>
+                  <div className="flex items-center p-1 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xs overflow-x-auto max-w-full no-scrollbar self-start sm:self-auto">
+                    <button onClick={() => setSubTabUsers("directory")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${subTabUsers === "directory" ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}>Students</button>
+                    <button onClick={() => setSubTabUsers("messages")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${subTabUsers === "messages" ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}>Inquiries</button>
+                    <button onClick={() => setSubTabUsers("notifications")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${subTabUsers === "notifications" ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}>Broadcasts</button>
                   </div>
                 </div>
 
@@ -1165,18 +1207,18 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
 
             {/* Firebase Section */}
             {activeGroup === "firebase" && (
-              <div className="space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="space-y-5 sm:space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
                   <div>
-                    <h2 className="text-xl font-bold text-slate-900 dark:text-white">Database Explorer</h2>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Direct access to Firestore records and audit logs.</p>
+                    <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">Database Explorer</h2>
+                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">Direct access to Firestore records and audit logs.</p>
                   </div>
-                  <div className="flex items-center p-1 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm overflow-x-auto">
-                    <button onClick={() => setSubTabFirebase("diagnostics")} className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all whitespace-nowrap ${subTabFirebase === "diagnostics" ? "bg-slate-900 dark:bg-slate-700 text-white" : "text-slate-500"}`}>Diagnostics</button>
-                    <button onClick={() => setSubTabFirebase("explorer")} className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all whitespace-nowrap ${subTabFirebase === "explorer" ? "bg-slate-900 dark:bg-slate-700 text-white" : "text-slate-500"}`}>Explorer</button>
-                    <button onClick={() => setSubTabFirebase("audit")} className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all whitespace-nowrap ${subTabFirebase === "audit" ? "bg-slate-900 dark:bg-slate-700 text-white" : "text-slate-500"}`}>Audit</button>
-                    <button onClick={() => setSubTabFirebase("quota")} className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all whitespace-nowrap ${subTabFirebase === "quota" ? "bg-slate-900 dark:bg-slate-700 text-white" : "text-slate-500"}`}>Quota</button>
-                    <button onClick={() => setSubTabFirebase("sync")} className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all whitespace-nowrap ${subTabFirebase === "sync" ? "bg-slate-900 dark:bg-slate-700 text-white" : "text-slate-500"}`}>Sync</button>
+                  <div className="flex items-center p-1 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xs overflow-x-auto max-w-full no-scrollbar self-start sm:self-auto">
+                    <button onClick={() => setSubTabFirebase("diagnostics")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${subTabFirebase === "diagnostics" ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}>Diagnostics</button>
+                    <button onClick={() => setSubTabFirebase("explorer")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${subTabFirebase === "explorer" ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}>Explorer</button>
+                    <button onClick={() => setSubTabFirebase("audit")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${subTabFirebase === "audit" ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}>Audit</button>
+                    <button onClick={() => setSubTabFirebase("quota")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${subTabFirebase === "quota" ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}>Quota</button>
+                    <button onClick={() => setSubTabFirebase("sync")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${subTabFirebase === "sync" ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}>Sync</button>
                   </div>
                 </div>
 

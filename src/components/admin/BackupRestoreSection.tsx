@@ -473,7 +473,7 @@ export const BackupRestoreSection: React.FC<BackupRestoreSectionProps> = ({ user
         </div>
 
         {/* Sub-Tab Navigation Bar */}
-        <div className="flex items-center p-1 bg-slate-100 dark:bg-slate-800/80 rounded-2xl border border-slate-200 dark:border-slate-700/60 overflow-x-auto self-start sm:self-auto">
+        <div className="flex items-center p-1 bg-slate-100 dark:bg-slate-800/80 rounded-2xl border border-slate-200 dark:border-slate-700/60 overflow-x-auto max-w-full no-scrollbar self-start sm:self-auto">
           <button
             onClick={() => setActiveTab("dashboard")}
             className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${

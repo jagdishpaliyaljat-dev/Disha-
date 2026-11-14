@@ -1205,7 +1205,7 @@ export function AdminNewsSection({
             initial={{ opacity: 0, y: 50, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.9 }}
-            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] min-w-[320px] max-w-md"
+            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] w-[calc(100vw-32px)] max-w-md"
           >
             <div className={`p-4 rounded-2xl shadow-2xl border flex items-start gap-3 ${
               notification.type === 'success' 
