@@ -156,7 +156,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
   return (
     <div className="flex flex-col h-full bg-[#FFF9EF] dark:bg-[#171923] overflow-y-auto pb-20 selection:bg-[#800020] selection:text-white" id="profile-tab">
       {/* 1. PROFILE HEADER WITH DISHA 20-20 BRAND BAR & SCORECARD */}
-      <header className="px-4 pt-4 pb-8 bg-white dark:bg-[#1F2330] border-b border-[#E8D9C0] dark:border-[#31374A] relative overflow-hidden shrink-0">
+      <header className="px-3.5 sm:px-4 pt-3.5 sm:pt-4 pb-5 sm:pb-8 bg-white dark:bg-[#1F2330] border-b border-[#E8D9C0] dark:border-[#31374A] relative overflow-hidden shrink-0">
         {/* Heritage Top Accent Strip */}
         <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-[#800020] via-[#F47B20] to-[#C99A45]" />
         <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-[#800020]/10 via-[#F47B20]/5 to-transparent rounded-full blur-3xl pointer-events-none" />
@@ -164,25 +164,25 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
 
         <div className="max-w-4xl mx-auto relative z-10">
           {/* Top Brand Identity Bar */}
-          <div className="flex items-center justify-between gap-2 pb-4 mb-4 border-b border-[#E8D9C0]/70 dark:border-[#31374A]">
+          <div className="flex items-center justify-between gap-2 pb-3 mb-3 sm:pb-4 sm:mb-4 border-b border-[#E8D9C0]/70 dark:border-[#31374A]">
             <AppLogo size="sm" variant="horizontal" showTagline={true} />
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2">
               <button
                 onClick={() => {
                   triggerHaptic("light");
                   onUpdateSettings({ darkMode: !settings.darkMode });
                 }}
-                className="h-9 px-3 rounded-xl bg-[#FFF9EF] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center gap-1.5 text-xs font-extrabold text-[#171923] dark:text-[#FFF9EF] hover:border-[#800020] dark:hover:border-[#F47B20] active:scale-95 transition-all cursor-pointer"
+                className="h-8 sm:h-9 px-2.5 sm:px-3 rounded-lg sm:rounded-xl bg-[#FFF9EF] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center gap-1.5 text-[11px] sm:text-xs font-extrabold text-[#171923] dark:text-[#FFF9EF] hover:border-[#800020] dark:hover:border-[#F47B20] active:scale-95 transition-all cursor-pointer"
                 aria-label="Toggle Theme"
               >
                 {settings.darkMode ? (
                   <>
-                    <Sun size={15} className="text-[#F47B20]" />
+                    <Sun size={14} className="text-[#F47B20]" />
                     <span className="hidden sm:inline">Light</span>
                   </>
                 ) : (
                   <>
-                    <Moon size={15} className="text-[#800020]" />
+                    <Moon size={14} className="text-[#800020]" />
                     <span className="hidden sm:inline">Dark</span>
                   </>
                 )}
@@ -192,10 +192,10 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                   triggerHaptic("light");
                   setShowSettingsModal(true);
                 }}
-                className="w-9 h-9 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center text-[#800020] dark:text-[#F47B20] shadow-2xs active:scale-90 transition-all cursor-pointer"
+                className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center text-[#800020] dark:text-[#F47B20] shadow-2xs active:scale-90 transition-all cursor-pointer"
                 aria-label="App Settings"
               >
-                <Settings size={18} />
+                <Settings size={16} />
               </button>
             </div>
           </div>
@@ -203,12 +203,12 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
           <motion.div 
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-5"
+            className="flex flex-col sm:flex-row items-center sm:items-start gap-3 sm:gap-5"
           >
-            {/* Avatar with Royal Maroon & Saffron Heritage Ring */}
+            {/* Avatar with Royal Maroon & Saffron Heritage Ring (20% reduced: w-16 h-16 vs w-20 h-20) */}
             <div className="relative shrink-0">
-              <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-[26px] p-1 bg-gradient-to-tr from-[#800020] via-[#F47B20] to-[#C99A45] shadow-md">
-                <div className="w-full h-full rounded-[22px] border-2 border-white dark:border-[#1F2330] overflow-hidden bg-[#FFF9EF] dark:bg-[#171923]">
+              <div className="w-16 h-16 sm:w-22 sm:h-22 rounded-[20px] sm:rounded-[26px] p-0.5 sm:p-1 bg-gradient-to-tr from-[#800020] via-[#F47B20] to-[#C99A45] shadow-md">
+                <div className="w-full h-full rounded-[18px] sm:rounded-[22px] border-2 border-white dark:border-[#1F2330] overflow-hidden bg-[#FFF9EF] dark:bg-[#171923]">
                   <img 
                     src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${userName}&backgroundColor=ffdfbf,ffd5dc,c0aede`} 
                     alt="Aspirant Avatar" 
@@ -225,38 +225,38 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                   triggerHaptic("light");
                   setShowEditProfileModal(true);
                 }}
-                className="absolute -bottom-1.5 -right-1.5 w-8 h-8 rounded-xl bg-[#800020] dark:bg-[#F47B20] text-white flex items-center justify-center shadow-md border-2 border-white dark:border-[#1F2330] active:scale-90 transition-transform cursor-pointer"
+                className="absolute -bottom-1 -right-1 w-6.5 h-6.5 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-[#800020] dark:bg-[#F47B20] text-white flex items-center justify-center shadow-md border-2 border-white dark:border-[#1F2330] active:scale-90 transition-transform cursor-pointer"
                 aria-label="Edit Profile"
               >
-                <Edit2 size={13} />
+                <Edit2 size={11} />
               </button>
             </div>
             
-            {/* Aspirant Identity Details */}
+            {/* Aspirant Identity Details (20% compact typography & spacing) */}
             <div className="flex-1 text-center sm:text-left min-w-0">
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] text-[10px] font-black uppercase tracking-wider mb-1">
-                <Award size={12} />
+              <div className="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-0.5 rounded-md bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] text-[9px] sm:text-[10px] font-black uppercase tracking-wider mb-1">
+                <Award size={10.5} />
                 <span>DISHA 20-20 Aspirant</span>
                 <span>•</span>
                 <span className="font-mono tabular-nums">LVL {Math.floor(attemptedQuestions.length / 50) + 1}</span>
               </div>
-              <h2 className="text-xl sm:text-2xl font-black text-[#171923] dark:text-[#FFF9EF] tracking-tight truncate">
+              <h2 className="text-base sm:text-2xl font-black text-[#171923] dark:text-[#FFF9EF] tracking-tight truncate leading-tight">
                 {!isAuthenticated ? "Guest Aspirant" : userName}
               </h2>
-              <p className="text-xs font-bold text-[#52576A] dark:text-[#CBD2E1] mt-0.5 truncate">
+              <p className="text-[10.5px] sm:text-xs font-bold text-[#52576A] dark:text-[#CBD2E1] mt-0.5 truncate max-w-xs sm:max-w-none mx-auto sm:mx-0">
                 {!isAuthenticated
                   ? "RPSC • RSMSSB • REET • CET • RAS Exam Preparation"
                   : (activeProfile?.targetExam || "Competitive Exam Aspirant")}
               </p>
 
-              {/* Action Buttons */}
-              <div className="mt-3 flex flex-wrap items-center justify-center sm:justify-start gap-2">
+              {/* Action Buttons (20% compact) */}
+              <div className="mt-2.5 sm:mt-3 flex flex-wrap items-center justify-center sm:justify-start gap-1.5 sm:gap-2">
                 {!isAuthenticated ? (
                   <button
                     onClick={onOpenLogin}
-                    className="px-4 py-2 bg-[#800020] hover:bg-[#5E0017] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] text-white rounded-xl text-xs font-black shadow-sm transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer"
+                    className="px-3 sm:px-4 py-1.5 sm:py-2 bg-[#800020] hover:bg-[#5E0017] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] text-white rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-black shadow-sm transition-all active:scale-95 flex items-center gap-1 sm:gap-1.5 cursor-pointer whitespace-nowrap"
                   >
-                    <LogIn size={14} />
+                    <LogIn size={12} />
                     <span>Sign In to Sync</span>
                   </button>
                 ) : (
@@ -265,9 +265,9 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                       triggerHaptic("light");
                       setShowEditProfileModal(true);
                     }}
-                    className="px-3.5 py-1.5 bg-[#FFF9EF] dark:bg-[#252A3A] hover:border-[#800020] dark:hover:border-[#F47B20] text-[#171923] dark:text-[#FFF9EF] border border-[#E8D9C0] dark:border-[#31374A] rounded-xl text-xs font-extrabold transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer"
+                    className="px-3 sm:px-3.5 py-1.5 bg-[#FFF9EF] dark:bg-[#252A3A] hover:border-[#800020] dark:hover:border-[#F47B20] text-[#171923] dark:text-[#FFF9EF] border border-[#E8D9C0] dark:border-[#31374A] rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-extrabold transition-all active:scale-95 flex items-center gap-1 sm:gap-1.5 cursor-pointer whitespace-nowrap"
                   >
-                    <Edit2 size={12} className="text-[#800020] dark:text-[#F47B20]" />
+                    <Edit2 size={11} className="text-[#800020] dark:text-[#F47B20]" />
                     <span>Edit Profile</span>
                   </button>
                 )}
@@ -275,43 +275,43 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
             </div>
           </motion.div>
 
-          {/* 3-Column Aspirant Performance Scorecard */}
-          <div className="grid grid-cols-3 gap-2.5 mt-5 pt-4 border-t border-[#E8D9C0]/70 dark:border-[#31374A]">
-            <div className="bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] rounded-2xl p-3 text-center">
-              <div className="flex items-center justify-center gap-1 text-[#800020] dark:text-[#F47B20] mb-0.5">
-                <Target size={13} />
-                <span className="text-[10px] font-black uppercase tracking-wider">Attempted</span>
+          {/* 3-Column Aspirant Performance Scorecard (15% reduced dimensions) */}
+          <div className="grid grid-cols-3 gap-1.5 sm:gap-2.5 mt-3.5 sm:mt-5 pt-3 sm:pt-4 border-t border-[#E8D9C0]/70 dark:border-[#31374A]">
+            <div className="bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] rounded-xl sm:rounded-2xl p-2 sm:p-3 text-center flex flex-col justify-between">
+              <div className="flex items-center justify-center gap-0.5 sm:gap-1 text-[#800020] dark:text-[#F47B20] mb-0.5">
+                <Target size={11} />
+                <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wide truncate">Attempted</span>
               </div>
-              <div className="text-lg sm:text-xl font-black text-[#171923] dark:text-[#FFF9EF] font-mono tabular-nums">
+              <div className="text-[15px] sm:text-xl font-black text-[#171923] dark:text-[#FFF9EF] font-mono tabular-nums leading-tight my-0.5 sm:my-0">
                 {attemptedQuestions.length}
               </div>
-              <div className="text-[10px] font-semibold text-[#52576A] dark:text-[#CBD2E1]">
+              <div className="text-[8.5px] sm:text-[10px] font-semibold text-[#52576A] dark:text-[#CBD2E1] truncate leading-none">
                 Solved Questions
               </div>
             </div>
 
-            <div className="bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] rounded-2xl p-3 text-center">
-              <div className="flex items-center justify-center gap-1 text-[#15803D] dark:text-emerald-400 mb-0.5">
-                <CheckCircle2 size={13} />
-                <span className="text-[10px] font-black uppercase tracking-wider">Correct</span>
+            <div className="bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] rounded-xl sm:rounded-2xl p-2 sm:p-3 text-center flex flex-col justify-between">
+              <div className="flex items-center justify-center gap-0.5 sm:gap-1 text-[#15803D] dark:text-emerald-400 mb-0.5">
+                <CheckCircle2 size={11} />
+                <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wide truncate">Correct</span>
               </div>
-              <div className="text-lg sm:text-xl font-black text-[#15803D] dark:text-emerald-400 font-mono tabular-nums">
+              <div className="text-[15px] sm:text-xl font-black text-[#15803D] dark:text-emerald-400 font-mono tabular-nums leading-tight my-0.5 sm:my-0">
                 {correctCount}
               </div>
-              <div className="text-[10px] font-semibold text-[#52576A] dark:text-[#CBD2E1]">
+              <div className="text-[8.5px] sm:text-[10px] font-semibold text-[#52576A] dark:text-[#CBD2E1] truncate leading-none">
                 Correct Answers
               </div>
             </div>
 
-            <div className="bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] rounded-2xl p-3 text-center">
-              <div className="flex items-center justify-center gap-1 text-[#C99A45] mb-0.5">
-                <Award size={13} />
-                <span className="text-[10px] font-black uppercase tracking-wider">Accuracy</span>
+            <div className="bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] rounded-xl sm:rounded-2xl p-2 sm:p-3 text-center flex flex-col justify-between">
+              <div className="flex items-center justify-center gap-0.5 sm:gap-1 text-[#C99A45] mb-0.5">
+                <Award size={11} />
+                <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wide truncate">Accuracy</span>
               </div>
-              <div className="text-lg sm:text-xl font-black text-[#171923] dark:text-[#FFF9EF] font-mono tabular-nums">
+              <div className="text-[15px] sm:text-xl font-black text-[#171923] dark:text-[#FFF9EF] font-mono tabular-nums leading-tight my-0.5 sm:my-0">
                 {accuracy}%
               </div>
-              <div className="text-[10px] font-semibold text-[#52576A] dark:text-[#CBD2E1]">
+              <div className="text-[8.5px] sm:text-[10px] font-semibold text-[#52576A] dark:text-[#CBD2E1] truncate leading-none">
                 Accuracy Rate
               </div>
             </div>
