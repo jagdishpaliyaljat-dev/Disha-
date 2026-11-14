@@ -535,28 +535,30 @@ export const ManageQuestionsModal: React.FC<ManageQuestionsModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex flex-col items-center justify-end sm:justify-center p-0 sm:p-4 overflow-y-auto">
+    <div className="fixed inset-0 z-50 bg-[#171923]/75 backdrop-blur-xs flex flex-col items-center justify-end sm:justify-center p-0 sm:p-4 overflow-y-auto">
       <div
         id="manage-questions-modal-card"
-        className="w-full sm:max-w-2xl bg-[#F8FAFC] dark:bg-[#0B1220] border-t sm:border border-slate-200 dark:border-slate-800 rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[94vh] sm:h-auto sm:max-h-[90vh] relative animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-200"
+        className="w-full sm:max-w-2xl bg-[#FFF9EF] dark:bg-[#171923] border-t sm:border border-[#E8D9C0] dark:border-[#31374A] rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[94vh] sm:h-auto sm:max-h-[90vh] relative animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-200"
       >
+        {/* Heritage accent strip */}
+        <div className="h-1 w-full bg-gradient-to-r from-[#800020] via-[#F47B20] to-[#C99A45] shrink-0" />
         {/* Top Header */}
-        <div className="px-4 sm:px-6 pt-4 pb-3.5 bg-white dark:bg-[#111A2E] border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between shrink-0">
+        <div className="px-4 sm:px-6 pt-4 pb-3.5 bg-white dark:bg-[#1F2330] border-b border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2.5 min-w-0">
             {selectedTopic && (
               <button
                 onClick={handleBackToTopics}
-                className="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center hover:bg-slate-200 active:scale-95 transition-all shrink-0"
+                className="w-9 h-9 rounded-full bg-[#F7EFE2] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] text-[#52576A] dark:text-[#CBD2E1] hover:text-[#800020] dark:hover:text-[#F47B20] flex items-center justify-center active:scale-95 transition-all shrink-0 cursor-pointer"
                 title="Back to Topics"
               >
                 <ArrowLeft className="w-4 h-4" />
               </button>
             )}
             <div className="min-w-0">
-              <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2 truncate">
+              <h2 className="text-base sm:text-lg font-black text-[#171923] dark:text-[#FFF9EF] flex items-center gap-2 truncate">
                 <span>Manage Questions</span>
               </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate max-w-[280px] sm:max-w-[420px]">
+              <p className="text-xs text-[#52576A] dark:text-[#CBD2E1] mt-0.5 truncate max-w-[280px] sm:max-w-[420px]">
                 {activeChapter && activeTopic
                   ? `${getChapterDisplayName(activeChapter)} › ${getTopicDisplayName(activeTopic)}`
                   : "Browse chapters, edit MCQs & reorganize syllabus"}
@@ -567,7 +569,7 @@ export const ManageQuestionsModal: React.FC<ManageQuestionsModalProps> = ({
           <div className="flex items-center gap-2">
             <button
               onClick={handleRunDuplicateAudit}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-400 font-black text-[11px] uppercase tracking-wider transition-all hover:bg-amber-200 active:scale-95 shrink-0 cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#C99A45]/15 border border-[#C99A45]/30 text-[#800020] dark:text-[#C99A45] font-black text-[11px] uppercase tracking-wider transition-all hover:bg-[#C99A45]/25 active:scale-95 shrink-0 cursor-pointer"
             >
               <Sparkles className="w-3.5 h-3.5" />
               Audit Duplicates
@@ -575,7 +577,7 @@ export const ManageQuestionsModal: React.FC<ManageQuestionsModalProps> = ({
             <button
               id="btn-close-manage-questions"
               onClick={onClose}
-              className="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-800 dark:hover:text-white flex items-center justify-center transition-colors active:scale-95 shrink-0 ml-2"
+              className="w-9 h-9 rounded-full bg-[#F7EFE2] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] text-[#52576A] dark:text-[#CBD2E1] hover:text-[#800020] dark:hover:text-[#F47B20] flex items-center justify-center transition-colors active:scale-95 shrink-0 ml-2 cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>

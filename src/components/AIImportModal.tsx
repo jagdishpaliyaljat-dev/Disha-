@@ -1494,24 +1494,24 @@ export const AIImportModal: React.FC<AIImportModalProps> = ({
         return (
           <React.Fragment key={step.id}>
             <div className="flex items-center gap-2">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-black transition-all ${isActive ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20" : isPast ? "bg-emerald-500 text-white" : "bg-slate-100 dark:bg-slate-800 text-slate-400"}`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-black transition-all ${isActive ? "bg-[#800020] dark:bg-[#F47B20] text-white shadow-md shadow-[#800020]/20" : isPast ? "bg-emerald-600 text-white" : "bg-[#F7EFE2] dark:bg-[#252A3A] text-[#52576A] dark:text-[#CBD2E1] border border-[#E8D9C0] dark:border-[#31374A]"}`}>
                 {isPast ? <Check className="w-4 h-4" /> : step.num}
               </div>
-              <span className={`text-xs font-black uppercase tracking-wider ${isActive ? "text-blue-600 dark:text-blue-400" : isPast ? "text-emerald-500" : "text-slate-400"}`}>{step.label}</span>
+              <span className={`text-xs font-black uppercase tracking-wider ${isActive ? "text-[#800020] dark:text-[#F47B20]" : isPast ? "text-emerald-600" : "text-[#52576A] dark:text-[#CBD2E1]"}`}>{step.label}</span>
             </div>
-            {i === 0 && <div className="flex-1 h-0.5 mx-4 bg-slate-200 dark:bg-slate-800 rounded-full" />}
+            {i === 0 && <div className="flex-1 h-0.5 mx-4 bg-[#E8D9C0] dark:bg-[#31374A] rounded-full" />}
           </React.Fragment>
         );
       })}
     </div>
   );
 
-  const MobileBottomAction = ({ onClick, disabled, icon: Icon, label, loading, color = "indigo" }: any) => (
-    <div className="sticky bottom-0 left-0 right-0 p-4 bg-white/90 dark:bg-[#0f172a]/90 backdrop-blur-md border-t border-slate-100 dark:border-slate-800 z-50">
+  const MobileBottomAction = ({ onClick, disabled, icon: Icon, label, loading }: any) => (
+    <div className="sticky bottom-0 left-0 right-0 p-4 bg-white/90 dark:bg-[#1F2330]/90 backdrop-blur-md border-t border-[#E8D9C0] dark:border-[#31374A] z-50">
       <button 
         onClick={onClick} 
         disabled={disabled || loading}
-        className={`w-full py-4 rounded-2xl flex items-center justify-center gap-2 font-black text-sm transition-all active:scale-[0.98] disabled:opacity-50 shadow-xl shadow-blue-600/20 bg-blue-600 hover:bg-blue-700 text-white`}
+        className={`w-full py-4 rounded-2xl flex items-center justify-center gap-2 font-black text-sm transition-all active:scale-[0.98] disabled:opacity-50 shadow-md bg-[#800020] hover:bg-[#660019] dark:bg-[#F47B20] dark:hover:bg-[#e06b12] text-white cursor-pointer`}
       >
         {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Icon className="w-5 h-5" />}
         <span>{loading ? "Processing..." : label}</span>
@@ -1520,20 +1520,22 @@ export const AIImportModal: React.FC<AIImportModalProps> = ({
   );
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-[#F8FAFC] dark:bg-[#020617] font-hindi overflow-hidden">
+    <div className="fixed inset-0 z-50 flex flex-col bg-[#FFF9EF] dark:bg-[#171923] font-hindi overflow-hidden">
+      {/* Top Accent Strip */}
+      <div className="h-1 w-full bg-gradient-to-r from-[#800020] via-[#F47B20] to-[#C99A45] shrink-0" />
       {/* Header */}
-      <div className="safe-top bg-white dark:bg-[#0f172a] border-b border-slate-100 dark:border-slate-800 shrink-0">
+      <div className="safe-top bg-white dark:bg-[#1F2330] border-b border-[#E8D9C0] dark:border-[#31374A] shrink-0">
         <div className="flex items-center justify-between px-5 h-16">
           <div className="flex items-center gap-3">
             {activeStep !== "setup" && activeStep !== "summary" && (
-              <button onClick={() => setActiveStep(activeStep === "preview" ? "setup" : "setup")} className="p-2 -ml-2 rounded-xl text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800"><ArrowLeft className="w-5 h-5" /></button>
+              <button onClick={() => setActiveStep(activeStep === "preview" ? "setup" : "setup")} className="p-2 -ml-2 rounded-xl text-[#52576A] dark:text-[#CBD2E1] hover:bg-[#F7EFE2] dark:hover:bg-[#252A3A] transition-colors"><ArrowLeft className="w-5 h-5" /></button>
             )}
             <div>
-              <h1 className="text-base font-black text-slate-900 dark:text-white leading-none">Bulk MCQ Text Import</h1>
-              <p className="text-[10px] font-black uppercase text-blue-500 tracking-widest mt-1">AI-Powered Question Bank</p>
+              <h1 className="text-base font-black text-[#171923] dark:text-[#FFF9EF] leading-none">Bulk MCQ Text Import</h1>
+              <p className="text-[10px] font-black uppercase text-[#800020] dark:text-[#F47B20] tracking-widest mt-1">DISHA 20-20 Question Bank</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 rounded-xl bg-slate-50 dark:bg-slate-800/50 text-slate-400 hover:text-rose-500 transition-colors"><X className="w-5 h-5" /></button>
+          <button onClick={onClose} className="p-2 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] text-[#52576A] dark:text-[#CBD2E1] hover:text-rose-500 transition-colors"><X className="w-5 h-5" /></button>
         </div>
         <StepIndicator />
       </div>

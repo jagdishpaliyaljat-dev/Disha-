@@ -1691,27 +1691,29 @@ Explanation: दोनों कथन सही हैं। इंदिरा
   };
 
   return (
-    <div className="fixed inset-0 z-[200] bg-slate-900/80 backdrop-blur-xs flex flex-col sm:p-4 sm:justify-center sm:items-center overflow-hidden">
+    <div className="fixed inset-0 z-[200] bg-[#171923]/80 backdrop-blur-xs flex flex-col sm:p-4 sm:justify-center sm:items-center overflow-hidden">
       <div
         id="add-questions-modal-card"
-        className="w-full h-[100dvh] sm:h-auto sm:max-h-[92vh] sm:max-w-4xl bg-[#F8FAFC] dark:bg-[#0B1322] border-0 sm:border border-slate-200/80 dark:border-slate-800/80 rounded-none sm:rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-in slide-in-from-bottom-2 sm:zoom-in-95 duration-150"
+        className="w-full h-[100dvh] sm:h-auto sm:max-h-[92vh] sm:max-w-4xl bg-[#FFF9EF] dark:bg-[#171923] border-0 sm:border border-[#E8D9C0] dark:border-[#31374A] rounded-none sm:rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-in slide-in-from-bottom-2 sm:zoom-in-95 duration-150"
       >
+        {/* Heritage accent strip */}
+        <div className="h-1 w-full bg-gradient-to-r from-[#800020] via-[#F47B20] to-[#C99A45] shrink-0" />
         {/* Mobile Pull Handle Indicator */}
-        <div className="pt-2 pb-1 sm:hidden flex justify-center bg-white dark:bg-[#111A2E] shrink-0">
-          <div className="w-10 h-1 bg-slate-300 dark:bg-slate-700 rounded-full" />
+        <div className="pt-2 pb-1 sm:hidden flex justify-center bg-white dark:bg-[#1F2330] shrink-0">
+          <div className="w-10 h-1 bg-[#E8D9C0] dark:bg-[#31374A] rounded-full" />
         </div>
 
         {/* Modal Top Header */}
-        <div className="px-4 py-3 sm:py-3.5 bg-white dark:bg-[#111A2E] border-b border-slate-200/60 dark:border-slate-800 flex items-center justify-between shrink-0">
+        <div className="px-4 py-3 sm:py-3.5 bg-white dark:bg-[#1F2330] border-b border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 border border-blue-100/50 dark:border-blue-900/30">
+            <div className="w-9 h-9 rounded-xl bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] flex items-center justify-center shrink-0 border border-[#800020]/20 dark:border-[#F47B20]/30">
               <PlusCircle className="w-4.5 h-4.5" />
             </div>
             <div className="min-w-0">
-              <h2 className="text-sm sm:text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
+              <h2 className="text-sm sm:text-base font-black text-[#171923] dark:text-[#FFF9EF] flex items-center gap-2">
                 <span>{draftQuestions ? "Preview Bulk Questions" : "Bulk MCQ Text Import"}</span>
               </h2>
-              <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold truncate">
+              <p className="text-[10px] text-[#52576A] dark:text-[#CBD2E1] font-bold truncate">
                 {draftQuestions
                   ? `${selectedSubject?.hindiName || selectedSubject?.name || "All Subjects"} • ${selectedChapter?.hindiTitle || selectedChapter?.title || "All Chapters"} • ${selectedTopic?.hindiTitle || selectedTopic?.title || "All Topics"}`
                   : "Select Subject, Chapter, and Topic to import MCQs in bulk"}

@@ -92,7 +92,7 @@ export const BulkQuestionDeleteModal: React.FC<BulkQuestionDeleteModalProps> = (
     for (let cIdx = 0; cIdx < chapters.length; cIdx++) {
       const ch = chapters[cIdx];
       const sub = subjects.find((s) => s.id === ch.subjectId);
-      const subTitle = sub?.title || "Economics";
+      const subTitle = sub?.name || sub?.hindiName || "General Studies";
       const chTitle = getChapterDisplayName(ch);
 
       for (let tIdx = 0; tIdx < ch.topics.length; tIdx++) {
@@ -268,19 +268,19 @@ export const BulkQuestionDeleteModal: React.FC<BulkQuestionDeleteModalProps> = (
       filteredMCQs.forEach((q) => next.add(q.id));
       return next;
     });
-    triggerAdminToast("info", "Questions Selected", `Selected all ${filteredMCQs.length} filtered questions.`);
+    triggerAdminToast("add", "Questions Selected", `Selected all ${filteredMCQs.length} filtered questions.`);
   };
 
   const handleDeselectAll = () => {
     setSelectedIds(new Set());
-    triggerAdminToast("info", "Selection Cleared", "Deselected all questions.");
+    triggerAdminToast("add", "Selection Cleared", "Deselected all questions.");
   };
 
   const handleSelectBatch = (count: number) => {
     const unselected = filteredMCQs.filter((q) => !selectedIds.has(q.id));
     const toAdd = unselected.slice(0, count);
     if (toAdd.length === 0) {
-      triggerAdminToast("info", "All Already Selected", "All filtered questions are already in selection.");
+      triggerAdminToast("add", "All Already Selected", "All filtered questions are already in selection.");
       return;
     }
     setSelectedIds((prev) => {
@@ -288,7 +288,7 @@ export const BulkQuestionDeleteModal: React.FC<BulkQuestionDeleteModalProps> = (
       toAdd.forEach((q) => next.add(q.id));
       return next;
     });
-    triggerAdminToast("info", "Batch Selected", `Selected ${toAdd.length} additional question(s).`);
+    triggerAdminToast("add", "Batch Selected", `Selected ${toAdd.length} additional question(s).`);
   };
 
   const handleSelectCustomQty = () => {
@@ -449,7 +449,7 @@ export const BulkQuestionDeleteModal: React.FC<BulkQuestionDeleteModalProps> = (
                   const subCount = allMCQs.filter((q) => q.subjectId === sub.id).length;
                   return (
                     <option key={sub.id} value={sub.id}>
-                      {sub.title} ({subCount} MCQs)
+                      {sub.name || sub.hindiName || "Subject"} ({subCount} MCQs)
                     </option>
                   );
                 })}
