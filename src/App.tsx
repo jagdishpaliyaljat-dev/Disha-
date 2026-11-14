@@ -1218,7 +1218,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FFF9EF] dark:bg-[#171923] text-[#171923] dark:text-[#FFF9EF] flex flex-col font-sans selection:bg-[#800020] selection:text-white">
+    <div className="min-h-screen bg-[#FFF9EF] dark:bg-[#171923] text-[#171923] dark:text-[#FFF9EF] flex flex-col font-sans selection:bg-[#800020] selection:text-white w-full max-w-full overflow-x-hidden">
       <BrandSplashAndOnboarding allowAutoOnboarding={activeTab === 'home'} />
       <FirebaseSavedBanner />
       <ToastNotificationContainer toasts={toasts} onDismiss={handleDismissToast} />
@@ -1237,10 +1237,10 @@ export default function App() {
             tabIndex={0}
             aria-label="DISHA 20-20 Home"
           >
-            <span className="text-lg font-black tracking-wider text-[#171923] dark:text-[#FFF9EF] uppercase font-serif">
+            <span className="text-lg font-black tracking-wider text-[#171923] dark:text-[#FFF9EF] uppercase font-serif whitespace-nowrap">
               DISHA
             </span>
-            <span className="px-2 py-0.5 rounded-lg bg-gradient-to-r from-[#F47B20] to-[#E06A12] text-white font-black text-xs tracking-tight shadow-xs">
+            <span className="px-2 py-0.5 rounded-lg bg-gradient-to-r from-[#F47B20] to-[#E06A12] text-white font-black text-xs tracking-tight shadow-xs whitespace-nowrap">
               20-20
             </span>
           </div>

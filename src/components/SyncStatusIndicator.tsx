@@ -75,19 +75,19 @@ export const SyncStatusIndicator: React.FC<SyncStatusIndicatorProps> = ({ isOnli
   const badge = getStatusBadge();
 
   return (
-    <div className="relative inline-block text-left text-xs font-medium z-30">
+    <div className="relative w-full flex justify-center items-center py-1 px-2.5 z-30 select-none bg-[#FFF9EF]/90 dark:bg-[#171923]/90 border-b border-[#E8D9C0]/40 dark:border-[#31374A]/40 shrink-0">
       <button
         onClick={() => setExpanded(!expanded)}
-        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border shadow-xs transition-all ${badge.color}`}
-        title="QuizPro Strict 24-Hour Offline-First Sync Architecture"
+        className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border shadow-2xs transition-all text-[11px] font-semibold leading-tight max-w-full ${badge.color}`}
+        title="DISHA 20-20 Strict 24-Hour Offline-First Sync Architecture"
       >
         {badge.icon}
-        <span>{badge.label}</span>
+        <span className="whitespace-nowrap">{badge.label}</span>
       </button>
 
       {expanded && (
         <div 
-          className="absolute right-0 mt-1.5 w-72 rounded-xl bg-white dark:bg-[#1E2330] border border-[#E8D9C0] dark:border-[#31374A] shadow-xl p-3 text-[#2D3748] dark:text-[#E2E8F0] z-50 text-xs space-y-2 animate-in fade-in zoom-in-95 duration-100"
+          className="absolute top-full left-1/2 -translate-x-1/2 mt-1 w-[calc(100vw-24px)] max-w-xs rounded-xl bg-white dark:bg-[#1E2330] border border-[#E8D9C0] dark:border-[#31374A] shadow-xl p-3 text-[#2D3748] dark:text-[#E2E8F0] z-50 text-xs space-y-2 animate-in fade-in zoom-in-95 duration-100"
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex items-center justify-between border-b border-[#E8D9C0]/60 dark:border-[#31374A]/60 pb-1.5">

@@ -83,23 +83,23 @@ export const AppLogo: React.FC<AppLogoProps> = ({
         <div className={`${sizeMap[size]} shrink-0 mb-2 shadow-sm rounded-2xl overflow-hidden`}>
           {renderMark("tile")}
         </div>
-        <div className="flex items-baseline gap-1.5 leading-none">
+        <div className="flex items-baseline gap-1.5 leading-none shrink-0 whitespace-nowrap">
           <span
-            className={`font-black tracking-tight ${maroonWordClasses} ${
+            className={`font-black tracking-tight shrink-0 whitespace-nowrap ${maroonWordClasses} ${
               size === "hero" ? "text-3xl sm:text-4xl" : size === "xl" ? "text-2xl" : "text-xl"
             }`}
           >
             DISHA
           </span>
-          <span className="inline-flex items-center px-2 py-0.5 rounded-lg bg-[#F47B20] text-white font-extrabold tracking-tight text-sm sm:text-base shadow-xs">
+          <span className="inline-flex items-center px-2 py-0.5 rounded-lg bg-[#F47B20] text-white font-extrabold tracking-tight text-sm sm:text-base shadow-xs shrink-0 whitespace-nowrap">
             20-20
           </span>
         </div>
-        <div className={`mt-1 text-xs font-extrabold tracking-[0.14em] uppercase ${titleClasses}`}>
+        <div className={`mt-1 text-xs font-extrabold tracking-[0.14em] uppercase shrink-0 whitespace-nowrap ${titleClasses}`}>
           PREPARATION PLATFORM
         </div>
         {showTagline && (
-          <p className={`text-[11px] font-medium mt-1 ${subClasses}`}>
+          <p className={`text-[11px] font-medium mt-1 truncate ${subClasses}`}>
             Right Direction, Accurate Preparation
           </p>
         )}
@@ -109,14 +109,14 @@ export const AppLogo: React.FC<AppLogoProps> = ({
 
   // Horizontal lockup (default for top bars & cards)
   return (
-    <div className={`inline-flex items-center gap-2.5 select-none min-w-0 ${className}`}>
+    <div className={`inline-flex items-center gap-2.5 select-none min-w-0 shrink-0 whitespace-nowrap ${className}`}>
       <div className={`${sizeMap[size]} shrink-0 flex items-center justify-center`}>
         {renderMark("tile")}
       </div>
-      <div className="flex flex-col min-w-0">
-        <div className="flex items-center gap-1.5 leading-none">
+      <div className="flex flex-col min-w-0 shrink-0">
+        <div className="flex items-center gap-1.5 leading-none shrink-0 whitespace-nowrap">
           <span
-            className={`font-extrabold tracking-tight truncate ${titleClasses} ${
+            className={`font-extrabold tracking-tight shrink-0 whitespace-nowrap ${titleClasses} ${
               size === "hero"
                 ? "text-2xl"
                 : size === "xl"
@@ -126,7 +126,7 @@ export const AppLogo: React.FC<AppLogoProps> = ({
                 : "text-[15px] sm:text-base"
             }`}
           >
-            DISHA <span className="text-[#F47B20]">20-20</span>
+            DISHA <span className="text-[#F47B20] shrink-0 whitespace-nowrap">20-20</span>
           </span>
         </div>
         {showTagline && (

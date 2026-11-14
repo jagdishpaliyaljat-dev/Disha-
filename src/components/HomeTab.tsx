@@ -182,64 +182,66 @@ export const HomeTab: React.FC<HomeTabProps> = ({
       id="home-container"
     >
       {/* 1. COMPACT BRAND HEADER (Mobile) */}
-      <header className="px-3.5 sm:px-6 py-2 bg-[#FFF9EF]/95 dark:bg-[#171923]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] sticky top-0 z-40 select-none md:hidden">
-        <div className="max-w-5xl mx-auto flex items-center justify-between gap-2">
-          <div className="flex items-center gap-3 min-w-0">
+      <header className="px-2.5 sm:px-5 py-2 bg-[#FFF9EF]/95 dark:bg-[#171923]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] sticky top-0 z-40 select-none md:hidden w-full max-w-full overflow-hidden">
+        <div className="max-w-5xl mx-auto flex items-center justify-between gap-1.5 sm:gap-2">
+          {/* Left Brand Identity: Drawer Trigger + Non-wrapping Logo */}
+          <div className="flex items-center gap-1.5 sm:gap-2.5 min-w-0 shrink-0">
             <button
               onClick={() => setIsMenuOpen(true)}
-              className="w-10 h-10 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] hover:bg-[#EFE3CF] dark:hover:bg-[#31374A] flex items-center justify-center text-[#171923] dark:text-[#FFF9EF] active:scale-95 transition-all shrink-0 cursor-pointer border border-[#E8D9C0] dark:border-[#31374A]"
+              className="w-8.5 h-8.5 sm:w-10 sm:h-10 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] hover:bg-[#EFE3CF] dark:hover:bg-[#31374A] flex items-center justify-center text-[#171923] dark:text-[#FFF9EF] active:scale-95 transition-all shrink-0 cursor-pointer border border-[#E8D9C0] dark:border-[#31374A]"
               aria-label="Open menu drawer"
             >
-              <Menu className="w-5 h-5" />
+              <Menu className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
             </button>
-            <div className="flex items-center gap-2">
-              <span className="text-base sm:text-lg font-black tracking-wider text-[#171923] dark:text-[#FFF9EF] uppercase font-serif">
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 whitespace-nowrap select-none">
+              <span className="text-[15px] sm:text-lg font-black tracking-wider text-[#171923] dark:text-[#FFF9EF] uppercase font-serif whitespace-nowrap shrink-0">
                 DISHA
               </span>
-              <span className="px-2 py-0.5 rounded-lg bg-gradient-to-r from-[#F47B20] to-[#E06A12] text-white font-black text-xs sm:text-sm tracking-tight shadow-xs">
+              <span className="inline-flex items-center justify-center px-1.5 sm:px-2 py-0.5 rounded-md sm:rounded-lg bg-gradient-to-r from-[#F47B20] to-[#E06A12] text-white font-black text-[11px] sm:text-xs tracking-tight shadow-xs whitespace-nowrap shrink-0 leading-none">
                 20-20
               </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          {/* Right Action Icons: Notification, Theme, Compact Sign In / Avatar */}
+          <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
             <button
               onClick={onOpenNotifications || (() => onNavigateTab?.("notifications"))}
-              className="relative w-10 h-10 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] hover:bg-[#EFE3CF] dark:hover:bg-[#31374A] flex items-center justify-center text-[#171923] dark:text-[#FFF9EF] active:scale-95 transition-all cursor-pointer border border-[#E8D9C0] dark:border-[#31374A]"
+              className="relative w-8.5 h-8.5 sm:w-10 sm:h-10 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] hover:bg-[#EFE3CF] dark:hover:bg-[#31374A] flex items-center justify-center text-[#171923] dark:text-[#FFF9EF] active:scale-95 transition-all cursor-pointer border border-[#E8D9C0] dark:border-[#31374A] shrink-0"
               aria-label="Notifications"
             >
-              <Bell className="w-4.5 h-4.5" />
+              <Bell className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
               {unreadNotificationsCount > 0 && (
-                <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#F47B20] ring-2 ring-[#FFF9EF] dark:ring-[#171923]" />
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#F47B20] ring-2 ring-[#FFF9EF] dark:ring-[#171923]" />
               )}
             </button>
 
             <button
               onClick={onToggleDarkMode}
-              className="w-10 h-10 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] hover:bg-[#EFE3CF] dark:hover:bg-[#31374A] flex items-center justify-center text-[#171923] dark:text-[#C99A45] active:scale-95 transition-all cursor-pointer border border-[#E8D9C0] dark:border-[#31374A]"
+              className="w-8.5 h-8.5 sm:w-10 sm:h-10 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] hover:bg-[#EFE3CF] dark:hover:bg-[#31374A] flex items-center justify-center text-[#171923] dark:text-[#C99A45] active:scale-95 transition-all cursor-pointer border border-[#E8D9C0] dark:border-[#31374A] shrink-0"
               aria-label={settings.darkMode ? "Switch to Day Mode" : "Switch to Night Mode"}
               title={settings.darkMode ? "Day Mode" : "Night Mode"}
             >
               {settings.darkMode ? (
-                <Sun className="w-4.5 h-4.5 text-[#F47B20]" />
+                <Sun className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-[#F47B20]" />
               ) : (
-                <Moon className="w-4.5 h-4.5 text-[#800020]" />
+                <Moon className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-[#800020]" />
               )}
             </button>
 
             {!isAuthenticated ? (
               <button
                 onClick={onOpenLogin}
-                className="flex items-center gap-1.5 h-10 px-3.5 rounded-xl bg-[#800020] hover:bg-[#5E0017] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] text-white text-xs font-extrabold shadow-xs transition-all active:scale-95 cursor-pointer shrink-0"
+                className="flex items-center gap-1 sm:gap-1.5 h-8.5 sm:h-10 px-2.5 sm:px-3.5 rounded-xl bg-[#800020] hover:bg-[#5E0017] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] text-white text-[11px] sm:text-xs font-black shadow-xs transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap"
                 aria-label="Login to DISHA 20-20"
               >
-                <LogIn className="w-3.5 h-3.5" />
+                <LogIn className="w-3.5 h-3.5 shrink-0" />
                 <span>Sign In</span>
               </button>
             ) : (
               <button
                 onClick={() => onNavigateTab?.("profile")}
-                className="w-10 h-10 rounded-full ring-2 ring-[#C99A45]/60 hover:ring-[#800020] dark:hover:ring-[#F47B20] flex items-center justify-center overflow-hidden active:scale-95 transition-all cursor-pointer bg-[#F7EFE2] dark:bg-[#252A3A]"
+                className="w-8.5 h-8.5 sm:w-10 sm:h-10 rounded-full ring-2 ring-[#C99A45]/60 hover:ring-[#800020] dark:hover:ring-[#F47B20] flex items-center justify-center overflow-hidden active:scale-95 transition-all cursor-pointer bg-[#F7EFE2] dark:bg-[#252A3A] shrink-0"
                 aria-label="User Profile"
               >
                 <img
@@ -254,66 +256,66 @@ export const HomeTab: React.FC<HomeTabProps> = ({
       </header>
 
       {/* MAIN CONTENT CANVAS */}
-      <main className="w-full max-w-5xl mx-auto px-3.5 sm:px-6 pt-4 space-y-5 pb-24 select-none">
+      <main className="w-full max-w-5xl mx-auto px-2.5 sm:px-6 pt-3 sm:pt-4 space-y-3.5 sm:space-y-5 pb-24 select-none">
         {/* 2. PROMINENT BANNER CAROUSEL */}
         <BannerSlides banners={activeBanners} onNavigateTab={onNavigateTab} />
 
         {/* 3. TOP SUMMARY & QUICK 2x2 ACTION MATRIX (Responsive 1-col mobile, 12-col desktop) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-4 items-stretch">
           {/* Performance Summary Card */}
-          <section className="lg:col-span-5 bg-white dark:bg-[#1F2330] rounded-2xl p-4 border border-[#E8D9C0] dark:border-[#31374A] shadow-xs flex flex-col justify-between">
+          <section className="lg:col-span-5 bg-white dark:bg-[#1F2330] rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-[#E8D9C0] dark:border-[#31374A] shadow-xs flex flex-col justify-between">
             <div>
-              <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center justify-between mb-2.5 sm:mb-3">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] flex items-center justify-center">
+                  <div className="w-7.5 h-7.5 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] flex items-center justify-center shrink-0">
                     <BarChart2 className="w-4 h-4" />
                   </div>
                   <div>
-                    <h2 className="text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] leading-tight">
+                    <h2 className="text-xs sm:text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] leading-tight">
                       Preparation Overview
                     </h2>
-                    <p className="text-[10.5px] text-[#52576A] dark:text-[#CBD2E1]">
+                    <p className="text-[10px] sm:text-[10.5px] text-[#52576A] dark:text-[#CBD2E1]">
                       Daily practice and accuracy score
                     </p>
                   </div>
                 </div>
-                <span className="text-[11px] font-extrabold text-[#800020] dark:text-[#F47B20] uppercase tracking-wider">
+                <span className="text-[10px] sm:text-[11px] font-extrabold text-[#800020] dark:text-[#F47B20] uppercase tracking-wider">
                   {accuracy >= 70 ? "● Strong" : accuracy >= 40 ? "● On Track" : "● Building"}
                 </span>
               </div>
 
-              <div className="grid grid-cols-3 gap-2">
-                <div className="text-center p-2.5 rounded-xl bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0]/80 dark:border-[#31374A]">
-                  <p className="text-[10px] font-bold text-[#52576A] dark:text-[#929AB0] uppercase tracking-wider mb-0.5">
+              <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
+                <div className="text-center p-2 sm:p-2.5 rounded-lg sm:rounded-xl bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0]/80 dark:border-[#31374A]">
+                  <p className="text-[9px] sm:text-[10px] font-bold text-[#52576A] dark:text-[#929AB0] uppercase tracking-wider mb-0.5">
                     Attempted
                   </p>
-                  <p className="text-lg font-extrabold text-[#171923] dark:text-[#FFF9EF] font-mono tabular-nums">
+                  <p className="text-base sm:text-lg font-extrabold text-[#171923] dark:text-[#FFF9EF] font-mono tabular-nums">
                     {attemptedCount}
                   </p>
                 </div>
-                <div className="text-center p-2.5 rounded-xl bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0]/80 dark:border-[#31374A]">
-                  <p className="text-[10px] font-bold text-[#52576A] dark:text-[#929AB0] uppercase tracking-wider mb-0.5">
+                <div className="text-center p-2 sm:p-2.5 rounded-lg sm:rounded-xl bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0]/80 dark:border-[#31374A]">
+                  <p className="text-[9px] sm:text-[10px] font-bold text-[#52576A] dark:text-[#929AB0] uppercase tracking-wider mb-0.5">
                     Accuracy
                   </p>
-                  <p className="text-lg font-extrabold text-[#800020] dark:text-[#F47B20] font-mono tabular-nums">
+                  <p className="text-base sm:text-lg font-extrabold text-[#800020] dark:text-[#F47B20] font-mono tabular-nums">
                     {accuracy}%
                   </p>
                 </div>
-                <div className="text-center p-2.5 rounded-xl bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0]/80 dark:border-[#31374A]">
-                  <p className="text-[10px] font-bold text-[#52576A] dark:text-[#929AB0] uppercase tracking-wider mb-0.5">
+                <div className="text-center p-2 sm:p-2.5 rounded-lg sm:rounded-xl bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0]/80 dark:border-[#31374A]">
+                  <p className="text-[9px] sm:text-[10px] font-bold text-[#52576A] dark:text-[#929AB0] uppercase tracking-wider mb-0.5">
                     Correct
                   </p>
-                  <p className="text-lg font-extrabold text-[#15803D] dark:text-[#22C55E] font-mono tabular-nums">
+                  <p className="text-base sm:text-lg font-extrabold text-[#15803D] dark:text-[#22C55E] font-mono tabular-nums">
                     {correctCount}
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="mt-3 pt-2.5 border-t border-[#E8D9C0]/80 dark:border-[#31374A]">
+            <div className="mt-2.5 sm:mt-3 pt-2 sm:pt-2.5 border-t border-[#E8D9C0]/80 dark:border-[#31374A]">
               <button
                 onClick={() => onNavigateTab?.("analytics")}
-                className="w-full min-h-[36px] text-center text-xs font-extrabold text-[#800020] dark:text-[#F47B20] hover:opacity-80 flex items-center justify-center gap-1 active:scale-95 transition-all cursor-pointer"
+                className="w-full min-h-[32px] sm:min-h-[36px] text-center text-[11px] sm:text-xs font-extrabold text-[#800020] dark:text-[#F47B20] hover:opacity-80 flex items-center justify-center gap-1 active:scale-95 transition-all cursor-pointer"
               >
                 <span>View Full Analytics & Reports</span>
                 <ChevronRight className="w-3.5 h-3.5" />
@@ -322,26 +324,26 @@ export const HomeTab: React.FC<HomeTabProps> = ({
           </section>
 
           {/* 4-Card Core Practice Grid */}
-          <section className="lg:col-span-7 grid grid-cols-2 gap-3">
+          <section className="lg:col-span-7 grid grid-cols-2 gap-2 sm:gap-3">
             {/* Live Mock Tests */}
             <motion.button
               whileTap={{ scale: 0.98 }}
               onClick={() => onNavigateTab?.("live_tests")}
-              className="bg-white dark:bg-[#1F2330] p-4 rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] hover:border-[#800020] dark:hover:border-[#F47B20] shadow-xs flex flex-col justify-between min-h-[116px] text-left transition-all cursor-pointer group"
+              className="bg-white dark:bg-[#1F2330] p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] hover:border-[#800020] dark:hover:border-[#F47B20] shadow-xs flex flex-col justify-between min-h-[104px] sm:min-h-[116px] text-left transition-all cursor-pointer group"
             >
               <div className="flex items-center justify-between w-full">
-                <div className="w-10 h-10 rounded-xl bg-[#800020]/10 dark:bg-[#800020]/30 text-[#800020] dark:text-[#F47B20] flex items-center justify-center">
-                  <Flame className="w-5 h-5" />
+                <div className="w-8.5 h-8.5 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-[#800020]/10 dark:bg-[#800020]/30 text-[#800020] dark:text-[#F47B20] flex items-center justify-center shrink-0">
+                  <Flame className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
                 </div>
-                <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#F47B20]">
+                <span className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider text-[#F47B20]">
                   ● LIVE
                 </span>
               </div>
-              <div className="mt-3">
-                <h3 className="text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] leading-tight">
+              <div className="mt-2 sm:mt-3">
+                <h3 className="text-xs sm:text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] leading-tight">
                   Live Tests
                 </h3>
-                <p className="text-[11px] font-medium text-[#52576A] dark:text-[#929AB0] mt-0.5">
+                <p className="text-[10px] sm:text-[11px] font-medium text-[#52576A] dark:text-[#929AB0] mt-0.5 truncate leading-tight">
                   Mock exams &amp; rankings
                 </p>
               </div>
@@ -351,21 +353,21 @@ export const HomeTab: React.FC<HomeTabProps> = ({
             <motion.button
               whileTap={{ scale: 0.98 }}
               onClick={() => onNavigateTab?.("pyq_vault")}
-              className="bg-white dark:bg-[#1F2330] p-4 rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] hover:border-[#800020] dark:hover:border-[#F47B20] shadow-xs flex flex-col justify-between min-h-[116px] text-left transition-all cursor-pointer group"
+              className="bg-white dark:bg-[#1F2330] p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] hover:border-[#800020] dark:hover:border-[#F47B20] shadow-xs flex flex-col justify-between min-h-[104px] sm:min-h-[116px] text-left transition-all cursor-pointer group"
             >
               <div className="flex items-center justify-between w-full">
-                <div className="w-10 h-10 rounded-xl bg-[#C99A45]/15 text-[#946B1E] dark:text-[#E5BC6B] flex items-center justify-center">
-                  <FileText className="w-5 h-5" />
+                <div className="w-8.5 h-8.5 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-[#C99A45]/15 text-[#946B1E] dark:text-[#E5BC6B] flex items-center justify-center shrink-0">
+                  <FileText className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
                 </div>
-                <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#946B1E] dark:text-[#C99A45]">
+                <span className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider text-[#946B1E] dark:text-[#C99A45]">
                   OFFICIAL
                 </span>
               </div>
-              <div className="mt-3">
-                <h3 className="text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] leading-tight">
+              <div className="mt-2 sm:mt-3">
+                <h3 className="text-xs sm:text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] leading-tight">
                   PYQ Vault
                 </h3>
-                <p className="text-[11px] font-medium text-[#52576A] dark:text-[#929AB0] mt-0.5">
+                <p className="text-[10px] sm:text-[11px] font-medium text-[#52576A] dark:text-[#929AB0] mt-0.5 truncate leading-tight">
                   Previous year papers
                 </p>
               </div>
@@ -375,21 +377,21 @@ export const HomeTab: React.FC<HomeTabProps> = ({
             <motion.button
               whileTap={{ scale: 0.98 }}
               onClick={() => setShowCreateTestModal(true)}
-              className="bg-white dark:bg-[#1F2330] p-4 rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] hover:border-[#800020] dark:hover:border-[#F47B20] shadow-xs flex flex-col justify-between min-h-[116px] text-left transition-all cursor-pointer group"
+              className="bg-white dark:bg-[#1F2330] p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] hover:border-[#800020] dark:hover:border-[#F47B20] shadow-xs flex flex-col justify-between min-h-[104px] sm:min-h-[116px] text-left transition-all cursor-pointer group"
             >
               <div className="flex items-center justify-between w-full">
-                <div className="w-10 h-10 rounded-xl bg-[#F47B20]/12 text-[#C85A0A] dark:text-[#F47B20] flex items-center justify-center">
-                  <Compass className="w-5 h-5" />
+                <div className="w-8.5 h-8.5 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-[#F47B20]/12 text-[#C85A0A] dark:text-[#F47B20] flex items-center justify-center shrink-0">
+                  <Compass className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
                 </div>
-                <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#C85A0A] dark:text-[#F47B20]">
+                <span className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider text-[#C85A0A] dark:text-[#F47B20]">
                   20-20 SET
                 </span>
               </div>
-              <div className="mt-3">
-                <h3 className="text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] leading-tight">
+              <div className="mt-2 sm:mt-3">
+                <h3 className="text-xs sm:text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] leading-tight">
                   Custom Test
                 </h3>
-                <p className="text-[11px] font-medium text-[#52576A] dark:text-[#929AB0] mt-0.5">
+                <p className="text-[10px] sm:text-[11px] font-medium text-[#52576A] dark:text-[#929AB0] mt-0.5 truncate leading-tight">
                   Select subjects &amp; count
                 </p>
               </div>
@@ -399,21 +401,21 @@ export const HomeTab: React.FC<HomeTabProps> = ({
             <motion.button
               whileTap={{ scale: 0.98 }}
               onClick={() => onNavigateTab?.("wrong")}
-              className="bg-white dark:bg-[#1F2330] p-4 rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] hover:border-[#800020] dark:hover:border-[#F47B20] shadow-xs flex flex-col justify-between min-h-[116px] text-left transition-all cursor-pointer group"
+              className="bg-white dark:bg-[#1F2330] p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] hover:border-[#800020] dark:hover:border-[#F47B20] shadow-xs flex flex-col justify-between min-h-[104px] sm:min-h-[116px] text-left transition-all cursor-pointer group"
             >
               <div className="flex items-center justify-between w-full">
-                <div className="w-10 h-10 rounded-xl bg-[#15803D]/10 dark:bg-[#22C55E]/15 text-[#15803D] dark:text-[#22C55E] flex items-center justify-center">
-                  <FileX className="w-5 h-5" />
+                <div className="w-8.5 h-8.5 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-[#15803D]/10 dark:bg-[#22C55E]/15 text-[#15803D] dark:text-[#22C55E] flex items-center justify-center shrink-0">
+                  <FileX className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
                 </div>
-                <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#15803D] dark:text-[#22C55E]">
+                <span className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider text-[#15803D] dark:text-[#22C55E]">
                   REVISION
                 </span>
               </div>
-              <div className="mt-3">
-                <h3 className="text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] leading-tight">
+              <div className="mt-2 sm:mt-3">
+                <h3 className="text-xs sm:text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] leading-tight">
                   Mistake Bank
                 </h3>
-                <p className="text-[11px] font-medium text-[#52576A] dark:text-[#929AB0] mt-0.5">
+                <p className="text-[10px] sm:text-[11px] font-medium text-[#52576A] dark:text-[#929AB0] mt-0.5 truncate leading-tight">
                   Bookmarks &amp; wrong questions
                 </p>
               </div>
@@ -428,27 +430,27 @@ export const HomeTab: React.FC<HomeTabProps> = ({
             whileTap={{ scale: 0.99 }}
             onClick={() => onOpenApiSettings?.()}
             aria-label="Open AI API Key Settings"
-            className="w-full group bg-white dark:bg-[#1F2330] hover:bg-[#FFFDF9] dark:hover:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] rounded-2xl p-3.5 shadow-xs hover:border-[#C99A45] flex items-center justify-between text-left transition-all cursor-pointer"
+            className="w-full group bg-white dark:bg-[#1F2330] hover:bg-[#FFFDF9] dark:hover:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] rounded-xl sm:rounded-2xl p-3 sm:p-3.5 shadow-xs hover:border-[#C99A45] flex items-center justify-between text-left transition-all cursor-pointer"
           >
-            <div className="flex items-center gap-3 min-w-0 flex-1">
-              <div className="relative w-10 h-10 rounded-xl bg-[#C99A45]/15 border border-[#C99A45]/30 text-[#946B1E] dark:text-[#E5BC6B] flex items-center justify-center shrink-0">
-                <Key className="w-5 h-5" />
+            <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
+              <div className="relative w-8.5 h-8.5 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-[#C99A45]/15 border border-[#C99A45]/30 text-[#946B1E] dark:text-[#E5BC6B] flex items-center justify-center shrink-0">
+                <Key className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
               </div>
 
-              <div className="min-w-0 flex-1 pr-2">
-                <div className="flex items-center gap-1.5 mb-0.5 text-[10.5px] font-bold">
+              <div className="min-w-0 flex-1 pr-1.5 sm:pr-2">
+                <div className="flex items-center gap-1 sm:gap-1.5 mb-0.5 text-[9.5px] sm:text-[10.5px] font-bold">
                   <span className="uppercase tracking-wider text-[#C85A0A] dark:text-[#F47B20]">
                     AI Engine Setup
                   </span>
                   <span className="text-[#C99A45]" aria-hidden="true">·</span>
-                  <span className="text-[#52576A] dark:text-[#CBD2E1]">
+                  <span className="text-[#52576A] dark:text-[#CBD2E1] truncate">
                     {settings.aiMode === "personal_keys" ? "Personal Keys" : "Platform AI"}
                   </span>
                 </div>
                 <h3 className="text-xs sm:text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] truncate">
                   AI Source &amp; Personal Keys
                 </h3>
-                <p className="text-[11px] font-medium text-[#52576A] dark:text-[#929AB0] truncate mt-0.5">
+                <p className="text-[10px] sm:text-[11px] font-medium text-[#52576A] dark:text-[#929AB0] truncate mt-0.5">
                   {settings.aiMode === "personal_keys"
                     ? `${settings.personalAiKeys?.length || 1} personal key(s) configured`
                     : "Tap to configure Gemini API or personal keys"}
@@ -456,7 +458,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
               </div>
             </div>
 
-            <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] text-[#171923] dark:text-[#FFF9EF] group-hover:bg-[#800020] group-hover:text-white dark:group-hover:bg-[#F47B20] text-xs font-extrabold transition-all shrink-0">
+            <div className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] text-[#171923] dark:text-[#FFF9EF] group-hover:bg-[#800020] group-hover:text-white dark:group-hover:bg-[#F47B20] text-[11px] sm:text-xs font-extrabold transition-all shrink-0">
               <span className="hidden sm:inline">Manage</span>
               <Settings className="w-3.5 h-3.5" />
             </div>
