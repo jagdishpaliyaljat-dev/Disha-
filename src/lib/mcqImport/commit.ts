@@ -550,6 +550,18 @@ export const commitQuestions = async (
         mergeQuestionsIntoStore(committedQuestions);
       } catch (_) {}
 
+      // Write directly into quizpro-db-v5 so newly imported questions are immediately visible in user app
+      try {
+        const { putRecords, SNAPSHOT_STORES, recalculateQuestionCounts } = await import("../../services/snapshot/indexedDbV5");
+        await putRecords(SNAPSHOT_STORES.MCQS, committedQuestions);
+        await recalculateQuestionCounts();
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent("quizpro_store_updated", { detail: loadUserQuestionsStore() }));
+        }
+      } catch (idbErr) {
+        console.warn("[MCQ Import] IndexedDB v5 sync notice:", idbErr);
+      }
+
       // Targeted bundle repack for ONLY dirty topics + 1 single version bump (unless quota tripped)
       if (!isQuotaExhausted()) {
         try {

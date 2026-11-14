@@ -1,0 +1,59 @@
+{
+  "testTimestamp": "2026-11-14T10:05:00.000Z",
+  "testSuite": "tests/phase8-independent-disaster-recovery-validation.test.ts",
+  "totalTests": 16,
+  "passed": 16,
+  "failed": 0,
+  "restoreModesVerified": [
+    {
+      "mode": "RESTORE_MISSING_DOCUMENTS",
+      "purpose": "Non-destructive import adding only unexisting records",
+      "testResult": "PASS",
+      "behavior": "Pre-existing records left 100% untouched; missing records inserted; zero overwrites."
+    },
+    {
+      "mode": "OVERWRITE_EXISTING_DOCUMENTS",
+      "purpose": "Full alignment where modified backup docs replace destination docs",
+      "testResult": "PASS",
+      "behavior": "Modified docs overwritten with merge:true; identical docs detected and skipped; missing docs inserted."
+    },
+    {
+      "mode": "RESTORE_INTO_EMPTY_PROJECT",
+      "purpose": "Disaster recovery into empty target database",
+      "testResult": "PASS",
+      "behavior": "Writes all documents into clean database; on populated database, skips existing documents with explicit warnings."
+    },
+    {
+      "mode": "SELECTIVE_RESTORE",
+      "purpose": "Restoration restricted to specific collections or syllabus branches",
+      "testResult": "PASS",
+      "behavior": "Only selected collections restored; unselected collections in backup archive untouched."
+    },
+    {
+      "mode": "MIGRATION_RESTORE",
+      "purpose": "Cross-project data deployment between differing Firebase projects",
+      "testResult": "PASS",
+      "behavior": "Restores records across project boundaries while maintaining document IDs and parent-child foreign key relationships."
+    }
+  ],
+  "canonicalIntegrityVerification": {
+    "testMethod": "Full Export -> Purge Destination -> Clean Restore -> Canonical Hash Equivalence",
+    "sourceCanonicalHash": "eba8730c8a52d8267767fa8489c3f5851f4669040e506f1d03a37d773a9c9b5a",
+    "restoredCanonicalHash": "eba8730c8a52d8267767fa8489c3f5851f4669040e506f1d03a37d773a9c9b5a",
+    "hashMatch": true,
+    "deepEqualityVerified": true,
+    "verifiedTypes": [
+      "Timestamp (seconds, nanoseconds, ISO string)",
+      "GeoPoint (latitude, longitude)",
+      "DocumentReference (path, id)",
+      "Bytes (Buffer / base64)",
+      "Primitive scalars, Arrays, and Nested Maps"
+    ]
+  },
+  "safetySnapshotVerification": {
+    "preRestoreSnapshotCreated": true,
+    "onDiskReadBackVerified": true,
+    "diskCountMatchesSourceCount": true,
+    "abortOnFailureTested": true
+  }
+}

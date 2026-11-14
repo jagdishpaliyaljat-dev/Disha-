@@ -22,6 +22,17 @@ import {
   sanitizeLiveTestForPublic,
 } from './src/server/liveTestService';
 import { createQuizAssetsService } from './src/server/quizAssetsService';
+import {
+  executeExportJob,
+  generateRestorePreview,
+  executeRestoreJob,
+  listStoredBackups,
+  deleteStoredBackup,
+  getStoredBackupBuffer,
+  getActiveJob,
+  VERIFIED_QUIZPRO_COLLECTIONS,
+} from './src/server/backupEngine';
+import { defaultSnapshotPublishingService } from './src/server/snapshotPublishingService';
 
 const currentFilename = typeof __filename !== 'undefined' ? __filename : '';
 const currentDirname = typeof __dirname !== 'undefined' ? __dirname : (currentFilename ? path.dirname(currentFilename) : process.cwd());
@@ -772,6 +783,179 @@ Return ONLY JSON with keys:
     }
   });
 
+  // 5c. Complete Full Firebase Backup, Export & Disaster Recovery Engine (Strict Verified Admin Only)
+  app.get('/api/admin/backup/collections', requireVerifiedAdmin, (_req, res) => {
+    res.json({
+      success: true,
+      collections: VERIFIED_QUIZPRO_COLLECTIONS,
+      totalCount: VERIFIED_QUIZPRO_COLLECTIONS.length,
+    });
+  });
+
+  app.post('/api/admin/backup/export', requireVerifiedAdmin, async (req, res) => {
+    try {
+      const { scope = 'full', selectedCollections = [], exportStorage = true } = req.body || {};
+      const jobId = `export_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+      const adminBearerToken = (req.headers.authorization || '').replace(/^Bearer\s+/i, '').trim();
+
+      // Launch async export job in background
+      executeExportJob(
+        jobId,
+        {
+          scope: scope === 'selective' ? 'selective' : 'full',
+          selectedCollections: Array.isArray(selectedCollections) ? selectedCollections : undefined,
+          exportStorage: Boolean(exportStorage),
+          adminBearerToken,
+        },
+        {
+          adminDb,
+          projectId: FIREBASE_PROJECT_ID,
+          databaseId: FIRESTORE_DATABASE_ID,
+          apiKey: FIREBASE_API_KEY,
+        }
+      ).catch((jobErr) => {
+        console.error(`[Backup Export Fatal Error] Job ${jobId}:`, jobErr);
+      });
+
+      res.json({
+        success: true,
+        jobId,
+        message: 'Backup export job initiated successfully.',
+      });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message || 'Failed to initiate backup export.' });
+    }
+  });
+
+  app.get('/api/admin/backup/jobs/:jobId', requireVerifiedAdmin, (req, res) => {
+    const job = getActiveJob(req.params.jobId);
+    if (!job) {
+      return res.status(404).json({ success: false, error: 'Job not found or expired.' });
+    }
+    res.json({ success: true, job });
+  });
+
+  app.get('/api/admin/backup/history', requireVerifiedAdmin, (_req, res) => {
+    try {
+      const backups = listStoredBackups();
+      res.json({ success: true, backups });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message || 'Failed to list backup history.' });
+    }
+  });
+
+  app.delete('/api/admin/backup/history/:backupId', requireVerifiedAdmin, (req, res) => {
+    try {
+      const deleted = deleteStoredBackup(req.params.backupId);
+      if (!deleted) {
+        return res.status(404).json({ success: false, error: 'Backup archive not found.' });
+      }
+      res.json({ success: true, message: 'Backup archive deleted from local storage.' });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message || 'Failed to delete backup archive.' });
+    }
+  });
+
+  app.get('/api/admin/backup/download/:backupId', requireVerifiedAdmin, (req, res) => {
+    try {
+      const buffer = getStoredBackupBuffer(req.params.backupId);
+      const safeFilename = path.basename(req.params.backupId);
+
+      res.setHeader('Content-Type', 'application/zip');
+      res.setHeader('Content-Disposition', `attachment; filename="${safeFilename}"`);
+      res.setHeader('Content-Length', buffer.length);
+      res.send(buffer);
+    } catch (err: any) {
+      res.status(404).json({ success: false, error: err.message || 'Backup file not found.' });
+    }
+  });
+
+  app.post('/api/admin/backup/upload-validate', requireVerifiedAdmin, async (req, res) => {
+    try {
+      const { zipBase64, filename = 'uploaded_backup.zip' } = req.body || {};
+      if (!zipBase64 || typeof zipBase64 !== 'string') {
+        return res.status(400).json({ success: false, error: 'Missing zipBase64 file payload.' });
+      }
+
+      const zipBuffer = Buffer.from(zipBase64, 'base64');
+      if (zipBuffer.length === 0) {
+        return res.status(400).json({ success: false, error: 'Empty file payload received.' });
+      }
+
+      const adminBearerToken = (req.headers.authorization || '').replace(/^Bearer\s+/i, '').trim();
+
+      // Validate archive and generate Restore Preview
+      const preview = await generateRestorePreview(
+        zipBuffer,
+        filename,
+        {
+          adminDb,
+          projectId: FIREBASE_PROJECT_ID,
+          databaseId: FIRESTORE_DATABASE_ID,
+          apiKey: FIREBASE_API_KEY,
+        },
+        adminBearerToken
+      );
+
+      // Save staged archive in backups/ directory with temporary ID for execution
+      const stageFilename = `STAGED_${Date.now()}_${path.basename(filename)}`;
+      const stagePath = path.join(path.resolve(process.cwd(), 'backups'), stageFilename);
+      fs.writeFileSync(stagePath, zipBuffer);
+      preview.backupId = stageFilename;
+
+      res.json({ success: true, preview });
+    } catch (err: any) {
+      console.error('[Upload Validate Error]:', err);
+      res.status(400).json({ success: false, error: err.message || 'Archive validation failed.' });
+    }
+  });
+
+  app.post('/api/admin/backup/restore', requireVerifiedAdmin, async (req, res) => {
+    try {
+      const { backupId, restoreMode, confirmationPhrase, selectedCollections, skipStorage } = req.body || {};
+      if (!backupId || !restoreMode || !confirmationPhrase) {
+        return res.status(400).json({
+          success: false,
+          error: 'Missing required parameters: backupId, restoreMode, confirmationPhrase.',
+        });
+      }
+
+      const buffer = getStoredBackupBuffer(backupId);
+      const jobId = `restore_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+      const adminBearerToken = (req.headers.authorization || '').replace(/^Bearer\s+/i, '').trim();
+
+      executeRestoreJob(
+        jobId,
+        {
+          backupId,
+          restoreMode,
+          confirmationPhrase,
+          selectedCollections,
+          skipStorage,
+        },
+        buffer,
+        { uid: req.authUser!.uid, email: req.authUser!.email },
+        {
+          adminDb,
+          projectId: FIREBASE_PROJECT_ID,
+          databaseId: FIRESTORE_DATABASE_ID,
+          apiKey: FIREBASE_API_KEY,
+        },
+        adminBearerToken
+      ).catch((rErr) => {
+        console.error(`[Backup Restore Fatal Error] Job ${jobId}:`, rErr);
+      });
+
+      res.json({
+        success: true,
+        jobId,
+        message: 'Disaster recovery restore job initiated.',
+      });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message || 'Failed to start restore job.' });
+    }
+  });
+
   // 6. AI Rotation Status & Policy (Strict Verified Admin Only)
   app.get('/api/admin/ai-rotation/status', requireVerifiedAdmin, (_req, res) => {
     res.json({
@@ -1376,6 +1560,71 @@ Return ONLY a JSON object with key "questions":
       : undefined;
     quizAssets.invalidateQuizAssetsCache(topicIds);
     return res.json({ success: true, invalidatedTopics: topicIds || 'all' });
+  });
+
+  // --- SNAPSHOT ARCHITECTURE ENDPOINTS ---
+
+  // Manifest endpoint: returns current version manifest
+  app.get('/api/manifests/current.json', (_req, res) => {
+    try {
+      const manifest = defaultSnapshotPublishingService.getCurrentManifest();
+      if (!manifest) {
+        return res.status(404).json({ success: false, error: 'No active snapshot manifest found' });
+      }
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=60');
+      return res.json(manifest);
+    } catch (err: any) {
+      return res.status(500).json({ success: false, error: redactSensitiveText(err) });
+    }
+  });
+
+  // Snapshot chunk / content delivery endpoint (immutable)
+  app.get('/api/snapshots/:version/:filename', (req, res) => {
+    try {
+      const version = String(req.params.version || '');
+      const filename = String(req.params.filename || '');
+      const { filePath, exists } = defaultSnapshotPublishingService.getSnapshotFile(version, filename);
+
+      if (!exists) {
+        return res.status(404).json({ success: false, error: 'Snapshot file not found' });
+      }
+
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      return res.sendFile(filePath);
+    } catch (err: any) {
+      return res.status(500).json({ success: false, error: redactSensitiveText(err) });
+    }
+  });
+
+  // Delta bundle delivery endpoint (immutable)
+  app.get('/api/deltas/:filename', (req, res) => {
+    try {
+      const filename = String(req.params.filename || '');
+      const { filePath, exists } = defaultSnapshotPublishingService.getDeltaFile(filename);
+
+      if (!exists) {
+        return res.status(404).json({ success: false, error: 'Delta bundle not found' });
+      }
+
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      return res.sendFile(filePath);
+    } catch (err: any) {
+      return res.status(500).json({ success: false, error: redactSensitiveText(err) });
+    }
+  });
+
+  // Admin publishing endpoint: publish a new snapshot
+  app.post('/api/admin/snapshots/publish', requireVerifiedAdmin, async (req, res) => {
+    try {
+      const options = req.body || {};
+      const manifest = await defaultSnapshotPublishingService.publishNewSnapshot(options);
+      return res.json({ success: true, manifest });
+    } catch (err: any) {
+      return res.status(500).json({ success: false, error: redactSensitiveText(err) });
+    }
   });
 
   app.get('/api/live-tests/:testId', async (req, res) => {

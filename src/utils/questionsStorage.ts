@@ -107,6 +107,82 @@ export async function hydrateUserQuestionsStoreFromIndexedDB(): Promise<UserQues
         window.dispatchEvent(new CustomEvent("quizpro_store_updated", { detail: inMemoryQuestionsStore }));
       }
     }
+
+    // Check quizpro-db-v5 snapshot database if curriculum is still incomplete (< 500 questions)
+    if (restoredCount < 500) {
+      try {
+        const { getAllRecords, SNAPSHOT_STORES } = await import("../services/snapshot/indexedDbV5");
+        const v5Mcqs = await getAllRecords(SNAPSHOT_STORES.MCQS);
+        const v5Subs = await getAllRecords(SNAPSHOT_STORES.SUBJECTS);
+        const v5Chs = await getAllRecords(SNAPSHOT_STORES.CHAPTERS);
+        const v5Tops = await getAllRecords(SNAPSHOT_STORES.TOPICS);
+
+        if (Array.isArray(v5Mcqs) && v5Mcqs.length >= 500) {
+          const current = inMemoryQuestionsStore;
+          const deletedSet = new Set(current.deletedQuestionIds || []);
+          const { reconciledQuestions } = resolveCanonicalForeignKeys(
+            v5Mcqs.filter(q => q && q.id && !deletedSet.has(q.id)),
+            v5Subs.length ? v5Subs : (current.customSubjects || []),
+            v5Chs.length ? v5Chs : (current.customChapters || []),
+            v5Tops.length ? v5Tops : (current.customTopics || [])
+          );
+
+          inMemoryQuestionsStore = {
+            ...current,
+            customSubjects: v5Subs.length ? v5Subs : current.customSubjects,
+            customChapters: v5Chs.length ? v5Chs : current.customChapters,
+            customTopics: v5Tops.length ? v5Tops : current.customTopics,
+            cloudCacheQuestions: reconciledQuestions,
+          };
+          isMemoryStoreHydrated = true;
+          restored = true;
+          restoredCount = reconciledQuestions.length;
+
+          if (typeof window !== "undefined") {
+            window.dispatchEvent(new CustomEvent("quizpro_store_updated", { detail: inMemoryQuestionsStore }));
+          }
+        }
+      } catch (v5Err) {
+        console.warn("[QuestionsStorage] quizpro-db-v5 read notice:", v5Err);
+      }
+    }
+
+    // Direct Snapshot v1 fallback if still incomplete (< 500 questions)
+    if (restoredCount < 500 && typeof fetch !== "undefined") {
+      try {
+        const snapResp = await fetch("/api/snapshots/v1/content.json");
+        if (snapResp.ok) {
+          const snap = await snapResp.json();
+          if (Array.isArray(snap.mcqs) && snap.mcqs.length >= 500) {
+            const current = inMemoryQuestionsStore;
+            const deletedSet = new Set(current.deletedQuestionIds || []);
+            const { reconciledQuestions } = resolveCanonicalForeignKeys(
+              snap.mcqs.filter((q: any) => q && q.id && !deletedSet.has(q.id)),
+              snap.subjects || current.customSubjects,
+              snap.chapters || current.customChapters,
+              snap.topics || current.customTopics
+            );
+
+            inMemoryQuestionsStore = {
+              ...current,
+              customSubjects: snap.subjects || current.customSubjects,
+              customChapters: snap.chapters || current.customChapters,
+              customTopics: snap.topics || current.customTopics,
+              cloudCacheQuestions: reconciledQuestions,
+            };
+            isMemoryStoreHydrated = true;
+            restored = true;
+            restoredCount = reconciledQuestions.length;
+
+            if (typeof window !== "undefined") {
+              window.dispatchEvent(new CustomEvent("quizpro_store_updated", { detail: inMemoryQuestionsStore }));
+            }
+          }
+        }
+      } catch (fetchErr) {
+        console.warn("[QuestionsStorage] Snapshot fetch notice:", fetchErr);
+      }
+    }
   } catch (err) {
     console.warn("[QuestionsStorage] IndexedDB restoration failed or corrupted:", err);
   }
@@ -536,7 +612,7 @@ export function getCombinedChapters(store: UserQuestionsStore = loadUserQuestion
   for (let i = 0; i < docsList.length; i++) {
     const q = docsList[i];
     const text = (q.text || (q as any).question || "").trim().toLowerCase();
-    const key = `${q.chapterId || ""}::${text}`;
+    const key = text || q.id;
     let b = bucketMap.get(key);
     if (!b) {
       b = [];
@@ -567,12 +643,14 @@ export function getCombinedChapters(store: UserQuestionsStore = loadUserQuestion
         const opts2 = normalizeOpts(q2.options);
         if (opts1 && opts2 && opts1 !== opts2) continue;
 
-        // Check if this is a cross-format stale move duplicate (one mcq_ and one usr-q-, or different topics with differing timestamps)
+        // Check if this is a stale move copy, cross-format duplicate, or identical question
         const hasMcqAndUsrQ = (q1.id.startsWith("usr-q-") && q2.id.startsWith("mcq_")) ||
                               (q2.id.startsWith("usr-q-") && q1.id.startsWith("mcq_"));
-        const isDiffTopic = q1.topicId && q2.topicId && q1.topicId !== q2.topicId;
+        const isDiffTopic = Boolean(q1.topicId && q2.topicId && q1.topicId !== q2.topicId);
+        const isDiffChapter = Boolean(q1.chapterId && q2.chapterId && q1.chapterId !== q2.chapterId);
+        const isDuplicateRecord = q1.id !== q2.id;
 
-        if (hasMcqAndUsrQ || isDiffTopic) {
+        if (hasMcqAndUsrQ || isDiffTopic || isDiffChapter || isDuplicateRecord) {
           const time1 = new Date((q1 as any).updatedAt || q1.createdAt || 0).getTime();
           const time2 = new Date((q2 as any).updatedAt || q2.createdAt || 0).getTime();
           const isQ2Newer = time2 > time1 || (time2 === time1 && q2.topicId && !q1.topicId);
@@ -746,18 +824,31 @@ export function getCombinedChapters(store: UserQuestionsStore = loadUserQuestion
 
       const updatedTopics: Topic[] = allChTopics.map((t, tIdx) => {
         const topicQuestions = getQuestionsForTopic(t, baseChapter);
+        const effectiveQuestionCount =
+          topicQuestions.length > 0
+            ? topicQuestions.length
+            : typeof t.questionCount === "number" && t.questionCount > 0
+            ? t.questionCount
+            : 0;
 
         return {
           ...t,
           number: t.number || tIdx + 1,
           questions: topicQuestions,
+          questionCount: effectiveQuestionCount,
         };
       });
+
+      const chapterQuestionCount = updatedTopics.reduce(
+        (sum, t) => sum + (t.questions.length > 0 ? t.questions.length : (t.questionCount || 0)),
+        0
+      );
 
       return {
         ...baseChapter,
         subjectId: baseChapter.subjectId || "economics",
         topics: updatedTopics,
+        questionCount: chapterQuestionCount,
       };
     });
 
@@ -781,18 +872,20 @@ export function getCombinedChapters(store: UserQuestionsStore = loadUserQuestion
     extraTopics.forEach((t: Topic) => {
       if (!t || !t.id) return;
       const prev = topicsMap.get(t.id);
-      const mergedQuestionCount = Math.max(
-        typeof t.questionCount === "number" ? t.questionCount : 0,
-        typeof prev?.questionCount === "number" ? prev.questionCount : 0,
-        Array.isArray(t.questions) ? t.questions.length : 0,
-        Array.isArray(prev?.questions) ? prev.questions.length : 0
-      );
       const mergedQuestions =
         Array.isArray(t.questions) && t.questions.length > 0
           ? t.questions
           : Array.isArray(prev?.questions)
           ? prev.questions
           : [];
+      const mergedQuestionCount =
+        mergedQuestions.length > 0
+          ? mergedQuestions.length
+          : typeof t.questionCount === "number"
+          ? t.questionCount
+          : typeof prev?.questionCount === "number"
+          ? prev.questionCount
+          : 0;
       topicsMap.set(t.id, {
         ...prev,
         ...t,
@@ -836,7 +929,7 @@ export function getCombinedChapters(store: UserQuestionsStore = loadUserQuestion
       ...customChapter,
       subjectId: chSubjectId,
       topics: updatedTopics,
-      questionCount: Math.max(chapterQuestionCount, customChapter.questionCount || 0),
+      questionCount: chapterQuestionCount,
     };
   });
 
@@ -1139,10 +1232,81 @@ export function bulkMoveQuestions(
     }
   });
 
-  // 4. Invalidate topic-specific local caches so queries never serve stale question lists
+  // 4. Update customChapters and their embedded topics
+  const movedQuestionsObjects = questionIds
+    .map((id) => {
+      const orig = allCombinedQuestionsMap[id];
+      if (!orig) return null;
+      return {
+        ...orig,
+        chapterId: targetChapterId,
+        topicId: targetTopicId,
+        ...(targetSubjectId ? { subjectId: targetSubjectId } : {}),
+        updatedAt: nowIso,
+      } as Question;
+    })
+    .filter((q): q is Question => q !== null);
+
+  const newCustomChapters = (store.customChapters || []).map((ch) => {
+    const updatedTopics = (ch.topics || []).map((t) => {
+      if (t.id === targetTopicId) {
+        // Destination topic: remove duplicates and append moved questions
+        const remaining = (t.questions || []).filter((q) => !isTargetQuestion(q));
+        const combined = [...remaining, ...movedQuestionsObjects];
+        const deduped = deduplicateQuestions(combined);
+        return {
+          ...t,
+          questions: deduped,
+          questionCount: deduped.length,
+        };
+      } else {
+        // Any other topic (including source topic): remove moved questions
+        const remaining = (t.questions || []).filter((q) => !isTargetQuestion(q));
+        return {
+          ...t,
+          questions: remaining,
+          questionCount: remaining.length,
+        };
+      }
+    });
+    return {
+      ...ch,
+      topics: updatedTopics,
+    };
+  });
+
+  // 5. Update customTopics
+  const newCustomTopics = (store.customTopics || []).map((t) => {
+    if (t.id === targetTopicId) {
+      const remaining = (t.questions || []).filter((q) => !isTargetQuestion(q));
+      const combined = [...remaining, ...movedQuestionsObjects];
+      const deduped = deduplicateQuestions(combined);
+      return {
+        ...t,
+        chapterId: targetChapterId,
+        questions: deduped,
+        questionCount: deduped.length,
+      };
+    } else {
+      const remaining = (t.questions || []).filter((q) => !isTargetQuestion(q));
+      return {
+        ...t,
+        questions: remaining,
+        questionCount: remaining.length,
+      };
+    }
+  });
+
+  // 6. Invalidate caches asynchronously (localStorage, localforage questionBankStore, localDatabaseEngine, question_bundles)
+  const sourceTopicIds = Array.from(
+    new Set(questionIds.map((id) => allCombinedQuestionsMap[id]?.topicId).filter(Boolean))
+  ) as string[];
+
   try {
     if (typeof localStorage !== "undefined") {
       localStorage.removeItem(`quizpro_mcqs_${targetTopicId}`);
+      localStorage.removeItem("quizpro_mcqs_all");
+      sourceTopicIds.forEach((tId) => localStorage.removeItem(`quizpro_mcqs_${tId}`));
       questionIds.forEach((id) => {
         const q = allCombinedQuestionsMap[id];
         if (q?.topicId) localStorage.removeItem(`quizpro_mcqs_${q.topicId}`);
@@ -1150,8 +1314,48 @@ export function bulkMoveQuestions(
     }
   } catch {}
 
+  try {
+    import("./questionBankCache").then(({ removeQuestionsFromCache, saveQuestionsToCache }) => {
+      removeQuestionsFromCache(questionIds, sourceTopicIds).catch(() => {});
+      if (movedQuestionsObjects.length > 0) {
+        saveQuestionsToCache(movedQuestionsObjects, {
+          topicId: targetTopicId,
+          chapterId: targetChapterId,
+          subjectId: targetSubjectId,
+          source: "user",
+        }).catch(() => {});
+      }
+    }).catch(() => {});
+  } catch {}
+
+  try {
+    import("./localDatabaseEngine").then(({ saveLocalMCQs }) => {
+      if (movedQuestionsObjects.length > 0) {
+        saveLocalMCQs(movedQuestionsObjects).catch(() => {});
+      }
+    }).catch(() => {});
+  } catch {}
+
+  try {
+    import("./indexedDbCache").then(({ getCachedQuestionBundle, saveCachedQuestionBundle, deleteCachedQuestionBundle }) => {
+      sourceTopicIds.forEach((sId) => {
+        getCachedQuestionBundle(sId).then((existingBundle) => {
+          if (existingBundle && existingBundle.length > 0) {
+            const filtered = existingBundle.filter(
+              (q) => !idsSet.has(q.id) && !movedTextsSet.has((q.text || (q as any).question || "").trim().toLowerCase())
+            );
+            saveCachedQuestionBundle(sId, filtered).catch(() => {});
+          }
+        }).catch(() => {});
+      });
+      deleteCachedQuestionBundle(targetTopicId).catch(() => {});
+    }).catch(() => {});
+  } catch {}
+
   return {
     ...store,
+    customChapters: newCustomChapters,
+    customTopics: newCustomTopics,
     customQuestions: newCustom,
     cloudCacheQuestions: newCloudCache,
     editedQuestions: newEdited,

@@ -83,12 +83,44 @@ export async function saveSyncCheckpoint(metadata: SyncCheckpointMetadata): Prom
  * Pure 24-Hour Eligibility Calculator function.
  * Determines whether a new full sync session is currently permitted based on the 24-hour rule.
  */
-export function isSyncEligible(checkpoint: SyncCheckpointMetadata, now: number = Date.now()): {
+export function isSyncEligible(
+  checkpoint: SyncCheckpointMetadata,
+  now: number = Date.now(),
+  currentLocalCount?: number
+): {
   eligible: boolean;
   reason: string;
   remainingTimeMs: number;
 } {
-  if (!checkpoint.bootstrapCompleted) {
+  // Admin bypass: Admins managing, uploading, and testing content are never blocked by 24h gate
+  try {
+    const profileRaw = typeof localStorage !== "undefined" ? localStorage.getItem("economic_survey_user_profile_v1") : null;
+    if (profileRaw) {
+      const p = JSON.parse(profileRaw);
+      if (
+        p.role === "admin" ||
+        p.email === "zdpaliyal@gmail.com" ||
+        p.email === "jagdishpaliyaljat@gmail.com"
+      ) {
+        return {
+          eligible: true,
+          reason: "Admin user override: 24-hour sync limit bypassed for admin.",
+          remainingTimeMs: 0,
+        };
+      }
+    }
+  } catch {}
+
+  // If the local database is incomplete (less than expected 500+ MCQs), never block behind 24h gate
+  if (currentLocalCount !== undefined && currentLocalCount < 500) {
+    return {
+      eligible: true,
+      reason: `Incomplete question bank detected (${currentLocalCount} questions). Immediate sync permitted to complete content.`,
+      remainingTimeMs: 0,
+    };
+  }
+
+  if (!checkpoint.bootstrapCompleted || (checkpoint as any).isIncompleteDatabase) {
     return {
       eligible: true,
       reason: "Initial bootstrap not yet completed.",

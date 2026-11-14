@@ -168,6 +168,37 @@ export async function executeInitialBootstrap(
       });
     }
 
+    // Snapshot fallback: if Firestore returned fewer than 500 MCQs, load from canonical Snapshot v1
+    if (allMcqs.length < 500 && typeof fetch !== "undefined") {
+      try {
+        console.log(`[BootstrapService] Download got ${allMcqs.length} MCQs (< 500). Downloading canonical Snapshot v1...`);
+        const snapResp = await fetch("/api/snapshots/v1/content.json");
+        if (snapResp.ok) {
+          const snapPayload = await snapResp.json();
+          if (Array.isArray(snapPayload.mcqs) && snapPayload.mcqs.length > allMcqs.length) {
+            for (const q of snapPayload.mcqs) {
+              if (q && q.id && !seenMcqIds.has(q.id)) {
+                seenMcqIds.add(q.id);
+                allMcqs.push(q);
+              }
+            }
+            if (Array.isArray(snapPayload.subjects) && subjects.length === 0) {
+              subjects.push(...snapPayload.subjects);
+            }
+            if (Array.isArray(snapPayload.chapters) && chapters.length === 0) {
+              chapters.push(...snapPayload.chapters);
+            }
+            if (Array.isArray(snapPayload.topics) && topics.length === 0) {
+              topics.push(...snapPayload.topics);
+            }
+            await stageIncomingRecords(batchId, STORES.MCQS, allMcqs.map(q => ({ recordId: q.id, data: q })));
+          }
+        }
+      } catch (snapErr: any) {
+        console.warn("[BootstrapService] Snapshot fallback non-fatal error:", snapErr.message);
+      }
+    }
+
     onProgress?.({
       status: "validating",
       datasetName: "Validating Staged Content Integrity",
@@ -208,14 +239,15 @@ export async function executeInitialBootstrap(
     const { saveCachedCurriculum } = await import("./indexedDbCache");
     await saveCachedCurriculum(subjects, chapters, topics, allMcqs, []);
 
-    // 5. Update Checkpoint
-    checkpoint.bootstrapCompleted = true;
+    // 5. Update Checkpoint - only mark completed if we have full content (>= 500 MCQs)
+    const isFullDataset = allMcqs.length >= 500;
+    checkpoint.bootstrapCompleted = isFullDataset;
     checkpoint.lastSuccessfulSyncAt = Date.now();
     checkpoint.lastAttemptedSyncAt = Date.now();
-    checkpoint.nextSyncEligibleAt = Date.now() + (24 * 60 * 60 * 1000);
+    checkpoint.nextSyncEligibleAt = isFullDataset ? (Date.now() + (24 * 60 * 60 * 1000)) : Date.now();
     checkpoint.contentVersion = remoteVersionMeta?.curriculumVersion || checkpoint.contentVersion + 1;
     checkpoint.syncStatus = "idle";
-    checkpoint.lastSyncError = null;
+    checkpoint.lastSyncError = isFullDataset ? null : "Incomplete dataset loaded; scheduled for immediate retry";
     await saveSyncCheckpoint(checkpoint);
 
     onProgress?.({

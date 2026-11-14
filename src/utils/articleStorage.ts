@@ -241,11 +241,9 @@ export function convertMarkdownToBlocks(
  * Normalizes an article document to ensure all properties and blocks exist.
  */
 export function normalizeArticle(raw: any): NewsArticle {
-  const content = raw.content || "";
+  const content = typeof raw.content === "string" ? raw.content : "";
   const faqs: FAQItem[] = Array.isArray(raw.faqs) ? raw.faqs : [];
-  const blocks: ArticleBlock[] = Array.isArray(raw.blocks) && raw.blocks.length > 0
-    ? raw.blocks
-    : convertMarkdownToBlocks(content, faqs);
+  const blocks: ArticleBlock[] = Array.isArray(raw.blocks) ? raw.blocks : [];
 
   return {
     id: String(raw.id || `art_${Date.now()}`),
@@ -608,27 +606,25 @@ export async function saveArticleAdmin(
     ? article.seoTitle.trim()
     : (article.title || "Untitled Article");
 
-  const cleanContentText = (article.content || "")
-    .replace(/#+\s+/g, "")
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
-    .replace(/[*_~`]/g, "")
+  const rawHtmlContent = typeof article.content === "string" ? article.content : "";
+  const plainTextExcerpt = rawHtmlContent
+    .replace(/<[^>]*>/g, " ")
     .replace(/\s+/g, " ")
-    .trim();
+    .trim()
+    .slice(0, 155);
 
-  const firstParagraph = cleanContentText.slice(0, 155);
   const autoSeoDescription = article.seoDescription?.trim()
     ? article.seoDescription.trim()
-    : (article.excerpt?.trim() || firstParagraph || "Read latest exam updates and study guide on DISHA 20-20.");
+    : (article.excerpt?.trim() || plainTextExcerpt || "Read latest exam updates and study guide on DISHA 20-20.");
 
-  const rawBlocks = article.blocks && article.blocks.length > 0
-    ? article.blocks
-    : convertMarkdownToBlocks(article.content || "", article.faqs);
+  const rawBlocks = Array.isArray(article.blocks) ? article.blocks : [];
 
   const fullArticle: NewsArticle = normalizeArticle({
     ...article,
     id,
     slug,
     title: article.title || "Untitled Article",
+    content: rawHtmlContent,
     blocks: rawBlocks,
     updatedAt: now,
     createdAt: article.createdAt || now,
@@ -645,25 +641,24 @@ export async function saveArticleAdmin(
   const updatedLocal = [fullArticle, ...local.filter(a => a.id !== id && a.slug !== slug)];
   saveLocalArticles(updatedLocal);
 
-  // 2. Sync to Firestore using split storage strategy
+  // 2. Sync to Firestore - Save raw content 100% intact
   try {
     const articleDocRef = doc(db, "articles", id);
-    const hasProvidedBlocks = Array.isArray(article.blocks);
+    const hasProvidedBlocks = Array.isArray(article.blocks) && article.blocks.length > 0;
     const blocks = fullArticle.blocks || [];
     
-    // Prepare metadata document (exclude heavy content fields)
+    // Store full raw HTML content directly in the document
     const metadata: any = {
       ...fullArticle,
+      content: rawHtmlContent,
       storageVersion: CURRENT_STORAGE_VERSION,
       blockCount: fullArticle.blockCount || blocks.length,
-      // We clear the heavy blocks and content from the main document to keep it < 1MB
       blocks: [], 
-      content: "", 
     };
 
-    // Step A: Save metadata first
-    if (onProgress) onProgress({ stage: "metadata", currentBatch: 0, totalBatches: 1, percent: 5 });
-    await guardedSetDoc(articleDocRef, metadata, { merge: true }, "Admin", "Save Article Metadata");
+    // Step A: Save metadata and raw content
+    if (onProgress) onProgress({ stage: "metadata", currentBatch: 0, totalBatches: 1, percent: 50 });
+    await guardedSetDoc(articleDocRef, metadata, { merge: true }, "Admin", "Save Article Metadata & Raw Content");
 
     // Step B: Save blocks in subcollection ONLY if they were provided in the input
     // This prevents bulk status updates from wiping blocks because they weren't in the initial list.

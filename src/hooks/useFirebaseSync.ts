@@ -117,8 +117,6 @@ function reconcileCloudItems<T extends { id: string }>(remote: T[], local: T[]):
       if (prev) {
         if (typeof next.questionCount !== "number" && typeof prev.questionCount === "number") {
           next.questionCount = prev.questionCount;
-        } else if (typeof next.questionCount === "number" && typeof prev.questionCount === "number") {
-          next.questionCount = Math.max(next.questionCount, prev.questionCount);
         }
         if ((!Array.isArray(next.questions) || next.questions.length === 0) && Array.isArray(prev.questions) && prev.questions.length > 0) {
           next.questions = prev.questions;

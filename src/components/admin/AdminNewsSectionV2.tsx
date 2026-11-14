@@ -129,10 +129,6 @@ export function AdminNewsSection({
   const [aiCategory, setAiCategory] = React.useState("Economics & Survey");
   const [aiGenerating, setAiGenerating] = React.useState(false);
 
-  // Paste Cleaner Modal
-  const [isPasteModalOpen, setIsPasteModalOpen] = React.useState(false);
-  const [pasteRawText, setPasteRawText] = React.useState("");
-
   // Smart Article Import Modal State
   const [isSmartImportOpen, setIsSmartImportOpen] = React.useState(false);
 
@@ -232,49 +228,19 @@ export function AdminNewsSection({
   };
 
   const handleOpenCreate = () => {
-    const defaultBlocks: ArticleBlock[] = [
-      {
-        id: `blk_${Date.now()}_1`,
-        type: "key_points",
-        listItems: [
-          "Official notification & syllabus breakdown",
-          "High-yield practice topics for upcoming exam",
-          "Downloadable PDF guide and practice quiz link"
-        ]
-      },
-      {
-        id: `blk_${Date.now()}_2`,
-        type: "heading",
-        level: 2,
-        text: "Overview & Important Details"
-      },
-      {
-        id: `blk_${Date.now()}_3`,
-        type: "paragraph",
-        text: "Write your article paragraph here. Explain concepts clearly for students preparing for competitive exams."
-      }
-    ];
-
     setEditingArticle({
       title: "",
-      hindiTitle: "",
-      subtitle: "",
       slug: "",
-      category: categories[0] || "Economics & Survey",
-      language: "Both",
+      category: categories[0] || "General",
       excerpt: "",
       content: "",
-      blocks: defaultBlocks,
+      blocks: [],
       status: "published",
-      isFeatured: false,
-      isPinned: false,
       coverImageUrl: "https://images.unsplash.com/photo-1457369804613-52c61a468e7d?auto=format&fit=crop&w=1200&q=80",
-      authorName: "DISHA 20-20 Editorial Team",
-      authorBio: "Senior Education Specialist & RPSC Exam Analyst",
-      tags: ["RAS Pre", "Exam Update"],
-      faqs: []
+      authorName: "DISHA 20-20 Editorial",
+      tags: [],
+      faqs: [],
     });
-    setEditorTab("blocks");
     setIsEditorOpen(true);
   };
 
@@ -284,14 +250,11 @@ export function AdminNewsSection({
       const fullArt = await fetchArticleByIdAdmin(article.id);
       if (!fullArt) throw new Error("Article not found in cloud.");
 
-      const hasBlocks = Array.isArray(fullArt.blocks) && fullArt.blocks.length > 0;
-      const blocks = hasBlocks ? fullArt.blocks! : convertMarkdownToBlocks(fullArt.content, fullArt.faqs);
-
       setEditingArticle({
         ...fullArt,
-        blocks,
+        content: fullArt.content || "",
+        blocks: Array.isArray(fullArt.blocks) ? fullArt.blocks : [],
       });
-      setEditorTab("blocks");
       setIsEditorOpen(true);
     } catch (err: any) {
       setNotification({ type: "error", message: "Failed to load full article: " + err.message });
@@ -555,67 +518,6 @@ export function AdminNewsSection({
     } finally {
       setAiGenerating(false);
     }
-  };
-
-  // Paste Cleaner Call
-  const handleCleanAndPaste = () => {
-    if (!pasteRawText.trim()) return;
-    const blocks = convertMarkdownToBlocks(pasteRawText, []);
-    setEditingArticle(prev => ({
-      ...prev,
-      blocks: [...(prev?.blocks || []), ...blocks]
-    }));
-    setPasteRawText("");
-    setIsPasteModalOpen(false);
-  };
-
-  // Block Helpers
-  const addBlock = (type: ArticleBlockType) => {
-    if (!editingArticle) return;
-    const newBlock: ArticleBlock = {
-      id: `blk_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
-      type,
-      ...(type === "heading" ? { level: 2, text: "Heading Title" } : {}),
-      ...(type === "paragraph" ? { text: "Paragraph content text..." } : {}),
-      ...(type === "key_points" ? { listItems: ["Key Takeaway 1", "Key Takeaway 2"] } : {}),
-      ...(type === "callout" ? { calloutType: "info", text: "Important notice or exam tip." } : {}),
-      ...(type === "quote" ? { text: "An insightful quote or strategy highlight." } : {}),
-      ...(type === "list" ? { listType: "bullet", listItems: ["List item 1", "List item 2"] } : {}),
-      ...(type === "image" ? { imageUrl: "https://images.unsplash.com/photo-1457369804613-52c61a468e7d?auto=format&fit=crop&w=1200&q=80", imageAlt: "Image description" } : {}),
-      ...(type === "table" ? { tableHeaders: ["Parameter", "Detail", "Status"], tableRows: [{ cells: ["Base Year", "2011-12", "Official"] }, { cells: ["Growth Rate", "7.28%", "Constant Prices"] }] } : {}),
-      ...(type === "faq" ? { faqs: [{ question: "Sample Question?", answer: "Sample Answer" }] } : {}),
-      ...(type === "cta" ? { ctaText: "Practice Related Test", ctaUrl: "/topics" } : {}),
-      ...(type === "embed" ? { embedType: "youtube", embedUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ" } : {}),
-    };
-
-    setEditingArticle(prev => ({
-      ...prev,
-      blocks: [...(prev?.blocks || []), newBlock],
-    }));
-  };
-
-  const updateBlock = (index: number, updated: ArticleBlock) => {
-    if (!editingArticle) return;
-    const list = [...(editingArticle.blocks || [])];
-    list[index] = updated;
-    setEditingArticle(prev => ({ ...prev, blocks: list }));
-  };
-
-  const removeBlock = (index: number) => {
-    if (!editingArticle) return;
-    const list = [...(editingArticle.blocks || [])].filter((_, i) => i !== index);
-    setEditingArticle(prev => ({ ...prev, blocks: list }));
-  };
-
-  const moveBlock = (index: number, direction: "up" | "down") => {
-    if (!editingArticle || !editingArticle.blocks) return;
-    const list = [...editingArticle.blocks];
-    const targetIdx = direction === "up" ? index - 1 : index + 1;
-    if (targetIdx < 0 || targetIdx >= list.length) return;
-    const temp = list[index];
-    list[index] = list[targetIdx];
-    list[targetIdx] = temp;
-    setEditingArticle(prev => ({ ...prev, blocks: list }));
   };
 
   // Filtered Articles List
@@ -1264,48 +1166,7 @@ export function AdminNewsSection({
         </div>
       )}
 
-      {/* 6. PASTE CLEANER MODAL */}
-      {isPasteModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-in fade-in">
-          <div className="bg-white dark:bg-[#111A2E] w-full max-w-lg rounded-[32px] shadow-2xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 space-y-6 my-auto">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-              <h3 className="text-base font-black text-slate-900 dark:text-white">
-                Paste from Word / Docs Cleaner
-              </h3>
-              <button onClick={() => setIsPasteModalOpen(false)} className="p-1 text-slate-400 hover:text-slate-600 cursor-pointer">
-                <X className="w-4 h-4" />
-              </button>
-            </div>
 
-            <p className="text-xs text-slate-500">
-              Paste messy text or raw notes here. It automatically strips messy tags and creates structured headings, lists, and paragraphs.
-            </p>
-
-            <textarea
-              rows={8}
-              value={pasteRawText}
-              onChange={e => setPasteRawText(e.target.value)}
-              placeholder="Paste raw text here..."
-              className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-mono text-slate-900 dark:text-white"
-            />
-
-            <div className="flex justify-end gap-2">
-              <button
-                onClick={() => setIsPasteModalOpen(false)}
-                className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleCleanAndPaste}
-                className="px-5 py-2 bg-[#1E5BF0] text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer"
-              >
-                Clean & Append Blocks
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* 7. REDESIGNED MOBILE & DESKTOP FRIENDLY SEO BLOCK EDITOR MODAL */}
       {isEditorOpen && editingArticle && (

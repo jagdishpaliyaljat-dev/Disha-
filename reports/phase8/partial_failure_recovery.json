@@ -1,0 +1,36 @@
+{
+  "timestamp": "2026-11-14T10:05:00.000Z",
+  "firestoreAtomicityReality": {
+    "globalAtomicity": false,
+    "explanation": "Google Cloud Firestore multi-batch writes and REST API operations are committed per-batch (up to 500 operations per batch) and are NOT globally atomic across an entire database restore spanning tens of thousands of documents. A global multi-hour transaction is not supported by Firestore architecture.",
+    "architecturalStrategy": "Truthful Checkpointing and Idempotent Resumption (TC-IR)",
+    "falseSuccessProtection": "Zero false success reporting. If any document write or network batch fails, the job immediately enters 'completed_with_warnings' or 'failed', logs the exact document path and error message, records the checkpoint on disk, and releases the exclusive lock."
+  },
+  "failureSimulations": [
+    {
+      "scenario": "Simulated Write Failure During Document Write",
+      "testResult": "PASS",
+      "observation": "Write failure on 'test_col/doc_FAIL_ME' caught and recorded in job.errors and checkpoint.failedDocPaths. Zero unhandled promise rejections."
+    },
+    {
+      "scenario": "Simulated Network Drop / Transient Outage",
+      "testResult": "PASS",
+      "observation": "REST driver catches HTTP 5xx / timeout, marks batch as failed, updates on-disk checkpoint with last completed collection and batch offset."
+    },
+    {
+      "scenario": "Checkpoint File Tracking",
+      "testResult": "PASS",
+      "observation": "Checkpoint saved to backups/.restore_checkpoint_<jobId>.json with completedBatches, processedDocPaths, failedDocPaths, and lastHeartbeat."
+    },
+    {
+      "scenario": "Idempotent Resumption Post-Failure",
+      "testResult": "PASS",
+      "observation": "Re-running restore after resolving simulated issue skipped the 3 identical already-written documents and wrote only the 1 missing document. Duplicate writes = 0."
+    },
+    {
+      "scenario": "Pre-Restore Safety Snapshot Rollback Safety",
+      "testResult": "PASS",
+      "observation": "Before any restore batch is executed, the current state of affected collections is snapshotted into backups/PRE_RESTORE_SAFETY_<timestamp>.json and verified via read-back. If snapshot fails or count mismatches, the entire restore operation aborts before a single write is committed."
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "timestamp": "2026-11-14T10:05:00.000Z",
+  "securityAudits": [
+    {
+      "test": "ZIP Slip Path Traversal Attack (../ and / escapes)",
+      "payload": "../../etc/passwd",
+      "result": "PASS",
+      "mechanism": "readZipBuffer explicitly detects '..', leading '/', and leading '\\', throwing 'Security Violation: Illegal path traversal detected' before unpacking."
+    },
+    {
+      "test": "Duplicate Archive Entry Paths",
+      "payload": "Duplicate entry 'firestore/collections/users.json' in single ZIP",
+      "result": "PASS",
+      "mechanism": "readZipBuffer tracks seen file paths with Set<string> and throws 'Security Violation: Duplicate archive entry path detected' to prevent shadow overwrites."
+    },
+    {
+      "test": "CRC32 Payload Corruption Detection",
+      "payload": "Corrupted compressed payload byte in central directory stream",
+      "result": "PASS",
+      "mechanism": "Pure TypeScript IEEE 802.3 CRC32 verifier validates uncompressed bytes against 32-bit header checksum; rejects corrupted files."
+    },
+    {
+      "test": "SHA-256 Tampered Manifest Verification",
+      "payload": "Modified document content inside subjects.json after manifest compilation",
+      "result": "PASS",
+      "mechanism": "verifyZipIntegrity recalculates SHA-256 hash for every file and compares against reports/integrity_manifest.json; restore aborts on any mismatch."
+    },
+    {
+      "test": "Exclusive Restore Locking",
+      "payload": "Simultaneous restore execution attempts",
+      "result": "PASS",
+      "mechanism": "File lock backups/.restore_active.lock enforces single restore at a time; secondary attempt rejected with 409 Conflict."
+    },
+    {
+      "test": "Local Backup Deletion Isolation",
+      "payload": "Admin deletion of stored ZIP archive from disk",
+      "result": "PASS",
+      "mechanism": "deleteStoredBackup uses path.basename to prevent path traversal and unlinks only the local ZIP file in backups/; zero writes or deletes sent to Firestore."
+    },
+    {
+      "test": "Admin Authorization & Privilege Verification",
+      "payload": "Unauthenticated or non-admin HTTP request to /api/admin/backup/*",
+      "result": "PASS",
+      "mechanism": "requireVerifiedAdmin middleware validates Firebase Auth ID token and admin claims/whitelist; unauthorized requests rejected with 401/403."
+    }
+  ]
+}

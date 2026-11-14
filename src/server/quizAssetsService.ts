@@ -243,9 +243,9 @@ export function createQuizAssetsService(deps: QuizAssetsServiceDeps) {
         const rawTopicId = String(b.topicId || (typeof b.id === 'string' && b.id.startsWith('topic_') ? b.id.slice(6) : b.id) || '').trim();
         if (!rawTopicId) continue;
         const qLen = Array.isArray(b.questions) ? b.questions.length : 0;
-        const qCount = Math.max(qLen, Number(b.questionCount) || 0);
+        const qCount = qLen > 0 ? qLen : (Number(b.questionCount) || 0);
         if (qCount > 0) {
-          bundleCountByTopic.set(rawTopicId, Math.max(bundleCountByTopic.get(rawTopicId) || 0, qCount));
+          bundleCountByTopic.set(rawTopicId, qCount);
         }
       }
 
@@ -254,7 +254,7 @@ export function createQuizAssetsService(deps: QuizAssetsServiceDeps) {
         const embeddedLen = Array.isArray(t.questions) ? t.questions.length : 0;
         const bundleCount = bundleCountByTopic.get(t.id) || 0;
         const existingCount = typeof t.questionCount === 'number' ? t.questionCount : 0;
-        const resolvedCount = Math.max(embeddedLen, bundleCount, existingCount);
+        const resolvedCount = embeddedLen > 0 ? embeddedLen : (bundleCount > 0 ? bundleCount : existingCount);
         return resolvedCount > 0 ? { ...t, questionCount: resolvedCount } : t;
       });
 
@@ -266,7 +266,7 @@ export function createQuizAssetsService(deps: QuizAssetsServiceDeps) {
               const embeddedLen = Array.isArray(t.questions) ? t.questions.length : 0;
               const bundleCount = bundleCountByTopic.get(t.id) || 0;
               const existingCount = typeof t.questionCount === 'number' ? t.questionCount : 0;
-              const resolvedCount = Math.max(embeddedLen, bundleCount, existingCount);
+              const resolvedCount = embeddedLen > 0 ? embeddedLen : (bundleCount > 0 ? bundleCount : existingCount);
               return resolvedCount > 0 ? { ...t, questionCount: resolvedCount } : t;
             })
           : ch.topics;

@@ -549,6 +549,14 @@ const TopicDetailView: React.FC<TopicDetailViewProps> = ({
       }
 
       if (validQuestions.length === 0) {
+        const { fetchTopicQuestionsOnDemand } = await import("../utils/questionsStorage");
+        const onDemandQs = await fetchTopicQuestionsOnDemand(topic.id);
+        if (onDemandQs && onDemandQs.length > 0) {
+          validQuestions = onDemandQs.filter(isCompleteQ);
+        }
+      }
+
+      if (validQuestions.length === 0) {
         alert("No questions available for this topic yet.");
         return;
       }

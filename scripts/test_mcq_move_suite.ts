@@ -24,11 +24,11 @@ async function runMoveTestSuite() {
 
   // Generate 100 mock source questions with stable IDs
   const mockSourceQuestions: Question[] = Array.from({ length: 100 }, (_, i) => ({
-    id: `mcq_source_test_${i.toString().padStart(3, "0")}`,
-    text: `Sample Test Question ${i + 1} for Move Audit`,
-    options: ["Option A", "Option B", "Option C", "Option D"],
+    id: `usr-q-move-audit-${i.toString().padStart(3, "0")}`,
+    text: `राजस्थान का इतिहास और संस्कृति प्रश्न संख्या ${i + 1}`,
+    options: ["विकल्प क", "विकल्प ख", "विकल्प ग", "विकल्प घ"],
     correctIndex: i % 4,
-    explanation: `Explanation for question ${i + 1}`,
+    explanation: `विस्तृत व्याख्या प्रश्न संख्या ${i + 1}`,
     chapterId: sourceChapterId,
     topicId: sourceTopicId,
     subjectId: subjectId,
@@ -38,14 +38,14 @@ async function runMoveTestSuite() {
 
   // Generate 50 unrelated questions in another topic
   const unrelatedQuestions: Question[] = Array.from({ length: 50 }, (_, i) => ({
-    id: `mcq_unrelated_${i.toString().padStart(3, "0")}`,
-    text: `Unrelated Question ${i + 1}`,
-    options: ["Option 1", "Option 2"],
+    id: `usr-q-unrelated-${i.toString().padStart(3, "0")}`,
+    text: `राजस्थान की अर्थव्यवस्था और भूगोल प्रश्न संख्या ${i + 1}`,
+    options: ["विकल्प 1", "विकल्प 2", "विकल्प 3", "विकल्प 4"],
     correctIndex: 0,
-    explanation: "Unrelated",
-    chapterId: "other_ch",
-    topicId: "other_topic",
-    subjectId: "other_sub",
+    explanation: `अर्थव्यवस्था व्याख्या संख्या ${i + 1}`,
+    chapterId: sourceChapterId,
+    topicId: "custom-topic-1793114725323-othr1",
+    subjectId: subjectId,
     createdAt: new Date().toISOString(),
   }));
 
@@ -199,7 +199,7 @@ async function runMoveTestSuite() {
   // TEST 5: Verify unrelated questions remain untouched
   // ----------------------------------------------------------------------
   console.log("\n--- TEST 5: Unrelated Questions Verification ---");
-  const unrelatedAfter = combinedAfterFive.filter(q => q.topicId === "other_topic");
+  const unrelatedAfter = combinedAfterFive.filter(q => q.topicId === "custom-topic-1793114725323-othr1");
   assert(unrelatedAfter.length === 50, "All 50 unrelated questions remain intact");
   assert(unrelatedAfter[0].id === unrelatedQuestions[0].id, "Unrelated question IDs and fields unmodified");
 

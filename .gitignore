@@ -7,3 +7,6 @@ dist
 .agents
 *.backup*
 *.log
+backups/*.json
+backups/*.zip
+opencode-antigravity-auth

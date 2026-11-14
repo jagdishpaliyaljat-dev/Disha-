@@ -102,10 +102,10 @@ class SyncCoordinatorClass {
     const checkpoint = await loadSyncCheckpoint();
     const totalMCQs = await countLocalMCQs();
 
-    // Check if initial bootstrap is required
-    if (!checkpoint.bootstrapCompleted && totalMCQs === 0) {
-      if (isFirebaseConfigured() && typeof navigator !== "undefined" && navigator.onLine) {
-        // Trigger initial bootstrap automatically on first startup
+    // Check if initial bootstrap is required OR if question bank is incomplete (< 500 MCQs)
+    if ((!checkpoint.bootstrapCompleted || totalMCQs < 500) && isFirebaseConfigured()) {
+      if (typeof navigator !== "undefined" && navigator.onLine) {
+        // Trigger initial bootstrap or recovery automatically on startup to restore missing questions
         await this.startBootstrapSession();
       }
     }
@@ -118,12 +118,12 @@ class SyncCoordinatorClass {
    */
   public async getSyncStatus(): Promise<SyncSessionStatus> {
     const checkpoint = await loadSyncCheckpoint();
-    const eligibility = isSyncEligible(checkpoint);
     const totalLocalMCQs = await countLocalMCQs();
+    const eligibility = isSyncEligible(checkpoint, Date.now(), totalLocalMCQs);
 
     let state: SyncSessionStatus["state"] = "local_first_mode";
 
-    if (!checkpoint.bootstrapCompleted && totalLocalMCQs === 0) {
+    if (!checkpoint.bootstrapCompleted || totalLocalMCQs < 500) {
       state = "initial_download_required";
     } else if (checkpoint.syncStatus === "syncing" || this.isExecuting) {
       state = "sync_in_progress";
@@ -194,9 +194,11 @@ class SyncCoordinatorClass {
       };
     }
 
-    // 2. Strict 24-hour eligibility gate
-    const eligibility = isSyncEligible(checkpoint);
-    if (!eligibility.eligible) {
+    // 2. Strict 24-hour eligibility gate (Admin always bypasses)
+    const isAdmin = isUserAdmin(loadUserProfile());
+    const totalLocalMCQs = await countLocalMCQs();
+    const eligibility = isSyncEligible(checkpoint, Date.now(), totalLocalMCQs);
+    if (!isAdmin && !eligibility.eligible) {
       console.log(`[SyncCoordinator] Sync rejected by 24-hour gate: ${eligibility.reason}`);
       return {
         success: false,

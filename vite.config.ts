@@ -278,5 +278,9 @@ export default defineConfig(({ command }) => {
     server: {
       hmr: true,
     },
+    test: {
+      include: ['src/**/*.{test,spec}.{ts,tsx}', 'tests/**/*.{test,spec}.{ts,tsx}', 'scripts/**/*.{test,spec}.{ts,tsx}'],
+      exclude: ['node_modules/**', 'dist/**', 'opencode-antigravity-auth/**'],
+    },
   };
 });

@@ -68,6 +68,7 @@ import {
   hasMarkdownTable,
   GfmMarkdown,
 } from "./ArticleTable";
+import { RawHtmlArticleViewer } from "./RawHtmlArticleViewer";
 
 interface NewsPageProps {
   initialSlug?: string | null;
@@ -426,7 +427,6 @@ export const NewsPage: React.FC<NewsPageProps> = ({
 
   // 2. Generate Table of Contents with Hierarchical Numbering (1. for H2, 1.1 for H3)
   const tableOfContents = useMemo(() => {
-    if (!effectiveBlocks || effectiveBlocks.length === 0) return [];
     const items: {
       id: string;
       numbering: string;
@@ -434,6 +434,65 @@ export const NewsPage: React.FC<NewsPageProps> = ({
       level: 2 | 3;
     }[] = [];
 
+    // Parse from raw HTML if present
+    if (activeArticle?.content && activeArticle.content.trim()) {
+      if (typeof window !== "undefined") {
+        try {
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(activeArticle.content, "text/html");
+          const headings = doc.querySelectorAll("h2, h3");
+          let h2Counter = 0;
+          let h3Counter = 0;
+
+          headings.forEach((h, idx) => {
+            const cleanText = h.textContent?.trim() || "";
+            if (!cleanText) return;
+            const lower = cleanText.toLowerCase();
+            if (
+              lower.startsWith("faq") ||
+              lower.startsWith("frequently asked") ||
+              lower.includes("अक्सर पूछे") ||
+              lower.includes("सवाल और जवाब") ||
+              lower.startsWith("cta") ||
+              lower.includes("call to action") ||
+              lower.includes("practice free mcqs")
+            ) {
+              return;
+            }
+
+            const isH2 = h.tagName.toLowerCase() === "h2";
+            const headingId = h.id || `heading-anchor-${idx}`;
+
+            if (isH2) {
+              h2Counter++;
+              h3Counter = 0;
+              items.push({
+                id: headingId,
+                numbering: `${h2Counter}.`,
+                text: cleanText,
+                level: 2,
+              });
+            } else {
+              h3Counter++;
+              const num = h2Counter > 0 ? `${h2Counter}.${h3Counter}` : `${h3Counter}.`;
+              items.push({
+                id: headingId,
+                numbering: num,
+                text: cleanText,
+                level: 3,
+              });
+            }
+          });
+
+          if (items.length > 0) return items;
+        } catch (e) {
+          console.error("Error parsing TOC from HTML:", e);
+        }
+      }
+    }
+
+    // Fallback for legacy block-based articles
+    if (!effectiveBlocks || effectiveBlocks.length === 0) return [];
     let h2Counter = 0;
     let h3Counter = 0;
 
@@ -480,7 +539,7 @@ export const NewsPage: React.FC<NewsPageProps> = ({
     });
 
     return items;
-  }, [effectiveBlocks]);
+  }, [activeArticle?.content, effectiveBlocks]);
 
   const handleInternalLinkClick = (url: string) => {
     if (!url) return;
@@ -1526,13 +1585,15 @@ export const NewsPage: React.FC<NewsPageProps> = ({
               </aside>
             )}
 
-            {/* Article Body Blocks */}
+            {/* Article Body Content */}
             <main
               className={`${
                 tableOfContents.length > 0 ? "lg:col-span-8" : "lg:col-span-12"
-              } order-2 lg:order-1 space-y-2`}
+              } order-2 lg:order-1 space-y-4`}
             >
-              {effectiveBlocks && effectiveBlocks.length > 0 ? (
+              {activeArticle.content && activeArticle.content.trim() ? (
+                <RawHtmlArticleViewer htmlContent={activeArticle.content} />
+              ) : effectiveBlocks && effectiveBlocks.length > 0 ? (
                 effectiveBlocks.map((blk, idx) => (
                   <React.Fragment key={blk.id || idx}>
                     {renderBlock(blk, idx)}
@@ -1541,7 +1602,7 @@ export const NewsPage: React.FC<NewsPageProps> = ({
               ) : (
                 /* Fallback for markdown / plain text content using remark-gfm */
                 <div className="space-y-4 max-w-[720px] break-words">
-                  <GfmMarkdown content={injectInternalLinks(activeArticle.content)} />
+                  <GfmMarkdown content={injectInternalLinks(activeArticle.content || "")} />
                 </div>
               )}
 

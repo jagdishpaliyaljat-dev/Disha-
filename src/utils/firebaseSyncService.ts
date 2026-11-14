@@ -1343,6 +1343,20 @@ export async function saveMCQ(mcq: any): Promise<CloudSyncResult> {
         await bumpRemoteCurriculumVersion([topicIdVal]);
       } catch (_) {}
 
+      // Write directly into quizpro-db-v5 and notify user app immediately
+      try {
+        const { putRecords, SNAPSHOT_STORES, recalculateQuestionCounts } = await import("../services/snapshot/indexedDbV5");
+        await putRecords(SNAPSHOT_STORES.MCQS, [firestoreMcq]);
+        await recalculateQuestionCounts();
+        const { mergeQuestionsIntoStore, loadUserQuestionsStore } = await import("./questionsStorage");
+        mergeQuestionsIntoStore([firestoreMcq]);
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent("quizpro_store_updated", { detail: loadUserQuestionsStore() }));
+        }
+      } catch (idbErr) {
+        console.warn("[saveMCQ] IndexedDB v5 sync notice:", idbErr);
+      }
+
       triggerAdminToast("success", "Question Updated in Firebase", `Question '${stableId}' saved to Firestore & synced to user apps.`);
 
       return {
