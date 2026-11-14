@@ -108,7 +108,7 @@ export async function verifyAuthenticatedRequest(
 
   // For Admin routes, fail closed if adminDb is unavailable so blocked/revoked status can always be verified,
   // UNLESS this is an allowlisted root administrator whose token signature was already cryptographically verified.
-  if (options.requireAdmin && !deps.adminDb && !isAllowlistedEmail) {
+  if (options.requireAdmin && !deps.adminDb && !(isAllowlistedEmail && emailVerified)) {
     return {
       ok: false,
       status: 503,
@@ -155,7 +155,7 @@ export async function verifyAuthenticatedRequest(
   const isRevokedAdmin = Boolean(userDoc && userDoc.revokedAdmin === true);
 
   const isAllowlistedEmailAdmin =
-    (emailVerified || isAllowlistedEmail) &&
+    emailVerified &&
     Boolean(email) &&
     (AUTHORIZED_ADMIN_EMAILS as readonly string[]).includes(email) &&
     !isRevokedAdmin;
