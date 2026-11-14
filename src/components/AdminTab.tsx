@@ -4,7 +4,7 @@ import {
   FolderPlus, PlusCircle, Database, LayoutGrid, Settings, ShieldCheck, 
   Upload, Sparkles, Menu, ChevronRight, Activity, Cpu, RefreshCw, Newspaper,
   Trophy, CheckCircle2, ListFilter, ChevronDown, Trash2, AlertCircle, Building2,
-  FileCode
+  FileCode, Archive, LogOut, ArrowRight, Timer, FileText
 } from "lucide-react";
 import { Subject, Chapter, UserQuestionsStore, UserProfile } from "../types";
 import { ConfirmDialog } from "./admin/ConfirmDialog";
@@ -55,6 +55,7 @@ const AdminDiagnosticsSection = adminSafeLazy<any>(() => import("./admin/AdminDi
 const DiagnosticReport = adminSafeLazy<any>(() => import("./admin/DiagnosticReport"), "DiagnosticReport");
 const AIApiManagementSection = adminSafeLazy<any>(() => import("./admin/AIApiManagementSection"), "AIApiManagementSection");
 const ExportDataWidget = adminSafeLazy<any>(() => import("./admin/ExportDataWidget"), "ExportDataWidget");
+const BackupRestoreSection = adminSafeLazy<any>(() => import("./admin/BackupRestoreSection"), "BackupRestoreSection");
 const AuditLogWidget = adminSafeLazy<any>(() => import("./admin/AuditLogWidget"), "AuditLogWidget");
 const SyncProgressModal = adminSafeLazy<any>(() => import("./admin/SyncProgressModal"), "SyncProgressModal");
 const SyncConfirmationModal = adminSafeLazy<any>(() => import("./admin/SyncConfirmationModal"), "SyncConfirmationModal");
@@ -94,6 +95,7 @@ export type AdminGroupSection =
   | "firebase"
   | "diagnostics"
   | "integrations"
+  | "backup"
   | "settings";
 
 export const AdminTab: React.FC<AdminTabProps> = (props) => {
@@ -120,6 +122,43 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
   const [selectedUserForDetails, setSelectedUserForDetails] = React.useState<UserProfile | null>(null);
   const [showQATestRunner, setShowQATestRunner] = React.useState(false);
   const [showCoachingHierarchyModal, setShowCoachingHierarchyModal] = React.useState(false);
+  const [isAdminMenuOpen, setIsAdminMenuOpen] = React.useState(false);
+  const adminMenuRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (adminMenuRef.current && !adminMenuRef.current.contains(event.target as Node)) {
+        setIsAdminMenuOpen(false);
+      }
+    };
+    if (isAdminMenuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isAdminMenuOpen]);
+
+  // Aggregate metrics for tests tab overview
+  const testsStats = React.useMemo(() => {
+    let lt: any[] = [];
+    let pyq: any[] = [];
+    let pyqQCount = 0;
+    try {
+      lt = loadLocalLiveTests();
+    } catch {}
+    try {
+      pyq = loadLocalPYQPapers();
+      pyq.forEach(p => { pyqQCount += (p.questions?.length || 0); });
+    } catch {}
+    const activeLt = lt.filter(t => t.status === "live" || t.status === "upcoming").length;
+    return {
+      liveTestsTotal: lt.length,
+      liveActiveCount: activeLt,
+      pyqPapersTotal: pyq.length,
+      pyqQuestionsTotal: pyqQCount,
+    };
+  }, [props.questionsStore, activeGroup]);
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
   const [syncProgress, setSyncProgress] = React.useState<SyncProgressState | null>(null);
   const [isSyncing, setIsSyncing] = React.useState(false);
@@ -333,6 +372,10 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
       case "ai-api":
         setActiveGroup("integrations");
         break;
+      case "backup":
+      case "restore":
+        setActiveGroup("backup");
+        break;
       default:
         setActiveGroup("dashboard");
     }
@@ -545,6 +588,11 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
       icon: Cpu,
     },
     {
+      id: "backup",
+      title: "Backup & Restore",
+      icon: Archive,
+    },
+    {
       id: "settings",
       title: "System Settings",
       icon: Settings,
@@ -614,8 +662,9 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
             </button>
             
             <button
-              className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors relative"
-              title="Notifications"
+              onClick={() => { setActiveGroup("users"); setSubTabUsers("notifications"); }}
+              className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors relative cursor-pointer"
+              title="View Broadcasts & System Alerts"
             >
               <Activity className="w-5 h-5" />
               <span className="absolute top-2 right-2 w-2 h-2 bg-rose-500 rounded-full border-2 border-white dark:border-[#0B1220]"></span>
@@ -623,13 +672,69 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
 
             <div className="h-6 w-px bg-slate-200 dark:bg-slate-800 hidden sm:block"></div>
 
-            <button className="flex items-center gap-2 pl-1 pr-1 sm:pr-2 py-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-              <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-xs font-bold text-slate-600 dark:text-slate-400">
-                {props.userProfile?.name?.charAt(0) || "A"}
-              </div>
-              <span className="text-sm font-medium text-slate-700 dark:text-slate-300 hidden sm:inline">{props.userProfile?.name?.split(' ')[0] || "Admin"}</span>
-              <ChevronDown className="w-4 h-4 text-slate-400 hidden sm:inline" />
-            </button>
+            <div className="relative" ref={adminMenuRef}>
+              <button
+                onClick={() => setIsAdminMenuOpen(!isAdminMenuOpen)}
+                className="flex items-center gap-2 pl-1 pr-1 sm:pr-2 py-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                title="Admin Account Profile"
+                aria-expanded={isAdminMenuOpen}
+                aria-haspopup="true"
+              >
+                <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-xs font-bold text-slate-600 dark:text-slate-400">
+                  {props.userProfile?.name?.charAt(0) || "A"}
+                </div>
+                <span className="text-sm font-medium text-slate-700 dark:text-slate-300 hidden sm:inline">{props.userProfile?.name?.split(' ')[0] || "Admin"}</span>
+                <ChevronDown className={`w-4 h-4 text-slate-400 hidden sm:inline transition-transform duration-200 ${isAdminMenuOpen ? "rotate-180" : ""}`} />
+              </button>
+
+              {isAdminMenuOpen && (
+                <div className="absolute right-0 mt-2 w-72 rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800 shadow-xl z-50 p-3 space-y-3">
+                  <div className="flex items-center gap-3 pb-3 border-b border-slate-100 dark:border-slate-800/80">
+                    <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-sm">
+                      {props.userProfile?.name?.charAt(0) || "A"}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                          {props.userProfile?.name || "System Admin"}
+                        </p>
+                        <span className="px-1.5 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300">
+                          {props.userProfile?.role || "Admin"}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                        {props.userProfile?.email || auth.currentUser?.email || "admin@quizpro.local"}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <button
+                      onClick={() => {
+                        setActiveGroup("users");
+                        setSubTabUsers("directory");
+                        setIsAdminMenuOpen(false);
+                      }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-left cursor-pointer"
+                    >
+                      <Users className="w-4 h-4 text-blue-500" />
+                      <span>View Student Directory</span>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setIsAdminMenuOpen(false);
+                        auth.signOut().catch(() => {});
+                      }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors text-left cursor-pointer"
+                    >
+                      <LogOut className="w-4 h-4 text-rose-500" />
+                      <span>Sign Out</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </header>
@@ -884,6 +989,125 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                     </button>
                   </div>
                 </div>
+
+                {/* Responsive Test Management Card Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {/* 1. Live Mock Tests Overview Card */}
+                  <div className="bg-white dark:bg-[#111A2E] rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between hover:border-rose-300 dark:hover:border-rose-900/50 transition-all group">
+                    <div className="space-y-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="w-12 h-12 rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                          <Timer className="w-6 h-6" />
+                        </div>
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 border border-rose-200/60 dark:border-rose-800/40">
+                          <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
+                          {testsStats.liveActiveCount} Active
+                        </span>
+                      </div>
+
+                      <div>
+                        <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                          Live Mock Tests
+                        </h3>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                          Full-length timed examinations with state percentile scoring, RPSC 5th-option compliance, and live ranks.
+                        </p>
+                      </div>
+
+                      <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs">
+                        <span className="text-slate-500 dark:text-slate-400 font-medium">Total Test Series:</span>
+                        <span className="font-bold text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">
+                          {testsStats.liveTestsTotal} {testsStats.liveTestsTotal === 1 ? "Test" : "Tests"}
+                        </span>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={props.onShowManageLiveTests}
+                      className="w-full mt-5 py-3 px-4 bg-rose-600 hover:bg-rose-700 active:scale-98 text-white rounded-2xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-sm cursor-pointer"
+                    >
+                      <span>Manage Live Tests</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {/* 2. Previous Year Papers (PYQ Vault) Overview Card */}
+                  <div className="bg-white dark:bg-[#111A2E] rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between hover:border-amber-300 dark:hover:border-amber-900/50 transition-all group">
+                    <div className="space-y-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                          <FileText className="w-6 h-6" />
+                        </div>
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/40">
+                          <Archive className="w-3.5 h-3.5" />
+                          {testsStats.pyqPapersTotal} Papers
+                        </span>
+                      </div>
+
+                      <div>
+                        <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                          PYQ Paper Vault
+                        </h3>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                          Official past question papers indexed by examination, commission, year, and subject with authentic answer keys.
+                        </p>
+                      </div>
+
+                      <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs">
+                        <span className="text-slate-500 dark:text-slate-400 font-medium">Archived MCQs:</span>
+                        <span className="font-bold text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">
+                          {testsStats.pyqQuestionsTotal.toLocaleString()} Questions
+                        </span>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={props.onShowManagePYQVault}
+                      className="w-full mt-5 py-3 px-4 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 active:scale-98 text-white rounded-2xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-sm cursor-pointer"
+                    >
+                      <span>Open PYQ Vault</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {/* 3. Coaching Hierarchy & Batches Overview Card */}
+                  <div className="bg-white dark:bg-[#111A2E] rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between hover:border-blue-300 dark:hover:border-blue-900/50 transition-all group">
+                    <div className="space-y-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="w-12 h-12 rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                          <Building2 className="w-6 h-6" />
+                        </div>
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200/60 dark:border-blue-800/40">
+                          Multi-Tenant
+                        </span>
+                      </div>
+
+                      <div>
+                        <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                          Coaching & Batches
+                        </h3>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                          Manage coaching partner institutions, branch centers, and private batches to restrict exclusive test schedules.
+                        </p>
+                      </div>
+
+                      <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs">
+                        <span className="text-slate-500 dark:text-slate-400 font-medium">Access Control:</span>
+                        <span className="font-bold text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">
+                          Batch Gated
+                        </span>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => setShowCoachingHierarchyModal(true)}
+                      className="w-full mt-5 py-3 px-4 bg-blue-600 hover:bg-blue-700 active:scale-98 text-white rounded-2xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-sm cursor-pointer"
+                    >
+                      <span>Configure Hierarchy</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
 
@@ -1001,6 +1225,13 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                   <AIApiManagementSection />
                 </React.Suspense>
               </div>
+            )}
+
+            {/* Disaster Recovery: Backup & Restore Section */}
+            {activeGroup === "backup" && (
+              <React.Suspense fallback={<AdminSectionLoader type="cards" title="Loading Disaster Recovery..." />}>
+                <BackupRestoreSection userProfile={props.userProfile} />
+              </React.Suspense>
             )}
 
             {/* Settings Section */}

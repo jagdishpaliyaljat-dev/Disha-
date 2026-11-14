@@ -320,7 +320,10 @@ export const McqDuplicateScannerWidget: React.FC = () => {
                           </div>
                         </div>
 
-                        <button className="text-slate-400 hover:text-slate-600 p-1">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setExpandedGroupIdx(isExpanded ? null : idx); }}
+                          className="text-slate-400 hover:text-slate-600 p-1"
+                        >
                           {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                         </button>
                       </div>
