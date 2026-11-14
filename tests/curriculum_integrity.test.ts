@@ -12,6 +12,7 @@ import {
   getTopicDisplayName 
 } from "../src/utils/curriculumUtils";
 import { Subject, Chapter, Topic, Question, UserQuestionsStore } from "../src/types";
+import { describe, test, expect } from "vitest";
 
 export function runCurriculumIntegrityChecks(): void {
   const initialStore: UserQuestionsStore = {
@@ -131,3 +132,9 @@ export function runCurriculumIntegrityChecks(): void {
     throw new Error("Deduplication failed");
   }
 }
+
+describe("Curriculum Integrity Test Suite", () => {
+  test("runCurriculumIntegrityChecks executes without errors", () => {
+    expect(() => runCurriculumIntegrityChecks()).not.toThrow();
+  });
+});

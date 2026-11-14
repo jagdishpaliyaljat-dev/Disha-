@@ -1,4 +1,4 @@
-import { Question, Subject, Chapter, Topic } from "../types";
+import type { Question, Subject, Chapter, Topic } from "../types";
 
 const DB_NAME = "quizpro_persistent_cache_v1";
 const DB_VERSION = 2;

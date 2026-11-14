@@ -1,5 +1,5 @@
 import { auth } from '../lib/firebase';
-import { AppBanner, Chapter, LiveTest, PYQPaper, Question, Subject, Topic } from '../types';
+import type { AppBanner, Chapter, LiveTest, PYQPaper, Question, Subject, Topic } from '../types';
 
 export const STATIC_QUIZ_DATA_CACHE_NAME = 'static-quiz-data-cache';
 export const STATIC_QUIZ_MEDIA_CACHE_NAME = 'static-quiz-media-cache';

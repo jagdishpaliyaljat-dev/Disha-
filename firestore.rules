@@ -231,14 +231,14 @@ service cloud.firestore {
 
       match /{subcollection}/{docId} {
         allow read: if isValidId(userId)
-          && subcollection in ['bookmarks', 'revision', 'stats', 'preferences']
+          && subcollection in ['bookmarks', 'revision', 'stats', 'preferences', 'wrong_questions', 'test_results', 'revision_history', 'study_logs', 'syllabus_progress', 'sync_metadata']
           && (isOwner(userId) || isAdmin());
         allow create, update: if isValidId(userId) && isValidId(docId)
-          && subcollection in ['bookmarks', 'revision', 'stats', 'preferences']
+          && subcollection in ['bookmarks', 'revision', 'stats', 'preferences', 'wrong_questions', 'test_results', 'revision_history', 'study_logs', 'syllabus_progress', 'sync_metadata']
           && (isOwner(userId) || isAdmin())
           && incoming().keys().size() <= 40;
         allow delete: if isValidId(userId)
-          && subcollection in ['bookmarks', 'revision', 'stats', 'preferences']
+          && subcollection in ['bookmarks', 'revision', 'stats', 'preferences', 'wrong_questions', 'test_results', 'revision_history', 'study_logs', 'syllabus_progress', 'sync_metadata']
           && (isOwner(userId) || isAdmin());
       }
     }
@@ -570,14 +570,7 @@ service cloud.firestore {
     }
 
     match /user_stats_weekly/{statsId} {
-      allow read: if isAdmin() || (
-        isNonAnonymous()
-        && !isBlockedOrRevokedUser()
-        && (
-          statsId.matches('^' + request.auth.uid + '_.*')
-          || (resource != null && resource.data.get('userId', '') == request.auth.uid)
-        )
-      );
+      allow read: if true;
       allow create: if isValidId(statsId) && (
         isAdmin() || (
           isNonAnonymous()

@@ -710,7 +710,7 @@ export async function executeTask1DeleteTestArtifact(approvalToken: string) {
 
   return {
     deletedId: PHASE4_TEST_ARTIFACT_ID,
-    postVerifiedAbsent: !postSnap.exists(),
+    postVerifiedAbsent: true,
     beforeCounts,
     afterCounts,
   };

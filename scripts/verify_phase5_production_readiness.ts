@@ -288,6 +288,7 @@ async function main() {
         timeSpentSeconds: 3600,
       },
     });
+    console.log("DEBUG EXAM SYNC RES:", examSyncRes, "MOCK STATS:", mock.stats);
     assert.ok(mock.stats.writes > 0, "Full Exam batch successfully committed in safe chunks");
     assert.equal(examSyncRes.remainingOutboxItems, 0);
 

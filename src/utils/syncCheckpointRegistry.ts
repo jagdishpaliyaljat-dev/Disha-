@@ -96,19 +96,34 @@ export function isSyncEligible(checkpoint: SyncCheckpointMetadata, now: number =
     };
   }
 
-  if (!checkpoint.lastSuccessfulSyncAt) {
+  // Primary 24-hour gate uses lastAttemptedSyncAt (failed attempts consume the window)
+  const lastAttempt = Math.max(
+    checkpoint.lastAttemptedSyncAt || 0,
+    checkpoint.lastSuccessfulSyncAt || 0
+  );
+
+  if (!lastAttempt) {
     return {
       eligible: true,
-      reason: "No prior successful sync recorded.",
+      reason: "No prior sync attempt recorded.",
       remainingTimeMs: 0,
     };
   }
 
-  const elapsed = now - checkpoint.lastSuccessfulSyncAt;
+  // Clock-skew / device clock rollback protection
+  if (now < lastAttempt) {
+    return {
+      eligible: false,
+      reason: "Device clock mismatch detected (system clock is earlier than last recorded sync attempt).",
+      remainingTimeMs: SYNC_INTERVAL_MS,
+    };
+  }
+
+  const elapsed = now - lastAttempt;
   if (elapsed >= SYNC_INTERVAL_MS) {
     return {
       eligible: true,
-      reason: "24-hour interval has elapsed since last successful sync.",
+      reason: "24-hour interval has elapsed since last sync attempt.",
       remainingTimeMs: 0,
     };
   }

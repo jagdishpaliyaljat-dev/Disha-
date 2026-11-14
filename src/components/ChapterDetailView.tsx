@@ -115,18 +115,18 @@ export const ChapterDetailView: React.FC<ChapterDetailViewProps> = ({
       extraQs = topic.questions;
     } else {
       try {
-        const { fetchMCQsByTopic } = await import("../utils/firebaseSyncService");
-        const fetched = await fetchMCQsByTopic(topic.id);
-        if (fetched && fetched.length > 0) {
-          extraQs = fetched as any as Question[];
+        const { getLocalMCQsByTopic } = await import("../utils/localDatabaseEngine");
+        const local = await getLocalMCQsByTopic(topic.id);
+        if (local && local.length > 0) {
+          extraQs = local as any as Question[];
         }
       } catch (e) {
-        console.error("Failed to fetch MCQs for topic in chapter detail view", e);
+        console.error("Failed to fetch local MCQs for topic in chapter detail view", e);
       }
     }
 
     if (extraQs.length === 0) {
-      alert("No questions available for this topic yet.");
+      alert("Local content is currently unavailable. Please connect to the internet during your next 24-hour sync cycle to download this topic's questions.");
       return;
     }
 

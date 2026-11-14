@@ -140,7 +140,7 @@ export interface FlushStudentBufferResult {
   totalTransactionWrites: number;
   remainingPendingQuestions: number;
   remainingOutboxItems: number;
-  skippedReason?: "guest" | "admin_preview" | "offline" | "quota_exhausted" | "firebase_unconfigured" | "empty";
+  skippedReason?: "guest" | "admin_preview" | "offline" | "quota_exhausted" | "firebase_unconfigured" | "empty" | "gated_24h_policy";
   abortedByQuota?: boolean;
   abortedByOffline?: boolean;
 }
@@ -973,6 +973,20 @@ export async function flushStudentWriteBuffer(
     const pendingOutbox = getOutboxItems().filter(
       (i) => i.status !== "committed" && (!identity || i.userId === identity.userId)
     );
+
+    // Strict 24-Hour Offline-First Policy:
+    // Staging data is durably stored in the local outbox. Network commits to Firestore
+    // are strictly gated and execute only during the coordinated 24-hour sync cycle.
+    if (options.trigger !== "explicit_sync") {
+      return {
+        flushedOutboxItems: 0,
+        totalFirestoreWrites: 0,
+        totalTransactionWrites: 0,
+        remainingPendingQuestions: Object.keys(getStagingBuffer().pendingProgress).length,
+        remainingOutboxItems: pendingOutbox.length,
+        skippedReason: "gated_24h_policy",
+      };
+    }
 
     if (pendingOutbox.length === 0) {
       return {

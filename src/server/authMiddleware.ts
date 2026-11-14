@@ -31,8 +31,8 @@ export interface AuthDeps {
 }
 
 export type AuthVerificationResult =
-  | { ok: true; user: VerifiedUserContext }
-  | { ok: false; status: 401 | 403 | 503; error: string };
+  | { ok: true; user: VerifiedUserContext; status?: never; error?: never }
+  | { ok: false; status: 401 | 403 | 503; error: string; user?: never };
 
 declare global {
   namespace Express {
@@ -192,21 +192,21 @@ export async function verifyAuthenticatedRequest(
 export function createRequireAuthenticatedUser(getDeps: () => AuthDeps): express.RequestHandler {
   return async (req, res, next) => {
     const result = await verifyAuthenticatedRequest(req, getDeps(), { requireAdmin: false });
-    if (!result.ok) {
-      return res.status(result.status).json({ success: false, error: result.error });
+    if (result.ok) {
+      req.authUser = result.user;
+      return next();
     }
-    req.authUser = result.user;
-    return next();
+    return res.status(result.status).json({ success: false, error: result.error });
   };
 }
 
 export function createRequireVerifiedAdmin(getDeps: () => AuthDeps): express.RequestHandler {
   return async (req, res, next) => {
     const result = await verifyAuthenticatedRequest(req, getDeps(), { requireAdmin: true });
-    if (!result.ok) {
-      return res.status(result.status).json({ success: false, error: result.error });
+    if (result.ok) {
+      req.authUser = result.user;
+      return next();
     }
-    req.authUser = result.user;
-    return next();
+    return res.status(result.status).json({ success: false, error: result.error });
   };
 }

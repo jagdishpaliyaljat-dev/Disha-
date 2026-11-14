@@ -3,3 +3,7 @@ dist
 .vercel
 .env*
 *.local
+.agent
+.agents
+*.backup*
+*.log

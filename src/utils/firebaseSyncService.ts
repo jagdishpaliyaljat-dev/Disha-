@@ -26,7 +26,18 @@ const INITIAL_MCQS: MCQ[] = [];
  * Public data fetching: does NOT force an isAuthenticated check.
  * Guest users can freely fetch educational content, chapters, and MCQs.
  */
-export async function fetchMCQsByTopic(topicId: string): Promise<MCQ[]> {
+export async function fetchMCQsByTopic(topicId: string, options?: { allowRemote?: boolean }): Promise<MCQ[]> {
+  // 0. Check primary local IndexedDB engine first (Strict Local-First)
+  try {
+    const { getLocalMCQsByTopic, getAllLocalMCQs } = await import('./localDatabaseEngine');
+    const local = topicId === 'all'
+      ? await getAllLocalMCQs()
+      : await getLocalMCQsByTopic(topicId);
+    if (local && local.length > 0) {
+      return local as MCQ[];
+    }
+  } catch (_) {}
+
   // 1. Check live synced questionsStore (in-memory / IndexedDB / localStorage) first
   try {
     const { loadUserQuestionsStore, getCombinedChapters, deduplicateQuestions } = await import('./questionsStorage');
@@ -67,21 +78,22 @@ export async function fetchMCQsByTopic(topicId: string): Promise<MCQ[]> {
       ? await getAllCachedQuestions() 
       : await getCachedQuestionsByTopic(topicId);
     if (cached && cached.length > 0) {
-      // Revalidate in background if online and Firebase configured (stale-while-revalidate)
-      if (typeof navigator !== 'undefined' && navigator.onLine && isFirebaseConfigured()) {
-        setTimeout(async () => {
-          try {
-            await fetchAndRefreshFirestoreMCQs(topicId);
-          } catch (_) {}
-        }, 300);
-      }
       return cached as MCQ[];
     }
   } catch (idbErr) {
     console.warn("[FirebaseSync] localforage question bank lookup:", idbErr);
   }
 
-  // 2. Fetch from canonical Firestore 'mcqs' collection (Phase 4 optimized, legacy 'questions' only as empty-store fallback)
+  // Strict 24-Hour Offline-First Policy:
+  // Ordinary student-facing question retrieval NEVER queries Firestore directly.
+  // Questions are downloaded only through the central 24-hour sync cycle.
+  const { isUserAdmin, loadUserProfile } = await import('./userProfileStorage');
+  const isAdmin = isUserAdmin(loadUserProfile());
+  if (!options?.allowRemote && !isAdmin) {
+    return [];
+  }
+
+  // 2. Fetch from canonical Firestore 'mcqs' collection (Admin / Authorized direct sync only)
   if (isFirebaseConfigured()) {
     try {
       const { collection, query, where, limit: firestoreLimit } = await import('firebase/firestore');
@@ -2257,8 +2269,8 @@ export async function fetchMCQsByLiveTest(testId: string): Promise<any[]> {
     }
   } catch (e) {}
 
-  // 3. Try Firestore
-  if (isFirebaseConfigured()) {
+  // 3. Try Firestore (Admin only)
+  if (isFirebaseConfigured() && admin) {
     try {
       const { doc } = await import('firebase/firestore');
       const { guardedGetDoc } = await import('./quotaTracker');
@@ -2322,6 +2334,16 @@ export async function fetchMCQsByLiveTest(testId: string): Promise<any[]> {
  * Fetch MCQs for a specific PYQ Paper.
  */
 export async function fetchMCQsByPYQPaper(paperId: string): Promise<any[]> {
+  const { isUserAdmin, loadUserProfile } = await import('./userProfileStorage');
+  const admin = isUserAdmin(loadUserProfile());
+
+  // 0. Check localDatabaseEngine for paper MCQs
+  try {
+    const { getLocalMCQsByPaper } = await import('./localDatabaseEngine');
+    const localPaperQs = await getLocalMCQsByPaper(paperId);
+    if (localPaperQs && localPaperQs.length > 0) return localPaperQs;
+  } catch (e) {}
+
   try {
     const localPapers = JSON.parse(localStorage.getItem("remix_rajprep_pyq_papers_v2") || "[]");
     const found = localPapers.find((p: any) => p.id === paperId);
@@ -2340,7 +2362,8 @@ export async function fetchMCQsByPYQPaper(paperId: string): Promise<any[]> {
     }
   } catch (e) {}
 
-  if (isFirebaseConfigured()) {
+  // 3. Try Firestore (Admin only)
+  if (isFirebaseConfigured() && admin) {
     try {
       const { doc } = await import('firebase/firestore');
       const { guardedGetDoc } = await import('./quotaTracker');

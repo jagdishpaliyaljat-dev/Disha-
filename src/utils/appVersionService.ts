@@ -292,12 +292,28 @@ export async function processPendingVersionBumps(): Promise<number> {
  * Reads ONE single document from Firestore (`metadata/app_version`) to check if any curriculum
  * or question bundles have changed.
  */
-export async function checkCurriculumVersionMatch(): Promise<{
+export async function checkCurriculumVersionMatch(options?: { allowRemote?: boolean }): Promise<{
   isUpToDate: boolean;
   remoteVersion: number;
   localVersion: number;
   remoteMetadata: AppVersionMetadata | null;
 }> {
+  const { isUserAdmin, loadUserProfile } = await import("./userProfileStorage");
+  const isAdmin = isUserAdmin(loadUserProfile());
+
+  // Strict 24-Hour Offline-First Policy:
+  // For students, routine version check is strictly local.
+  // Remote version check happens only inside central SyncCoordinator during scheduled 24h sync.
+  if (!options?.allowRemote && !isAdmin) {
+    const local = await getLocalMetadata<AppVersionMetadata>(LOCAL_META_KEY);
+    return {
+      isUpToDate: true,
+      remoteVersion: local?.curriculumVersion || 1,
+      localVersion: local?.curriculumVersion || 1,
+      remoteMetadata: local || null,
+    };
+  }
+
   if (isQuotaExhausted() || !isFirebaseConfigured()) {
     const local = await getLocalMetadata<AppVersionMetadata>(LOCAL_META_KEY);
     return {

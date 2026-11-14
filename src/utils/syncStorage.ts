@@ -159,13 +159,11 @@ export function useSyncStatus(): SyncStatusInfo & {
     if (!status.isOnline) return;
     setIsSyncing(true);
     try {
-      const [{ flushStudentWriteBuffer }, { flushPendingWrites }] = await Promise.all([
-        import("./studentWriteBuffer"),
-        import("./quotaTracker"),
-      ]);
-      await flushStudentWriteBuffer({ trigger: "explicit_sync" });
-      await flushPendingWrites();
-      recordCloudSyncSuccess();
+      const { syncCoordinator } = await import("./syncCoordinator");
+      const res = await syncCoordinator.startSyncSession();
+      if (res.success) {
+        recordCloudSyncSuccess();
+      }
       setStatus(calculateSyncStatus());
     } finally {
       setIsSyncing(false);

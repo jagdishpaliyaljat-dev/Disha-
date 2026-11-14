@@ -1,4 +1,4 @@
-import { Chapter, Question, Topic } from "../types";
+import type { Chapter, Question, Topic } from "../types";
 
 // The seed data has been removed to provide a clean slate for your custom content.
 // You can add new chapters, topics, and questions using the management tools in the app.

@@ -541,10 +541,10 @@ const TopicDetailView: React.FC<TopicDetailViewProps> = ({
       }
 
       if (validQuestions.length === 0) {
-        const { fetchMCQsByTopic } = await import("../utils/firebaseSyncService");
-        const fetched = await fetchMCQsByTopic(topic.id);
-        if (fetched && fetched.length > 0) {
-          validQuestions = (fetched as any[]).filter(isCompleteQ);
+        const { getLocalMCQsByTopic } = await import("../utils/localDatabaseEngine");
+        const localQs = await getLocalMCQsByTopic(topic.id);
+        if (localQs && localQs.length > 0) {
+          validQuestions = localQs.filter(isCompleteQ);
         }
       }
 
@@ -589,8 +589,8 @@ const TopicDetailView: React.FC<TopicDetailViewProps> = ({
       if (topic.questionCount && topic.questionCount > 0) {
         setTopicCount(topic.questionCount);
       }
-      import("../utils/firebaseSyncService").then(({ fetchMCQsByTopic }) => {
-        fetchMCQsByTopic(topic.id).then((qs) => {
+      import("../utils/localDatabaseEngine").then(({ getLocalMCQsByTopic }) => {
+        getLocalMCQsByTopic(topic.id).then((qs) => {
           if (isMounted && qs && qs.length > 0) {
             setTopicCount(qs.length);
           }

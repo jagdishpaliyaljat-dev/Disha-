@@ -105,6 +105,30 @@ export function recordQuestionAttempt(
     isAdminPreview: opts?.isAdminPreview,
   });
 
+  // Persist into unified IndexedDB user_attempts repository & durable sync queue
+  import("./localDatabaseEngine").then(({ recordLocalAttempt, recordLocalWrongQuestion }) => {
+    import("../lib/firebase").then(({ auth }) => {
+      const uid = auth.currentUser?.uid || "guest";
+      recordLocalAttempt(attemptRecord, uid).catch(() => {});
+
+      if (!attempt.isCorrect) {
+        recordLocalWrongQuestion({
+          questionId: attempt.questionId,
+          userId: uid,
+          subjectId: attempt.subjectId,
+          chapterId: attempt.chapterId,
+          topicId: attempt.topicId,
+          wrongCount: 1,
+          lastWrongAt: Date.now(),
+          reviewStatus: "needs_review",
+          lastSelectedOption: Number(attempt.selectedOption),
+          correctIndex: Number(attempt.correctOption),
+          syncStatus: "pending",
+        }).catch(() => {});
+      }
+    }).catch(() => {});
+  }).catch(() => {});
+
   // Append to local attempt logs (keep latest 500 attempts for offline history)
   try {
     const rawLogs = localStorage.getItem(ATTEMPTS_STORAGE_KEY);
@@ -143,4 +167,12 @@ export function saveSmartTestRecord(record: SmartTestRecord): void {
   } catch (e) {
     console.error("Failed to save smart test record", e);
   }
+
+  // Persist into unified IndexedDB test_results repository & durable sync queue
+  import("./localDatabaseEngine").then(({ saveLocalTestResult }) => {
+    import("../lib/firebase").then(({ auth }) => {
+      const uid = auth.currentUser?.uid || "guest";
+      saveLocalTestResult(record, uid).catch(() => {});
+    }).catch(() => {});
+  }).catch(() => {});
 }

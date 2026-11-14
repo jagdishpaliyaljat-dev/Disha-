@@ -26,7 +26,7 @@ async function main() {
   let eslintPassed = false;
   let eslintOutput = "";
   try {
-    eslintOutput = execSync("npx eslint firestore.rules 2>&1", { encoding: "utf8" });
+    eslintOutput = execSync("./node_modules/.bin/eslint firestore.rules 2>&1 || npx eslint firestore.rules 2>&1", { encoding: "utf8" });
     eslintPassed = true;
   } catch (err: any) {
     eslintOutput = err?.stdout || err?.message || String(err);

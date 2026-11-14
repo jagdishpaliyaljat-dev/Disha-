@@ -180,8 +180,8 @@ export const PYQVaultTab: React.FC<PYQVaultTabProps> = ({
       }
 
       if (rawQuestions.length === 0) {
-        const { fetchMCQsByTopic } = await import("../utils/firebaseSyncService");
-        rawQuestions = await fetchMCQsByTopic("all");
+        const { getAllLocalMCQs } = await import("../utils/localDatabaseEngine");
+        rawQuestions = await getAllLocalMCQs();
       }
 
       const extraQs = rawQuestions.map((q, idx) => ({

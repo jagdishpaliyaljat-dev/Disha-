@@ -11,6 +11,7 @@ import {
   Question,
   QuestionProgress,
   ProgressStore,
+  AppNotification,
 } from './types';
 import { BottomNav } from './components/BottomNav';
 import { OfflineIndicator } from './components/OfflineIndicator';
@@ -25,7 +26,8 @@ import { useNavigation } from './hooks/useNavigation';
 import { useCurriculumManager } from './hooks/useCurriculumManager';
 import { loadUserProfile, saveUserProfile, isUserAdmin } from './utils/userProfileStorage';
 import { loadSettingsFromStorage, saveSettingsToStorage, loadProgressFromStorage, saveProgressToStorage, recordStudyAnswerToHistory, loadStudyHistoryFromStorage, saveStudyHistoryToStorage } from './utils/storage';
-import { getTodayDateString } from './utils/revision';
+import { loadNotifications, saveNotifications } from './utils/notificationsStorage';
+import { getTodayDateString, calculateNextProgress } from './utils/revision';
 import { trackPageView } from './utils/analytics';
 import { 
   loadUserQuestionsStore, 
@@ -45,7 +47,7 @@ import {
   bulkDeleteQuestions, 
   bulkMoveQuestions 
 } from './utils/questionsStorage';
-import { auth } from './lib/firebase';
+import { auth, db } from './lib/firebase';
 import {
   bufferProgressUpdate,
   bufferHistoryUpdate,
@@ -287,6 +289,16 @@ export default function App() {
   const [settings, setSettings] = React.useState<AppSettings>(() => loadSettingsFromStorage());
   const [isAuthReady, setIsAuthReady] = React.useState(false);
 
+  const [notifications, setNotifications] = React.useState<AppNotification[]>(() => loadNotifications());
+  const unreadNotificationsCount = React.useMemo(() => {
+    return notifications.filter((n) => !n.read).length;
+  }, [notifications]);
+
+  const handleUpdateNotifications = React.useCallback((next: AppNotification[]) => {
+    setNotifications(next);
+    saveNotifications(next);
+  }, []);
+
   // Sync URL with Tab, Subject, Chapter, Topic and Session changes
   React.useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -359,6 +371,84 @@ export default function App() {
     }
   }, []);
 
+  // Realtime Broadcast Notifications Listener
+  React.useEffect(() => {
+    let unsubscribe: (() => void) | null = null;
+    let isMounted = true;
+
+    try {
+      import('firebase/firestore').then(({ collection, query, orderBy, limit, onSnapshot }) => {
+        if (!isMounted) return;
+        const q = query(
+          collection(db, "broadcast_notifications"),
+          orderBy("timestamp", "desc"),
+          limit(50)
+        );
+
+        unsubscribe = onSnapshot(
+          q,
+          (snapshot) => {
+            if (!snapshot || snapshot.empty) return;
+            const remoteBroadcasts: AppNotification[] = snapshot.docs.map((docSnap) => {
+              const data = docSnap.data();
+              return {
+                id: docSnap.id,
+                title: data.title || "",
+                hindiTitle: data.hindiTitle,
+                message: data.message || "",
+                hindiMessage: data.hindiMessage,
+                category: data.category || "system",
+                priority: data.priority || "normal",
+                timestamp: data.timestamp || new Date().toISOString(),
+                read: false,
+                actionType: data.actionType,
+                actionData: data.actionData,
+              };
+            });
+
+            setNotifications((prev) => {
+              const readMap = new Map<string, boolean>();
+              prev.forEach((n) => {
+                readMap.set(n.id, n.read);
+              });
+
+              const remoteIds = new Set(remoteBroadcasts.map((b) => b.id));
+              const merged: AppNotification[] = remoteBroadcasts.map((rb) => ({
+                ...rb,
+                read: readMap.has(rb.id) ? (readMap.get(rb.id) ?? false) : false,
+              }));
+
+              prev.forEach((localNotif) => {
+                if (!remoteIds.has(localNotif.id)) {
+                  merged.push(localNotif);
+                }
+              });
+
+              merged.sort(
+                (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+              );
+
+              saveNotifications(merged);
+              return merged;
+            });
+          },
+          (err) => {
+            console.warn("Firestore broadcast_notifications listener error:", err);
+          }
+        );
+      }).catch((err) => {
+        console.warn("Failed to load firestore for broadcast listener:", err);
+      });
+    } catch (e) {
+      console.warn("Broadcast notifications listener setup failed:", e);
+    }
+
+    return () => {
+      isMounted = false;
+      if (unsubscribe) unsubscribe();
+    };
+  }, []);
+
   const {
     subscribeToCurriculum,
     subscribeToUserProgressAndHistory,
@@ -374,8 +464,11 @@ export default function App() {
     const today = getTodayDateString();
     const nowIso = new Date().toISOString();
     const existing = progressStore[questionId] || ({} as Partial<QuestionProgress>);
+    const nextRev = calculateNextProgress(existing as QuestionProgress, isCorrect, selectedOption, today);
+
     const updatedItem: QuestionProgress = {
       ...existing,
+      ...nextRev,
       status: isCorrect ? 'correct' : 'wrong',
       lastAnsweredAt: today,
       timesAttempted: (existing.timesAttempted || 0) + 1,
@@ -384,14 +477,15 @@ export default function App() {
     } as QuestionProgress;
 
     updateProgress((prev) => {
-      const prevExisting = prev[questionId] || {};
+      const prevExisting = prev[questionId] as QuestionProgress | undefined;
       return {
         ...prev,
         [questionId]: {
           ...prevExisting,
+          ...nextRev,
           status: isCorrect ? 'correct' : 'wrong',
           lastAnsweredAt: today,
-          timesAttempted: (prevExisting.timesAttempted || 0) + 1,
+          timesAttempted: ((prevExisting?.timesAttempted) || 0) + 1,
           lastSelectedOption: selectedOption,
           updatedAt: nowIso,
         } as QuestionProgress,
@@ -403,14 +497,31 @@ export default function App() {
     if (updatedHistory && updatedHistory[today]) {
       bufferHistoryUpdate(today, updatedHistory[today], { userProfile });
     }
+
+    import("./utils/localDatabaseEngine").then(({ saveLocalRevisionRecord }) => {
+      const uid = userProfile?.id || auth.currentUser?.uid || "guest";
+      saveLocalRevisionRecord({
+        recordId: `${uid}_${questionId}`,
+        questionId,
+        userId: uid,
+        stage: nextRev.stage,
+        nextReviewAt: nextRev.nextReviewAt,
+        lastAnsweredAt: today,
+        wrongCount: nextRev.wrongCount,
+        status: isCorrect ? "correct" : "wrong",
+        updatedAt: Date.now(),
+        syncStatus: "pending",
+      }).catch(() => {});
+    }).catch(() => {});
   };
 
   const handleToggleBookmark = (questionId: string) => {
     const nowIso = new Date().toISOString();
     const existing = progressStore[questionId] || ({} as Partial<QuestionProgress>);
+    const nextBookmarked = !existing.bookmarked;
     const updatedItem: QuestionProgress = {
       ...existing,
-      bookmarked: !existing.bookmarked,
+      bookmarked: nextBookmarked,
       updatedAt: nowIso,
     } as QuestionProgress;
 
@@ -420,13 +531,18 @@ export default function App() {
         ...prev,
         [questionId]: {
           ...prevExisting,
-          bookmarked: !prevExisting.bookmarked,
+          bookmarked: nextBookmarked,
           updatedAt: nowIso,
         } as QuestionProgress,
       };
     });
 
     bufferProgressUpdate(questionId, updatedItem, { userProfile });
+
+    import("./utils/localDatabaseEngine").then(({ setLocalBookmark }) => {
+      const uid = userProfile?.id || auth.currentUser?.uid || "guest";
+      setLocalBookmark(questionId, nextBookmarked, uid).catch(() => {});
+    }).catch(() => {});
   };
   const [isLoginOpen, setIsLoginOpen] = React.useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
@@ -628,12 +744,20 @@ export default function App() {
     return () => window.removeEventListener("quizpro_store_updated", handleStoreUpdated);
   }, []);
 
-  // Pre-warm and index question bank in IndexedDB via localforage for instant offline MCQ practice
+  // Initialize QuizPro Local-First Engine (Migration + Strict 24h Sync Coordinator)
   React.useEffect(() => {
-    import('./utils/questionBankCache').then(({ warmQuestionBankCache }) => {
-      warmQuestionBankCache().catch(() => {});
-    }).catch(() => {});
-  }, []);
+    Promise.all([
+      import('./utils/localDatabaseEngine').then(({ migrateLegacyLocalStorageToIndexedDB }) => {
+        migrateLegacyLocalStorageToIndexedDB(userProfile?.id || "guest").catch(() => {});
+      }),
+      import('./utils/syncCoordinator').then(({ syncCoordinator }) => {
+        syncCoordinator.initializeSync().catch(() => {});
+      }),
+      import('./utils/questionBankCache').then(({ warmQuestionBankCache }) => {
+        warmQuestionBankCache().catch(() => {});
+      }),
+    ]).catch(() => {});
+  }, [userProfile?.id]);
 
   // Real-time cross-device user progress & revision history synchronization
   React.useEffect(() => {
@@ -1071,6 +1195,8 @@ export default function App() {
             questionsStore={questionsStore}
             userProfile={userProfile}
             isAuthenticated={isAuthenticated}
+            unreadNotificationsCount={unreadNotificationsCount}
+            onOpenNotifications={() => setActiveTab('notifications')}
             onOpenLogin={() => setIsLoginOpen(true)}
             onStartSession={handleStartSession}
             onNavigateToChapter={(chapId) => {
@@ -1234,10 +1360,12 @@ export default function App() {
 
         {activeTab === 'notifications' && (
           <NotificationsPage
-            notifications={[]}
-            onUpdateNotifications={() => {}}
+            notifications={notifications}
+            onUpdateNotifications={handleUpdateNotifications}
             onBack={() => setActiveTab('home')}
             onNavigateTab={(tab: ActiveTab) => setActiveTab(tab)}
+            onStartSession={handleStartSession}
+            onOpenFullExam={() => setIsFullExamOpen(true)}
           />
         )}
 

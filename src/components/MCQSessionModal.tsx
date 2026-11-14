@@ -1091,6 +1091,37 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
         const { recordPYQAttempt } = await import("../utils/pyqStorage");
         await recordPYQAttempt(attempt);
       }
+      // Save unified Smart Test Result and Study Session Log locally
+      const smartRecord: any = {
+        testId: session.testId || `test_${Date.now()}`,
+        title: session.title,
+        testType: session.testType || (session.source as string) || "practice",
+        totalQuestions: questions.length,
+        attemptedQuestions: totalAttempted,
+        correctAnswers: totalCorrect,
+        wrongAnswers: totalWrong,
+        skippedQuestions: totalSkipped,
+        accuracy: sessionAccuracy,
+        timeSpentSeconds: elapsedSeconds,
+        completedAt: new Date().toISOString(),
+        score: Math.max(0, totalCorrect * (session.marksPerQuestion || 1) - totalWrong * (session.negativeMarking ?? 0.33)),
+        maxScore: questions.length * (session.marksPerQuestion || 1),
+      };
+      saveSmartTestRecord(smartRecord);
+
+      import("../utils/localDatabaseEngine").then(({ recordLocalStudySession }) => {
+        const uid = userProfile?.id || "guest";
+        recordLocalStudySession({
+          sessionId: `study_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+          userId: uid,
+          date: new Date().toISOString().slice(0, 10),
+          subjectId: session.subjectId,
+          topicId: session.topicId,
+          durationMinutes: Math.max(1, Math.round(elapsedSeconds / 60)),
+          timestamp: Date.now(),
+          syncStatus: "pending",
+        }).catch(() => {});
+      }).catch(() => {});
     } catch (syncErr: any) {
       console.warn("[MCQSession] Submission background sync failed:", syncErr);
       if (isLiveTestSession) {

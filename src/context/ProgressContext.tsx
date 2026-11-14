@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode } from "react";
-import { ProgressStore } from '../types';
+import { ProgressStore, QuestionProgress } from '../types';
 import { loadProgressFromStorage, saveProgressToStorage } from '../utils/storage';
 
 interface ProgressContextType {
@@ -23,12 +23,30 @@ export const ProgressProvider: React.FC<{ children: ReactNode }> = ({ children }
 
   const toggleBookmark = useCallback((questionId: string) => {
     updateProgress((prev) => {
-      const existing = prev[questionId] || {};
+      const defaultProgress: QuestionProgress = {
+        status: "unattempted",
+        stage: 0,
+        nextReviewAt: "",
+        wrongCount: 0,
+        bookmarked: false,
+        lastAnsweredAt: null,
+      };
+      const existing = prev[questionId] || defaultProgress;
+      const newStatus = !existing.bookmarked;
+      
+      // Persist in local IndexedDB bookmarks repository & queue
+      import("../utils/localDatabaseEngine").then(({ setLocalBookmark }) => {
+        import("../lib/firebase").then(({ auth }) => {
+          const uid = auth.currentUser?.uid || "guest";
+          setLocalBookmark(questionId, newStatus, uid).catch(() => {});
+        }).catch(() => {});
+      }).catch(() => {});
+
       return {
         ...prev,
         [questionId]: {
           ...existing,
-          bookmarked: !existing.bookmarked,
+          bookmarked: newStatus,
         },
       };
     });

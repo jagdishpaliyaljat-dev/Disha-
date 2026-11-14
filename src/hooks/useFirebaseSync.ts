@@ -35,6 +35,7 @@ import { getAllCachedQuestions } from "../utils/questionBankCache";
 import { checkCurriculumVersionMatch, recordLocalCurriculumVersion, AppVersionMetadata } from "../utils/appVersionService";
 import { subscribeSharedListener } from "../services/firestoreDataService";
 import { fetchCurriculumAssetCacheFirst, prewarmStaticQuizAssets } from "../utils/quizAssetSwCache";
+import { isUserAdmin, loadUserProfile } from "../utils/userProfileStorage";
 
 export function mergeRealtimeProgressDelta(
   localStore: ProgressStore,
@@ -578,7 +579,53 @@ export function subscribeToMemoizedCurriculumTree(
     return run;
   };
 
-  // Attach ONE physical listener for the entire curriculum tree if none is active yet
+  const isAdminUser = isUserAdmin(loadUserProfile());
+
+  // Strict 24-Hour Offline-First Policy:
+  // For students, never attach routine real-time listeners on metadata/app_version and never poll Firestore.
+  // The central SyncCoordinator handles scheduled 24h sync cycles.
+  if (!isAdminUser && !resolvedDeps.subscribeAppVersion) {
+    // Deliver instant local tree from IndexedDB to callback immediately
+    getIdbTree()
+      .then(async (cached) => {
+        if (!cached) return;
+        const currentStore = getStore();
+        const nextSubs = cached.subjects?.length ? cached.subjects : (currentStore.customSubjects || []);
+        const nextChaps = cached.chapters?.length ? cached.chapters : (currentStore.customChapters || []);
+        const nextTops = cached.topics?.length ? cached.topics : (currentStore.customTopics || []);
+        const nextQs = cached.questions?.length ? cached.questions : (currentStore.cloudCacheQuestions || []);
+        const updates: Partial<UserQuestionsStore> = {
+          customSubjects: nextSubs,
+          customChapters: nextChaps,
+          customTopics: nextTops,
+          cloudCacheQuestions: nextQs,
+        };
+        broadcastCurriculumUpdates(updates);
+      })
+      .catch(() => {});
+
+    loadLocalVersionMeta()
+      .then((meta) => {
+        if (meta && onMetadataUpdate) onMetadataUpdate(meta);
+      })
+      .catch(() => {});
+
+    return () => {
+      curriculumSubscribers.delete(onUpdate);
+      if (onMetadataUpdate) {
+        metadataSubscribers.delete(onMetadataUpdate);
+      }
+      if (curriculumSubscribers.size === 0 && activeCurriculumPhysicalUnsub) {
+        try {
+          activeCurriculumPhysicalUnsub();
+        } catch {}
+        activeCurriculumPhysicalUnsub = null;
+        activeListenerDeps = undefined;
+      }
+    };
+  }
+
+  // Attach ONE physical listener for the entire curriculum tree if none is active yet (Admin only)
   if (!activeCurriculumPhysicalUnsub) {
     const attachListener =
       resolvedDeps.subscribeAppVersion ||
@@ -788,107 +835,53 @@ export function useFirebaseSync(
 
 
   // --- User Data Sync ---
-// ... (rest of the file)
-  // Dedicated serializing queue for settings to ensure latest state is ALWAYS synced
-  const settingsSyncPromiseRef = useRef<Promise<void> | null>(null);
-  const pendingSettingsRef = useRef<AppSettings | null>(null);
-  const settingsDebounceTimerRef = useRef<any>(null);
-
   const syncSettings = async (settings: AppSettings) => {
-    if (!auth.currentUser || auth.currentUser.isAnonymous || !isWriteAllowed()) return;
-
-    // Store as pending
-    pendingSettingsRef.current = settings;
-
-    // Clear existing debounce timer
-    if (settingsDebounceTimerRef.current) {
-      clearTimeout(settingsDebounceTimerRef.current);
-    }
-
-    // Set a 10-second debounce for settings
-    // This ensures that rapid UI changes (dark mode, text size) only result in one write
-    settingsDebounceTimerRef.current = setTimeout(async () => {
-      // If already syncing, the pending ref will be picked up by the tail of the current chain
-      if (settingsSyncPromiseRef.current) return;
-
-      const performSync = async () => {
-        while (pendingSettingsRef.current) {
-          const toSync = pendingSettingsRef.current;
-          pendingSettingsRef.current = null;
-          
-          setIsSyncing(true);
-          try {
-            await guardedSetDoc(
-              doc(db, "users", auth.currentUser!.uid), 
-              { settings: toSync }, 
-              { merge: true }, 
-              "Student", 
-              "Sync Settings",
-              undefined,
-              45000
-            );
-            setLastSyncedAt(new Date());
-            setSyncError(null);
-          } catch (e: any) {
-            if (e?.code === "deadline-exceeded") {
-              console.warn("[SyncSettings] Timeout occurred. Will retry on next change.");
-            } else {
-              handleSyncError("Settings", e);
-            }
-          } finally {
-            setIsSyncing(false);
-          }
-        }
-        settingsSyncPromiseRef.current = null;
-      };
-
-      settingsSyncPromiseRef.current = performSync();
-      await settingsSyncPromiseRef.current;
-    }, 10000);
+    try {
+      const { enqueueSyncEvent } = await import("../utils/localDatabaseEngine");
+      const uid = auth.currentUser?.uid || "guest";
+      await enqueueSyncEvent({
+        userId: uid,
+        eventType: "settings",
+        entityId: "settings",
+        operation: "upsert",
+        payload: settings,
+      });
+      setLastSyncedAt(new Date());
+    } catch {}
   };
 
   const syncProgressBatch = async (items: Record<string, any>) => {
-    if (!auth.currentUser || auth.currentUser.isAnonymous || !isWriteAllowed()) return;
     const entries = Object.entries(items || {});
     if (entries.length === 0) return;
-
-    await runWithLock(async () => {
-      try {
-        const userUid = auth.currentUser!.uid;
-        const CHUNK_SIZE = 400; // Strict margin below Firestore's 500-op WriteBatch limit
-        for (let i = 0; i < entries.length; i += CHUNK_SIZE) {
-          const chunk = entries.slice(i, i + CHUNK_SIZE);
-          const batch = guardedWriteBatch(db);
-          chunk.forEach(([questionId, progress]) => {
-            const docRef = doc(db, "users", userUid, "progress", questionId);
-            batch.set(docRef, progress, { merge: true });
-          });
-          await batch.commit("Student", "Sync Progress Batch");
-        }
-        setLastSyncedAt(new Date());
-      } catch (e) {
-        handleSyncError("Progress Batch", e);
+    try {
+      const { enqueueSyncEvent } = await import("../utils/localDatabaseEngine");
+      const uid = auth.currentUser?.uid || "guest";
+      for (const [questionId, progress] of entries) {
+        await enqueueSyncEvent({
+          userId: uid,
+          eventType: "attempt",
+          entityId: questionId,
+          operation: "upsert",
+          payload: progress,
+        });
       }
-    });
+      setLastSyncedAt(new Date());
+    } catch {}
   };
-// ... (apply similar locking to other sync methods)
-  const syncHistoryItem = async (date: string, record: any) => {
-    if (!auth.currentUser || auth.currentUser.isAnonymous || !isWriteAllowed()) return;
-    const sig = JSON.stringify(record);
-    if (lastSyncedHistoryRef.current[date] === sig) return;
 
-    await runWithLock(async () => {
-      try {
-        await guardedSetDoc(doc(db, "users", auth.currentUser!.uid, "history", date), record, undefined, "Student", "Sync History Item");
-        lastSyncedHistoryRef.current[date] = sig;
-      } catch (e: any) {
-        if (e?.code === 'resource-exhausted' || e?.message?.includes('Quota limit exceeded')) {
-          console.warn('[Firestore Quota Protection] History sync paused (Quota reached). Saved locally.');
-          return;
-        }
-        handleSyncError("History", e);
-      }
-    });
+  const syncHistoryItem = async (date: string, record: any) => {
+    try {
+      const { enqueueSyncEvent } = await import("../utils/localDatabaseEngine");
+      const uid = auth.currentUser?.uid || "guest";
+      await enqueueSyncEvent({
+        userId: uid,
+        eventType: "study_log",
+        entityId: date,
+        operation: "upsert",
+        payload: record,
+      });
+      setLastSyncedAt(new Date());
+    } catch {}
   };
 
   const loadUserData = async () => {
@@ -988,103 +981,14 @@ export function useFirebaseSync(
    */
   const subscribeToUserProgressAndHistory = useCallback(
     (
-      onProgressDelta: (deltas: Record<string, QuestionProgress>) => void,
-      onHistoryDelta: (deltas: DailyStudyHistory) => void
+      _onProgressDelta: (deltas: Record<string, QuestionProgress>) => void,
+      _onHistoryDelta: (deltas: DailyStudyHistory) => void
     ) => {
-      if (!isAuthenticated || !auth.currentUser || auth.currentUser.isAnonymous || !isFirebaseConfigured()) {
-        return () => {};
-      }
-
-      const userUid = auth.currentUser.uid;
-      let unsubProgress: (() => void) | null = null;
-      let unsubHistory: (() => void) | null = null;
-
-      try {
-        unsubProgress = guardedOnSnapshot(
-          collection(db, "users", userUid, "progress"),
-          "Student",
-          "Real-Time Progress Sync",
-          (snap: any) => {
-            if (!snap || typeof snap.docChanges !== "function") return;
-            const deltas: Record<string, QuestionProgress> = {};
-            let hasDelta = false;
-
-            for (const change of snap.docChanges()) {
-              if (change.type === "removed") continue;
-              if (change.doc?.metadata?.hasPendingWrites) continue;
-              const qId = change.doc.id;
-              const data = change.doc.data() as QuestionProgress;
-              if (!data) continue;
-              const sig = JSON.stringify(data);
-              if (lastSyncedProgressRef.current[qId] === sig) continue;
-
-              // Record signature BEFORE propagating to React state to prevent write-back loops
-              lastSyncedProgressRef.current[qId] = sig;
-              deltas[qId] = data;
-              hasDelta = true;
-            }
-
-            if (hasDelta) {
-              setLastSyncedAt(new Date());
-              onProgressDelta(deltas);
-            }
-          },
-          (err: any) => {
-            if (err?.code !== "permission-denied") {
-              console.warn("[Real-Time Progress Listener]", err?.message || err);
-            }
-          },
-          `user_progress_${userUid}`
-        );
-
-        unsubHistory = guardedOnSnapshot(
-          collection(db, "users", userUid, "history"),
-          "Student",
-          "Real-Time History Sync",
-          (snap: any) => {
-            if (!snap || typeof snap.docChanges !== "function") return;
-            const deltas: DailyStudyHistory = {};
-            let hasDelta = false;
-
-            for (const change of snap.docChanges()) {
-              if (change.type === "removed") continue;
-              if (change.doc?.metadata?.hasPendingWrites) continue;
-              const dateKey = change.doc.id;
-              const data = change.doc.data() as { correct: number; wrong: number };
-              if (!data) continue;
-              const sig = JSON.stringify(data);
-              if (lastSyncedHistoryRef.current[dateKey] === sig) continue;
-
-              lastSyncedHistoryRef.current[dateKey] = sig;
-              deltas[dateKey] = {
-                correct: Number(data.correct) || 0,
-                wrong: Number(data.wrong) || 0,
-              };
-              hasDelta = true;
-            }
-
-            if (hasDelta) {
-              setLastSyncedAt(new Date());
-              onHistoryDelta(deltas);
-            }
-          },
-          (err: any) => {
-            if (err?.code !== "permission-denied") {
-              console.warn("[Real-Time History Listener]", err?.message || err);
-            }
-          },
-          `user_history_${userUid}`
-        );
-      } catch (e) {
-        console.warn("[subscribeToUserProgressAndHistory]", e);
-      }
-
-      return () => {
-        if (unsubProgress) unsubProgress();
-        if (unsubHistory) unsubHistory();
-      };
+      // 24-Hour Offline-First Policy: Continuous Firestore onSnapshot listeners are disabled.
+      // Progress and study history operate 100% locally in IndexedDB and synchronize strictly once per 24 hours.
+      return () => {};
     },
-    [isAuthenticated, userProfile?.id]
+    []
   );
 
   const syncCurriculumStore = async (store: UserQuestionsStore) => {
@@ -1094,21 +998,18 @@ export function useFirebaseSync(
   };
 
   const syncProgressItem = async (questionId: string, progress: any) => {
-    if (!auth.currentUser || auth.currentUser.isAnonymous || !isWriteAllowed()) return;
-    const sig = JSON.stringify(progress);
-    if (lastSyncedProgressRef.current[questionId] === sig) return;
-
     try {
-      await guardedSetDoc(doc(db, "users", auth.currentUser.uid, "progress", questionId), progress, { merge: true }, "Student", "Sync Progress Item");
-      lastSyncedProgressRef.current[questionId] = sig;
+      const { enqueueSyncEvent } = await import("../utils/localDatabaseEngine");
+      const uid = auth.currentUser?.uid || "guest";
+      await enqueueSyncEvent({
+        userId: uid,
+        eventType: "attempt",
+        entityId: questionId,
+        operation: "upsert",
+        payload: progress,
+      });
       setLastSyncedAt(new Date());
-    } catch (e: any) {
-      if (e?.code === 'resource-exhausted' || e?.message?.includes('Quota limit exceeded')) {
-        console.warn('[Firestore Quota Protection] Progress item sync paused (Quota reached). Saved locally.');
-        return;
-      }
-      handleSyncError("Progress Item", e);
-    }
+    } catch {}
   };
 
   const syncUserProfile = async (profile: UserProfile) => {

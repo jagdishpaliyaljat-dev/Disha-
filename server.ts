@@ -23,8 +23,8 @@ import {
 } from './src/server/liveTestService';
 import { createQuizAssetsService } from './src/server/quizAssetsService';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const currentFilename = typeof __filename !== 'undefined' ? __filename : '';
+const currentDirname = typeof __dirname !== 'undefined' ? __dirname : (currentFilename ? path.dirname(currentFilename) : process.cwd());
 
 // Firebase configuration for server-side REST queries (sitemap, meta tag prerendering)
 const FIREBASE_PROJECT_ID = 'gen-lang-client-0811306192';
@@ -219,6 +219,76 @@ export function createServerApp(deps: ServerDependencies = {}) {
     } catch (err: any) {
       console.warn('[Pronounce en-GB Proxy Error]:', err?.message || err);
       res.status(500).send('Pronunciation service error');
+    }
+  });
+
+  // Contact Us & Technical Feedback Endpoint (wired to contact_messages collection for Admin Panel)
+  app.post('/api/contact', async (req, res) => {
+    try {
+      const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
+      const rlKey = `contact:${Array.isArray(ip) ? ip[0] : String(ip).split(',')[0].trim()}`;
+      const rl = rateLimiter.check(rlKey, { windowMs: 10 * 60 * 1000, max: 10 });
+      if (!rl.allowed) {
+        return res.status(429).json({
+          success: false,
+          error: 'Too Many Requests',
+          message: 'Too many messages sent. Please wait a few minutes before submitting again.'
+        });
+      }
+
+      const { name, email, subject, message } = req.body || {};
+      const trimmedName = String(name || '').trim().slice(0, 100);
+      const trimmedEmail = String(email || '').trim().slice(0, 150);
+      const trimmedSubject = String(subject || '').trim().slice(0, 150);
+      const trimmedMessage = String(message || '').trim().slice(0, 5000);
+
+      if (!trimmedName || trimmedName.length < 2) {
+        return res.status(400).json({ success: false, message: 'Valid name is required (at least 2 characters).' });
+      }
+      if (!trimmedEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail)) {
+        return res.status(400).json({ success: false, message: 'Valid email address is required.' });
+      }
+      if (!trimmedSubject) {
+        return res.status(400).json({ success: false, message: 'Subject is required.' });
+      }
+      if (!trimmedMessage || trimmedMessage.length < 10) {
+        return res.status(400).json({ success: false, message: 'Message must be at least 10 characters.' });
+      }
+
+      const now = new Date();
+      const messageDoc = {
+        name: trimmedName,
+        email: trimmedEmail,
+        subject: trimmedSubject,
+        message: trimmedMessage,
+        status: 'new',
+        statusText: 'New',
+        createdAt: now,
+        createdIso: now.toISOString(),
+      };
+
+      if (defaultAdminDb) {
+        try {
+          const docRef = defaultAdminDb.collection('contact_messages').doc();
+          await docRef.set(messageDoc);
+          console.log(`[Contact API] Message recorded in Firestore doc: ${docRef.id}`);
+        } catch (dbErr: any) {
+          console.warn('[Contact API] Failed to write message to Firestore, proceeding with acknowledgment:', dbErr?.message || dbErr);
+        }
+      } else {
+        console.warn('[Contact API] Firestore defaultAdminDb not initialized, message acknowledged in memory.');
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: 'Thank you for contacting DISHA 20-20! Your message has been received.'
+      });
+    } catch (err: any) {
+      console.error('[Contact API Error]:', err);
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to process contact message. Please try again later.'
+      });
     }
   });
 
@@ -1566,9 +1636,9 @@ Return ONLY a JSON object with key "questions":
     const candidatePaths = [
       path.join(distPath, 'index.html'),
       path.join(process.cwd(), 'dist', 'index.html'),
-      path.join(__dirname, 'index.html'),
-      path.join(__dirname, 'dist', 'index.html'),
-      path.join(__dirname, '..', 'dist', 'index.html'),
+      path.join(currentDirname, 'index.html'),
+      path.join(currentDirname, 'dist', 'index.html'),
+      path.join(currentDirname, '..', 'dist', 'index.html'),
       path.join(process.cwd(), 'index.html'),
     ];
     for (const p of candidatePaths) {

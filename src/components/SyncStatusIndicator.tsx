@@ -1,4 +1,6 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { syncCoordinator, SyncSessionStatus } from "../utils/syncCoordinator";
+import { CheckCircle2, CloudOff, RefreshCw, AlertTriangle, ShieldCheck, Clock } from "lucide-react";
 
 interface SyncStatusIndicatorProps {
   isOnline: boolean;
@@ -7,7 +9,125 @@ interface SyncStatusIndicatorProps {
   isAdmin?: boolean;
 }
 
-export const SyncStatusIndicator: React.FC<SyncStatusIndicatorProps> = () => {
-  return null;
-};
+export const SyncStatusIndicator: React.FC<SyncStatusIndicatorProps> = ({ isOnline }) => {
+  const [syncStatus, setSyncStatus] = useState<SyncSessionStatus | null>(null);
+  const [expanded, setExpanded] = useState(false);
 
+  useEffect(() => {
+    const unsubscribe = syncCoordinator.subscribe((status) => {
+      setSyncStatus(status);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  if (!syncStatus) return null;
+
+  const formatCountdown = (ms: number) => {
+    if (ms <= 0) return "Eligible now";
+    const hours = Math.floor(ms / (1000 * 60 * 60));
+    const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+    return `${hours}h ${minutes}m`;
+  };
+
+  const getStatusBadge = () => {
+    if (!isOnline) {
+      return {
+        label: "Offline (Local-First)",
+        color: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border-amber-300 dark:border-amber-700/50",
+        icon: <CloudOff className="w-3.5 h-3.5" />,
+      };
+    }
+
+    switch (syncStatus.state) {
+      case "initial_download_required":
+        return {
+          label: "Initial Download Needed",
+          color: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 border-blue-300 dark:border-blue-700/50",
+          icon: <RefreshCw className="w-3.5 h-3.5 animate-spin" />,
+        };
+      case "sync_in_progress":
+        return {
+          label: "Syncing 24h Data...",
+          color: "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300 border-indigo-300 dark:border-indigo-700/50",
+          icon: <RefreshCw className="w-3.5 h-3.5 animate-spin" />,
+        };
+      case "sync_failed":
+        return {
+          label: "Sync Window Consumed (Failed)",
+          color: "bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-300 border-rose-300 dark:border-rose-700/50",
+          icon: <AlertTriangle className="w-3.5 h-3.5" />,
+        };
+      case "sync_scheduled":
+        return {
+          label: "24h Sync Scheduled",
+          color: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700/50",
+          icon: <Clock className="w-3.5 h-3.5" />,
+        };
+      default:
+        return {
+          label: "Local-First Ready",
+          color: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/40",
+          icon: <ShieldCheck className="w-3.5 h-3.5" />,
+        };
+    }
+  };
+
+  const badge = getStatusBadge();
+
+  return (
+    <div className="relative inline-block text-left text-xs font-medium z-30">
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border shadow-xs transition-all ${badge.color}`}
+        title="QuizPro Strict 24-Hour Offline-First Sync Architecture"
+      >
+        {badge.icon}
+        <span>{badge.label}</span>
+      </button>
+
+      {expanded && (
+        <div 
+          className="absolute right-0 mt-1.5 w-72 rounded-xl bg-white dark:bg-[#1E2330] border border-[#E8D9C0] dark:border-[#31374A] shadow-xl p-3 text-[#2D3748] dark:text-[#E2E8F0] z-50 text-xs space-y-2 animate-in fade-in zoom-in-95 duration-100"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="flex items-center justify-between border-b border-[#E8D9C0]/60 dark:border-[#31374A]/60 pb-1.5">
+            <span className="font-semibold text-sm">24-Hour Sync Status</span>
+            <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
+              Strict Gate
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 text-[11px]">
+            <div>
+              <span className="text-gray-500 dark:text-gray-400 block">MCQs in IndexedDB:</span>
+              <span className="font-bold text-gray-800 dark:text-gray-100">{syncStatus.totalLocalMCQs}</span>
+            </div>
+            <div>
+              <span className="text-gray-500 dark:text-gray-400 block">Local Content Ver:</span>
+              <span className="font-bold text-gray-800 dark:text-gray-100">v{syncStatus.localContentVersion}</span>
+            </div>
+            <div>
+              <span className="text-gray-500 dark:text-gray-400 block">Pending Queue:</span>
+              <span className="font-bold text-gray-800 dark:text-gray-100">{syncStatus.pendingEventCount} events</span>
+            </div>
+            <div>
+              <span className="text-gray-500 dark:text-gray-400 block">Next Regular Sync:</span>
+              <span className="font-bold text-gray-800 dark:text-gray-100">{formatCountdown(syncStatus.eligibleRemainingTimeMs)}</span>
+            </div>
+          </div>
+
+          <div className="border-t border-[#E8D9C0]/60 dark:border-[#31374A]/60 pt-1.5 text-[10px] text-gray-500 dark:text-gray-400">
+            {syncStatus.lastSuccessfulSyncAt ? (
+              <span>Last sync: {new Date(syncStatus.lastSuccessfulSyncAt).toLocaleTimeString()}</span>
+            ) : (
+              <span>First boot completed locally.</span>
+            )}
+            {syncStatus.lastErrorMessage && (
+              <p className="text-rose-500 mt-1 font-medium">{syncStatus.lastErrorMessage}</p>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};

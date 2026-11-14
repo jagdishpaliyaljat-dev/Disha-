@@ -5,7 +5,7 @@ import {
   Layers, ChevronRight, HelpCircle, Flame, ArrowRight 
 } from "lucide-react";
 import { Topic, Chapter, Question } from "../types";
-import { fetchMCQsByTopic } from "../utils/firebaseSyncService";
+import { getLocalMCQsByTopic } from "../utils/localDatabaseEngine";
 
 interface TopicInteractionModalProps {
   isOpen: boolean;
@@ -34,7 +34,7 @@ export const TopicInteractionModal: React.FC<TopicInteractionModalProps> = ({
         return;
       }
       try {
-        const mcqs = await fetchMCQsByTopic(topic.id);
+        const mcqs = await getLocalMCQsByTopic(topic.id);
         if (isMounted) {
           setQuestionCount(mcqs ? mcqs.length : 0);
         }

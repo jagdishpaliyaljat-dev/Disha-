@@ -1,4 +1,4 @@
-import { UserProfile } from "../types";
+import type { UserProfile } from "../types";
 import { auth } from "../lib/firebase";
 
 const USER_PROFILE_KEY = "economic_survey_user_profile_v1";

@@ -101,19 +101,18 @@ export const WrongTab: React.FC<WrongTabProps> = ({
 
         const missingIds = targetIds.filter((qId) => !map.has(qId));
 
-        if (missingIds.length > 0 && isFirebaseConfigured()) {
-          const fetchedDocs = await Promise.all(
-            missingIds.slice(0, 30).map(async (qId) => {
+        if (missingIds.length > 0) {
+          const { getLocalMCQById } = await import("../utils/localDatabaseEngine");
+          const localDocs = await Promise.all(
+            missingIds.map(async (qId) => {
               try {
-                const snap = await guardedGetDoc(doc(db, "mcqs", qId), "Student", "Load Bookmarked/Wrong MCQ");
-                if (snap && snap.exists()) {
-                  return { ...(snap.data() as any), id: snap.id } as Question;
-                }
-              } catch {}
-              return null;
+                return await getLocalMCQById(qId);
+              } catch {
+                return null;
+              }
             })
           );
-          fetchedDocs.forEach((q) => {
+          localDocs.forEach((q) => {
             if (q && q.id) map.set(q.id, q);
           });
         }

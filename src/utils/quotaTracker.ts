@@ -14,6 +14,8 @@ import {
   increment,
   serverTimestamp,
   deleteField,
+} from "firebase/firestore";
+import type {
   DocumentReference,
   Query,
   CollectionReference,

@@ -50,6 +50,7 @@ export default defineConfig(({ command }) => {
           ],
         },
         workbox: {
+          mode: 'development',
           globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
           maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
           navigateFallback: '/index.html',
@@ -215,6 +216,7 @@ export default defineConfig(({ command }) => {
       dedupe: ['react', 'react-dom', 'firebase', 'lucide-react', 'motion'],
       alias: {
         '@': path.resolve(import.meta.dirname, '.'),
+        'workbox-window': path.resolve(import.meta.dirname, 'node_modules/.pnpm/workbox-window@7.4.1/node_modules/workbox-window'),
       },
     },
     optimizeDeps: {
