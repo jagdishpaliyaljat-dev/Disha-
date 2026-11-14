@@ -243,12 +243,18 @@ export const SUBCOLLECTION_DEFINITIONS: Array<{
   { parentCollection: 'usage_daily', subcollectionName: 'devices' },
 ];
 
-const BACKUP_DIR = path.resolve(process.cwd(), 'backups');
+const BACKUP_DIR = (process.env.VERCEL || process.env.LAMBDA_TASK_ROOT || process.env.NOW_REGION)
+  ? path.join(process.env.TMPDIR || '/tmp', 'backups')
+  : path.resolve(process.cwd(), 'backups');
 const RESTORE_LOCK_FILE = path.join(BACKUP_DIR, '.restore_active.lock');
 
 // Ensure backups directory exists
 if (!fs.existsSync(BACKUP_DIR)) {
-  fs.mkdirSync(BACKUP_DIR, { recursive: true });
+  try {
+    fs.mkdirSync(BACKUP_DIR, { recursive: true });
+  } catch {
+    // Gracefully handle read-only environments
+  }
 }
 
 // In-memory active job tracker

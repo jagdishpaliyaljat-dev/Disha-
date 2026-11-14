@@ -233828,10 +233828,13 @@ var SUBCOLLECTION_DEFINITIONS = [
   { parentCollection: "examPaperAnalyses", subcollectionName: "questions" },
   { parentCollection: "usage_daily", subcollectionName: "devices" }
 ];
-var BACKUP_DIR = path2.resolve(process.cwd(), "backups");
+var BACKUP_DIR = process.env.VERCEL || process.env.LAMBDA_TASK_ROOT || process.env.NOW_REGION ? path2.join(process.env.TMPDIR || "/tmp", "backups") : path2.resolve(process.cwd(), "backups");
 var RESTORE_LOCK_FILE = path2.join(BACKUP_DIR, ".restore_active.lock");
 if (!fs3.existsSync(BACKUP_DIR)) {
-  fs3.mkdirSync(BACKUP_DIR, { recursive: true });
+  try {
+    fs3.mkdirSync(BACKUP_DIR, { recursive: true });
+  } catch {
+  }
 }
 var activeJobs = /* @__PURE__ */ new Map();
 function getActiveJob(jobId) {
@@ -234812,7 +234815,10 @@ var SnapshotPublishingService = class {
     ];
     for (const d of dirs) {
       if (!fs4.existsSync(d)) {
-        fs4.mkdirSync(d, { recursive: true });
+        try {
+          fs4.mkdirSync(d, { recursive: true });
+        } catch {
+        }
       }
     }
   }

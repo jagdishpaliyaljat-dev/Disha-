@@ -33,7 +33,11 @@ export class SnapshotPublishingService {
     ];
     for (const d of dirs) {
       if (!fs.existsSync(d)) {
-        fs.mkdirSync(d, { recursive: true });
+        try {
+          fs.mkdirSync(d, { recursive: true });
+        } catch {
+          // Gracefully ignore on read-only serverless filesystems (e.g. Vercel)
+        }
       }
     }
   }
