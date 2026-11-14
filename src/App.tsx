@@ -1481,7 +1481,7 @@ export default function App() {
           />
         )}
 
-        {activeTab === 'admin' && isAdmin && (
+        {activeTab === 'admin' && (
           <AdminErrorBoundary>
             <AdminTab
               userProfile={userProfile}
