@@ -10,17 +10,20 @@ import {
   X,
   FileText,
   Sparkles,
-  ChevronDown
+  ChevronDown,
+  Layers,
+  Plus
 } from "lucide-react";
-import { Subject, Chapter, Question } from "../../types";
+import { Subject, Chapter, Topic, Question } from "../../types";
 
 interface ExcelCsvQuestionImporterProps {
   subjects: Subject[];
   chapters: Chapter[];
   initialSubjectId?: string;
   initialChapterId?: string;
+  initialTopicId?: string;
   onClose: () => void;
-  onImportQuestions: (questions: Question[]) => void;
+  onImportQuestions: (questions: Question[], newTopic?: Topic) => void;
 }
 
 interface ParsedRow {
@@ -30,6 +33,7 @@ interface ParsedRow {
   correctIndex: number;
   explanation: string;
   difficulty?: "easy" | "medium" | "hard";
+  rowTopic?: string;
   status: "valid" | "warning" | "error";
   errorMsg?: string;
   selected: boolean;
@@ -40,11 +44,16 @@ export const ExcelCsvQuestionImporter: React.FC<ExcelCsvQuestionImporterProps> =
   chapters,
   initialSubjectId,
   initialChapterId,
+  initialTopicId,
   onClose,
   onImportQuestions,
 }) => {
   const [selectedSubjectId, setSelectedSubjectId] = React.useState<string>(initialSubjectId || subjects[0]?.id || "");
   const [selectedChapterId, setSelectedChapterId] = React.useState<string>(initialChapterId || "");
+  const [selectedTopicId, setSelectedTopicId] = React.useState<string>(initialTopicId || "");
+  const [newTopicName, setNewTopicName] = React.useState<string>("");
+  const [isCustomTopic, setIsCustomTopic] = React.useState<boolean>(false);
+
   const [parsedRows, setParsedRows] = React.useState<ParsedRow[]>([]);
   const [fileName, setFileName] = React.useState<string>("");
   const [rawText, setRawText] = React.useState<string>("");
@@ -63,13 +72,38 @@ export const ExcelCsvQuestionImporter: React.FC<ExcelCsvQuestionImporterProps> =
     }
   }, [availableChapters, selectedChapterId]);
 
+  // Selected chapter object
+  const selectedChapter = React.useMemo(() => {
+    return chapters.find(c => c.id === selectedChapterId);
+  }, [chapters, selectedChapterId]);
+
+  // Available topics for selected chapter
+  const availableTopics = React.useMemo(() => {
+    return selectedChapter?.topics || [];
+  }, [selectedChapter]);
+
+  React.useEffect(() => {
+    if (availableTopics.length > 0) {
+      if (!selectedTopicId || selectedTopicId === "new_topic" || !availableTopics.some(t => t.id === selectedTopicId)) {
+        setSelectedTopicId(availableTopics[0].id);
+        setIsCustomTopic(false);
+      }
+    } else {
+      setSelectedTopicId("new_topic");
+      setIsCustomTopic(true);
+      if (!newTopicName && selectedChapter) {
+        setNewTopicName(`${selectedChapter.hindiTitle || selectedChapter.title} - टॉपिक 1`);
+      }
+    }
+  }, [availableTopics, selectedChapter]);
+
   // Download Sample CSV
   const handleDownloadSample = () => {
     const csvContent = 
-`Question,Option A,Option B,Option C,Option D,Option E,Correct Answer,Explanation,Difficulty
-"राजस्थान के किस दुर्ग को 'यूनेस्को विश्व धरोहर' में शामिल किया गया है?","आमेर दुर्ग","तारागढ़ दुर्ग","मेहरानगढ़ दुर्ग","लोहागढ़ दुर्ग","अनुत्तरित प्रश्न","A","आमेर, कुंभलगढ़, गागरोन, जैसलमेर, रणथंभौर और चित्तौड़गढ़ दुर्ग को 2013 में यूनेस्को सूची में शामिल किया गया था।","medium"
-"राजस्थान की कौन-सी नदी 'अर्जुन की गंगा' कहलाती है?","बाणगंगा","कोठारी","बेड़च","रूपारेल","अनुत्तरित प्रश्न","A","बाणगंगा नदी का उद्गम बैराठ की पहाड़ियों से होता है, इसे अर्जुन की गंगा भी कहा जाता है।","easy"
-"1857 की क्रांति के समय कोटा के पॉलिटिकल एजेंट कौन थे?","मेजर बर्टन","कैप्टन हीथकोट","कर्नल होम्स","कैप्टन शॉवर्स","अनुत्तरित प्रश्न","1","कोटा में क्रांति के समय पॉलिटिकल एजेंट मेजर बर्टन थे।","medium"`;
+`Question,Option A,Option B,Option C,Option D,Option E,Correct Answer,Explanation,Difficulty,Topic
+"राजस्थान के किस दुर्ग को 'यूनेस्को विश्व धरोहर' में शामिल किया गया है?","आमेर दुर्ग","तारागढ़ दुर्ग","मेहरानगढ़ दुर्ग","लोहागढ़ दुर्ग","अनुत्तरित प्रश्न","A","आमेर, कुंभलगढ़, गागरोन, जैसलमेर, रणथंभौर और चित्तौड़गढ़ दुर्ग को 2013 में यूनेस्को सूची में शामिल किया गया था।","medium","राजस्थान के प्रमुख दुर्ग"
+"राजस्थान की कौन-सी नदी 'अर्जुन की गंगा' कहलाती है?","बाणगंगा","कोठारी","बेड़च","रूपारेल","अनुत्तरित प्रश्न","A","बाणगंगा नदी का उद्गम बैराठ की पहाड़ियों से होता है, इसे अर्जुन की गंगा भी कहा जाता है।","easy","राजस्थान की नदियां"
+"1857 की क्रांति के समय कोटा के पॉलिटिकल एजेंट कौन थे?","मेजर बर्टन","कैप्टन हीथकोट","कर्नल होम्स","कैप्टन शॉवर्स","अनुत्तरित प्रश्न","1","कोटा में क्रांति के समय पॉलिटिकल एजेंट मेजर बर्टन थे।","medium","1857 की क्रांति"`;
 
     const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
@@ -152,6 +186,7 @@ export const ExcelCsvQuestionImporter: React.FC<ExcelCsvQuestionImporterProps> =
     const ansIdx = findIndex(["answer", "correct", "उत्तर", "सही"]);
     const expIdx = findIndex(["explanation", "solution", "व्याख्या", "हल"]);
     const diffIdx = findIndex(["difficulty", "कठिनाई", "level"]);
+    const topicIdx = findIndex(["topic", "टॉपिक", "प्रकरण"]);
 
     const rows: ParsedRow[] = [];
 
@@ -164,6 +199,7 @@ export const ExcelCsvQuestionImporter: React.FC<ExcelCsvQuestionImporterProps> =
       let correct = -1;
       let explanation = "";
       let difficulty: "easy" | "medium" | "hard" = "medium";
+      let rowTopic = "";
 
       // If recognized headers
       if (qIdx !== -1 && optAIdx !== -1) {
@@ -191,6 +227,7 @@ export const ExcelCsvQuestionImporter: React.FC<ExcelCsvQuestionImporterProps> =
           if (dStr.includes("easy") || dStr.includes("सरल")) difficulty = "easy";
           else if (dStr.includes("hard") || dStr.includes("कठिन")) difficulty = "hard";
         }
+        if (topicIdx !== -1) rowTopic = rawCells[topicIdx] || "";
       } else {
         // Fallback positional: col0=Q, col1=A, col2=B, col3=C, col4=D, col5=Ans, col6=Exp
         qText = rawCells[0] || "";
@@ -232,6 +269,7 @@ export const ExcelCsvQuestionImporter: React.FC<ExcelCsvQuestionImporterProps> =
         correctIndex: correct >= 0 ? correct : 0,
         explanation: explanation || "व्याख्या उपलब्ध नहीं है।",
         difficulty,
+        rowTopic,
         status,
         errorMsg,
         selected: status !== "error"
@@ -299,14 +337,32 @@ export const ExcelCsvQuestionImporter: React.FC<ExcelCsvQuestionImporterProps> =
       return;
     }
 
-    const targetChapter = chapters.find(c => c.id === selectedChapterId);
-    const targetTopicId = targetChapter?.topics?.[0]?.id || `topic-${Date.now()}`;
+    let finalTopicId = selectedTopicId;
+    let newCreatedTopic: Topic | undefined;
+
+    // Handle new topic creation
+    if (isCustomTopic || selectedTopicId === "new_topic") {
+      const topicTitle = newTopicName.trim() || `${selectedChapter?.hindiTitle || selectedChapter?.title || "अध्याय"} - नया टॉपिक`;
+      finalTopicId = `topic-${Date.now()}`;
+      newCreatedTopic = {
+        id: finalTopicId,
+        chapterId: selectedChapterId,
+        subjectId: selectedSubjectId,
+        title: topicTitle,
+        hindiTitle: topicTitle,
+        questions: [],
+        questionCount: toImport.length,
+        isUserAdded: true
+      };
+    } else if (!finalTopicId) {
+      finalTopicId = availableTopics[0]?.id || `topic-${Date.now()}`;
+    }
 
     const newQuestions: Question[] = toImport.map((row, idx) => ({
       id: `q-csv-${Date.now()}-${idx}`,
       subjectId: selectedSubjectId || undefined,
       chapterId: selectedChapterId,
-      topicId: targetTopicId,
+      topicId: finalTopicId,
       text: row.questionText,
       options: row.options,
       correctIndex: row.correctIndex,
@@ -318,7 +374,7 @@ export const ExcelCsvQuestionImporter: React.FC<ExcelCsvQuestionImporterProps> =
       importBatchId: `csv-import-${Date.now()}`
     }));
 
-    onImportQuestions(newQuestions);
+    onImportQuestions(newQuestions, newCreatedTopic);
     onClose();
   };
 
@@ -340,7 +396,7 @@ export const ExcelCsvQuestionImporter: React.FC<ExcelCsvQuestionImporterProps> =
                 <span className="text-[10px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-full font-bold">Fast Bulk MCQ</span>
               </h2>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                Bulk upload MCQs from Excel (.csv, .tsv) with Hindi Devnagari & RPSC 5-option support
+                Bulk upload MCQs from Excel (.csv, .tsv) with Topic Mapping & RPSC 5-option support
               </p>
             </div>
           </div>
@@ -352,37 +408,94 @@ export const ExcelCsvQuestionImporter: React.FC<ExcelCsvQuestionImporterProps> =
           </button>
         </div>
 
-        {/* Target Destination & Mode Selectors */}
+        {/* Target Destination: Subject -> Chapter -> Topic 3-Column Selector */}
         <div className="p-4 sm:p-6 space-y-4 shrink-0 border-b border-slate-100 dark:border-slate-800">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {/* Column 1: Subject */}
             <div>
-              <label className="block text-[11px] font-black uppercase tracking-wider text-slate-500 mb-1.5">
-                Target Subject (विषय)
+              <label className="block text-[11px] font-black uppercase tracking-wider text-slate-500 mb-1.5 flex items-center justify-between">
+                <span>1. Target Subject (विषय)</span>
               </label>
               <select
                 value={selectedSubjectId}
                 onChange={(e) => setSelectedSubjectId(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-slate-200 focus:outline-hidden focus:ring-2 focus:ring-emerald-500"
+                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-slate-200 focus:outline-hidden focus:ring-2 focus:ring-emerald-500 cursor-pointer"
               >
                 {subjects.map(s => (
-                  <option key={s.id} value={s.id}>{s.hindiName || s.name}</option>
+                  <option key={s.id} value={s.id}>{s.nameHindi || s.name}</option>
                 ))}
               </select>
             </div>
 
+            {/* Column 2: Chapter */}
             <div>
-              <label className="block text-[11px] font-black uppercase tracking-wider text-slate-500 mb-1.5">
-                Target Chapter (अध्याय)
+              <label className="block text-[11px] font-black uppercase tracking-wider text-slate-500 mb-1.5 flex items-center justify-between">
+                <span>2. Target Chapter (अध्याय)</span>
+                <span className="text-emerald-600 font-bold">{availableChapters.length}</span>
               </label>
               <select
                 value={selectedChapterId}
                 onChange={(e) => setSelectedChapterId(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-slate-200 focus:outline-hidden focus:ring-2 focus:ring-emerald-500"
+                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-slate-200 focus:outline-hidden focus:ring-2 focus:ring-emerald-500 cursor-pointer"
               >
                 {availableChapters.map(c => (
                   <option key={c.id} value={c.id}>{c.hindiTitle || c.title}</option>
                 ))}
               </select>
+            </div>
+
+            {/* Column 3: Topic */}
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-[11px] font-black uppercase tracking-wider text-slate-500">
+                  3. Target Topic (टॉपिक)
+                </label>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsCustomTopic(!isCustomTopic);
+                    if (!isCustomTopic) {
+                      setSelectedTopicId("new_topic");
+                    } else if (availableTopics.length > 0) {
+                      setSelectedTopicId(availableTopics[0].id);
+                    }
+                  }}
+                  className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 hover:underline cursor-pointer flex items-center gap-0.5"
+                >
+                  <Plus className="w-3 h-3" />
+                  <span>{isCustomTopic ? "Choose Existing" : "New Topic"}</span>
+                </button>
+              </div>
+
+              {!isCustomTopic ? (
+                <select
+                  value={selectedTopicId}
+                  onChange={(e) => {
+                    if (e.target.value === "new_topic") {
+                      setIsCustomTopic(true);
+                      setSelectedTopicId("new_topic");
+                    } else {
+                      setSelectedTopicId(e.target.value);
+                    }
+                  }}
+                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-slate-200 focus:outline-hidden focus:ring-2 focus:ring-emerald-500 cursor-pointer"
+                >
+                  {availableTopics.map(t => (
+                    <option key={t.id} value={t.id}>{t.hindiTitle || t.title}</option>
+                  ))}
+                  <option value="new_topic">+ नया टॉपिक बनाएँ (Create New Topic)...</option>
+                </select>
+              ) : (
+                <div>
+                  <input
+                    type="text"
+                    value={newTopicName}
+                    onChange={(e) => setNewTopicName(e.target.value)}
+                    placeholder="नया टॉपिक नाम (उदा. राजस्थान के प्रमुख मेले)..."
+                    className="w-full px-3 py-2 bg-emerald-50/50 dark:bg-emerald-950/20 border-2 border-emerald-500/50 rounded-xl text-xs font-bold text-slate-800 dark:text-slate-200 focus:outline-hidden focus:ring-2 focus:ring-emerald-500"
+                  />
+                </div>
+              )}
             </div>
           </div>
 
@@ -411,7 +524,7 @@ export const ExcelCsvQuestionImporter: React.FC<ExcelCsvQuestionImporterProps> =
               className="flex items-center gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 hover:underline cursor-pointer"
             >
               <Download className="w-3.5 h-3.5" />
-              <span>Download Sample CSV Template</span>
+              <span>Download Sample CSV Template (With Topic Column)</span>
             </button>
           </div>
         </div>
@@ -442,7 +555,7 @@ export const ExcelCsvQuestionImporter: React.FC<ExcelCsvQuestionImporterProps> =
               <textarea
                 value={rawText}
                 onChange={(e) => setRawText(e.target.value)}
-                placeholder="Paste CSV or Tab-separated table data here (including header row: Question, Option A, Option B, Option C, Option D, Answer, Explanation)..."
+                placeholder="Paste CSV or Tab-separated table data here (including header row: Question, Option A, Option B, Option C, Option D, Answer, Explanation, Topic)..."
                 rows={5}
                 className="w-full p-3 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-mono text-slate-800 dark:text-slate-200 focus:outline-hidden focus:ring-2 focus:ring-emerald-500"
               />
@@ -526,7 +639,7 @@ export const ExcelCsvQuestionImporter: React.FC<ExcelCsvQuestionImporterProps> =
                           <div className="font-bold text-slate-900 dark:text-white line-clamp-2">
                             {r.questionText}
                           </div>
-                          <div className="text-[10px] text-slate-500 mt-1 flex flex-wrap gap-1.5">
+                          <div className="text-[10px] text-slate-500 mt-1 flex flex-wrap gap-1.5 items-center">
                             {r.options.slice(0, 4).map((opt, oIdx) => (
                               <span 
                                 key={oIdx} 
@@ -539,6 +652,11 @@ export const ExcelCsvQuestionImporter: React.FC<ExcelCsvQuestionImporterProps> =
                                 {String.fromCharCode(65 + oIdx)}: {opt.slice(0, 20)}
                               </span>
                             ))}
+                            {r.rowTopic && (
+                              <span className="px-1.5 py-0.5 rounded bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 font-bold">
+                                📌 {r.rowTopic}
+                              </span>
+                            )}
                           </div>
                         </td>
                         <td className="p-2.5 text-center font-black">

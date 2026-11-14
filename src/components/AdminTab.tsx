@@ -1243,7 +1243,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                   {subTabUsers === "messages" && <AdminMessagesSection onBackToAdmin={() => handleSelectGroup("dashboard")} />}
                   {subTabUsers === "reports" && (
                     <QuestionReportDesk
-                      questions={props.combinedQuestions}
+                      questions={props.questionsStore?.customQuestions || []}
                       subjects={combinedSubjectsList}
                       chapters={combinedChaptersList}
                       onUpdateQuestion={(updatedQ) => {
@@ -1410,20 +1410,44 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
             subjects={combinedSubjectsList}
             chapters={combinedChaptersList}
             onClose={() => setShowExcelCsvImporter(false)}
-            onImportQuestions={(newQuestions: any[]) => {
+            onImportQuestions={(newQuestions: any[], newTopic?: any) => {
               if (props.onStoreUpdated && props.questionsStore) {
                 const currentCustom = props.questionsStore.customQuestions || [];
+                const currentTopics = props.questionsStore.customTopics || [];
+                const currentChapters = props.questionsStore.customChapters || [];
+
+                let updatedTopics = [...currentTopics];
+                if (newTopic && !updatedTopics.some(t => t.id === newTopic.id)) {
+                  updatedTopics.push(newTopic);
+                }
+
+                let updatedChapters = [...currentChapters];
+                if (newTopic) {
+                  const chIdx = updatedChapters.findIndex(c => c.id === newTopic.chapterId);
+                  if (chIdx !== -1) {
+                    const exTopics = updatedChapters[chIdx].topics || [];
+                    if (!exTopics.some(t => t.id === newTopic.id)) {
+                      updatedChapters[chIdx] = {
+                        ...updatedChapters[chIdx],
+                        topics: [...exTopics, newTopic]
+                      };
+                    }
+                  }
+                }
+
                 const updatedStore: UserQuestionsStore = {
                   ...props.questionsStore,
-                  customQuestions: [...currentCustom, ...newQuestions]
+                  customQuestions: [...currentCustom, ...newQuestions],
+                  customTopics: updatedTopics,
+                  customChapters: updatedChapters
                 };
                 props.onStoreUpdated(updatedStore);
                 saveUserQuestionsStore(updatedStore);
-                triggerAdminToast({
-                  type: "success",
-                  title: "Excel Import Complete",
-                  message: `${newQuestions.length} questions successfully imported and saved!`
-                });
+                triggerAdminToast(
+                  "success",
+                  "Excel Import Complete",
+                  `${newQuestions.length} questions successfully imported and saved!`
+                );
               }
             }}
           />
