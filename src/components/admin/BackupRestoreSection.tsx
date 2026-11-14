@@ -227,25 +227,32 @@ export const BackupRestoreSection: React.FC<BackupRestoreSectionProps> = ({ user
         throw new Error(data.error || "Failed to start export.");
       }
 
-      setActiveJob({
-        jobId: data.jobId,
-        type: "export",
-        status: "running",
-        phase: "Starting Export Job...",
-        progressPercent: 5,
-        totalCollections: availableCollections.length,
-        completedCollections: 0,
-        totalDocuments: 0,
-        exportedDocuments: 0,
-        restoredDocuments: 0,
-        skippedDocuments: 0,
-        overwrittenDocuments: 0,
-        failedDocuments: 0,
-        storageFilesExported: 0,
-        storageFilesRestored: 0,
-        warnings: [],
-        errors: [],
-      });
+      if (data.job) {
+        setActiveJob(data.job);
+        if (data.job.status === "completed" || data.job.status === "completed_with_warnings") {
+          fetchBackupHistory();
+        }
+      } else {
+        setActiveJob({
+          jobId: data.jobId,
+          type: "export",
+          status: "running",
+          phase: "Starting Export Job...",
+          progressPercent: 5,
+          totalCollections: availableCollections.length,
+          completedCollections: 0,
+          totalDocuments: 0,
+          exportedDocuments: 0,
+          restoredDocuments: 0,
+          skippedDocuments: 0,
+          overwrittenDocuments: 0,
+          failedDocuments: 0,
+          storageFilesExported: 0,
+          storageFilesRestored: 0,
+          warnings: [],
+          errors: [],
+        });
+      }
       setActiveTab("export");
     } catch (err: any) {
       setNoticeMessage({ type: "error", text: err.message || "Export initiation failed." });
@@ -280,25 +287,32 @@ export const BackupRestoreSection: React.FC<BackupRestoreSectionProps> = ({ user
         throw new Error(data.error || "Failed to start selective export.");
       }
 
-      setActiveJob({
-        jobId: data.jobId,
-        type: "export",
-        status: "running",
-        phase: "Starting Selective Export Job...",
-        progressPercent: 5,
-        totalCollections: selectedCollections.size,
-        completedCollections: 0,
-        totalDocuments: 0,
-        exportedDocuments: 0,
-        restoredDocuments: 0,
-        skippedDocuments: 0,
-        overwrittenDocuments: 0,
-        failedDocuments: 0,
-        storageFilesExported: 0,
-        storageFilesRestored: 0,
-        warnings: [],
-        errors: [],
-      });
+      if (data.job) {
+        setActiveJob(data.job);
+        if (data.job.status === "completed" || data.job.status === "completed_with_warnings") {
+          fetchBackupHistory();
+        }
+      } else {
+        setActiveJob({
+          jobId: data.jobId,
+          type: "export",
+          status: "running",
+          phase: "Starting Selective Export Job...",
+          progressPercent: 5,
+          totalCollections: selectedCollections.size,
+          completedCollections: 0,
+          totalDocuments: 0,
+          exportedDocuments: 0,
+          restoredDocuments: 0,
+          skippedDocuments: 0,
+          overwrittenDocuments: 0,
+          failedDocuments: 0,
+          storageFilesExported: 0,
+          storageFilesRestored: 0,
+          warnings: [],
+          errors: [],
+        });
+      }
       setActiveTab("export");
     } catch (err: any) {
       setNoticeMessage({ type: "error", text: err.message || "Selective export failed." });

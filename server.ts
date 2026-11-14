@@ -826,8 +826,8 @@ Return ONLY JSON with keys:
       const jobId = `export_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
       const adminBearerToken = (req.headers.authorization || '').replace(/^Bearer\s+/i, '').trim();
 
-      // Launch async export job in background
-      executeExportJob(
+      // Launch export job and allow up to 2.5s for fast direct completion
+      const exportPromise = executeExportJob(
         jobId,
         {
           scope: scope === 'selective' ? 'selective' : 'full',
@@ -845,9 +845,17 @@ Return ONLY JSON with keys:
         console.error(`[Backup Export Fatal Error] Job ${jobId}:`, jobErr);
       });
 
+      await Promise.race([
+        exportPromise,
+        new Promise((resolve) => setTimeout(resolve, 2500)),
+      ]);
+
+      const job = getActiveJob(jobId);
+
       res.json({
         success: true,
         jobId,
+        job,
         message: 'Backup export job initiated successfully.',
       });
     } catch (err: any) {

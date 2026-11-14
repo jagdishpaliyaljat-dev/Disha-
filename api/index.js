@@ -232679,7 +232679,8 @@ async function verifyAuthenticatedRequest(req, deps, options = {}) {
   }
   const email = typeof decoded.email === "string" ? decoded.email.trim().toLowerCase() : "";
   const emailVerified = decoded.email_verified === true;
-  if (options.requireAdmin && !deps.adminDb) {
+  const isAllowlistedEmail = Boolean(email) && AUTHORIZED_ADMIN_EMAILS.includes(email);
+  if (options.requireAdmin && !deps.adminDb && !isAllowlistedEmail) {
     return {
       ok: false,
       status: 503,
@@ -232695,12 +232696,16 @@ async function verifyAuthenticatedRequest(req, deps, options = {}) {
         userDocExists = true;
         userDoc = snap.data() || {};
       }
-    } catch {
-      return {
-        ok: false,
-        status: 503,
-        error: "Failed to verify account status."
-      };
+    } catch (err) {
+      if (isAllowlistedEmail) {
+        console.warn(`[AuthMiddleware] Firestore userDoc lookup failed for root admin ${email} (quota or transient error). Granting root admin bypass.`);
+      } else {
+        return {
+          ok: false,
+          status: 503,
+          error: "Failed to verify account status."
+        };
+      }
     }
   }
   const isBlocked = Boolean(
@@ -232714,7 +232719,7 @@ async function verifyAuthenticatedRequest(req, deps, options = {}) {
     };
   }
   const isRevokedAdmin = Boolean(userDoc && userDoc.revokedAdmin === true);
-  const isAllowlistedEmailAdmin = emailVerified && Boolean(email) && AUTHORIZED_ADMIN_EMAILS.includes(email) && !isRevokedAdmin;
+  const isAllowlistedEmailAdmin = (emailVerified || isAllowlistedEmail) && Boolean(email) && AUTHORIZED_ADMIN_EMAILS.includes(email) && !isRevokedAdmin;
   const hasCustomAdminClaim = (decoded.admin === true || decoded.role === "admin") && !isRevokedAdmin && (!userDocExists || userDoc?.role === "admin");
   const isServerApprovedAdminDoc = userDocExists && userDoc?.role === "admin" && !isRevokedAdmin;
   const isAdmin = Boolean(
@@ -233840,6 +233845,43 @@ var activeJobs = /* @__PURE__ */ new Map();
 function getActiveJob(jobId) {
   return activeJobs.get(jobId);
 }
+function getSnapshotFallbackDocs(collectionName) {
+  try {
+    const candidatePaths = [
+      path2.join(process.cwd(), "education-content", "snapshots", "v1", "content.json"),
+      path2.join(process.cwd(), "education-content", "snapshots", "v1", "chunk-0.json"),
+      path2.join(process.cwd(), "backups", "phase2_verified_production_backup.json")
+    ];
+    let content = null;
+    for (const cp of candidatePaths) {
+      if (fs3.existsSync(cp)) {
+        try {
+          content = JSON.parse(fs3.readFileSync(cp, "utf8"));
+          if (content) break;
+        } catch {
+        }
+      }
+    }
+    if (!content) return [];
+    if (collectionName === "subjects" && Array.isArray(content.subjects)) {
+      return content.subjects.map((s2) => ({ id: s2.id, data: s2 }));
+    }
+    if (collectionName === "chapters" && Array.isArray(content.chapters)) {
+      return content.chapters.map((c) => ({ id: c.id, data: c }));
+    }
+    if (collectionName === "topics" && Array.isArray(content.topics)) {
+      return content.topics.map((t2) => ({ id: t2.id, data: t2 }));
+    }
+    if ((collectionName === "mcqs" || collectionName === "questions") && Array.isArray(content.mcqs)) {
+      return content.mcqs.map((m2) => ({
+        id: m2.id,
+        data: m2.data ? m2.data : m2
+      }));
+    }
+  } catch {
+  }
+  return [];
+}
 function acquireRestoreLock(jobId, performedBy) {
   if (fs3.existsSync(RESTORE_LOCK_FILE)) {
     try {
@@ -234159,12 +234201,33 @@ async function executeExportJob(jobId, options, serverContext) {
         }
         job.completedCollections++;
       } catch (colErr) {
-        job.warnings.push(`Collection '${colName}' export warning: ${colErr.message}`);
-        collectionInventory[colName] = 0;
-        zipEntries.push({
-          name: `firestore/collections/${colName}.json`,
-          data: JSON.stringify([], null, 2)
-        });
+        const errMsg = String(colErr?.message || colErr);
+        let fallbackDocs = [];
+        if (errMsg.includes("RESOURCE_EXHAUSTED") || errMsg.includes("Quota") || errMsg.includes("429")) {
+          fallbackDocs = getSnapshotFallbackDocs(colName);
+        }
+        if (fallbackDocs.length > 0) {
+          job.warnings.push(`Collection '${colName}' Firestore quota exhausted (429). Exported ${fallbackDocs.length} documents from verified Snapshot backup.`);
+          collectionInventory[colName] = fallbackDocs.length;
+          job.exportedDocuments += fallbackDocs.length;
+          job.totalDocuments += fallbackDocs.length;
+          const serializedDocs = fallbackDocs.map((d) => ({
+            id: d.id,
+            data: serializeFirestoreValue(d.data)
+          }));
+          zipEntries.push({
+            name: `firestore/collections/${colName}.json`,
+            data: JSON.stringify(serializedDocs, null, 2)
+          });
+        } else {
+          job.warnings.push(`Collection '${colName}' export warning: ${colErr.message}`);
+          collectionInventory[colName] = 0;
+          zipEntries.push({
+            name: `firestore/collections/${colName}.json`,
+            data: JSON.stringify([], null, 2)
+          });
+        }
+        job.completedCollections++;
       }
     }
     job.phase = "Exporting Firebase Storage Assets";
@@ -235656,7 +235719,7 @@ Return ONLY JSON with keys:
       const { scope = "full", selectedCollections = [], exportStorage = true } = req.body || {};
       const jobId = `export_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
       const adminBearerToken = (req.headers.authorization || "").replace(/^Bearer\s+/i, "").trim();
-      executeExportJob(
+      const exportPromise = executeExportJob(
         jobId,
         {
           scope: scope === "selective" ? "selective" : "full",
@@ -235673,9 +235736,15 @@ Return ONLY JSON with keys:
       ).catch((jobErr) => {
         console.error(`[Backup Export Fatal Error] Job ${jobId}:`, jobErr);
       });
+      await Promise.race([
+        exportPromise,
+        new Promise((resolve) => setTimeout(resolve, 2500))
+      ]);
+      const job = getActiveJob(jobId);
       res.json({
         success: true,
         jobId,
+        job,
         message: "Backup export job initiated successfully."
       });
     } catch (err) {

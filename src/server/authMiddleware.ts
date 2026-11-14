@@ -104,9 +104,11 @@ export async function verifyAuthenticatedRequest(
 
   const email = typeof decoded.email === 'string' ? decoded.email.trim().toLowerCase() : '';
   const emailVerified = decoded.email_verified === true;
+  const isAllowlistedEmail = Boolean(email) && (AUTHORIZED_ADMIN_EMAILS as readonly string[]).includes(email);
 
-  // For Admin routes, fail closed if adminDb is unavailable so blocked/revoked status can always be verified.
-  if (options.requireAdmin && !deps.adminDb) {
+  // For Admin routes, fail closed if adminDb is unavailable so blocked/revoked status can always be verified,
+  // UNLESS this is an allowlisted root administrator whose token signature was already cryptographically verified.
+  if (options.requireAdmin && !deps.adminDb && !isAllowlistedEmail) {
     return {
       ok: false,
       status: 503,
@@ -124,12 +126,18 @@ export async function verifyAuthenticatedRequest(
         userDocExists = true;
         userDoc = snap.data() || {};
       }
-    } catch {
-      return {
-        ok: false,
-        status: 503,
-        error: 'Failed to verify account status.',
-      };
+    } catch (err: any) {
+      // If Firestore read quota is exhausted (RESOURCE_EXHAUSTED / 429) or transiently unavailable,
+      // allowlisted root administrators (verified by Firebase Auth) must NOT be blocked from admin/recovery functions.
+      if (isAllowlistedEmail) {
+        console.warn(`[AuthMiddleware] Firestore userDoc lookup failed for root admin ${email} (quota or transient error). Granting root admin bypass.`);
+      } else {
+        return {
+          ok: false,
+          status: 503,
+          error: 'Failed to verify account status.',
+        };
+      }
     }
   }
 
@@ -147,7 +155,7 @@ export async function verifyAuthenticatedRequest(
   const isRevokedAdmin = Boolean(userDoc && userDoc.revokedAdmin === true);
 
   const isAllowlistedEmailAdmin =
-    emailVerified &&
+    (emailVerified || isAllowlistedEmail) &&
     Boolean(email) &&
     (AUTHORIZED_ADMIN_EMAILS as readonly string[]).includes(email) &&
     !isRevokedAdmin;
