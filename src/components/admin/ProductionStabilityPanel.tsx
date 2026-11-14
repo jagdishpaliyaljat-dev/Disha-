@@ -17,7 +17,6 @@ import { db, isFirebaseConfigured } from "../../lib/firebase";
 import { collection, getDocs, doc, getDoc } from "firebase/firestore";
 import { getQuotaSummary } from "../../utils/quotaTracker";
 import { loadUserQuestionsStore } from "../../utils/questionsStorage";
-import { Phase4ApprovalConsole } from "./Phase4ApprovalConsole";
 
 interface StabilityCheckResult {
   id: string;
@@ -212,8 +211,6 @@ export const ProductionStabilityPanel: React.FC = () => {
           </div>
         ))}
       </div>
-
-      <Phase4ApprovalConsole />
 
       <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-400 font-medium">
         <span>Last diagnostic scan: {lastChecked || "Initializing..."}</span>

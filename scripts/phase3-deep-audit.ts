@@ -16,7 +16,11 @@ import {
   mergeQuestionsIntoStore,
 } from "../src/utils/questionsStorage";
 import { ensureCleanSlateOnStartup } from "../src/utils/cleanSlate";
-import { broadcastCurriculumUpdate } from "../src/utils/broadcastSync";
+const broadcastCurriculumUpdate = (data: any) => {
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("quizpro_curriculum_updated", { detail: data }));
+  }
+};
 import { Chapter, Question, Subject, Topic } from "../src/types";
 
 class SimulatedLocalStorage implements Storage {

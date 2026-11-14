@@ -122,7 +122,6 @@ const AddQuestionsModal = safeLazy<typeof import('./components/AddQuestionsModal
 const ManageSyllabusModal = safeLazy<typeof import('./components/ManageSyllabusModal').ManageSyllabusModal>(() => import('./components/ManageSyllabusModal'), 'ManageSyllabusModal');
 const ManageQuestionsModal = safeLazy<typeof import('./components/ManageQuestionsModal').ManageQuestionsModal>(() => import('./components/ManageQuestionsModal'), 'ManageQuestionsModal');
 const ManageExamCategoriesModal = safeLazy<typeof import('./components/ManageExamCategoriesModal').ManageExamCategoriesModal>(() => import('./components/ManageExamCategoriesModal'), 'ManageExamCategoriesModal');
-const ManageBannersModal = safeLazy<typeof import('./components/ManageBannersModal').ManageBannersModal>(() => import('./components/ManageBannersModal'), 'ManageBannersModal');
 const AIImportModal = safeLazy<typeof import('./components/AIImportModal').AIImportModal>(() => import('./components/AIImportModal'), 'AIImportModal');
 const ManagePYQVaultModal = safeLazy<typeof import('./components/ManagePYQVaultModal').ManagePYQVaultModal>(() => import('./components/ManagePYQVaultModal'), 'ManagePYQVaultModal');
 const ManageLiveTestsModal = safeLazy<typeof import('./components/ManageLiveTestsModal').ManageLiveTestsModal>(() => import('./components/ManageLiveTestsModal'), 'ManageLiveTestsModal');
@@ -594,7 +593,6 @@ export default function App() {
   const [addQuestionsMethod, setAddQuestionsMethod] = React.useState<"json" | "file" | "paste" | "manual">("paste");
   const [isManageQuestionsOpen, setIsManageQuestionsOpen] = React.useState(false);
   const [isManageCategoriesOpen, setIsManageCategoriesOpen] = React.useState(false);
-  const [isManageBannersOpen, setIsManageBannersOpen] = React.useState(false);
   const [isAIImportOpen, setIsAIImportOpen] = React.useState(false);
   const [isManagePYQVaultOpen, setIsManagePYQVaultOpen] = React.useState(false);
   const [isManageLiveTestsOpen, setIsManageLiveTestsOpen] = React.useState(false);
@@ -659,7 +657,6 @@ export default function App() {
       if (isManageSyllabusOpen) { setIsManageSyllabusOpen(false); return; }
       if (isManageQuestionsOpen) { setIsManageQuestionsOpen(false); return; }
       if (isManageCategoriesOpen) { setIsManageCategoriesOpen(false); return; }
-      if (isManageBannersOpen) { setIsManageBannersOpen(false); return; }
       if (isManagePYQVaultOpen) { setIsManagePYQVaultOpen(false); return; }
       if (isManageLiveTestsOpen) { setIsManageLiveTestsOpen(false); return; }
       if (isAIImportOpen) { setIsAIImportOpen(false); return; }
@@ -732,7 +729,7 @@ export default function App() {
     activeSession, isLoginOpen, isSettingsOpen, isApiSettingsOpen, isPDFOpen, isFullExamOpen,
     isCustomTestOpen, isExamAnalyzerOpen, isAddSubjectOpen, isAddChapterOpen,
     isAddTopicOpen, isAddQuestionsOpen, isManageSyllabusOpen, isManageQuestionsOpen,
-    isManageCategoriesOpen, isManageBannersOpen, isManagePYQVaultOpen, isManageLiveTestsOpen,
+    isManageCategoriesOpen, isManagePYQVaultOpen, isManageLiveTestsOpen,
     isAIImportOpen, isHTMLImportOpen
   ]);
 
@@ -1522,7 +1519,6 @@ export default function App() {
               onShowManagePYQVault={() => setIsManagePYQVaultOpen(true)}
               onShowManageLiveTests={() => setIsManageLiveTestsOpen(true)}
               onShowManageExamCategories={() => setIsManageCategoriesOpen(true)}
-              onShowManageBanners={() => setIsManageBannersOpen(true)}
             />
           </AdminErrorBoundary>
         )}
@@ -1871,10 +1867,6 @@ export default function App() {
 
       {isManageCategoriesOpen && (
         <ManageExamCategoriesModal onClose={() => setIsManageCategoriesOpen(false)} />
-      )}
-
-      {isManageBannersOpen && (
-        <ManageBannersModal onClose={() => setIsManageBannersOpen(false)} />
       )}
 
       {isAIImportOpen && (

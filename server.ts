@@ -109,6 +109,20 @@ export function createServerApp(deps: ServerDependencies = {}) {
   let aiConfigsStore: any[] = [];
   let rotationPolicy: 'priority_failover' | 'round_robin' = 'priority_failover';
 
+  const syncConfigsFromDb = async () => {
+    if (adminDb && aiConfigsStore.length === 0) {
+      try {
+        const snap = await adminDb.collection('ai_api_configs').get();
+        if (!snap.empty) {
+          aiConfigsStore = snap.docs.map((d: any) => ({ id: d.id, ...d.data() }));
+        }
+      } catch (err) {
+        // Safe non-blocking fallback
+      }
+    }
+  };
+  syncConfigsFromDb().catch(() => {});
+
   const sanitizeConfigForClient = (c: any) => {
     const { encryptedApiKey, ...safe } = c;
     return {
@@ -1014,7 +1028,8 @@ Return ONLY JSON with keys:
   });
 
   // 7. AI Config Management Routes (Strict Verified Admin Only + AES-256-GCM Vault)
-  app.get('/api/admin/ai-configs', requireVerifiedAdmin, (_req, res) => {
+  app.get('/api/admin/ai-configs', requireVerifiedAdmin, async (_req, res) => {
+    await syncConfigsFromDb().catch(() => {});
     res.json({ success: true, configs: aiConfigsStore.map(sanitizeConfigForClient) });
   });
 
@@ -1044,6 +1059,9 @@ Return ONLY JSON with keys:
         updatedAt: new Date().toISOString(),
       };
       aiConfigsStore.push(newConfig);
+      if (adminDb) {
+        adminDb.collection('ai_api_configs').doc(id).set(newConfig, { merge: true }).catch(() => {});
+      }
       res.json({ success: true, id, config: sanitizeConfigForClient(newConfig) });
     } catch (err: any) {
       res.status(500).json({ success: false, error: redactSensitiveText(err) || 'Failed to save AI config' });
@@ -1080,6 +1098,9 @@ Return ONLY JSON with keys:
           updatedAt: new Date().toISOString(),
         };
         aiConfigsStore.push(newConfig);
+        if (adminDb) {
+          adminDb.collection('ai_api_configs').doc(id).set(newConfig, { merge: true }).catch(() => {});
+        }
         return res.json({ success: true, id, config: sanitizeConfigForClient(newConfig) });
       }
 
@@ -1097,6 +1118,9 @@ Return ONLY JSON with keys:
         priority: priority ?? aiConfigsStore[existingIdx].priority,
         updatedAt: new Date().toISOString(),
       };
+      if (adminDb) {
+        adminDb.collection('ai_api_configs').doc(id).set(aiConfigsStore[existingIdx], { merge: true }).catch(() => {});
+      }
       res.json({ success: true, id, config: sanitizeConfigForClient(aiConfigsStore[existingIdx]) });
     } catch (err: any) {
       res.status(500).json({ success: false, error: redactSensitiveText(err) || 'Failed to update AI config' });
@@ -1112,6 +1136,9 @@ Return ONLY JSON with keys:
     }
     cfg.enabled = Boolean(enabled);
     cfg.status = cfg.enabled ? 'available' : 'disabled';
+    if (adminDb) {
+      adminDb.collection('ai_api_configs').doc(id).set({ enabled: cfg.enabled, status: cfg.status }, { merge: true }).catch(() => {});
+    }
     res.json({ success: true, id, enabled: cfg.enabled });
   });
 
@@ -1130,6 +1157,9 @@ Return ONLY JSON with keys:
   app.delete('/api/admin/ai-configs/:id', requireVerifiedAdmin, (req, res) => {
     const id = String(req.params.id || '');
     aiConfigsStore = aiConfigsStore.filter(c => c.id !== id);
+    if (adminDb) {
+      adminDb.collection('ai_api_configs').doc(id).delete().catch(() => {});
+    }
     res.json({ success: true, id, message: 'AI config deleted' });
   });
 

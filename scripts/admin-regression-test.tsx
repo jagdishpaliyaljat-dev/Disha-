@@ -81,7 +81,7 @@ import { AIImportModal } from "../src/components/AIImportModal";
 import { ManagePYQVaultModal } from "../src/components/ManagePYQVaultModal";
 import { ManageLiveTestsModal } from "../src/components/ManageLiveTestsModal";
 import { ManageExamCategoriesModal } from "../src/components/ManageExamCategoriesModal";
-import { ManageBannersModal } from "../src/components/ManageBannersModal";
+import { AdminBannerManagementSection } from "../src/components/admin/AdminBannerManagementSection";
 
 // 2. Safe Mock Test Data (Isolated in memory — ZERO production Firestore writes)
 const mockUserProfile: UserProfile = {
@@ -473,12 +473,7 @@ function AdminRegressionTestHarness({
 
       {isManageBannersOpen && (
         <div id="modal-container-banners">
-          <ManageBannersModal
-            onClose={() => {
-              onActionAudit?.("close_banners");
-              setIsManageBannersOpen(false);
-            }}
-          />
+          <AdminBannerManagementSection />
         </div>
       )}
     </div>

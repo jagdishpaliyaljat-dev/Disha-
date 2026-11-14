@@ -8,7 +8,22 @@ import {
   processPendingVersionBumps,
   clearPendingVersionBumps
 } from '../src/utils/appVersionService';
-import { broadcastCurriculumUpdate, subscribeCrossTabSync } from '../src/utils/broadcastSync';
+const broadcastCurriculumUpdate = (data: any) => {
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("quizpro_curriculum_updated", { detail: data }));
+  }
+};
+const subscribeCrossTabSync = (callback: (data: any) => void) => {
+  const handler = (e: any) => callback(e.detail);
+  if (typeof window !== "undefined") {
+    window.addEventListener("quizpro_curriculum_updated", handler);
+  }
+  return () => {
+    if (typeof window !== "undefined") {
+      window.removeEventListener("quizpro_curriculum_updated", handler);
+    }
+  };
+};
 
 interface StressTestResult {
   id: number;

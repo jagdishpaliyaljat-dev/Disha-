@@ -27,6 +27,7 @@
     "node_modules",
     "dist",
     "tests",
-    "opencode-antigravity-auth"
+    "opencode-antigravity-auth",
+    ".archive"
   ]
 }

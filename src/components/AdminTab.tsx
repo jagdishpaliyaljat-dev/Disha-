@@ -80,7 +80,7 @@ interface AdminTabProps {
   onShowManagePYQVault?: () => void;
   onShowManageLiveTests?: () => void;
   onShowManageExamCategories: () => void;
-  onShowManageBanners: () => void;
+  onShowManageBanners?: () => void;
   onDeleteSubject?: (subjectId: string) => Promise<void>;
   onDeleteChapter?: (chapterId: string) => Promise<void>;
 }
@@ -332,6 +332,14 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
         break;
       case "curriculum":
         setActiveGroup("syllabus");
+        break;
+      case "questions":
+        setActiveGroup("questions");
+        break;
+      case "tests":
+      case "live-tests":
+      case "pyq":
+        setActiveGroup("tests");
         break;
       case "users":
         setActiveGroup("users");
