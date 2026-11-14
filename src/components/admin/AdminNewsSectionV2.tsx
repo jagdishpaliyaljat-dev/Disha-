@@ -54,8 +54,6 @@ import { NewsArticle, ArticleBlock, ArticleBlockType, FAQItem } from "../../type
 import { ArticleSEOControlPanel } from "./ArticleSEOControlPanel";
 import { ArticleBlockEditorModal } from "./ArticleBlockEditorModal";
 import { SmartArticleImportModal } from "./SmartArticleImportModal";
-import { AutoLinkRulesManagerModal } from "./AutoLinkRulesManagerModal";
-import { SitemapManagerModal } from "./SitemapManagerModal";
 import { ConfirmDialog } from "./ConfirmDialog";
 import { AdminCard } from "./AdminCard";
 import {
@@ -132,9 +130,6 @@ export function AdminNewsSection({
   // Smart Article Import Modal State
   const [isSmartImportOpen, setIsSmartImportOpen] = React.useState(false);
 
-  // Auto Link Rules Manager Modal State
-  const [isRulesManagerOpen, setIsRulesManagerOpen] = React.useState(false);
-  const [isSitemapModalOpen, setIsSitemapModalOpen] = React.useState(false);
   const [saveProgress, setSaveProgress] = React.useState<SaveProgress | null>(null);
 
   const handleSaveImportedArticle = async (
@@ -572,18 +567,6 @@ export function AdminNewsSection({
               className="px-4 py-2 bg-white border border-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-xl text-[11px] font-bold uppercase tracking-tight transition-all"
             >
               Categories
-            </button>
-            <button 
-              onClick={() => setIsRulesManagerOpen(true)}
-              className="px-4 py-2 bg-white border border-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-xl text-[11px] font-bold uppercase tracking-tight transition-all"
-            >
-              Link Rules
-            </button>
-            <button 
-              onClick={() => setIsSitemapModalOpen(true)}
-              className="px-4 py-2 bg-white border border-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-xl text-[11px] font-bold uppercase tracking-tight transition-all"
-            >
-              Sitemap
             </button>
             <div className="w-px h-6 bg-slate-100 mx-1 hidden sm:block" />
             <button 
@@ -1274,12 +1257,6 @@ export function AdminNewsSection({
         isDeleting={false}
         onConfirm={executeDeleteCategory}
         onClose={() => setCategoryDeleteTarget(null)}
-      />
-
-      {/* Auto-Link Rules Manager Modal */}
-      <AutoLinkRulesManagerModal
-        isOpen={isRulesManagerOpen}
-        onClose={() => setIsRulesManagerOpen(false)}
       />
     </div>
   );

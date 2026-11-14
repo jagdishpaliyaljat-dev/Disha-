@@ -4,7 +4,7 @@ import {
   FolderPlus, PlusCircle, Database, LayoutGrid, Settings, ShieldCheck, 
   Upload, Sparkles, Menu, ChevronRight, Activity, Cpu, RefreshCw, Newspaper,
   Trophy, CheckCircle2, ListFilter, ChevronDown, Trash2, AlertCircle, Building2,
-  FileCode, Archive, LogOut, ArrowRight, Timer, FileText
+  FileCode, Archive, LogOut, ArrowRight, Timer, FileText, FileSpreadsheet
 } from "lucide-react";
 import { Subject, Chapter, UserQuestionsStore, UserProfile } from "../types";
 import { ConfirmDialog } from "./admin/ConfirmDialog";
@@ -61,6 +61,9 @@ const SyncProgressModal = adminSafeLazy<any>(() => import("./admin/SyncProgressM
 const SyncConfirmationModal = adminSafeLazy<any>(() => import("./admin/SyncConfirmationModal"), "SyncConfirmationModal");
 const QATestRunnerModal = adminSafeLazy<any>(() => import("./QATestRunnerModal"), "QATestRunnerModal");
 const ManageCoachingHierarchyModal = adminSafeLazy<any>(() => import("./admin/ManageCoachingHierarchyModal"), "ManageCoachingHierarchyModal");
+const ExcelCsvQuestionImporter = adminSafeLazy<any>(() => import("./admin/ExcelCsvQuestionImporter"), "ExcelCsvQuestionImporter");
+const QuestionReportDesk = adminSafeLazy<any>(() => import("./admin/QuestionReportDesk"), "QuestionReportDesk");
+const MeritListPdfModal = adminSafeLazy<any>(() => import("./admin/MeritListPdfModal"), "MeritListPdfModal");
 
 interface AdminTabProps {
   userProfile: UserProfile | null;
@@ -116,12 +119,14 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
   // Sub-tab toggles for multi-view groups
   const [subTabDashboard, setSubTabDashboard] = React.useState<"overview" | "analytics">("overview");
   const [subTabContent, setSubTabContent] = React.useState<"news" | "banners">("news");
-  const [subTabUsers, setSubTabUsers] = React.useState<"directory" | "messages" | "notifications">("directory");
-  const [subTabFirebase, setSubTabFirebase] = React.useState<"diagnostics" | "explorer" | "audit" | "quota" | "sync" | "integrity">("diagnostics");
+  const [subTabUsers, setSubTabUsers] = React.useState<"directory" | "messages" | "reports" | "notifications">("directory");
+  const [subTabFirebase, setSubTabFirebase] = React.useState<"diagnostics" | "explorer" | "report" | "audit" | "quota" | "sync" | "integrity">("diagnostics");
 
   const [selectedUserForDetails, setSelectedUserForDetails] = React.useState<UserProfile | null>(null);
   const [showQATestRunner, setShowQATestRunner] = React.useState(false);
   const [showCoachingHierarchyModal, setShowCoachingHierarchyModal] = React.useState(false);
+  const [showExcelCsvImporter, setShowExcelCsvImporter] = React.useState(false);
+  const [showMeritListModal, setShowMeritListModal] = React.useState(false);
   const [isAdminMenuOpen, setIsAdminMenuOpen] = React.useState(false);
   const adminMenuRef = React.useRef<HTMLDivElement>(null);
 
@@ -577,18 +582,13 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
     },
     {
       id: "users",
-      title: "Students",
+      title: "Students & Doubts",
       icon: Users,
     },
     {
       id: "firebase",
-      title: "Database Explorer",
+      title: "Cloud & Database",
       icon: Terminal,
-    },
-    {
-      id: "diagnostics",
-      title: "Diagnostics Report",
-      icon: Activity,
     },
     {
       id: "integrations",
@@ -939,6 +939,14 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                   </div>
                   <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
                     <button
+                      onClick={() => setShowExcelCsvImporter(true)}
+                      className="px-3.5 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                      title="Import MCQs from Excel (.csv, .tsv) spreadsheets"
+                    >
+                      <FileSpreadsheet className="w-3.5 h-3.5" />
+                      <span>Excel / CSV</span>
+                    </button>
+                    <button
                       onClick={props.onShowHTMLImport}
                       className="px-3.5 py-2 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
                       title="Import MCQs from HTML files or HTML source code"
@@ -956,11 +964,13 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-3">
                   {[
-                    { label: "Directory", action: props.onShowManageQuestions, icon: Database, isHtml: false },
-                    { label: "HTML Import", action: props.onShowHTMLImport, icon: FileCode, isHtml: true },
-                    { label: "Quick Add", action: () => props.onShowAddQuestions(undefined, undefined, undefined, "paste"), icon: PlusCircle, isHtml: false },
+                    { label: "Directory", action: props.onShowManageQuestions, icon: Database, isSpecial: false },
+                    { label: "Excel / CSV", action: () => setShowExcelCsvImporter(true), icon: FileSpreadsheet, isSpecial: true, specialColor: "emerald" },
+                    { label: "AI Import", action: props.onShowAIImport, icon: Sparkles, isSpecial: true, specialColor: "amber" },
+                    { label: "HTML Import", action: props.onShowHTMLImport, icon: FileCode, isSpecial: true, specialColor: "orange" },
+                    { label: "Quick Add", action: () => props.onShowAddQuestions(undefined, undefined, undefined, "paste"), icon: PlusCircle, isSpecial: false },
                     { 
                       label: "Deduplication", 
                       action: () => {
@@ -970,29 +980,40 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                         }
                       }, 
                       icon: ListFilter,
-                      isHtml: false
+                      isSpecial: false
                     },
-                    { label: "Batch Upload", action: () => props.onShowAddQuestions(undefined, undefined, undefined, "file"), icon: Upload, isHtml: false },
                   ].map((item) => (
                     <button
                       key={item.label}
                       onClick={item.action}
                       className={`p-3 sm:p-4 bg-white dark:bg-slate-800 border rounded-2xl shadow-xs flex flex-col items-center gap-2 transition-all text-center group cursor-pointer active:scale-95 ${
-                        item.isHtml
-                          ? "border-orange-300 dark:border-orange-900/60 hover:border-orange-600 bg-orange-50/20 dark:bg-orange-950/10"
+                        item.isSpecial
+                          ? item.specialColor === "emerald"
+                            ? "border-emerald-300 dark:border-emerald-900/60 hover:border-emerald-600 bg-emerald-50/20 dark:bg-emerald-950/10"
+                            : item.specialColor === "amber"
+                            ? "border-amber-300 dark:border-amber-900/60 hover:border-amber-600 bg-amber-50/20 dark:bg-amber-950/10"
+                            : "border-orange-300 dark:border-orange-900/60 hover:border-orange-600 bg-orange-50/20 dark:bg-orange-950/10"
                           : "border-slate-100 dark:border-slate-800 hover:border-slate-900 dark:hover:border-slate-400"
                       }`}
                     >
                       <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center transition-colors ${
-                        item.isHtml
-                          ? "bg-orange-100 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400 group-hover:scale-105"
+                        item.isSpecial
+                          ? item.specialColor === "emerald"
+                            ? "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 group-hover:scale-105"
+                            : item.specialColor === "amber"
+                            ? "bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 group-hover:scale-105"
+                            : "bg-orange-100 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400 group-hover:scale-105"
                           : "bg-slate-50 dark:bg-slate-800 text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white"
                       }`}>
                         <item.icon className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
                       </div>
                       <span className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-tight ${
-                        item.isHtml
-                          ? "text-orange-700 dark:text-orange-400 font-extrabold"
+                        item.isSpecial
+                          ? item.specialColor === "emerald"
+                            ? "text-emerald-700 dark:text-emerald-400 font-extrabold"
+                            : item.specialColor === "amber"
+                            ? "text-amber-700 dark:text-amber-400 font-extrabold"
+                            : "text-orange-700 dark:text-orange-400 font-extrabold"
                           : "text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white"
                       }`}>{item.label}</span>
                     </button>
@@ -1016,6 +1037,14 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                     <p className="text-xs sm:text-sm text-slate-500 font-medium">Historical papers and live mock schedules.</p>
                   </div>
                   <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                    <button
+                      onClick={() => setShowMeritListModal(true)}
+                      className="px-3.5 py-2 bg-gradient-to-r from-amber-600 via-orange-600 to-amber-700 hover:from-amber-700 hover:to-orange-800 text-white text-xs font-black rounded-xl shadow-md flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
+                      title="Generate official merit list PDF and Telegram / WhatsApp announcement"
+                    >
+                      <Trophy className="w-3.5 h-3.5" />
+                      <span>Merit List & Telegram</span>
+                    </button>
                     <button
                       onClick={() => setShowCoachingHierarchyModal(true)}
                       className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
@@ -1190,12 +1219,16 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
               <div className="space-y-5 sm:space-y-6">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
                   <div>
-                    <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">Student Directory</h2>
-                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">Manage user profiles, permissions and communication.</p>
+                    <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">Students & Objections</h2>
+                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">Manage student directory, inquiries, question objections & alerts.</p>
                   </div>
                   <div className="flex items-center p-1 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xs overflow-x-auto max-w-full no-scrollbar self-start sm:self-auto">
                     <button onClick={() => setSubTabUsers("directory")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${subTabUsers === "directory" ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}>Students</button>
                     <button onClick={() => setSubTabUsers("messages")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${subTabUsers === "messages" ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}>Inquiries</button>
+                    <button onClick={() => setSubTabUsers("reports")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${subTabUsers === "reports" ? "bg-amber-600 text-white shadow-xs" : "text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/20"}`}>
+                      <AlertCircle className="w-3.5 h-3.5" />
+                      <span>Doubt Desk</span>
+                    </button>
                     <button onClick={() => setSubTabUsers("notifications")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${subTabUsers === "notifications" ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}>Broadcasts</button>
                   </div>
                 </div>
@@ -1208,6 +1241,25 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                     />
                   )}
                   {subTabUsers === "messages" && <AdminMessagesSection onBackToAdmin={() => handleSelectGroup("dashboard")} />}
+                  {subTabUsers === "reports" && (
+                    <QuestionReportDesk
+                      questions={props.combinedQuestions}
+                      subjects={combinedSubjectsList}
+                      chapters={combinedChaptersList}
+                      onUpdateQuestion={(updatedQ) => {
+                        if (props.onStoreUpdated && props.questionsStore) {
+                          const custom = props.questionsStore.customQuestions || [];
+                          const idx = custom.findIndex(q => q.id === updatedQ.id);
+                          let updatedCustom = [...custom];
+                          if (idx !== -1) updatedCustom[idx] = updatedQ;
+                          else updatedCustom.push(updatedQ);
+                          const updatedStore: UserQuestionsStore = { ...props.questionsStore, customQuestions: updatedCustom };
+                          props.onStoreUpdated(updatedStore);
+                          saveUserQuestionsStore(updatedStore);
+                        }
+                      }}
+                    />
+                  )}
                   {subTabUsers === "notifications" && <AdminNotificationBroadcastSection />}
                 </React.Suspense>
               </div>
@@ -1218,12 +1270,13 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
               <div className="space-y-5 sm:space-y-6">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
                   <div>
-                    <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">Database Explorer</h2>
-                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">Direct access to Firestore records and audit logs.</p>
+                    <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">Cloud & Database Explorer</h2>
+                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">Direct inspection of Firestore records, diagnostics, quotas and audit trails.</p>
                   </div>
                   <div className="flex items-center p-1 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xs overflow-x-auto max-w-full no-scrollbar self-start sm:self-auto">
                     <button onClick={() => setSubTabFirebase("diagnostics")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${subTabFirebase === "diagnostics" ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}>Diagnostics</button>
                     <button onClick={() => setSubTabFirebase("explorer")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${subTabFirebase === "explorer" ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}>Explorer</button>
+                    <button onClick={() => setSubTabFirebase("report")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${subTabFirebase === "report" ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}>Counts Report</button>
                     <button onClick={() => setSubTabFirebase("audit")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${subTabFirebase === "audit" ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}>Audit</button>
                     <button onClick={() => setSubTabFirebase("quota")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${subTabFirebase === "quota" ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}>Quota</button>
                     <button onClick={() => setSubTabFirebase("sync")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${subTabFirebase === "sync" ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}>Sync</button>
@@ -1233,6 +1286,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                 <React.Suspense fallback={<AdminSectionLoader type="table" title="Loading Database Tools..." />}>
                   {subTabFirebase === "diagnostics" && <AdminDiagnosticsSection userProfile={props.userProfile} subjects={combinedSubjectsList} chapters={combinedChaptersList} />}
                   {subTabFirebase === "explorer" && <FirebaseDataExplorer userProfile={props.userProfile} />}
+                  {subTabFirebase === "report" && <DiagnosticReport userProfile={props.userProfile} />}
                   {subTabFirebase === "audit" && <FirebaseAuditConsole userProfile={props.userProfile} />}
                   {subTabFirebase === "quota" && (
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -1347,6 +1401,39 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
           <ManageCoachingHierarchyModal
             isOpen={showCoachingHierarchyModal}
             onClose={() => setShowCoachingHierarchyModal(false)}
+          />
+        </React.Suspense>
+      )}
+      {showExcelCsvImporter && (
+        <React.Suspense fallback={null}>
+          <ExcelCsvQuestionImporter
+            subjects={combinedSubjectsList}
+            chapters={combinedChaptersList}
+            onClose={() => setShowExcelCsvImporter(false)}
+            onImportQuestions={(newQuestions: any[]) => {
+              if (props.onStoreUpdated && props.questionsStore) {
+                const currentCustom = props.questionsStore.customQuestions || [];
+                const updatedStore: UserQuestionsStore = {
+                  ...props.questionsStore,
+                  customQuestions: [...currentCustom, ...newQuestions]
+                };
+                props.onStoreUpdated(updatedStore);
+                saveUserQuestionsStore(updatedStore);
+                triggerAdminToast({
+                  type: "success",
+                  title: "Excel Import Complete",
+                  message: `${newQuestions.length} questions successfully imported and saved!`
+                });
+              }
+            }}
+          />
+        </React.Suspense>
+      )}
+      {showMeritListModal && (
+        <React.Suspense fallback={null}>
+          <MeritListPdfModal
+            testTitle="RPSC RAS / CET Live Mock Examination"
+            onClose={() => setShowMeritListModal(false)}
           />
         </React.Suspense>
       )}

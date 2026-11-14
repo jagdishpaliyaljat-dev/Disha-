@@ -15,7 +15,6 @@ import {
 import { collection, query, where } from "firebase/firestore";
 import { guardedGetDocs } from "../../utils/quotaTracker";
 import { db } from "../../lib/firebase";
-import { UTMLinkBuilder } from "./UTMLinkBuilder";
 import { AdminCard } from "./AdminCard";
 
 interface DailyAnalyticsDoc {
@@ -357,8 +356,6 @@ export const AdminAnalyticsDashboard: React.FC = () => {
           )}
         </AdminCard>
       </div>
-
-      <UTMLinkBuilder />
     </div>
   );
 };
