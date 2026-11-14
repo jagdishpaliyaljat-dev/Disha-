@@ -5,7 +5,7 @@ import express from 'express';
 import { fileURLToPath } from 'url';
 import { GoogleGenAI } from '@google/genai';
 import { parseRawMcqText } from './src/utils/questionParser';
-import { initializeApp, getApps } from 'firebase-admin/app';
+import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
 import { encryptSecret, decryptSecret, redactSensitiveText, encryptionKeyMode } from './src/server/cryptoVault';
@@ -49,7 +49,24 @@ let defaultAdminAuth: any = null;
 try {
   // Use a named app instance to ensure we use our specific project ID and avoid collisions with environment defaults
   const appName = 'quizpro-admin';
-  defaultAdminApp = getApps().find(a => a.name === appName) || initializeApp({ projectId: FIREBASE_PROJECT_ID }, appName);
+
+  // Support Firebase Service Account JSON for Vercel/production deployment
+  // Set FIREBASE_SERVICE_ACCOUNT_JSON env var in Vercel dashboard with the full service account JSON content
+  const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
+  let appConfig: any = { projectId: FIREBASE_PROJECT_ID };
+  if (serviceAccountJson) {
+    try {
+      const serviceAccount = JSON.parse(serviceAccountJson);
+      appConfig = { credential: cert(serviceAccount), projectId: FIREBASE_PROJECT_ID };
+      console.log('[Firebase Admin] Using Service Account credentials (Vercel production mode)');
+    } catch (parseErr) {
+      console.error('[Firebase Admin] Failed to parse FIREBASE_SERVICE_ACCOUNT_JSON — falling back to default credentials');
+    }
+  } else {
+    console.log('[Firebase Admin] No Service Account JSON found — using Application Default Credentials (local dev mode)');
+  }
+
+  defaultAdminApp = getApps().find(a => a.name === appName) || initializeApp(appConfig, appName);
 
   // Strictly bind to the named Firestore database configured for this applet — never fall back to (default)
   try {
