@@ -62,6 +62,7 @@ const SyncConfirmationModal = adminSafeLazy<any>(() => import("./admin/SyncConfi
 const QATestRunnerModal = adminSafeLazy<any>(() => import("./QATestRunnerModal"), "QATestRunnerModal");
 const ManageCoachingHierarchyModal = adminSafeLazy<any>(() => import("./admin/ManageCoachingHierarchyModal"), "ManageCoachingHierarchyModal");
 const ExcelCsvQuestionImporter = adminSafeLazy<any>(() => import("./admin/ExcelCsvQuestionImporter"), "ExcelCsvQuestionImporter");
+const BulkQuestionDeleteModal = adminSafeLazy<any>(() => import("./admin/BulkQuestionDeleteModal"), "BulkQuestionDeleteModal");
 const QuestionReportDesk = adminSafeLazy<any>(() => import("./admin/QuestionReportDesk"), "QuestionReportDesk");
 const MeritListPdfModal = adminSafeLazy<any>(() => import("./admin/MeritListPdfModal"), "MeritListPdfModal");
 
@@ -86,6 +87,7 @@ interface AdminTabProps {
   onShowManageBanners?: () => void;
   onDeleteSubject?: (subjectId: string) => Promise<void>;
   onDeleteChapter?: (chapterId: string) => Promise<void>;
+  onBulkDeleteQuestions?: (questionIds: string[]) => Promise<void> | void;
 }
 
 export type AdminGroupSection = 
@@ -126,6 +128,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
   const [showQATestRunner, setShowQATestRunner] = React.useState(false);
   const [showCoachingHierarchyModal, setShowCoachingHierarchyModal] = React.useState(false);
   const [showExcelCsvImporter, setShowExcelCsvImporter] = React.useState(false);
+  const [showBulkDeleteModal, setShowBulkDeleteModal] = React.useState(false);
   const [showMeritListModal, setShowMeritListModal] = React.useState(false);
   const [isAdminMenuOpen, setIsAdminMenuOpen] = React.useState(false);
   const adminMenuRef = React.useRef<HTMLDivElement>(null);
@@ -630,16 +633,16 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-white dark:bg-[#0B1220] text-slate-900 dark:text-slate-100 font-sans selection:bg-blue-100 selection:text-blue-900">
+    <div className="min-h-screen flex flex-col bg-[#FFF9EF] dark:bg-[#171923] text-[#171923] dark:text-[#FFF9EF] font-sans selection:bg-[#800020] selection:text-white">
       
       {/* 1. Sticky Compact Header */}
-      <header className="sticky top-0 z-40 bg-white/80 dark:bg-[#0B1220]/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+      <header className="sticky top-0 z-40 bg-white/95 dark:bg-[#1F2330]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A]">
         <div className="max-w-screen-2xl mx-auto flex items-center justify-between px-3 sm:px-6 h-14 sm:h-16">
           
           <div className="flex items-center gap-2 sm:gap-4 min-w-0">
             <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="lg:hidden p-2 -ml-1 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0"
+              className="lg:hidden p-2 -ml-1 rounded-xl text-[#52576A] hover:bg-[#F7EFE2] dark:hover:bg-[#252A3A] transition-colors shrink-0 cursor-pointer"
               aria-label="Toggle Menu"
             >
               {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -649,14 +652,14 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
               <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#800020] text-[#FFF9EF] flex items-center justify-center font-black text-xs sm:text-sm shadow-xs shrink-0">
                 D
               </div>
-              <h1 className="text-sm sm:text-base font-bold tracking-tight text-slate-900 dark:text-white truncate">
+              <h1 className="text-sm sm:text-base font-bold tracking-tight text-[#171923] dark:text-[#FFF9EF] truncate">
                 DISHA 20-20 Admin
               </h1>
             </div>
             
-            <div className="hidden md:flex items-center gap-2 text-slate-300 dark:text-slate-700 ml-2">
+            <div className="hidden md:flex items-center gap-2 text-[#E8D9C0] dark:text-[#31374A] ml-2">
               <span className="text-xs">/</span>
-              <span className="text-xs font-medium text-slate-500 capitalize">{activeGroup.replace('_', ' ')}</span>
+              <span className="text-xs font-semibold text-[#800020] dark:text-[#F47B20] capitalize">{activeGroup.replace('_', ' ')}</span>
             </div>
           </div>
 
@@ -760,21 +763,21 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
 
         {/* 2. Responsive Navigation Drawer */}
         <aside
-          className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-[#0B1220] border-r border-slate-200 dark:border-slate-800 transform ${
+          className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-[#1F2330] border-r border-[#E8D9C0] dark:border-[#31374A] transform ${
             isSidebarOpen ? "translate-x-0" : "-translate-x-full"
           } lg:translate-x-0 transition-transform duration-200 ease-in-out lg:static lg:z-0 flex flex-col`}
         >
           {/* Mobile-only Drawer Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-slate-800 lg:hidden">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-[#E8D9C0]/70 dark:border-[#31374A] lg:hidden">
             <div className="flex items-center gap-2">
               <div className="w-7 h-7 rounded-lg bg-[#800020] text-[#FFF9EF] flex items-center justify-center font-black text-xs shadow-xs">
                 D
               </div>
-              <span className="text-sm font-bold text-slate-900 dark:text-white">Admin Navigation</span>
+              <span className="text-sm font-bold text-[#171923] dark:text-[#FFF9EF]">Admin Navigation</span>
             </div>
             <button
               onClick={() => setIsSidebarOpen(false)}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              className="p-1.5 rounded-lg text-[#52576A] hover:text-[#171923] dark:hover:text-[#FFF9EF] hover:bg-[#F7EFE2] dark:hover:bg-[#252A3A] transition-colors cursor-pointer"
               aria-label="Close sidebar"
             >
               <X className="w-4 h-4" />
@@ -783,7 +786,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
 
           <div className="flex-1 overflow-y-auto py-3 px-3 space-y-1">
             <div className="px-3 mb-2">
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Management</p>
+              <p className="text-[10px] font-bold text-[#787D91] dark:text-[#929AB0] uppercase tracking-widest">Management</p>
             </div>
 
             {navGroupItems.map((item) => {
@@ -795,17 +798,17 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                   onClick={() => handleSelectGroup(item.id)}
                   className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all active:scale-[0.98] cursor-pointer touch-manipulation min-h-[42px] ${
                     isActive
-                      ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-bold"
-                      : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-white"
+                      ? "bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] font-black"
+                      : "text-[#52576A] dark:text-[#CBD2E1] hover:bg-[#F7EFE2] dark:hover:bg-[#252A3A] hover:text-[#171923] dark:hover:text-[#FFF9EF]"
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <Icon className={`w-4 h-4 ${isActive ? "text-blue-600 dark:text-blue-400" : "text-slate-400 group-hover:text-slate-600"}`} />
+                    <Icon className={`w-4 h-4 ${isActive ? "text-[#800020] dark:text-[#F47B20]" : "text-[#787D91] group-hover:text-[#171923]"}`} />
                     <span className="truncate">{item.title}</span>
                   </div>
                   {item.badge && (
                     <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md shrink-0 ${
-                      isActive ? "bg-blue-100 dark:bg-blue-800/30 text-blue-700 dark:text-blue-300" : "bg-slate-100 dark:bg-slate-800 text-slate-500"
+                      isActive ? "bg-[#800020]/15 dark:bg-[#F47B20]/25 text-[#800020] dark:text-[#F47B20]" : "bg-[#F7EFE2] dark:bg-[#252A3A] text-[#787D91] dark:text-[#929AB0]"
                     }`}>
                       {item.badge}
                     </span>
@@ -815,22 +818,22 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
             })}
           </div>
 
-          <div className="p-3 border-t border-slate-100 dark:border-slate-800">
+          <div className="p-3 border-t border-[#E8D9C0]/70 dark:border-[#31374A]">
             <button
               onClick={() => {
                 setShowQATestRunner(true);
                 setIsSidebarOpen(false);
               }}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors min-h-[42px] cursor-pointer"
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-[#52576A] dark:text-[#CBD2E1] hover:bg-[#F7EFE2] dark:hover:bg-[#252A3A] transition-colors min-h-[42px] cursor-pointer"
             >
-              <Terminal className="w-4 h-4 text-slate-400" />
+              <Terminal className="w-4 h-4 text-[#787D91]" />
               <span>QA Debug Suite</span>
             </button>
           </div>
         </aside>
 
         {/* 3. Main Content Workspace */}
-        <main className="flex-1 overflow-y-auto bg-slate-50/50 dark:bg-[#080E1A] p-3 sm:p-6 lg:p-8 pb-24 lg:pb-8">
+        <main className="flex-1 overflow-y-auto bg-[#FFF9EF]/40 dark:bg-[#171923] p-3 sm:p-6 lg:p-8 pb-24 lg:pb-8">
           <div className="max-w-screen-xl mx-auto space-y-5 sm:space-y-6">
             
             {/* Mobile Horizontal Quick Navigation Strip (lg:hidden) */}
@@ -844,8 +847,8 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                     onClick={() => handleSelectGroup(item.id)}
                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shrink-0 cursor-pointer ${
                       isActive
-                        ? "bg-slate-900 text-white dark:bg-blue-600 dark:text-white shadow-xs"
-                        : "bg-white dark:bg-[#111A2E] text-slate-600 dark:text-slate-400 border border-slate-200/80 dark:border-slate-800 hover:bg-slate-50"
+                        ? "bg-[#800020] dark:bg-[#F47B20] text-white shadow-xs"
+                        : "bg-white dark:bg-[#1F2330] text-[#52576A] dark:text-[#CBD2E1] border border-[#E8D9C0] dark:border-[#31374A] hover:bg-[#F7EFE2]"
                     }`}
                   >
                     <Icon className="w-3.5 h-3.5" />
@@ -961,15 +964,24 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                       <Sparkles className="w-3.5 h-3.5 text-amber-500" />
                       AI Import
                     </button>
+                    <button
+                      onClick={() => setShowBulkDeleteModal(true)}
+                      className="px-3.5 py-2 bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-700 hover:to-red-700 text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                      title="Mass question removal tool with hierarchy filter & safety confirmation"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>Bulk Delete</span>
+                    </button>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-2.5 sm:gap-3">
                   {[
                     { label: "Directory", action: props.onShowManageQuestions, icon: Database, isSpecial: false },
                     { label: "Excel / CSV", action: () => setShowExcelCsvImporter(true), icon: FileSpreadsheet, isSpecial: true, specialColor: "emerald" },
                     { label: "AI Import", action: props.onShowAIImport, icon: Sparkles, isSpecial: true, specialColor: "amber" },
                     { label: "HTML Import", action: props.onShowHTMLImport, icon: FileCode, isSpecial: true, specialColor: "orange" },
+                    { label: "Bulk Delete", action: () => setShowBulkDeleteModal(true), icon: Trash2, isSpecial: true, specialColor: "rose" },
                     { label: "Quick Add", action: () => props.onShowAddQuestions(undefined, undefined, undefined, "paste"), icon: PlusCircle, isSpecial: false },
                     { 
                       label: "Deduplication", 
@@ -992,6 +1004,8 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                             ? "border-emerald-300 dark:border-emerald-900/60 hover:border-emerald-600 bg-emerald-50/20 dark:bg-emerald-950/10"
                             : item.specialColor === "amber"
                             ? "border-amber-300 dark:border-amber-900/60 hover:border-amber-600 bg-amber-50/20 dark:bg-amber-950/10"
+                            : item.specialColor === "rose"
+                            ? "border-rose-300 dark:border-rose-900/60 hover:border-rose-600 bg-rose-50/20 dark:bg-rose-950/10"
                             : "border-orange-300 dark:border-orange-900/60 hover:border-orange-600 bg-orange-50/20 dark:bg-orange-950/10"
                           : "border-slate-100 dark:border-slate-800 hover:border-slate-900 dark:hover:border-slate-400"
                       }`}
@@ -1002,6 +1016,8 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                             ? "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 group-hover:scale-105"
                             : item.specialColor === "amber"
                             ? "bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 group-hover:scale-105"
+                            : item.specialColor === "rose"
+                            ? "bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 group-hover:scale-105"
                             : "bg-orange-100 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400 group-hover:scale-105"
                           : "bg-slate-50 dark:bg-slate-800 text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white"
                       }`}>
@@ -1013,6 +1029,8 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                             ? "text-emerald-700 dark:text-emerald-400 font-extrabold"
                             : item.specialColor === "amber"
                             ? "text-amber-700 dark:text-amber-400 font-extrabold"
+                            : item.specialColor === "rose"
+                            ? "text-rose-700 dark:text-rose-400 font-extrabold"
                             : "text-orange-700 dark:text-orange-400 font-extrabold"
                           : "text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white"
                       }`}>{item.label}</span>
@@ -1458,6 +1476,19 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
           <MeritListPdfModal
             testTitle="RPSC RAS / CET Live Mock Examination"
             onClose={() => setShowMeritListModal(false)}
+          />
+        </React.Suspense>
+      )}
+      {showBulkDeleteModal && (
+        <React.Suspense fallback={null}>
+          <BulkQuestionDeleteModal
+            isOpen={showBulkDeleteModal}
+            onClose={() => setShowBulkDeleteModal(false)}
+            subjects={combinedSubjectsList}
+            chapters={combinedChaptersList}
+            questionsStore={props.questionsStore}
+            onBulkDeleteQuestions={props.onBulkDeleteQuestions}
+            onStoreUpdated={props.onStoreUpdated}
           />
         </React.Suspense>
       )}

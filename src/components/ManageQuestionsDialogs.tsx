@@ -227,6 +227,8 @@ export const BulkDeleteConfirmDialog: React.FC<BulkDeleteConfirmDialogProps> = (
   onConfirmDelete,
   onCancel,
 }) => {
+  const [confirmed, setConfirmed] = React.useState(questionCount < 10);
+
   return (
     <div
       role="dialog"
@@ -268,6 +270,20 @@ export const BulkDeleteConfirmDialog: React.FC<BulkDeleteConfirmDialogProps> = (
           </p>
         </div>
 
+        {questionCount >= 10 && (
+          <label className="flex items-start gap-2 text-left p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={confirmed}
+              onChange={(e) => setConfirmed(e.target.checked)}
+              className="mt-0.5 rounded text-rose-600 focus:ring-rose-500"
+            />
+            <span className="text-[11px] font-semibold text-amber-900 dark:text-amber-200 leading-tight">
+              I understand that {questionCount} questions will be deleted permanently.
+            </span>
+          </label>
+        )}
+
         {/* Buttons */}
         <div className="flex items-center gap-3 pt-1">
           <button
@@ -277,8 +293,9 @@ export const BulkDeleteConfirmDialog: React.FC<BulkDeleteConfirmDialogProps> = (
             Cancel
           </button>
           <button
+            disabled={!confirmed}
             onClick={onConfirmDelete}
-            className="flex-1 py-3 bg-rose-600 hover:bg-rose-700 text-white rounded-2xl text-xs sm:text-sm font-bold shadow-md shadow-rose-600/20 flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 transition-all"
+            className="flex-1 py-3 bg-rose-600 hover:bg-rose-700 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-2xl text-xs sm:text-sm font-bold shadow-md shadow-rose-600/20 flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 transition-all"
           >
             <Trash2 className="w-4 h-4" />
             <span>Yes, Delete</span>

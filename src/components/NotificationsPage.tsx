@@ -219,26 +219,26 @@ export const NotificationsPage: React.FC<NotificationsPageProps> = ({
       case "study":
         return {
           icon: Brain,
-          bg: "bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 border-blue-200/70 dark:border-blue-800/80",
+          bg: "bg-[#800020]/10 dark:bg-[#800020]/20 text-[#800020] dark:text-[#F47B20] border-[#800020]/20 dark:border-[#800020]/30",
           tag: "Study",
         };
       case "exam":
         return {
           icon: BookOpen,
-          bg: "bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 border-amber-200/70 dark:border-amber-800/80",
+          bg: "bg-[#F47B20]/10 dark:bg-[#F47B20]/20 text-[#F47B20] border-[#F47B20]/25 dark:border-[#F47B20]/35",
           tag: "Exam",
         };
       case "achievement":
         return {
           icon: Award,
-          bg: "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border-emerald-200/70 dark:border-emerald-800/80",
+          bg: "bg-[#C99A45]/15 dark:bg-[#C99A45]/25 text-[#9E7324] dark:text-[#E8BD68] border-[#C99A45]/30",
           tag: "Milestone",
         };
       case "system":
       default:
         return {
           icon: Sparkles,
-          bg: "bg-purple-50 dark:bg-purple-950/50 text-purple-600 dark:text-purple-400 border-purple-200/70 dark:border-purple-800/80",
+          bg: "bg-[#171923]/10 dark:bg-[#FFF9EF]/10 text-[#171923] dark:text-[#FFF9EF] border-[#E8D9C0] dark:border-[#31374A]",
           tag: "System",
         };
     }
@@ -247,11 +247,11 @@ export const NotificationsPage: React.FC<NotificationsPageProps> = ({
   return (
     <div
       id="notifications-page"
-      className="min-h-[100dvh] bg-slate-50 dark:bg-slate-950 flex flex-col transition-colors selection:bg-blue-500/20"
+      className="min-h-[100dvh] bg-[#FFF9EF] dark:bg-[#171923] flex flex-col transition-colors selection:bg-[#800020] selection:text-white"
     >
       {/* Toast Notification Popup */}
       {toastMessage && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-sm bg-slate-900/95 dark:bg-slate-800/95 text-white text-xs font-semibold px-4 py-3 rounded-2xl shadow-xl backdrop-blur-md border border-slate-700/80 animate-in fade-in slide-in-from-top-4 flex items-center justify-between gap-3">
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-sm bg-[#171923]/95 dark:bg-[#1F2330]/95 text-white text-xs font-semibold px-4 py-3 rounded-2xl shadow-xl backdrop-blur-md border border-[#E8D9C0]/30 dark:border-[#31374A] animate-in fade-in slide-in-from-top-4 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5 truncate">
             <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
             <span className="truncate">{toastMessage}</span>
@@ -267,7 +267,7 @@ export const NotificationsPage: React.FC<NotificationsPageProps> = ({
       )}
 
       {/* MOBILE-OPTIMIZED TOP APP BAR */}
-      <header className="sticky top-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200/70 dark:border-slate-800 px-3.5 sm:px-5 py-2.5 sm:py-3 transition-colors">
+      <header className="sticky top-0 z-30 bg-white/95 dark:bg-[#1F2330]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] px-3.5 sm:px-5 py-2.5 sm:py-3 transition-colors">
         <div className="max-w-2xl mx-auto flex items-center justify-between gap-2">
           {/* Back button with 44px touch target */}
           <div className="flex items-center gap-2.5 min-w-0">
@@ -275,23 +275,23 @@ export const NotificationsPage: React.FC<NotificationsPageProps> = ({
               onClick={onBack}
               id="notif-back-btn"
               aria-label="Back to previous screen"
-              className="min-w-[44px] min-h-[44px] w-11 h-11 rounded-2xl bg-slate-100 dark:bg-slate-800/90 active:bg-slate-200 dark:active:bg-slate-700 text-slate-700 dark:text-slate-200 flex items-center justify-center transition-transform active:scale-95 shrink-0"
+              className="min-w-[42px] min-h-[42px] w-10 h-10 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] active:bg-[#EFE3CF] text-[#171923] dark:text-[#FFF9EF] flex items-center justify-center transition-transform active:scale-95 shrink-0 border border-[#E8D9C0] dark:border-[#31374A] cursor-pointer"
             >
               <ArrowLeft className="w-5 h-5 stroke-[2.2]" />
             </button>
 
             <div className="truncate">
               <div className="flex items-center gap-2">
-                <h1 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight truncate">
+                <h1 className="text-base sm:text-lg font-black text-[#171923] dark:text-[#FFF9EF] tracking-tight leading-tight truncate">
                   Notifications
                 </h1>
                 {unreadCount > 0 && (
-                  <span className="px-2 py-0.5 text-[11px] font-black rounded-full bg-blue-600 text-white leading-tight shadow-sm shrink-0">
+                  <span className="px-2 py-0.5 text-[11px] font-black rounded-full bg-[#800020] dark:bg-[#F47B20] text-white leading-tight shadow-sm shrink-0">
                     {unreadCount}
                   </span>
                 )}
               </div>
-              <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400 truncate mt-0.5">
+              <p className="text-[11px] font-medium text-[#52576A] dark:text-[#CBD2E1] truncate mt-0.5">
                 Exam alerts, mock reminders & updates
               </p>
             </div>
@@ -305,7 +305,7 @@ export const NotificationsPage: React.FC<NotificationsPageProps> = ({
                 id="notif-mark-all-read-btn"
                 title="Mark all as read"
                 aria-label="Mark all as read"
-                className="min-w-[44px] min-h-[44px] w-11 h-11 rounded-2xl text-slate-600 dark:text-slate-300 active:bg-slate-100 dark:active:bg-slate-800 flex items-center justify-center transition-colors relative"
+                className="min-w-[42px] min-h-[42px] w-10 h-10 rounded-xl text-[#52576A] dark:text-[#CBD2E1] active:bg-[#F7EFE2] dark:active:bg-[#252A3A] flex items-center justify-center transition-colors relative cursor-pointer"
               >
                 <CheckCheck className="w-5 h-5" />
               </button>
@@ -316,7 +316,7 @@ export const NotificationsPage: React.FC<NotificationsPageProps> = ({
               id="notif-settings-btn"
               title="Notification Settings"
               aria-label="Open notification settings"
-              className="min-w-[44px] min-h-[44px] w-11 h-11 rounded-2xl text-slate-600 dark:text-slate-300 active:bg-slate-100 dark:active:bg-slate-800 flex items-center justify-center transition-colors"
+              className="min-w-[42px] min-h-[42px] w-10 h-10 rounded-xl text-[#52576A] dark:text-[#CBD2E1] active:bg-[#F7EFE2] dark:active:bg-[#252A3A] flex items-center justify-center transition-colors cursor-pointer"
             >
               <Settings className="w-5 h-5" />
             </button>
@@ -329,10 +329,10 @@ export const NotificationsPage: React.FC<NotificationsPageProps> = ({
             <button
               onClick={() => setActiveFilter("all")}
               id="notif-filter-all"
-              className={`min-h-[38px] px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 shrink-0 active:scale-95 ${
+              className={`min-h-[38px] px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 shrink-0 active:scale-95 cursor-pointer ${
                 activeFilter === "all"
-                  ? "bg-blue-600 text-white shadow-sm shadow-blue-500/20 ring-2 ring-blue-600/30"
-                  : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 active:bg-slate-200 dark:active:bg-slate-700"
+                  ? "bg-[#800020] dark:bg-[#F47B20] text-white shadow-xs ring-2 ring-[#800020]/25 dark:ring-[#F47B20]/25"
+                  : "bg-[#F7EFE2] dark:bg-[#252A3A] text-[#52576A] dark:text-[#CBD2E1] border border-[#E8D9C0] dark:border-[#31374A] active:bg-[#EFE3CF]"
               }`}
             >
               <span>All</span>
@@ -344,25 +344,25 @@ export const NotificationsPage: React.FC<NotificationsPageProps> = ({
             <button
               onClick={() => setActiveFilter("unread")}
               id="notif-filter-unread"
-              className={`min-h-[38px] px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 shrink-0 active:scale-95 ${
+              className={`min-h-[38px] px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 shrink-0 active:scale-95 cursor-pointer ${
                 activeFilter === "unread"
-                  ? "bg-blue-600 text-white shadow-sm shadow-blue-500/20 ring-2 ring-blue-600/30"
-                  : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 active:bg-slate-200 dark:active:bg-slate-700"
+                  ? "bg-[#800020] dark:bg-[#F47B20] text-white shadow-xs ring-2 ring-[#800020]/25 dark:ring-[#F47B20]/25"
+                  : "bg-[#F7EFE2] dark:bg-[#252A3A] text-[#52576A] dark:text-[#CBD2E1] border border-[#E8D9C0] dark:border-[#31374A] active:bg-[#EFE3CF]"
               }`}
             >
               <span>Unread</span>
               {unreadCount > 0 ? (
-                <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
+                <span className="w-2 h-2 rounded-full bg-[#F47B20] animate-pulse" />
               ) : null}
             </button>
 
             <button
               onClick={() => setActiveFilter("study")}
               id="notif-filter-study"
-              className={`min-h-[38px] px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 shrink-0 active:scale-95 ${
+              className={`min-h-[38px] px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 shrink-0 active:scale-95 cursor-pointer ${
                 activeFilter === "study"
-                  ? "bg-blue-600 text-white shadow-sm shadow-blue-500/20 ring-2 ring-blue-600/30"
-                  : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 active:bg-slate-200 dark:active:bg-slate-700"
+                  ? "bg-[#800020] dark:bg-[#F47B20] text-white shadow-xs ring-2 ring-[#800020]/25 dark:ring-[#F47B20]/25"
+                  : "bg-[#F7EFE2] dark:bg-[#252A3A] text-[#52576A] dark:text-[#CBD2E1] border border-[#E8D9C0] dark:border-[#31374A] active:bg-[#EFE3CF]"
               }`}
             >
               <Brain className="w-3.5 h-3.5 shrink-0" />
@@ -372,10 +372,10 @@ export const NotificationsPage: React.FC<NotificationsPageProps> = ({
             <button
               onClick={() => setActiveFilter("exam")}
               id="notif-filter-exam"
-              className={`min-h-[38px] px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 shrink-0 active:scale-95 ${
+              className={`min-h-[38px] px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 shrink-0 active:scale-95 cursor-pointer ${
                 activeFilter === "exam"
-                  ? "bg-blue-600 text-white shadow-sm shadow-blue-500/20 ring-2 ring-blue-600/30"
-                  : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 active:bg-slate-200 dark:active:bg-slate-700"
+                  ? "bg-[#800020] dark:bg-[#F47B20] text-white shadow-xs ring-2 ring-[#800020]/25 dark:ring-[#F47B20]/25"
+                  : "bg-[#F7EFE2] dark:bg-[#252A3A] text-[#52576A] dark:text-[#CBD2E1] border border-[#E8D9C0] dark:border-[#31374A] active:bg-[#EFE3CF]"
               }`}
             >
               <BookOpen className="w-3.5 h-3.5 shrink-0" />
@@ -409,14 +409,14 @@ export const NotificationsPage: React.FC<NotificationsPageProps> = ({
 
         {/* NOTIFICATIONS LIST */}
         {filteredNotifications.length === 0 ? (
-          <div className="text-center py-14 px-4 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/70 dark:border-slate-800 shadow-sm mt-2">
-            <div className="w-16 h-16 rounded-3xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 flex items-center justify-center mx-auto mb-3.5 border border-blue-200/50 dark:border-blue-900/50">
+          <div className="text-center py-14 px-4 bg-white dark:bg-[#1F2330] rounded-3xl border border-[#E8D9C0] dark:border-[#31374A] shadow-xs mt-2">
+            <div className="w-16 h-16 rounded-3xl bg-[#F7EFE2] dark:bg-[#252A3A] text-[#800020] dark:text-[#F47B20] flex items-center justify-center mx-auto mb-3.5 border border-[#E8D9C0] dark:border-[#31374A]">
               <Bell className="w-8 h-8 stroke-[1.8]" />
             </div>
-            <h3 className="text-base font-extrabold text-slate-900 dark:text-white">
+            <h3 className="text-base font-extrabold text-[#171923] dark:text-[#FFF9EF]">
               No Notifications
             </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 max-w-xs mx-auto mt-1.5 leading-relaxed">
+            <p className="text-xs text-[#52576A] dark:text-[#CBD2E1] max-w-xs mx-auto mt-1.5 leading-relaxed">
               {activeFilter === "unread"
                 ? "You have caught up with all notifications! You will be alerted when new updates arrive."
                 : "No active notifications currently."}
@@ -425,12 +425,11 @@ export const NotificationsPage: React.FC<NotificationsPageProps> = ({
               {activeFilter !== "all" && (
                 <button
                   onClick={() => setActiveFilter("all")}
-                  className="min-h-[40px] px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl active:bg-slate-200 dark:active:bg-slate-700 transition-colors"
+                  className="min-h-[40px] px-4 py-2 bg-[#F7EFE2] dark:bg-[#252A3A] text-[#171923] dark:text-[#FFF9EF] border border-[#E8D9C0] dark:border-[#31374A] text-xs font-bold rounded-xl active:bg-[#EFE3CF] dark:active:bg-[#31374A] transition-colors cursor-pointer"
                 >
                   View All
                 </button>
               )}
-
             </div>
           </div>
         ) : (
@@ -445,13 +444,13 @@ export const NotificationsPage: React.FC<NotificationsPageProps> = ({
                 onClick={() => handleMarkAsRead(item.id)}
                 className={`relative rounded-2xl p-3.5 sm:p-4 transition-all border select-none ${
                   !item.read
-                    ? "bg-white dark:bg-slate-900 border-blue-200/90 dark:border-blue-900/70 shadow-[0_4px_16px_-4px_rgba(37,99,235,0.08)] ring-1 ring-blue-500/10"
-                    : "bg-white/85 dark:bg-slate-900/75 border-slate-200/60 dark:border-slate-800 hover:bg-white dark:hover:bg-slate-900"
+                    ? "bg-white dark:bg-[#1F2330] border-[#800020]/30 dark:border-[#F47B20]/40 shadow-[0_4px_16px_-4px_rgba(128,0,32,0.08)] ring-1 ring-[#800020]/15"
+                    : "bg-white/85 dark:bg-[#1F2330]/75 border-[#E8D9C0] dark:border-[#31374A] hover:bg-white dark:hover:bg-[#1F2330]"
                 }`}
               >
                 {/* Mobile Unread Indicator */}
                 {!item.read && (
-                  <span className="absolute top-3.5 right-3.5 w-2.5 h-2.5 rounded-full bg-blue-600 ring-4 ring-blue-100 dark:ring-blue-950/80" />
+                  <span className="absolute top-3.5 right-3.5 w-2.5 h-2.5 rounded-full bg-[#F47B20] ring-4 ring-[#F47B20]/20" />
                 )}
 
                 <div className="flex items-start gap-3">
@@ -466,10 +465,10 @@ export const NotificationsPage: React.FC<NotificationsPageProps> = ({
                   <div className="flex-1 min-w-0 pr-2">
                     {/* Category tag & relative timestamp */}
                     <div className="flex items-center gap-2 mb-1 flex-wrap">
-                      <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                      <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-md bg-[#F7EFE2] dark:bg-[#252A3A] text-[#52576A] dark:text-[#CBD2E1] border border-[#E8D9C0] dark:border-[#31374A]">
                         {meta.tag}
                       </span>
-                      <span className="text-[11px] text-slate-400 dark:text-slate-500 flex items-center gap-1 font-medium">
+                      <span className="text-[11px] text-[#787D91] dark:text-[#929AB0] flex items-center gap-1 font-medium">
                         <Clock className="w-3 h-3" />
                         {formatTime(item.timestamp)}
                       </span>
@@ -479,15 +478,15 @@ export const NotificationsPage: React.FC<NotificationsPageProps> = ({
                     <h4
                       className={`text-sm leading-snug break-words ${
                         !item.read
-                          ? "text-slate-900 dark:text-white font-bold"
-                          : "text-slate-800 dark:text-slate-200 font-semibold"
+                          ? "text-[#171923] dark:text-[#FFF9EF] font-bold"
+                          : "text-[#52576A] dark:text-[#CBD2E1] font-semibold"
                       }`}
                     >
                       {item.title || item.hindiTitle}
                     </h4>
 
                     {/* Message Body */}
-                    <p className="text-xs text-slate-600 dark:text-slate-300 mt-1.5 leading-relaxed break-words">
+                    <p className="text-xs text-[#52576A] dark:text-[#CBD2E1] mt-1.5 leading-relaxed break-words font-hindi">
                       {item.message || item.hindiMessage}
                     </p>
 
@@ -499,7 +498,7 @@ export const NotificationsPage: React.FC<NotificationsPageProps> = ({
                             e.stopPropagation();
                             handleAction(item);
                           }}
-                          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[42px] px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-xs font-bold shadow-sm shadow-blue-500/20 active:scale-[0.98] transition-all"
+                          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[42px] px-4 py-2 rounded-xl bg-[#800020] hover:bg-[#5E0017] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] text-white text-xs font-bold shadow-sm active:scale-[0.98] transition-all cursor-pointer"
                         >
                           <span>
                             {item.actionType === "open_session"
@@ -519,7 +518,7 @@ export const NotificationsPage: React.FC<NotificationsPageProps> = ({
                     onClick={(e) => handleDeleteNotification(item.id, e)}
                     title="Delete Notification"
                     aria-label="Delete Notification"
-                    className="min-w-[40px] min-h-[40px] w-10 h-10 rounded-xl flex items-center justify-center text-slate-400 hover:text-rose-500 active:bg-rose-50 dark:active:bg-rose-950/40 active:text-rose-600 transition-colors shrink-0"
+                    className="min-w-[40px] min-h-[40px] w-10 h-10 rounded-xl flex items-center justify-center text-slate-400 hover:text-rose-500 active:bg-rose-50 dark:active:bg-rose-950/40 active:text-rose-600 transition-colors shrink-0 cursor-pointer"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -532,31 +531,31 @@ export const NotificationsPage: React.FC<NotificationsPageProps> = ({
 
       {/* MOBILE-FIRST BOTTOM SHEET FOR SETTINGS */}
       {showSettingsModal && (
-        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-end sm:items-center justify-center">
+        <div className="fixed inset-0 z-50 bg-[#171923]/60 dark:bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center">
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-white dark:bg-slate-900 rounded-t-3xl sm:rounded-3xl border-t sm:border border-slate-200 dark:border-slate-800 w-full sm:max-w-md max-h-[90vh] overflow-y-auto p-5 pb-8 sm:pb-5 shadow-2xl animate-in slide-in-from-bottom sm:slide-in-from-bottom-0 sm:zoom-in-95"
+            className="bg-[#FFF9EF] dark:bg-[#171923] rounded-t-3xl sm:rounded-3xl border-t sm:border border-[#E8D9C0] dark:border-[#31374A] w-full sm:max-w-md max-h-[90vh] overflow-y-auto p-5 pb-8 sm:pb-5 shadow-2xl animate-in slide-in-from-bottom sm:slide-in-from-bottom-0 sm:zoom-95"
           >
             {/* Mobile Sheet Drag Indicator Pill */}
-            <div className="sm:hidden w-12 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full mx-auto mb-3" />
+            <div className="sm:hidden w-12 h-1.5 bg-[#E8D9C0] dark:bg-[#31374A] rounded-full mx-auto mb-3" />
 
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3 mb-4">
+            <div className="flex items-center justify-between border-b border-[#E8D9C0] dark:border-[#31374A] pb-3 mb-4">
               <div className="flex items-center gap-2.5">
-                <div className="w-10 h-10 rounded-2xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-2xl bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] flex items-center justify-center">
                   <BellRing className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-extrabold text-slate-900 dark:text-white">
+                  <h3 className="text-base font-extrabold text-[#171923] dark:text-[#FFF9EF]">
                     Notification Settings
                   </h3>
-                  <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
-                    Preferences & Reminder Schedule
+                  <p className="text-[11px] font-medium text-[#52576A] dark:text-[#CBD2E1]">
+                    Preferences &amp; Reminder Schedule
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => setShowSettingsModal(false)}
-                className="min-w-[40px] min-h-[40px] w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-800 dark:hover:text-white flex items-center justify-center"
+                className="min-w-[40px] min-h-[40px] w-10 h-10 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] text-[#52576A] dark:text-[#CBD2E1] hover:text-[#171923] dark:hover:text-white flex items-center justify-center border border-[#E8D9C0] dark:border-[#31374A] cursor-pointer"
                 aria-label="Close settings"
               >
                 <X className="w-4 h-4" />
@@ -565,16 +564,16 @@ export const NotificationsPage: React.FC<NotificationsPageProps> = ({
 
             <div className="space-y-3">
               {/* Daily Study Reminders with 44px min row */}
-              <label className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/50 dark:border-slate-700/50 cursor-pointer active:bg-slate-100 dark:active:bg-slate-800 transition-colors">
+              <label className="flex items-center justify-between p-3.5 rounded-2xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] cursor-pointer active:bg-[#F7EFE2] dark:active:bg-[#252A3A] transition-colors">
                 <div className="flex items-center gap-3 pr-2">
-                  <div className="w-9 h-9 rounded-xl bg-blue-100/70 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+                  <div className="w-9 h-9 rounded-xl bg-[#800020]/10 dark:bg-[#800020]/20 text-[#800020] dark:text-[#F47B20] flex items-center justify-center shrink-0">
                     <Calendar className="w-4 h-4" />
                   </div>
                   <div>
-                    <h5 className="text-xs font-bold text-slate-900 dark:text-white">
+                    <h5 className="text-xs font-bold text-[#171923] dark:text-[#FFF9EF]">
                       Daily Study Reminder
                     </h5>
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                    <p className="text-[11px] text-[#52576A] dark:text-[#CBD2E1] mt-0.5">
                       Spaced repetition and daily goal alerts
                     </p>
                   </div>
@@ -583,36 +582,36 @@ export const NotificationsPage: React.FC<NotificationsPageProps> = ({
                   type="checkbox"
                   checked={settings.studyReminders}
                   onChange={() => handleToggleSetting("studyReminders")}
-                  className="w-5 h-5 accent-blue-600 rounded-md cursor-pointer shrink-0"
+                  className="w-5 h-5 accent-[#800020] dark:accent-[#F47B20] rounded-md cursor-pointer shrink-0"
                 />
               </label>
 
               {/* Time Picker Sub-row */}
               {settings.studyReminders && (
-                <div className="flex items-center justify-between px-3.5 py-3 rounded-2xl bg-blue-50/60 dark:bg-blue-950/25 border border-blue-100 dark:border-blue-900/40">
-                  <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                <div className="flex items-center justify-between px-3.5 py-3 rounded-2xl bg-[#F7EFE2] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A]">
+                  <span className="text-xs font-semibold text-[#171923] dark:text-[#FFF9EF]">
                     Reminder Time:
                   </span>
                   <input
                     type="time"
                     value={settings.reminderTime}
                     onChange={(e) => handleTimeChange(e.target.value)}
-                    className="min-h-[40px] px-3 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-extrabold text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="min-h-[40px] px-3 py-1.5 rounded-xl border border-[#E8D9C0] dark:border-[#31374A] bg-white dark:bg-[#1F2330] text-xs font-extrabold text-[#171923] dark:text-[#FFF9EF] focus:outline-hidden focus:ring-2 focus:ring-[#800020] dark:focus:ring-[#F47B20]"
                   />
                 </div>
               )}
 
               {/* Exam Updates */}
-              <label className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/50 dark:border-slate-700/50 cursor-pointer active:bg-slate-100 dark:active:bg-slate-800 transition-colors">
+              <label className="flex items-center justify-between p-3.5 rounded-2xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] cursor-pointer active:bg-[#F7EFE2] dark:active:bg-[#252A3A] transition-colors">
                 <div className="flex items-center gap-3 pr-2">
-                  <div className="w-9 h-9 rounded-xl bg-amber-100/70 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                  <div className="w-9 h-9 rounded-xl bg-[#F47B20]/10 dark:bg-[#F47B20]/20 text-[#F47B20] flex items-center justify-center shrink-0">
                     <BookOpen className="w-4 h-4" />
                   </div>
                   <div>
-                    <h5 className="text-xs font-bold text-slate-900 dark:text-white">
-                      Exam & Syllabus Alerts
+                    <h5 className="text-xs font-bold text-[#171923] dark:text-[#FFF9EF]">
+                      Exam &amp; Syllabus Alerts
                     </h5>
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                    <p className="text-[11px] text-[#52576A] dark:text-[#CBD2E1] mt-0.5">
                       Latest syllabus updates and question bank additions
                     </p>
                   </div>
@@ -621,21 +620,21 @@ export const NotificationsPage: React.FC<NotificationsPageProps> = ({
                   type="checkbox"
                   checked={settings.examUpdates}
                   onChange={() => handleToggleSetting("examUpdates")}
-                  className="w-5 h-5 accent-blue-600 rounded-md cursor-pointer shrink-0"
+                  className="w-5 h-5 accent-[#800020] dark:accent-[#F47B20] rounded-md cursor-pointer shrink-0"
                 />
               </label>
 
               {/* Sound Enabled */}
-              <label className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/50 dark:border-slate-700/50 cursor-pointer active:bg-slate-100 dark:active:bg-slate-800 transition-colors">
+              <label className="flex items-center justify-between p-3.5 rounded-2xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] cursor-pointer active:bg-[#F7EFE2] dark:active:bg-[#252A3A] transition-colors">
                 <div className="flex items-center gap-3 pr-2">
                   <div className="w-9 h-9 rounded-xl bg-emerald-100/70 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
                     <Volume2 className="w-4 h-4" />
                   </div>
                   <div>
-                    <h5 className="text-xs font-bold text-slate-900 dark:text-white">
+                    <h5 className="text-xs font-bold text-[#171923] dark:text-[#FFF9EF]">
                       Sound Effects
                     </h5>
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                    <p className="text-[11px] text-[#52576A] dark:text-[#CBD2E1] mt-0.5">
                       Play audio chime when alerts arrive
                     </p>
                   </div>
@@ -644,19 +643,19 @@ export const NotificationsPage: React.FC<NotificationsPageProps> = ({
                   type="checkbox"
                   checked={settings.soundEnabled}
                   onChange={() => handleToggleSetting("soundEnabled")}
-                  className="w-5 h-5 accent-blue-600 rounded-md cursor-pointer shrink-0"
+                  className="w-5 h-5 accent-[#800020] dark:accent-[#F47B20] rounded-md cursor-pointer shrink-0"
                 />
               </label>
 
               {/* Web Push Notifications (Service Worker / Device Alert) */}
-              <div className="p-3.5 rounded-2xl bg-indigo-50/60 dark:bg-indigo-950/25 border border-indigo-100 dark:border-indigo-900/40">
+              <div className="p-3.5 rounded-2xl bg-[#C99A45]/10 dark:bg-[#C99A45]/15 border border-[#C99A45]/30">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3 pr-2">
-                    <div className="w-9 h-9 rounded-xl bg-indigo-100/70 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+                    <div className="w-9 h-9 rounded-xl bg-[#C99A45]/20 text-[#9E7324] dark:text-[#E8BD68] flex items-center justify-center shrink-0">
                       <Smartphone className="w-4 h-4" />
                     </div>
                     <div>
-                      <h5 className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                      <h5 className="text-xs font-bold text-[#171923] dark:text-[#FFF9EF] flex items-center gap-1.5">
                         System Push Notifications
                         <span className={`text-[10px] px-1.5 py-0.2 rounded font-bold uppercase ${
                           pushPermission === "granted"
@@ -668,15 +667,15 @@ export const NotificationsPage: React.FC<NotificationsPageProps> = ({
                           {pushPermission === "granted" ? "Active" : pushPermission === "denied" ? "Blocked" : "Disabled"}
                         </span>
                       </h5>
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                        Receive exam alerts & mock test reminders when app is closed
+                      <p className="text-[11px] text-[#52576A] dark:text-[#CBD2E1] mt-0.5">
+                        Receive exam alerts &amp; mock test reminders when app is closed
                       </p>
                     </div>
                   </div>
                   {pushPermission !== "granted" ? (
                     <button
                       onClick={handleEnablePush}
-                      className="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-bold shrink-0 transition-transform active:scale-95"
+                      className="px-3 py-1.5 rounded-xl bg-[#800020] hover:bg-[#5E0017] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] text-white text-[11px] font-bold shrink-0 transition-transform active:scale-95 cursor-pointer"
                     >
                       Enable
                     </button>
@@ -686,11 +685,11 @@ export const NotificationsPage: React.FC<NotificationsPageProps> = ({
                 </div>
 
                 {pushPermission === "granted" && (
-                  <div className="mt-3 pt-2.5 border-t border-indigo-100 dark:border-indigo-900/40 flex justify-end">
+                  <div className="mt-3 pt-2.5 border-t border-[#C99A45]/25 flex justify-end">
                     <button
                       onClick={handleTestPush}
                       disabled={isTestingPush}
-                      className="inline-flex items-center gap-1.5 text-[11px] font-bold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer disabled:opacity-50"
+                      className="inline-flex items-center gap-1.5 text-[11px] font-bold text-[#800020] dark:text-[#F47B20] hover:underline cursor-pointer disabled:opacity-50"
                     >
                       <BellRing className="w-3.5 h-3.5" />
                       {isTestingPush ? "Sending Test..." : "Send Test Notification"}
@@ -701,15 +700,15 @@ export const NotificationsPage: React.FC<NotificationsPageProps> = ({
             </div>
 
             {/* Sticky Save Button for Mobile Thumb Reach */}
-            <div className="mt-5 pt-3 border-t border-slate-100 dark:border-slate-800">
+            <div className="mt-5 pt-3 border-t border-[#E8D9C0] dark:border-[#31374A]">
               <button
                 onClick={() => {
                   setShowSettingsModal(false);
                   showToast("Settings saved successfully");
                 }}
-                className="w-full min-h-[46px] py-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-xs font-extrabold rounded-2xl transition-all shadow-md shadow-blue-500/20 active:scale-[0.99] flex items-center justify-center"
+                className="w-full min-h-[46px] py-2.5 bg-[#800020] hover:bg-[#5E0017] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] text-white text-xs font-extrabold rounded-2xl transition-all shadow-md active:scale-[0.99] flex items-center justify-center cursor-pointer"
               >
-                Save & Done
+                Save &amp; Done
               </button>
             </div>
           </div>

@@ -62,19 +62,19 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
   };
 
   return (
-    <div className="min-h-full bg-[#F6F8FC] dark:bg-[#0B1220] text-slate-800 dark:text-slate-100 flex flex-col pb-24 select-text">
+    <div className="min-h-full bg-[#FFF9EF] dark:bg-[#171923] text-[#171923] dark:text-[#FFF9EF] flex flex-col pb-24 select-text">
       {/* Sticky Header Bar */}
-      <header className="sticky top-0 z-40 bg-white/95 dark:bg-[#111927]/95 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/80 px-4 py-3 flex items-center justify-between">
+      <header className="sticky top-0 z-40 bg-white/95 dark:bg-[#1F2330]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           <button
             onClick={onNavigateHome}
             aria-label="Back to Homepage"
-            className="p-2 -ml-1 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors active:scale-95 cursor-pointer flex items-center gap-1.5 text-xs font-bold"
+            className="p-2 -ml-1 rounded-xl text-[#52576A] dark:text-[#CBD2E1] hover:bg-[#F7EFE2] dark:hover:bg-[#252A3A] transition-colors active:scale-95 cursor-pointer flex items-center gap-1.5 text-xs font-bold"
           >
             <ArrowLeft className="w-4 h-4" />
             <span className="hidden sm:inline">Home</span>
           </button>
-          <div className="h-4 w-px bg-slate-200 dark:bg-slate-800" />
+          <div className="h-4 w-px bg-[#E8D9C0] dark:bg-[#31374A]" />
           <div
             className="flex items-center gap-2 cursor-pointer"
             onClick={onNavigateHome}
@@ -83,17 +83,17 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
           >
             <AppLogo size="sm" />
             <div className="flex flex-col">
-              <span className="text-sm font-black text-slate-900 dark:text-white leading-tight tracking-tight">
+              <span className="text-sm font-black text-[#171923] dark:text-[#FFF9EF] leading-tight tracking-tight">
                 DISHA <span className="text-[#F47B20]">20-20</span>
               </span>
-              <span className="text-[10px] text-slate-400 font-semibold leading-none">Disclaimer</span>
+              <span className="text-[10px] text-[#800020] dark:text-[#F47B20] font-semibold leading-none">Disclaimer</span>
             </div>
           </div>
         </div>
 
         <button
           onClick={onNavigateHome}
-          className="w-10 h-10 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-500 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-slate-700 transition-all active:scale-90 cursor-pointer"
+          className="w-10 h-10 rounded-2xl bg-[#F7EFE2] dark:bg-[#252A3A] text-[#52576A] dark:text-[#CBD2E1] flex items-center justify-center hover:bg-[#EFE3CF] dark:hover:bg-[#31374A] border border-[#E8D9C0] dark:border-[#31374A] transition-all active:scale-90 cursor-pointer"
           aria-label="Close"
         >
           <ChevronRight className="w-5 h-5 rotate-90" />
@@ -104,12 +104,12 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
       <main className="max-w-4xl w-full mx-auto px-4 py-8 space-y-8 flex-1">
         {/* Page Hero Header */}
         <div className="text-center space-y-3">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100/80 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 text-[11px] font-black uppercase tracking-wider border border-amber-200/60 dark:border-amber-800/60">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] text-[11px] font-black uppercase tracking-wider border border-[#800020]/20 dark:border-[#F47B20]/30">
             <AlertCircle className="w-3.5 h-3.5" />
-            <span>Educational & Legal Disclaimer</span>
+            <span>Educational &amp; Legal Disclaimer</span>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl font-black text-[#071b49] dark:text-white tracking-tight">
+          <h1 className="text-3xl sm:text-4xl font-black text-[#171923] dark:text-[#FFF9EF] tracking-tight">
             Disclaimer
           </h1>
 

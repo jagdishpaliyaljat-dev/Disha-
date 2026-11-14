@@ -422,7 +422,7 @@ export const ExcelCsvQuestionImporter: React.FC<ExcelCsvQuestionImporterProps> =
                 className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-slate-200 focus:outline-hidden focus:ring-2 focus:ring-emerald-500 cursor-pointer"
               >
                 {subjects.map(s => (
-                  <option key={s.id} value={s.id}>{s.nameHindi || s.name}</option>
+                  <option key={s.id} value={s.id}>{s.hindiName || s.name}</option>
                 ))}
               </select>
             </div>

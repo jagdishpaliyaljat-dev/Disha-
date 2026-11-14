@@ -1519,6 +1519,7 @@ export default function App() {
               onShowManagePYQVault={() => setIsManagePYQVaultOpen(true)}
               onShowManageLiveTests={() => setIsManageLiveTestsOpen(true)}
               onShowManageExamCategories={() => setIsManageCategoriesOpen(true)}
+              onBulkDeleteQuestions={(ids: string[]) => handleBulkDeleteQuestions(ids)}
             />
           </AdminErrorBoundary>
         )}

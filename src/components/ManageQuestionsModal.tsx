@@ -317,7 +317,7 @@ export const ManageQuestionsModal: React.FC<ManageQuestionsModalProps> = ({
       const next = new Set<string>();
       targetPool.slice(0, rawVal).forEach((q) => next.add(q.id));
       setSelectedQuestionIds(next);
-      showNotification(`Selected exactly ${rawVal} question(s) for bulk move.`);
+      showNotification(`Selected exactly ${rawVal} question(s) for bulk move/delete.`);
     }
   };
 
@@ -613,7 +613,7 @@ export const ManageQuestionsModal: React.FC<ManageQuestionsModalProps> = ({
                   <div className="flex items-center gap-1.5">
                     <Layers className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
                     <label className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                      Number of Questions to Move
+                      Select Quantity (Move or Bulk Delete)
                     </label>
                   </div>
                   <span className="text-[11px] font-mono font-bold text-slate-400">
@@ -888,7 +888,7 @@ export const ManageQuestionsModal: React.FC<ManageQuestionsModalProps> = ({
                   <div className="flex items-center gap-1.5">
                     <Layers className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
                     <label className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                      Number of Questions to Move
+                      Select Quantity (Move or Bulk Delete)
                     </label>
                   </div>
                   <span className="text-[11px] font-mono font-bold text-slate-400">
@@ -965,43 +965,61 @@ export const ManageQuestionsModal: React.FC<ManageQuestionsModalProps> = ({
                   </span>
                 </button>
 
-                <div className="flex items-center gap-3">
-                  {selectedTopic && onAddQuestions && (
-                    <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 flex-wrap">
+                  {selectedQuestionIds.size > 0 ? (
+                    <div className="flex items-center gap-1.5">
                       <button
-                        onClick={() => onAddQuestions(selectedTopic.chapterId, selectedTopic.topicId, "manual")}
-                        className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 cursor-pointer"
+                        onClick={() => setShowBulkMoveModal(true)}
+                        className="px-2.5 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-1 cursor-pointer active:scale-95"
+                        title="Move selected questions to another topic"
                       >
-                        <Plus className="w-3.5 h-3.5" />
-                        <span>Add MCQ</span>
+                        <FolderInput className="w-3.5 h-3.5" />
+                        <span>Move ({selectedQuestionIds.size})</span>
                       </button>
                       <button
-                        onClick={() => onAddQuestions(selectedTopic.chapterId, selectedTopic.topicId, "paste")}
-                        className="text-xs font-bold text-purple-600 dark:text-purple-400 hover:underline flex items-center gap-1 cursor-pointer"
+                        onClick={() => setShowBulkDeleteModal(true)}
+                        className="px-2.5 py-1 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs flex items-center gap-1 cursor-pointer active:scale-95"
+                        title="Delete selected questions"
                       >
-                        <Upload className="w-3.5 h-3.5" />
-                        <span>Add MCQ Import</span>
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>Delete ({selectedQuestionIds.size})</span>
                       </button>
-                      {onShowHTMLImport && (
-                        <button
-                          onClick={() => onShowHTMLImport(selectedTopic.chapterId, selectedTopic.topicId)}
-                          className="text-xs font-bold text-orange-600 dark:text-orange-400 hover:underline flex items-center gap-1 cursor-pointer"
-                          title="Import MCQs from HTML file or source code"
-                        >
-                          <FileCode className="w-3.5 h-3.5" />
-                          <span>HTML Import MCQ</span>
-                        </button>
-                      )}
+                      <button
+                        onClick={() => setSelectedQuestionIds(new Set())}
+                        className="px-2 py-1 text-xs font-bold text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 cursor-pointer ml-1"
+                      >
+                        Deselect
+                      </button>
                     </div>
-                  )}
-
-                  {selectedQuestionIds.size > 0 && (
-                    <button
-                      onClick={() => setSelectedQuestionIds(new Set())}
-                      className="text-xs font-bold text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 cursor-pointer"
-                    >
-                      Deselect All
-                    </button>
+                  ) : (
+                    selectedTopic && onAddQuestions && (
+                      <div className="flex items-center gap-2.5">
+                        <button
+                          onClick={() => onAddQuestions(selectedTopic.chapterId, selectedTopic.topicId, "manual")}
+                          className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 cursor-pointer"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                          <span>Add MCQ</span>
+                        </button>
+                        <button
+                          onClick={() => onAddQuestions(selectedTopic.chapterId, selectedTopic.topicId, "paste")}
+                          className="text-xs font-bold text-purple-600 dark:text-purple-400 hover:underline flex items-center gap-1 cursor-pointer"
+                        >
+                          <Upload className="w-3.5 h-3.5" />
+                          <span>Add MCQ Import</span>
+                        </button>
+                        {onShowHTMLImport && (
+                          <button
+                            onClick={() => onShowHTMLImport(selectedTopic.chapterId, selectedTopic.topicId)}
+                            className="text-xs font-bold text-orange-600 dark:text-orange-400 hover:underline flex items-center gap-1 cursor-pointer"
+                            title="Import MCQs from HTML file or source code"
+                          >
+                            <FileCode className="w-3.5 h-3.5" />
+                            <span>HTML Import MCQ</span>
+                          </button>
+                        )}
+                      </div>
+                    )
                   )}
                 </div>
               </div>

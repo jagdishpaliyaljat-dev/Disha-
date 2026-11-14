@@ -108,4 +108,57 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+
+  /* DISHA 20-20 Standard UI Tokens */
+  .disha-card-surface {
+    background-color: var(--disha-bg-surface);
+    border: 1px solid var(--disha-border-subtle);
+    border-radius: 1.5rem;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  }
+
+  .disha-btn-primary {
+    background-color: var(--disha-accent-primary);
+    color: #ffffff;
+    font-weight: 800;
+    border-radius: 0.75rem;
+    transition: all 0.15s ease-in-out;
+    cursor: pointer;
+    user-select: none;
+  }
+  .disha-btn-primary:active {
+    transform: scale(0.96);
+  }
+
+  .disha-btn-secondary {
+    background-color: var(--disha-bg-subtle);
+    color: var(--disha-text-primary);
+    border: 1px solid var(--disha-border-subtle);
+    font-weight: 700;
+    border-radius: 0.75rem;
+    transition: all 0.15s ease-in-out;
+    cursor: pointer;
+    user-select: none;
+  }
+  .disha-btn-secondary:active {
+    transform: scale(0.96);
+  }
+
+  .disha-input-field {
+    background-color: var(--disha-bg-surface);
+    color: var(--disha-text-primary);
+    border: 1px solid var(--disha-border-subtle);
+    border-radius: 0.75rem;
+    padding: 0.625rem 0.875rem;
+    font-size: 0.875rem;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .disha-input-field:focus {
+    border-color: var(--disha-accent-primary);
+    box-shadow: 0 0 0 2px rgba(128, 0, 32, 0.15);
+  }
+  .dark .disha-input-field:focus {
+    box-shadow: 0 0 0 2px rgba(244, 123, 32, 0.25);
+  }
 }
