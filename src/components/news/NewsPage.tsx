@@ -101,7 +101,12 @@ export const NewsPage: React.FC<NewsPageProps> = ({
   const [searchQuery, setSearchQuery] = useState("");
   const [shareData, setShareData] = useState<ShareData | null>(null);
   const [readingProgress, setReadingProgress] = useState(0);
-  const [tocOpen, setTocOpen] = useState(true);
+  const [tocOpen, setTocOpen] = useState(() => {
+    if (typeof window !== "undefined") {
+      return window.innerWidth >= 1024;
+    }
+    return false;
+  });
   const [activeSectionId, setActiveSectionId] = useState<string>("");
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
     if (typeof window !== "undefined") {
@@ -364,6 +369,20 @@ export const NewsPage: React.FC<NewsPageProps> = ({
     handleOpenShare(targetArt);
   };
 
+  const handleShareWhatsApp = (art?: NewsArticle | null) => {
+    const targetArt = art || activeArticle;
+    if (!targetArt) return;
+    const origin = typeof window !== "undefined" ? window.location.origin : SITE_CONFIG.domain;
+    const fullUrl = `${origin}/news/${targetArt.slug}`;
+    const title = getDisplayArticleTitle(targetArt);
+    const excerpt = targetArt.excerpt || "राजस्थान प्रतियोगी परीक्षाओं की तैयारी के लिए महत्वपूर्ण नोट्स व PYQ गाइड।";
+    const text = `📚 *${title}*\n\n${excerpt}\n\n👉 *यहाँ पूरा पढ़ें:* ${fullUrl}\n\n_DISHA 20-20 (दिशा 20-20) · सही दिशा, सटीक तैयारी_`;
+    const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+    if (typeof window !== "undefined") {
+      window.open(waUrl, "_blank", "noopener,noreferrer");
+    }
+  };
+
   const categories = [
     "All",
     ...(dynamicCategories.length > 0
@@ -473,7 +492,8 @@ export const NewsPage: React.FC<NewsPageProps> = ({
     }[] = [];
 
     // Parse from raw HTML if present
-    if (activeArticle?.content && activeArticle.content.trim()) {
+    const isHtml = !!(activeArticle?.content && activeArticle.content.trim() && /<[a-z][\s\S]*>/i.test(activeArticle.content));
+    if (isHtml && activeArticle?.content) {
       if (typeof window !== "undefined") {
         try {
           const parser = new DOMParser();
@@ -1509,12 +1529,19 @@ export const NewsPage: React.FC<NewsPageProps> = ({
 
           {/* Article Header */}
           <header className="space-y-4">
-            <div className="flex flex-wrap items-center gap-2 text-xs font-black uppercase tracking-wider text-[#800020] dark:text-[#F47B20] tabular-nums">
-              <span>{activeArticle.category}</span>
+            <div className="flex flex-wrap items-center gap-2.5">
+              <span className="text-xs font-black uppercase tracking-wider text-[#800020] dark:text-[#F47B20] tabular-nums">
+                {activeArticle.category}
+              </span>
               <span className="text-[#E8D9C0] dark:text-[#31374A]">·</span>
-              <span className="text-[#52576A] dark:text-[#CBD2E1] font-bold flex items-center gap-1 normal-case">
+              <span className="text-[#52576A] dark:text-[#CBD2E1] font-bold flex items-center gap-1 text-xs">
                 <Clock className="w-3.5 h-3.5 text-[#800020] dark:text-[#F47B20]" />
                 <span>{getReadingTime(activeArticle.content)}</span>
+              </span>
+              <span className="text-[#E8D9C0] dark:text-[#31374A]">·</span>
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 text-[10.5px] font-bold">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span>100% सत्यापित एवं अपडेटेड</span>
               </span>
             </div>
 
@@ -1555,15 +1582,27 @@ export const NewsPage: React.FC<NewsPageProps> = ({
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 text-xs text-[#52576A] dark:text-[#CBD2E1] tabular-nums font-bold">
-                <Calendar className="w-3.5 h-3.5 text-[#800020] dark:text-[#F47B20]" />
-                <span>Published {publishedFormatted}</span>
-                {updatedFormatted && updatedFormatted !== publishedFormatted && (
-                  <>
-                    <span>·</span>
-                    <span>Updated {updatedFormatted}</span>
-                  </>
-                )}
+              <div className="flex items-center gap-3 flex-wrap">
+                <div className="flex items-center gap-2 text-xs text-[#52576A] dark:text-[#CBD2E1] tabular-nums font-bold">
+                  <Calendar className="w-3.5 h-3.5 text-[#800020] dark:text-[#F47B20]" />
+                  <span>Published {publishedFormatted}</span>
+                  {updatedFormatted && updatedFormatted !== publishedFormatted && (
+                    <>
+                      <span>·</span>
+                      <span>Updated {updatedFormatted}</span>
+                    </>
+                  )}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => handleShareWhatsApp(activeArticle)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs active:scale-95 transition-all cursor-pointer"
+                  title="Share on WhatsApp"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                  <span>WhatsApp शेयर</span>
+                </button>
               </div>
             </div>
           </header>
@@ -1648,7 +1687,7 @@ export const NewsPage: React.FC<NewsPageProps> = ({
                 tableOfContents.length > 0 ? "lg:col-span-8" : "lg:col-span-12"
               } w-full min-w-0 max-w-full overflow-hidden order-1 lg:order-1 space-y-5`}
             >
-              {activeArticle.content && activeArticle.content.trim() ? (
+              {activeArticle.content && activeArticle.content.trim() && /<[a-z][\s\S]*>/i.test(activeArticle.content) ? (
                 <RawHtmlArticleViewer htmlContent={activeArticle.content} />
               ) : effectiveBlocks && effectiveBlocks.length > 0 ? (
                 effectiveBlocks.map((blk, idx) => (
@@ -1857,21 +1896,30 @@ export const NewsPage: React.FC<NewsPageProps> = ({
         </div>
 
         {/* Floating Mobile Bottom Sticky Action Bar */}
-        <div className="block md:hidden fixed bottom-0 left-0 right-0 z-50 p-3 bg-[#FFF9EF]/95 dark:bg-[#1F2330]/95 backdrop-blur-md border-t border-[#E8D9C0] dark:border-[#31374A] shadow-2xl">
-          <div className="max-w-md mx-auto flex items-center gap-2.5">
+        <div className="block md:hidden fixed bottom-0 left-0 right-0 z-50 p-2.5 bg-[#FFF9EF]/95 dark:bg-[#1F2330]/95 backdrop-blur-md border-t border-[#E8D9C0] dark:border-[#31374A] shadow-2xl">
+          <div className="max-w-md mx-auto flex items-center gap-2">
+            <button
+              onClick={() => handleShareWhatsApp(activeArticle)}
+              className="h-11 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer shrink-0 shadow-xs"
+              title="Share on WhatsApp"
+            >
+              <Send className="w-3.5 h-3.5" />
+              <span>WhatsApp</span>
+            </button>
             <button
               onClick={() => handleNativeOrModalShare(activeArticle)}
-              className="h-11 px-4 rounded-xl bg-white hover:bg-[#F7EFE2] dark:bg-[#252A3A] dark:hover:bg-[#31374A] text-[#171923] dark:text-[#FFF9EF] font-semibold text-xs flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer shrink-0 border border-[#E8D9C0] dark:border-[#31374A]"
+              className="h-11 px-3 rounded-xl bg-white hover:bg-[#F7EFE2] dark:bg-[#252A3A] dark:hover:bg-[#31374A] text-[#171923] dark:text-[#FFF9EF] font-semibold text-xs flex items-center justify-center gap-1 active:scale-95 cursor-pointer shrink-0 border border-[#E8D9C0] dark:border-[#31374A]"
+              title="Share Options"
             >
-              <Share2 className="w-4 h-4 text-[#800020] dark:text-[#C99A45]" />
+              <Share2 className="w-3.5 h-3.5 text-[#800020] dark:text-[#C99A45]" />
               <span>Share</span>
             </button>
             <button
               onClick={onNavigateHome}
-              className="flex-1 h-11 px-4 rounded-xl bg-[#800020] hover:bg-[#5E0017] dark:bg-[#800020] dark:hover:bg-[#650019] text-white font-semibold text-xs border border-[#C99A45]/40 shadow-sm active:scale-95 cursor-pointer flex items-center justify-center gap-2 group"
+              className="flex-1 h-11 px-3 rounded-xl bg-[#800020] hover:bg-[#5E0017] dark:bg-[#800020] dark:hover:bg-[#650019] text-white font-semibold text-xs border border-[#C99A45]/40 shadow-sm active:scale-95 cursor-pointer flex items-center justify-center gap-1.5 group truncate"
             >
-              <span>Practice Free MCQs</span>
-              <ChevronRight className="w-4 h-4 text-[#C99A45] group-hover:translate-x-0.5 transition-transform" />
+              <span className="truncate">अभ्यास करें</span>
+              <ChevronRight className="w-4 h-4 text-[#C99A45] group-hover:translate-x-0.5 transition-transform shrink-0" />
             </button>
           </div>
         </div>

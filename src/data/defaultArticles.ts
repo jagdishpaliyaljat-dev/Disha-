@@ -1,5 +1,6 @@
 import { NewsArticle } from "../types";
 import { RAJASTHAN_CET_2026_ARTICLE } from "./rajasthanCet2026Article";
+import { RAJASTHAN_GK_PYQ_REFERENCE_ARTICLE } from "./rajasthanGkPyqReferenceArticle";
 import { RAJASTHAN_POLICE_CONSTABLE_BHARTI_2026_ARTICLE } from "./rajasthanPoliceConstableBharti2026Article";
 import { RAJASTHAN_EXAMS_2026_ARTICLE } from "./rajasthanExams2026Article";
 import { ABOUT_QUIZPRO_PRO_ARTICLE } from "./aboutQuizProProArticle";
@@ -7,6 +8,7 @@ import { STUDY_EFFICIENCY_ARTICLE } from "./studyEfficiencyArticle";
 
 export const DEFAULT_ARTICLES: NewsArticle[] = [
   RAJASTHAN_CET_2026_ARTICLE,
+  RAJASTHAN_GK_PYQ_REFERENCE_ARTICLE,
   RAJASTHAN_POLICE_CONSTABLE_BHARTI_2026_ARTICLE,
   RAJASTHAN_EXAMS_2026_ARTICLE,
   ABOUT_QUIZPRO_PRO_ARTICLE,
