@@ -230,11 +230,32 @@ export const NewsPage: React.FC<NewsPageProps> = ({
             },
           ];
 
-          if (art.faqs && art.faqs.length > 0) {
+          let effectiveFaqs = art.faqs && art.faqs.length > 0 ? art.faqs : [];
+          if (effectiveFaqs.length === 0 && art.content && typeof window !== "undefined") {
+            try {
+              const doc = new DOMParser().parseFromString(art.content, "text/html");
+              const cards = doc.querySelectorAll(".card, dt, .rx-faq-accordion");
+              const parsed: { question: string; answer: string }[] = [];
+              cards.forEach((card) => {
+                const strong = card.querySelector("strong, b, .rx-faq-q-text");
+                if (strong && strong.textContent) {
+                  const q = strong.textContent.trim().replace(/^[प्रQ]\.\s*|^\d+[\.\)]\s*/i, "");
+                  const clone = card.cloneNode(true) as HTMLElement;
+                  const s = clone.querySelector("strong, b, .rx-faq-q-text, .rx-faq-header, .rx-faq-badge, svg");
+                  if (s) s.remove();
+                  const a = clone.textContent?.trim().replace(/^[उA]\.\s*/i, "") || "";
+                  if (q && a) parsed.push({ question: q, answer: a });
+                }
+              });
+              if (parsed.length > 0) effectiveFaqs = parsed;
+            } catch {}
+          }
+
+          if (effectiveFaqs.length > 0) {
             jsonLdSchemas.push({
               "@context": "https://schema.org",
               "@type": "FAQPage",
-              mainEntity: art.faqs.map((f) => ({
+              mainEntity: effectiveFaqs.map((f) => ({
                 "@type": "Question",
                 name: f.question,
                 acceptedAnswer: {
@@ -1291,27 +1312,26 @@ export const NewsPage: React.FC<NewsPageProps> = ({
   const renderCtaCard = (key: string | number) => (
     <div
       key={key}
-      className="my-8 sm:my-10 p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-[#800020] via-[#6A001A] to-[#4A0012] text-white border border-[#C99A45]/35 shadow-xl relative overflow-hidden"
+      className="my-8 p-5 sm:p-7 rounded-3xl bg-gradient-to-br from-[#800020] via-[#650019] to-[#3B000E] text-white border border-[#C99A45]/30 shadow-lg relative overflow-hidden"
     >
       <div className="absolute top-0 right-0 w-64 h-64 bg-[#F47B20]/15 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none" />
-      <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-6">
-        <div className="space-y-2 text-center sm:text-left">
-          <span className="inline-block text-[11px] font-black uppercase tracking-wider text-[#C99A45]">
-            DISHA 20-20 · Exam Prep
-          </span>
-          <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight">
-            Test Your Knowledge — Take a Free Mock Test Today!
+      <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-5">
+        <div className="space-y-1.5 text-center sm:text-left">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/10 text-[10.5px] font-black uppercase tracking-wider text-[#FCD34D]">
+            <span>⭐ DISHA 20-20 Exam Prep Companion</span>
+          </div>
+          <h3 className="text-lg sm:text-xl font-black text-white tracking-tight">
+            महत्वपूर्ण अभ्यास प्रश्न एवं PYQ टेस्ट सीरीज़
           </h3>
-          <p className="text-xs sm:text-sm text-[#FFF9EF]/85 max-w-lg">
-            Ensure success in competitive exams with topic-wise questions, official PYQ vault, and live mock tests.
+          <p className="text-xs sm:text-[13px] text-[#FFF9EF]/85 max-w-lg leading-relaxed">
+            राजस्थान भर्ती परीक्षाओं के टॉपिक-वाइज़ पिछले वर्षों के हल प्रश्न (PYQ) और लाइव मॉक टेस्ट का निशुल्क अभ्यास करें।
           </p>
         </div>
         <button
           onClick={onNavigateHome}
-          className="w-full sm:w-auto px-6 py-3.5 bg-[#F47B20] hover:bg-[#E06A12] text-white font-black rounded-2xl text-sm transition-all shadow-lg active:scale-95 cursor-pointer shrink-0 flex items-center justify-center gap-2 whitespace-nowrap"
+          className="w-full sm:w-auto px-5 py-3 bg-[#F47B20] hover:bg-[#E06A12] text-white font-black rounded-xl text-xs sm:text-sm transition-all shadow-md active:scale-95 cursor-pointer shrink-0 flex items-center justify-center gap-2 whitespace-nowrap"
         >
-          <span>Start Free Mock Test</span>
-          <ArrowRightIcon className="w-4 h-4 text-white" />
+          <span>अभ्यास शुरू करें →</span>
         </button>
       </div>
     </div>
@@ -1545,11 +1565,11 @@ export const NewsPage: React.FC<NewsPageProps> = ({
             )}
           </figure>
 
-          {/* Layout Container: ToC Sticky Sidebar + Article Body */}
+          {/* Layout Container: ToC Sidebar + Article Body (Mobile First: Body reads first) */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             {/* Table of Contents */}
             {tableOfContents.length > 0 && (
-              <aside className="lg:col-span-4 space-y-4 lg:sticky lg:top-20 order-1 lg:order-2">
+              <aside className="lg:col-span-4 space-y-4 lg:sticky lg:top-20 order-2 lg:order-2">
                 <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] shadow-xs">
                   <button
                     onClick={() => setTocOpen(!tocOpen)}
@@ -1600,7 +1620,7 @@ export const NewsPage: React.FC<NewsPageProps> = ({
             <main
               className={`${
                 tableOfContents.length > 0 ? "lg:col-span-8" : "lg:col-span-12"
-              } order-2 lg:order-1 space-y-4`}
+              } w-full min-w-0 max-w-full overflow-hidden order-1 lg:order-1 space-y-5`}
             >
               {activeArticle.content && activeArticle.content.trim() ? (
                 <RawHtmlArticleViewer htmlContent={activeArticle.content} />
@@ -1617,39 +1637,14 @@ export const NewsPage: React.FC<NewsPageProps> = ({
                 </div>
               )}
 
-              {/* End-of-article CTA Card */}
+              {/* Refined Single Editorial CTA Card (Clean & Non-Intrusive) */}
               {renderCtaCard("end-cta")}
 
-              {/* General Quiz Practice Callout Card */}
-              <div className="my-8 p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-[#FFF9EF] to-[#F7EFE2] dark:from-[#1F2330] dark:to-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xs">
-                <div className="flex items-center gap-3.5">
-                  <div className="w-12 h-12 rounded-2xl bg-[#800020] text-[#FFF9EF] flex items-center justify-center font-black shrink-0 shadow-md shadow-[#800020]/20">
-                    <BookOpen className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <span className="text-[10px] font-black uppercase tracking-wider text-[#800020] dark:text-[#F47B20]">
-                      DISHA 20-20 · Practice Hub
-                    </span>
-                    <h4 className="text-sm sm:text-base font-extrabold text-[#171923] dark:text-[#FFF9EF] mt-0.5">
-                      Practice Exam Questions &amp; PYQ Vault
-                    </h4>
-                    <p className="text-xs text-[#52576A] dark:text-[#CBD2E1]">
-                      Solve official MCQs with timer, negative marking, and performance analytics
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={onNavigateHome}
-                  className="w-full sm:w-auto px-4 py-2.5 bg-[#800020] hover:bg-[#5E0017] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] text-white rounded-xl text-xs font-black transition-all shadow-xs shrink-0 cursor-pointer text-center whitespace-nowrap"
-                >
-                  Start Practice →
-                </button>
-              </div>
-
-              {/* Frequently Asked Questions (FAQ) Accordion (if not already included as a block) */}
+              {/* Frequently Asked Questions (FAQ) Accordion (if not already included as a block or in raw HTML) */}
               {(() => {
                 const hasFaqBlock = effectiveBlocks.some((b) => b.type === "faq");
-                const faqsToRender = !hasFaqBlock && activeArticle.faqs && activeArticle.faqs.length > 0 ? activeArticle.faqs : [];
+                const hasHtmlFaq = !!(activeArticle.content && /faq|अक्सर पूछे|सवाल-जवाब|प्रश्न-उत्तर|प्रश्नोत्तर/i.test(activeArticle.content));
+                const faqsToRender = !hasFaqBlock && !hasHtmlFaq && activeArticle.faqs && activeArticle.faqs.length > 0 ? activeArticle.faqs : [];
                 if (faqsToRender.length === 0) return null;
 
                 return (

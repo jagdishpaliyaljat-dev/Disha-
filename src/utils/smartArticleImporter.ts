@@ -1433,10 +1433,44 @@ export function parseSmartHtml(
   existingArticles: NewsArticle[] = [],
   customRules: AutoLinkRule[] = []
 ): ParsedImportResult {
-  const cleanHtml = DOMPurify.sanitize(rawHtml, {
+  // Support isomorphic / ESM environments (Node.js Vitest and Browser)
+  const purify =
+    (DOMPurify as any)?.sanitize
+      ? DOMPurify
+      : (DOMPurify as any)?.default?.sanitize
+      ? (DOMPurify as any).default
+      : typeof DOMPurify === "function" && typeof window !== "undefined"
+      ? (DOMPurify as any)(window)
+      : null;
+
+  // Preserve any custom embedded <style> tags from rawHtml if sanitized by DOMPurify
+  const styleMatches = rawHtml.match(/<style[\s\S]*?<\/style>/gi) || [];
+  const preservedStyles = styleMatches.join("\n");
+
+  const sanitizeOptions = {
     USE_PROFILES: { html: true },
-    ADD_TAGS: ["table", "thead", "tbody", "tr", "th", "td", "h1", "h2", "h3", "h4", "dl", "dt", "dd"]
-  });
+    FORCE_BODY: false,
+    ADD_TAGS: [
+      "table", "thead", "tbody", "tr", "th", "td",
+      "h1", "h2", "h3", "h4", "h5", "h6",
+      "dl", "dt", "dd", "style", "div", "span", "section", "article",
+      "p", "strong", "em", "b", "i", "u", "br", "hr", "ul", "ol", "li",
+      "blockquote", "code", "pre", "details", "summary", "a", "img", "iframe"
+    ],
+    ADD_ATTR: [
+      "class", "id", "style", "target", "rel", "href", "src", "alt",
+      "title", "width", "height", "frameborder", "allowfullscreen"
+    ]
+  };
+
+  let cleanHtml =
+    purify && typeof purify.sanitize === "function"
+      ? purify.sanitize(rawHtml, sanitizeOptions)
+      : rawHtml;
+
+  if (preservedStyles && !cleanHtml.includes("<style")) {
+    cleanHtml = `${preservedStyles}\n${cleanHtml}`;
+  }
 
   const parser = new DOMParser();
   const doc = parser.parseFromString(cleanHtml, "text/html");
@@ -1452,15 +1486,43 @@ export function parseSmartHtml(
     const titleTag = doc.querySelector("title");
     if (titleTag && titleTag.textContent?.trim()) {
       detectedTitle = titleTag.textContent.trim();
+    } else {
+      const firstH2 = doc.querySelector("h2");
+      const leadStrong = doc.querySelector(".lead strong, p.lead strong, .note strong");
+      if (leadStrong && leadStrong.textContent?.trim()) {
+        detectedTitle = `${leadStrong.textContent.trim()} — संपूर्ण गाइड व PYQ`;
+      } else if (firstH2 && firstH2.textContent?.trim()) {
+        detectedTitle = firstH2.textContent.trim();
+      }
     }
   }
 
-  const bodyNodes = Array.from(doc.body.children);
+  // Detect explicit custom excerpt from .lead or .intro
+  const leadEl = doc.querySelector(".lead, .intro, p.lead");
+  let customExcerpt = "";
+  if (leadEl && leadEl.textContent?.trim()) {
+    customExcerpt = leadEl.textContent.trim();
+  }
+
+  // Flatten top-level wrapper elements (e.g. <div class="rx">, <div class="container">, <article>)
+  // so that child elements (lead, note, h2, table, ul, card) are parsed into individual semantic blocks
+  let bodyNodes: Element[] = [];
+  const rawChildren = Array.from(doc.body.children).filter(el => el.tagName.toLowerCase() !== "style");
+
+  if (rawChildren.length === 1 && ["div", "article", "section", "main"].includes(rawChildren[0].tagName.toLowerCase())) {
+    bodyNodes = Array.from(rawChildren[0].children);
+  } else if (rawChildren.length > 0 && rawChildren.every(c => c.tagName.toLowerCase() === "div" && c.children.length > 1)) {
+    bodyNodes = rawChildren.flatMap(c => Array.from(c.children));
+  } else {
+    bodyNodes = rawChildren;
+  }
+
   let tableCount = 0;
   let keyPointsCount = 0;
   let ctaDetected = false;
   let introDetected = false;
   let conclusionDetected = false;
+  let inFaqSection = false;
   let h1Count = 1;
   let h2Count = 0;
   let h3Count = 0;
@@ -1474,6 +1536,7 @@ export function parseSmartHtml(
 
     // H1
     if (tag === "h1") {
+      inFaqSection = false;
       if (!detectedTitle) {
         detectedTitle = text;
       } else {
@@ -1491,6 +1554,9 @@ export function parseSmartHtml(
     // H2
     if (tag === "h2") {
       h2Count++;
+      const isFaqHeading = /faq|अक्सर पूछे|सवाल-जवाब|प्रश्न-उत्तर|प्रश्नोत्तर|frequently asked/i.test(text);
+      inFaqSection = isFaqHeading;
+
       blocks.push({
         id: `blk_h2_${Date.now()}_${blocks.length}`,
         type: "heading",
@@ -1503,6 +1569,9 @@ export function parseSmartHtml(
     // H3
     if (tag === "h3") {
       h3Count++;
+      const isFaqHeading = /faq|अक्सर पूछे|सवाल-जवाब|प्रश्न-उत्तर|प्रश्नोत्तर|frequently asked/i.test(text);
+      if (isFaqHeading) inFaqSection = true;
+
       blocks.push({
         id: `blk_h3_${Date.now()}_${blocks.length}`,
         type: "heading",
@@ -1524,38 +1593,92 @@ export function parseSmartHtml(
       continue;
     }
 
-    // Table
-    if (tag === "table") {
-      const headers: string[] = [];
-      const ths = Array.from(node.querySelectorAll("th"));
-      if (ths.length > 0) {
-        ths.forEach(th => headers.push(th.textContent?.trim() || ""));
+    // If within FAQ section or node contains an FAQ pattern
+    if (inFaqSection || node.classList.contains("card")) {
+      const strongEl = node.querySelector("strong, b");
+      if (strongEl && strongEl.textContent?.trim()) {
+        const strongText = strongEl.textContent.trim();
+        const hasFaqSignal = inFaqSection || /^[प्रQ][\.\:\s]|प्रश्न|सवाल|\?/i.test(strongText);
+        if (hasFaqSignal) {
+          const q = strongText.replace(/^[प्रQ]\.\s*|^\d+[\.\)]\s*/i, "");
+          const clone = node.cloneNode(true) as HTMLElement;
+          const s = clone.querySelector("strong, b");
+          if (s) s.remove();
+          let a = clone.textContent?.trim() || "";
+          a = a.replace(/^[उA]\.\s*|^\:+\s*/i, "").trim();
+          if (q && a) {
+            extractedFaqs.push({ question: q, answer: a });
+            continue;
+          }
+        }
       }
+    }
 
-      const rows: { cells: string[] }[] = [];
-      const trs = Array.from(node.querySelectorAll("tr"));
-      trs.forEach(tr => {
-        const tds = Array.from(tr.querySelectorAll("td"));
-        if (tds.length > 0) {
-          rows.push({ cells: tds.map(td => td.textContent?.trim() || "") });
-        }
-      });
-
-      if (rows.length > 0) {
-        let tableHeaders = headers;
-        let tableRows = rows;
-        if (tableHeaders.length === 0 && rows.length > 0) {
-          tableHeaders = rows[0].cells;
-          tableRows = rows.slice(1);
-        }
-
-        blocks.push({
-          id: `blk_tbl_${Date.now()}_${blocks.length}`,
-          type: "table",
-          tableHeaders,
-          tableRows
+    // FAQ definition lists (<dl>)
+    if (tag === "dl") {
+      const dts = Array.from(node.querySelectorAll("dt"));
+      const dds = Array.from(node.querySelectorAll("dd"));
+      for (let i = 0; i < Math.min(dts.length, dds.length); i++) {
+        extractedFaqs.push({
+          question: dts[i].textContent?.trim().replace(/^[प्रQ]\.\s*|^\d+[\.\)]\s*/i, "") || "",
+          answer: dds[i].textContent?.trim().replace(/^[उA]\.\s*/i, "") || ""
         });
-        tableCount++;
+      }
+      continue;
+    }
+
+    // Note / Callout Box (.note or blockquote)
+    if (node.classList.contains("note") || tag === "blockquote") {
+      blocks.push({
+        id: `blk_callout_${Date.now()}_${blocks.length}`,
+        type: "callout",
+        calloutType: "info",
+        text
+      });
+      continue;
+    }
+
+    // Tags container (.tags)
+    if (node.classList.contains("tags")) {
+      // Tags are preserved in HTML, skip creating generic block
+      continue;
+    }
+
+    // Table
+    if (tag === "table" || node.querySelector("table")) {
+      const tableEl = tag === "table" ? node : node.querySelector("table");
+      if (tableEl) {
+        const headers: string[] = [];
+        const ths = Array.from(tableEl.querySelectorAll("th"));
+        if (ths.length > 0) {
+          ths.forEach(th => headers.push(th.textContent?.trim() || ""));
+        }
+
+        const rows: { cells: string[] }[] = [];
+        const trs = Array.from(tableEl.querySelectorAll("tr"));
+        trs.forEach(tr => {
+          const tds = Array.from(tr.querySelectorAll("td"));
+          if (tds.length > 0) {
+            rows.push({ cells: tds.map(td => td.textContent?.trim() || "") });
+          }
+        });
+
+        if (rows.length > 0) {
+          let tableHeaders = headers;
+          let tableRows = rows;
+          if (tableHeaders.length === 0 && rows.length > 0) {
+            tableHeaders = rows[0].cells;
+            tableRows = rows.slice(1);
+          }
+
+          blocks.push({
+            id: `blk_tbl_${Date.now()}_${blocks.length}`,
+            type: "table",
+            tableHeaders,
+            tableRows
+          });
+          tableCount++;
+        }
       }
       continue;
     }
@@ -1582,30 +1705,6 @@ export function parseSmartHtml(
             listItems: items
           });
         }
-      }
-      continue;
-    }
-
-    // Blockquote
-    if (tag === "blockquote") {
-      blocks.push({
-        id: `blk_callout_${Date.now()}_${blocks.length}`,
-        type: "callout",
-        calloutType: "info",
-        text
-      });
-      continue;
-    }
-
-    // FAQ definition lists (<dl>)
-    if (tag === "dl") {
-      const dts = Array.from(node.querySelectorAll("dt"));
-      const dds = Array.from(node.querySelectorAll("dd"));
-      for (let i = 0; i < Math.min(dts.length, dds.length); i++) {
-        extractedFaqs.push({
-          question: dts[i].textContent?.trim() || "",
-          answer: dds[i].textContent?.trim() || ""
-        });
       }
       continue;
     }
@@ -1646,16 +1745,6 @@ export function parseSmartHtml(
     });
   }
 
-  if (!ctaDetected) {
-    blocks.push({
-      id: `blk_cta_auto_${Date.now()}`,
-      type: "cta",
-      ctaText: `Attempt DISHA 20-20 Full Mock Test & Chapter MCQs for ${detectedTitle.split(":")[0]}`,
-      ctaUrl: "/live_tests"
-    });
-    ctaDetected = true;
-  }
-
   if (!detectedTitle) {
     detectedTitle = "Imported Educational Article";
   }
@@ -1673,7 +1762,9 @@ export function parseSmartHtml(
 
   const introBlock = finalBlocks.find(b => b.type === "intro" || b.type === "paragraph");
   const firstParagraph = introBlock?.text || "";
-  const excerpt = firstParagraph.length > 150 ? firstParagraph.substring(0, 147) + "..." : firstParagraph || `${detectedTitle} - Comprehensive overview and exam breakdown.`;
+  const excerpt = customExcerpt
+    ? (customExcerpt.length > 160 ? customExcerpt.substring(0, 157) + "..." : customExcerpt)
+    : (firstParagraph.length > 150 ? firstParagraph.substring(0, 147) + "..." : firstParagraph || `${detectedTitle} - Comprehensive overview and exam breakdown.`);
 
   const articleDraft: Partial<NewsArticle> = {
     title: detectedTitle,
@@ -1681,7 +1772,7 @@ export function parseSmartHtml(
     category: kwResult.category,
     language,
     excerpt,
-    content: fullContent,
+    content: cleanHtml || rawHtml,
     blocks: finalBlocks,
     status: "published",
     authorName: "DISHA 20-20 Editorial Team",
