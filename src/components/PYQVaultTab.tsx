@@ -446,10 +446,10 @@ export const PYQVaultTab: React.FC<PYQVaultTabProps> = ({
                     <button
                       id={`btn-start-pyq-${paper.id}`}
                       onClick={() => handleStartPYQExam(paper)}
-                      className="bg-[#800020] hover:bg-[#5E0017] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] active:scale-95 text-white py-3 px-2 rounded-xl font-extrabold text-xs flex items-center justify-center gap-1.5 shadow-sm transition-all cursor-pointer"
+                      className="bg-[#800020] hover:bg-[#5E0017] dark:bg-[#800020] dark:hover:bg-[#650019] active:scale-95 text-white py-2.5 px-2 rounded-xl font-semibold text-xs flex items-center justify-center gap-1.5 border border-[#C99A45]/35 shadow-xs transition-all duration-180 cursor-pointer"
                     >
                       {fetchingPaperId === paper.id ? (
-                         <RefreshCw size={14} className="animate-spin" />
+                         <RefreshCw size={14} className="animate-spin text-[#C99A45]" />
                       ) : (
                          <Play size={14} fill="currentColor" />
                       )}
@@ -480,19 +480,19 @@ export const PYQVaultTab: React.FC<PYQVaultTabProps> = ({
                         setViewingSolutionPaper(paperWithQs);
                         setActiveQuestionIndex(0);
                       }}
-                      className="bg-white hover:bg-[#F7EFE2] dark:bg-[#252A3A] dark:hover:bg-[#31374A] border border-[#E8D9C0] dark:border-[#31374A] text-[#171923] dark:text-[#FFF9EF] py-3 px-2 rounded-xl font-extrabold text-xs flex items-center justify-center gap-1.5 active:scale-95 transition-all cursor-pointer shadow-xs"
+                      className="bg-white hover:bg-[#F7EFE2] dark:bg-[#252A3A] dark:hover:bg-[#31374A] border border-[#E8D9C0] dark:border-[#31374A] text-[#171923] dark:text-[#FFF9EF] py-2.5 px-2 rounded-xl font-semibold text-xs flex items-center justify-center gap-1.5 active:scale-95 transition-all duration-180 cursor-pointer shadow-xs"
                     >
                       {fetchingPaperId === paper.id ? (
-                        <RefreshCw size={14} className="animate-spin text-[#800020] dark:text-[#F47B20]" />
+                        <RefreshCw size={14} className="animate-spin text-[#800020] dark:text-[#C99A45]" />
                       ) : (
-                        <Eye size={14} className="text-[#800020] dark:text-[#F47B20]" />
+                        <Eye size={14} className="text-[#800020] dark:text-[#C99A45]" />
                       )}
                       <span className="uppercase tracking-wider">Key</span>
                     </button>
 
                     <button
                       onClick={() => handleExportPDF(paper)}
-                      className="bg-white hover:bg-[#F7EFE2] dark:bg-[#252A3A] dark:hover:bg-[#31374A] border border-[#E8D9C0] dark:border-[#31374A] text-[#171923] dark:text-[#FFF9EF] py-3 px-2 rounded-xl font-extrabold text-xs flex items-center justify-center gap-1.5 active:scale-95 transition-all cursor-pointer shadow-xs"
+                      className="bg-white hover:bg-[#F7EFE2] dark:bg-[#252A3A] dark:hover:bg-[#31374A] border border-[#E8D9C0] dark:border-[#31374A] text-[#171923] dark:text-[#FFF9EF] py-2.5 px-2 rounded-xl font-semibold text-xs flex items-center justify-center gap-1.5 active:scale-95 transition-all duration-180 cursor-pointer shadow-xs"
                     >
                       <Download size={14} className="text-emerald-700 dark:text-emerald-400" />
                       <span className="uppercase tracking-wider">PDF</span>
@@ -661,7 +661,7 @@ export const PYQVaultTab: React.FC<PYQVaultTabProps> = ({
                     setViewingSolutionPaper(null);
                     handleStartPYQExam(viewingSolutionPaper);
                   }}
-                  className="flex-1 bg-[#800020] hover:bg-[#5E0017] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] text-white py-2.5 rounded-xl font-extrabold text-xs shadow-sm active:scale-95 transition-all cursor-pointer"
+                  className="flex-1 bg-[#800020] hover:bg-[#5E0017] dark:bg-[#800020] dark:hover:bg-[#650019] text-white py-2.5 rounded-xl font-semibold text-xs border border-[#C99A45]/35 shadow-sm active:scale-95 transition-all duration-180 cursor-pointer"
                 >
                   Start Exam Mode
                 </button>

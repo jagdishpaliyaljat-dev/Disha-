@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import {
   ArrowLeft,
+  ArrowRight,
   Calendar,
   Clock,
   Share2,
@@ -120,6 +121,22 @@ export const NewsPage: React.FC<NewsPageProps> = ({
     } else {
       document.documentElement.classList.remove("dark");
     }
+  };
+
+  // Graceful fallback for article titles preventing "Untitled Article" displays
+  const getDisplayArticleTitle = (art?: NewsArticle | null): string => {
+    if (!art) return "";
+    const raw = art.title?.trim();
+    if (raw && raw !== "Untitled Article" && raw !== "Untitled") {
+      return raw;
+    }
+    if (art.seoTitle?.trim() && art.seoTitle !== "Untitled Article") {
+      return art.seoTitle.trim();
+    }
+    if (art.category) {
+      return `${art.category} — महत्वपूर्ण परीक्षा गाइड व PYQ विश्लेषण`;
+    }
+    return "राजस्थान भर्ती परीक्षा: संपूर्ण गाइड व PYQ नोट्स";
   };
 
   useEffect(() => {
@@ -935,9 +952,10 @@ export const NewsPage: React.FC<NewsPageProps> = ({
             </div>
             <button
               onClick={onNavigateHome}
-              className="w-full sm:w-auto px-5 py-2.5 bg-[#800020] hover:bg-[#5E0017] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] text-white rounded-xl text-xs font-black transition-all shadow-md active:scale-95 cursor-pointer shrink-0 text-center whitespace-nowrap"
+              className="w-full sm:w-auto px-5 py-2.5 bg-[#800020] hover:bg-[#5E0017] dark:bg-[#800020] dark:hover:bg-[#650019] text-white rounded-xl text-xs font-semibold border border-[#C99A45]/30 transition-all duration-180 shadow-sm active:scale-95 cursor-pointer shrink-0 text-center whitespace-nowrap flex items-center justify-center gap-1.5 group"
             >
-              Practice Free MCQs →
+              <span>Practice Free MCQs</span>
+              <span className="text-[#C99A45] group-hover:translate-x-0.5 transition-transform">→</span>
             </button>
           </div>
         );
@@ -948,7 +966,7 @@ export const NewsPage: React.FC<NewsPageProps> = ({
             key={blk.id || idx}
             className="my-8 p-6 sm:p-7 rounded-3xl bg-gradient-to-r from-[#800020] via-[#6A001A] to-[#4A0012] text-white border border-[#C99A45]/30 flex flex-col sm:flex-row items-center justify-between gap-5 shadow-xl relative overflow-hidden"
           >
-            <div className="absolute top-0 right-0 w-48 h-48 bg-[#F47B20]/15 rounded-full blur-2xl pointer-events-none" />
+            <div className="absolute top-0 right-0 w-48 h-48 bg-[#C99A45]/15 rounded-full blur-2xl pointer-events-none" />
             <div className="space-y-1.5 text-center sm:text-left relative z-10">
               <span className="inline-block text-[10px] font-black uppercase tracking-wider text-[#C99A45]">
                 DISHA 20-20 · Free Mock Simulation
@@ -962,10 +980,10 @@ export const NewsPage: React.FC<NewsPageProps> = ({
             </div>
             <button
               onClick={onNavigateHome}
-              className="w-full sm:w-auto px-5 py-3 bg-[#F47B20] hover:bg-[#E06A12] text-white font-black rounded-xl text-xs transition-all shadow-md active:scale-95 cursor-pointer shrink-0 flex items-center justify-center gap-1.5 relative z-10 whitespace-nowrap"
+              className="w-full sm:w-auto px-5 py-2.5 bg-[#800020] hover:bg-[#5E0017] dark:bg-[#800020] dark:hover:bg-[#650019] text-white font-semibold rounded-xl text-xs sm:text-sm border border-[#C99A45]/40 transition-all duration-180 shadow-md active:scale-95 cursor-pointer shrink-0 flex items-center justify-center gap-2 relative z-10 whitespace-nowrap group"
             >
               <span>Practice Free MCQs</span>
-              <ArrowRightIcon className="w-4 h-4" />
+              <ArrowRightIcon className="w-4 h-4 text-[#C99A45] group-hover:translate-x-0.5 transition-transform" />
             </button>
           </div>
         );
@@ -1160,9 +1178,9 @@ export const NewsPage: React.FC<NewsPageProps> = ({
                 target="_blank"
                 rel="noopener noreferrer"
                 download={url.startsWith("data:") ? `${title.replace(/[^a-z0-9]/gi, "_")}.pdf` : undefined}
-                className="w-full sm:w-auto px-5 py-3 rounded-2xl bg-[#800020] hover:bg-[#5E0017] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] active:scale-95 text-white font-black text-xs sm:text-sm transition-all shadow-md flex items-center justify-center gap-2 shrink-0 cursor-pointer text-center whitespace-nowrap"
+                className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#800020] hover:bg-[#5E0017] dark:bg-[#800020] dark:hover:bg-[#650019] text-white font-semibold text-xs sm:text-sm border border-[#C99A45]/40 transition-all duration-180 shadow-sm flex items-center justify-center gap-2 shrink-0 cursor-pointer text-center whitespace-nowrap active:scale-95 group"
               >
-                <Download className="w-4 h-4" />
+                <Download className="w-4 h-4 text-[#C99A45]" />
                 <span>{btnText}</span>
               </a>
             </div>
@@ -1262,11 +1280,11 @@ export const NewsPage: React.FC<NewsPageProps> = ({
                     href={url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-[#800020] hover:bg-[#5E0017] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] active:scale-95 text-white font-black text-xs sm:text-sm transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap"
+                    className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#800020] hover:bg-[#5E0017] dark:bg-[#800020] dark:hover:bg-[#650019] text-white font-semibold text-xs sm:text-sm border border-[#C99A45]/40 transition-all duration-180 shadow-sm flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap active:scale-95 group"
                   >
-                    <ShoppingBag className="w-4 h-4" />
+                    <ShoppingBag className="w-4 h-4 text-[#C99A45]" />
                     <span>{btnText}</span>
-                    <ArrowUpRight className="w-3.5 h-3.5" />
+                    <ArrowUpRight className="w-3.5 h-3.5 text-[#C99A45] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                   </a>
                 </div>
               </div>
@@ -1283,44 +1301,51 @@ export const NewsPage: React.FC<NewsPageProps> = ({
     }
   };
 
-  const renderRajasthanHero = () => (
-    <div className="w-full aspect-[16/9] max-h-[420px] rounded-3xl overflow-hidden bg-gradient-to-br from-[#800020] via-[#5E0017] to-[#2A000B] text-white relative shadow-xl flex flex-col justify-between p-6 sm:p-10 border border-[#C99A45]/35">
-      <div className="absolute inset-0 opacity-20 pointer-events-none bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#F47B20] via-transparent to-transparent" />
+  const renderRajasthanHero = () => {
+    const displayTitle = getDisplayArticleTitle(activeArticle);
+    const categoryBadge = activeArticle?.category || "Rajasthan Exam Special";
 
-      <div className="relative z-10 flex items-center justify-between">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-[#F47B20] text-white text-xs font-black uppercase tracking-wider shadow-xs">
-          <Compass className="w-3.5 h-3.5" />
-          <span>DISHA 20-20 · Rajasthan Exam Special</span>
+    return (
+      <div className="w-full aspect-[16/9] max-h-[420px] rounded-3xl overflow-hidden bg-gradient-to-br from-[#800020] via-[#5E0017] to-[#2A000B] text-white relative shadow-xl flex flex-col justify-between p-6 sm:p-10 border border-[#C99A45]/35">
+        <div className="absolute inset-0 opacity-20 pointer-events-none bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#C99A45] via-transparent to-transparent" />
+
+        <div className="relative z-10 flex items-center justify-between gap-3">
+          {/* Refined, compact category badge (pill design, clearly distinct from a button) */}
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/30 backdrop-blur-md border border-[#C99A45]/40 text-[#FFF9EF] text-[11px] font-semibold tracking-wide shadow-xs">
+            <Compass className="w-3.5 h-3.5 text-[#C99A45]" />
+            <span className="truncate max-w-[200px] sm:max-w-none">{categoryBadge}</span>
+          </div>
+          {/* Balanced branding pill */}
+          <div className="px-3 py-1 rounded-full bg-black/25 backdrop-blur-md border border-[#C99A45]/30 text-[#FFF9EF] font-bold flex items-center gap-1.5 text-xs shadow-xs shrink-0">
+            <span>DISHA</span>
+            <span className="text-[#C99A45]">20-20</span>
+          </div>
         </div>
-        <div className="px-3 py-1.5 rounded-xl bg-white/10 border border-[#C99A45]/40 text-[#FFF9EF] font-black flex items-center gap-1.5 text-xs shadow-sm">
-          <span>DISHA</span>
-          <span className="text-[#F47B20]">20-20</span>
+
+        <div className="relative z-10 space-y-2 max-w-2xl">
+          <h2 className="text-xl sm:text-3xl font-black text-[#FFF9EF] tracking-tight leading-snug drop-shadow-md">
+            {displayTitle}
+          </h2>
+          <p className="text-xs sm:text-sm text-[#FFF9EF]/80 font-medium">
+            DISHA 20-20 Expert Research &amp; Exam Analysis · Right Direction, Accurate Preparation
+          </p>
         </div>
       </div>
-
-      <div className="relative z-10 space-y-2 max-w-2xl">
-        <h2 className="text-xl sm:text-3xl font-black text-[#FFF9EF] tracking-tight leading-snug drop-shadow-md">
-          {activeArticle?.title}
-        </h2>
-        <p className="text-xs sm:text-sm text-[#FFF9EF]/80 font-medium">
-          DISHA 20-20 Expert Research &amp; Exam Analysis · Right Direction, Accurate Preparation
-        </p>
-      </div>
-    </div>
-  );
+    );
+  };
 
   const renderCtaCard = (key: string | number) => (
     <div
       key={key}
       className="my-8 p-5 sm:p-7 rounded-3xl bg-gradient-to-br from-[#800020] via-[#650019] to-[#3B000E] text-white border border-[#C99A45]/30 shadow-lg relative overflow-hidden"
     >
-      <div className="absolute top-0 right-0 w-64 h-64 bg-[#F47B20]/15 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none" />
+      <div className="absolute top-0 right-0 w-64 h-64 bg-[#C99A45]/15 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none" />
       <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-5">
         <div className="space-y-1.5 text-center sm:text-left">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/10 text-[10.5px] font-black uppercase tracking-wider text-[#FCD34D]">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/10 text-[10.5px] font-bold uppercase tracking-wider text-[#FCD34D] border border-[#C99A45]/30">
             <span>⭐ DISHA 20-20 Exam Prep Companion</span>
           </div>
-          <h3 className="text-lg sm:text-xl font-black text-white tracking-tight">
+          <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight">
             महत्वपूर्ण अभ्यास प्रश्न एवं PYQ टेस्ट सीरीज़
           </h3>
           <p className="text-xs sm:text-[13px] text-[#FFF9EF]/85 max-w-lg leading-relaxed">
@@ -1329,9 +1354,10 @@ export const NewsPage: React.FC<NewsPageProps> = ({
         </div>
         <button
           onClick={onNavigateHome}
-          className="w-full sm:w-auto px-5 py-3 bg-[#F47B20] hover:bg-[#E06A12] text-white font-black rounded-xl text-xs sm:text-sm transition-all shadow-md active:scale-95 cursor-pointer shrink-0 flex items-center justify-center gap-2 whitespace-nowrap"
+          className="w-full sm:w-auto px-6 py-2.5 bg-[#800020] hover:bg-[#5E0017] text-white font-semibold rounded-xl text-xs sm:text-sm transition-all duration-180 border border-[#C99A45]/50 shadow-md active:scale-95 cursor-pointer shrink-0 flex items-center justify-center gap-2 whitespace-nowrap group"
         >
-          <span>अभ्यास शुरू करें →</span>
+          <span>अभ्यास शुरू करें</span>
+          <span className="text-[#C99A45] group-hover:translate-x-1 transition-transform">→</span>
         </button>
       </div>
     </div>
@@ -1493,7 +1519,7 @@ export const NewsPage: React.FC<NewsPageProps> = ({
             </div>
 
             <h1 className="text-2xl sm:text-4xl lg:text-[42px] font-black text-[#171923] dark:text-[#FFF9EF] leading-[1.22] tracking-tight font-hindi">
-              {activeArticle.title}
+              {getDisplayArticleTitle(activeArticle)}
             </h1>
 
             {activeArticle.excerpt && (
@@ -1835,17 +1861,17 @@ export const NewsPage: React.FC<NewsPageProps> = ({
           <div className="max-w-md mx-auto flex items-center gap-2.5">
             <button
               onClick={() => handleNativeOrModalShare(activeArticle)}
-              className="h-12 px-4 rounded-xl bg-white hover:bg-[#F7EFE2] dark:bg-[#252A3A] dark:hover:bg-[#31374A] text-[#171923] dark:text-[#FFF9EF] font-extrabold text-xs flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer shrink-0 border border-[#E8D9C0] dark:border-[#31374A]"
+              className="h-11 px-4 rounded-xl bg-white hover:bg-[#F7EFE2] dark:bg-[#252A3A] dark:hover:bg-[#31374A] text-[#171923] dark:text-[#FFF9EF] font-semibold text-xs flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer shrink-0 border border-[#E8D9C0] dark:border-[#31374A]"
             >
-              <Share2 className="w-4 h-4 text-[#800020] dark:text-[#F47B20]" />
+              <Share2 className="w-4 h-4 text-[#800020] dark:text-[#C99A45]" />
               <span>Share</span>
             </button>
             <button
               onClick={onNavigateHome}
-              className="flex-1 h-12 px-4 rounded-xl bg-[#800020] hover:bg-[#5E0017] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] text-white font-extrabold text-xs shadow-md active:scale-95 cursor-pointer flex items-center justify-center gap-2"
+              className="flex-1 h-11 px-4 rounded-xl bg-[#800020] hover:bg-[#5E0017] dark:bg-[#800020] dark:hover:bg-[#650019] text-white font-semibold text-xs border border-[#C99A45]/40 shadow-sm active:scale-95 cursor-pointer flex items-center justify-center gap-2 group"
             >
               <span>Practice Free MCQs</span>
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="w-4 h-4 text-[#C99A45] group-hover:translate-x-0.5 transition-transform" />
             </button>
           </div>
         </div>
@@ -2125,7 +2151,7 @@ export const NewsPage: React.FC<NewsPageProps> = ({
                   </div>
 
                   <h3 className="text-sm sm:text-base font-black text-[#171923] dark:text-[#FFF9EF] leading-snug line-clamp-2 font-hindi group-hover:text-[#800020] dark:group-hover:text-[#F47B20] transition-colors">
-                    {article.title}
+                    {getDisplayArticleTitle(article)}
                   </h3>
 
                   <p className="text-xs text-[#52576A] dark:text-[#CBD2E1] line-clamp-2 leading-relaxed font-hindi">
@@ -2143,18 +2169,23 @@ export const NewsPage: React.FC<NewsPageProps> = ({
                       year: "numeric",
                     })}
                   </span>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleOpenShare(article);
-                    }}
-                    className="p-1.5 rounded-lg hover:bg-[#F7EFE2] dark:hover:bg-[#252A3A] text-[#52576A] dark:text-[#CBD2E1] hover:text-[#800020] dark:hover:text-[#F47B20] transition-colors cursor-pointer flex items-center gap-1 font-bold text-[11px]"
-                    title="Share article"
-                  >
-                    <Share2 className="w-3.5 h-3.5" />
-                    <span>Share</span>
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[#800020] dark:text-[#C99A45] text-xs font-semibold inline-flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
+                      Read More <ArrowRight className="w-3 h-3 text-[#C99A45]" />
+                    </span>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleOpenShare(article);
+                      }}
+                      className="p-1.5 rounded-lg hover:bg-[#F7EFE2] dark:hover:bg-[#252A3A] text-[#52576A] dark:text-[#CBD2E1] hover:text-[#800020] dark:hover:text-[#F47B20] transition-colors cursor-pointer flex items-center gap-1 font-bold text-[11px]"
+                      title="Share article"
+                    >
+                      <Share2 className="w-3.5 h-3.5" />
+                      <span>Share</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}

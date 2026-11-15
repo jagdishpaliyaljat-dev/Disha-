@@ -124,22 +124,22 @@ export const TopicInteractionModal: React.FC<TopicInteractionModalProps> = ({
             </div>
 
             {/* Action Buttons */}
-            <div className="space-y-3 pt-1">
+            <div className="space-y-2.5 pt-1">
               <button
                 onClick={() => {
                   onClose();
                   onStartPractice();
                 }}
-                className="w-full py-4 px-6 rounded-2xl bg-[#800020] hover:bg-[#5E0017] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] text-white font-black text-sm shadow-lg shadow-[#800020]/20 dark:shadow-[#F47B20]/20 flex items-center justify-center gap-3 transition-all active:scale-95 cursor-pointer group"
+                className="w-full py-3 px-5 sm:px-6 rounded-xl bg-[#800020] hover:bg-[#5E0017] dark:bg-[#800020] dark:hover:bg-[#650019] text-white font-semibold text-sm border border-[#C99A45]/30 shadow-md shadow-[#800020]/15 flex items-center justify-center gap-2.5 transition-all duration-180 active:scale-95 cursor-pointer group"
               >
-                <Play className="w-5 h-5 fill-white group-hover:scale-110 transition-transform" />
+                <Play className="w-4 h-4 fill-white group-hover:scale-105 transition-transform" />
                 <span>Start Practice MCQs</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="w-4 h-4 text-[#C99A45] group-hover:translate-x-0.5 transition-transform" />
               </button>
 
               <button
                 onClick={onClose}
-                className="w-full py-3 px-6 rounded-2xl bg-[#F7EFE2] dark:bg-[#252A3A] hover:bg-[#E8D9C0]/60 dark:hover:bg-[#31374A] text-[#171923] dark:text-[#FFF9EF] font-bold text-xs transition-all active:scale-95 cursor-pointer"
+                className="w-full py-2.5 px-5 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] hover:bg-[#E8D9C0]/60 dark:hover:bg-[#31374A] text-[#171923] dark:text-[#FFF9EF] font-semibold text-xs border border-[#E8D9C0] dark:border-[#31374A] transition-all duration-180 active:scale-95 cursor-pointer"
               >
                 Back to Chapters
               </button>

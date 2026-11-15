@@ -1497,6 +1497,23 @@ export function parseSmartHtml(
     }
   }
 
+  // Graceful fallback if no explicit title tag/h1/h2 could be extracted
+  if (!detectedTitle || detectedTitle === "Untitled Article") {
+    const firstP = doc.querySelector("p");
+    if (firstP && firstP.textContent?.trim()) {
+      const pText = firstP.textContent.trim();
+      const firstSentence = pText.split(/[।\.?!]/)[0]?.trim();
+      if (firstSentence && firstSentence.length > 8 && firstSentence.length < 90) {
+        detectedTitle = firstSentence;
+      } else if (firstSentence && firstSentence.length >= 90) {
+        detectedTitle = firstSentence.substring(0, 80) + "...";
+      }
+    }
+  }
+  if (!detectedTitle || detectedTitle === "Untitled Article") {
+    detectedTitle = "राजस्थान भर्ती परीक्षा: संपूर्ण गाइड व PYQ नोट्स";
+  }
+
   // Detect explicit custom excerpt from .lead or .intro
   const leadEl = doc.querySelector(".lead, .intro, p.lead");
   let customExcerpt = "";

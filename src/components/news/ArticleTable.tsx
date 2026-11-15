@@ -40,6 +40,22 @@ export const ArticleTable: React.FC<ArticleTableProps> = ({
     return null;
   }
 
+  const scrollRef = React.useRef<HTMLDivElement>(null);
+  const [canScrollRight, setCanScrollRight] = React.useState(false);
+
+  const checkScroll = React.useCallback(() => {
+    if (scrollRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+      setCanScrollRight(scrollWidth - scrollLeft - clientWidth > 6);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    checkScroll();
+    window.addEventListener("resize", checkScroll);
+    return () => window.removeEventListener("resize", checkScroll);
+  }, [checkScroll, rows]);
+
   // Determine max column count to keep grid consistent
   const colCount = Math.max(
     headers.length,
@@ -59,73 +75,87 @@ export const ArticleTable: React.FC<ArticleTableProps> = ({
 
   return (
     <div
-      className={`article-table-wrapper my-6 sm:my-8 overflow-hidden rounded-2xl sm:rounded-3xl border border-[#E8D9C0] dark:border-[#31374A] bg-white dark:bg-[#1F2330] shadow-xs ${className}`}
+      className={`article-table-wrapper relative my-6 sm:my-8 overflow-hidden rounded-[14px] border border-[#E2E8F0] dark:border-[#27354F] bg-white dark:bg-[#121722] shadow-xs ${className}`}
     >
       {caption && (
-        <div className="px-4 py-2.5 bg-[#F7EFE2] dark:bg-[#252A3A] border-b border-[#E8D9C0] dark:border-[#31374A] text-xs font-black text-[#171923] dark:text-[#FFF9EF] font-hindi flex items-center justify-between">
+        <div className="px-4 py-2.5 bg-[#F8FAFC] dark:bg-[#161E2E] border-b border-[#E2E8F0] dark:border-[#27354F] text-xs font-bold text-[#102F65] dark:text-[#93C5FD] font-hindi flex items-center justify-between">
           <span>{caption}</span>
-          <span className="text-[10px] text-[#52576A] dark:text-[#CBD2E1] font-normal">
+          <span className="text-[10px] text-[#64748B] dark:text-[#94A3B8] font-normal">
             Swipe horizontally on mobile ↔
           </span>
         </div>
       )}
 
-      <div className="overflow-x-auto w-full scrollbar-thin scrollbar-thumb-[#C99A45]/40 dark:scrollbar-thumb-[#31374A]">
-        <table
-          className="w-full text-left text-xs sm:text-sm border-collapse tabular-nums"
-          style={{ minWidth: `${minWidthPx}px` }}
+      <div className="relative w-full overflow-hidden">
+        <div
+          ref={scrollRef}
+          onScroll={checkScroll}
+          className="overflow-x-auto w-full scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-600"
         >
-          {headers.length > 0 && (
-            <thead className="bg-gradient-to-r from-[#800020] to-[#5E0017] text-[#FFF9EF] border-b border-[#C99A45]/30">
-              <tr>
-                {headers.map((headerText, hi) => {
-                  const alignClass = getAlignmentClass(hi);
-                  return (
-                    <th
-                      key={hi}
-                      scope="col"
-                      className={`p-3.5 sm:p-4 font-black uppercase tracking-wider text-[11px] sm:text-xs text-[#FFF9EF] font-hindi ${alignClass}`}
-                    >
-                      {headerText}
-                    </th>
-                  );
-                })}
-              </tr>
-            </thead>
-          )}
+          <table
+            className="w-full text-left text-xs sm:text-sm border-collapse tabular-nums"
+            style={{ minWidth: `${minWidthPx}px` }}
+          >
+            {headers.length > 0 && (
+              <thead className="bg-[#102F65] text-white border-b-2 border-[#C8962E]">
+                <tr>
+                  {headers.map((headerText, hi) => {
+                    const alignClass = getAlignmentClass(hi);
+                    return (
+                      <th
+                        key={hi}
+                        scope="col"
+                        className={`p-3.5 sm:p-4 font-bold uppercase tracking-wider text-[11px] sm:text-xs text-white font-hindi ${alignClass}`}
+                      >
+                        {headerText}
+                      </th>
+                    );
+                  })}
+                </tr>
+              </thead>
+            )}
 
-          <tbody className="divide-y divide-[#E8D9C0]/70 dark:divide-[#31374A] font-hindi text-[#171923] dark:text-[#FFF9EF]">
-            {rows.map((row, ri) => (
-              <tr
-                key={ri}
-                className="hover:bg-[#F7EFE2]/70 dark:hover:bg-[#252A3A]/70 even:bg-[#FFF9EF]/70 dark:even:bg-[#252A3A]/35 transition-colors"
-              >
-                {row.cells.map((cellText, ci) => {
-                  const alignClass = getAlignmentClass(ci);
-                  const isFirstCol = ci === 0;
+            <tbody className="divide-y divide-[#E2E8F0] dark:divide-[#27354F] font-hindi text-[#1E293B] dark:text-[#CBD5E1]">
+              {rows.map((row, ri) => (
+                <tr
+                  key={ri}
+                  className="hover:bg-[#F1F5F9] dark:hover:bg-[#1B2434] even:bg-[#F8FAFC] dark:even:bg-[#161D2A] transition-colors"
+                >
+                  {row.cells.map((cellText, ci) => {
+                    const alignClass = getAlignmentClass(ci);
+                    const isFirstCol = ci === 0;
 
-                  return (
-                    <td
-                      key={ci}
-                      className={`p-3.5 sm:p-4 text-xs sm:text-sm leading-relaxed whitespace-normal break-words ${alignClass} ${
-                        isFirstCol
-                          ? "font-bold text-[#800020] dark:text-[#F47B20]"
-                          : "font-medium"
-                      }`}
-                    >
-                      {renderCell ? renderCell(cellText, ri, ci) : cellText}
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                    return (
+                      <td
+                        key={ci}
+                        className={`p-3.5 sm:p-4 text-xs sm:text-sm leading-relaxed whitespace-normal break-words ${alignClass} ${
+                          isFirstCol
+                            ? "font-semibold text-[#102F65] dark:text-[#93C5FD]"
+                            : "font-normal"
+                        }`}
+                      >
+                        {renderCell ? renderCell(cellText, ri, ci) : cellText}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Right-edge subtle fade indicator to communicate more columns */}
+        {canScrollRight && (
+          <div
+            className="pointer-events-none absolute top-0 right-0 bottom-0 w-8 bg-gradient-to-l from-[#102F65]/20 dark:from-black/50 to-transparent transition-opacity duration-200 z-10"
+            aria-hidden="true"
+          />
+        )}
       </div>
 
-      <div className="px-3.5 py-1.5 bg-[#FFF9EF] dark:bg-[#171923] border-t border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-between text-[10px] text-[#52576A] dark:text-[#CBD2E1] tabular-nums">
+      <div className="px-3.5 py-1.5 bg-[#F8FAFC] dark:bg-[#161E2E] border-t border-[#E2E8F0] dark:border-[#27354F] flex items-center justify-between text-[10px] text-[#64748B] dark:text-[#94A3B8] tabular-nums">
         <span>{rows.length} {rows.length === 1 ? "Row" : "Rows"}</span>
-        <span className="hidden sm:inline font-semibold text-[#800020] dark:text-[#C99A45]">DISHA 20-20 Exam Research Table</span>
+        <span className="hidden sm:inline font-semibold text-[#102F65] dark:text-[#C8962E]">DISHA 20-20 Exam Research Table</span>
       </div>
     </div>
   );

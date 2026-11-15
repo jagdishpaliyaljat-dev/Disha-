@@ -159,11 +159,26 @@ export const ArticleBlockEditorModal: React.FC<ArticleBlockEditorModalProps> = (
     setArticle((prev) => ({ ...prev, slug: generated }));
   };
 
+  // Graceful title fallback for editor preview
+  const getEditorPreviewTitle = (art: Partial<NewsArticle>): string => {
+    const t = art.title?.trim();
+    if (t && t !== "Untitled Article" && t !== "Untitled") return t;
+    if (art.seoTitle?.trim() && art.seoTitle !== "Untitled Article") return art.seoTitle.trim();
+    if (art.category) return `${art.category} — महत्वपूर्ण परीक्षा गाइड`;
+    return "राजस्थान भर्ती परीक्षा: संपूर्ण गाइड व PYQ नोट्स";
+  };
+
   // Handle Save (Draft or Publish)
   const handleSubmit = async (publish: boolean) => {
+    const validTitle =
+      article.title?.trim() && article.title.trim() !== "Untitled Article"
+        ? article.title.trim()
+        : article.seoTitle?.trim() ||
+          (article.category ? `${article.category} — महत्वपूर्ण परीक्षा गाइड` : "राजस्थान भर्ती परीक्षा: संपूर्ण गाइड व PYQ नोट्स");
+
     const toSave: Partial<NewsArticle> = {
       ...article,
-      title: article.title?.trim() || "Untitled Article",
+      title: validTitle,
       content: article.content || "",
       status: publish ? "published" : "draft",
       updatedAt: new Date().toISOString(),
@@ -586,7 +601,7 @@ export const ArticleBlockEditorModal: React.FC<ArticleBlockEditorModalProps> = (
                   >
                     {/* Render Title */}
                     <h1 className="text-2xl sm:text-3xl font-black text-[#171923] dark:text-[#FFF9EF] mb-4 pb-3 border-b border-[#E8D9C0] dark:border-[#2D3345]">
-                      {article.title || "Untitled Article"}
+                      {getEditorPreviewTitle(article)}
                     </h1>
 
                     {/* Render Raw HTML directly via RawHtmlArticleViewer */}
@@ -630,7 +645,7 @@ export const ArticleBlockEditorModal: React.FC<ArticleBlockEditorModalProps> = (
                     Live Output:
                   </div>
                   <h1 className="text-2xl font-black text-[#171923] dark:text-[#FFF9EF] mb-4 pb-2 border-b border-[#E8D9C0] dark:border-[#2D3345]">
-                    {article.title || "Untitled Article"}
+                    {getEditorPreviewTitle(article)}
                   </h1>
                   {article.content && article.content.trim() ? (
                     <RawHtmlArticleViewer htmlContent={article.content} />

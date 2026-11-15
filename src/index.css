@@ -117,31 +117,126 @@
     box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   }
 
-  .disha-btn-primary {
-    background-color: var(--disha-accent-primary);
-    color: #ffffff;
-    font-weight: 800;
-    border-radius: 0.75rem;
-    transition: all 0.15s ease-in-out;
+  /* Premium Call-to-Action (CTA) Design System */
+  .disha-btn-primary,
+  .disha-cta-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background-color: #800020;
+    color: #ffffff !important;
+    font-weight: 600;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    padding: 0.625rem 1.25rem;
+    border-radius: 0.875rem; /* 14px */
+    border: 1px solid rgba(201, 154, 69, 0.3);
+    box-shadow: 0 2px 6px -1px rgba(128, 0, 32, 0.25), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    transition: all 180ms cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
     user-select: none;
+    white-space: nowrap;
+    text-decoration: none !important;
   }
-  .disha-btn-primary:active {
-    transform: scale(0.96);
+  .disha-btn-primary:hover,
+  .disha-cta-primary:hover {
+    background-color: #5E0017;
+    border-color: rgba(201, 154, 69, 0.55);
+    box-shadow: 0 4px 12px -2px rgba(128, 0, 32, 0.35);
+    transform: translateY(-1px);
+  }
+  .disha-btn-primary svg,
+  .disha-cta-primary svg {
+    transition: transform 180ms ease;
+  }
+  .disha-btn-primary:hover svg,
+  .disha-cta-primary:hover svg {
+    transform: translateX(2px);
+  }
+  .disha-btn-primary:active,
+  .disha-cta-primary:active {
+    background-color: #4A0012;
+    transform: scale(0.98);
+    box-shadow: 0 1px 3px 0 rgba(128, 0, 32, 0.3);
+  }
+  .disha-btn-primary:focus-visible,
+  .disha-cta-primary:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(244, 123, 32, 0.35);
+  }
+  .dark .disha-btn-primary,
+  .dark .disha-cta-primary {
+    background-color: #800020;
+    border-color: rgba(244, 123, 32, 0.35);
+    box-shadow: 0 2px 8px -1px rgba(0, 0, 0, 0.5);
+  }
+  .dark .disha-btn-primary:hover,
+  .dark .disha-cta-primary:hover {
+    background-color: #650019;
+    border-color: rgba(244, 123, 32, 0.6);
   }
 
-  .disha-btn-secondary {
-    background-color: var(--disha-bg-subtle);
-    color: var(--disha-text-primary);
-    border: 1px solid var(--disha-border-subtle);
-    font-weight: 700;
-    border-radius: 0.75rem;
-    transition: all 0.15s ease-in-out;
+  .disha-btn-secondary,
+  .disha-cta-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background-color: #ffffff;
+    color: #171923;
+    font-weight: 600;
+    font-size: 0.8125rem;
+    padding: 0.5625rem 1.125rem;
+    border-radius: 0.875rem;
+    border: 1px solid #E8D9C0;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+    transition: all 180ms cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
     user-select: none;
+    white-space: nowrap;
+    text-decoration: none !important;
   }
-  .disha-btn-secondary:active {
-    transform: scale(0.96);
+  .disha-btn-secondary:hover,
+  .disha-cta-secondary:hover {
+    background-color: #F7EFE2;
+    border-color: #C99A45;
+    color: #800020;
+    transform: translateY(-1px);
+  }
+  .disha-btn-secondary:active,
+  .disha-cta-secondary:active {
+    transform: scale(0.98);
+  }
+  .dark .disha-btn-secondary,
+  .dark .disha-cta-secondary {
+    background-color: #252A3A;
+    color: #FFF9EF;
+    border-color: #31374A;
+  }
+  .dark .disha-btn-secondary:hover,
+  .dark .disha-cta-secondary:hover {
+    background-color: #2E3448;
+    border-color: #F47B20;
+    color: #F47B20;
+  }
+
+  /* Compact Editorial Category Pill (Distinct from Action CTA Buttons) */
+  .disha-category-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    line-height: 1rem;
+    border-radius: 9999px;
+    letter-spacing: 0.025em;
+    user-select: none;
+    background-color: rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(201, 154, 69, 0.35);
+    color: #FFF9EF;
   }
 
   .disha-input-field {

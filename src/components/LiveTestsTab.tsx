@@ -511,7 +511,7 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
                     setSelectedCategory("all");
                     setActiveSubTab("series");
                   }}
-                  className="px-4 py-2.5 rounded-xl bg-[#800020] hover:bg-[#5E0017] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] text-white text-xs font-extrabold active:scale-95 transition-all shadow-sm cursor-pointer"
+                  className="px-4 py-2.5 rounded-xl bg-[#800020] hover:bg-[#5E0017] dark:bg-[#800020] dark:hover:bg-[#650019] text-white text-xs font-semibold border border-[#C99A45]/35 active:scale-95 transition-all duration-180 shadow-sm cursor-pointer"
                 >
                   Explore Test Series
                 </button>
@@ -644,12 +644,12 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
                       ) : (
                         <button
                           onClick={() => handleStartLiveTest(test)}
-                          className="w-full bg-[#800020] hover:bg-[#5E0017] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] active:scale-[0.98] text-white py-3 px-4 rounded-xl font-extrabold text-sm flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer min-h-[44px]"
+                          className="w-full bg-[#800020] hover:bg-[#5E0017] dark:bg-[#800020] dark:hover:bg-[#650019] active:scale-[0.98] text-white py-2.5 px-4 rounded-xl font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 border border-[#C99A45]/35 shadow-sm transition-all duration-180 cursor-pointer min-h-[44px] group"
                         >
                           {fetchingTestId === test.id ? (
-                            <RefreshCw size={16} className="animate-spin" />
+                            <RefreshCw size={16} className="animate-spin text-[#C99A45]" />
                           ) : (
-                            <Play size={16} fill="currentColor" />
+                            <Play size={16} fill="currentColor" className="text-white group-hover:scale-105 transition-transform" />
                           )}
                           <span>{fetchingTestId === test.id ? "Loading Questions..." : "Start Live Test"}</span>
                         </button>
@@ -722,7 +722,7 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
                     triggerHaptic("light");
                     setActiveSubTab("live");
                   }}
-                  className="px-4 py-2.5 rounded-xl bg-[#800020] hover:bg-[#5E0017] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] text-white text-xs font-extrabold active:scale-95 transition-all shadow-sm cursor-pointer"
+                  className="px-4 py-2.5 rounded-xl bg-[#800020] hover:bg-[#5E0017] dark:bg-[#800020] dark:hover:bg-[#650019] text-white text-xs font-semibold border border-[#C99A45]/35 active:scale-95 transition-all duration-180 shadow-sm cursor-pointer"
                 >
                   Attempt a Live Test Now
                 </button>

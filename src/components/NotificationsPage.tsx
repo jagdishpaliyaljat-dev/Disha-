@@ -498,7 +498,7 @@ export const NotificationsPage: React.FC<NotificationsPageProps> = ({
                             e.stopPropagation();
                             handleAction(item);
                           }}
-                          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[42px] px-4 py-2 rounded-xl bg-[#800020] hover:bg-[#5E0017] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] text-white text-xs font-bold shadow-sm active:scale-[0.98] transition-all cursor-pointer"
+                          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[40px] px-4 py-2 rounded-xl bg-[#800020] hover:bg-[#5E0017] dark:bg-[#800020] dark:hover:bg-[#650019] text-white text-xs font-semibold border border-[#C99A45]/30 shadow-xs active:scale-[0.98] transition-all duration-180 cursor-pointer group"
                         >
                           <span>
                             {item.actionType === "open_session"
@@ -507,7 +507,7 @@ export const NotificationsPage: React.FC<NotificationsPageProps> = ({
                               ? "Take Mock Test"
                               : "Open Topics"}
                           </span>
-                          <ChevronRight className="w-4 h-4" />
+                          <ChevronRight className="w-4 h-4 text-[#C99A45] group-hover:translate-x-0.5 transition-transform" />
                         </button>
                       </div>
                     )}
@@ -675,7 +675,7 @@ export const NotificationsPage: React.FC<NotificationsPageProps> = ({
                   {pushPermission !== "granted" ? (
                     <button
                       onClick={handleEnablePush}
-                      className="px-3 py-1.5 rounded-xl bg-[#800020] hover:bg-[#5E0017] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] text-white text-[11px] font-bold shrink-0 transition-transform active:scale-95 cursor-pointer"
+                      className="px-3 py-1.5 rounded-xl bg-[#800020] hover:bg-[#5E0017] dark:bg-[#800020] dark:hover:bg-[#650019] text-white text-[11px] font-semibold border border-[#C99A45]/30 shrink-0 transition-transform active:scale-95 cursor-pointer"
                     >
                       Enable
                     </button>
@@ -689,7 +689,7 @@ export const NotificationsPage: React.FC<NotificationsPageProps> = ({
                     <button
                       onClick={handleTestPush}
                       disabled={isTestingPush}
-                      className="inline-flex items-center gap-1.5 text-[11px] font-bold text-[#800020] dark:text-[#F47B20] hover:underline cursor-pointer disabled:opacity-50"
+                      className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-[#800020] dark:text-[#C99A45] hover:underline cursor-pointer disabled:opacity-50"
                     >
                       <BellRing className="w-3.5 h-3.5" />
                       {isTestingPush ? "Sending Test..." : "Send Test Notification"}
@@ -706,7 +706,7 @@ export const NotificationsPage: React.FC<NotificationsPageProps> = ({
                   setShowSettingsModal(false);
                   showToast("Settings saved successfully");
                 }}
-                className="w-full min-h-[46px] py-2.5 bg-[#800020] hover:bg-[#5E0017] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] text-white text-xs font-extrabold rounded-2xl transition-all shadow-md active:scale-[0.99] flex items-center justify-center cursor-pointer"
+                className="w-full min-h-[44px] py-2.5 bg-[#800020] hover:bg-[#5E0017] dark:bg-[#800020] dark:hover:bg-[#650019] text-white text-xs font-semibold rounded-xl border border-[#C99A45]/30 transition-all duration-180 shadow-sm active:scale-[0.99] flex items-center justify-center cursor-pointer"
               >
                 Save &amp; Done
               </button>

@@ -1082,7 +1082,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
               type="button"
               disabled={filteredResult.count === 0 || isGeneratingPDF}
               onClick={handleExport}
-              className="col-span-2 py-3 px-4 rounded-xl bg-gradient-to-r from-[#800020] to-[#5E0017] hover:from-[#6A001A] hover:to-[#4A0012] dark:from-[#F47B20] dark:to-[#E06A12] text-white font-black text-xs sm:text-sm shadow-md hover:shadow-lg active:scale-98 transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-40"
+              className="col-span-2 py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#800020] to-[#5E0017] hover:from-[#5E0017] hover:to-[#4A0012] dark:from-[#800020] dark:to-[#5E0017] dark:hover:from-[#650019] dark:hover:to-[#4A0012] text-white font-semibold text-xs sm:text-sm border border-[#C99A45]/35 shadow-sm active:scale-98 transition-all duration-180 cursor-pointer flex items-center justify-center gap-2 disabled:opacity-40 group"
             >
               {isGeneratingPDF ? (
                 <>

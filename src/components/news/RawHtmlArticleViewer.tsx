@@ -44,32 +44,94 @@ export const RawHtmlArticleViewer: React.FC<RawHtmlArticleViewerProps> = ({
       }
     });
 
-    // 3. Wrap any unwrapped <table> elements into smooth touch-scrolling responsive containers
+    // 3. Wrap tables into smooth touch-scrolling responsive containers with right-edge fade indicators
+    const cleanups: (() => void)[] = [];
     const tables = root.querySelectorAll("table");
     tables.forEach((table) => {
+      let scrollContainer: HTMLElement | null = null;
+      let fadeIndicator: HTMLElement | null = null;
+
       const parent = table.parentElement;
-      const isAlreadyWrapped =
-        parent &&
-        (parent.classList.contains("scroll") ||
-          parent.classList.contains("rx-table-scroll-container") ||
-          parent.classList.contains("rx-table-inner-scroll") ||
-          parent.classList.contains("table-responsive"));
+      if (parent && parent.classList.contains("scroll")) {
+        // Table is inside user's .scroll wrapper
+        parent.style.position = "relative";
+        scrollContainer = parent;
 
-      if (!isAlreadyWrapped) {
-        const wrapper = document.createElement("div");
-        wrapper.className = "rx-table-scroll-container";
+        let existingFade = parent.querySelector(".rx-table-fade-indicator") as HTMLElement | null;
+        if (!existingFade) {
+          fadeIndicator = document.createElement("div");
+          fadeIndicator.className = "rx-table-fade-indicator";
+          parent.appendChild(fadeIndicator);
+        } else {
+          fadeIndicator = existingFade;
+        }
+      } else {
+        const isAlreadyWrapped =
+          parent &&
+          (parent.classList.contains("rx-table-scroll-container") ||
+            parent.classList.contains("rx-table-inner-scroll") ||
+            parent.classList.contains("table-responsive"));
 
-        const hint = document.createElement("div");
-        hint.className = "rx-table-scroll-hint";
-        hint.innerHTML = `<span>↔</span> टेबल स्क्रॉल करें · Swipe table`;
+        if (!isAlreadyWrapped) {
+          const wrapper = document.createElement("div");
+          wrapper.className = "rx-table-scroll-container";
 
-        const inner = document.createElement("div");
-        inner.className = "rx-table-inner-scroll";
+          const hint = document.createElement("div");
+          hint.className = "rx-table-scroll-hint";
+          hint.innerHTML = `<span>↔</span> टेबल स्क्रॉल करें · Swipe table`;
 
-        table.parentNode?.insertBefore(wrapper, table);
-        wrapper.appendChild(hint);
-        wrapper.appendChild(inner);
-        inner.appendChild(table);
+          const inner = document.createElement("div");
+          inner.className = "rx-table-inner-scroll";
+
+          fadeIndicator = document.createElement("div");
+          fadeIndicator.className = "rx-table-fade-indicator";
+
+          table.parentNode?.insertBefore(wrapper, table);
+          wrapper.appendChild(hint);
+          wrapper.appendChild(inner);
+          inner.appendChild(table);
+          wrapper.appendChild(fadeIndicator);
+
+          scrollContainer = inner;
+        } else if (parent && parent.classList.contains("rx-table-inner-scroll")) {
+          scrollContainer = parent;
+          const grandParent = parent.parentElement;
+          if (grandParent) {
+            let existingFade = grandParent.querySelector(".rx-table-fade-indicator") as HTMLElement | null;
+            if (!existingFade) {
+              fadeIndicator = document.createElement("div");
+              fadeIndicator.className = "rx-table-fade-indicator";
+              grandParent.appendChild(fadeIndicator);
+            } else {
+              fadeIndicator = existingFade;
+            }
+          }
+        }
+      }
+
+      if (scrollContainer && fadeIndicator) {
+        const targetScroll = scrollContainer;
+        const targetFade = fadeIndicator;
+
+        const updateFade = () => {
+          const isScrollable = targetScroll.scrollWidth > targetScroll.clientWidth;
+          const isAtEnd = targetScroll.scrollLeft + targetScroll.clientWidth >= targetScroll.scrollWidth - 6;
+          if (!isScrollable || isAtEnd) {
+            targetFade.classList.add("is-end");
+          } else {
+            targetFade.classList.remove("is-end");
+          }
+        };
+
+        // Initial check
+        updateFade();
+        targetScroll.addEventListener("scroll", updateFade, { passive: true });
+        window.addEventListener("resize", updateFade, { passive: true });
+
+        cleanups.push(() => {
+          targetScroll.removeEventListener("scroll", updateFade);
+          window.removeEventListener("resize", updateFade);
+        });
       }
     });
 
@@ -186,6 +248,7 @@ export const RawHtmlArticleViewer: React.FC<RawHtmlArticleViewerProps> = ({
     }
 
     return () => {
+      cleanups.forEach((c) => c());
       const el = document.getElementById(SCRIPT_ID);
       if (el) el.remove();
     };
@@ -343,19 +406,55 @@ export const RawHtmlArticleViewer: React.FC<RawHtmlArticleViewerProps> = ({
         /* ───────────── RESPONSIVE TABLES & MOBILE TOUCH SCROLL ───────────── */
         .rx .scroll,
         .rx-table-scroll-container {
-          overflow-x: auto;
-          -webkit-overflow-scrolling: touch;
+          position: relative;
+          overflow: hidden;
           margin: 1.4em 0;
           border-radius: 14px;
           border: 1px solid #e2e8f0;
           background: #ffffff;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+          box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
           max-width: 100%;
         }
-        .rx-table-inner-scroll {
+        .rx-table-inner-scroll,
+        .rx .scroll {
           overflow-x: auto;
           -webkit-overflow-scrolling: touch;
           width: 100%;
+        }
+        .rx-table-fade-indicator {
+          position: absolute;
+          top: 0;
+          right: 0;
+          bottom: 0;
+          width: 28px;
+          background: linear-gradient(to right, rgba(255, 255, 255, 0), rgba(16, 47, 101, 0.16));
+          pointer-events: none;
+          opacity: 1;
+          transition: opacity 0.2s ease;
+          z-index: 5;
+          border-top-right-radius: 14px;
+          border-bottom-right-radius: 14px;
+        }
+        .rx-table-fade-indicator.is-end {
+          opacity: 0;
+        }
+        .rx-table-inner-scroll::-webkit-scrollbar,
+        .rx .scroll::-webkit-scrollbar {
+          height: 5px;
+        }
+        .rx-table-inner-scroll::-webkit-scrollbar-track,
+        .rx .scroll::-webkit-scrollbar-track {
+          background: #f1f5f9;
+          border-radius: 4px;
+        }
+        .rx-table-inner-scroll::-webkit-scrollbar-thumb,
+        .rx .scroll::-webkit-scrollbar-thumb {
+          background: #cbd5e1;
+          border-radius: 4px;
+        }
+        .rx-table-inner-scroll::-webkit-scrollbar-thumb:hover,
+        .rx .scroll::-webkit-scrollbar-thumb:hover {
+          background: #94a3b8;
         }
         .rx-table-scroll-hint {
           display: none;
@@ -378,12 +477,12 @@ export const RawHtmlArticleViewer: React.FC<RawHtmlArticleViewerProps> = ({
         .rx table {
           border-collapse: collapse !important;
           width: 100%;
-          min-width: 520px;
+          min-width: 480px;
           margin: 0 !important;
           display: table;
         }
         .rx th {
-          background: #0b2a63 !important;
+          background: #102F65 !important;
           color: #ffffff !important;
           text-align: left;
           padding: 13px 16px;
@@ -398,6 +497,13 @@ export const RawHtmlArticleViewer: React.FC<RawHtmlArticleViewerProps> = ({
           font-size: 0.92em;
           vertical-align: top;
           color: #334155;
+          word-break: normal;
+          overflow-wrap: break-word;
+          line-height: 1.6;
+        }
+        .rx th:first-child,
+        .rx td:first-child {
+          font-weight: 600;
         }
         .rx tr:nth-child(even) td {
           background: #f8fafc;
@@ -547,6 +653,17 @@ export const RawHtmlArticleViewer: React.FC<RawHtmlArticleViewerProps> = ({
           border-color: #27354f;
           background: #121722;
         }
+        .dark .rx-table-fade-indicator {
+          background: linear-gradient(to right, rgba(18, 23, 34, 0), rgba(0, 0, 0, 0.45));
+        }
+        .dark .rx-table-inner-scroll::-webkit-scrollbar-track,
+        .dark .rx .scroll::-webkit-scrollbar-track {
+          background: #161e2e;
+        }
+        .dark .rx-table-inner-scroll::-webkit-scrollbar-thumb,
+        .dark .rx .scroll::-webkit-scrollbar-thumb {
+          background: #334155;
+        }
         .dark .rx-table-scroll-hint {
           background: #161e2e;
           border-bottom-color: #27354f;
@@ -556,9 +673,9 @@ export const RawHtmlArticleViewer: React.FC<RawHtmlArticleViewerProps> = ({
           background: #121722;
         }
         .dark .rx th {
-          background: #16243d !important;
-          color: #f8fafc !important;
-          border-bottom: 2px solid #f59e0b;
+          background: #102F65 !important;
+          color: #ffffff !important;
+          border-bottom: 2px solid #c8962e;
         }
         .dark .rx td {
           border-top-color: #27354f;

@@ -685,18 +685,18 @@ const TopicDetailView: React.FC<TopicDetailViewProps> = ({
             <button
               onClick={handleStartTopicMCQ}
               disabled={isFetching}
-              className="w-full py-4 px-6 rounded-2xl bg-[#800020] hover:bg-[#5E0017] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] text-white font-black text-sm shadow-lg shadow-[#800020]/20 dark:shadow-[#F47B20]/20 flex items-center justify-center gap-3 transition-all active:scale-95 cursor-pointer disabled:opacity-50 group"
+              className="w-full py-3 px-5 sm:px-6 rounded-xl bg-[#800020] hover:bg-[#5E0017] dark:bg-[#800020] dark:hover:bg-[#650019] text-white font-semibold text-sm border border-[#C99A45]/30 shadow-md shadow-[#800020]/15 flex items-center justify-center gap-2.5 transition-all duration-180 active:scale-95 cursor-pointer disabled:opacity-50 group"
             >
               {isFetching ? (
                 <>
-                  <RefreshCw className="w-5 h-5 animate-spin" />
+                  <RefreshCw className="w-4 h-4 animate-spin text-[#C99A45]" />
                   <span>Preparing Practice Session...</span>
                 </>
               ) : (
                 <>
-                  <Play className="w-5 h-5 fill-white group-hover:scale-110 transition-transform" />
+                  <Play className="w-4 h-4 fill-white group-hover:scale-105 transition-transform" />
                   <span>Start Practice MCQs</span>
-                  <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  <ChevronRight className="w-4 h-4 text-[#C99A45] group-hover:translate-x-0.5 transition-transform" />
                 </>
               )}
             </button>
