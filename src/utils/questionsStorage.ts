@@ -120,8 +120,25 @@ export async function hydrateUserQuestionsStoreFromIndexedDB(): Promise<UserQues
         if (Array.isArray(v5Mcqs) && v5Mcqs.length >= 500) {
           const current = inMemoryQuestionsStore;
           const deletedSet = new Set(current.deletedQuestionIds || []);
+          const normalizedV5Mcqs = v5Mcqs.map((raw: any) => {
+            const d = (raw && raw.data && typeof raw.data === "object") ? raw.data : raw;
+            const qId = (raw && raw.id) || (d && d.id);
+            if (!d || !qId) return null;
+            return {
+              ...d,
+              id: qId,
+              text: d.text || d.question || "",
+              options: Array.isArray(d.options) ? d.options : [],
+              correctIndex: typeof d.correctIndex === "number" ? d.correctIndex : (parseInt(d.correctIndex, 10) || 0),
+              explanation: d.explanation || "",
+              topicId: d.topicId || d.topic || "",
+              chapterId: d.chapterId || "",
+              subjectId: d.subjectId || "",
+            };
+          }).filter((q: any) => q && q.id && !deletedSet.has(q.id));
+
           const { reconciledQuestions } = resolveCanonicalForeignKeys(
-            v5Mcqs.filter(q => q && q.id && !deletedSet.has(q.id)),
+            normalizedV5Mcqs,
             v5Subs.length ? v5Subs : (current.customSubjects || []),
             v5Chs.length ? v5Chs : (current.customChapters || []),
             v5Tops.length ? v5Tops : (current.customTopics || [])
@@ -156,8 +173,25 @@ export async function hydrateUserQuestionsStoreFromIndexedDB(): Promise<UserQues
           if (Array.isArray(snap.mcqs) && snap.mcqs.length >= 500) {
             const current = inMemoryQuestionsStore;
             const deletedSet = new Set(current.deletedQuestionIds || []);
+            const unwrappedMcqs = snap.mcqs.map((raw: any) => {
+              const d = (raw && raw.data && typeof raw.data === "object") ? raw.data : raw;
+              const qId = (raw && raw.id) || (d && d.id);
+              if (!d || !qId) return null;
+              return {
+                ...d,
+                id: qId,
+                text: d.text || d.question || "",
+                options: Array.isArray(d.options) ? d.options : [],
+                correctIndex: typeof d.correctIndex === "number" ? d.correctIndex : (parseInt(d.correctIndex, 10) || 0),
+                explanation: d.explanation || "",
+                topicId: d.topicId || d.topic || "",
+                chapterId: d.chapterId || "",
+                subjectId: d.subjectId || "",
+              };
+            }).filter((q: any) => q && q.id && !deletedSet.has(q.id));
+
             const { reconciledQuestions } = resolveCanonicalForeignKeys(
-              snap.mcqs.filter((q: any) => q && q.id && !deletedSet.has(q.id)),
+              unwrappedMcqs,
               snap.subjects || current.customSubjects,
               snap.chapters || current.customChapters,
               snap.topics || current.customTopics

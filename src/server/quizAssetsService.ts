@@ -1,3 +1,5 @@
+import fs from 'fs';
+import path from 'path';
 import { sanitizeLiveTestForPublic, isValidFirestoreDocId } from './liveTestService';
 
 export interface QuizAssetsServiceDeps {
@@ -99,6 +101,70 @@ export function createQuizAssetsService(deps: QuizAssetsServiceDeps) {
     return promise;
   }
 
+  let memoizedSnapshotContent: any = null;
+  let lastSnapshotReadTime = 0;
+
+  function getSnapshotFallbackData(): any {
+    const now = Date.now();
+    if (memoizedSnapshotContent && now - lastSnapshotReadTime < 60000) {
+      return memoizedSnapshotContent;
+    }
+    try {
+      const snapshotPath = path.join(process.cwd(), 'education-content', 'snapshots', 'v1', 'content.json');
+      if (fs.existsSync(snapshotPath)) {
+        memoizedSnapshotContent = JSON.parse(fs.readFileSync(snapshotPath, 'utf-8'));
+        lastSnapshotReadTime = now;
+        return memoizedSnapshotContent;
+      }
+    } catch (err) {
+      console.warn('[QuizAssets] Failed to load local snapshot file:', err);
+    }
+    return null;
+  }
+
+  function getSnapshotCollectionFallback(collectionName: string): any[] {
+    const data = getSnapshotFallbackData();
+    if (!data) return [];
+    if (collectionName === 'subjects') return data.subjects || [];
+    if (collectionName === 'chapters') return data.chapters || [];
+    if (collectionName === 'topics') return data.topics || [];
+    if (collectionName === 'mcqs' || collectionName === 'questions') {
+      return (data.mcqs || []).map((m: any) => {
+        const d = (m && m.data && typeof m.data === 'object') ? m.data : m;
+        return { ...d, id: m.id || d.id };
+      });
+    }
+    return [];
+  }
+
+  function getSnapshotDocFallback(collectionName: string, docId: string): any | null {
+    const data = getSnapshotFallbackData();
+    if (!data) return null;
+    if (collectionName === 'metadata' && docId === 'app_version') {
+      return {
+        curriculumVersion: data.snapshotVersion || 1,
+        lastUpdated: data.publishedAt || new Date().toISOString(),
+        bundleVersions: {},
+      };
+    }
+    if (collectionName === 'subjects') {
+      return (data.subjects || []).find((s: any) => s.id === docId) || null;
+    }
+    if (collectionName === 'chapters') {
+      return (data.chapters || []).find((c: any) => c.id === docId) || null;
+    }
+    if (collectionName === 'topics') {
+      return (data.topics || []).find((t: any) => t.id === docId) || null;
+    }
+    if (collectionName === 'mcqs' || collectionName === 'questions') {
+      const item = (data.mcqs || []).find((m: any) => m.id === docId || (m.data && m.data.id === docId));
+      if (!item) return null;
+      const d = (item.data && typeof item.data === 'object') ? item.data : item;
+      return { ...d, id: item.id || d.id };
+    }
+    return null;
+  }
+
   async function readDoc(collectionName: string, docId: string): Promise<any | null> {
     const adminDb = deps.getAdminDb();
     if (adminDb) {
@@ -111,18 +177,24 @@ export function createQuizAssetsService(deps: QuizAssetsServiceDeps) {
       }
     }
 
-    const url = `https://firestore.googleapis.com/v1/projects/${deps.projectId}/databases/${deps.databaseId}/documents/${encodeURIComponent(collectionName)}/${encodeURIComponent(docId)}?key=${deps.apiKey}`;
-    const res = await doFetch()(url);
-    if (res.status === 404) return null;
-    if (!res.ok) {
-      throw new Error(`Firestore REST readDoc(${collectionName}/${docId}) failed: ${res.status}`);
+    try {
+      const url = `https://firestore.googleapis.com/v1/projects/${deps.projectId}/databases/${deps.databaseId}/documents/${encodeURIComponent(collectionName)}/${encodeURIComponent(docId)}?key=${deps.apiKey}`;
+      const res = await doFetch()(url);
+      if (res.status === 404) return null;
+      if (res.ok) {
+        const json = (await res.json()) as any;
+        if (json && json.fields) {
+          return {
+            ...parseFirestoreRestFields(json.fields),
+            id: docId,
+          };
+        }
+      }
+    } catch (err: any) {
+      console.warn(`[QuizAssets] Firestore REST readDoc(${collectionName}/${docId}) failed, trying local snapshot:`, err?.message || err);
     }
-    const json = (await res.json()) as any;
-    if (!json || !json.fields) return null;
-    return {
-      ...parseFirestoreRestFields(json.fields),
-      id: docId,
-    };
+
+    return getSnapshotDocFallback(collectionName, docId);
   }
 
   async function readCollection(collectionName: string): Promise<any[]> {
@@ -130,46 +202,53 @@ export function createQuizAssetsService(deps: QuizAssetsServiceDeps) {
     if (adminDb) {
       try {
         const snap = await adminDb.collection(collectionName).get();
-        if (!snap || !Array.isArray(snap.docs)) return [];
-        return snap.docs.map((d: any) => ({
-          ...(typeof d.data === 'function' ? d.data() : d.data || {}),
-          id: d.id,
-        }));
+        if (snap && Array.isArray(snap.docs) && snap.docs.length > 0) {
+          return snap.docs.map((d: any) => ({
+            ...(typeof d.data === 'function' ? d.data() : d.data || {}),
+            id: d.id,
+          }));
+        }
       } catch (err) {
         console.warn(`[QuizAssets] adminDb readCollection(${collectionName}) fallback to REST:`, (err as any)?.message || err);
       }
     }
 
-    const docs: any[] = [];
-    let pageToken: string | undefined;
-    do {
-      const qs = new URLSearchParams({
-        key: deps.apiKey,
-        pageSize: '1000',
-      });
-      if (pageToken) qs.set('pageToken', pageToken);
-      const url = `https://firestore.googleapis.com/v1/projects/${deps.projectId}/databases/${deps.databaseId}/documents/${encodeURIComponent(collectionName)}?${qs.toString()}`;
-      const res = await doFetch()(url);
-      if (!res.ok) {
-        if (res.status === 404) return docs;
-        throw new Error(`Firestore REST readCollection(${collectionName}) failed: ${res.status}`);
-      }
-      const json = (await res.json()) as any;
-      if (Array.isArray(json.documents)) {
-        for (const item of json.documents) {
-          if (item && item.fields && item.name) {
-            const id = String(item.name).split('/').pop() || '';
-            docs.push({
-              ...parseFirestoreRestFields(item.fields),
-              id,
-            });
+    try {
+      const docs: any[] = [];
+      let pageToken: string | undefined;
+      do {
+        const qs = new URLSearchParams({
+          key: deps.apiKey,
+          pageSize: '1000',
+        });
+        if (pageToken) qs.set('pageToken', pageToken);
+        const url = `https://firestore.googleapis.com/v1/projects/${deps.projectId}/databases/${deps.databaseId}/documents/${encodeURIComponent(collectionName)}?${qs.toString()}`;
+        const res = await doFetch()(url);
+        if (!res.ok) {
+          if (res.status === 404) return docs;
+          throw new Error(`Firestore REST readCollection(${collectionName}) failed: ${res.status}`);
+        }
+        const json = (await res.json()) as any;
+        if (Array.isArray(json.documents)) {
+          for (const item of json.documents) {
+            if (item && item.fields && item.name) {
+              const id = String(item.name).split('/').pop() || '';
+              docs.push({
+                ...parseFirestoreRestFields(item.fields),
+                id,
+              });
+            }
           }
         }
-      }
-      pageToken = json.nextPageToken;
-    } while (pageToken);
+        pageToken = json.nextPageToken;
+      } while (pageToken);
 
-    return docs;
+      if (docs.length > 0) return docs;
+    } catch (restErr: any) {
+      console.warn(`[QuizAssets] readCollection(${collectionName}) REST/Admin failed, using local snapshot fallback:`, restErr?.message || restErr);
+    }
+
+    return getSnapshotCollectionFallback(collectionName);
   }
 
   async function getVersionManifest(forceRefresh = false): Promise<QuizVersionManifest> {
@@ -313,6 +392,30 @@ export function createQuizAssetsService(deps: QuizAssetsServiceDeps) {
       let raw = await readDoc('question_bundles', primaryBundleDocId);
       if (!raw && topicId.startsWith('topic_')) {
         raw = await readDoc('question_bundles', topicId);
+      }
+      if (!raw) {
+        // Synthesize bundle from snapshot MCQs for this topic
+        const snapData = getSnapshotFallbackData();
+        if (snapData && Array.isArray(snapData.mcqs)) {
+          const topicQuestions = snapData.mcqs
+            .map((m: any) => {
+              const d = (m && m.data && typeof m.data === 'object') ? m.data : m;
+              return { ...d, id: m.id || d.id };
+            })
+            .filter((q: any) => q.topicId === topicId || (topicId.startsWith('topic_') && q.topicId === topicId.slice(6)));
+          if (topicQuestions.length > 0) {
+            raw = {
+              id: primaryBundleDocId,
+              topicId,
+              chapterId: topicQuestions[0]?.chapterId,
+              subjectId: topicQuestions[0]?.subjectId,
+              questionCount: topicQuestions.length,
+              questions: topicQuestions,
+              updatedAt: snapData.publishedAt || new Date().toISOString(),
+              version: 1,
+            };
+          }
+        }
       }
       if (!raw) return null;
 

@@ -175,23 +175,49 @@ export async function executeInitialBootstrap(
         const snapResp = await fetch("/api/snapshots/v1/content.json");
         if (snapResp.ok) {
           const snapPayload = await snapResp.json();
-          if (Array.isArray(snapPayload.mcqs) && snapPayload.mcqs.length > allMcqs.length) {
-            for (const q of snapPayload.mcqs) {
-              if (q && q.id && !seenMcqIds.has(q.id)) {
-                seenMcqIds.add(q.id);
-                allMcqs.push(q);
-              }
-            }
-            if (Array.isArray(snapPayload.subjects) && subjects.length === 0) {
+          
+          if (Array.isArray(snapPayload.subjects) && snapPayload.subjects.length > 0) {
+            if (subjects.length === 0) {
               subjects.push(...snapPayload.subjects);
             }
-            if (Array.isArray(snapPayload.chapters) && chapters.length === 0) {
+            await stageIncomingRecords(batchId, STORES.SUBJECTS, snapPayload.subjects.map((s: any) => ({ recordId: s.id, data: s })));
+          }
+          if (Array.isArray(snapPayload.chapters) && snapPayload.chapters.length > 0) {
+            if (chapters.length === 0) {
               chapters.push(...snapPayload.chapters);
             }
-            if (Array.isArray(snapPayload.topics) && topics.length === 0) {
+            await stageIncomingRecords(batchId, STORES.CHAPTERS, snapPayload.chapters.map((c: any) => ({ recordId: c.id, data: c })));
+          }
+          if (Array.isArray(snapPayload.topics) && snapPayload.topics.length > 0) {
+            if (topics.length === 0) {
               topics.push(...snapPayload.topics);
             }
-            await stageIncomingRecords(batchId, STORES.MCQS, allMcqs.map(q => ({ recordId: q.id, data: q })));
+            await stageIncomingRecords(batchId, STORES.TOPICS, snapPayload.topics.map((t: any) => ({ recordId: t.id, data: t })));
+          }
+
+          if (Array.isArray(snapPayload.mcqs) && snapPayload.mcqs.length > 0) {
+            for (const raw of snapPayload.mcqs) {
+              const d = (raw && raw.data && typeof raw.data === "object") ? raw.data : raw;
+              const qId = (raw && raw.id) || (d && d.id);
+              if (d && (d.text || d.question) && qId && !seenMcqIds.has(qId)) {
+                seenMcqIds.add(qId);
+                const normalizedQ: Question = {
+                  ...d,
+                  id: qId,
+                  text: d.text || d.question || "",
+                  options: Array.isArray(d.options) ? d.options : [],
+                  correctIndex: typeof d.correctIndex === "number" ? d.correctIndex : (parseInt(d.correctIndex, 10) || 0),
+                  explanation: d.explanation || "",
+                  topicId: d.topicId || d.topic || "",
+                  chapterId: d.chapterId || "",
+                  subjectId: d.subjectId || "",
+                };
+                allMcqs.push(normalizedQ);
+              }
+            }
+            if (allMcqs.length > 0) {
+              await stageIncomingRecords(batchId, STORES.MCQS, allMcqs.map(q => ({ recordId: q.id, data: q })));
+            }
           }
         }
       } catch (snapErr: any) {

@@ -1,0 +1,36 @@
+{
+  "snapshotVersion": 2,
+  "checksum": "74dc5c751edeb7c13f91825a6597f7dba941cfc25eba71dcd7481d84bc265802",
+  "chunks": [
+    {
+      "chunkIndex": 0,
+      "url": "/api/snapshots/v1/chunk-0.json",
+      "checksum": "d1fda4bc12a0c06b9addf8940582a33e5e567444811740bebf23bba924cf9fa8",
+      "itemCount": 200
+    },
+    {
+      "chunkIndex": 1,
+      "url": "/api/snapshots/v1/chunk-1.json",
+      "checksum": "aa35899610830a421761093f549a6e8f0078c37477583bc6f36b171bf91e7210",
+      "itemCount": 200
+    },
+    {
+      "chunkIndex": 2,
+      "url": "/api/snapshots/v1/chunk-2.json",
+      "checksum": "aa980c6cac64d461598a6bca843e082c76c0f1179b2ca7d631ca894e178d4513",
+      "itemCount": 200
+    },
+    {
+      "chunkIndex": 3,
+      "url": "/api/snapshots/v1/chunk-3.json",
+      "checksum": "a7e548ea1ab6a757b023b9c953f7c06b129daacf59d50b7770782b6cd7460513",
+      "itemCount": 200
+    },
+    {
+      "chunkIndex": 4,
+      "url": "/api/snapshots/v1/chunk-4.json",
+      "checksum": "070466a49a02ebe6f30dfe140ac59351aa54f2e5cd164306e8d35dc9edc5ded8",
+      "itemCount": 91
+    }
+  ]
+}
