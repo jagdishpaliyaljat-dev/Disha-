@@ -17,6 +17,7 @@ import {
 } from "firebase/auth";
 import { saveUserProfile } from "../utils/userProfileStorage";
 import { AppLogo } from "./AppLogo";
+import { productionMonitor } from "../utils/productionMonitoring";
 
 interface LoginPageProps {
   onLoginSuccess: (profile: UserProfile) => void;
@@ -37,6 +38,7 @@ export function LoginPage({ onLoginSuccess, onClose }: LoginPageProps) {
     }
 
     setIsLoading(true);
+    productionMonitor.recordUserJourney("login", "start");
 
     try {
       await setPersistence(auth, browserLocalPersistence);
@@ -45,6 +47,7 @@ export function LoginPage({ onLoginSuccess, onClose }: LoginPageProps) {
       const result = await signInWithPopup(auth, provider);
 
       if (result && result.user) {
+        productionMonitor.recordUserJourney("login", "success");
         const { fetchUserProfileFromCloud, syncUserProfileToCloud } = await import(
           "../utils/firebaseSyncService"
         );
@@ -92,6 +95,7 @@ export function LoginPage({ onLoginSuccess, onClose }: LoginPageProps) {
         return;
       }
     } catch (err: any) {
+      productionMonitor.recordUserJourney("login", "failure", { code: err?.code });
       const { logLoginAttempt } = await import("../utils/firebaseSyncService");
       await logLoginAttempt("unknown_attempt", false, err?.message || "Authentication failed.");
       console.warn("Firebase Google login error:", err?.code || err?.message);

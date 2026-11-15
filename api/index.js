@@ -232680,7 +232680,7 @@ async function verifyAuthenticatedRequest(req, deps, options = {}) {
   const email = typeof decoded.email === "string" ? decoded.email.trim().toLowerCase() : "";
   const emailVerified = decoded.email_verified === true;
   const isAllowlistedEmail = Boolean(email) && AUTHORIZED_ADMIN_EMAILS.includes(email);
-  if (options.requireAdmin && !deps.adminDb && !isAllowlistedEmail) {
+  if (options.requireAdmin && !deps.adminDb && !(isAllowlistedEmail && emailVerified)) {
     return {
       ok: false,
       status: 503,
@@ -232719,7 +232719,7 @@ async function verifyAuthenticatedRequest(req, deps, options = {}) {
     };
   }
   const isRevokedAdmin = Boolean(userDoc && userDoc.revokedAdmin === true);
-  const isAllowlistedEmailAdmin = (emailVerified || isAllowlistedEmail) && Boolean(email) && AUTHORIZED_ADMIN_EMAILS.includes(email) && !isRevokedAdmin;
+  const isAllowlistedEmailAdmin = emailVerified && Boolean(email) && AUTHORIZED_ADMIN_EMAILS.includes(email) && !isRevokedAdmin;
   const hasCustomAdminClaim = (decoded.admin === true || decoded.role === "admin") && !isRevokedAdmin && (!userDocExists || userDoc?.role === "admin");
   const isServerApprovedAdminDoc = userDocExists && userDoc?.role === "admin" && !isRevokedAdmin;
   const isAdmin = Boolean(

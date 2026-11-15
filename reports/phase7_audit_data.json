@@ -1,0 +1,686 @@
+{
+  "inventory": {
+    "canonical_snapshot_576": 576,
+    "chunk0_mcqs": 200,
+    "chunk1_mcqs": 200,
+    "chunk2_mcqs": 176,
+    "full_production_backup": 576,
+    "prajamandal_backup": 546,
+    "phase2_verified_backup": 576,
+    "phase4_stale_backup": 262,
+    "recovery_manifest": 576
+  },
+  "canonical_ids_count": 576,
+  "phase2_ids_count": 576,
+  "full_prod_ids_count": 576,
+  "prajamandal_ids_count": 546,
+  "hierarchy": {
+    "total_subjects": 5,
+    "total_chapters": 14,
+    "total_topics": 57,
+    "orphaned_subjects": 30,
+    "orphaned_chapters": 30,
+    "orphaned_topics": 30,
+    "valid_mapped": 546,
+    "subjects_breakdown": [
+      {
+        "id": "subj-1793114550283-wpeqo",
+        "name": "राजस्थान का इतिहास",
+        "hindiName": "राजस्थान का इतिहास",
+        "question_count": 546,
+        "chapters_count": 4
+      },
+      {
+        "id": "subj-1793126120889-0jzu2",
+        "name": "राजस्थान का भूगोल",
+        "hindiName": "राजस्थान का भूगोल",
+        "question_count": 0,
+        "chapters_count": 8
+      },
+      {
+        "id": "subj-1793126281086-96tzj",
+        "name": "राजस्थान कला एवं संस्कृति",
+        "hindiName": "राजस्थान कला एवं संस्कृति",
+        "question_count": 0,
+        "chapters_count": 0
+      },
+      {
+        "id": "subj-1793126301974-it6mm",
+        "name": "राजस्थान की अर्थव्यवस्था",
+        "hindiName": "राजस्थान की अर्थव्यवस्था",
+        "question_count": 0,
+        "chapters_count": 2
+      },
+      {
+        "id": "subj-1793126332353-e3dxj",
+        "name": "समसामयिक घटनाएँ",
+        "hindiName": "समसामयिक घटनाएँ",
+        "question_count": 0,
+        "chapters_count": 0
+      }
+    ],
+    "chapters_breakdown": [
+      {
+        "id": "custom-ch-1793114583187-txi6p",
+        "title": "प्राचीन सभ्यता",
+        "hindiTitle": "प्राचीन सभ्यता",
+        "subjectId": "subj-1793114550283-wpeqo",
+        "question_count": 0,
+        "topics_count": 3
+      },
+      {
+        "id": "custom-ch-1793170570488-95wl6",
+        "title": "भौतिक प्रदेश",
+        "hindiTitle": "भौतिक प्रदेश",
+        "subjectId": "subj-1793126120889-0jzu2",
+        "question_count": 0,
+        "topics_count": 3
+      },
+      {
+        "id": "custom-ch-1793196395934-v2yex",
+        "title": "विस्तार एवं स्थिति",
+        "hindiTitle": "विस्तार एवं स्थिति",
+        "subjectId": "subj-1793126120889-0jzu2",
+        "question_count": 0,
+        "topics_count": 2
+      },
+      {
+        "id": "custom-ch-1793205795234-q2qgn",
+        "title": "INDUSTRY",
+        "hindiTitle": "INDUSTRY",
+        "subjectId": "subj-1793126301974-it6mm",
+        "question_count": 0,
+        "topics_count": 5
+      },
+      {
+        "id": "custom-ch-1793216900259-r5wpm",
+        "title": "राजस्थान का एकीकरण",
+        "hindiTitle": "राजस्थान का एकीकरण",
+        "subjectId": "subj-1793114550283-wpeqo",
+        "question_count": 0,
+        "topics_count": 3
+      },
+      {
+        "id": "custom-ch-1793292191934-f9c1l",
+        "title": "प्रजामंडल",
+        "hindiTitle": "प्रजामंडल",
+        "subjectId": "subj-1793114550283-wpeqo",
+        "question_count": 546,
+        "topics_count": 3
+      },
+      {
+        "id": "custom-ch-1793308288015-junr4",
+        "title": "राजस्थान की मुख्य समाचार पत्र",
+        "hindiTitle": "राजस्थान की मुख्य समाचार पत्र",
+        "subjectId": "subj-1793114550283-wpeqo",
+        "question_count": 0,
+        "topics_count": 1
+      },
+      {
+        "id": "custom-ch-1793631882188-aw7g0",
+        "title": "अपवाह तंत्र और नदियां",
+        "hindiTitle": "अपवाह तंत्र और नदियां",
+        "subjectId": "subj-1793126120889-0jzu2",
+        "question_count": 0,
+        "topics_count": 8
+      },
+      {
+        "id": "custom-ch-1793686604671-16qca",
+        "title": "राजस्थान की मिट्टी",
+        "hindiTitle": "राजस्थान की मिट्टी",
+        "subjectId": "subj-1793126120889-0jzu2",
+        "question_count": 0,
+        "topics_count": 4
+      },
+      {
+        "id": "custom-ch-1793691805813-wj58c",
+        "title": "सिंचाई परियोजनाएं",
+        "hindiTitle": "सिंचाई परियोजनाएं",
+        "subjectId": "subj-1793126120889-0jzu2",
+        "question_count": 0,
+        "topics_count": 8
+      },
+      {
+        "id": "custom-ch-1793722070182-fh7bn",
+        "title": "वन संपदा",
+        "hindiTitle": "वन संपदा",
+        "subjectId": "subj-1793126120889-0jzu2",
+        "question_count": 0,
+        "topics_count": 8
+      },
+      {
+        "id": "custom-ch-1793808219116-u7vwa",
+        "title": "वन्य जीव",
+        "hindiTitle": "वन्य जीव",
+        "subjectId": "subj-1793126120889-0jzu2",
+        "question_count": 0,
+        "topics_count": 5
+      },
+      {
+        "id": "custom-ch-1793890002003-y0cfs",
+        "title": "कृषि जलवायु प्रदेश",
+        "hindiTitle": "कृषि जलवायु प्रदेश",
+        "subjectId": "subj-1793126120889-0jzu2",
+        "question_count": 0,
+        "topics_count": 2
+      },
+      {
+        "id": "custom-ch-1793972492646-jg9yy",
+        "title": "कृषि एवं संबद्ध क्षेत्र",
+        "hindiTitle": "कृषि एवं संबद्ध क्षेत्र",
+        "subjectId": "subj-1793126301974-it6mm",
+        "question_count": 0,
+        "topics_count": 2
+      }
+    ],
+    "zero_question_topics": [
+      {
+        "id": "custom-topic-1793114725323-h9ask",
+        "title": "PYQ 01",
+        "hindiTitle": "PYQ 01",
+        "chapterId": "custom-ch-1793114583187-txi6p"
+      },
+      {
+        "id": "custom-topic-1793115988421-45kap",
+        "title": "PYQ 02",
+        "hindiTitle": "PYQ 02",
+        "chapterId": "custom-ch-1793114583187-txi6p"
+      },
+      {
+        "id": "custom-topic-1793170599393-s4yys",
+        "title": "मरुस्थल",
+        "hindiTitle": "मरुस्थल",
+        "chapterId": "custom-ch-1793170570488-95wl6"
+      },
+      {
+        "id": "custom-topic-1793209281331-21foz",
+        "title": "MCQ 4",
+        "hindiTitle": "MCQ 04",
+        "chapterId": "custom-ch-1793205795234-q2qgn"
+      },
+      {
+        "id": "custom-topic-1793284997535-fdwzn",
+        "title": "MCQ 3",
+        "hindiTitle": "MCQ 3",
+        "chapterId": "custom-ch-1793216900259-r5wpm"
+      },
+      {
+        "id": "custom-topic-1793306683981-h86ms",
+        "title": "MCQ 2",
+        "hindiTitle": "MCQ 02",
+        "chapterId": "custom-ch-1793292191934-f9c1l"
+      },
+      {
+        "id": "custom-topic-1793306697578-t3ce7",
+        "title": "MCQ 3",
+        "hindiTitle": "MCQ 03",
+        "chapterId": "custom-ch-1793292191934-f9c1l"
+      },
+      {
+        "id": "custom-topic-1793631902901-tyc4n",
+        "title": "MCQ 01",
+        "hindiTitle": "MCQ 01",
+        "chapterId": "custom-ch-1793631882188-aw7g0"
+      },
+      {
+        "id": "custom-topic-1793637231943-kp98g",
+        "title": "MCQ 02",
+        "hindiTitle": "MCQ 02",
+        "chapterId": "custom-ch-1793631882188-aw7g0"
+      },
+      {
+        "id": "custom-topic-1793640194851-p0ttx",
+        "title": "MCQ 03",
+        "hindiTitle": "MCQ 03",
+        "chapterId": "custom-ch-1793631882188-aw7g0"
+      },
+      {
+        "id": "custom-topic-1793645364340-p7jqe",
+        "title": "MCQ 02",
+        "hindiTitle": "MCQ 02",
+        "chapterId": "custom-ch-1793196395934-v2yex"
+      },
+      {
+        "id": "custom-topic-1793686625843-mkv3p",
+        "title": "MCQ 01",
+        "hindiTitle": "MCQ 01",
+        "chapterId": "custom-ch-1793686604671-16qca"
+      },
+      {
+        "id": "custom-topic-1793691829851-me6vs",
+        "title": "MCQ 01",
+        "hindiTitle": "MCQ 01",
+        "chapterId": "custom-ch-1793691805813-wj58c"
+      },
+      {
+        "id": "custom-topic-1793693900482-xpvow",
+        "title": "MCQ 02",
+        "hindiTitle": "MCQ 02",
+        "chapterId": "custom-ch-1793691805813-wj58c"
+      },
+      {
+        "id": "custom-topic-1793714962224-m2jzt",
+        "title": "MCQ 03",
+        "hindiTitle": "MCQ 03",
+        "chapterId": "custom-ch-1793691805813-wj58c"
+      },
+      {
+        "id": "custom-topic-1793722084250-m1dzz",
+        "title": "MCQ 01",
+        "hindiTitle": "MCQ 01",
+        "chapterId": "custom-ch-1793722070182-fh7bn"
+      },
+      {
+        "id": "custom-topic-1793725013547-ocf2l",
+        "title": "MCQ 02",
+        "hindiTitle": "MCQ 02",
+        "chapterId": "custom-ch-1793722070182-fh7bn"
+      },
+      {
+        "id": "custom-topic-1793808233027-u31wi",
+        "title": "MCQ 01",
+        "hindiTitle": "MCQ 01",
+        "chapterId": "custom-ch-1793808219116-u7vwa"
+      },
+      {
+        "id": "custom-topic-1793809561387-c904a",
+        "title": "MCQ 02",
+        "hindiTitle": "MCQ 02",
+        "chapterId": "custom-ch-1793808219116-u7vwa"
+      },
+      {
+        "id": "custom-topic-1793890025774-0l9oy",
+        "title": "MCQ 01",
+        "hindiTitle": "MCQ 01",
+        "chapterId": "custom-ch-1793890002003-y0cfs"
+      },
+      {
+        "id": "custom-topic-1793890035125-kqce1",
+        "title": "MCQ 02",
+        "hindiTitle": "MCQ 02",
+        "chapterId": "custom-ch-1793890002003-y0cfs"
+      },
+      {
+        "id": "custom-topic-1793959310218-5v9bo",
+        "title": "MCQ 04",
+        "hindiTitle": "MCQ 04",
+        "chapterId": "custom-ch-1793631882188-aw7g0"
+      },
+      {
+        "id": "custom-topic-1793959319870-pdtu2",
+        "title": "MCQ 05",
+        "hindiTitle": "MCQ 05",
+        "chapterId": "custom-ch-1793631882188-aw7g0"
+      },
+      {
+        "id": "custom-topic-1793959346779-vohmo",
+        "title": "MCQ 06",
+        "hindiTitle": "MCQ 06",
+        "chapterId": "custom-ch-1793631882188-aw7g0"
+      },
+      {
+        "id": "custom-topic-1793959353801-u7kfe",
+        "title": "MCQ 07",
+        "hindiTitle": "MCQ 07",
+        "chapterId": "custom-ch-1793631882188-aw7g0"
+      },
+      {
+        "id": "custom-topic-1793959361480-itc58",
+        "title": "MCQ 08",
+        "hindiTitle": "MCQ 08",
+        "chapterId": "custom-ch-1793631882188-aw7g0"
+      },
+      {
+        "id": "custom-topic-1793959388801-rpb94",
+        "title": "MCQ 02",
+        "hindiTitle": "MCQ 02",
+        "chapterId": "custom-ch-1793686604671-16qca"
+      },
+      {
+        "id": "custom-topic-1793959396075-adggr",
+        "title": "MCQ 03",
+        "hindiTitle": "MCQ 03",
+        "chapterId": "custom-ch-1793686604671-16qca"
+      },
+      {
+        "id": "custom-topic-1793959406471-i7ei2",
+        "title": "MCQ 04",
+        "hindiTitle": "MCQ 04",
+        "chapterId": "custom-ch-1793686604671-16qca"
+      },
+      {
+        "id": "custom-topic-1793959432368-oj2iz",
+        "title": "MCQ 04",
+        "hindiTitle": "MCQ 04",
+        "chapterId": "custom-ch-1793691805813-wj58c"
+      },
+      {
+        "id": "custom-topic-1793959449197-v3az3",
+        "title": "MCQ 05",
+        "hindiTitle": "MCQ 05",
+        "chapterId": "custom-ch-1793691805813-wj58c"
+      },
+      {
+        "id": "custom-topic-1793959456575-1gugi",
+        "title": "MCQ 06",
+        "hindiTitle": "MCQ 06",
+        "chapterId": "custom-ch-1793691805813-wj58c"
+      },
+      {
+        "id": "custom-topic-1793959464512-b37ef",
+        "title": "MCQ 07",
+        "hindiTitle": "MCQ 07",
+        "chapterId": "custom-ch-1793691805813-wj58c"
+      },
+      {
+        "id": "custom-topic-1793959473359-shd0t",
+        "title": "MCQ 08",
+        "hindiTitle": "MCQ 08",
+        "chapterId": "custom-ch-1793691805813-wj58c"
+      },
+      {
+        "id": "custom-topic-1793959515048-e7t9z",
+        "title": "MCQ 04",
+        "hindiTitle": "MCQ 04",
+        "chapterId": "custom-ch-1793808219116-u7vwa"
+      },
+      {
+        "id": "custom-topic-1793959524666-u5z9q",
+        "title": "MCQ 05",
+        "hindiTitle": "MCQ 05",
+        "chapterId": "custom-ch-1793808219116-u7vwa"
+      },
+      {
+        "id": "custom-topic-1793959598061-qnf3w",
+        "title": "MCQ 03",
+        "hindiTitle": "MCQ 03",
+        "chapterId": "custom-ch-1793722070182-fh7bn"
+      },
+      {
+        "id": "custom-topic-1793959604533-k1a8r",
+        "title": "MCQ 04",
+        "hindiTitle": "MCQ 04",
+        "chapterId": "custom-ch-1793722070182-fh7bn"
+      },
+      {
+        "id": "custom-topic-1793959610572-9xfna",
+        "title": "MCQ 05",
+        "hindiTitle": "MCQ 05",
+        "chapterId": "custom-ch-1793722070182-fh7bn"
+      },
+      {
+        "id": "custom-topic-1793959617720-8v5jc",
+        "title": "MCQ 06",
+        "hindiTitle": "MCQ 06",
+        "chapterId": "custom-ch-1793722070182-fh7bn"
+      },
+      {
+        "id": "custom-topic-1793959624513-s5vpc",
+        "title": "MCQ 07",
+        "hindiTitle": "MCQ 07",
+        "chapterId": "custom-ch-1793722070182-fh7bn"
+      },
+      {
+        "id": "custom-topic-1793959631495-n8w6a",
+        "title": "MCQ 08",
+        "hindiTitle": "MCQ 08",
+        "chapterId": "custom-ch-1793722070182-fh7bn"
+      },
+      {
+        "id": "custom-topic-1793972568453-9esq0",
+        "title": "MCQ 01",
+        "hindiTitle": "MCQ 01",
+        "chapterId": "custom-ch-1793972492646-jg9yy"
+      },
+      {
+        "id": "custom-topic-1793990916264-lungs",
+        "title": "MCQ 02",
+        "hindiTitle": "MCQ 02",
+        "chapterId": "custom-ch-1793972492646-jg9yy"
+      },
+      {
+        "id": "topic_2e3fb264-998e-45de-a4de-a168da33fa7e",
+        "title": "MCQ",
+        "hindiTitle": "MCQ 01",
+        "chapterId": "custom-ch-1793196395934-v2yex"
+      },
+      {
+        "id": "topic_2fef4055-dee8-4882-9f30-6e86d9202263",
+        "title": "MCQ 2",
+        "hindiTitle": "MCQ 2",
+        "chapterId": "custom-ch-1793170570488-95wl6"
+      },
+      {
+        "id": "topic_3da7035f-1933-4615-820a-3f862a957ec6",
+        "title": "General Practice",
+        "hindiTitle": "अरावली पर्वतमाला",
+        "chapterId": "custom-ch-1793170570488-95wl6"
+      },
+      {
+        "id": "topic_5151c05f-3251-4ec0-971f-ca5281767698",
+        "title": "MCQ 5",
+        "hindiTitle": "MCQ 05",
+        "chapterId": "custom-ch-1793205795234-q2qgn"
+      },
+      {
+        "id": "topic_68575654-755c-45eb-b8f5-f38b980e3c90",
+        "title": "MCQ 1",
+        "hindiTitle": "MCQ 1",
+        "chapterId": "custom-ch-1793308288015-junr4"
+      },
+      {
+        "id": "topic_6fe378d2-a022-4a46-a137-982685e5e645",
+        "title": "MCQ",
+        "hindiTitle": "MCQ",
+        "chapterId": "custom-ch-1793216900259-r5wpm"
+      },
+      {
+        "id": "topic_71e6775a-791a-4f7a-8596-2a4594026a1f",
+        "title": "MCQ 2",
+        "hindiTitle": "MCQ 2",
+        "chapterId": "custom-ch-1793216900259-r5wpm"
+      },
+      {
+        "id": "topic_73c944a3-f127-44ae-a7c4-51e732f7d621",
+        "title": "MCQ 03",
+        "hindiTitle": "MCQ 03",
+        "chapterId": "custom-ch-1793808219116-u7vwa"
+      },
+      {
+        "id": "topic_789c20f4-7ce7-4ad4-9b25-7e91992b9fb3",
+        "title": "PYQ 03",
+        "hindiTitle": "PYQ 03",
+        "chapterId": "custom-ch-1793114583187-txi6p"
+      },
+      {
+        "id": "topic_92722050-75c9-4672-bbaa-2026d75d3c82",
+        "title": "MCQ 1",
+        "hindiTitle": "MCQ 01",
+        "chapterId": "custom-ch-1793205795234-q2qgn"
+      },
+      {
+        "id": "topic_c2208d91-3aec-45a4-9fec-b0bd2aaffb3e",
+        "title": "MCQ 3",
+        "hindiTitle": "MCQ 03",
+        "chapterId": "custom-ch-1793205795234-q2qgn"
+      },
+      {
+        "id": "topic_e89b3d36-6f52-41b8-b686-f1267a4b8bc6",
+        "title": "MCQ 2",
+        "hindiTitle": "MCQ 02",
+        "chapterId": "custom-ch-1793205795234-q2qgn"
+      }
+    ],
+    "topics_with_questions_count": 1,
+    "total_topics_count": 57
+  },
+  "schema": {
+    "total": 576,
+    "valid_schema": 0,
+    "missing_text": 30,
+    "empty_text": 0,
+    "missing_options": 0,
+    "invalid_options_count": 30,
+    "empty_options": 0,
+    "missing_correct_index": 30,
+    "invalid_correct_index": 0,
+    "missing_explanation": 30,
+    "short_explanation": 0,
+    "rich_explanation": 546,
+    "missing_subject_id": 30,
+    "missing_chapter_id": 30,
+    "missing_topic_id": 30,
+    "question_types": {},
+    "option_counts": {
+      "4": 546,
+      "0": 30
+    },
+    "correct_index_distribution": {
+      "0": 228,
+      "2": 87,
+      "1": 218,
+      "3": 13
+    }
+  },
+  "format_classification": {
+    "single_correct": 554,
+    "statement_based": 19,
+    "assertion_reason": 3,
+    "match_list": 0,
+    "math_katex": 0
+  },
+  "accuracy": {
+    "explanation_confirms_correct": 122,
+    "explanation_contradiction_suspect": 0,
+    "explanation_neutral_or_brief": 424,
+    "option_index_zero_based_verified": 546,
+    "flagged_questions": []
+  },
+  "duplicates": {
+    "exact_duplicate_groups": 114,
+    "exact_duplicate_examples": [
+      {
+        "text": "मेवाड़ प्रजामंडल के कार्यक्रम में सामाजिक सुधारों से संबंधित कौन-सी माँग शामिल थ",
+        "ids": [
+          "mcq_2b989dbb755d38a11ee5455bb843740c",
+          "usr-q-topic_1b890441-cad7-4e64-82db-4e9680de9f4b-2f1d248e"
+        ]
+      },
+      {
+        "text": "मेवाड़ प्रजामंडल की स्थापना किस वर्ष और किस स्थान पर हुई थी?",
+        "ids": [
+          "mcq_56bbb2be5184a65c2671a6a386d205e6",
+          "usr-q-topic_1b890441-cad7-4e64-82db-4e9680de9f4b-2c7a8921"
+        ]
+      },
+      {
+        "text": "मेवाड़ प्रजामंडल के कार्यक्रम में निम्नलिखित में से किस गतिविधि को प्रोत्साहित क",
+        "ids": [
+          "mcq_802d96410f224c472a2dd71c5eca1279",
+          "usr-q-topic_1b890441-cad7-4e64-82db-4e9680de9f4b-285ac084"
+        ]
+      },
+      {
+        "text": "मेवाड़ प्रजामंडल के गठन से संबंधित नेतृत्व में मंत्री का दायित्व किसे सौंपा गया ",
+        "ids": [
+          "mcq_a15f1d5163427d79bfe424d8b6f3c779",
+          "usr-q-topic_1b890441-cad7-4e64-82db-4e9680de9f4b-50769be8"
+        ]
+      },
+      {
+        "text": "मेवाड़ सरकार ने प्रजामंडल को गैरकानूनी घोषित करने का आदेश कब जारी किया?",
+        "ids": [
+          "mcq_f189f9dc5b42b90a1a1a8700085932bc",
+          "usr-q-topic_1b890441-cad7-4e64-82db-4e9680de9f4b-16f4e15c"
+        ]
+      }
+    ],
+    "norm_duplicate_groups": 114,
+    "near_duplicate_pairs_found": 11,
+    "near_duplicate_samples": [
+      {
+        "q1": [
+          "usr-q-topic_1b890441-cad7-4e64-82db-4e9680de9f4b-27539d32"
+        ],
+        "q2": [
+          "usr-q-topic_1b890441-cad7-4e64-82db-4e9680de9f4b-a2deacdf"
+        ],
+        "similarity": 0.864,
+        "text1": "27 नव बर 1938 क प रस त व त स र वजन क सभ म म रव ड ल क पर षद क व र ध य न क य क य",
+        "text2": "27 नव बर 1938 क म रव ड ल क पर षद क स र वजन क सभ म पर षद व र ध य न क य क य"
+      },
+      {
+        "q1": [
+          "mcq_64c3f01b1f3a973cd31186a32066b5c4",
+          "usr-q-topic_1b890441-cad7-4e64-82db-4e9680de9f4b-33c49cc3"
+        ],
+        "q2": [
+          "mcq_b2d81f0eac0daa14ff8c7cb9115c8335",
+          "usr-q-topic_1b890441-cad7-4e64-82db-4e9680de9f4b-5218bd86"
+        ],
+        "similarity": 0.889,
+        "text1": "स थ न य सल हक र म डल क सदस य स ख य क तन न र ध र त क गई थ",
+        "text2": "क द र य सल हक र म डल क क ल सदस य स ख य क तन न र ध र त क गई थ"
+      },
+      {
+        "q1": [
+          "usr-q-topic_1b890441-cad7-4e64-82db-4e9680de9f4b-75cb9791"
+        ],
+        "q2": [
+          "usr-q-topic_1b890441-cad7-4e64-82db-4e9680de9f4b-695a9a29"
+        ],
+        "similarity": 0.909,
+        "text1": "1939 ई म म रव ड म उत पन न ग भ र स कट क प रम ख क रण क य थ",
+        "text2": "1939 ई म म रव ड म उत पन न ग भ र आर थ क स म ज क स कट क प रम ख क रण क य थ"
+      },
+      {
+        "q1": [
+          "usr-q-topic_1b890441-cad7-4e64-82db-4e9680de9f4b-898b156"
+        ],
+        "q2": [
+          "usr-q-topic_1b890441-cad7-4e64-82db-4e9680de9f4b-adc619ab"
+        ],
+        "similarity": 0.821,
+        "text1": "म रव ड म ल क पर षद क क र यकर त ओ क व र द ध क र रव ई करन क च त वन क स क न न क अ त",
+        "text2": "म रव ड र ज य सरक र न ल क पर षद क क र यकर त ओ क व र द ध क स क न न क अ तर गत क र र"
+      },
+      {
+        "q1": [
+          "usr-q-topic_1b890441-cad7-4e64-82db-4e9680de9f4b-92b3e3d1"
+        ],
+        "q2": [
+          "usr-q-topic_1b890441-cad7-4e64-82db-4e9680de9f4b-89a9ec6"
+        ],
+        "similarity": 0.84,
+        "text1": "ब क न र म स म ज क च तन ज ग त करन क ल ए क न वर ग क श क ष पर व श ष ध य न द य गय",
+        "text2": "ब क न र म स म ज क च तन क प रस र क ल ए क न वर ग क श क ष पर व श ष ध य न द य गय"
+      }
+    ]
+  },
+  "difficulty": {
+    "unrated": 576
+  },
+  "language": {
+    "devanagari_count": 544,
+    "pure_english_count": 0,
+    "mixed_bilingual_count": 2,
+    "contains_latex": 0,
+    "corrupted_unicode": 0,
+    "html_tags_present": 0
+  },
+  "pyq": {
+    "explicit_pyq": 0,
+    "inferred_pyq": 0,
+    "practice_only": 576,
+    "top_exams": [],
+    "top_years": []
+  },
+  "quality_scores": {
+    "schema_score": 96.53,
+    "answer_indexing_score": 94.79,
+    "explanation_score": 94.79,
+    "dedup_score": 60.42,
+    "mapping_score": 94.79,
+    "overall_quality_score": 90.07
+  }
+}

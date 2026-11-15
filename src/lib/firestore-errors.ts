@@ -1,4 +1,5 @@
 import { auth } from './firebase';
+import { productionMonitor } from '../utils/productionMonitoring';
 
 export const OperationType = {
   CREATE: 'create',
@@ -54,6 +55,21 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
   if (path && (path.includes('_unauthorized_protected_collection') || path.includes('test_fail_doc'))) {
     console.info('Intentional permission test probe caught:', path);
     return;
+  }
+
+  // Record to production monitoring buffer with appropriate severity
+  try {
+    if (errCode === 'resource-exhausted' || errMsg.includes('Quota limit exceeded')) {
+      productionMonitor.captureEvent('FIREBASE_ERROR', 'HIGH', `Firestore Quota Limit reached on ${operationType} ${path || ''}`);
+    } else if (errCode === 'unavailable') {
+      productionMonitor.captureEvent('NETWORK_FAILURE', 'LOW', `Firestore offline / network unavailable on ${operationType} ${path || ''}`);
+    } else if (errCode === 'permission-denied') {
+      productionMonitor.captureEvent('FIREBASE_ERROR', 'HIGH', `Firestore permission denied on ${operationType} ${path || ''}`);
+    } else {
+      productionMonitor.captureException(error, 'FIREBASE_ERROR', 'MEDIUM', { operationType, path });
+    }
+  } catch {
+    // Failsafe: monitoring must never break application error flow
   }
 
   // 2. Handle specific Firestore Error Codes (Senior Strategy)

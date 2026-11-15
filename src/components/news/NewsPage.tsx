@@ -596,18 +596,29 @@ export const NewsPage: React.FC<NewsPageProps> = ({
       );
     }
 
-    const cleanedText = text.replace(/\*\*/g, "");
     const parts: React.ReactNode[] = [];
-    const regex = /(\*.*?\*|\[.*?\]\(.*?\))/g;
-    const tokens = cleanedText.split(regex);
+    const regex = /(\*\*.*?\*\*|\*.*?\*|`.*?`|\[.*?\]\(.*?\))/g;
+    const tokens = text.split(regex);
 
     tokens.forEach((token, idx) => {
       if (!token) return;
-      if (token.startsWith("*") && token.endsWith("*")) {
+      if (token.startsWith("**") && token.endsWith("**") && token.length >= 4) {
+        parts.push(
+          <strong key={idx} className="font-extrabold text-[#171923] dark:text-[#FFF9EF]">
+            {token.slice(2, -2)}
+          </strong>
+        );
+      } else if (token.startsWith("*") && token.endsWith("*") && token.length >= 2) {
         parts.push(
           <em key={idx} className="italic text-[#171923] dark:text-[#FFF9EF]/90">
             {token.slice(1, -1)}
           </em>
+        );
+      } else if (token.startsWith("`") && token.endsWith("`") && token.length >= 2) {
+        parts.push(
+          <code key={idx} className="px-1.5 py-0.5 rounded-md bg-[#F7EFE2] dark:bg-[#252A3A] text-xs font-mono font-bold text-[#800020] dark:text-[#F47B20] border border-[#E8D9C0] dark:border-[#31374A]">
+            {token.slice(1, -1)}
+          </code>
         );
       } else if (token.startsWith("[") && token.includes("](")) {
         const match = token.match(/\[(.*?)\]\((.*?)\)/);

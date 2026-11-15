@@ -1,4 +1,5 @@
 import * as React from "react";
+import { productionMonitor } from "../../utils/productionMonitoring";
 
 interface AdminErrorBoundaryProps {
   children: React.ReactNode;
@@ -21,6 +22,11 @@ export class AdminErrorBoundary extends React.Component<AdminErrorBoundaryProps,
 
   componentDidCatch(error: any, errorInfo: any) {
     console.error("AdminTab failed to mount:", error, errorInfo);
+    try {
+      productionMonitor.captureReactError(error, errorInfo, "AdminErrorBoundary");
+    } catch {
+      // Ignore fallback failures
+    }
   }
 
   handleRetry = () => {
