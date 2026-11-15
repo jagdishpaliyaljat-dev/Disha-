@@ -29,7 +29,6 @@ import {
 } from 'lucide-react';
 import { BottomNav } from './components/BottomNav';
 import { OfflineIndicator } from './components/OfflineIndicator';
-import { SyncStatusIndicator } from './components/SyncStatusIndicator';
 import { ToastNotificationContainer, ToastMessage } from './components/ToastNotification';
 import { FirebaseSavedBanner } from './components/FirebaseSavedBanner';
 import { PWAUpdateToast } from './components/PWAUpdateToast';
@@ -1221,7 +1220,6 @@ export default function App() {
       <ToastNotificationContainer toasts={toasts} onDismiss={handleDismissToast} />
       <PWAUpdateToast />
       <OfflineIndicator />
-      <SyncStatusIndicator isOnline={true} isSyncing={false} lastSyncedAt={null} isAdmin={isAdmin} />
 
       {/* Desktop Top Navigation Header */}
       <header className="hidden md:block sticky top-0 z-40 bg-[#FFF9EF]/95 dark:bg-[#171923]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] select-none shadow-xs">
