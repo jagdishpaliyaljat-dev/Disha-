@@ -33,6 +33,7 @@ import {
   VERIFIED_QUIZPRO_COLLECTIONS,
 } from './src/server/backupEngine';
 import { defaultSnapshotPublishingService } from './src/server/snapshotPublishingService';
+import { DEFAULT_ARTICLES } from './src/data/defaultArticles';
 
 const currentFilename = typeof __filename !== 'undefined' ? __filename : '';
 const currentDirname = typeof __dirname !== 'undefined' ? __dirname : (currentFilename ? path.dirname(currentFilename) : process.cwd());
@@ -1839,10 +1840,50 @@ Return ONLY a JSON object with key "questions":
           }
         }
       }
+
+      // Merge with DEFAULT_ARTICLES so sitemap and SSR listings are always complete
+      const existingSlugs = new Set(articles.map((a) => a.slug));
+      for (const d of DEFAULT_ARTICLES) {
+        if (!existingSlugs.has(d.slug) && d.status === 'published') {
+          articles.push({
+            id: d.id,
+            title: d.title || '',
+            hindiTitle: d.hindiTitle,
+            slug: d.slug,
+            excerpt: d.excerpt || '',
+            content: d.content || '',
+            seoTitle: d.seoTitle,
+            seoDescription: d.seoDescription,
+            coverImageUrl: d.coverImageUrl,
+            authorName: d.authorName,
+            category: d.category,
+            publishedAt: d.publishedAt,
+            updatedAt: d.updatedAt,
+            status: d.status || 'published',
+          });
+        }
+      }
+
       return articles;
     } catch (err) {
       console.error('getPublishedArticlesServer error:', err);
-      return [];
+      // Fallback to DEFAULT_ARTICLES on error
+      return DEFAULT_ARTICLES.filter((d) => d.status === 'published').map((d) => ({
+        id: d.id,
+        title: d.title || '',
+        hindiTitle: d.hindiTitle,
+        slug: d.slug,
+        excerpt: d.excerpt || '',
+        content: d.content || '',
+        seoTitle: d.seoTitle,
+        seoDescription: d.seoDescription,
+        coverImageUrl: d.coverImageUrl,
+        authorName: d.authorName,
+        category: d.category,
+        publishedAt: d.publishedAt,
+        updatedAt: d.updatedAt,
+        status: d.status || 'published',
+      }));
     }
   }
 
@@ -1937,6 +1978,32 @@ Return ONLY a JSON object with key "questions":
       }
     } catch (err) {
       console.warn('getArticleBySlugServer error:', err);
+    }
+
+    // Fallback: check static DEFAULT_ARTICLES
+    const defaultMatch = DEFAULT_ARTICLES.find(
+      (a) =>
+        a.slug.toLowerCase() === cleanSlug ||
+        a.id.toLowerCase() === cleanSlug ||
+        a.slug === slug
+    );
+    if (defaultMatch && defaultMatch.status === 'published') {
+      return {
+        id: defaultMatch.id,
+        title: defaultMatch.title || '',
+        hindiTitle: defaultMatch.hindiTitle,
+        slug: defaultMatch.slug,
+        excerpt: defaultMatch.excerpt || '',
+        content: defaultMatch.content || '',
+        seoTitle: defaultMatch.seoTitle,
+        seoDescription: defaultMatch.seoDescription,
+        coverImageUrl: defaultMatch.coverImageUrl,
+        authorName: defaultMatch.authorName,
+        category: defaultMatch.category,
+        publishedAt: defaultMatch.publishedAt,
+        updatedAt: defaultMatch.updatedAt,
+        status: defaultMatch.status || 'published',
+      };
     }
 
     return null;
