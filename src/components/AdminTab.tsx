@@ -4,7 +4,7 @@ import {
   FolderPlus, PlusCircle, Database, LayoutGrid, Settings, ShieldCheck, 
   Upload, Sparkles, Menu, ChevronRight, ChevronLeft, HardDrive, Activity, Cpu, RefreshCw, Newspaper,
   Trophy, CheckCircle2, ListFilter, ChevronDown, Trash2, AlertCircle, Building2,
-  FileCode, Archive, LogOut, ArrowRight, Timer, FileText, FileSpreadsheet
+  FileCode, Archive, LogOut, ArrowRight, Timer, FileText, FileSpreadsheet, Home
 } from "lucide-react";
 import { Subject, Chapter, UserQuestionsStore, UserProfile } from "../types";
 import { ConfirmDialog } from "./admin/ConfirmDialog";
@@ -811,6 +811,19 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                   </div>
 
                   <div className="space-y-1">
+                    <button
+                      onClick={() => {
+                        setIsAdminMenuOpen(false);
+                        if (typeof window !== "undefined") {
+                          window.location.href = "/";
+                        }
+                      }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-colors text-left cursor-pointer"
+                    >
+                      <Home className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                      <span>Return to Student App</span>
+                    </button>
+
                     <button
                       onClick={() => {
                         setActiveGroup("users");

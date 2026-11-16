@@ -84,147 +84,23 @@ export async function fetchMCQsByTopic(topicId: string, options?: { allowRemote?
     console.warn("[FirebaseSync] localforage question bank lookup:", idbErr);
   }
 
-  // Strict 24-Hour Offline-First Policy:
-  // Ordinary student-facing question retrieval NEVER queries Firestore directly.
-  // Questions are downloaded only through the central 24-hour sync cycle.
-  const { isUserAdmin, loadUserProfile } = await import('./userProfileStorage');
-  const isAdmin = isUserAdmin(loadUserProfile());
-  if (!options?.allowRemote && !isAdmin) {
-    return [];
-  }
-
-  // 2. Fetch from canonical Firestore 'mcqs' collection (Admin / Authorized direct sync only)
-  if (isFirebaseConfigured()) {
-    try {
-      const { collection, query, where, limit: firestoreLimit } = await import('firebase/firestore');
-      const { guardedGetDocs } = await import('./quotaTracker');
-      
-      const mcqsRef = collection(db, "mcqs");
-
-      const qMcqs = topicId === 'all' 
-        ? query(mcqsRef, firestoreLimit(5000)) 
-        : query(mcqsRef, where("topicId", "==", topicId));
-
-      const snapMcqs = await guardedGetDocs(qMcqs, "Student", "Fetch MCQs by Topic", undefined, 30000).catch(() => null);
-
-      let snapQs: any = null;
-      // Only query legacy 'questions' if canonical 'mcqs' returned 0 records (bridges pre-migration legacy data)
-      if (!snapMcqs || snapMcqs.empty) {
-        const qsRef = collection(db, "questions");
-        const qQuestions = topicId === 'all'
-          ? query(qsRef, firestoreLimit(5000))
-          : query(qsRef, where("topicId", "==", topicId));
-        snapQs = await guardedGetDocs(qQuestions, "Student", "Legacy Questions Fallback", undefined, 30000).catch(() => null);
-      }
-
-      const { loadUserQuestionsStore, mergeQuestionsIntoStore } = await import('./questionsStorage');
-      const liveStore = loadUserQuestionsStore();
-      const liveStoreById = new Map<string, any>();
-      (liveStore.cloudCacheQuestions || []).forEach((q: any) => {
-        if (q && q.id) liveStoreById.set(q.id, q);
-      });
-
-      const mergedMap = new Map<string, any>();
-      const addSnapDocs = (snap: any) => {
-        if (!snap || snap.empty) return;
-        snap.docs.forEach((d: any) => {
-          const item = { ...d.data(), id: d.id } as any;
-          if (item.table) item.table = normalizeTableFromFirestore(item.table);
-          if (item.tableData) item.tableData = normalizeTableFromFirestore(item.tableData);
-
-          // Guard against stale moved questions in 'questions' collection:
-          const inStore = liveStoreById.get(d.id);
-          if (inStore && topicId !== 'all') {
-            const tStore = new Date(inStore.updatedAt || inStore.createdAt || 0).getTime() || 0;
-            const tItem = new Date(item.updatedAt || item.createdAt || 0).getTime() || 0;
-            if (tStore > tItem && inStore.topicId && inStore.topicId !== topicId) {
-              return;
-            }
-          }
-
-          const existing = mergedMap.get(d.id);
-          if (existing) {
-            const tEx = new Date(existing.updatedAt || existing.createdAt || 0).getTime() || 0;
-            const tNew = new Date(item.updatedAt || item.createdAt || 0).getTime() || 0;
-            mergedMap.set(d.id, tNew >= tEx ? { ...existing, ...item } : { ...item, ...existing });
-          } else {
-            mergedMap.set(d.id, item);
-          }
-        });
-      };
-
-      if (snapQs) addSnapDocs(snapQs);
-      if (snapMcqs) addSnapDocs(snapMcqs);
-
-      if (mergedMap.size > 0) {
-        const mergedList = Array.from(mergedMap.values()) as MCQ[];
-        try {
-          mergeQuestionsIntoStore(mergedList as any);
-        } catch {}
-        // Persist to localforage IndexedDB question bank cache
-        try {
-          const { saveQuestionsToCache } = await import('./questionBankCache');
-          saveQuestionsToCache(mergedList as any, { topicId, source: "firestore" }).catch(() => {});
-        } catch {}
-        return mergedList;
-      }
-
-      // If specific topicId query returned empty, try topic field fallback with strict limit to save quota
-      if (topicId !== 'all') {
-        const fallbackMcqsSnap = await guardedGetDocs(
-          query(mcqsRef, where("topic", "==", topicId), firestoreLimit(100)),
-          "Student",
-          "Fetch MCQs Topic Name Fallback",
-          undefined,
-          10000
-        ).catch(() => null);
-
-        let fallbackQsSnap: any = null;
-        if (!fallbackMcqsSnap || fallbackMcqsSnap.empty) {
-          const qsRef = collection(db, "questions");
-          fallbackQsSnap = await guardedGetDocs(
-            query(qsRef, where("topic", "==", topicId), firestoreLimit(100)),
-            "Student",
-            "Fetch Questions Topic Name Fallback",
-            undefined,
-            10000
-          ).catch(() => null);
-        }
-
-        const fallbackMap = new Map<string, any>();
-        if (fallbackQsSnap && !fallbackQsSnap.empty) {
-          fallbackQsSnap.docs.forEach((d: any) => {
-            const item = { ...d.data(), id: d.id } as any;
-            if (item.table) item.table = normalizeTableFromFirestore(item.table);
-            if (item.tableData) item.tableData = normalizeTableFromFirestore(item.tableData);
-            fallbackMap.set(d.id, item);
-          });
-        }
-        if (fallbackMcqsSnap && !fallbackMcqsSnap.empty) {
-          fallbackMcqsSnap.docs.forEach((d: any) => {
-            const item = { ...d.data(), id: d.id } as any;
-            if (item.table) item.table = normalizeTableFromFirestore(item.table);
-            if (item.tableData) item.tableData = normalizeTableFromFirestore(item.tableData);
-            fallbackMap.set(d.id, item);
-          });
-        }
-
-        if (fallbackMap.size > 0) {
-          const fallbackDocs = Array.from(fallbackMap.values()) as MCQ[];
-          try {
-            const { mergeQuestionsIntoStore } = await import('./questionsStorage');
-            mergeQuestionsIntoStore(fallbackDocs as any);
-          } catch {}
-          try {
-            const { saveQuestionsToCache } = await import('./questionBankCache');
-            saveQuestionsToCache(fallbackDocs as any, { topicId, source: "firestore" }).catch(() => {});
-          } catch {}
-          return fallbackDocs;
-        }
-      }
-    } catch (err) {
-      console.warn("Could not fetch MCQs from Firestore (offline or quota):", err);
+  // 2. Fetch from canonical Supabase 'questions' table (High-performance PostgreSQL query)
+  try {
+    const { fetchQuestionsByTopic } = await import("./supabaseSyncService");
+    const supabaseQs = await fetchQuestionsByTopic(topicId);
+    if (supabaseQs && supabaseQs.length > 0) {
+      try {
+        const { mergeQuestionsIntoStore } = await import("./questionsStorage");
+        mergeQuestionsIntoStore(supabaseQs as any);
+      } catch {}
+      try {
+        const { saveQuestionsToCache } = await import("./questionBankCache");
+        saveQuestionsToCache(supabaseQs as any, { topicId, source: "supabase" }).catch(() => {});
+      } catch {}
+      return supabaseQs as MCQ[];
     }
+  } catch (err: any) {
+    console.warn("[SupabaseBridge] Failed to fetch questions from Supabase:", err.message);
   }
 
   // 3. Robust Offline fallback: check localforage question bank cache, then legacy per-topic localStorage key
@@ -521,723 +397,114 @@ async function cleanupDeletedLocalEntities(opts: {
 
 export async function saveSubject(subject: any): Promise<CloudSyncResult> {
   try {
-    localStorage.setItem(`quizpro_sub_${subject.id}`, JSON.stringify(subject));
-    const { getEffectiveAuthUser, guardedSetDoc, clearFirestoreCache } = await import('./quotaTracker');
-    if (isFirebaseConfigured() && getEffectiveAuthUser()) {
-      const { doc } = await import('firebase/firestore');
-      clearFirestoreCache();
-      await guardedSetDoc(
-        doc(db, "subjects", subject.id),
-        subject,
-        { merge: true },
-        "Admin",
-        "Save Subject"
-      );
-
-      try {
-        const { bumpRemoteCurriculumVersion } = await import('./appVersionService');
-        await bumpRemoteCurriculumVersion(undefined, undefined, { reason: `saveSubject:${subject.id}` });
-      } catch (_) {}
-
-      try {
-        const { triggerAdminToast } = await import('./adminToast');
-        triggerAdminToast("success", "Subject Saved to Firebase", `Subject '${subject.name || subject.hindiName}' saved to Firestore & live to users.`);
-      } catch (_) {}
-
-      return {
-        success: true,
-        message: `Subject '${subject.name || subject.hindiName}' saved to Firebase Firestore!`,
-        isFirebase: true
-      };
-    }
+    const { saveSubjectToSupabase } = await import('./supabaseSyncService');
+    const res = await saveSubjectToSupabase(subject);
     return {
-      success: true,
-      message: `Subject '${subject.name || subject.hindiName}' saved locally!`,
-      isFirebase: false
+      success: res.success,
+      message: res.message,
+      isFirebase: true
     };
   } catch (err: any) {
-    const msg = err?.message || String(err);
-    if (err?.code === "deadline-exceeded" || err?.code === "resource-exhausted" || msg.includes("Timeout") || msg.includes("quota")) {
-      console.warn("Subject cloud sync deferred (saved locally & queued):", msg);
-      return {
-        success: true,
-        message: `Subject '${subject.name || subject.hindiName}' saved locally (cloud sync queued)!`,
-        isFirebase: false
-      };
-    }
-    console.warn("Error saving subject to cloud:", err);
     return {
       success: false,
-      message: `Failed to save subject to Firebase: ${msg}`,
+      message: err.message,
       isFirebase: true,
-      error: msg
+      error: err.message
     };
   }
 }
 
 export async function deleteSubjectFromCloud(id: string): Promise<CloudSyncResult> {
   try {
-    if (isFirebaseConfigured()) {
-      const { doc, collection, query, where, limit } = await import('firebase/firestore');
-      const { getEffectiveAuthUser, guardedGetDocs, clearFirestoreCache } = await import('./quotaTracker');
-      if (!getEffectiveAuthUser()) {
-        throw new Error("Authentication Required: Please log in with an authorized admin account to delete from Firebase.");
-      }
-      clearFirestoreCache();
-
-      const chapterIds = new Set<string>();
-      const topicIds = new Set<string>();
-      const mcqIds = new Set<string>();
-      const refsToDelete: any[] = [doc(db, "subjects", id)];
-
-      // 1. Targeted query for chapters under this subject
-      const chaptersSnap = await guardedGetDocs(
-        query(collection(db, "chapters"), where("subjectId", "==", id)),
-        "Admin",
-        "Find Chapters For Subject Delete"
-      ).catch(() => null);
-
-      if (chaptersSnap && !chaptersSnap.empty) {
-        for (const chDoc of chaptersSnap.docs) {
-          chapterIds.add(chDoc.id);
-          refsToDelete.push(doc(db, "chapters", chDoc.id));
-          const embeddedTopics = (chDoc.data() as any)?.topics;
-          if (Array.isArray(embeddedTopics)) {
-            for (const t of embeddedTopics) {
-              if (t?.id) topicIds.add(t.id);
-            }
-          }
-        }
-      }
-
-      // 2. Targeted queries for topics (by subjectId and chunked chapterIds)
-      const topicsBySubSnap = await guardedGetDocs(
-        query(collection(db, "topics"), where("subjectId", "==", id)),
-        "Admin",
-        "Find Topics By Subject"
-      ).catch(() => null);
-      if (topicsBySubSnap && !topicsBySubSnap.empty) {
-        topicsBySubSnap.docs.forEach((d) => topicIds.add(d.id));
-      }
-
-      for (const chChunk of chunkArray(Array.from(chapterIds), 30)) {
-        const topicsByChSnap = await guardedGetDocs(
-          query(collection(db, "topics"), where("chapterId", "in", chChunk)),
-          "Admin",
-          "Find Topics By Chapter Chunk"
-        ).catch(() => null);
-        if (topicsByChSnap && !topicsByChSnap.empty) {
-          topicsByChSnap.docs.forEach((d) => topicIds.add(d.id));
-        }
-      }
-
-      for (const tId of topicIds) {
-        refsToDelete.push(doc(db, "topics", tId));
-        refsToDelete.push(doc(db, "question_bundles", `topic_${tId}`));
-      }
-
-      // 3. Targeted queries for mcqs and mirror questions (by subjectId, chapterId chunks, and topicId chunks)
-      const collectMcqsFromSnap = (snap: any, coll: "mcqs" | "questions") => {
-        if (!snap || snap.empty) return;
-        snap.docs.forEach((d: any) => {
-          mcqIds.add(d.id);
-          refsToDelete.push(doc(db, coll, d.id));
-        });
-      };
-
-      const [mcqsBySubSnap, qsBySubSnap] = await Promise.all([
-        guardedGetDocs(query(collection(db, "mcqs"), where("subjectId", "==", id)), "Admin", "Find MCQs By Subject").catch(() => null),
-        guardedGetDocs(query(collection(db, "questions"), where("subjectId", "==", id)), "Admin", "Find Questions By Subject").catch(() => null),
-      ]);
-      collectMcqsFromSnap(mcqsBySubSnap, "mcqs");
-      collectMcqsFromSnap(qsBySubSnap, "questions");
-
-      for (const chChunk of chunkArray(Array.from(chapterIds), 30)) {
-        const [mSnap, qSnap] = await Promise.all([
-          guardedGetDocs(query(collection(db, "mcqs"), where("chapterId", "in", chChunk)), "Admin", "Find MCQs By Chapter Chunk").catch(() => null),
-          guardedGetDocs(query(collection(db, "questions"), where("chapterId", "in", chChunk)), "Admin", "Find Questions By Chapter Chunk").catch(() => null),
-        ]);
-        collectMcqsFromSnap(mSnap, "mcqs");
-        collectMcqsFromSnap(qSnap, "questions");
-      }
-
-      for (const tChunk of chunkArray(Array.from(topicIds), 30)) {
-        const [mSnap, qSnap] = await Promise.all([
-          guardedGetDocs(query(collection(db, "mcqs"), where("topicId", "in", tChunk)), "Admin", "Find MCQs By Topic Chunk").catch(() => null),
-          guardedGetDocs(query(collection(db, "questions"), where("topicId", "in", tChunk)), "Admin", "Find Questions By Topic Chunk").catch(() => null),
-        ]);
-        collectMcqsFromSnap(mSnap, "mcqs");
-        collectMcqsFromSnap(qSnap, "questions");
-      }
-
-      // Ensure mirror deletion if a question existed only in one query result
-      for (const mId of mcqIds) {
-        refsToDelete.push(doc(db, "mcqs", mId));
-        refsToDelete.push(doc(db, "questions", mId));
-      }
-
-      // 4. Batched delete (<= 400 ops/batch)
-      const batchRes = await commitDeleteRefsInBatches(
-        refsToDelete,
-        `Cascade Delete Subject ${id}`,
-        `del_subj_${id}`
-      );
-
-      // 5. Verify child references before completion (if no batch failures)
-      if (batchRes.failedPaths.length === 0) {
-        const [remCh, remTop, remMcq] = await Promise.all([
-          guardedGetDocs(query(collection(db, "chapters"), where("subjectId", "==", id), limit(1)), "Admin", "Verify Subject Chapters Deleted").catch(() => null),
-          guardedGetDocs(query(collection(db, "topics"), where("subjectId", "==", id), limit(1)), "Admin", "Verify Subject Topics Deleted").catch(() => null),
-          guardedGetDocs(query(collection(db, "mcqs"), where("subjectId", "==", id), limit(1)), "Admin", "Verify Subject MCQs Deleted").catch(() => null),
-        ]);
-        const orphanPaths: string[] = [];
-        if (remCh && !remCh.empty) orphanPaths.push(...remCh.docs.map((d) => `chapters/${d.id}`));
-        if (remTop && !remTop.empty) orphanPaths.push(...remTop.docs.map((d) => `topics/${d.id}`));
-        if (remMcq && !remMcq.empty) orphanPaths.push(...remMcq.docs.map((d) => `mcqs/${d.id}`));
-        if (orphanPaths.length > 0) {
-          batchRes.failedPaths.push(...orphanPaths);
-          batchRes.lastError = `Residual child references remain after subject delete: ${orphanPaths.join(", ")}`;
-        }
-      }
-
-      await cleanupDeletedLocalEntities({
-        subjectIds: [id],
-        chapterIds: Array.from(chapterIds),
-        topicIds: Array.from(topicIds),
-        mcqIds: Array.from(mcqIds),
-      });
-
-      const deletedTopicList = Array.from(topicIds);
-      if (batchRes.deletedPaths.length > 0 && !batchRes.abortedByQuota) {
-        try {
-          const { bumpRemoteCurriculumVersion } = await import('./appVersionService');
-          await bumpRemoteCurriculumVersion(deletedTopicList, undefined, {
-            reason: `deleteSubject:${id}`,
-          });
-        } catch (_) {}
-      }
-
-      if (batchRes.failedPaths.length > 0) {
-        return {
-          success: false,
-          message: `Partial failure deleting subject '${id}': ${batchRes.deletedPaths.length} deleted, ${batchRes.failedPaths.length} failed.`,
-          isFirebase: true,
-          isQuotaExceeded: batchRes.abortedByQuota,
-          partialFailure: true,
-          deletedCount: batchRes.deletedPaths.length,
-          deletedIds: batchRes.deletedPaths,
-          failedIds: batchRes.failedPaths,
-          error: batchRes.lastError || "Partial failure during cascade delete.",
-        };
-      }
-
-      triggerAdminToast("delete", "Subject Deleted from Firebase", `Subject ID '${id}' and all its chapters/topics (${batchRes.deletedPaths.length} docs) removed from Firestore.`);
-      return {
-        success: true,
-        message: `Subject and its associated chapters/topics deleted from Firebase Firestore!`,
-        isFirebase: true,
-        deletedCount: batchRes.deletedPaths.length,
-        deletedIds: batchRes.deletedPaths,
-        failedIds: [],
-      };
-    }
-
-    await cleanupDeletedLocalEntities({ subjectIds: [id] });
+    const { deleteSubjectFromSupabase } = await import('./supabaseSyncService');
+    const res = await deleteSubjectFromSupabase(id);
     return {
-      success: true,
-      message: `Subject deleted from local storage!`,
-      isFirebase: false,
-      deletedCount: 1,
-      deletedIds: [`subjects/${id}`],
+      success: res.success,
+      message: res.message,
+      isFirebase: true
     };
   } catch (err: any) {
-    console.error("Error deleting subject from cloud:", err);
     return {
       success: false,
-      message: `Failed to delete subject from Firebase: ${err?.message || String(err)}`,
+      message: err.message,
       isFirebase: true,
-      error: err?.message || String(err)
+      error: err.message
     };
   }
 }
 
 export async function saveChapter(chapter: any): Promise<CloudSyncResult> {
   try {
-    localStorage.setItem(`quizpro_chap_${chapter.id}`, JSON.stringify(chapter));
-    const { getEffectiveAuthUser, guardedSetDoc, clearFirestoreCache } = await import('./quotaTracker');
-    if (isFirebaseConfigured() && getEffectiveAuthUser()) {
-      const { doc } = await import('firebase/firestore');
-      clearFirestoreCache();
-      await guardedSetDoc(
-        doc(db, "chapters", chapter.id),
-        chapter,
-        { merge: true },
-        "Admin",
-        "Save Chapter"
-      );
-
-      try {
-        const { bumpRemoteCurriculumVersion } = await import('./appVersionService');
-        await bumpRemoteCurriculumVersion(undefined, undefined, { reason: `saveChapter:${chapter.id}` });
-      } catch (_) {}
-
-      try {
-        const { triggerAdminToast } = await import('./adminToast');
-        triggerAdminToast("success", "Chapter Saved to Firebase", `Chapter '${chapter.name || chapter.title}' saved to Firestore & live to users.`);
-      } catch (_) {}
-
-      return {
-        success: true,
-        message: `Chapter '${chapter.name || chapter.title}' saved to Firebase Firestore!`,
-        isFirebase: true
-      };
-    }
+    const { saveChapterToSupabase } = await import('./supabaseSyncService');
+    const res = await saveChapterToSupabase(chapter);
     return {
-      success: true,
-      message: `Chapter saved locally!`,
-      isFirebase: false
+      success: res.success,
+      message: res.message,
+      isFirebase: true
     };
   } catch (err: any) {
-    console.error("Error saving chapter to cloud:", err);
     return {
       success: false,
-      message: `Failed to save chapter to Firebase: ${err?.message || String(err)}`,
+      message: err.message,
       isFirebase: true,
-      error: err?.message || String(err)
+      error: err.message
     };
   }
 }
 
 export async function deleteChapterFromCloud(id: string): Promise<CloudSyncResult> {
   try {
-    if (isFirebaseConfigured()) {
-      const { doc, collection, query, where, limit } = await import('firebase/firestore');
-      const { getEffectiveAuthUser, guardedGetDoc, guardedGetDocs, clearFirestoreCache } = await import('./quotaTracker');
-      if (!getEffectiveAuthUser()) {
-        throw new Error("Authentication Required: Please log in with an authorized admin account to delete from Firebase.");
-      }
-      clearFirestoreCache();
-
-      const topicIds = new Set<string>();
-      const mcqIds = new Set<string>();
-      const refsToDelete: any[] = [doc(db, "chapters", id)];
-
-      // 1. Read chapter doc (1 read) to gather any embedded topic IDs before deletion
-      const chSnap = await guardedGetDoc(doc(db, "chapters", id), "Admin", "Read Chapter For Cascade Delete").catch(() => null);
-      if (chSnap && chSnap.exists()) {
-        const embeddedTopics = (chSnap.data() as any)?.topics;
-        if (Array.isArray(embeddedTopics)) {
-          for (const t of embeddedTopics) {
-            if (t?.id) topicIds.add(t.id);
-          }
-        }
-      }
-
-      // 2. Targeted query for topics belonging to this chapter
-      const topicsSnap = await guardedGetDocs(
-        query(collection(db, "topics"), where("chapterId", "==", id)),
-        "Admin",
-        "Find Topics By Chapter"
-      ).catch(() => null);
-      if (topicsSnap && !topicsSnap.empty) {
-        topicsSnap.docs.forEach((d) => topicIds.add(d.id));
-      }
-
-      for (const tId of topicIds) {
-        refsToDelete.push(doc(db, "topics", tId));
-        refsToDelete.push(doc(db, "question_bundles", `topic_${tId}`));
-      }
-
-      // 3. Targeted queries for mcqs & mirror questions (by chapterId and chunked topicIds)
-      const collectMcqRefs = (snap: any, coll: "mcqs" | "questions") => {
-        if (!snap || snap.empty) return;
-        snap.docs.forEach((d: any) => {
-          mcqIds.add(d.id);
-          refsToDelete.push(doc(db, coll, d.id));
-        });
-      };
-
-      const [mcqsByChSnap, qsByChSnap] = await Promise.all([
-        guardedGetDocs(query(collection(db, "mcqs"), where("chapterId", "==", id)), "Admin", "Find MCQs By Chapter").catch(() => null),
-        guardedGetDocs(query(collection(db, "questions"), where("chapterId", "==", id)), "Admin", "Find Questions By Chapter").catch(() => null),
-      ]);
-      collectMcqRefs(mcqsByChSnap, "mcqs");
-      collectMcqRefs(qsByChSnap, "questions");
-
-      for (const tChunk of chunkArray(Array.from(topicIds), 30)) {
-        const [mSnap, qSnap] = await Promise.all([
-          guardedGetDocs(query(collection(db, "mcqs"), where("topicId", "in", tChunk)), "Admin", "Find MCQs By Topic Chunk").catch(() => null),
-          guardedGetDocs(query(collection(db, "questions"), where("topicId", "in", tChunk)), "Admin", "Find Questions By Topic Chunk").catch(() => null),
-        ]);
-        collectMcqRefs(mSnap, "mcqs");
-        collectMcqRefs(qSnap, "questions");
-      }
-
-      for (const mId of mcqIds) {
-        refsToDelete.push(doc(db, "mcqs", mId));
-        refsToDelete.push(doc(db, "questions", mId));
-      }
-
-      // 4. Batched delete (<= 400 ops/batch)
-      const batchRes = await commitDeleteRefsInBatches(
-        refsToDelete,
-        `Cascade Delete Chapter ${id}`,
-        `del_chap_${id}`
-      );
-
-      // 5. Verify child references before completion
-      if (batchRes.failedPaths.length === 0) {
-        const [remTop, remMcq] = await Promise.all([
-          guardedGetDocs(query(collection(db, "topics"), where("chapterId", "==", id), limit(1)), "Admin", "Verify Chapter Topics Deleted").catch(() => null),
-          guardedGetDocs(query(collection(db, "mcqs"), where("chapterId", "==", id), limit(1)), "Admin", "Verify Chapter MCQs Deleted").catch(() => null),
-        ]);
-        const orphanPaths: string[] = [];
-        if (remTop && !remTop.empty) orphanPaths.push(...remTop.docs.map((d) => `topics/${d.id}`));
-        if (remMcq && !remMcq.empty) orphanPaths.push(...remMcq.docs.map((d) => `mcqs/${d.id}`));
-        if (orphanPaths.length > 0) {
-          batchRes.failedPaths.push(...orphanPaths);
-          batchRes.lastError = `Residual child references remain after chapter delete: ${orphanPaths.join(", ")}`;
-        }
-      }
-
-      const deletedTopicList = Array.from(topicIds);
-      await cleanupDeletedLocalEntities({
-        chapterIds: [id],
-        topicIds: deletedTopicList,
-        mcqIds: Array.from(mcqIds),
-      });
-
-      if (batchRes.deletedPaths.length > 0 && !batchRes.abortedByQuota) {
-        try {
-          const { bumpRemoteCurriculumVersion } = await import('./appVersionService');
-          await bumpRemoteCurriculumVersion(deletedTopicList, undefined, { reason: `deleteChapter:${id}` });
-        } catch (_) {}
-      }
-
-      if (batchRes.failedPaths.length > 0) {
-        return {
-          success: false,
-          message: `Partial failure deleting chapter '${id}': ${batchRes.deletedPaths.length} deleted, ${batchRes.failedPaths.length} failed.`,
-          isFirebase: true,
-          isQuotaExceeded: batchRes.abortedByQuota,
-          partialFailure: true,
-          deletedCount: batchRes.deletedPaths.length,
-          deletedIds: batchRes.deletedPaths,
-          failedIds: batchRes.failedPaths,
-          error: batchRes.lastError || "Partial failure during chapter cascade delete.",
-        };
-      }
-
-      triggerAdminToast("delete", "Chapter Deleted from Firebase", `Chapter ID '${id}' and its topics (${batchRes.deletedPaths.length} docs) were removed from Firestore.`);
-      return {
-        success: true,
-        message: `Chapter and its topics deleted from Firebase Firestore!`,
-        isFirebase: true,
-        deletedCount: batchRes.deletedPaths.length,
-        deletedIds: batchRes.deletedPaths,
-        failedIds: [],
-      };
-    }
-
-    await cleanupDeletedLocalEntities({ chapterIds: [id] });
+    const { deleteChapterFromSupabase } = await import('./supabaseSyncService');
+    const res = await deleteChapterFromSupabase(id);
     return {
-      success: true,
-      message: `Chapter deleted locally!`,
-      isFirebase: false,
-      deletedCount: 1,
-      deletedIds: [`chapters/${id}`],
+      success: res.success,
+      message: res.message,
+      isFirebase: true
     };
   } catch (err: any) {
-    console.error("Error deleting chapter from cloud:", err);
     return {
       success: false,
-      message: `Failed to delete chapter from Firebase: ${err?.message || String(err)}`,
+      message: err.message,
       isFirebase: true,
-      error: err?.message || String(err)
+      error: err.message
     };
   }
 }
 
 export async function saveTopic(topic: any): Promise<CloudSyncResult> {
   try {
-    localStorage.setItem(`quizpro_top_${topic.id}`, JSON.stringify(topic));
-    const { getEffectiveAuthUser, guardedSetDoc, guardedGetDoc, clearFirestoreCache } = await import('./quotaTracker');
-    if (isFirebaseConfigured() && getEffectiveAuthUser()) {
-      const { doc } = await import('firebase/firestore');
-      clearFirestoreCache();
-
-      // 1. Save directly to topics collection
-      await guardedSetDoc(
-        doc(db, "topics", topic.id),
-        topic,
-        { merge: true },
-        "Admin",
-        "Save Topic"
-      );
-
-      // 2. Also ensure parent chapter document in chapters collection has this updated topic in its topics array
-      let resolvedChapterId = topic.chapterId;
-      if (!resolvedChapterId) {
-        try {
-          const { loadUserQuestionsStore } = await import('./questionsStorage');
-          const store = loadUserQuestionsStore();
-          const matchingChap = (store.customChapters || []).find((c: any) =>
-            Array.isArray(c.topics) && c.topics.some((t: any) => t.id === topic.id)
-          );
-          if (matchingChap) resolvedChapterId = matchingChap.id;
-        } catch (_) {}
-      }
-      if (!resolvedChapterId) {
-        try {
-          const { collection } = await import('firebase/firestore');
-          const { guardedGetDocs } = await import('./quotaTracker');
-          const chapsSnap = await guardedGetDocs(collection(db, "chapters"), "Admin", "Find Chapter For Topic Update");
-          if (chapsSnap && !chapsSnap.empty) {
-            for (const cDoc of chapsSnap.docs) {
-              const cData = cDoc.data();
-              if (Array.isArray(cData.topics) && cData.topics.some((t: any) => t.id === topic.id)) {
-                resolvedChapterId = cDoc.id;
-                break;
-              }
-            }
-          }
-        } catch (_) {}
-      }
-
-      if (resolvedChapterId) {
-        try {
-          const chDocRef = doc(db, "chapters", resolvedChapterId);
-          const chSnap = await guardedGetDoc(chDocRef, "Admin", "Read Chapter For Topic Save");
-          if (chSnap.exists()) {
-            const chData = chSnap.data();
-            const currentTopics: any[] = Array.isArray(chData.topics) ? chData.topics : [];
-            const idx = currentTopics.findIndex((t: any) => t.id === topic.id);
-            const topicSummary = {
-              id: topic.id,
-              chapterId: resolvedChapterId,
-              title: topic.name || topic.title || "Unnamed Topic",
-              hindiTitle: topic.hindiTitle || topic.title || "Unnamed Topic",
-              number: topic.number || (idx >= 0 ? currentTopics[idx].number : currentTopics.length + 1),
-              questionCount: topic.questionCount || (idx >= 0 ? currentTopics[idx].questionCount : 0)
-            };
-            let nextTopics: any[];
-            if (idx >= 0) {
-              nextTopics = [...currentTopics];
-              nextTopics[idx] = { ...nextTopics[idx], ...topicSummary };
-            } else {
-              nextTopics = [...currentTopics, topicSummary];
-            }
-            await guardedSetDoc(chDocRef, { ...chData, topics: nextTopics, updatedAt: new Date().toISOString() }, { merge: true }, "Admin", "Sync Chapter Topics On Save");
-          }
-        } catch (chErr) {
-          console.warn("Could not sync topic to parent chapter:", chErr);
-        }
-      }
-
-      // Clear local topic query caches
-      try {
-        localStorage.removeItem(`quizpro_mcqs_${topic.id}`);
-        localStorage.removeItem(`quizpro_top_${topic.id}`);
-      } catch (_) {}
-
-      // 3. Bump curriculum version so connected user apps detect update
-      try {
-        const { bumpRemoteCurriculumVersion } = await import('./appVersionService');
-        await bumpRemoteCurriculumVersion([topic.id], undefined, { reason: `saveTopic:${topic.id}` });
-      } catch (_) {}
-
-      try {
-        const { triggerAdminToast } = await import('./adminToast');
-        triggerAdminToast("success", "Topic Saved to Firebase", `Topic '${topic.name || topic.title}' saved to Firestore & live to users.`);
-      } catch (_) {}
-
-      return {
-        success: true,
-        message: `Topic '${topic.name || topic.title}' saved to Firebase Firestore!`,
-        isFirebase: true
-      };
-    }
+    const { saveTopicToSupabase } = await import('./supabaseSyncService');
+    const res = await saveTopicToSupabase(topic);
     return {
-      success: true,
-      message: `Topic saved locally!`,
-      isFirebase: false
+      success: res.success,
+      message: res.message,
+      isFirebase: true
     };
   } catch (err: any) {
-    console.error("Error saving topic to cloud:", err);
     return {
       success: false,
-      message: `Failed to save topic to Firebase: ${err?.message || String(err)}`,
+      message: err.message,
       isFirebase: true,
-      error: err?.message || String(err)
+      error: err.message
     };
   }
 }
 
 export async function deleteTopicFromCloud(id: string, chapterId?: string): Promise<CloudSyncResult> {
   try {
-    if (isFirebaseConfigured()) {
-      const { doc, collection, query, where, limit } = await import('firebase/firestore');
-      const {
-        getEffectiveAuthUser,
-        guardedGetDoc,
-        guardedSetDoc,
-        guardedGetDocs,
-        clearFirestoreCache,
-      } = await import('./quotaTracker');
-      if (!getEffectiveAuthUser()) {
-        throw new Error("Authentication Required: Please log in with an authorized admin account to delete from Firebase.");
-      }
-      clearFirestoreCache();
-
-      // 1. Resolve parent chapterId without scanning the whole chapters collection when possible
-      let resolvedChapterId = chapterId;
-      if (!resolvedChapterId) {
-        try {
-          const topSnap = await guardedGetDoc(doc(db, "topics", id), "Admin", "Read Topic For Parent Chapter").catch(() => null);
-          if (topSnap && topSnap.exists()) {
-            resolvedChapterId = (topSnap.data() as any)?.chapterId;
-          }
-        } catch (_) {}
-      }
-      if (!resolvedChapterId) {
-        try {
-          const { loadUserQuestionsStore } = await import('./questionsStorage');
-          const store = loadUserQuestionsStore();
-          const chMatch = (store.customChapters || []).find((c: any) =>
-            Array.isArray(c.topics) && c.topics.some((t: any) => t.id === id)
-          );
-          if (chMatch) resolvedChapterId = chMatch.id;
-        } catch (_) {}
-      }
-
-      // 2. Targeted query for MCQs belonging to this topic in `mcqs` and `questions`
-      const mcqIds = new Set<string>();
-      const refsToDelete: any[] = [
-        doc(db, "topics", id),
-        doc(db, "question_bundles", `topic_${id}`),
-      ];
-
-      const [mcqsSnap, qsSnap] = await Promise.all([
-        guardedGetDocs(query(collection(db, "mcqs"), where("topicId", "==", id)), "Admin", "Find MCQs By Topic").catch(() => null),
-        guardedGetDocs(query(collection(db, "questions"), where("topicId", "==", id)), "Admin", "Find Questions By Topic").catch(() => null),
-      ]);
-
-      if (mcqsSnap && !mcqsSnap.empty) {
-        mcqsSnap.docs.forEach((d) => {
-          mcqIds.add(d.id);
-          refsToDelete.push(doc(db, "mcqs", d.id));
-        });
-      }
-      if (qsSnap && !qsSnap.empty) {
-        qsSnap.docs.forEach((d) => {
-          mcqIds.add(d.id);
-          refsToDelete.push(doc(db, "questions", d.id));
-        });
-      }
-      for (const mId of mcqIds) {
-        refsToDelete.push(doc(db, "mcqs", mId));
-        refsToDelete.push(doc(db, "questions", mId));
-      }
-
-      // 3. Remove topic reference from parent chapter ONLY if present (targeted single-doc read, no full scan)
-      if (resolvedChapterId) {
-        try {
-          const chDocRef = doc(db, "chapters", resolvedChapterId);
-          const chSnap = await guardedGetDoc(chDocRef, "Admin", "Read Chapter For Topic Delete");
-          if (chSnap.exists()) {
-            const chData = chSnap.data();
-            const currentTopics: any[] = Array.isArray(chData.topics) ? chData.topics : [];
-            const cleanedTopics = currentTopics.filter((t: any) => t.id !== id);
-            if (cleanedTopics.length !== currentTopics.length) {
-              await guardedSetDoc(
-                chDocRef,
-                { ...chData, topics: cleanedTopics, updatedAt: new Date().toISOString() },
-                { merge: true },
-                "Admin",
-                "Update Chapter Topics On Delete"
-              );
-            }
-          }
-        } catch (e) {
-          console.warn("Failed to clean topic from parent chapter:", e);
-        }
-      }
-
-      // 4. Batched delete of topic, bundle, and all child MCQs (<= 400 ops/batch)
-      const batchRes = await commitDeleteRefsInBatches(
-        refsToDelete,
-        `Cascade Delete Topic ${id}`,
-        `del_top_${id}`
-      );
-
-      // 5. Verify child references before completion
-      if (batchRes.failedPaths.length === 0) {
-        const [remMcqs, remQs] = await Promise.all([
-          guardedGetDocs(query(collection(db, "mcqs"), where("topicId", "==", id), limit(1)), "Admin", "Verify Topic MCQs Deleted").catch(() => null),
-          guardedGetDocs(query(collection(db, "questions"), where("topicId", "==", id), limit(1)), "Admin", "Verify Topic Questions Deleted").catch(() => null),
-        ]);
-        const orphanPaths: string[] = [];
-        if (remMcqs && !remMcqs.empty) orphanPaths.push(...remMcqs.docs.map((d) => `mcqs/${d.id}`));
-        if (remQs && !remQs.empty) orphanPaths.push(...remQs.docs.map((d) => `questions/${d.id}`));
-        if (orphanPaths.length > 0) {
-          batchRes.failedPaths.push(...orphanPaths);
-          batchRes.lastError = `Residual child MCQs remain after topic delete: ${orphanPaths.join(", ")}`;
-        }
-      }
-
-      await cleanupDeletedLocalEntities({
-        topicIds: [id],
-        mcqIds: Array.from(mcqIds),
-      });
-
-      // 6. Single version bump on completion (if any docs deleted and quota not tripped)
-      if (batchRes.deletedPaths.length > 0 && !batchRes.abortedByQuota) {
-        try {
-          const { bumpRemoteCurriculumVersion } = await import('./appVersionService');
-          await bumpRemoteCurriculumVersion([id], undefined, { reason: `deleteTopic:${id}` });
-        } catch (_) {}
-      }
-
-      if (batchRes.failedPaths.length > 0) {
-        return {
-          success: false,
-          message: `Partial failure deleting topic '${id}': ${batchRes.deletedPaths.length} deleted, ${batchRes.failedPaths.length} failed.`,
-          isFirebase: true,
-          isQuotaExceeded: batchRes.abortedByQuota,
-          partialFailure: true,
-          deletedCount: batchRes.deletedPaths.length,
-          deletedIds: batchRes.deletedPaths,
-          failedIds: batchRes.failedPaths,
-          error: batchRes.lastError || "Partial failure during topic cascade delete.",
-        };
-      }
-
-      triggerAdminToast("delete", "Topic Deleted from Firebase", `Topic ID '${id}' successfully removed from Firestore (${batchRes.deletedPaths.length} docs).`);
-      return {
-        success: true,
-        message: `Topic deleted from Firebase Firestore!`,
-        isFirebase: true,
-        deletedCount: batchRes.deletedPaths.length,
-        deletedIds: batchRes.deletedPaths,
-        failedIds: [],
-      };
-    }
-
-    await cleanupDeletedLocalEntities({ topicIds: [id] });
+    const { deleteTopicFromSupabase } = await import('./supabaseSyncService');
+    const res = await deleteTopicFromSupabase(id);
     return {
-      success: true,
-      message: `Topic deleted locally!`,
-      isFirebase: false,
-      deletedCount: 1,
-      deletedIds: [`topics/${id}`],
+      success: res.success,
+      message: res.message,
+      isFirebase: true
     };
   } catch (err: any) {
-    console.error("Error deleting topic from cloud:", err);
     return {
       success: false,
-      message: `Failed to delete topic from Firebase: ${err?.message || String(err)}`,
+      message: err.message,
       isFirebase: true,
-      error: err?.message || String(err)
+      error: err.message
     };
   }
 }
@@ -1892,24 +1159,20 @@ export async function deleteBannerFromCloud(id: string): Promise<CloudSyncResult
 }
 
 export async function fetchUserProfileFromCloud(uid: string): Promise<any | null> {
-  // Check local cache first
   const stored = localStorage.getItem(`quizpro_profile_${uid}`);
-  if (stored) return JSON.parse(stored);
+  if (stored) {
+    try { return JSON.parse(stored); } catch {}
+  }
   
-  // Try remote fetch if online and configured
-  if (isFirebaseConfigured()) {
-    try {
-      const { doc } = await import('firebase/firestore');
-      const { guardedGetDoc } = await import('./quotaTracker');
-      const snap = await guardedGetDoc(doc(db, "users", uid), "Student", "Fetch Profile");
-      if (snap.exists()) {
-        const data = snap.data();
-        localStorage.setItem(`quizpro_profile_${uid}`, JSON.stringify(data));
-        return data;
-      }
-    } catch (err) {
-      console.warn("Could not fetch remote profile:", err);
+  try {
+    const { fetchUserProfileFromSupabase } = await import('./supabaseSyncService');
+    const profile = await fetchUserProfileFromSupabase(uid);
+    if (profile) {
+      localStorage.setItem(`quizpro_profile_${uid}`, JSON.stringify(profile));
+      return profile;
     }
+  } catch (err) {
+    console.warn("[SupabaseBridge] Could not fetch remote profile:", err);
   }
   return null;
 }
@@ -1918,25 +1181,15 @@ export async function syncUserProfileToCloud(profile: any): Promise<void> {
   if (!profile?.uid && !profile?.id) return;
   const key = profile.uid || profile.id;
   
-  // Always update local cache
   localStorage.setItem(`quizpro_profile_${key}`, JSON.stringify(profile));
 
-  // Do not sync guest/default profiles or admin preview mode to Firestore
   if (key === "student_default" || String(key).startsWith("guest_")) return;
-  const { isStudentTrackingAllowed } = await import('./studentWriteBuffer');
-  if (!isStudentTrackingAllowed(profile)) return;
   
-  // Trigger Firestore sync if configured
-  if (isFirebaseConfigured()) {
-    try {
-      const { registerUserToDirectory } = await import('./userManagementStorage');
-      await registerUserToDirectory({
-        ...profile,
-        id: key // Normalize ID field for the registration helper
-      });
-    } catch (err) {
-      console.warn("Non-blocking profile sync error:", err);
-    }
+  try {
+    const { syncUserProfileToSupabase } = await import('./supabaseSyncService');
+    await syncUserProfileToSupabase(profile);
+  } catch (err) {
+    console.warn("[SupabaseBridge] Non-blocking profile sync error:", err);
   }
 }
 
@@ -1990,41 +1243,19 @@ export async function recordAttemptToCloud(attempt: any): Promise<void> {
   const attemptId = attempt.id || attempt.attemptId || `att_${Date.now()}`;
   localStorage.setItem(`quizpro_attempt_${attemptId}`, JSON.stringify(attempt));
 
-  const { isStudentTrackingAllowed } = await import('./studentWriteBuffer');
-  if (!attempt?.isTest && !isStudentTrackingAllowed()) {
-    return;
-  }
-
-  const userId = attempt.userId || auth.currentUser?.uid;
-  if (isFirebaseConfigured() && userId && !String(userId).startsWith("guest_") && userId !== "student_default") {
-    try {
-      const { doc } = await import('firebase/firestore');
-      const { guardedSetDoc } = await import('./quotaTracker');
-      
-      const firestoreAttempt = {
-        ...attempt,
-        id: attemptId,
-        attemptId,
-        userId,
-        submittedAt: attempt.submittedAt || new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
-
-      await guardedSetDoc(
-        doc(db, "attempts", attemptId),
-        firestoreAttempt,
-        { merge: true },
-        attempt?.isTest ? "QA" : "Student",
-        "Record Attempt",
-        undefined,
-        30000,
-        `attempt_${attemptId}`
-      );
-
-      await updateWeeklyStatsInCloud(firestoreAttempt).catch(() => {});
-    } catch (err) {
-      console.warn("Non-blocking attempt sync error:", err);
-    }
+  try {
+    const { recordStudentAttempt } = await import('./supabaseSyncService');
+    await recordStudentAttempt({
+      userId: attempt.userId,
+      topicId: attempt.topicId,
+      subjectId: attempt.subjectId,
+      score: attempt.score || 0,
+      totalQuestions: attempt.totalQuestions || 0,
+      answers: attempt.answers || {},
+      timeSpentSeconds: attempt.timeSpentSeconds || 0,
+    });
+  } catch (err) {
+    console.warn("[SupabaseBridge] Non-blocking attempt sync error:", err);
   }
 }
 
@@ -2035,55 +1266,19 @@ export async function updateLeaderboardToCloud(entry: any): Promise<void> {
 
   const entryId = `${testId}_${userId}`;
   localStorage.setItem(`quizpro_lead_${entryId}`, JSON.stringify(entry));
-
-  // Block guest / anonymous / admin-preview writes from polluting Firestore leaderboard
-  if (String(userId).startsWith("guest_") || userId === "student_default" || userId === "guest_user") {
-    return;
-  }
-  const { isStudentTrackingAllowed } = await import('./studentWriteBuffer');
-  if (!entry?.isTest && !isStudentTrackingAllowed()) {
-    return;
-  }
-
-  if (isFirebaseConfigured()) {
-    try {
-      const { doc } = await import('firebase/firestore');
-      const { guardedSetDoc } = await import('./quotaTracker');
-      
-      await guardedSetDoc(
-        doc(db, "leaderboard", entryId),
-        {
-          ...entry,
-          userId,
-          updatedAt: new Date().toISOString()
-        },
-        { merge: true },
-        entry?.isTest ? "QA" : "Student",
-        "Update Leaderboard"
-      );
-    } catch (err) {
-      console.warn("Non-blocking leaderboard sync error:", err);
-    }
-  }
 }
 
 export async function runFirebaseHealthCheck(): Promise<{ success: boolean; latencyMs: number; error?: string }> {
-  const startTime = Date.now();
   try {
-    if (!isFirebaseConfigured()) {
-      return { success: false, latencyMs: 0, error: "Firebase configuration is missing." };
-    }
-    const { guardedGetDoc } = await import('./quotaTracker');
-    await guardedGetDoc(doc(db, "test", "connection"), "Health", "Health Check Ping", undefined, 10000, true);
-    const latencyMs = Date.now() - startTime;
-    return { success: true, latencyMs };
+    const { checkSupabaseHealth } = await import('./supabaseSyncService');
+    const health = await checkSupabaseHealth();
+    return {
+      success: health.healthy,
+      latencyMs: health.latencyMs,
+      error: health.details?.error
+    };
   } catch (err: any) {
-    const latencyMs = Date.now() - startTime;
-    const msg = err?.message || String(err);
-    if (err?.code === "not-found" || msg.includes("not found")) {
-      return { success: true, latencyMs };
-    }
-    return { success: false, latencyMs, error: msg };
+    return { success: false, latencyMs: 0, error: err.message };
   }
 }
 
@@ -2445,7 +1640,7 @@ export async function fetchMCQsByPYQPaper(paperId: string): Promise<any[]> {
 }
 
 /**
- * Queries Firestore directly to retrieve live, database-reconciled curriculum counts.
+ * Queries Supabase directly to retrieve live, database-reconciled curriculum counts.
  */
 export async function getLiveCurriculumCountsFromCloud(): Promise<{
   totalSubjects: number;
@@ -2453,30 +1648,16 @@ export async function getLiveCurriculumCountsFromCloud(): Promise<{
   totalTopics: number;
   totalQuestions: number;
 }> {
-  if (!isFirebaseConfigured()) {
-    const { getReconciledCurriculumCounts } = await import('./questionsStorage');
-    return getReconciledCurriculumCounts();
-  }
-
   try {
-    const { collection } = await import('firebase/firestore');
-    const { guardedGetCountFromServer } = await import('./quotaTracker');
-
-    const [sSnap, cSnap, tSnap, mSnap] = await Promise.all([
-      guardedGetCountFromServer(collection(db, "subjects"), "Admin", "Count Subjects").catch(() => null),
-      guardedGetCountFromServer(collection(db, "chapters"), "Admin", "Count Chapters").catch(() => null),
-      guardedGetCountFromServer(collection(db, "topics"), "Admin", "Count Topics").catch(() => null),
-      guardedGetCountFromServer(collection(db, "mcqs"), "Admin", "Count MCQs").catch(() => null),
-    ]);
-
+    const { getSupabaseTableCounts } = await import('./supabaseSyncService');
+    const counts = await getSupabaseTableCounts();
     return {
-      totalSubjects: sSnap ? sSnap.data().count : 0,
-      totalChapters: cSnap ? cSnap.data().count : 0,
-      totalTopics: tSnap ? tSnap.data().count : 0,
-      totalQuestions: mSnap ? mSnap.data().count : 0,
+      totalSubjects: counts.subjects,
+      totalChapters: counts.chapters,
+      totalTopics: counts.topics,
+      totalQuestions: counts.questions,
     };
   } catch (err) {
-    console.warn("Could not fetch live cloud curriculum counts:", err);
     const { getReconciledCurriculumCounts } = await import('./questionsStorage');
     return getReconciledCurriculumCounts();
   }

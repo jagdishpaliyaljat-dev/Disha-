@@ -1644,21 +1644,23 @@ export default function App() {
         </React.Suspense>
       </main>
 
-      {/* Bottom Navigation */}
-      <BottomNav
-        activeTab={activeTab}
-        onChangeTab={(tab: ActiveTab) => {
-          if (tab !== activeTab) {
-            setSelectedArticleSlug(null);
-            setSelectedSubjectId(null);
-            setSelectedChapterId(null);
-            setSelectedTopicId(null);
-            setActiveSession(null);
-            setActiveTab(tab);
-          }
-        }}
-        isAdmin={isAdmin}
-      />
+      {/* Bottom Navigation (Student view only; Admin has its own specialized management bottom bar) */}
+      {activeTab !== 'admin' && (
+        <BottomNav
+          activeTab={activeTab}
+          onChangeTab={(tab: ActiveTab) => {
+            if (tab !== activeTab) {
+              setSelectedArticleSlug(null);
+              setSelectedSubjectId(null);
+              setSelectedChapterId(null);
+              setSelectedTopicId(null);
+              setActiveSession(null);
+              setActiveTab(tab);
+            }
+          }}
+          isAdmin={isAdmin}
+        />
+      )}
 
       {/* Modals & Overlays */}
       <React.Suspense fallback={null}>
