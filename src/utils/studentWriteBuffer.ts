@@ -7,14 +7,20 @@ import {
   QuestionProgress,
   UserProfile,
 } from "../types";
-import {
-  classifyFirestoreError,
-  guardedRunTransaction,
-  guardedWriteBatch,
-  isIdempotencyKeyCommitted,
-  isQuotaExhausted,
-  markIdempotencyKeyCommitted,
-} from "./quotaTracker";
+const committedIdempotencyKeys = new Set<string>();
+
+export function isIdempotencyKeyCommitted(key?: string): boolean {
+  if (!key) return false;
+  return committedIdempotencyKeys.has(key);
+}
+
+export function markIdempotencyKeyCommitted(key?: string): void {
+  if (key) committedIdempotencyKeys.add(key);
+}
+
+export function isQuotaExhausted(): boolean {
+  return false;
+}
 import {
   idbDeleteOutboxItem,
   idbGetAllOutboxItems,
@@ -26,10 +32,15 @@ import {
 import { loadUserProfile } from "./userProfileStorage";
 import { recordCloudSyncSuccess } from "./syncStorage";
 
-export const STUDENT_BUFFER_STORAGE_KEY = "quizpro_student_buffer_v1";
-export const STUDENT_OUTBOX_STORAGE_KEY = "quizpro_student_outbox_v1";
+export const STUDENT_BUFFER_STORAGE_KEY = "disha2020_student_buffer_v1";
+export const STUDENT_OUTBOX_STORAGE_KEY = "disha2020_student_outbox_v1";
 export const STUDENT_BUFFER_IDB_KEY = "active_student_buffer";
-export const ADMIN_PREVIEW_SESSION_KEY = "quizpro_admin_preview_mode_v1";
+export const ADMIN_PREVIEW_SESSION_KEY = "disha2020_admin_preview_mode_v1";
+
+// Legacy keys for backward-compatible fallback
+export const LEGACY_STUDENT_BUFFER_STORAGE_KEY = "quizpro_student_buffer_v1";
+export const LEGACY_STUDENT_OUTBOX_STORAGE_KEY = "quizpro_student_outbox_v1";
+export const LEGACY_ADMIN_PREVIEW_SESSION_KEY = "quizpro_admin_preview_mode_v1";
 
 export const BATCH_FLUSH_QUESTION_THRESHOLD = 10;
 export const SAFE_BATCH_CHUNK_SIZE = 400; // Strict margin below Firestore's 500-op WriteBatch limit
@@ -139,7 +150,7 @@ export interface FlushStudentBufferResult {
   totalTransactionWrites: number;
   remainingPendingQuestions: number;
   remainingOutboxItems: number;
-  skippedReason?: "guest" | "admin_preview" | "offline" | "quota_exhausted" | "firebase_unconfigured" | "empty" | "gated_24h_policy";
+  skippedReason?: "guest" | "admin_preview" | "offline" | "quota_exhausted" | "supabase_unconfigured" | "empty" | "gated_24h_policy";
   abortedByQuota?: boolean;
   abortedByOffline?: boolean;
 }
@@ -258,27 +269,7 @@ export function getStudentSyncMode(
   }
 
   const currentProfile = profile || loadUserProfile();
-  const firebaseUser = getEffectiveAuthUser();
-
-  // Guest checks: must have a real authenticated non-anonymous user
-  if (!firebaseUser || firebaseUser.isAnonymous) {
-    return "guest";
-  }
-
-  const hasValidProfileIdentity = Boolean(
-    currentProfile &&
-    currentProfile.id &&
-    currentProfile.id !== "student_default" &&
-    (currentProfile.email || firebaseUser.email)
-  );
-
-  // If firebaseUser is signed in with email/uid and profile matches or wasn't stale guest, allow student mode
-  // Note: authenticated Admins practicing normally as learners (when NOT in Admin Preview/QA mode) use "student" mode!
-  if (!hasValidProfileIdentity && !firebaseUser.email) {
-    return "guest";
-  }
-
-  if (currentProfile?.id === "student_default" && !firebaseUser.email) {
+  if (!currentProfile || currentProfile.id === "student_default" || !currentProfile.email) {
     return "guest";
   }
 
@@ -298,16 +289,11 @@ function getActiveUserIdentity(profile?: UserProfile | null): {
   userPhoto: string;
 } | null {
   const currentProfile = profile || loadUserProfile();
-  const firebaseUser = getEffectiveAuthUser();
-  if (!firebaseUser || firebaseUser.isAnonymous) return null;
+  if (!currentProfile || currentProfile.id === "student_default" || !currentProfile.id) return null;
 
-  const userId =
-    (currentProfile?.id && currentProfile.id !== "student_default" ? currentProfile.id : "") ||
-    firebaseUser.uid;
-  if (!userId) return null;
-
-  const userName = currentProfile?.name || firebaseUser.displayName || "Aspirant";
-  const userPhoto = currentProfile?.photoURL || currentProfile?.avatar || firebaseUser.photoURL || "";
+  const userId = currentProfile.id;
+  const userName = currentProfile.name || "Aspirant";
+  const userPhoto = currentProfile.photoURL || currentProfile.avatar || "";
   return { userId, userName, userPhoto };
 }
 
@@ -332,7 +318,7 @@ function loadStagingFromLocalStorage(): StudentStagingBuffer {
     return stagingBuffer ? { ...stagingBuffer } : createEmptyBuffer();
   }
   try {
-    const raw = localStorage.getItem(STUDENT_BUFFER_STORAGE_KEY);
+    const raw = localStorage.getItem(STUDENT_BUFFER_STORAGE_KEY) || localStorage.getItem(LEGACY_STUDENT_BUFFER_STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
       if (parsed && typeof parsed === "object") {
@@ -379,7 +365,7 @@ function loadOutboxFromLocalStorage(): StudentSyncOutboxItem[] {
     return outboxCache ? [...outboxCache] : [];
   }
   try {
-    const raw = localStorage.getItem(STUDENT_OUTBOX_STORAGE_KEY);
+    const raw = localStorage.getItem(STUDENT_OUTBOX_STORAGE_KEY) || localStorage.getItem(LEGACY_STUDENT_OUTBOX_STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed)) {
@@ -840,7 +826,7 @@ export async function commitWeeklyStatsDeltaIdempotent(
   opId: string,
   screenName = "Batch Weekly Stats"
 ): Promise<{ committed: boolean; skippedDuplicate: boolean }> {
-  if (!isFirebaseConfigured() || !delta.userId || !delta.weekId || delta.attemptedDelta <= 0) {
+  if (!delta.userId || !delta.weekId || delta.attemptedDelta <= 0) {
     return { committed: false, skippedDuplicate: false };
   }
 
@@ -861,8 +847,11 @@ export async function commitWeeklyStatsDeltaIdempotent(
     .catch(() => {})
     .then(async () => {
       try {
-        const storageKey = `quizpro_weekly_stats_${statsId}`;
-        const raw = typeof localStorage !== "undefined" ? localStorage.getItem(storageKey) : null;
+        const storageKey = `disha2020_weekly_stats_${statsId}`;
+        const legacyStorageKey = `quizpro_weekly_stats_${statsId}`;
+        const raw = typeof localStorage !== "undefined" 
+          ? (localStorage.getItem(storageKey) || localStorage.getItem(legacyStorageKey)) 
+          : null;
         const existing = raw ? JSON.parse(raw) : null;
         const existingProcessed: string[] = Array.isArray(existing?.processedOpIds)
           ? existing.processedOpIds
@@ -1013,7 +1002,7 @@ export async function flushStudentWriteBuffer(
         totalTransactionWrites: 0,
         remainingPendingQuestions: Object.keys(getStagingBuffer().pendingProgress).length,
         remainingOutboxItems: pendingOutbox.length,
-        skippedReason: "firebase_unconfigured",
+        skippedReason: "supabase_unconfigured",
       };
     }
 

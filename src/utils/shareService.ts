@@ -1,9 +1,11 @@
 import { ShareData } from "../components/ShareModal";
 import { PYQPaper, LiveTest, Chapter, Subject, Question, NewsArticle, Topic } from "../types";
-import { db } from "../lib/firebase";
-import { doc } from "firebase/firestore";
-import { guardedGetDoc } from "./quotaTracker";
-import { normalizeTableFromFirestore } from "./firebaseSyncService";
+import { supabase } from "../lib/supabase";
+import { normalizeTable } from "./tableUtils";
+import { loadLocalPYQPapers } from "./pyqStorage";
+import { loadLocalLiveTests } from "./liveTestStorage";
+import { fetchArticleBySlug } from "./articleStorage";
+import { fetchQuestionsByTopic } from "./supabaseSyncService";
 
 export type ShareContentType =
   | "test"
@@ -174,7 +176,7 @@ export function buildCustomTestShareData(testTitle: string, testId: string): Sha
 }
 
 /**
- * Attempts to fetch content from Cloud Firestore if not present in local state
+ * Attempts to fetch content if not present in local state
  */
 export async function fetchShareContentFromCloud(
   type: ShareContentType,
@@ -182,80 +184,56 @@ export async function fetchShareContentFromCloud(
 ): Promise<any | null> {
   try {
     if (type === "pyq") {
-      const docRef = doc(db, "pyq_papers", id);
-      const docSnap = await guardedGetDoc(docRef, "Student", "Fetch Shared PYQ Paper");
-      if (docSnap.exists()) {
-        const data = docSnap.data() as PYQPaper;
-        if (Array.isArray(data.questions)) {
-          data.questions = data.questions.map((q: any) => {
-            const qObj = { ...q };
-            if (qObj.table) qObj.table = normalizeTableFromFirestore(qObj.table);
-            if (qObj.tableData) qObj.tableData = normalizeTableFromFirestore(qObj.tableData);
-            return qObj;
-          });
-        }
-        return data;
-      }
+      const list = loadLocalPYQPapers();
+      const match = list.find((p) => p.id === id);
+      if (match) return match;
     }
 
     if (type === "livetest") {
-      const docRef = doc(db, "liveTests", id);
-      const docSnap = await guardedGetDoc(docRef, "Student", "Fetch Shared Live Test");
-      if (docSnap.exists()) {
-        const data = docSnap.data() as LiveTest;
-        if (Array.isArray(data.questions)) {
-          data.questions = data.questions.map((q: any) => {
-            const qObj = { ...q };
-            if (qObj.table) qObj.table = normalizeTableFromFirestore(qObj.table);
-            if (qObj.tableData) qObj.tableData = normalizeTableFromFirestore(qObj.tableData);
-            return qObj;
-          });
-        }
-        return data;
-      }
+      const list = loadLocalLiveTests();
+      const match = list.find((t) => t.id === id);
+      if (match) return match;
     }
 
     if (type === "news") {
-      const docRef = doc(db, "articles", id);
-      const docSnap = await guardedGetDoc(docRef, "Student", "Fetch Shared Article");
-      if (docSnap.exists()) {
-        return docSnap.data() as NewsArticle;
-      }
+      return await fetchArticleBySlug(id);
     }
 
     if (type === "question") {
-      const docRef = doc(db, "mcqs", id);
-      const docSnap = await guardedGetDoc(docRef, "Student", "Fetch Shared Question");
-      if (docSnap.exists()) {
-        const data = docSnap.data() as Question;
-        if (data.table) data.table = normalizeTableFromFirestore(data.table);
-        if (data.tableData) data.tableData = normalizeTableFromFirestore(data.tableData);
-        return data;
+      const { data } = await supabase.from("questions").select("*").eq("id", id).maybeSingle();
+      if (data) {
+        return {
+          id: data.id,
+          topicId: data.topic_id,
+          chapterId: data.chapter_id,
+          subjectId: data.subject_id,
+          question: data.question,
+          options: data.options || [],
+          correctAnswer: data.correct_answer,
+          explanation: data.explanation || "",
+          table: data.table_data ? normalizeTable(data.table_data) : undefined,
+          source: data.source,
+          examYear: data.exam_year,
+          category: data.category,
+        } as Question;
       }
     }
 
     if (type === "topic") {
-      const docRef = doc(db, "topics", id);
-      const docSnap = await guardedGetDoc(docRef, "Student", "Fetch Shared Topic");
-      if (docSnap.exists()) {
-        const topicData = { ...docSnap.data(), id: docSnap.id } as Topic;
-        // Fetch questions for this topic
-        const { fetchMCQsByTopic } = await import("./firebaseSyncService");
-        const questions = await fetchMCQsByTopic(id);
-        const normalizedQuestions = questions.map((q: any) => {
-          const qObj = { ...q };
-          if (qObj.table) qObj.table = normalizeTableFromFirestore(qObj.table);
-          if (qObj.tableData) qObj.tableData = normalizeTableFromFirestore(qObj.tableData);
-          return qObj;
-        });
+      const { data: topicData } = await supabase.from("topics").select("*").eq("id", id).maybeSingle();
+      if (topicData) {
+        const questions = await fetchQuestionsByTopic(id);
         return {
-          ...topicData,
-          questions: normalizedQuestions,
+          id: topicData.id,
+          name: topicData.name,
+          hindiName: topicData.hindi_name,
+          chapterId: topicData.chapter_id,
+          questions,
         };
       }
     }
   } catch (err) {
-    console.warn(`[ShareService] Cloud fetch notice for ${type}:${id}`, err);
+    console.warn(`[ShareService] Fetch notice for ${type}:${id}`, err);
   }
 
   return null;

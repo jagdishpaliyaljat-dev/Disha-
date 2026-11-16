@@ -10,8 +10,7 @@ import {
   executeTx,
   openSnapshotDb
 } from "./indexedDbV5";
-import { db } from "../../lib/firebase";
-import { doc, writeBatch, serverTimestamp } from "firebase/firestore";
+import { supabase } from "../../lib/supabase";
 
 export interface BatchFlushResult {
   flushedCount: number;
@@ -144,20 +143,26 @@ export class UserActivityQueue {
       // Take batch up to maxBatchSize
       const batchToFlush = pendingEvents.slice(0, this.maxBatchSize);
 
-      if (db) {
-        // Execute batched write in Firestore
-        const batch = writeBatch(db);
-
-        for (const ev of batchToFlush) {
-          const docRef = doc(db, "users", ev.userId, "sync_events", ev.eventId);
-          batch.set(docRef, {
-            ...ev,
-            serverTimestamp: serverTimestamp(),
-            syncStatus: "synced"
-          }, { merge: true });
+      for (const ev of batchToFlush) {
+        try {
+          if (ev.eventType === "attempt" && ev.payload?.questionId) {
+            await supabase.from("attempts").insert({
+              user_id: ev.userId,
+              question_id: ev.payload.questionId,
+              selected_option: ev.payload.selectedOption,
+              is_correct: ev.payload.isCorrect,
+              time_spent: ev.payload.timeSpentSeconds || 0,
+            });
+          } else if (ev.eventType === "bookmark" && ev.entityId) {
+            if (ev.operation === "delete") {
+              await supabase.from("bookmarks").delete().match({ user_id: ev.userId, question_id: ev.entityId });
+            } else {
+              await supabase.from("bookmarks").upsert({ user_id: ev.userId, question_id: ev.entityId }, { onConflict: "user_id,question_id" });
+            }
+          }
+        } catch (syncErr) {
+          console.warn("[UserActivityQueue] Supabase sync event warning:", syncErr);
         }
-
-        await batch.commit();
       }
 
       // Remove acknowledged events from queue

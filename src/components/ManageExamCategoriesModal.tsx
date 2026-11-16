@@ -69,11 +69,11 @@ export const ManageExamCategoriesModal: React.FC<ManageExamCategoriesModalProps>
       const updated = await saveExamCategory(catToSave);
       setCategories(updated);
       handleCancelEdit();
-      setToastMessage({ type: "success", msg: "Exam Category saved to Firebase Firestore!" });
+      setToastMessage({ type: "success", msg: "Exam Category saved successfully!" });
       setTimeout(() => setToastMessage(null), 5000);
     } catch (e: any) {
       console.error("Save failed", e);
-      setToastMessage({ type: "error", msg: "Failed to save category to Firebase: " + (e?.message || "Check network") });
+      setToastMessage({ type: "error", msg: "Failed to save category: " + (e?.message || "Check network") });
     } finally {
       setIsSaving(false);
     }
@@ -91,7 +91,7 @@ export const ManageExamCategoriesModal: React.FC<ManageExamCategoriesModalProps>
 
     try {
       await deleteExamCategory(id);
-      setToastMessage({ type: "success", msg: "Exam Category deleted from Firebase Firestore!" });
+      setToastMessage({ type: "success", msg: "Exam Category deleted successfully!" });
       setTimeout(() => setToastMessage(null), 5000);
     } catch (e: any) {
       console.error("Delete failed", e);

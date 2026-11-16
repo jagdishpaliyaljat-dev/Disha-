@@ -1,5 +1,4 @@
 import type { UserProfile } from "../types";
-import { auth } from "../lib/firebase";
 
 const USER_PROFILE_KEY = "economic_survey_user_profile_v1";
 
@@ -101,17 +100,7 @@ export function isUserAdmin(profileOrRole?: UserProfile | string | null): boolea
     return false;
   }
 
-  // 3. Check Firebase Auth current user
-  try {
-    if (auth?.currentUser) {
-      if (auth.currentUser.isAnonymous) return false;
-      const email = auth.currentUser.email ? normalize(auth.currentUser.email) : null;
-      if (email && ADMIN_EMAILS.includes(email)) return true;
-      if (ADMIN_UIDS.includes(auth.currentUser.uid)) return true;
-    }
-  } catch {}
-
-  // 4. Fallback: check stored local profile
+  // 3. Fallback: check stored local profile
   try {
     const stored = loadUserProfile();
     if (stored?.role === "admin") return true;

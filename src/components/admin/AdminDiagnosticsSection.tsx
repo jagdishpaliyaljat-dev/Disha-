@@ -77,7 +77,8 @@ export interface FullDiagnosticScanResult {
   scanDurationMs: number;
 }
 
-const CACHE_REPORT_KEY = "quizpro_admin_diagnostics_last_scan";
+const CACHE_REPORT_KEY = "disha2020_admin_diagnostics_last_scan";
+const LEGACY_CACHE_REPORT_KEY = "quizpro_admin_diagnostics_last_scan";
 
 export const AdminDiagnosticsSection: React.FC<AdminDiagnosticsSectionProps> = ({
   userProfile,
@@ -90,7 +91,7 @@ export const AdminDiagnosticsSection: React.FC<AdminDiagnosticsSectionProps> = (
   const [report, setReport] = React.useState<FullDiagnosticScanResult | null>(() => {
     if (typeof localStorage !== "undefined") {
       try {
-        const cached = localStorage.getItem(CACHE_REPORT_KEY);
+        const cached = localStorage.getItem(CACHE_REPORT_KEY) || localStorage.getItem(LEGACY_CACHE_REPORT_KEY);
         if (cached) return JSON.parse(cached);
       } catch (_) {}
     }

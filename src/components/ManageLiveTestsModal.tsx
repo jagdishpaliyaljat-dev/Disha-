@@ -185,11 +185,11 @@ export const ManageLiveTestsModal: React.FC<ManageLiveTestsModalProps> = ({
       setTests(updated);
       setIsCreating(false);
       setEditingTest(null);
-      setToastMessage({ type: "success", msg: "Live Test saved to Firebase Firestore successfully!" });
+      setToastMessage({ type: "success", msg: "Live Test saved successfully!" });
       setTimeout(() => setToastMessage(null), 5000);
     } catch (err: any) {
       console.error("Save live test failed:", err);
-      setToastMessage({ type: "error", msg: "Failed to save Live Test to Firebase: " + (err?.message || "Check network/permissions") });
+      setToastMessage({ type: "error", msg: "Failed to save Live Test: " + (err?.message || "Check network/permissions") });
     }
   };
 
@@ -206,7 +206,7 @@ export const ManageLiveTestsModal: React.FC<ManageLiveTestsModalProps> = ({
 
     try {
       await deleteLiveTest(testId);
-      setToastMessage({ type: "success", msg: "Live Test deleted successfully from Firebase Firestore!" });
+      setToastMessage({ type: "success", msg: "Live Test deleted successfully!" });
       setTimeout(() => setToastMessage(null), 5000);
     } catch (err: any) {
       console.error("Delete live test failed:", err);

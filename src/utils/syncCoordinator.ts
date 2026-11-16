@@ -1,11 +1,3 @@
-import { doc, collection, query, where, limit } from "firebase/firestore";
-import { db, auth, isFirebaseConfigured } from "../lib/firebase";
-import { 
-  guardedWriteBatch, 
-  guardedGetDoc, 
-  guardedGetDocs, 
-  isQuotaExhausted 
-} from "./quotaTracker";
 import { 
   loadSyncCheckpoint, 
   saveSyncCheckpoint, 
@@ -26,12 +18,10 @@ import {
   countLocalMCQs,
   markLocalEntitiesSynced
 } from "./localDatabaseEngine";
-import { executeInitialBootstrap } from "./bootstrapService";
 import { isUserAdmin, loadUserProfile } from "./userProfileStorage";
-import { recordLocalCurriculumVersion } from "./appVersionService";
 
 /**
- * QuizPro - Strict 24-Hour Bidirectional Sync Coordinator
+ * DISHA 20-20 - Strict 24-Hour Bidirectional Sync Coordinator
  * 
  * Rules enforced:
  * 1. Exactly one coordinated sync cycle allowed per 24 hours.
@@ -99,17 +89,6 @@ class SyncCoordinatorClass {
    * Initializes sync metadata and verifies local database readiness on app startup.
    */
   public async initializeSync(): Promise<SyncSessionStatus> {
-    const checkpoint = await loadSyncCheckpoint();
-    const totalMCQs = await countLocalMCQs();
-
-    // Check if initial bootstrap is required OR if question bank is incomplete (< 500 MCQs)
-    if ((!checkpoint.bootstrapCompleted || totalMCQs < 500) && isFirebaseConfigured()) {
-      if (typeof navigator !== "undefined" && navigator.onLine) {
-        // Trigger initial bootstrap or recovery automatically on startup to restore missing questions
-        await this.startBootstrapSession();
-      }
-    }
-
     return this.getSyncStatus();
   }
 
@@ -154,17 +133,7 @@ class SyncCoordinatorClass {
    * Starts Initial Bootstrap session if needed.
    */
   public async startBootstrapSession(): Promise<{ success: boolean; error?: string }> {
-    if (this.isExecuting) return { success: false, error: "Sync already in progress." };
-    this.isExecuting = true;
-    await this.notifyListeners();
-
-    try {
-      const res = await executeInitialBootstrap();
-      return res;
-    } finally {
-      this.isExecuting = false;
-      await this.notifyListeners();
-    }
+    return { success: true };
   }
 
   /**
@@ -253,11 +222,6 @@ class SyncCoordinatorClass {
       if (downloadedCount > 0) {
         await commitStagedBatch(sessionId);
         checkpoint.contentVersion = downloadResult.remoteVersion;
-        await recordLocalCurriculumVersion({
-          curriculumVersion: downloadResult.remoteVersion,
-          lastUpdated: new Date().toISOString(),
-          bundleVersions: {},
-        }).catch(() => {});
       }
 
       // 7. PHASE F: SYNC COMPLETION

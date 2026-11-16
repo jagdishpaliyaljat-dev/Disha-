@@ -18,10 +18,14 @@ import {
   Calendar
 } from "lucide-react";
 import { UserProfile } from "../types";
-import { db, auth } from "../lib/firebase";
-import { collection, query, where, orderBy, limit, getDocs } from "firebase/firestore";
-import { guardedGetDocs } from "../utils/quotaTracker";
-import { getStartOfWeekId } from "../utils/firebaseSyncService";
+
+function getStartOfWeekId(): string {
+  const d = new Date();
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  const monday = new Date(d.setDate(diff));
+  return monday.toISOString().split("T")[0];
+}
 
 export interface WeeklyLeaderboardEntry {
   userId: string;
@@ -47,7 +51,7 @@ const WeeklyLeaderboard: React.FC<WeeklyLeaderboardProps> = ({
   const [entries, setEntries] = useState<WeeklyLeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const currentWeekId = getStartOfWeekId();
-  const currentUserId = userProfile?.id || auth.currentUser?.uid;
+  const currentUserId = userProfile?.id;
 
   useEffect(() => {
     let isMounted = true;
@@ -55,25 +59,13 @@ const WeeklyLeaderboard: React.FC<WeeklyLeaderboardProps> = ({
     async function fetchLeaderboard() {
       setLoading(true);
       try {
-        const statsRef = collection(db, "user_stats_weekly");
-        const q = query(
-          statsRef, 
-          where("weekId", "==", currentWeekId),
-          orderBy("totalPoints", "desc"),
-          limit(20)
-        );
-        
-        const snap = await guardedGetDocs(q, "Student", "Fetch Weekly Leaderboard");
-        const cloudEntries: WeeklyLeaderboardEntry[] = [];
-        
-        if (!snap.empty) {
-          snap.forEach((docSnap) => {
-            cloudEntries.push(docSnap.data() as WeeklyLeaderboardEntry);
-          });
-        }
+        const localKey = `disha2020_weekly_lb_${currentWeekId}`;
+        const legacyKey = `quizpro_weekly_lb_${currentWeekId}`;
+        const raw = localStorage.getItem(localKey) || localStorage.getItem(legacyKey);
+        const localEntries: WeeklyLeaderboardEntry[] = raw ? JSON.parse(raw) : [];
 
         if (isMounted) {
-          setEntries(cloudEntries);
+          setEntries(localEntries);
           setLoading(false);
         }
       } catch (err) {

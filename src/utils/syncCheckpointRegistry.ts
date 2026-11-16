@@ -1,4 +1,4 @@
-import { getLocalMetadata, setLocalMetadata, isIndexedDbSupported, getQuizProDB } from "./indexedDbCache";
+import { getLocalMetadata, setLocalMetadata, isIndexedDbSupported, getDisha2020DB } from "./indexedDbCache";
 
 export interface SyncCheckpointMetadata {
   syncMode: "strict_24h";

@@ -32,8 +32,10 @@ export const QuestionsProvider: React.FC<{ children: ReactNode }> = ({ children 
       }
     };
 
+    window.addEventListener("disha2020_store_updated", handleStoreUpdate);
     window.addEventListener("quizpro_store_updated", handleStoreUpdate);
     return () => {
+      window.removeEventListener("disha2020_store_updated", handleStoreUpdate);
       window.removeEventListener("quizpro_store_updated", handleStoreUpdate);
     };
   }, []);

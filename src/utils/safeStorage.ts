@@ -1,9 +1,17 @@
 /**
  * Safe LocalStorage Wrapper with Automatic Quota Reclaim and Fallbacks
+ * DISHA 20-20 Unified Storage Engine
  * Prevents QuotaExceededError crashes when caching large datasets.
  */
 
 const TRANSIENT_KEY_PREFIXES = [
+  "disha2020_bulk_mcqs",
+  "disha2020_mcqs_",
+  "disha2020_mcq_",
+  "disha2020_last_safety_backup",
+  "disha2020_pyq_attempt_",
+  "disha2020_attempt_",
+  // Legacy QuizPro prefixes for backward compatibility pruning
   "quizpro_bulk_mcqs",
   "quizpro_mcqs_",
   "quizpro_mcq_",
@@ -11,6 +19,31 @@ const TRANSIENT_KEY_PREFIXES = [
   "quizpro_pyq_attempt_",
   "quizpro_attempt_",
 ];
+
+/**
+ * Safely reads a value from localStorage with optional backward-compatible fallback key.
+ * If the legacy key is found and modern key is missing, automatically migrates value forward.
+ */
+export function safeGetLocalStorageItem(key: string, legacyKey?: string): string | null {
+  if (typeof window === "undefined" || !window.localStorage) return null;
+  try {
+    const val = localStorage.getItem(key);
+    if (val !== null) return val;
+    if (legacyKey) {
+      const legacyVal = localStorage.getItem(legacyKey);
+      if (legacyVal !== null) {
+        // Forward migrate
+        try {
+          localStorage.setItem(key, legacyVal);
+        } catch (_) {}
+        return legacyVal;
+      }
+    }
+    return null;
+  } catch (_) {
+    return null;
+  }
+}
 
 /**
  * Attempts to clear temporary / disposable cached items from localStorage

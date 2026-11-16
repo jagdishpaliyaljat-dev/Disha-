@@ -10,7 +10,7 @@ import { Subject, Chapter, UserQuestionsStore, UserProfile } from "../types";
 import { ConfirmDialog } from "./admin/ConfirmDialog";
 import { deleteSubject, deleteChapter, saveUserQuestionsStore } from "../utils/questionsStorage";
 import { AdminSectionLoader } from "./admin/AdminSkeletonLoaders";
-import type { SyncProgressState } from "../utils/bulkSyncService";
+import type { SyncProgressState } from "./admin/SyncProgressModal";
 import { isUserAdmin } from "../utils/userProfileStorage";
 import { getTotalDisplayCount, getCombinedSubjects, getCombinedChapters, getCombinedQuestions } from "../utils/questionsStorage";
 import { loadLocalPYQPapers, getDeletedPYQIds } from "../utils/pyqStorage";
@@ -112,7 +112,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
       if (sec) return sec;
       const p = window.location.pathname;
       const h = window.location.hash;
-      if (p.includes("/admin/database") || h.includes("#admin/database") || p.includes("/admin/supabase") || h.includes("#admin/supabase") || p.includes("/admin/firebase-data")) return "supabase";
+      if (p.includes("/admin/database") || h.includes("#admin/database") || p.includes("/admin/supabase") || h.includes("#admin/supabase")) return "supabase";
       if (p.includes("/admin/news") || h.includes("#admin/news")) return "content";
     }
     return "dashboard";
@@ -208,8 +208,12 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
         setTopToast(customEvent.detail);
       }
     };
+    window.addEventListener("disha2020_admin_toast", handleToastEvent);
     window.addEventListener("quizpro_admin_toast", handleToastEvent);
-    return () => window.removeEventListener("quizpro_admin_toast", handleToastEvent);
+    return () => {
+      window.removeEventListener("disha2020_admin_toast", handleToastEvent);
+      window.removeEventListener("quizpro_admin_toast", handleToastEvent);
+    };
   }, []);
 
   React.useEffect(() => {
@@ -307,7 +311,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
           setActiveGroup(sec);
         } else if (window.location.pathname === "/admin") {
           setActiveGroup("dashboard");
-        } else if (window.location.pathname === "/admin/database" || window.location.hash === "#admin/database" || window.location.pathname === "/admin/supabase" || window.location.hash === "#admin/supabase" || window.location.pathname === "/admin/firebase-data" || window.location.hash === "#admin/firebase-data") {
+        } else if (window.location.pathname === "/admin/database" || window.location.hash === "#admin/database" || window.location.pathname === "/admin/supabase" || window.location.hash === "#admin/supabase") {
           setActiveGroup("supabase");
           setSubTabSupabase("explorer");
         } else if (window.location.pathname === "/admin/news" || window.location.hash === "#admin/news") {
@@ -395,15 +399,10 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
         setActiveGroup("supabase");
         setSubTabSupabase("sync");
         break;
-      case "firebase-data":
       case "database":
       case "supabase":
         setActiveGroup("supabase");
         setSubTabSupabase("explorer");
-        break;
-      case "firebase-audit":
-        setActiveGroup("supabase");
-        setSubTabSupabase("audit");
         break;
       case "ai-api":
         setActiveGroup("integrations");

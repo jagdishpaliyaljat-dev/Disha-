@@ -447,7 +447,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
     if (!isExamMode || isCompleted) return;
 
     // Push a sentinel history entry to intercept accidental Android Back button presses
-    const sentinelState = { quizProTestActive: true, timestamp: Date.now() };
+    const sentinelState = { dishaTestActive: true, quizProTestActive: true, timestamp: Date.now() };
     window.history.pushState(sentinelState, "", window.location.href);
 
     const handleTestPopState = () => {
@@ -944,8 +944,8 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
       }).catch(() => {});
     }
 
-    if (typeof window !== "undefined" && window.history.state && window.history.state.quizProTestActive) {
-      window.history.replaceState({ quizProTestCompleted: true }, "", window.location.href);
+    if (typeof window !== "undefined" && window.history.state && (window.history.state.dishaTestActive || window.history.state.quizProTestActive)) {
+      window.history.replaceState({ dishaTestCompleted: true, quizProTestCompleted: true }, "", window.location.href);
     }
 
     // 2. Local state capture for the submission payload

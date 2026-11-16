@@ -57,9 +57,6 @@ import { RichText } from "./RichText";
 import { QuestionTable } from "./QuestionTable";
 import { formatQuestionWithAI, formatBatchQuestionsWithAI } from "../utils/aiFormatter";
 import { ImportTemplatesModal } from "./admin/ImportTemplatesModal";
-import { auth, db, isFirebaseConfigured } from "../lib/firebase";
-import { collection } from "firebase/firestore";
-import { guardedGetDocs } from "../utils/quotaTracker";
 import { loadUserQuestionsStore, getCombinedSubjects, getCombinedChapters } from "../utils/questionsStorage";
 import { ensureStableUniqueDocId } from "../utils/permanentDataIntegrity";
 import { isUserAdmin, loadUserProfile, ADMIN_EMAILS } from "../utils/userProfileStorage";
@@ -182,50 +179,40 @@ export const AddQuestionsModal: React.FC<AddQuestionsModalProps> = ({
           setFetchedSubjects(subjects);
         }
 
-        if (isFirebaseConfigured()) {
-          const [subSnap, chSnap, topSnap] = await Promise.all([
-            promiseWithTimeout(guardedGetDocs(collection(db, "subjects"), "Admin", "Add Questions: Fetch Subjects").catch(() => null), 30000, "Fetch Subjects").catch(() => null),
-            promiseWithTimeout(guardedGetDocs(collection(db, "chapters"), "Admin", "Add Questions: Fetch Chapters").catch(() => null), 30000, "Fetch Chapters").catch(() => null),
-            promiseWithTimeout(guardedGetDocs(collection(db, "topics"), "Admin", "Add Questions: Fetch Topics").catch(() => null), 30000, "Fetch Topics").catch(() => null),
-          ]);
+        try {
+          const { isSupabaseConfigured } = await import("../lib/supabase");
+          if (isSupabaseConfigured()) {
+            const { fetchSubjects, fetchChapters, fetchTopics } = await import("../utils/supabaseSyncService");
+            const [sbSubjects, sbChapters, sbTopics] = await Promise.all([
+              fetchSubjects(),
+              fetchChapters(),
+              fetchTopics(),
+            ]);
 
-          if (isMounted) {
-            const remoteTopics: Topic[] = topSnap && !topSnap.empty
-              ? topSnap.docs.map(d => ({ ...d.data(), id: d.id } as Topic))
-              : [];
-
-            if (subSnap && !subSnap.empty) {
-              const remoteSubjects = subSnap.docs.map(d => ({ ...d.data(), id: d.id } as Subject));
-              if (remoteSubjects.length > 0) {
-                setFetchedSubjects(prev => {
+            if (isMounted) {
+              if (sbSubjects && sbSubjects.length > 0) {
+                setFetchedSubjects((prev) => {
                   const map = new Map<string, Subject>();
-                  [...prev, ...remoteSubjects].forEach(s => map.set(s.id, s));
+                  [...prev, ...sbSubjects].forEach((s) => map.set(s.id, s));
                   return Array.from(map.values());
                 });
               }
-            }
 
-            if (chSnap && !chSnap.empty) {
-              const remoteChapters = chSnap.docs.map(d => ({ ...d.data(), id: d.id } as Chapter));
-              if (remoteChapters.length > 0) {
-                setFetchedChapters(prev => {
+              if (sbChapters && sbChapters.length > 0) {
+                setFetchedChapters((prev) => {
                   const map = new Map<string, Chapter>();
-                  // Seed with previous chapters (which already contain valid topics)
-                  prev.forEach(c => map.set(c.id, { ...c }));
-
-                  // Now merge remote chapters without ever discarding existing topics
-                  remoteChapters.forEach(remoteCh => {
+                  prev.forEach((c) => map.set(c.id, { ...c }));
+                  sbChapters.forEach((remoteCh) => {
                     const existing = map.get(remoteCh.id);
                     const topicMap = new Map<string, Topic>();
-
-                    // 1. Existing topics from local/state
-                    (existing?.topics || []).forEach(t => { if (t?.id) topicMap.set(t.id, t); });
-                    // 2. Topics in remote chapter doc (if present)
-                    (remoteCh.topics || []).forEach(t => { if (t?.id) topicMap.set(t.id, t); });
-                    // 3. Topics from Firestore topics collection
-                    remoteTopics.filter(t => t.chapterId === remoteCh.id).forEach(t => { if (t?.id) topicMap.set(t.id, t); });
-                    // 4. Topics from local store
-                    (store.customTopics || []).filter(t => t.chapterId === remoteCh.id).forEach(t => { if (t?.id) topicMap.set(t.id, t); });
+                    (existing?.topics || []).forEach((t) => { if (t?.id) topicMap.set(t.id, t); });
+                    (remoteCh.topics || []).forEach((t) => { if (t?.id) topicMap.set(t.id, t); });
+                    (sbTopics || [])
+                      .filter((t) => t.chapterId === remoteCh.id)
+                      .forEach((t) => { if (t?.id) topicMap.set(t.id, t); });
+                    (store.customTopics || [])
+                      .filter((t) => t.chapterId === remoteCh.id)
+                      .forEach((t) => { if (t?.id) topicMap.set(t.id, t); });
 
                     map.set(remoteCh.id, {
                       ...existing,
@@ -233,29 +220,15 @@ export const AddQuestionsModal: React.FC<AddQuestionsModalProps> = ({
                       topics: Array.from(topicMap.values()),
                     });
                   });
-
-                  // Ensure chapters not in remoteChapters also get any remoteTopics
-                  map.forEach((ch, chId) => {
-                    const extra = remoteTopics.filter(t => t.chapterId === chId);
-                    if (extra.length > 0) {
-                      const topicMap = new Map<string, Topic>();
-                      (ch.topics || []).forEach(t => { if (t?.id) topicMap.set(t.id, t); });
-                      extra.forEach(t => { if (t?.id) topicMap.set(t.id, t); });
-                      map.set(chId, {
-                        ...ch,
-                        topics: Array.from(topicMap.values()),
-                      });
-                    }
-                  });
-
                   return Array.from(map.values());
                 });
+              } else if (sbTopics && sbTopics.length > 0) {
+                setFetchedChapters((prev) => mergeTopicsIntoChapters(prev, sbTopics));
               }
-            } else if (remoteTopics.length > 0) {
-              // If chapters snap was empty but topics snap has topics, attach them to existing chapters
-              setFetchedChapters(prev => mergeTopicsIntoChapters(prev, remoteTopics));
             }
           }
+        } catch (sbErr) {
+          console.warn("[AddQuestionsModal] Supabase curriculum fetch warning:", sbErr);
         }
       } catch (err: any) {
         if (isMounted) {
@@ -427,7 +400,7 @@ export const AddQuestionsModal: React.FC<AddQuestionsModalProps> = ({
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("quizpro_last_syllabus_loc");
+      const saved = localStorage.getItem("disha2020_last_syllabus_loc") || localStorage.getItem("quizpro_last_syllabus_loc");
       if (saved) {
         try {
           const loc = JSON.parse(saved);
@@ -450,7 +423,7 @@ export const AddQuestionsModal: React.FC<AddQuestionsModalProps> = ({
     setSelectedChapterId(cId);
     setSelectedTopicId(tId);
     if (typeof window !== "undefined") {
-      localStorage.setItem("quizpro_last_syllabus_loc", JSON.stringify({ subjectId: sId, chapterId: cId, topicId: tId }));
+      localStorage.setItem("disha2020_last_syllabus_loc", JSON.stringify({ subjectId: sId, chapterId: cId, topicId: tId }));
     }
   };
 
@@ -1316,7 +1289,7 @@ export const AddQuestionsModal: React.FC<AddQuestionsModalProps> = ({
           targetCh?.subjectId ||
           subId;
 
-        // Requirement 3: SVG and diagrams stored directly as string in document fields, NO Firebase Storage
+        // Requirement 3: SVG and diagrams stored directly as string in document fields inline
         let cleanImageUrl = d.imageUrl || "";
         let cleanSvg = (d as any).svgContent || "";
         if (d.image?.dataUrl) {
@@ -1327,7 +1300,7 @@ export const AddQuestionsModal: React.FC<AddQuestionsModalProps> = ({
         }
 
         if (cleanImageUrl || cleanSvg) {
-          console.log(`[MCQ Import] [Step: Image] Question index ${idx + 1}/${toImport.length}: Inline diagram processed without Firebase Storage.`);
+          console.log(`[MCQ Import] [Step: Image] Question index ${idx + 1}/${toImport.length}: Inline diagram processed.`);
         }
 
         const stableId = ensureStableUniqueDocId({

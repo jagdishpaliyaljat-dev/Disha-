@@ -30,11 +30,9 @@ import {
 import { BottomNav } from './components/BottomNav';
 import { OfflineIndicator } from './components/OfflineIndicator';
 import { ToastNotificationContainer, ToastMessage } from './components/ToastNotification';
-import { FirebaseSavedBanner } from './components/FirebaseSavedBanner';
 import { PWAUpdateToast } from './components/PWAUpdateToast';
 import { BrandSplashAndOnboarding } from './components/BrandSplashAndOnboarding';
 import { AdminErrorBoundary } from './components/admin/AdminErrorBoundary';
-import { useFirebaseSync, mergeRealtimeProgressDelta, mergeRealtimeHistoryDelta } from './hooks/useFirebaseSync';
 import { useNavigation } from './hooks/useNavigation';
 import { useCurriculumManager } from './hooks/useCurriculumManager';
 import { loadUserProfile, saveUserProfile, isUserAdmin } from './utils/userProfileStorage';
@@ -60,7 +58,6 @@ import {
   bulkDeleteQuestions, 
   bulkMoveQuestions 
 } from './utils/questionsStorage';
-import { auth, db } from './lib/firebase';
 import {
   bufferProgressUpdate,
   bufferHistoryUpdate,
@@ -385,9 +382,9 @@ export default function App() {
 
   // First-time app open notification permission request
   React.useEffect(() => {
-    const prompted = localStorage.getItem("quizpro_notification_prompted");
+    const prompted = localStorage.getItem("disha2020_notification_prompted") || localStorage.getItem("quizpro_notification_prompted");
     if (!prompted && typeof window !== "undefined" && "Notification" in window) {
-      localStorage.setItem("quizpro_notification_prompted", "true");
+      localStorage.setItem("disha2020_notification_prompted", "true");
       const timer = setTimeout(async () => {
         try {
           if (Notification.permission === "default") {
@@ -411,13 +408,6 @@ export default function App() {
   React.useEffect(() => {
     // Loaded from loadNotifications(), synced locally via saveNotifications()
   }, []);
-
-  const {
-    subscribeToCurriculum,
-    subscribeToUserProgressAndHistory,
-    loadUserData,
-    flushBufferedWrites,
-  } = useFirebaseSync(isAuthenticated, userProfile);
 
   const handleUpdateProgress = (
     questionId: string,
@@ -462,7 +452,7 @@ export default function App() {
     }
 
     import("./utils/localDatabaseEngine").then(({ saveLocalRevisionRecord }) => {
-      const uid = userProfile?.id || auth.currentUser?.uid || "guest";
+      const uid = userProfile?.id || "guest";
       saveLocalRevisionRecord({
         recordId: `${uid}_${questionId}`,
         questionId,
@@ -503,7 +493,7 @@ export default function App() {
     bufferProgressUpdate(questionId, updatedItem, { userProfile });
 
     import("./utils/localDatabaseEngine").then(({ setLocalBookmark }) => {
-      const uid = userProfile?.id || auth.currentUser?.uid || "guest";
+      const uid = userProfile?.id || "guest";
       setLocalBookmark(questionId, nextBookmarked, uid).catch(() => {});
     }).catch(() => {});
   };
@@ -520,9 +510,11 @@ export default function App() {
   React.useEffect(() => {
     const handleTierUpdated = () => setUserProfile(loadUserProfile());
 
+    window.addEventListener('disha2020-user-tier-updated', handleTierUpdated);
     window.addEventListener('quizpro-user-tier-updated', handleTierUpdated);
 
     return () => {
+      window.removeEventListener('disha2020-user-tier-updated', handleTierUpdated);
       window.removeEventListener('quizpro-user-tier-updated', handleTierUpdated);
     };
   }, []);
@@ -587,7 +579,7 @@ export default function App() {
       }
 
       // 2. If this is a sentinel state from MCQSessionModal (Back button protection),
-      if (event.state && event.state.quizProTestActive) {
+      if (event.state && (event.state.dishaTestActive || event.state.quizProTestActive)) {
         return;
       }
 
@@ -682,22 +674,6 @@ export default function App() {
     isAIImportOpen, isHTMLImportOpen
   ]);
 
-  // Sync with Firebase & view count
-  React.useEffect(() => {
-    const unsubscribe = subscribeToCurriculum((updates: any) => {
-      if (updates) {
-        setQuestionsStore((prev) => {
-          const next = { ...prev, ...updates };
-          saveUserQuestionsStore(next);
-          return next;
-        });
-      }
-    });
-    return () => {
-      if (unsubscribe) unsubscribe();
-    };
-  }, [subscribeToCurriculum]);
-
   React.useEffect(() => {
     const handleStoreUpdated = (event: any) => {
       const detail = event?.detail;
@@ -715,11 +691,15 @@ export default function App() {
         setQuestionsStore(loadUserQuestionsStore());
       }
     };
+    window.addEventListener("disha2020_store_updated", handleStoreUpdated);
     window.addEventListener("quizpro_store_updated", handleStoreUpdated);
-    return () => window.removeEventListener("quizpro_store_updated", handleStoreUpdated);
+    return () => {
+      window.removeEventListener("disha2020_store_updated", handleStoreUpdated);
+      window.removeEventListener("quizpro_store_updated", handleStoreUpdated);
+    };
   }, []);
 
-  // Initialize QuizPro Local-First Engine (Migration + Strict 24h Sync Coordinator)
+  // Initialize DISHA 20-20 Local-First Engine (Migration + Strict 24h Sync Coordinator)
   React.useEffect(() => {
     Promise.all([
       import('./utils/localDatabaseEngine').then(({ migrateLegacyLocalStorageToIndexedDB }) => {
@@ -733,30 +713,6 @@ export default function App() {
       }),
     ]).catch(() => {});
   }, [userProfile?.id]);
-
-  // Real-time cross-device user progress & revision history synchronization
-  React.useEffect(() => {
-    const unsubscribe = subscribeToUserProgressAndHistory(
-      (progressDeltas) => {
-        updateProgress((prev) => {
-          const { merged, changedCount } = mergeRealtimeProgressDelta(prev, progressDeltas);
-          return changedCount > 0 ? merged : prev;
-        });
-      },
-      (historyDeltas) => {
-        try {
-          const localHist = loadStudyHistoryFromStorage();
-          const { merged, changedCount } = mergeRealtimeHistoryDelta(localHist, historyDeltas);
-          if (changedCount > 0) {
-            saveStudyHistoryToStorage(merged);
-          }
-        } catch {}
-      }
-    );
-    return () => {
-      if (unsubscribe) unsubscribe();
-    };
-  }, [subscribeToUserProgressAndHistory, updateProgress]);
 
   // Mobile/Android background-to-foreground lifecycle persistence guard + crash-recovery flush
   React.useEffect(() => {
@@ -797,7 +753,7 @@ export default function App() {
     rehydrateStudentWriteBuffer()
       .then(async () => {
         if (hasPendingStudentWrites()) {
-          flushBufferedWrites('app_resume').catch(() => {});
+          flushStudentWriteBuffer({ trigger: 'app_resume', userProfile }).catch(() => {});
         }
       })
       .catch(() => {});
@@ -808,7 +764,7 @@ export default function App() {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('pagehide', flushStateOnBackground);
     };
-  }, [progressStore, settings, updateProgress, userProfile, flushBufferedWrites]);
+  }, [progressStore, settings, updateProgress, userProfile]);
 
   React.useEffect(() => {
     saveSettingsToStorage(settings);
@@ -822,19 +778,16 @@ export default function App() {
   React.useEffect(() => {
     let visits = 1240;
     try {
-      visits = parseInt(localStorage.getItem('quizpro_visitor_count') || '1240', 10);
+      visits = parseInt(localStorage.getItem('disha2020_visitor_count') || localStorage.getItem('quizpro_visitor_count') || '1240', 10);
     } catch {}
     setViewCount(visits);
 
-    // Defer network count check so initial UI paint completes immediately
     const timer = setTimeout(() => {
-      import('./utils/firebaseSyncService').then(({ getAndUpdateViewCountAsync }) => {
-        getAndUpdateViewCountAsync().then((realVisits) => {
-          if (realVisits && realVisits > visits) {
-            setViewCount(realVisits);
-          }
-        }).catch(() => {});
-      }).catch(() => {});
+      const nextCount = visits + 1;
+      try {
+        localStorage.setItem('disha2020_visitor_count', String(nextCount));
+        setViewCount(nextCount);
+      } catch {}
     }, 1500);
 
     return () => clearTimeout(timer);
@@ -970,9 +923,11 @@ export default function App() {
       syncFromSupabase();
     };
 
+    window.addEventListener("disha2020_curriculum_synced", handleCurriculumSynced);
     window.addEventListener("quizpro_curriculum_synced", handleCurriculumSynced);
     return () => {
       isSubscribed = false;
+      window.removeEventListener("disha2020_curriculum_synced", handleCurriculumSynced);
       window.removeEventListener("quizpro_curriculum_synced", handleCurriculumSynced);
     };
   }, [setQuestionsStore]);
@@ -1152,9 +1107,9 @@ export default function App() {
     const targetChapter = combinedChapters.find(c => c.id === targetChapterId);
     const targetSubjectId = targetChapter?.subjectId;
 
-    // 1. Move questions in cloud using batched in-place update (prevents ID regeneration & copies)
-    const { moveMCQsInCloud } = await import('./utils/firebaseSyncService');
-    const cloudRes = await moveMCQsInCloud(
+    // 1. Move questions in Supabase using authoritative update
+    const { moveQuestionsInSupabase } = await import('./utils/supabaseSyncService');
+    const cloudRes = await moveQuestionsInSupabase(
       questionIds,
       targetChapterId,
       targetTopicId,
@@ -1177,11 +1132,11 @@ export default function App() {
     if (cloudRes.success) {
       addToast(
         'success',
-        cloudRes.isFirebase ? 'Firebase Sync' : 'Local Move',
+        'Supabase Move',
         `${cloudRes.movedCount} question(s) moved to "${targetChapter?.title || "selected chapter"}" successfully!`
       );
     } else {
-      addToast('error', 'Firebase Move Error', cloudRes.message);
+      addToast('error', 'Move Error', cloudRes.message);
     }
   };
 
@@ -1203,7 +1158,6 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[#FFF9EF] dark:bg-[#171923] text-[#171923] dark:text-[#FFF9EF] flex flex-col font-sans selection:bg-[#800020] selection:text-white w-full max-w-full overflow-x-hidden">
       <BrandSplashAndOnboarding allowAutoOnboarding={activeTab === 'home'} />
-      <FirebaseSavedBanner />
       <ToastNotificationContainer toasts={toasts} onDismiss={handleDismissToast} />
       <PWAUpdateToast />
       <OfflineIndicator />

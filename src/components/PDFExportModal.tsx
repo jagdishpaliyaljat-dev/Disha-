@@ -40,7 +40,7 @@ import {
   PDFExportOptions,
   PDFGenerationProgress,
   filterQuestionsForExport,
-  generateQuizProPDFHTML,
+  generateDisha2020PDFHTML,
   generateAndDownloadPDF,
   openQuestionBankInNewTab,
   printQuestionBankHTML,
@@ -242,7 +242,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
   // Generate document HTML
   const generatedHTML = useMemo(() => {
     if (filteredResult.count === 0) return "";
-    return generateQuizProPDFHTML(filteredResult.questions, {
+    return generateDisha2020PDFHTML(filteredResult.questions, {
       subjectTitle: filteredResult.subjectTitle,
       chapterTitle: filteredResult.chapterTitle,
       topicTitle: filteredResult.topicTitle,

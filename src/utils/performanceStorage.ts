@@ -107,8 +107,8 @@ export function recordQuestionAttempt(
 
   // Persist into unified IndexedDB user_attempts repository & durable sync queue
   import("./localDatabaseEngine").then(({ recordLocalAttempt, recordLocalWrongQuestion }) => {
-    import("../lib/firebase").then(({ auth }) => {
-      const uid = auth.currentUser?.uid || "guest";
+    import("./userProfileStorage").then(({ loadUserProfile }) => {
+      const uid = loadUserProfile()?.id || "guest";
       recordLocalAttempt(attemptRecord, uid).catch(() => {});
 
       if (!attempt.isCorrect) {

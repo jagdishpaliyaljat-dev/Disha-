@@ -1,6 +1,3 @@
-import { collection, query, limit } from "firebase/firestore";
-import { db, isFirebaseConfigured } from "../lib/firebase";
-import { guardedGetDocs } from "./quotaTracker";
 import {
   loadUserQuestionsStore,
   getCombinedChapters,
@@ -108,8 +105,10 @@ export interface InFlightOperation {
 }
 
 // Storage key for last audit report
-export const LAST_AUDIT_REPORT_KEY = "quizpro_last_integrity_audit";
-export const IN_FLIGHT_OP_KEY = "quizpro_active_in_flight_operation";
+export const LAST_AUDIT_REPORT_KEY = "disha2020_last_integrity_audit";
+export const IN_FLIGHT_OP_KEY = "disha2020_active_in_flight_operation";
+export const LEGACY_LAST_AUDIT_REPORT_KEY = "quizpro_last_integrity_audit";
+export const LEGACY_IN_FLIGHT_OP_KEY = "quizpro_active_in_flight_operation";
 
 // ============================================================================
 // Helper Utilities
@@ -168,54 +167,9 @@ export async function runGlobalDataIntegrityAudit(): Promise<GlobalDataIntegrity
   let subjectsToAudit = subjects;
   let chaptersToAudit = chapters;
 
-  // 2. Fetch Firestore documents safely if configured
   let fsMcqCount = 0;
   let fsQuestionsCount = 0;
   const allRawQuestions: Question[] = [];
-
-  if (isFirebaseConfigured()) {
-    try {
-      // Guarded fetch for questions
-      const [mcqSnap, qSnap, sSnap, cSnap, tSnap] = await Promise.all([
-        guardedGetDocs(query(collection(db, "mcqs"), limit(2000)), "Admin", "Audit MCQs", undefined, 8000, true).catch(() => null),
-        guardedGetDocs(query(collection(db, "questions"), limit(2000)), "Admin", "Audit Questions", undefined, 8000, true).catch(() => null),
-        guardedGetDocs(collection(db, "subjects"), "Admin", "Audit Subjects", undefined, 5000, true).catch(() => null),
-        guardedGetDocs(collection(db, "chapters"), "Admin", "Audit Chapters", undefined, 5000, true).catch(() => null),
-        guardedGetDocs(collection(db, "topics"), "Admin", "Audit Topics", undefined, 5000, true).catch(() => null),
-      ]);
-
-      if (mcqSnap) {
-        fsMcqCount = mcqSnap.docs.length;
-        mcqSnap.docs.forEach((d) => {
-          allRawQuestions.push({ id: d.id, ...(d.data() as any) });
-        });
-      }
-      if (qSnap) {
-        fsQuestionsCount = qSnap.docs.length;
-        qSnap.docs.forEach((d) => {
-          allRawQuestions.push({ id: d.id, ...(d.data() as any) });
-        });
-      }
-
-      // If local store is empty, use Firestore documents for hierarchy audit
-      if (subjectsToAudit.length === 0 && sSnap) {
-        subjectsToAudit = sSnap.docs.map(d => ({ id: d.id, ...d.data() } as Subject));
-      }
-      if (chaptersToAudit.length === 0 && cSnap && tSnap) {
-        const fsTops = tSnap.docs.map(d => ({ id: d.id, ...d.data() } as Topic));
-        chaptersToAudit = cSnap.docs.map(d => {
-          const data = d.data() as Chapter;
-          return {
-            ...data,
-            id: d.id,
-            topics: fsTops.filter(t => t.chapterId === d.id)
-          };
-        });
-      }
-    } catch (e) {
-      console.warn("[DataIntegrityAudit] Remote Firestore fetch note:", e);
-    }
-  }
 
   // Build lookup sets for syllabus hierarchy (using authoritative source)
   const validSubjectIds = new Set(subjectsToAudit.map((s) => s.id.toLowerCase()));
@@ -393,8 +347,8 @@ export async function runGlobalDataIntegrityAudit(): Promise<GlobalDataIntegrity
     try {
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && key.startsWith("quizpro_mcqs_")) {
-          const topicId = key.replace("quizpro_mcqs_", "");
+        if (key && (key.startsWith("disha2020_mcqs_") || key.startsWith("quizpro_mcqs_"))) {
+          const topicId = key.replace("disha2020_mcqs_", "").replace("quizpro_mcqs_", "");
           try {
             const raw = localStorage.getItem(key);
             if (raw) {
@@ -593,8 +547,10 @@ export async function recoverInterruptedOperation(): Promise<{ recovered: boolea
 
     // Invalidate caches
     try {
+      localStorage.removeItem(`disha2020_mcqs_${targetTopicId}`);
       localStorage.removeItem(`quizpro_mcqs_${targetTopicId}`);
       if (interrupted.sourceTopicId) {
+        localStorage.removeItem(`disha2020_mcqs_${interrupted.sourceTopicId}`);
         localStorage.removeItem(`quizpro_mcqs_${interrupted.sourceTopicId}`);
       }
     } catch {}
@@ -661,11 +617,13 @@ export function exportSafetyBackup(): { success: boolean; filename: string; coun
 
     // Save backup confirmation marker
     try {
-      localStorage.setItem("quizpro_last_safety_backup", JSON.stringify({
+      const backupMarker = JSON.stringify({
         filename,
         timestamp: exportData.backupTimestamp,
         count: questions.length,
-      }));
+      });
+      localStorage.setItem("disha2020_last_safety_backup", backupMarker);
+      localStorage.setItem("quizpro_last_safety_backup", backupMarker);
     } catch {}
 
     return { success: true, filename, count: questions.length };
@@ -700,7 +658,9 @@ export async function executeAdminApprovedCleanup(
   }
 
   // Verify that a backup was recorded
-  const hasBackup = typeof localStorage !== "undefined" && Boolean(localStorage.getItem("quizpro_last_safety_backup"));
+  const hasBackup = typeof localStorage !== "undefined" && Boolean(
+    localStorage.getItem("disha2020_last_safety_backup") || localStorage.getItem("quizpro_last_safety_backup")
+  );
   if (!hasBackup) {
     // Automatically trigger backup before executing cleanup
     exportSafetyBackup();
@@ -727,26 +687,8 @@ export async function executeAdminApprovedCleanup(
 
   saveUserQuestionsStore(updatedStore);
 
-  // If Firebase is available, batch delete the duplicate copies through quota-protected guardedWriteBatch
-  if (isFirebaseConfigured()) {
-    try {
-      const { doc } = await import("firebase/firestore");
-      const { guardedWriteBatch } = await import("./quotaTracker");
-      const CHUNK_SIZE = 450;
-      for (let i = 0; i < duplicateDocIdsToClean.length; i += CHUNK_SIZE) {
-        const chunk = duplicateDocIdsToClean.slice(i, i + CHUNK_SIZE);
-        const batch = guardedWriteBatch(db);
-        for (const id of chunk) {
-          batch.delete(doc(db, "mcqs", id));
-        }
-        await batch.commit("Admin", `Integrity Cleanup Chunk ${Math.floor(i / CHUNK_SIZE) + 1}`);
-      }
-    } catch (e) {
-      console.warn("[DataIntegrity] Firebase remote cleanup note:", e);
-    }
-  }
-
   if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("disha2020_store_updated", { detail: updatedStore }));
     window.dispatchEvent(new CustomEvent("quizpro_store_updated", { detail: updatedStore }));
   }
 

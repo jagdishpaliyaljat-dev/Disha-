@@ -26,7 +26,6 @@ import {
   Server,
   Zap,
 } from "lucide-react";
-import { auth, firebaseConfig } from "../../lib/firebase";
 import { UserProfile } from "../../types";
 import { AdminCard } from "./AdminCard";
 
@@ -129,11 +128,13 @@ export const BackupRestoreSection: React.FC<BackupRestoreSectionProps> = ({ user
 
   // Helper to fetch current admin ID token
   const getAdminToken = async (): Promise<string> => {
-    if (auth.currentUser) {
-      try {
-        return await auth.currentUser.getIdToken(true);
-      } catch {}
-    }
+    try {
+      const { supabase } = await import("../../lib/supabase");
+      const { data } = await supabase.auth.getSession();
+      if (data?.session?.access_token) {
+        return data.session.access_token;
+      }
+    } catch {}
     throw new Error("Admin authentication token required. Please sign in with an authorized administrator account.");
   };
 
@@ -621,7 +622,7 @@ export const BackupRestoreSection: React.FC<BackupRestoreSectionProps> = ({ user
                 </span>
                 <a
                   href={activeJob.downloadUrl}
-                  download={activeJob.backupFilename || "QUIZPRO_BACKUP.zip"}
+                  download={activeJob.backupFilename || "DISHA_2020_BACKUP.zip"}
                   className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black flex items-center gap-2 shadow-xs cursor-pointer"
                 >
                   <Download className="w-4 h-4" />

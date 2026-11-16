@@ -1,5 +1,5 @@
 /**
- * QuizPro Master Concurrency Stress Test Suite: 1,000 Synthetic Users
+ * DISHA 20-20 Master Concurrency Stress Test Suite: 1,000 Synthetic Users
  * 
  * Rigorously simulates and verifies:
  * 1. 1,000 independent synthetic student user sessions operating simultaneously.

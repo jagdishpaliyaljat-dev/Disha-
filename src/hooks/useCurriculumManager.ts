@@ -17,7 +17,7 @@ import {
   saveTopicToSupabase,
   deleteTopicFromSupabase
 } from '../utils/supabaseSyncService';
-import { triggerFirebaseSavedToast } from '../utils/adminToast';
+import { triggerDatabaseSavedToast } from '../utils/adminToast';
 
 export const useCurriculumManager = (
   questionsStore: UserQuestionsStore,
@@ -34,7 +34,7 @@ export const useCurriculumManager = (
       setQuestionsStore(nextStore);
       saveUserQuestionsStore(nextStore);
       addToast('success', 'Backend Sync Success', res.message);
-      triggerFirebaseSavedToast({
+      triggerDatabaseSavedToast({
         title: "Subject Saved!",
         message: `Subject "${newSubject.name || newSubject.hindiName}" saved to Supabase and live!`,
         itemName: newSubject.name,
@@ -52,7 +52,7 @@ export const useCurriculumManager = (
       setQuestionsStore(nextStore);
       saveUserQuestionsStore(nextStore);
       addToast('success', 'Backend Sync Success', res.message);
-      triggerFirebaseSavedToast({
+      triggerDatabaseSavedToast({
         title: "Subject Updated!",
         message: `Subject "${updatedSubject.name || updatedSubject.hindiName}" updated in Supabase!`,
         itemName: updatedSubject.name,
@@ -92,7 +92,7 @@ export const useCurriculumManager = (
       setQuestionsStore(nextStore);
       saveUserQuestionsStore(nextStore);
       addToast('success', 'Backend Sync Success', res.message);
-      triggerFirebaseSavedToast({
+      triggerDatabaseSavedToast({
         title: "Chapter Saved!",
         message: `Chapter "${chapterToSave.title || chapterToSave.hindiTitle}" saved to Supabase and live!`,
         itemName: chapterToSave.title,
@@ -114,7 +114,7 @@ export const useCurriculumManager = (
       setQuestionsStore(nextStore);
       saveUserQuestionsStore(nextStore);
       addToast('success', 'Backend Sync Success', res.message);
-      triggerFirebaseSavedToast({
+      triggerDatabaseSavedToast({
         title: "Chapter Updated!",
         message: `Chapter "${chapterToSave.title || chapterToSave.hindiTitle}" updated in Supabase!`,
         itemName: chapterToSave.title,
@@ -173,7 +173,7 @@ export const useCurriculumManager = (
       setQuestionsStore(nextStore);
       saveUserQuestionsStore(nextStore);
       addToast('success', 'Backend Sync Success', res.message);
-      triggerFirebaseSavedToast({
+      triggerDatabaseSavedToast({
         title: "Topic Saved!",
         message: `Topic "${newTopic.title || newTopic.hindiTitle}" saved to Supabase and live!`,
         itemName: newTopic.title,
@@ -208,7 +208,7 @@ export const useCurriculumManager = (
       setQuestionsStore(nextStore);
       saveUserQuestionsStore(nextStore);
       addToast('success', 'Backend Sync Success', res.message);
-      triggerFirebaseSavedToast({
+      triggerDatabaseSavedToast({
         title: "Topic Updated!",
         message: `Topic "${updatedTopic.title || updatedTopic.hindiTitle}" updated in Supabase!`,
         itemName: updatedTopic.title,

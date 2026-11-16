@@ -2,7 +2,8 @@ import * as React from "react";
 import { Clock, CheckCircle2, AlertCircle, Loader2, ShieldCheck } from "lucide-react";
 import { LoginAttempt } from "../../types";
 
-const STORAGE_LOGIN_LOGS_KEY = "quizpro_security_login_logs_v1";
+const STORAGE_LOGIN_LOGS_KEY = "disha2020_security_login_logs_v1";
+const LEGACY_STORAGE_LOGIN_LOGS_KEY = "quizpro_security_login_logs_v1";
 
 export const RecentActivityWidget: React.FC = () => {
   const [logs, setLogs] = React.useState<LoginAttempt[]>([]);
@@ -11,7 +12,7 @@ export const RecentActivityWidget: React.FC = () => {
   React.useEffect(() => {
     try {
       if (typeof localStorage !== "undefined") {
-        const stored = localStorage.getItem(STORAGE_LOGIN_LOGS_KEY);
+        const stored = localStorage.getItem(STORAGE_LOGIN_LOGS_KEY) || localStorage.getItem(LEGACY_STORAGE_LOGIN_LOGS_KEY);
         if (stored) {
           setLogs(JSON.parse(stored));
           setLoading(false);

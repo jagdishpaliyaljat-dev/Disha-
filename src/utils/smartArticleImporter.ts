@@ -1,6 +1,4 @@
-import { collection, doc, getDocs, query, orderBy } from "firebase/firestore";
-import { db } from "../lib/firebase";
-import { guardedSetDoc, guardedDeleteDoc } from "./quotaTracker";
+// Smart Article Importer - Markdown / HTML / Document processing for DISHA 20-20
 import mammoth from "mammoth";
 import DOMPurify from "dompurify";
 import { NewsArticle, ArticleBlock, FAQItem } from "../types";
@@ -64,14 +62,15 @@ export interface AutoLinkRule {
   createdAt?: string;
 }
 
-const CUSTOM_AUTO_LINK_RULES_STORAGE_KEY = "quizpro_custom_auto_link_rules";
+const CUSTOM_AUTO_LINK_RULES_STORAGE_KEY = "disha2020_custom_auto_link_rules";
+const LEGACY_CUSTOM_AUTO_LINK_RULES_STORAGE_KEY = "quizpro_custom_auto_link_rules";
 
 /**
  * Get custom auto link rules added by Admin from localStorage (Legacy/Cache)
  */
 export function getCustomAutoLinkRulesLocal(): AutoLinkRule[] {
   try {
-    const raw = localStorage.getItem(CUSTOM_AUTO_LINK_RULES_STORAGE_KEY);
+    const raw = localStorage.getItem(CUSTOM_AUTO_LINK_RULES_STORAGE_KEY) || localStorage.getItem(LEGACY_CUSTOM_AUTO_LINK_RULES_STORAGE_KEY);
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? parsed : [];
@@ -94,64 +93,34 @@ export function saveCustomAutoLinkRules(rules: AutoLinkRule[]): void {
 }
 
 /**
- * Fetch custom auto link rules from Firestore
+ * Fetch custom auto link rules
  */
 export async function fetchCustomAutoLinkRules(): Promise<AutoLinkRule[]> {
-  try {
-    const rulesRef = collection(db, "link_rules");
-    const q = query(rulesRef, orderBy("createdAt", "desc"));
-    const snap = await getDocs(q);
-    const rules = snap.docs.map(d => ({ ...d.data(), id: d.id } as AutoLinkRule));
-    
-    // Update local cache
-    localStorage.setItem(CUSTOM_AUTO_LINK_RULES_STORAGE_KEY, JSON.stringify(rules));
-    return rules;
-  } catch (err) {
-    console.warn("Error fetching link rules from Firestore, falling back to local:", err);
-    return getCustomAutoLinkRulesLocal();
-  }
+  return getCustomAutoLinkRulesLocal();
 }
 
 /**
- * Save a custom auto link rule to Firestore
+ * Save a custom auto link rule
  */
 export async function saveCustomAutoLinkRule(rule: AutoLinkRule): Promise<void> {
-  try {
-    const id = rule.id || `rule_${Date.now()}`;
-    const ruleRef = doc(db, "link_rules", id);
-    const data = {
-      ...rule,
-      id,
-      createdAt: rule.createdAt || new Date().toISOString()
-    };
-    // @ts-ignore
-    await guardedSetDoc(ruleRef, data, { merge: true }, "Admin", "Save Custom Auto Link Rule");
-    
-    // Sync local
-    const local = getCustomAutoLinkRulesLocal();
-    const updated = [data, ...local.filter(r => r.id !== id)];
-    localStorage.setItem(CUSTOM_AUTO_LINK_RULES_STORAGE_KEY, JSON.stringify(updated));
-  } catch (err) {
-    console.error("Error saving link rule to Firestore:", err);
-    throw err;
-  }
+  const id = rule.id || `rule_${Date.now()}`;
+  const data = {
+    ...rule,
+    id,
+    createdAt: rule.createdAt || new Date().toISOString()
+  };
+  const local = getCustomAutoLinkRulesLocal();
+  const updated = [data, ...local.filter(r => r.id !== id)];
+  localStorage.setItem(CUSTOM_AUTO_LINK_RULES_STORAGE_KEY, JSON.stringify(updated));
 }
 
 /**
- * Delete a custom auto link rule from Firestore
+ * Delete a custom auto link rule
  */
 export async function deleteCustomAutoLinkRule(id: string): Promise<void> {
-  try {
-    await guardedDeleteDoc(doc(db, "link_rules", id), "Admin", "Delete Custom Auto Link Rule");
-    
-    // Sync local
-    const local = getCustomAutoLinkRulesLocal();
-    const updated = local.filter(r => r.id !== id);
-    localStorage.setItem(CUSTOM_AUTO_LINK_RULES_STORAGE_KEY, JSON.stringify(updated));
-  } catch (err) {
-    console.error("Error deleting link rule from Firestore:", err);
-    throw err;
-  }
+  const local = getCustomAutoLinkRulesLocal();
+  const updated = local.filter(r => r.id !== id);
+  localStorage.setItem(CUSTOM_AUTO_LINK_RULES_STORAGE_KEY, JSON.stringify(updated));
 }
 
 export const AUTO_INTERNAL_LINK_RULES: AutoLinkRule[] = [

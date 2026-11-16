@@ -136,7 +136,7 @@ export default defineConfig(({ command }) => {
               },
             },
             {
-              urlPattern: /^https:\/\/(?:firebasestorage\.googleapis\.com|[^/]+\.firebasestorage\.app|storage\.googleapis\.com)\/.*/i,
+              urlPattern: /^https:\/\/(?:storage\.googleapis\.com|[^/]+\.supabase\.co)\/.*/i,
               handler: 'CacheFirst',
               options: {
                 cacheName: 'static-quiz-media-cache',
@@ -238,11 +238,6 @@ export default defineConfig(({ command }) => {
       dedupe: ['react', 'react-dom', 'lucide-react', 'motion'],
       alias: {
         '@': path.resolve(import.meta.dirname, '.'),
-        'firebase/app': path.resolve(import.meta.dirname, 'src/lib/mockFirebase.ts'),
-        'firebase/auth': path.resolve(import.meta.dirname, 'src/lib/mockFirebase.ts'),
-        'firebase/firestore': path.resolve(import.meta.dirname, 'src/lib/mockFirebase.ts'),
-        'firebase/storage': path.resolve(import.meta.dirname, 'src/lib/mockFirebase.ts'),
-        'firebase': path.resolve(import.meta.dirname, 'src/lib/mockFirebase.ts'),
         'workbox-window': path.resolve(import.meta.dirname, 'node_modules/.pnpm/workbox-window@7.4.1/node_modules/workbox-window'),
       },
     },
@@ -277,9 +272,6 @@ export default defineConfig(({ command }) => {
           manualChunks: (id) => {
             if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/')) {
               return 'vendor-react';
-            }
-            if (id.includes('node_modules/firebase/')) {
-              return 'vendor-firebase';
             }
             if (id.includes('node_modules/lucide-react/')) {
               return 'vendor-icons';

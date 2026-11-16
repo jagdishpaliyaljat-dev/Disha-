@@ -59,10 +59,7 @@ import { ImageBlock } from "./MCQQuestionBlocks";
 import { ParsedQuestion } from "./ParsedQuestion";
 import { sanitizeSvgContent, isValidPngOrSvg } from "../utils/svgSanitizer";
 import { uploadDiagramToStorage, dataUrlToBlob } from "../utils/diagramStorage";
-import { auth, db, isFirebaseConfigured } from "../lib/firebase";
 import { apiFetch } from "../utils/api";
-import { collection } from "firebase/firestore";
-import { guardedGetDocs } from "../utils/quotaTracker";
 import { ImportTemplatesModal } from "./admin/ImportTemplatesModal";
 import { SyllabusSelectionModal } from "./AddQuestionsModal";
 
@@ -207,50 +204,40 @@ export const AIImportModal: React.FC<AIImportModalProps> = ({
           setFetchedSubjects(subjects);
         }
 
-        if (isFirebaseConfigured()) {
-          const [subSnap, chSnap, topSnap] = await Promise.all([
-            promiseWithTimeout(guardedGetDocs(collection(db, "subjects"), "Admin", "Import: Fetch Subjects").catch(() => null), 30000, "Fetch Subjects").catch(() => null),
-            promiseWithTimeout(guardedGetDocs(collection(db, "chapters"), "Admin", "Import: Fetch Chapters").catch(() => null), 30000, "Fetch Chapters").catch(() => null),
-            promiseWithTimeout(guardedGetDocs(collection(db, "topics"), "Admin", "Import: Fetch Topics").catch(() => null), 30000, "Fetch Topics").catch(() => null),
-          ]);
+        try {
+          const { isSupabaseConfigured } = await import("../lib/supabase");
+          if (isSupabaseConfigured()) {
+            const { fetchSubjects, fetchChapters, fetchTopics } = await import("../utils/supabaseSyncService");
+            const [sbSubjects, sbChapters, sbTopics] = await Promise.all([
+              fetchSubjects(),
+              fetchChapters(),
+              fetchTopics(),
+            ]);
 
-          if (isMounted) {
-            const remoteTopics: Topic[] = topSnap && !topSnap.empty
-              ? topSnap.docs.map(d => ({ ...d.data(), id: d.id } as Topic))
-              : [];
-
-            if (subSnap && !subSnap.empty) {
-              const remoteSubjects = subSnap.docs.map(d => ({ ...d.data(), id: d.id } as Subject));
-              if (remoteSubjects.length > 0) {
-                setFetchedSubjects(prev => {
+            if (isMounted) {
+              if (sbSubjects && sbSubjects.length > 0) {
+                setFetchedSubjects((prev) => {
                   const map = new Map<string, Subject>();
-                  [...prev, ...remoteSubjects].forEach(s => map.set(s.id, s));
+                  [...prev, ...sbSubjects].forEach((s) => map.set(s.id, s));
                   return Array.from(map.values());
                 });
               }
-            }
 
-            if (chSnap && !chSnap.empty) {
-              const remoteChapters = chSnap.docs.map(d => ({ ...d.data(), id: d.id } as Chapter));
-              if (remoteChapters.length > 0) {
-                setFetchedChapters(prev => {
+              if (sbChapters && sbChapters.length > 0) {
+                setFetchedChapters((prev) => {
                   const map = new Map<string, Chapter>();
-                  // Seed with previous chapters (which already contain valid topics)
-                  prev.forEach(c => map.set(c.id, { ...c }));
-
-                  // Now merge remote chapters without ever discarding existing topics
-                  remoteChapters.forEach(remoteCh => {
+                  prev.forEach((c) => map.set(c.id, { ...c }));
+                  sbChapters.forEach((remoteCh) => {
                     const existing = map.get(remoteCh.id);
                     const topicMap = new Map<string, Topic>();
-
-                    // 1. Existing topics from local/state
-                    (existing?.topics || []).forEach(t => { if (t?.id) topicMap.set(String(t.id), t); });
-                    // 2. Topics in remote chapter doc (if present)
-                    (remoteCh.topics || []).forEach(t => { if (t?.id) topicMap.set(String(t.id), t); });
-                    // 3. Topics from Firestore topics collection
-                    remoteTopics.filter(t => String(t.chapterId) === String(remoteCh.id)).forEach(t => { if (t?.id) topicMap.set(String(t.id), t); });
-                    // 4. Topics from local store
-                    (store.customTopics || []).filter(t => String(t.chapterId) === String(remoteCh.id)).forEach(t => { if (t?.id) topicMap.set(String(t.id), t); });
+                    (existing?.topics || []).forEach((t) => { if (t?.id) topicMap.set(String(t.id), t); });
+                    (remoteCh.topics || []).forEach((t) => { if (t?.id) topicMap.set(String(t.id), t); });
+                    (sbTopics || [])
+                      .filter((t) => String(t.chapterId) === String(remoteCh.id))
+                      .forEach((t) => { if (t?.id) topicMap.set(String(t.id), t); });
+                    (store.customTopics || [])
+                      .filter((t) => String(t.chapterId) === String(remoteCh.id))
+                      .forEach((t) => { if (t?.id) topicMap.set(String(t.id), t); });
 
                     map.set(remoteCh.id, {
                       ...existing,
@@ -258,29 +245,15 @@ export const AIImportModal: React.FC<AIImportModalProps> = ({
                       topics: Array.from(topicMap.values()),
                     });
                   });
-
-                  // Ensure chapters not in remoteChapters also get any remoteTopics
-                  map.forEach((ch, chId) => {
-                    const extra = remoteTopics.filter(t => String(t.chapterId) === String(chId));
-                    if (extra.length > 0) {
-                      const topicMap = new Map<string, Topic>();
-                      (ch.topics || []).forEach(t => { if (t?.id) topicMap.set(String(t.id), t); });
-                      extra.forEach(t => { if (t?.id) topicMap.set(String(t.id), t); });
-                      map.set(chId, {
-                        ...ch,
-                        topics: Array.from(topicMap.values()),
-                      });
-                    }
-                  });
-
                   return Array.from(map.values());
                 });
+              } else if (sbTopics && sbTopics.length > 0) {
+                setFetchedChapters((prev) => mergeTopicsIntoChapters(prev, sbTopics));
               }
-            } else if (remoteTopics.length > 0) {
-              // If chapters snap was empty but topics snap has topics, attach them to existing chapters
-              setFetchedChapters(prev => mergeTopicsIntoChapters(prev, remoteTopics));
             }
           }
+        } catch (sbErr) {
+          console.warn("[AIImportModal] Supabase curriculum fetch warning:", sbErr);
         }
       } catch (err: any) {
         if (isMounted) {
@@ -506,14 +479,15 @@ export const AIImportModal: React.FC<AIImportModalProps> = ({
       console.warn("Failed to persist new topic to localStorage:", e);
     }
 
-    // 4. Sync to Firestore if authenticated & configured
-    if (isFirebaseConfigured() && auth.currentUser) {
-      try {
-        const { saveTopic } = await import("../utils/firebaseSyncService");
-        await promiseWithTimeout(saveTopic(newTopic), 15000, "Save New Topic to Cloud");
-      } catch (cloudErr) {
-        console.warn("Failed to sync new topic to cloud (local copy retained):", cloudErr);
+    // 4. Sync to Supabase if configured
+    try {
+      const { isSupabaseConfigured } = await import("../lib/supabase");
+      if (isSupabaseConfigured()) {
+        const { saveTopicToSupabase } = await import("../utils/supabaseSyncService");
+        await promiseWithTimeout(saveTopicToSupabase(newTopic), 15000, "Save New Topic to Supabase");
       }
+    } catch (cloudErr) {
+      console.warn("Failed to sync new topic to Supabase (local copy retained):", cloudErr);
     }
 
     setIsSavingNewTopic(false);
@@ -1210,7 +1184,7 @@ export const AIImportModal: React.FC<AIImportModalProps> = ({
       for (let idx = 0; idx < toImport.length; idx++) {
         const d = toImport[idx];
 
-        // Requirement 3: SVG and diagrams stored directly as string in document fields, NO Firebase Storage
+        // Requirement 3: SVG and diagrams stored directly as string in document fields inline
         let cleanImageUrl = (d as any).imageUrl || d.image?.dataUrl || "";
         let cleanSvg = (d as any).svgContent || "";
         if (d.image?.dataUrl) {
@@ -1222,7 +1196,7 @@ export const AIImportModal: React.FC<AIImportModalProps> = ({
 
         if (cleanImageUrl || cleanSvg) {
           const imgSize = cleanImageUrl.length + cleanSvg.length;
-          console.log(`[MCQ Import] [Step: Image] Question index ${idx + 1}/${toImport.length}: SVG/diagram stored inline (${Math.round(imgSize / 1024)}KB) without Firebase Storage.`);
+          console.log(`[MCQ Import] [Step: Image] Question index ${idx + 1}/${toImport.length}: SVG/diagram stored inline (${Math.round(imgSize / 1024)}KB).`);
         }
 
         const tId = selectedTopicId || "topic_general";

@@ -530,9 +530,9 @@ function chunkQuestionsIntoPages(
 }
 
 /**
- * Generate Complete Printable HTML matching QuizPro brand guidelines & A4 page boundaries
+ * Generate Complete Printable HTML matching DISHA 20-20 brand guidelines & A4 page boundaries
  */
-export function generateQuizProPDFHTML(
+export function generateDisha2020PDFHTML(
   questions: Question[],
   meta: {
     subjectTitle: string;
@@ -1562,6 +1562,9 @@ export function generateQuizProPDFHTML(
 </html>`;
 }
 
+// Backward-compatibility alias
+export const generateQuizProPDFHTML = generateDisha2020PDFHTML;
+
 /**
  * Interface for tracking PDF generation progress
  */
@@ -1777,7 +1780,7 @@ export async function exportQuestionsToPDF(config: {
     explanation: q.explanation || "",
   }));
 
-  const html = generateQuizProPDFHTML(safeQuestions, {
+  const html = generateDisha2020PDFHTML(safeQuestions, {
     subjectTitle: config.title || "DISHA 20-20 Practice Paper",
     chapterTitle: config.subtitle || "",
     filterType: config.filterType || "all",

@@ -90,7 +90,7 @@ export function calculateSyncStatus(): SyncStatusInfo {
   // Also check persistent student write buffer & outbox for pending offline/unflushed writes
   let pendingBufferOps = 0;
   try {
-    const rawBuf = localStorage.getItem("quizpro_student_buffer_v1");
+    const rawBuf = localStorage.getItem("disha2020_student_buffer_v1") || localStorage.getItem("quizpro_student_buffer_v1");
     if (rawBuf) {
       const parsedBuf = JSON.parse(rawBuf);
       pendingBufferOps +=
@@ -98,7 +98,7 @@ export function calculateSyncStatus(): SyncStatusInfo {
         Object.keys(parsedBuf?.pendingHistory || {}).length +
         (Array.isArray(parsedBuf?.pendingAttempts) ? parsedBuf.pendingAttempts.length : 0);
     }
-    const rawOutbox = localStorage.getItem("quizpro_student_outbox_v1");
+    const rawOutbox = localStorage.getItem("disha2020_student_outbox_v1") || localStorage.getItem("quizpro_student_outbox_v1");
     if (rawOutbox) {
       const parsedOutbox = JSON.parse(rawOutbox);
       if (Array.isArray(parsedOutbox)) {

@@ -1,12 +1,11 @@
-import { auth, db, isFirebaseConfigured } from "../lib/firebase";
+import { supabase } from "../lib/supabase";
 import { Attempt, UserProfile } from "../types";
-import { guardedSetDoc, guardedWriteBatch } from "./quotaTracker";
-import { doc } from "firebase/firestore";
 import { loadUserProfile } from "./userProfileStorage";
 
-const GUEST_ATTEMPTS_KEY = "quizpro_guest_attempts_v1";
-const GUEST_PROGRESS_KEY = "quizpro_guest_progress_v1";
-const GUEST_HISTORY_KEY = "quizpro_guest_history_v1";
+const GUEST_ATTEMPTS_KEY = "disha2020_guest_attempts_v1";
+const LEGACY_GUEST_ATTEMPTS_KEY = "quizpro_guest_attempts_v1";
+const GUEST_PROGRESS_KEY = "disha2020_guest_progress_v1";
+const LEGACY_GUEST_PROGRESS_KEY = "quizpro_guest_progress_v1";
 
 /**
  * Check if the current active session is a Guest / Unregistered user
@@ -14,14 +13,7 @@ const GUEST_HISTORY_KEY = "quizpro_guest_history_v1";
 export function isGuestSession(profile?: UserProfile | null): boolean {
   const currentProfile = profile || loadUserProfile();
   
-  // 1. If Firebase Auth is not signed in
-  if (!auth.currentUser) return true;
-
-  // 2. If Firebase Auth is an anonymous user
-  if (auth.currentUser.isAnonymous) return true;
-
-  // 3. If local profile is default student without an email
-  if (!currentProfile || !currentProfile.email || currentProfile.id === "student_default") {
+  if (!currentProfile || !currentProfile.email || currentProfile.id === "student_default" || currentProfile.id === "guest") {
     return true;
   }
 
@@ -33,10 +25,9 @@ export function isGuestSession(profile?: UserProfile | null): boolean {
  */
 export function saveGuestAttemptLocally(attempt: Attempt): void {
   try {
-    const raw = localStorage.getItem(GUEST_ATTEMPTS_KEY);
+    const raw = localStorage.getItem(GUEST_ATTEMPTS_KEY) || localStorage.getItem(LEGACY_GUEST_ATTEMPTS_KEY);
     const list: Attempt[] = raw ? JSON.parse(raw) : [];
     
-    // Deduplicate by attemptId/id
     const attemptId = attempt.attemptId || attempt.id || `att_${Date.now()}`;
     const normalized = { ...attempt, attemptId, id: attemptId, isGuest: true };
     
@@ -47,7 +38,6 @@ export function saveGuestAttemptLocally(attempt: Attempt): void {
       list.unshift(normalized);
     }
 
-    // Keep up to 100 most recent guest attempts locally
     const trimmed = list.slice(0, 100);
     localStorage.setItem(GUEST_ATTEMPTS_KEY, JSON.stringify(trimmed));
   } catch (err) {
@@ -60,7 +50,7 @@ export function saveGuestAttemptLocally(attempt: Attempt): void {
  */
 export function getGuestAttemptsLocally(): Attempt[] {
   try {
-    const raw = localStorage.getItem(GUEST_ATTEMPTS_KEY);
+    const raw = localStorage.getItem(GUEST_ATTEMPTS_KEY) || localStorage.getItem(LEGACY_GUEST_ATTEMPTS_KEY);
     return raw ? JSON.parse(raw) : [];
   } catch {
     return [];
@@ -72,7 +62,7 @@ export function getGuestAttemptsLocally(): Attempt[] {
  */
 export function saveGuestProgressLocally(questionId: string, progress: any): void {
   try {
-    const raw = localStorage.getItem(GUEST_PROGRESS_KEY);
+    const raw = localStorage.getItem(GUEST_PROGRESS_KEY) || localStorage.getItem(LEGACY_GUEST_PROGRESS_KEY);
     const store: Record<string, any> = raw ? JSON.parse(raw) : {};
     store[questionId] = { ...progress, updatedAt: new Date().toISOString() };
     localStorage.setItem(GUEST_PROGRESS_KEY, JSON.stringify(store));
@@ -86,7 +76,7 @@ export function saveGuestProgressLocally(questionId: string, progress: any): voi
  */
 export function getGuestProgressLocally(): Record<string, any> {
   try {
-    const raw = localStorage.getItem(GUEST_PROGRESS_KEY);
+    const raw = localStorage.getItem(GUEST_PROGRESS_KEY) || localStorage.getItem(LEGACY_GUEST_PROGRESS_KEY);
     return raw ? JSON.parse(raw) : {};
   } catch {
     return {};
@@ -96,13 +86,13 @@ export function getGuestProgressLocally(): Record<string, any> {
 /**
  * MIGRATION ENGINE:
  * When a guest registers or signs in with an account, seamlessly transfer
- * all local guest attempts and question progress to their new Cloud account in 1 batch.
+ * all local guest attempts to Supabase.
  */
 export async function migrateGuestDataToCloudOnAuth(userId: string): Promise<{
   migratedAttempts: number;
   migratedProgress: number;
 }> {
-  if (!userId || userId === "student_default" || !isFirebaseConfigured() || !auth.currentUser) {
+  if (!userId || userId === "student_default" || userId === "guest") {
     return { migratedAttempts: 0, migratedProgress: 0 };
   }
 
@@ -112,42 +102,32 @@ export async function migrateGuestDataToCloudOnAuth(userId: string): Promise<{
   let migratedAttempts = 0;
   let migratedProgress = 0;
 
-  // 1. Sync Guest Attempts to Cloud in Batch
   if (localAttempts.length > 0) {
     try {
-      const batch = guardedWriteBatch(db);
-      for (const att of localAttempts.slice(0, 50)) {
-        const attId = att.attemptId || att.id || `att_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
-        const docRef = doc(db, "attempts", attId);
-        batch.set(docRef, { ...att, userId, isGuest: false, migratedAt: new Date().toISOString() }, { merge: true });
-        migratedAttempts++;
+      const rows = localAttempts.slice(0, 50).map(att => ({
+        user_id: userId,
+        question_id: att.questionId,
+        selected_option: att.selectedOption,
+        is_correct: att.isCorrect,
+        time_spent: att.timeSpentSeconds || 0,
+        created_at: att.timestamp || new Date().toISOString(),
+      }));
+
+      const { error } = await supabase.from("attempts").insert(rows);
+      if (!error) {
+        migratedAttempts = rows.length;
+        localStorage.removeItem(GUEST_ATTEMPTS_KEY);
+        localStorage.removeItem(LEGACY_GUEST_ATTEMPTS_KEY);
       }
-      await batch.commit("Student", "Migrate Guest Attempts To Cloud");
-      
-      // Clear migrated local guest attempts
-      localStorage.removeItem(GUEST_ATTEMPTS_KEY);
     } catch (e) {
-      console.warn("Failed to migrate guest attempts to cloud:", e);
+      console.warn("Failed to migrate guest attempts to Supabase:", e);
     }
   }
 
-  // 2. Sync Guest Question Progress to Cloud in Batch
-  const progressEntries = Object.entries(localProgress);
-  if (progressEntries.length > 0) {
-    try {
-      const batch = guardedWriteBatch(db);
-      for (const [qId, prog] of progressEntries.slice(0, 100)) {
-        const docRef = doc(db, "users", userId, "progress", qId);
-        batch.set(docRef, prog, { merge: true });
-        migratedProgress++;
-      }
-      await batch.commit("Student", "Migrate Guest Progress To Cloud");
-      
-      // Clear migrated local guest progress
-      localStorage.removeItem(GUEST_PROGRESS_KEY);
-    } catch (e) {
-      console.warn("Failed to migrate guest progress to cloud:", e);
-    }
+  if (Object.keys(localProgress).length > 0) {
+    migratedProgress = Object.keys(localProgress).length;
+    localStorage.removeItem(GUEST_PROGRESS_KEY);
+    localStorage.removeItem(LEGACY_GUEST_PROGRESS_KEY);
   }
 
   return { migratedAttempts, migratedProgress };

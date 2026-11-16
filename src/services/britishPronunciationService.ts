@@ -1,12 +1,12 @@
 /**
- * British English Vocabulary Pronunciation Service for QuizPro.
+ * British English Vocabulary Pronunciation Service for DISHA 20-20.
  * 
  * Strict Requirements:
  * - Locale: 'en-GB' (British English only, strictly NO American 'en-US' fallback).
  * - High-quality, natural voice targeting.
  * - Non-overlapping playback (cancels previous audio on new tap).
  * - In-memory and browser HTTP caching for fast response.
- * - Zero Firebase reads/writes; no storage in Firestore.
+ * - Zero extra remote database reads/writes; cached locally.
  * - Graceful error handling with zero intrusive UI alerts.
  */
 

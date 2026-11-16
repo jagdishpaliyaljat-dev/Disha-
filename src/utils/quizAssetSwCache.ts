@@ -1,4 +1,3 @@
-import { auth } from '../lib/firebase';
 import type { AppBanner, Chapter, LiveTest, PYQPaper, Question, Subject, Topic } from '../types';
 
 export const STATIC_QUIZ_DATA_CACHE_NAME = 'static-quiz-data-cache';
@@ -345,18 +344,21 @@ export async function invalidateQuizAssetsClientAndServer(topicIds?: string[]): 
   }
 
   try {
-    const user = auth?.currentUser;
-    if (user && !user.isAnonymous && typeof fetch === 'function') {
-      const token = await user.getIdToken();
-      await fetch('/api/quiz-assets/invalidate', {
-        method: 'POST',
-        credentials: 'same-origin',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(topicIds ? { topicIds } : {}),
-      });
+    const { supabase, isSupabaseConfigured } = await import('../lib/supabase');
+    if (isSupabaseConfigured() && typeof fetch === 'function') {
+      const { data } = await supabase.auth.getSession();
+      const token = data?.session?.access_token;
+      if (token) {
+        await fetch('/api/quiz-assets/invalidate', {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(topicIds ? { topicIds } : {}),
+        });
+      }
     }
   } catch {}
 }

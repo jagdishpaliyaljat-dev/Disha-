@@ -145,7 +145,7 @@ export const PYQVaultTab: React.FC<PYQVaultTabProps> = ({
       }
 
       if (rawQuestions.length === 0) {
-        const { fetchMCQsByPYQPaper } = await import("../utils/firebaseSyncService");
+        const { fetchMCQsByPYQPaper } = await import("../utils/pyqStorage");
         const fetched = await fetchMCQsByPYQPaper(paper.id);
         if (fetched && fetched.length > 0) {
           rawQuestions = fetched.filter(isCompleteQ);
@@ -465,7 +465,7 @@ export const PYQVaultTab: React.FC<PYQVaultTabProps> = ({
                         if (!paper.questions || paper.questions.length === 0 || !paper.questions[0].text) {
                            setFetchingPaperId(paper.id);
                            try {
-                             const { fetchMCQsByPYQPaper } = await import("../utils/firebaseSyncService");
+                             const { fetchMCQsByPYQPaper } = await import("../utils/pyqStorage");
                              const fetched = await fetchMCQsByPYQPaper(paper.id);
                              if (fetched && fetched.length > 0) {
                                 paperWithQs.questions = fetched;

@@ -1,6 +1,4 @@
 import { SITE_CONFIG } from "../config/siteConfig";
-import { doc, increment } from "firebase/firestore";
-import { db } from "../lib/firebase";
 
 declare global {
   interface Window {
@@ -9,9 +7,14 @@ declare global {
   }
 }
 
-const CONSENT_STORAGE_KEY = "quizpro_analytics_consent";
-const VISITOR_ID_KEY = "quizpro_visitor_id";
-const SESSION_TRACKED_PAGES_KEY = "quizpro_session_pages";
+const CONSENT_STORAGE_KEY = "disha2020_analytics_consent";
+const LEGACY_CONSENT_STORAGE_KEY = "quizpro_analytics_consent";
+const VISITOR_ID_KEY = "disha2020_visitor_id";
+const LEGACY_VISITOR_ID_KEY = "quizpro_visitor_id";
+const SESSION_TRACKED_PAGES_KEY = "disha2020_session_pages";
+const LEGACY_SESSION_TRACKED_PAGES_KEY = "quizpro_session_pages";
+const DAILY_ANALYTICS_STORAGE_KEY = "disha2020_analytics_daily_v1";
+const LEGACY_DAILY_ANALYTICS_STORAGE_KEY = "quizpro_analytics_daily_v1";
 
 export type ConsentStatus = "granted" | "denied" | null;
 
@@ -21,7 +24,7 @@ export type ConsentStatus = "granted" | "denied" | null;
 export function getAnalyticsConsent(): ConsentStatus {
   try {
     if (typeof window === "undefined" || !window.localStorage) return "granted";
-    const val = localStorage.getItem(CONSENT_STORAGE_KEY);
+    const val = localStorage.getItem(CONSENT_STORAGE_KEY) || localStorage.getItem(LEGACY_CONSENT_STORAGE_KEY);
     if (val === "granted" || val === "denied") return val;
     return "granted";
   } catch {
@@ -51,7 +54,7 @@ export function setAnalyticsConsent(status: "granted" | "denied"): void {
 export function getVisitorId(): string {
   try {
     if (typeof window === "undefined" || !window.localStorage) return "anon_guest";
-    let id = localStorage.getItem(VISITOR_ID_KEY);
+    let id = localStorage.getItem(VISITOR_ID_KEY) || localStorage.getItem(LEGACY_VISITOR_ID_KEY);
     if (!id) {
       id = `v_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
       localStorage.setItem(VISITOR_ID_KEY, id);
@@ -178,59 +181,47 @@ export async function trackPageView(
 }
 
 /**
- * Logs lightweight, privacy-safe counters in Firestore for the Admin Visitors Dashboard.
- * Throttles writes using setDoc with increment() and local session tracking.
+ * Logs lightweight, privacy-safe counters locally for the Admin Visitors Dashboard.
  */
 async function logVisitorAnalyticsToFirestore(pagePath: string, isLoggedIn: boolean): Promise<void> {
   try {
     const dateStr = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
-    const docRef = doc(db, "analytics_daily", dateStr);
-
-    const source = getTrafficSource();
-    const device = getDeviceCategory();
     const visitorId = getVisitorId();
-
-    // Sanitize path for Firestore key (e.g. replace slashes for topPages map key)
-    const sanitizedPathKey = pagePath.replace(/\//g, "_") || "_home";
-
-    // Track if this page has already been logged in current window session
     const sessionKey = `${dateStr}_${pagePath}_${visitorId}`;
     const alreadyTrackedInSession = typeof window !== "undefined" && window.sessionStorage?.getItem(sessionKey);
 
     if (!alreadyTrackedInSession) {
-      const payload: Record<string, any> = {
-        date: dateStr,
-        totalVisits: increment(1),
-        updatedAt: new Date().toISOString(),
-        uniqueVisitors: increment(1),
-      };
-
-      if (isLoggedIn) {
-        payload.loggedInCount = increment(1);
-      } else {
-        payload.guestCount = increment(1);
-      }
-
-      if (device === "mobile") {
-        payload["deviceSplit.mobile"] = increment(1);
-      } else {
-        payload["deviceSplit.desktop"] = increment(1);
-      }
-
-      payload[`trafficSources.${source}`] = increment(1);
-      payload[`topPages.${sanitizedPathKey}`] = increment(1);
-
       if (typeof window !== "undefined" && window.sessionStorage) {
         window.sessionStorage.setItem(sessionKey, "1");
       }
-      
-      // Write to Firestore using merge - ONLY if first time in session
-      const { guardedSetDoc } = await import("./quotaTracker");
-      await guardedSetDoc(docRef, payload, { merge: true }, "Background", "Log Visitor Analytics");
+      try {
+        const raw = localStorage.getItem(DAILY_ANALYTICS_STORAGE_KEY) || localStorage.getItem(LEGACY_DAILY_ANALYTICS_STORAGE_KEY) || "{}";
+        const all = JSON.parse(raw);
+        const day = all[dateStr] || {
+          date: dateStr,
+          totalVisits: 0,
+          uniqueVisitors: 0,
+          loggedInCount: 0,
+          guestCount: 0,
+          deviceSplit: { mobile: 0, desktop: 0 },
+          trafficSources: {},
+          topPages: {},
+        };
+        day.totalVisits = (day.totalVisits || 0) + 1;
+        day.uniqueVisitors = (day.uniqueVisitors || 0) + 1;
+        if (isLoggedIn) day.loggedInCount = (day.loggedInCount || 0) + 1;
+        else day.guestCount = (day.guestCount || 0) + 1;
+
+        const device = getDeviceCategory();
+        day.deviceSplit = day.deviceSplit || { mobile: 0, desktop: 0 };
+        day.deviceSplit[device] = (day.deviceSplit[device] || 0) + 1;
+
+        all[dateStr] = day;
+        localStorage.setItem(DAILY_ANALYTICS_STORAGE_KEY, JSON.stringify(all));
+      } catch {}
     }
   } catch (err) {
-    // Silent fail - analytics must never break app execution
-    console.warn("Firestore visitor log write error:", err);
+    console.warn("Analytics visitor log error:", err);
   }
 }
 

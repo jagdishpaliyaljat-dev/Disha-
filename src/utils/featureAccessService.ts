@@ -1,7 +1,7 @@
 import { UserProfile } from "../types";
 
 /**
- * QuizPro Feature Access Control Service
+ * DISHA 20-20 Feature Access Control Service
  * Simplified to always allow access after removing subscription logic.
  */
 

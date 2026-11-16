@@ -1,7 +1,5 @@
 import { Question, UserQuestionsStore } from "../types";
-import { db, isFirebaseConfigured } from "../lib/firebase";
-import { doc } from "firebase/firestore";
-import { guardedDeleteDoc } from "./quotaTracker";
+import { deleteQuestionFromSupabase } from "./supabaseSyncService";
 import { generateQuestionHash } from "../lib/mcqImport/dedupe";
 import { loadUserQuestionsStore, saveUserQuestionsStore } from "./questionsStorage";
 
@@ -152,9 +150,8 @@ export async function executeDuplicateMerge(
 
     for (const dup of group.duplicateQuestions) {
       try {
-        if (isFirebaseConfigured() && dup.id) {
-          const docRef = doc(db, "mcqs", dup.id);
-          await guardedDeleteDoc(docRef, "Admin", "Merge Duplicate MCQ");
+        if (dup.id) {
+          await deleteQuestionFromSupabase(dup.id);
         }
         deletedQuestionIds.push(dup.id);
       } catch (err: any) {

@@ -1,7 +1,4 @@
 import * as React from "react";
-import { auth, db } from "../../lib/firebase";
-import { doc } from "firebase/firestore";
-import { guardedSetDoc } from "../../utils/quotaTracker";
 import { loadUserProfile } from "../../utils/userProfileStorage";
 import { AIApiConfig, AIProvider } from "../../types";
 import { PROVIDER_RECOMMENDED_MODELS, AIModelDefinition, testAIKeyConnection } from "../../utils/aiProviderService";
@@ -143,15 +140,14 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({ onClose, onS
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
     };
-    const user = auth.currentUser;
-    if (user) {
-      try {
-        const token = await user.getIdToken();
-        if (token) {
-          headers["Authorization"] = `Bearer ${token}`;
-        }
-      } catch {}
-    }
+    try {
+      const { supabase } = await import("../../lib/supabase");
+      const { data } = await supabase.auth.getSession();
+      const token = data?.session?.access_token;
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+    } catch {}
     return headers;
   };
 
@@ -332,9 +328,9 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({ onClose, onS
         console.warn("[Admin ApiSettingsModal] Server fetch notice, falling back to direct Firestore SDK:", fetchErr);
       }
 
-      // Persist non-secret metadata to Firestore directly through client SDK (secrets remain AES-256-GCM encrypted on server)
+      // Persist non-secret metadata locally
       try {
-        const firestoreDoc: any = {
+        const configDoc: any = {
           id: configId,
           name: newConfig.name.trim(),
           provider: selectedProvider,
@@ -344,10 +340,12 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({ onClose, onS
           hasKey: Boolean(payload.apiKey || initialConfig?.apiKey),
           updatedAt: new Date().toISOString(),
         };
-        await guardedSetDoc(doc(db, "ai_api_configs", configId), firestoreDoc, { merge: true }, "Admin", "Save AI API Config Metadata");
-        console.log("[Admin ApiSettingsModal] Synced non-secret config metadata to Firestore:", configId);
-      } catch (fsErr) {
-        console.warn("[Admin ApiSettingsModal] Direct Firestore sync notice:", fsErr);
+        const raw = localStorage.getItem("disha2020_ai_api_configs_v1") || localStorage.getItem("quizpro_ai_api_configs_v1") || "{}";
+        const configs = JSON.parse(raw);
+        configs[configId] = configDoc;
+        localStorage.setItem("disha2020_ai_api_configs_v1", JSON.stringify(configs));
+      } catch (err) {
+        console.warn("[Admin ApiSettingsModal] Local config save notice:", err);
       }
 
       console.log("[Admin ApiSettingsModal] API key saved successfully.");

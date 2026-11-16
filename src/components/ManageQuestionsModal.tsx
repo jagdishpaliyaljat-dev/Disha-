@@ -185,8 +185,8 @@ export const ManageQuestionsModal: React.FC<ManageQuestionsModalProps> = ({
     let isMounted = true;
     if (selectedTopic && (!activeTopic?.questions || activeTopic.questions.length === 0)) {
       setIsLoadingTopicQuestions(true);
-      import("../utils/firebaseSyncService").then(({ fetchMCQsByTopic }) => {
-        fetchMCQsByTopic(selectedTopic.topicId).then((qs) => {
+      import("../utils/supabaseSyncService").then(({ fetchQuestionsByTopic }) => {
+        fetchQuestionsByTopic(selectedTopic.topicId).then((qs) => {
           if (isMounted) {
             setTopicFetchedQuestions((qs as any[]) || []);
             setIsLoadingTopicQuestions(false);

@@ -16,8 +16,6 @@ import {
   ExternalLink,
   MessageSquare
 } from "lucide-react";
-import { collection, query, orderBy, limit, getDocs, doc, updateDoc, deleteDoc } from "firebase/firestore";
-import { db } from "../../lib/firebase";
 import { Question, Subject, Chapter } from "../../types";
 
 export interface QuestionReport {
@@ -43,6 +41,9 @@ interface QuestionReportDeskProps {
   onUpdateQuestion?: (updatedQuestion: Question) => void;
 }
 
+const REPORTS_STORAGE_KEY = "disha2020_question_reports_v1";
+const LEGACY_REPORTS_STORAGE_KEY = "quizpro_question_reports_v1";
+
 export const QuestionReportDesk: React.FC<QuestionReportDeskProps> = ({
   questions = [],
   subjects = [],
@@ -65,43 +66,49 @@ export const QuestionReportDesk: React.FC<QuestionReportDeskProps> = ({
   const fetchReports = async () => {
     setLoading(true);
     try {
-      const q = query(collection(db, "question_reports"), orderBy("reportedAt", "desc"), limit(50));
-      const snap = await getDocs(q).catch(() => null);
-      if (snap && !snap.empty) {
-        const loaded = snap.docs.map(d => ({ id: d.id, ...d.data() } as QuestionReport));
-        setReports(loaded);
-      } else {
-        // Fallback / seed initial realistic doubts
-        const sampleReports: QuestionReport[] = [
-          {
-            id: "rep-1",
-            questionId: questions[0]?.id || "q-101",
-            questionText: questions[0]?.text || "राजस्थान के किस दुर्ग को 'यूनेस्को विश्व धरोहर' में शामिल किया गया है?",
-            subjectName: "राजस्थान का इतिहास व संस्कृति",
-            chapterName: "दुर्ग एवं स्थापत्य",
-            studentName: "राकेश शर्मा (Aspirant)",
-            studentEmail: "rakesh.sharma@gmail.com",
-            issueType: "wrong_answer",
-            studentComment: "सर ऑप्शन में आमेर दुर्ग दिया है, लेकिन व्याख्या में वर्ष 2013 की जगह 2010 लिखा आ रहा है। कृपया वर्ष चेक करें।",
-            reportedAt: new Date(Date.now() - 3600000 * 4).toISOString(),
-            status: "pending"
-          },
-          {
-            id: "rep-2",
-            questionId: questions[1]?.id || "q-102",
-            questionText: questions[1]?.text || "राजस्थान में 1857 की क्रांति का प्रारंभ सर्वप्रथम कहाँ हुआ था?",
-            subjectName: "राजस्थान का इतिहास",
-            chapterName: "1857 की क्रांति",
-            studentName: "सुरेश बिश्नोई",
-            studentEmail: "suresh.b@gmail.com",
-            issueType: "typo",
-            studentComment: "नसीराबाद छावनी की तारीख 28 मई 1857 होनी चाहिए, टाइपिंग में 28 मार्च लिखा हुआ है।",
-            reportedAt: new Date(Date.now() - 3600000 * 18).toISOString(),
-            status: "pending"
-          }
-        ];
-        setReports(sampleReports);
+      const raw = localStorage.getItem(REPORTS_STORAGE_KEY) || localStorage.getItem(LEGACY_REPORTS_STORAGE_KEY);
+      if (raw) {
+        const loaded = JSON.parse(raw);
+        if (Array.isArray(loaded) && loaded.length > 0) {
+          setReports(loaded);
+          setLoading(false);
+          return;
+        }
       }
+
+      // Fallback / seed initial realistic doubts
+      const sampleReports: QuestionReport[] = [
+        {
+          id: "rep-1",
+          questionId: questions[0]?.id || "q-101",
+          questionText: questions[0]?.text || "राजस्थान के किस दुर्ग को 'यूनेस्को विश्व धरोहर' में शामिल किया गया है?",
+          subjectName: "राजस्थान का इतिहास व संस्कृति",
+          chapterName: "दुर्ग एवं स्थापत्य",
+          studentName: "राकेश शर्मा (Aspirant)",
+          studentEmail: "rakesh.sharma@gmail.com",
+          issueType: "wrong_answer",
+          studentComment: "सर ऑप्शन में आमेर दुर्ग दिया है, लेकिन व्याख्या में वर्ष 2013 की जगह 2010 लिखा आ रहा है। कृपया वर्ष चेक करें।",
+          reportedAt: new Date(Date.now() - 3600000 * 4).toISOString(),
+          status: "pending"
+        },
+        {
+          id: "rep-2",
+          questionId: questions[1]?.id || "q-102",
+          questionText: questions[1]?.text || "राजस्थान में 1857 की क्रांति का प्रारंभ सर्वप्रथम कहाँ हुआ था?",
+          subjectName: "राजस्थान का इतिहास",
+          chapterName: "1857 की क्रांति",
+          studentName: "सुरेश बिश्नोई",
+          studentEmail: "suresh.b@gmail.com",
+          issueType: "typo",
+          studentComment: "नसीराबाद छावनी की तारीख 28 मई 1857 होनी चाहिए, टाइपिंग में 28 मार्च लिखा हुआ है।",
+          reportedAt: new Date(Date.now() - 3600000 * 18).toISOString(),
+          status: "pending"
+        }
+      ];
+      setReports(sampleReports);
+      try {
+        localStorage.setItem(REPORTS_STORAGE_KEY, JSON.stringify(sampleReports));
+      } catch {}
     } catch (e) {
       console.warn("Using local report buffer", e);
     } finally {
@@ -114,10 +121,13 @@ export const QuestionReportDesk: React.FC<QuestionReportDeskProps> = ({
   }, []);
 
   const handleUpdateStatus = async (reportId: string, status: "resolved" | "dismissed") => {
-    try {
-      await updateDoc(doc(db, "question_reports", reportId), { status }).catch(() => {});
-    } catch {}
-    setReports(prev => prev.map(r => r.id === reportId ? { ...r, status } : r));
+    setReports(prev => {
+      const updated = prev.map(r => r.id === reportId ? { ...r, status } : r);
+      try {
+        localStorage.setItem(REPORTS_STORAGE_KEY, JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
   };
 
   const handleOpenFixModal = (report: QuestionReport) => {

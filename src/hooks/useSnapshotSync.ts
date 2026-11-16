@@ -1,6 +1,6 @@
 /**
  * useSnapshotSync - React Hook for Snapshot-Based Synchronization Architecture
- * Replaces legacy useFirebaseSync with clean, deterministic 24-hour snapshot synchronization.
+ * Clean, deterministic 24-hour snapshot synchronization.
  */
 
 import { useState, useEffect, useCallback, useRef } from "react";

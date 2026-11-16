@@ -1,6 +1,3 @@
-import { collection, query, where } from "firebase/firestore";
-import { guardedGetDocs } from "./quotaTracker";
-import { db } from "../lib/firebase";
 import { NewsArticle } from "../types";
 import { getLocalArticles, getDeletedArticleIds } from "./articleStorage";
 import { apiFetch } from "./api";
@@ -132,23 +129,10 @@ export function getCoreStaticEntries(): SitemapUrlEntry[] {
  */
 export async function generateSitemapFromDatabase(): Promise<SitemapGenerationResult> {
   const deletedIds = new Set(getDeletedArticleIds());
-  let allArticles: NewsArticle[] = [];
   let draftsExcluded = 0;
   let invalidExcluded = 0;
 
-  try {
-    const articlesRef = collection(db, "articles");
-    // Fetch all articles to ensure accurate draft count and separation
-    const snap = await guardedGetDocs(articlesRef, "Admin", "Generate Sitemap from Database");
-    if (!snap.empty) {
-      allArticles = snap.docs
-        .map((d) => ({ ...(d.data() as NewsArticle), id: d.id }))
-        .filter((a) => !deletedIds.has(a.id));
-    }
-  } catch (err) {
-    console.warn("generateSitemapFromDatabase Firestore query fallback to local cache:", err);
-    allArticles = getLocalArticles().filter((a) => !deletedIds.has(a.id));
-  }
+  const allArticles = getLocalArticles().filter((a) => !deletedIds.has(a.id));
 
   // Also merge with local articles if Firestore returns fewer
   const localArticles = getLocalArticles().filter((a) => !deletedIds.has(a.id));

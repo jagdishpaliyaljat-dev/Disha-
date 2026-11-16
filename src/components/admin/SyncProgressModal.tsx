@@ -1,6 +1,23 @@
 import * as React from "react";
-import { SyncProgressState } from '../../utils/bulkSyncService';
 import { X, CheckCircle2, AlertTriangle, RefreshCw } from 'lucide-react';
+
+export interface SyncProgressState {
+  status: "idle" | "validating" | "syncing" | "success" | "partial_success" | "error";
+  totalRecords: number;
+  validRecords: number;
+  invalidRecords: number;
+  existingRecords: number;
+  uploadedRecords: number;
+  updatedRecords: number;
+  skippedRecords: number;
+  deletedRecords?: number;
+  failedRecords: number;
+  currentBatch: number;
+  totalBatches: number;
+  progressPercentage: number;
+  currentStatusMessage: string;
+  errorDetails: string[];
+}
 
 export const SyncProgressModal: React.FC<{
   progress: SyncProgressState | null;

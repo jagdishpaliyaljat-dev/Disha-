@@ -59,6 +59,13 @@ let inMemoryQuestionsStore: UserQuestionsStore = {
   syncedTopicIds: [],
 };
 
+export function dispatchStoreUpdated(detail: any): void {
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("disha2020_store_updated", { detail }));
+    window.dispatchEvent(new CustomEvent("quizpro_store_updated", { detail }));
+  }
+}
+
 /**
  * Restores full curriculum and question bank from IndexedDB if localStorage was empty or exceeded 5MB quota.
  * Never silently reports restoration success when IndexedDB is empty or corrupted.
@@ -103,8 +110,8 @@ export async function hydrateUserQuestionsStoreFromIndexedDB(): Promise<UserQues
       restored = reconciledQuestions.length > 0;
       restoredCount = reconciledQuestions.length;
 
-      if (typeof window !== "undefined" && restored) {
-        window.dispatchEvent(new CustomEvent("quizpro_store_updated", { detail: inMemoryQuestionsStore }));
+      if (restored) {
+        dispatchStoreUpdated(inMemoryQuestionsStore);
       }
     }
 
@@ -155,9 +162,7 @@ export async function hydrateUserQuestionsStoreFromIndexedDB(): Promise<UserQues
           restored = true;
           restoredCount = reconciledQuestions.length;
 
-          if (typeof window !== "undefined") {
-            window.dispatchEvent(new CustomEvent("quizpro_store_updated", { detail: inMemoryQuestionsStore }));
-          }
+          dispatchStoreUpdated(inMemoryQuestionsStore);
         }
       } catch (v5Err) {
         console.warn("[QuestionsStorage] quizpro-db-v5 read notice:", v5Err);
@@ -183,9 +188,7 @@ export async function hydrateUserQuestionsStoreFromIndexedDB(): Promise<UserQues
               customTopics: sbTopics
             };
             isMemoryStoreHydrated = true;
-            if (typeof window !== "undefined") {
-              window.dispatchEvent(new CustomEvent("quizpro_store_updated", { detail: inMemoryQuestionsStore }));
-            }
+            dispatchStoreUpdated(inMemoryQuestionsStore);
           }
         }
       } catch (sbErr) {
@@ -237,9 +240,7 @@ export async function hydrateUserQuestionsStoreFromIndexedDB(): Promise<UserQues
             restored = true;
             restoredCount = reconciledQuestions.length;
 
-            if (typeof window !== "undefined") {
-              window.dispatchEvent(new CustomEvent("quizpro_store_updated", { detail: inMemoryQuestionsStore }));
-            }
+            dispatchStoreUpdated(inMemoryQuestionsStore);
           }
         }
       } catch (fetchErr) {
@@ -475,9 +476,7 @@ export function saveUserQuestionsStore(store: UserQuestionsStore): void {
   }
 
   try {
-    if (typeof window !== "undefined") {
-      window.dispatchEvent(new CustomEvent("quizpro_store_updated", { detail: store }));
-    }
+    dispatchStoreUpdated(store);
     if (typeof window === "undefined" || typeof localStorage === "undefined") {
       return;
     }
@@ -491,7 +490,7 @@ export function saveUserQuestionsStore(store: UserQuestionsStore): void {
         const keysToRemove: string[] = [];
         for (let i = 0; i < localStorage.length; i++) {
           const k = localStorage.key(i);
-          if (k && (k.startsWith("quizpro_mcqs_") || k.startsWith("quizpro_mcq_"))) {
+          if (k && (k.startsWith("disha2020_mcqs_") || k.startsWith("disha2020_mcq_") || k.startsWith("quizpro_mcqs_") || k.startsWith("quizpro_mcq_"))) {
             keysToRemove.push(k);
           }
         }
@@ -572,9 +571,7 @@ export function mergeQuestionsIntoStore(questionsToAdd: Question[]): UserQuestio
   };
 
   saveUserQuestionsStore(updatedStore);
-  if (typeof window !== "undefined") {
-    window.dispatchEvent(new CustomEvent("quizpro_store_updated", { detail: updatedStore }));
-  }
+  dispatchStoreUpdated(updatedStore);
   return updatedStore;
 }
 
@@ -1367,12 +1364,20 @@ export function bulkMoveQuestions(
 
   try {
     if (typeof localStorage !== "undefined") {
+      localStorage.removeItem(`disha2020_mcqs_${targetTopicId}`);
+      localStorage.removeItem("disha2020_mcqs_all");
       localStorage.removeItem(`quizpro_mcqs_${targetTopicId}`);
       localStorage.removeItem("quizpro_mcqs_all");
-      sourceTopicIds.forEach((tId) => localStorage.removeItem(`quizpro_mcqs_${tId}`));
+      sourceTopicIds.forEach((tId) => {
+        localStorage.removeItem(`disha2020_mcqs_${tId}`);
+        localStorage.removeItem(`quizpro_mcqs_${tId}`);
+      });
       questionIds.forEach((id) => {
         const q = allCombinedQuestionsMap[id];
-        if (q?.topicId) localStorage.removeItem(`quizpro_mcqs_${q.topicId}`);
+        if (q?.topicId) {
+          localStorage.removeItem(`disha2020_mcqs_${q.topicId}`);
+          localStorage.removeItem(`quizpro_mcqs_${q.topicId}`);
+        }
       });
     }
   } catch {}
@@ -1821,6 +1826,9 @@ export function editQuestionInStore(store: UserQuestionsStore, updatedQuestion: 
   // Invalidate individual topic cache
   try {
     if (typeof localStorage !== "undefined") {
+      localStorage.removeItem(`disha2020_mcqs_${updatedQuestion.topicId}`);
+      localStorage.removeItem("disha2020_mcqs_all");
+      localStorage.setItem(`disha2020_mcq_${updatedQuestion.id}`, JSON.stringify(qWithTimestamp));
       localStorage.removeItem(`quizpro_mcqs_${updatedQuestion.topicId}`);
       localStorage.removeItem("quizpro_mcqs_all");
       localStorage.setItem(`quizpro_mcq_${updatedQuestion.id}`, JSON.stringify(qWithTimestamp));
@@ -1944,30 +1952,6 @@ export async function fetchTopicQuestionsOnDemand(topicId: string): Promise<Ques
     }
   } catch (e) {
     console.warn("Supabase topic question fetch fallback:", e);
-  }
-
-  // 3. Fallback to remote Firestore fetch via firebaseSyncService
-  try {
-    const { fetchMCQsByTopic } = await import("./firebaseSyncService");
-    const remoteQsRaw = await fetchMCQsByTopic(topicId);
-    if (remoteQsRaw && remoteQsRaw.length > 0) {
-      const remoteQs: Question[] = remoteQsRaw.map((q) => ({
-        id: q.id,
-        text: q.text || q.question || "Untitled Question",
-        options: q.options,
-        correctIndex: typeof q.correctIndex === "number" ? q.correctIndex : (q.correctAnswer || 0),
-        explanation: q.explanation || "",
-        topicId: q.topicId || topicId,
-        chapterId: q.chapterId || "chapter_general",
-        subjectId: q.subjectId || "economics",
-        difficulty: q.difficulty || "medium",
-      }));
-      mergeQuestionsIntoStore(remoteQs);
-      saveCachedQuestionBundle(topicId, remoteQs).catch(() => {});
-      return remoteQs;
-    }
-  } catch (e) {
-    console.warn("Remote topic question fetch error:", e);
   }
 
   return [];

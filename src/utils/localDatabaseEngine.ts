@@ -12,7 +12,7 @@ import type {
 } from "../types";
 
 /**
- * QuizPro - Local-First Unified IndexedDB Database Engine (v4)
+ * DISHA 20-20 - Local-First Unified IndexedDB Database Engine (v1)
  * 
  * Implements strict offline-first repositories for all learning activities and curriculum content:
  * 1. 17 IndexedDB stores with primary keys and query indexes.
@@ -20,10 +20,11 @@ import type {
  * 3. Student Activity Repositories (Attempts, Wrong, Bookmarks, Test Results, Revision, Study Logs, Syllabus).
  * 4. Durable Outbox Sync Queue (Append-only, idempotent, crash-resilient).
  * 5. Sync Staging Store for atomic bootstrap and incremental updates.
- * 6. Safe Migration Engine from legacy localStorage into IndexedDB.
+ * 6. Safe Migration Engine from legacy localStorage & QuizPro into IndexedDB.
  */
 
-export const LOCAL_DB_NAME = "quizpro-db-v4";
+export const LOCAL_DB_NAME = "disha2020-db-v1";
+export const LEGACY_DB_NAME = "quizpro-db-v4";
 export const LOCAL_DB_VERSION = 1;
 
 // 17 Unified Stores
@@ -299,6 +300,8 @@ export async function openLocalDatabase(): Promise<IDBDatabase | null> {
           dbInstance = null;
           dbOpeningPromise = null;
         };
+        // Migrate legacy QuizPro database if present
+        migrateFromLegacyQuizProDB(dbInstance).catch(() => {});
         resolve(dbInstance);
       };
 
@@ -313,6 +316,58 @@ export async function openLocalDatabase(): Promise<IDBDatabase | null> {
   });
 
   return dbOpeningPromise;
+}
+
+/**
+ * Backward-compatible migration bridge:
+ * Migrates existing data from legacy quizpro-db-v4 into disha2020-db-v1
+ */
+async function migrateFromLegacyQuizProDB(targetDb: IDBDatabase): Promise<void> {
+  if (typeof window === "undefined" || !window.indexedDB) return;
+  if (localStorage.getItem("disha2020_idb_migrated_v4")) return;
+
+  try {
+    const legacyReq = window.indexedDB.open(LEGACY_DB_NAME);
+    legacyReq.onerror = () => {
+      localStorage.setItem("disha2020_idb_migrated_v4", "skipped");
+    };
+    legacyReq.onsuccess = async () => {
+      const legacyDb = legacyReq.result;
+      const storeNames = Array.from(legacyDb.objectStoreNames);
+      if (storeNames.length === 0) {
+        legacyDb.close();
+        localStorage.setItem("disha2020_idb_migrated_v4", "true");
+        return;
+      }
+
+      console.info(`[LocalDB] Migrating ${storeNames.length} stores from ${LEGACY_DB_NAME} to ${LOCAL_DB_NAME}...`);
+      for (const storeName of storeNames) {
+        if (!targetDb.objectStoreNames.contains(storeName)) continue;
+        try {
+          const readTx = legacyDb.transaction(storeName, "readonly");
+          const readStore = readTx.objectStore(storeName);
+          const allItems = await new Promise<any[]>((res) => {
+            const getReq = readStore.getAll();
+            getReq.onsuccess = () => res(getReq.result || []);
+            getReq.onerror = () => res([]);
+          });
+
+          if (allItems && allItems.length > 0) {
+            const writeTx = targetDb.transaction(storeName, "readwrite");
+            const writeStore = writeTx.objectStore(storeName);
+            for (const item of allItems) {
+              writeStore.put(item);
+            }
+          }
+        } catch (_) {}
+      }
+      legacyDb.close();
+      localStorage.setItem("disha2020_idb_migrated_v4", "true");
+      console.info(`[LocalDB] Legacy migration from ${LEGACY_DB_NAME} completed successfully.`);
+    };
+  } catch (_) {
+    localStorage.setItem("disha2020_idb_migrated_v4", "failed");
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

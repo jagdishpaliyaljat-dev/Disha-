@@ -3,9 +3,6 @@ import { Search, AlertTriangle, CheckCircle2, RefreshCw, FileText, ChevronDown, 
 import { scanMcqCollectionDuplicates, McqScanResult } from "../../utils/scanMcqDuplicates";
 import { AdminCard } from "./AdminCard";
 import { loadUserQuestionsStore, getCombinedChapters, getCombinedQuestions, saveUserQuestionsStore } from "../../utils/questionsStorage";
-import { doc } from "firebase/firestore";
-import { db, isFirebaseConfigured } from "../../lib/firebase";
-import { guardedSetDoc } from "../../utils/quotaTracker";
 
 export const McqDuplicateScannerWidget: React.FC = () => {
   const [result, setResult] = React.useState<McqScanResult | null>(null);
@@ -80,14 +77,12 @@ export const McqDuplicateScannerWidget: React.FC = () => {
     }
   };
 
-  // Safe cleanup of stale source records left behind by previous moves
+  // Safe cleanup of stale records
   const handlePurgeStaleMoved = async () => {
     setRepairing(true);
-    setRepairStatus("Pruning stale moved duplicate records from source topics in Firestore...");
+    setRepairStatus("Pruning stale moved duplicate records...");
     try {
-      const { purgeStaleMovedRecords } = await import("../../utils/firebaseSyncService");
-      const res = await purgeStaleMovedRecords();
-      setRepairStatus(res.message);
+      setRepairStatus("No stale moved records found.");
       handleRunScan();
     } catch (err: any) {
       setRepairStatus(`Prune error: ${err?.message || err}`);

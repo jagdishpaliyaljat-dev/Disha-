@@ -26,7 +26,7 @@ import { calculateSmartPriority } from "../smartPriority";
 import { UserProfile, AppBanner, Subject, UserQuestionsStore } from "../../types";
 
 /**
- * QuizPro Comprehensive Automated QA Test Suite
+ * DISHA 20-20 Comprehensive Automated QA Test Suite
  * Tests Core Modules: Auth, Scoring, Revision Spaced Repetition, 
  * Question Bank Mappings, User Management & Audit, Banner Storage, Smart Priority
  */

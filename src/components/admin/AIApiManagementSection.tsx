@@ -1,6 +1,5 @@
 import * as React from "react";
 import { supabase } from "../../lib/supabase";
-import { guardedSetDoc, guardedDeleteDoc } from "../../utils/quotaTracker";
 import { loadUserProfile } from "../../utils/userProfileStorage";
 import { AIApiConfig, AIProvider, AIKeyHealthStatus } from "../../types";
 import { 
@@ -91,8 +90,6 @@ export const AIApiManagementSection: React.FC = () => {
     latencyMs?: number;
   } | null>(null);
 
-  const [firebaseInfo, setFirebaseInfo] = React.useState<{ projectId: string; databaseId: string; serviceAccount?: string } | null>(null);
-
   const getAdminHeaders = async (): Promise<Record<string, string>> => {
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
@@ -105,17 +102,6 @@ export const AIApiManagementSection: React.FC = () => {
       }
     } catch {}
     return headers;
-  };
-
-  const fetchFirebaseInfo = async () => {
-    try {
-      const headers = await getAdminHeaders();
-      const res = await fetch("/api/admin/firebase-info", { headers });
-      if (res.ok) {
-        const data = await res.json();
-        setFirebaseInfo(data);
-      }
-    } catch (_) {}
   };
 
   const fetchTelemetry = async () => {
@@ -183,7 +169,6 @@ export const AIApiManagementSection: React.FC = () => {
 
   React.useEffect(() => {
     fetchConfigs();
-    fetchFirebaseInfo();
     fetchTelemetry();
 
     // Periodic telemetry polling every 10s to keep countdowns and failover events live
@@ -315,7 +300,6 @@ export const AIApiManagementSection: React.FC = () => {
       if (res.ok) {
         setConfigs(prev => prev.map(c => c.id === config.id ? { ...c, enabled: newStatus, status: newStatus ? "available" : "disabled" } : c));
         fetchTelemetry();
-        guardedSetDoc(doc(db, "ai_api_configs", config.id), { enabled: newStatus }, { merge: true }, "Admin", "Toggle AI API Config").catch(() => {});
       } else {
         const err = await res.json();
         alert(err.error || "Failed to update configuration status");
@@ -344,7 +328,6 @@ export const AIApiManagementSection: React.FC = () => {
       if (res.ok) {
         setConfigs(prev => prev.filter(c => c.id !== id));
         fetchTelemetry();
-        guardedDeleteDoc(doc(db, "ai_api_configs", id), "Admin", "Delete AI API Config").catch(() => {});
         setToastMessage({ type: "success", text: "API key removed from rotation pool successfully." });
       } else {
         const err = await res.json().catch(() => ({}));

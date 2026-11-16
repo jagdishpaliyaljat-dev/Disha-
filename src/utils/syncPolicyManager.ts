@@ -1,5 +1,3 @@
-import { db, auth } from "../lib/firebase";
-
 /**
  * 24-Hour Sync Policy & Quota Guard Manager
  * Enforces zero content reads within 24h, quota tracking, 7-day offline lock, and urgent syncs.
@@ -20,9 +18,11 @@ export interface QuotaLogEntry {
   cost: number;
 }
 
-const SYNC_STATE_KEY = "quizpro_sync_policy_state_v1";
-const QUOTA_LOGS_KEY = "quizpro_quota_logs_v1";
-const STORAGE_VERSION_KEY = "quizpro_storage_schema_version";
+const SYNC_STATE_KEY = "disha2020_sync_policy_state_v1";
+const LEGACY_SYNC_STATE_KEY = "quizpro_sync_policy_state_v1";
+const QUOTA_LOGS_KEY = "disha2020_quota_logs_v1";
+const LEGACY_QUOTA_LOGS_KEY = "quizpro_quota_logs_v1";
+const STORAGE_VERSION_KEY = "disha2020_storage_schema_version";
 const CURRENT_SCHEMA_VERSION = 1;
 
 export function getSyncPolicyState(): SyncPolicyState {
@@ -30,7 +30,7 @@ export function getSyncPolicyState(): SyncPolicyState {
     if (typeof window === "undefined" || typeof localStorage === "undefined") {
       return { lastSyncAt: 0, lastOnlineVerifiedAt: Date.now(), contentVersion: 1, urgent: false, manualSyncLastAt: 0 };
     }
-    const raw = localStorage.getItem(SYNC_STATE_KEY);
+    const raw = localStorage.getItem(SYNC_STATE_KEY) || localStorage.getItem(LEGACY_SYNC_STATE_KEY);
     if (!raw) {
       const defaultState: SyncPolicyState = {
         lastSyncAt: 0,
@@ -58,17 +58,17 @@ export function saveSyncPolicyState(state: SyncPolicyState): void {
 }
 
 // Quota Guard Wrapper
-export function trackFirebaseCall(reason: string, cost = 1): void {
+export function trackApiCall(reason: string, cost = 1): void {
   try {
     if (typeof window === "undefined" || typeof localStorage === "undefined") return;
-    const raw = localStorage.getItem(QUOTA_LOGS_KEY);
+    const raw = localStorage.getItem(QUOTA_LOGS_KEY) || localStorage.getItem(LEGACY_QUOTA_LOGS_KEY);
     const logs: QuotaLogEntry[] = raw ? JSON.parse(raw) : [];
     logs.unshift({ timestamp: Date.now(), reason, cost });
     // Keep last 500 logs
     const trimmed = logs.slice(0, 500);
     localStorage.setItem(QUOTA_LOGS_KEY, JSON.stringify(trimmed));
   } catch (err) {
-    console.warn("Could not track Firebase call", err);
+    console.warn("Could not track API call", err);
   }
 }
 
@@ -81,7 +81,7 @@ export function getQuotaStats(studentCount = 500): {
     if (typeof window === "undefined" || typeof localStorage === "undefined") {
       return { totalCallsLogged: 0, avgCallsPerStudentPerDay: 1.2, estimatedDailyTotalForN: studentCount * 1.2 };
     }
-    const raw = localStorage.getItem(QUOTA_LOGS_KEY);
+    const raw = localStorage.getItem(QUOTA_LOGS_KEY) || localStorage.getItem(LEGACY_QUOTA_LOGS_KEY);
     const logs: QuotaLogEntry[] = raw ? JSON.parse(raw) : [];
     const totalCalls = logs.reduce((acc, l) => acc + (l.cost || 1), filterRecentDay(logs));
     const avg = logs.length > 0 ? Math.max(0.5, Number((logs.length / Math.max(1, (Date.now() - (logs[logs.length - 1]?.timestamp || Date.now() - 86400000)) / 86400000)).toFixed(2))) : 1.0;

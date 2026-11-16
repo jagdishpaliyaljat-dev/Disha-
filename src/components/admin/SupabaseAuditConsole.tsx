@@ -36,14 +36,15 @@ export interface AuditRecord {
   details: string;
 }
 
-const STORAGE_AUDIT_KEY = "quizpro_supabase_audit_logs_v1";
+const STORAGE_AUDIT_KEY = "disha2020_supabase_audit_logs_v1";
+const LEGACY_STORAGE_AUDIT_KEY = "quizpro_supabase_audit_logs_v1";
 
 export const SupabaseAuditConsole: React.FC<SupabaseAuditConsoleProps> = ({ userProfile }) => {
   const isAdmin = isUserAdmin(userProfile) || userProfile?.role === "admin";
   const [logs, setLogs] = React.useState<AuditRecord[]>(() => {
     if (typeof localStorage !== "undefined") {
       try {
-        const stored = localStorage.getItem(STORAGE_AUDIT_KEY);
+        const stored = localStorage.getItem(STORAGE_AUDIT_KEY) || localStorage.getItem(LEGACY_STORAGE_AUDIT_KEY);
         if (stored) return JSON.parse(stored);
       } catch (_) {}
     }

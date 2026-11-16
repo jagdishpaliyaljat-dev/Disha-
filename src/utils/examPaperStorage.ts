@@ -1,15 +1,4 @@
-import { ExamPaperAnalysis, ExamQuestionMatch, ExamMatchCategory } from "../types";
-import { db, auth } from "../lib/firebase";
-import {
-  collection,
-  doc,
-  query,
-  where,
-} from "firebase/firestore";
-import {
-  guardedSetDoc,
-  guardedGetDocs,
-} from "./quotaTracker";
+import { ExamPaperAnalysis, ExamMatchCategory } from "../types";
 
 const LOCAL_ANALYSES_KEY = "remix_rajprep_exam_analyses_v1";
 
@@ -18,6 +7,7 @@ const LOCAL_ANALYSES_KEY = "remix_rajprep_exam_analyses_v1";
  */
 export function loadLocalAnalyses(): ExamPaperAnalysis[] {
   try {
+    if (typeof window === "undefined" || !window.localStorage) return [];
     const raw = localStorage.getItem(LOCAL_ANALYSES_KEY);
     if (!raw) return [];
     const parsed = JSON.parse(raw);
@@ -33,6 +23,7 @@ export function loadLocalAnalyses(): ExamPaperAnalysis[] {
  */
 export function saveLocalAnalysis(analysis: ExamPaperAnalysis): void {
   try {
+    if (typeof window === "undefined" || !window.localStorage) return;
     const list = loadLocalAnalyses();
     const idx = list.findIndex((a) => a.analysisId === analysis.analysisId);
     if (idx >= 0) {
@@ -51,6 +42,7 @@ export function saveLocalAnalysis(analysis: ExamPaperAnalysis): void {
  */
 export function deleteLocalAnalysis(analysisId: string): void {
   try {
+    if (typeof window === "undefined" || !window.localStorage) return;
     const list = loadLocalAnalyses().filter((a) => a.analysisId !== analysisId);
     localStorage.setItem(LOCAL_ANALYSES_KEY, JSON.stringify(list));
   } catch (e) {
@@ -59,123 +51,17 @@ export function deleteLocalAnalysis(analysisId: string): void {
 }
 
 /**
- * Save analysis to Firebase Firestore (and LocalStorage)
+ * Save analysis (persisted locally)
  */
 export async function saveExamAnalysis(analysis: ExamPaperAnalysis): Promise<void> {
-  // Always update local cache first
   saveLocalAnalysis(analysis);
-
-  // If user is logged in and Firestore is initialized, sync to cloud
-  const user = auth.currentUser;
-  if (!user) return;
-
-  try {
-    const analysisRef = doc(db, "examPaperAnalyses", analysis.analysisId);
-
-    // Save parent doc (without deep question array to keep doc light)
-    const summaryDoc = {
-      analysisId: analysis.analysisId,
-      userId: user.uid,
-      examId: analysis.examId,
-      examName: analysis.examName,
-      paperYear: analysis.paperYear,
-      paperDate: analysis.paperDate,
-      paperName: analysis.paperName,
-      shiftCode: analysis.shiftCode || "",
-      status: analysis.status,
-      totalPages: analysis.totalPages,
-      detectedQuestionCount: analysis.detectedQuestionCount,
-      analyzedQuestionCount: analysis.analyzedQuestionCount,
-      exactMatchCount: analysis.exactMatchCount,
-      nearExactMatchCount: analysis.nearExactMatchCount,
-      similarMatchCount: analysis.similarMatchCount,
-      conceptMatchCount: analysis.conceptMatchCount,
-      unmatchedCount: analysis.unmatchedCount,
-      needsReviewCount: analysis.needsReviewCount,
-      createdAt: analysis.createdAt,
-      completedAt: analysis.completedAt || new Date().toISOString(),
-      schemaVersion: analysis.schemaVersion || 1,
-    };
-
-    await guardedSetDoc(analysisRef, summaryDoc, { merge: true }, "Student", "Save Exam Analysis Summary");
-
-    // Save questions into subcollection
-    const questionsCollection = collection(analysisRef, "questions");
-    for (const q of analysis.questions) {
-      const qDocRef = doc(questionsCollection, q.examQuestionId);
-      await guardedSetDoc(
-        qDocRef,
-        {
-          examQuestionId: q.examQuestionId,
-          originalQuestionNumber: String(q.originalQuestionNumber),
-          sourcePageNumber: q.sourcePageNumber,
-          originalText: q.originalText,
-          normalizedText: q.normalizedText,
-          extractedOptions: q.extractedOptions || [],
-          ocrStatus: q.ocrStatus,
-          reviewStatus: q.reviewStatus,
-          primaryMatchCategory: q.primaryMatchCategory,
-          bestMatchQuestionId: q.bestMatchQuestionId || "",
-          matchExplanation: q.matchExplanation || "",
-          matchScore: q.matchScore || 0,
-          processingStatus: q.processingStatus,
-          meaningfulDifferences: q.meaningfulDifferences || [],
-          userFeedback: q.userFeedback || null,
-        },
-        undefined,
-        "Student",
-        "Save Exam Analysis Question"
-      );
-    }
-  } catch (error) {
-    console.warn("Firestore sync for exam analysis skipped or failed, local copy preserved:", error);
-  }
 }
 
 /**
- * Fetch all analyses for the current user (local + cloud merge)
+ * Fetch all analyses for the current user
  */
 export async function getAnalysesHistory(): Promise<ExamPaperAnalysis[]> {
-  const localList = loadLocalAnalyses();
-
-  const user = auth.currentUser;
-  if (!user) return localList;
-
-  try {
-    const q = query(
-      collection(db, "examPaperAnalyses"),
-      where("userId", "==", user.uid)
-    );
-    const snap = await guardedGetDocs(q, "Student", "Fetch Exam Analyses History");
-
-    const cloudSummaries: ExamPaperAnalysis[] = [];
-    for (const d of snap.docs) {
-      const data = d.data() as any;
-      // If we already have the full analysis in local cache, use the local questions
-      const localMatch = localList.find((l) => l.analysisId === data.analysisId);
-      if (localMatch) {
-        cloudSummaries.push(localMatch);
-      } else {
-        cloudSummaries.push({
-          ...data,
-          questions: [],
-        });
-      }
-    }
-
-    // Merge by analysisId
-    const mergedMap = new Map<string, ExamPaperAnalysis>();
-    for (const item of [...localList, ...cloudSummaries]) {
-      mergedMap.set(item.analysisId, item);
-    }
-
-    return Array.from(mergedMap.values()).sort(
-      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
-  } catch (e) {
-    console.warn("Could not query Firestore history, returning local list:", e);
-    return localList;
-  }
+  return loadLocalAnalyses();
 }
 
 /**
@@ -204,7 +90,6 @@ export async function updateQuestionMatchReview(
     reviewedAt: new Date().toISOString(),
   };
 
-  // Recalculate summary metrics
   let exact = 0;
   let nearExact = 0;
   let similar = 0;
@@ -230,28 +115,5 @@ export async function updateQuestionMatchReview(
   targetAnalysis.needsReviewCount = needsReview;
 
   saveLocalAnalysis(targetAnalysis);
-
-  // Sync to firestore if logged in
-  const user = auth.currentUser;
-  if (user) {
-    try {
-      const qDocRef = doc(db, "examPaperAnalyses", analysisId, "questions", examQuestionId);
-      await guardedSetDoc(
-        qDocRef,
-        {
-          primaryMatchCategory: newCategory,
-          reviewStatus: "confirmed",
-          processingStatus: "completed",
-          userFeedback: targetQ.userFeedback,
-        },
-        { merge: true },
-        "Student",
-        "Update Question Review Status"
-      );
-    } catch (e) {
-      console.warn("Firestore update for question review skipped:", e);
-    }
-  }
-
   return targetAnalysis;
 }

@@ -16,7 +16,7 @@ export class SyncScheduler {
   private snapshotManager: SnapshotManager;
   private syncConfig: SyncScheduleConfig;
   private isExecuting: boolean = false;
-  private syncLockKey: string = "quizpro_snapshot_sync_lock";
+  private syncLockKey: string = "disha2020_snapshot_sync_lock";
 
   constructor(
     manifestManager: ManifestManager = defaultManifestManager,

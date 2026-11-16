@@ -9,7 +9,8 @@ interface AuditLogItem {
   timestamp: string;
 }
 
-const STORAGE_AUDIT_KEY = "quizpro_supabase_audit_logs_v1";
+const STORAGE_AUDIT_KEY = "disha2020_supabase_audit_logs_v1";
+const LEGACY_STORAGE_AUDIT_KEY = "quizpro_supabase_audit_logs_v1";
 
 export const AuditLogWidget: React.FC = () => {
   const [logs, setLogs] = React.useState<AuditLogItem[]>([]);
@@ -18,7 +19,7 @@ export const AuditLogWidget: React.FC = () => {
   React.useEffect(() => {
     try {
       if (typeof localStorage !== "undefined") {
-        const stored = localStorage.getItem(STORAGE_AUDIT_KEY);
+        const stored = localStorage.getItem(STORAGE_AUDIT_KEY) || localStorage.getItem(LEGACY_STORAGE_AUDIT_KEY);
         if (stored) {
           const parsed = JSON.parse(stored);
           const mapped: AuditLogItem[] = parsed.map((p: any) => ({

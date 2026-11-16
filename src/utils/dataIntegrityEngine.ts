@@ -51,7 +51,7 @@ function normalizeQuestionRecord(q: Question): Question {
 }
 
 /**
- * Reconciles documents from Firebase 'mcqs' and 'questions' collections by stable document ID.
+ * Reconciles documents from question collections by stable document ID.
  * Never deletes or discards any question; merges properties with newer updatedAt taking precedence.
  */
 export function reconcileMcqsAndQuestionsCollections(

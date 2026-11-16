@@ -1,5 +1,5 @@
 /**
- * Migration Bridge: quizpro-db-v4 to quizpro-db-v5
+ * Migration Bridge: Legacy quizpro-db-v4 to DISHA 20-20 Snapshot DB (disha2020-db-v5)
  * Preserves user attempts, bookmarks, wrong questions, test results, and offline history.
  */
 

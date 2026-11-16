@@ -68,17 +68,17 @@ try {
   localforage.defineDriver(memoryDriver);
 } catch (_) {}
 
-// Dedicated localforage instances for QuizPro Question Bank
+// Dedicated localforage instances for DISHA 20-20 Question Bank
 // Hierarchy: IndexedDB (fastest persistent DB) -> LocalStorage (fallback) -> memoryDriver (resilient)
 export const questionBankStore = localforage.createInstance({
-  name: "QuizProDB",
+  name: "Disha2020DB",
   storeName: "question_bank_cache",
   driver: [localforage.INDEXEDDB, localforage.LOCALSTORAGE, "memoryDriver"],
   description: "Offline-first persistent question bank cache powered by IndexedDB",
 });
 
 export const questionMetaStore = localforage.createInstance({
-  name: "QuizProDB",
+  name: "Disha2020DB",
   storeName: "question_bank_meta",
   driver: [localforage.INDEXEDDB, localforage.LOCALSTORAGE, "memoryDriver"],
   description: "Cache metadata, TTL timestamps, and offline synchronization indices",
@@ -352,7 +352,7 @@ export async function getAllCachedQuestions(): Promise<Question[]> {
  *    - Return them immediately to guarantee 0-second start times & uninterrupted offline learning.
  *    - In the background, trigger non-blocking revalidation if online (stale-while-revalidate).
  * 3. If cache is empty (cache miss):
- *    - Fall back to remote fetch (Firestore / Firebase sync).
+ *    - Fall back to remote fetch (Supabase sync).
  *    - On remote success, populate localforage IndexedDB and return fresh questions.
  *    - On remote failure (offline or quota limit), fall back to seed questions safely.
  */
@@ -398,14 +398,14 @@ export async function fetchQuestionsCacheFirst(
     }
   }
 
-  // Step 2: Cache Miss (or Force Refresh) — Attempt remote fetch if fetcher provided or via firebaseSyncService
+  // Step 2: Cache Miss (or Force Refresh) — Attempt remote fetch if fetcher provided or via supabaseSyncService
   try {
     let remoteQuestions: Question[] = [];
     if (options?.remoteFetcher) {
       remoteQuestions = await options.remoteFetcher(topicId);
     } else {
-      const { fetchMCQsByTopic } = await import("./firebaseSyncService");
-      const fetched = await fetchMCQsByTopic(topicId);
+      const { fetchQuestionsByTopic } = await import("./supabaseSyncService");
+      const fetched = await fetchQuestionsByTopic(topicId);
       if (Array.isArray(fetched) && fetched.length > 0) {
         remoteQuestions = fetched.map(normalizeCachedQuestion);
       }
@@ -414,7 +414,7 @@ export async function fetchQuestionsCacheFirst(
     if (remoteQuestions.length > 0) {
       const valid = deduplicateQuestionsList(remoteQuestions);
       // Persist in localforage IndexedDB for future offline practice sessions
-      saveQuestionsToCache(valid, { topicId, source: "firestore" }).catch(() => {});
+      saveQuestionsToCache(valid, { topicId, source: "supabase" }).catch(() => {});
       return valid;
     }
   } catch (remoteErr) {

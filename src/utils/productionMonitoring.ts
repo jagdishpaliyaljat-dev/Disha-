@@ -5,7 +5,7 @@
  * 1. Application availability & uptime tracking
  * 2. Safe error diagnostics (Zero-Secret scrubbing: passwords, keys, tokens stripped)
  * 3. React component error boundary reporting
- * 4. Firebase read/write quota and network failure detection
+ * 4. Database read/write and network failure detection
  * 5. Performance baselines (TTI, MCQ render, dashboard render, navigation latency)
  * 6. User experience monitoring (failed logins, abandoned test sessions)
  * 7. Automated health thresholds (CRITICAL, HIGH, MEDIUM, LOW)
@@ -15,7 +15,7 @@ export type MonitoringCategory =
   | "RUNTIME_ERROR"
   | "UNHANDLED_PROMISE"
   | "REACT_ERROR"
-  | "FIREBASE_ERROR"
+  | "DATABASE_ERROR"
   | "AUTH_ERROR"
   | "NETWORK_FAILURE"
   | "PERFORMANCE_MARK"

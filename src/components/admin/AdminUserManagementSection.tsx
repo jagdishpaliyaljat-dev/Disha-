@@ -347,6 +347,7 @@ export const AdminUserManagementSection: React.FC<AdminUserManagementSectionProp
           ? `User "${user.name || user.email}" promoted to Admin!` 
           : `Admin privileges removed from "${user.name || user.email}".`
       });
+      window.dispatchEvent(new CustomEvent("disha2020-user-tier-updated"));
       window.dispatchEvent(new CustomEvent("quizpro-user-tier-updated"));
     } catch (err: any) {
       setNotification({ type: "error", message: err?.message || "Role update failed." });

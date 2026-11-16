@@ -19,11 +19,12 @@ import {
  * test MCQs, mock data, sample quizzes, and stress-test artifacts.
  */
 
-const CLEAN_SLATE_VERSION_KEY = "quizpro_clean_slate_zero_mock_v8_0";
+const CLEAN_SLATE_VERSION_KEY = "disha2020_clean_slate_zero_mock_v8_0";
 const CURRENT_CLEAN_SLATE_VERSION = "8.0.0";
 
 // Only legacy mock/sample array keys — NEVER reset genuine student progress, bookmarks, or auth
 const KEYS_TO_RESET_TO_EMPTY = [
+  "disha2020_admin_audit_logs_v1",
   "quizpro_admin_audit_logs_v1",
   "remix_rajprep_exam_analyses_v1",
   "economic_survey_notifications_v1",
@@ -416,6 +417,8 @@ export function purgeObsoleteKeys(): void {
         k.startsWith("TEST_") || 
         k.startsWith("test_") || 
         k.startsWith("mock_") || 
+        k.startsWith("disha2020_test_") ||
+        k.startsWith("disha2020_mock_") ||
         k.startsWith("quizpro_test_") ||
         k.startsWith("quizpro_mock_")
       )) {

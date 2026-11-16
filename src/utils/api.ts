@@ -1,5 +1,5 @@
 import { loadSettingsFromStorage } from "./storage";
-import { auth } from "../lib/firebase";
+import { supabase } from "../lib/supabase";
 
 export async function apiFetch(url: string, options: RequestInit = {}): Promise<Response> {
   let finalUrl = url;
@@ -19,14 +19,13 @@ export async function apiFetch(url: string, options: RequestInit = {}): Promise<
     ...(options.headers as Record<string, string> || {}),
   };
 
-  // Attach verified Firebase Auth ID token for backend Authorization
+  // Attach verified Supabase Auth JWT token for backend Authorization
   if (!headers["Authorization"] && !headers["authorization"]) {
     try {
-      if (auth?.currentUser) {
-        const idToken = await auth.currentUser.getIdToken();
-        if (idToken) {
-          headers["Authorization"] = `Bearer ${idToken}`;
-        }
+      const { data } = await supabase.auth.getSession();
+      const token = data?.session?.access_token;
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
       }
     } catch (_) {}
   }

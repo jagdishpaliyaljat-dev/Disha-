@@ -1,5 +1,5 @@
 /**
- * QuizPro - Local-First Unified IndexedDB Database Engine (v5)
+ * DISHA 20-20 - Local-First Unified IndexedDB Database Engine (v5)
  * Snapshot-Based Offline-First Primary Local Storage
  */
 
@@ -10,7 +10,8 @@ import {
   UserActivityEvent 
 } from "./types";
 
-export const SNAPSHOT_DB_NAME = "quizpro-db-v5";
+export const SNAPSHOT_DB_NAME = "disha2020-db-v5";
+export const LEGACY_SNAPSHOT_DB_NAME = "quizpro-db-v5";
 export const SNAPSHOT_DB_VERSION = 1;
 
 export const SNAPSHOT_STORES = {

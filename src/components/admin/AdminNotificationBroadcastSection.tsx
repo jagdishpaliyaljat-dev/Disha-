@@ -14,9 +14,6 @@ import {
   Award
 } from "lucide-react";
 import { AppNotification } from "../../types";
-import { db } from "../../lib/firebase";
-import { collection, query, orderBy, doc, serverTimestamp } from "firebase/firestore";
-import { guardedGetDocs, guardedDeleteDoc, guardedAddDoc } from "../../utils/quotaTracker";
 
 interface BroadcastNotificationItem extends AppNotification {
   id: string;
@@ -43,22 +40,10 @@ export const AdminNotificationBroadcastSection: React.FC = () => {
   const fetchBroadcastHistory = async () => {
     setLoadingHistory(true);
     try {
-      const q = query(collection(db, "broadcast_notifications"), orderBy("timestamp", "desc"));
-      const snapshot = await guardedGetDocs(q);
-      const items = snapshot.docs.map(d => ({
-        id: d.id,
-        ...d.data()
-      })) as BroadcastNotificationItem[];
-      setSentBroadcasts(items);
-    } catch (err) {
-      console.warn("Could not fetch broadcast history from Firestore, falling back to local storage:", err);
-      try {
-        const local = localStorage.getItem("quizpro_admin_broadcasts");
-        if (local) setSentBroadcasts(JSON.parse(local));
-      } catch {}
-    } finally {
-      setLoadingHistory(false);
-    }
+      const local = localStorage.getItem("disha2020_admin_broadcasts") || localStorage.getItem("quizpro_admin_broadcasts");
+      if (local) setSentBroadcasts(JSON.parse(local));
+    } catch {}
+    setLoadingHistory(false);
   };
 
   React.useEffect(() => {
@@ -90,17 +75,6 @@ export const AdminNotificationBroadcastSection: React.FC = () => {
     };
 
     try {
-      // Save to Firestore broadcast collection through quota guard
-      await guardedAddDoc(
-        collection(db, "broadcast_notifications"),
-        {
-          ...newNotif,
-          createdAt: serverTimestamp()
-        },
-        "Admin",
-        "Broadcast Notification"
-      );
-
       // Also dispatch browser notification if permitted on admin machine
       if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
         new Notification(newNotif.hindiTitle || newNotif.title, {
@@ -109,14 +83,14 @@ export const AdminNotificationBroadcastSection: React.FC = () => {
         });
       }
 
-      // Save locally as well for immediate offline sync
+      // Save locally
       const updatedList = [
         { id: `broadcast_${Date.now()}`, ...newNotif },
         ...sentBroadcasts
       ];
       setSentBroadcasts(updatedList);
       try {
-        localStorage.setItem("quizpro_admin_broadcasts", JSON.stringify(updatedList));
+        localStorage.setItem("disha2020_admin_broadcasts", JSON.stringify(updatedList));
       } catch {}
 
       setSuccessMsg("Notification successfully broadcasted to all active users!");
@@ -128,7 +102,7 @@ export const AdminNotificationBroadcastSection: React.FC = () => {
       setTimeout(() => setSuccessMsg(null), 4000);
     } catch (err: any) {
       console.error("Broadcast failed:", err);
-      setErrorMsg(err?.message || "Failed to broadcast notification. Please check Firestore connection.");
+      setErrorMsg(err?.message || "Failed to broadcast notification.");
     } finally {
       setIsSending(false);
     }
@@ -136,18 +110,11 @@ export const AdminNotificationBroadcastSection: React.FC = () => {
 
   const handleDeleteBroadcast = async (id: string) => {
     if (!window.confirm("Are you sure you want to delete this broadcast?")) return;
+    const filtered = sentBroadcasts.filter(b => b.id !== id);
+    setSentBroadcasts(filtered);
     try {
-      await guardedDeleteDoc(doc(db, "broadcast_notifications", id), "Admin", "Delete Broadcast");
-      const filtered = sentBroadcasts.filter(b => b.id !== id);
-      setSentBroadcasts(filtered);
-      try {
-        localStorage.setItem("quizpro_admin_broadcasts", JSON.stringify(filtered));
-      } catch {}
-    } catch (err) {
-      console.error("Failed to delete remote broadcast:", err);
-      const filtered = sentBroadcasts.filter(b => b.id !== id);
-      setSentBroadcasts(filtered);
-    }
+      localStorage.setItem("disha2020_admin_broadcasts", JSON.stringify(filtered));
+    } catch {}
   };
 
   return (

@@ -243,11 +243,11 @@ export const ManagePYQVaultModal: React.FC<ManagePYQVaultModalProps> = ({
       setPapers(updatedList);
       setIsFormOpen(false);
       if (onPYQUpdated) onPYQUpdated();
-      setToastMessage({ type: "success", msg: "Saved successfully to Firebase Firestore!" });
+      setToastMessage({ type: "success", msg: "Saved successfully!" });
       setTimeout(() => setToastMessage(null), 5000);
     } catch (err: any) {
       console.error("Failed to save paper:", err);
-      setToastMessage({ type: "error", msg: "Failed to save to Firebase: " + (err?.message || "Check network/permissions") });
+      setToastMessage({ type: "error", msg: "Failed to save: " + (err?.message || "Check network/permissions") });
     } finally {
       setIsSaving(false);
     }
@@ -267,7 +267,7 @@ export const ManagePYQVaultModal: React.FC<ManagePYQVaultModalProps> = ({
     try {
       await deletePYQPaper(paperId);
       if (onPYQUpdated) onPYQUpdated();
-      setToastMessage({ type: "success", msg: "PYQ Paper deleted successfully from Firebase Firestore!" });
+      setToastMessage({ type: "success", msg: "PYQ Paper deleted successfully!" });
       setTimeout(() => setToastMessage(null), 5000);
     } catch (err: any) {
       console.error("Delete failed:", err);

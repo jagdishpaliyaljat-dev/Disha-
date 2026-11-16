@@ -1,15 +1,14 @@
 /**
  * Processes a diagram image (SVG or PNG) for inline document storage.
- * As per architectural requirements, Firebase Storage is NOT used.
- * SVGs and diagrams are stored directly in the question document fields as strings/data URLs,
- * keeping the document strictly under the 1MB Firestore limit.
+ * External object storage is NOT used.
+ * SVGs and diagrams are stored directly in the question document fields as strings/data URLs.
  *
  * @param file The file or blob object.
  * @param fileName A custom filename.
  * @returns A data URL or string representation safe for inline storage.
  */
 export async function uploadDiagramToStorage(file: File | Blob, fileName: string): Promise<string> {
-  console.log(`[MCQ Import] [Step: Image] Storing diagram "${fileName}" inline as string without Firebase Storage...`);
+  console.log(`[MCQ Import] [Step: Image] Storing diagram "${fileName}" inline as data URL...`);
   return new Promise<string>((resolve) => {
     let timer: any;
     try {

@@ -12,9 +12,6 @@ import {
   PieChart,
   Loader2
 } from "lucide-react";
-import { collection, query, where } from "firebase/firestore";
-import { guardedGetDocs } from "../../utils/quotaTracker";
-import { db } from "../../lib/firebase";
 import { AdminCard } from "./AdminCard";
 
 interface DailyAnalyticsDoc {
@@ -46,18 +43,14 @@ export const AdminAnalyticsDashboard: React.FC = () => {
         dates.push(d.toISOString().split("T")[0]);
       }
 
-      const q = query(
-        collection(db, "analytics_daily"),
-        where("date", "in", dates.slice(0, 30))
-      );
-      const snap = await guardedGetDocs(q, "Admin", "Fetch Daily Analytics");
-
-      const docsMap = new Map<string, DailyAnalyticsDoc>();
-      if (!snap.empty) {
-        snap.docs.forEach((doc) => {
-          docsMap.set(doc.id, doc.data() as DailyAnalyticsDoc);
-        });
-      }
+      let docsMap = new Map<string, DailyAnalyticsDoc>();
+      try {
+        const raw = localStorage.getItem("disha2020_analytics_daily_v1") || localStorage.getItem("quizpro_analytics_daily_v1");
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          Object.keys(parsed).forEach((k) => docsMap.set(k, parsed[k]));
+        }
+      } catch {}
 
       const list: DailyAnalyticsDoc[] = dates.map((d) => {
         return (

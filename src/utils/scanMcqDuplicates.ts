@@ -1,6 +1,4 @@
-import { collection, query, limit } from "firebase/firestore";
-import { db } from "../lib/firebase";
-import { guardedGetDocs } from "./quotaTracker";
+import { supabase } from "../lib/supabase";
 import { loadUserQuestionsStore } from "./questionsStorage";
 
 export interface DuplicateGroupItem {
@@ -70,24 +68,21 @@ export async function scanMcqCollectionDuplicates(
 
   let docsToScan: Array<{ docId: string; data: any; source: string }> = [];
 
-  // 1. Fetch from Firestore collection
+  // 1. Fetch from Supabase questions table
   try {
-    const collRef = collection(db, targetCollection);
-    const q = query(collRef, limit(maxScanLimit));
-    const snap = await guardedGetDocs(q, "Admin", `Scan Duplicates in ${targetCollection}`, undefined, 10000, true);
-    
-    scannedSources.push(`Firestore Collection '${targetCollection}' (${snap.docs.length} docs)`);
-    
-    snap.docs.forEach((docSnap) => {
-      docsToScan.push({
-        docId: docSnap.id,
-        data: docSnap.data(),
-        source: `Firestore (${targetCollection})`,
+    const { data, error } = await supabase.from("questions").select("*").limit(maxScanLimit);
+    if (!error && data) {
+      scannedSources.push(`Supabase 'questions' table (${data.length} rows)`);
+      data.forEach((row) => {
+        docsToScan.push({
+          docId: row.id,
+          data: row,
+          source: "Supabase (questions)",
+        });
       });
-    });
+    }
   } catch (err: any) {
-    console.warn(`[McqScan] Firestore scan for '${targetCollection}' failed or timed out:`, err?.message || err);
-    scannedSources.push(`Firestore Collection '${targetCollection}' (Failed/Timed out: ${err?.message || String(err)})`);
+    console.warn(`[McqScan] Supabase scan failed:`, err?.message || err);
   }
 
   // 2. Also incorporate local custom questions if available

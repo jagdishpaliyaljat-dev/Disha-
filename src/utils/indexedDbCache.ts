@@ -1,6 +1,7 @@
 import type { Question, Subject, Chapter, Topic } from "../types";
 
-const DB_NAME = "quizpro_persistent_cache_v1";
+const DB_NAME = "disha2020_persistent_cache_v1";
+const LEGACY_DB_NAME = "quizpro_persistent_cache_v1";
 const DB_VERSION = 2;
 
 // Object Store Names
@@ -44,9 +45,9 @@ export function isIndexedDbSupported(): boolean {
 }
 
 /**
- * Opens and initializes the QuizPro IndexedDB database
+ * Opens and initializes the DISHA 20-20 IndexedDB persistent cache
  */
-export async function getQuizProDB(): Promise<IDBDatabase | null> {
+export async function getDisha2020DB(): Promise<IDBDatabase | null> {
   if (!isIndexedDbSupported()) return null;
   if (dbInstance) return dbInstance;
   if (dbInitPromise) return dbInitPromise;
@@ -97,11 +98,44 @@ export async function getQuizProDB(): Promise<IDBDatabase | null> {
           dbInitPromise = null;
         };
 
+        // Backward compatibility migration from legacy QuizPro cache
+        if (typeof window !== "undefined" && window.indexedDB && !localStorage.getItem("disha2020_cache_migrated_v1")) {
+          try {
+            const legReq = window.indexedDB.open(LEGACY_DB_NAME);
+            legReq.onsuccess = async () => {
+              const legDb = legReq.result;
+              const stores = Array.from(legDb.objectStoreNames);
+              for (const s of stores) {
+                if (!dbInstance?.objectStoreNames.contains(s)) continue;
+                try {
+                  const rTx = legDb.transaction(s, "readonly");
+                  const items = await new Promise<any[]>((res) => {
+                    const req = rTx.objectStore(s).getAll();
+                    req.onsuccess = () => res(req.result || []);
+                    req.onerror = () => res([]);
+                  });
+                  if (items && items.length > 0 && dbInstance) {
+                    const wTx = dbInstance.transaction(s, "readwrite");
+                    for (const it of items) wTx.objectStore(s).put(it);
+                  }
+                } catch (_) {}
+              }
+              legDb.close();
+              localStorage.setItem("disha2020_cache_migrated_v1", "true");
+            };
+            legReq.onerror = () => {
+              localStorage.setItem("disha2020_cache_migrated_v1", "skipped");
+            };
+          } catch (_) {
+            localStorage.setItem("disha2020_cache_migrated_v1", "failed");
+          }
+        }
+
         resolve(dbInstance);
       };
 
       request.onerror = (event: Event) => {
-        console.warn("[IndexedDB] Failed to open QuizPro cache database:", (event.target as IDBOpenDBRequest).error);
+        console.warn("[IndexedDB] Failed to open DISHA 20-20 cache database:", (event.target as IDBOpenDBRequest).error);
         resolve(null);
       };
     } catch (err) {
@@ -112,6 +146,11 @@ export async function getQuizProDB(): Promise<IDBDatabase | null> {
 
   return dbInitPromise;
 }
+
+/**
+ * Backward compatibility alias for QuizPro
+ */
+export const getQuizProDB = getDisha2020DB;
 
 /**
  * Get Question Bundle with its metadata from IndexedDB

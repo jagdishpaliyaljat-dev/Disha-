@@ -234,6 +234,7 @@ export async function syncCurriculumAuthoritative(options?: { force?: boolean })
       });
 
       if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("disha2020_curriculum_synced", { detail: result }));
         window.dispatchEvent(new CustomEvent("quizpro_curriculum_synced", { detail: result }));
       }
 
@@ -682,6 +683,90 @@ export async function deleteQuestionsBulkFromSupabase(questionIds: string[]): Pr
   } catch (err: any) {
     console.error("[Supabase] Failed to bulk delete questions:", err);
     return { success: false, count: 0, message: err.message || "Failed to delete questions in bulk" };
+  }
+}
+
+export interface MoveQuestionsResult {
+  success: boolean;
+  movedCount: number;
+  totalRequested: number;
+  message: string;
+}
+
+export async function moveQuestionsInSupabase(
+  questionIds: string[],
+  targetChapterId: string,
+  targetTopicId: string,
+  targetSubjectId?: string,
+  questionsMap?: Record<string, any>
+): Promise<MoveQuestionsResult> {
+  const uniqueIds = Array.from(new Set(questionIds.filter(Boolean)));
+  if (uniqueIds.length === 0) {
+    return {
+      success: true,
+      movedCount: 0,
+      totalRequested: 0,
+      message: "No questions selected to move.",
+    };
+  }
+
+  try {
+    if (isSupabaseConfigured()) {
+      const { error } = await supabase
+        .from("questions")
+        .update({
+          topic_id: targetTopicId,
+          chapter_id: targetChapterId,
+          ...(targetSubjectId ? { subject_id: targetSubjectId } : {}),
+          updated_at: new Date().toISOString(),
+        })
+        .in("id", uniqueIds);
+
+      if (error) {
+        console.error("[Supabase] Failed to move questions:", error);
+        return {
+          success: false,
+          movedCount: 0,
+          totalRequested: uniqueIds.length,
+          message: error.message || "Failed to move questions in Supabase",
+        };
+      }
+    }
+
+    // Update local database engine cache as well
+    try {
+      await openLocalDatabase();
+      for (const id of uniqueIds) {
+        const localQ = (await idbGet<Question>(STORES.MCQS, id)) || questionsMap?.[id];
+        if (localQ) {
+          const updated: Question = {
+            ...localQ,
+            topicId: targetTopicId,
+            chapterId: targetChapterId,
+            ...(targetSubjectId ? { subjectId: targetSubjectId } : {}),
+            updatedAt: new Date().toISOString(),
+          };
+          await idbPut(STORES.MCQS, updated);
+        }
+      }
+    } catch (localErr) {
+      console.warn("[Supabase] Local cache update error after move:", localErr);
+    }
+
+    return {
+      success: true,
+      movedCount: uniqueIds.length,
+      totalRequested: uniqueIds.length,
+      message: `Successfully moved ${uniqueIds.length} question(s).`,
+    };
+  } catch (err: any) {
+    console.error("[Supabase] Unexpected error moving questions:", err);
+    return {
+      success: false,
+      movedCount: 0,
+      totalRequested: uniqueIds.length,
+      message: err.message || "Unexpected error moving questions",
+    };
   }
 }
 

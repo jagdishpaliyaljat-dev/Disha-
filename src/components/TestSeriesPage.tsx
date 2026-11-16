@@ -144,7 +144,7 @@ export const TestSeriesPage: React.FC<TestSeriesPageProps> = ({
       }
 
       if (rawQuestions.length === 0) {
-        const { fetchMCQsByLiveTest } = await import("../utils/firebaseSyncService");
+        const { fetchMCQsByLiveTest } = await import("../utils/liveTestStorage");
         const fetched = await fetchMCQsByLiveTest(test.id);
         if (fetched && fetched.length > 0) {
           rawQuestions = fetched.filter(isCompleteQ);

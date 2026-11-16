@@ -236,7 +236,7 @@ function extractEmbeddedTablesFromText(
 }
 
 /**
- * Normalizes any Match the Following input structure into QuizPro's standard matchTable schema:
+ * Normalizes any Match the Following input structure into DISHA 20-20's standard matchTable schema:
  * { leftTitle?: string, rightTitle?: string, rows: { left: string, right: string }[] }
  */
 function normalizeMatchTableInput(raw: any): { matchTable?: MCQMatchTable; matchingErrorWarning?: string } {

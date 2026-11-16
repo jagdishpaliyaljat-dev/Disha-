@@ -1,6 +1,6 @@
 /**
  * Snapshot-Based Synchronization Architecture - Core Type Definitions
- * QuizPro / Disha 20-20 Education Application
+ * DISHA 20-20 Education Application
  */
 
 export interface VersionManifestChunk {

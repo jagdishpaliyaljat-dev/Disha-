@@ -2,7 +2,7 @@ import { isSyncEligible, type SyncCheckpointMetadata } from "../src/utils/syncCh
 import { generateContentHash, getDeterministicQuestionId } from "../src/utils/idempotency";
 
 /**
- * QuizPro Master Strict 24-Hour Offline-First Sync Test Suite
+ * DISHA 20-20 Master Strict 24-Hour Offline-First Sync Test Suite
  * 
  * Executes and validates the 24 mandatory test cases specified in the
  * Strict 24-Hour Offline-First Sync Architecture Master Implementation Prompt.

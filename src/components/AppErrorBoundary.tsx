@@ -89,6 +89,10 @@ export class AppErrorBoundary extends React.Component<AppErrorBoundaryProps, App
         // 3. Purge curriculum and temporary cache keys while preserving authenticated profile & streak
         if (typeof localStorage !== "undefined") {
           const purgeKeys = [
+            "disha2020_cloud_cache_questions_v1",
+            "disha2020_pending_writes_queue_v1",
+            "disha2020_curriculum_cache_v1",
+            "disha2020_clean_slate_zero_mock_v8_0",
             "quizpro_cloud_cache_questions_v1",
             "quizpro_pending_writes_queue_v1",
             "cached_curriculum_v1",

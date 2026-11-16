@@ -17,9 +17,6 @@ import {
   ArrowLeft,
   Inbox
 } from "lucide-react";
-import { db } from "../../lib/firebase";
-import { collection, query, orderBy, doc, Timestamp } from "firebase/firestore";
-import { guardedGetDocs, guardedDeleteDoc, guardedUpdateDoc } from "../../utils/quotaTracker";
 
 interface ContactMessage {
   id: string;
@@ -32,6 +29,9 @@ interface ContactMessage {
   statusText?: string;
   status: "new" | "read" | "replied" | "archived";
 }
+
+const MESSAGES_STORAGE_KEY = "disha2020_contact_messages_v1";
+const LEGACY_MESSAGES_STORAGE_KEY = "quizpro_contact_messages_v1";
 
 export const AdminMessagesSection: React.FC<{ onBackToAdmin?: () => void }> = ({ onBackToAdmin }) => {
   const [messages, setMessages] = React.useState<ContactMessage[]>([]);
@@ -47,12 +47,8 @@ export const AdminMessagesSection: React.FC<{ onBackToAdmin?: () => void }> = ({
     else setLoading(true);
 
     try {
-      const q = query(collection(db, "contact_messages"), orderBy("createdAt", "desc"));
-      const snapshot = await guardedGetDocs(q);
-      const msgs = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as ContactMessage[];
+      const raw = localStorage.getItem(MESSAGES_STORAGE_KEY) || localStorage.getItem(LEGACY_MESSAGES_STORAGE_KEY);
+      const msgs = raw ? JSON.parse(raw) : [];
       setMessages(msgs);
     } catch (err) {
       console.error("Failed to fetch messages:", err);
@@ -70,8 +66,11 @@ export const AdminMessagesSection: React.FC<{ onBackToAdmin?: () => void }> = ({
     if (!window.confirm("Are you sure you want to delete this message?")) return;
     setIsDeleting(id);
     try {
-      await guardedDeleteDoc(doc(db, "contact_messages", id), "Admin", "Delete Contact Message");
-      setMessages(messages.filter(m => m.id !== id));
+      const updated = messages.filter(m => m.id !== id);
+      setMessages(updated);
+      try {
+        localStorage.setItem(MESSAGES_STORAGE_KEY, JSON.stringify(updated));
+      } catch {}
       if (selectedMessage?.id === id) setSelectedMessage(null);
     } catch (err) {
       console.error("Failed to delete message:", err);
@@ -83,8 +82,11 @@ export const AdminMessagesSection: React.FC<{ onBackToAdmin?: () => void }> = ({
 
   const handleUpdateStatus = async (id: string, newStatus: ContactMessage["status"]) => {
     try {
-      await guardedUpdateDoc(doc(db, "contact_messages", id), { status: newStatus }, "Admin", "Update Message Status");
-      setMessages(messages.map(m => m.id === id ? { ...m, status: newStatus } : m));
+      const updated = messages.map(m => m.id === id ? { ...m, status: newStatus } : m);
+      setMessages(updated);
+      try {
+        localStorage.setItem(MESSAGES_STORAGE_KEY, JSON.stringify(updated));
+      } catch {}
       if (selectedMessage?.id === id) setSelectedMessage({ ...selectedMessage, status: newStatus });
     } catch (err) {
       console.error("Failed to update status:", err);
@@ -105,9 +107,11 @@ export const AdminMessagesSection: React.FC<{ onBackToAdmin?: () => void }> = ({
 
   const formatDate = (date: any) => {
     if (!date) return "N/A";
-    if (date instanceof Timestamp) return date.toDate().toLocaleString();
-    if (typeof date === "string") return new Date(date).toLocaleString();
-    return "N/A";
+    try {
+      return new Date(date).toLocaleString();
+    } catch {
+      return "N/A";
+    }
   };
 
   const getStatusBadge = (status: string) => {

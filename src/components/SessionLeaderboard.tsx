@@ -2,11 +2,6 @@ import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Trophy, Award, Medal, Users, Flame, RefreshCw, CheckCircle2, Clock, Sparkles, User, ChevronRight } from "lucide-react";
 import { UserProfile } from "../types";
-import { db, auth } from "../lib/firebase";
-import { collection, query, where, orderBy, limit } from "firebase/firestore";
-import { guardedGetDocs, guardedSetDoc } from "../utils/quotaTracker";
-import { updateLeaderboardToCloud } from "../utils/firebaseSyncService";
-import { isStudentTrackingAllowed } from "../utils/studentWriteBuffer";
 
 export interface LeaderboardEntry {
   id: string;
@@ -67,9 +62,9 @@ export const SessionLeaderboard: React.FC<SessionLeaderboardProps> = ({
     .replace(/[^a-zA-Z0-9_-]/g, "_")
     .toLowerCase();
 
-  const currentUserId = userProfile?.id || auth.currentUser?.uid || `guest_${cleanTestId}`;
-  const currentUserName = userProfile?.name || auth.currentUser?.displayName || "You (Aspirant)";
-  const currentUserPhoto = userProfile?.photoURL || userProfile?.avatar || auth.currentUser?.photoURL || "";
+  const currentUserId = userProfile?.id || `guest_${cleanTestId}`;
+  const currentUserName = userProfile?.name || "You (Aspirant)";
+  const currentUserPhoto = userProfile?.photoURL || userProfile?.avatar || "";
 
   useEffect(() => {
     let isMounted = true;
@@ -92,54 +87,18 @@ export const SessionLeaderboard: React.FC<SessionLeaderboardProps> = ({
         isCurrentUser: true,
       };
 
-      // 1. Save entry to Cloud ONLY for official Live Tests / PYQs when student tracking is allowed
-      if (allowCloudWrite && isStudentTrackingAllowed(userProfile)) {
-        try {
-          await updateLeaderboardToCloud(myEntry);
-        } catch (err) {
-          console.warn("Cloud leaderboard sync skipped/fallback to local:", err);
-        }
-      }
-
-      // Save to localStorage as instant offline fallback
+      // Save to localStorage as instant offline storage
+      let cloudEntries: LeaderboardEntry[] = [];
       try {
-        const localKey = `quizpro_lb_${cleanTestId}`;
-        const existingRaw = localStorage.getItem(localKey);
+        const localKey = `disha2020_lb_${cleanTestId}`;
+        const legacyKey = `quizpro_lb_${cleanTestId}`;
+        const existingRaw = localStorage.getItem(localKey) || localStorage.getItem(legacyKey);
         let localList: LeaderboardEntry[] = existingRaw ? JSON.parse(existingRaw) : [];
         localList = localList.filter((e) => e.userId !== currentUserId);
         localList.push(myEntry);
         localStorage.setItem(localKey, JSON.stringify(localList));
+        cloudEntries = [...localList];
       } catch (_) {}
-
-      // 2. Query Firestore for live leaderboard entries
-      let cloudEntries: LeaderboardEntry[] = [];
-      try {
-        const lbRef = collection(db, "leaderboard");
-        const q = query(lbRef, where("testId", "==", cleanTestId), limit(50));
-        const snap = await guardedGetDocs(q, "Student", "Fetch Session Leaderboard");
-
-        if (!snap.empty) {
-          snap.forEach((docSnap) => {
-            const data = docSnap.data() as any;
-            cloudEntries.push({
-              id: docSnap.id,
-              testId: data.testId || cleanTestId,
-              testTitle: data.testTitle || testTitle,
-              userId: data.userId || docSnap.id,
-              userName: data.userName || "Anonymous Aspirant",
-              userPhoto: data.userPhoto || "",
-              score: Number(data.score) || 0,
-              maxScore: Number(data.maxScore) || maxScore || 10,
-              accuracy: Number(data.accuracy) || 0,
-              timeSpentSeconds: Number(data.timeSpentSeconds) || 60,
-              submittedAt: data.submittedAt || new Date().toISOString(),
-              isCurrentUser: data.userId === currentUserId,
-            });
-          });
-        }
-      } catch (err) {
-        console.warn("Error fetching cloud leaderboard:", err);
-      }
 
       // Check if user entry is in cloudEntries
       if (!cloudEntries.some((e) => e.userId === currentUserId)) {
