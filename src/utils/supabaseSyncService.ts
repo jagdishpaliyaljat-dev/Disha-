@@ -34,6 +34,10 @@ let activeCurriculumSyncPromise: Promise<CurriculumSyncResult> | null = null;
 let lastCurriculumSyncTime = 0;
 let lastCurriculumSyncResult: CurriculumSyncResult | null = null;
 
+// In-flight request deduplication maps (prevents duplicate simultaneous queries to Supabase)
+const inFlightTopicFetches = new Map<string, Promise<Question[]>>();
+const inFlightChapterFetches = new Map<string, Promise<Question[]>>();
+
 /**
  * Performs authoritative bidirectional synchronization between Supabase PostgreSQL
  * and local IndexedDB cache:
@@ -82,16 +86,17 @@ export async function syncCurriculumAuthoritative(options?: { force?: boolean })
     await openLocalDatabase();
 
     try {
-      const qSubs = supabase.from("subjects").select("*").order("order_index", { ascending: true });
-      const qChaps = supabase.from("chapters").select("*").order("order_index", { ascending: true });
-      const qTops = supabase.from("topics").select("*").order("order_index", { ascending: true });
-      const qQuestions = supabase.from("questions").select("*");
+      const qSubs = supabase.from("subjects").select("id, name, hindi_name, description, icon, color, order_index").order("order_index", { ascending: true });
+      const qChaps = supabase.from("chapters").select("id, subject_id, name, hindi_name, order_index").order("order_index", { ascending: true });
+      const qTops = supabase.from("topics").select("id, chapter_id, subject_id, name, hindi_name, order_index").order("order_index", { ascending: true });
+      // Bounded initial question seed (avoids pulling massive multi-megabyte payloads on app open)
+      const qQuestions = supabase.from("questions").select("id, question, options, correct_answer, explanation, subject_id, chapter_id, topic_id, exam, year, level, created_at").limit(500);
 
       const [subsRes, chapsRes, topsRes, questionsRes] = await Promise.all([
         typeof (qSubs as any).range === "function" ? (qSubs as any).range(0, 9999) : qSubs,
         typeof (qChaps as any).range === "function" ? (qChaps as any).range(0, 9999) : qChaps,
         typeof (qTops as any).range === "function" ? (qTops as any).range(0, 9999) : qTops,
-        typeof (qQuestions as any).range === "function" ? (qQuestions as any).range(0, 9999) : qQuestions,
+        qQuestions,
       ]);
 
       if (subsRes.error) throw new Error(`Failed to fetch subjects: ${subsRes.error.message}`);
@@ -351,47 +356,131 @@ export async function fetchTopics(chapterId?: string, options?: { forceRefresh?:
 // QUESTION BANK (CANONICAL MCQS)
 // ─────────────────────────────────────────────────────────────────────────────
 
-export async function fetchQuestionsByTopic(topicId: string): Promise<Question[]> {
-  const { getLocalMCQsByTopic } = await import("./localDatabaseEngine");
-  const local = await getLocalMCQsByTopic(topicId);
-  if (local.length > 0) return local;
+export function fetchQuestionsByTopic(topicId: string): Promise<Question[]> {
+  if (!topicId) return Promise.resolve([]);
 
-  if (!isSupabaseConfigured()) return local;
-
-  try {
-    const { data, error } = await supabase
-      .from("questions")
-      .select("*")
-      .eq("topic_id", topicId);
-
-    if (error) throw error;
-    if (data && data.length > 0) {
-      const normalized: Question[] = data.map(q => ({
-        id: q.id,
-        text: q.question,
-        options: Array.isArray(q.options) ? q.options : [],
-        correctIndex: q.correct_answer ?? 0,
-        explanation: q.explanation || "",
-        subjectId: q.subject_id,
-        chapterId: q.chapter_id,
-        topicId: q.topic_id,
-        exam: q.exam,
-        year: q.year,
-        difficulty: q.level || "medium",
-        isUserAdded: false,
-        updatedAt: q.created_at
-      }));
-
-      for (const q of normalized) {
-        await idbPut(STORES.MCQS, q);
-      }
-      return normalized;
-    }
-  } catch (err: any) {
-    console.warn("[Supabase] Failed to fetch questions:", err.message);
+  // Check in-flight deduplicator
+  const existingInFlight = inFlightTopicFetches.get(topicId);
+  if (existingInFlight) {
+    return existingInFlight;
   }
 
-  return local;
+  const fetchPromise = (async () => {
+    const { getLocalMCQsByTopic } = await import("./localDatabaseEngine");
+    const local = await getLocalMCQsByTopic(topicId);
+    if (local.length > 0) return local;
+
+    if (!isSupabaseConfigured()) return local;
+
+    try {
+      // High-performance selective projection with deterministic ordering on (topic_id, id)
+      const { data, error } = await supabase
+        .from("questions")
+        .select("id, question, options, correct_answer, explanation, subject_id, chapter_id, topic_id, exam, year, level, verified, created_at")
+        .eq("topic_id", topicId)
+        .order("id", { ascending: true });
+
+      if (error) throw error;
+      if (data && data.length > 0) {
+        const normalized: Question[] = data.map(q => ({
+          id: q.id,
+          text: q.question,
+          options: Array.isArray(q.options) ? q.options : [],
+          correctIndex: q.correct_answer ?? 0,
+          explanation: q.explanation || "",
+          subjectId: q.subject_id,
+          chapterId: q.chapter_id,
+          topicId: q.topic_id,
+          exam: q.exam,
+          year: q.year,
+          difficulty: q.level || "medium",
+          isUserAdded: false,
+          updatedAt: q.created_at
+        }));
+
+        for (const q of normalized) {
+          await idbPut(STORES.MCQS, q);
+        }
+
+        // Also update localforage topic bundle
+        try {
+          const { saveQuestionsToCache } = await import("./questionBankCache");
+          saveQuestionsToCache(normalized, { topicId, source: "sync" }).catch(() => {});
+        } catch {}
+
+        return normalized;
+      }
+    } catch (err: any) {
+      console.warn("[Supabase] Failed to fetch questions:", err.message);
+    }
+
+    return local;
+  })().finally(() => {
+    inFlightTopicFetches.delete(topicId);
+  });
+
+  inFlightTopicFetches.set(topicId, fetchPromise);
+  return fetchPromise;
+}
+
+export function fetchQuestionsByChapter(chapterId: string): Promise<Question[]> {
+  if (!chapterId) return Promise.resolve([]);
+
+  // Check in-flight deduplicator
+  const existingInFlight = inFlightChapterFetches.get(chapterId);
+  if (existingInFlight) {
+    return existingInFlight;
+  }
+
+  const fetchPromise = (async () => {
+    const { getLocalMCQsByChapter } = await import("./localDatabaseEngine");
+    const local = await getLocalMCQsByChapter(chapterId);
+    if (local.length > 0) return local;
+
+    if (!isSupabaseConfigured()) return local;
+
+    try {
+      // Single round-trip indexed query on (chapter_id, id) - eliminates N+1 topic query loop
+      const { data, error } = await supabase
+        .from("questions")
+        .select("id, question, options, correct_answer, explanation, subject_id, chapter_id, topic_id, exam, year, level, verified, created_at")
+        .eq("chapter_id", chapterId)
+        .order("id", { ascending: true });
+
+      if (error) throw error;
+      if (data && data.length > 0) {
+        const normalized: Question[] = data.map(q => ({
+          id: q.id,
+          text: q.question,
+          options: Array.isArray(q.options) ? q.options : [],
+          correctIndex: q.correct_answer ?? 0,
+          explanation: q.explanation || "",
+          subjectId: q.subject_id,
+          chapterId: q.chapter_id,
+          topicId: q.topic_id,
+          exam: q.exam,
+          year: q.year,
+          difficulty: q.level || "medium",
+          isUserAdded: false,
+          updatedAt: q.created_at
+        }));
+
+        for (const q of normalized) {
+          await idbPut(STORES.MCQS, q);
+        }
+        return normalized;
+      }
+    } catch (err: any) {
+      console.warn("[Supabase] Failed to fetch chapter questions:", err.message);
+    }
+
+    return local;
+  })().finally(() => {
+    inFlightChapterFetches.delete(chapterId);
+  });
+
+  inFlightChapterFetches.set(chapterId, fetchPromise);
+  return fetchPromise;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -630,6 +719,18 @@ export async function upsertQuestionsToSupabase(questions: Question[]): Promise<
       await idbPut(STORES.MCQS, q);
     }
 
+    // Invalidate affected topic caches so students fetch fresh questions immediately
+    try {
+      const { invalidateTopicCache } = await import("./questionBankCache");
+      const affectedTopics = new Set<string>();
+      for (const q of questions) {
+        if (q.topicId) affectedTopics.add(q.topicId);
+      }
+      for (const tid of affectedTopics) {
+        await invalidateTopicCache(tid);
+      }
+    } catch (_) {}
+
     return { 
       success: true, 
       count: uploadedCount, 
@@ -652,6 +753,13 @@ export async function deleteQuestionFromSupabase(questionId: string): Promise<{ 
 
     await openLocalDatabase();
     await idbDelete(STORES.MCQS, questionId);
+
+    // Invalidate cache
+    try {
+      const { removeQuestionsFromCache } = await import("./questionBankCache");
+      await removeQuestionsFromCache([questionId]);
+    } catch (_) {}
+
     return { success: true, message: isSupabaseConfigured() ? "Question deleted from Supabase" : "Deleted locally" };
   } catch (err: any) {
     console.error("[Supabase] Failed to delete question:", err);
@@ -678,6 +786,12 @@ export async function deleteQuestionsBulkFromSupabase(questionIds: string[]): Pr
     for (const id of questionIds) {
       await idbDelete(STORES.MCQS, id);
     }
+
+    // Invalidate cache
+    try {
+      const { removeQuestionsFromCache } = await import("./questionBankCache");
+      await removeQuestionsFromCache(questionIds);
+    } catch (_) {}
 
     return { success: true, count: questionIds.length };
   } catch (err: any) {
@@ -775,6 +889,7 @@ export async function moveQuestionsInSupabase(
 // ─────────────────────────────────────────────────────────────────────────────
 
 export async function recordStudentAttempt(attempt: {
+  id?: string;
   userId?: string;
   topicId?: string;
   subjectId?: string;
@@ -792,7 +907,7 @@ export async function recordStudentAttempt(attempt: {
     }
     if (!uid || uid === "student_default" || String(uid).startsWith("guest_")) return;
 
-    await supabase.from("attempts").insert({
+    const row: any = {
       user_id: uid,
       topic_id: attempt.topicId || null,
       subject_id: attempt.subjectId || null,
@@ -800,7 +915,15 @@ export async function recordStudentAttempt(attempt: {
       total_questions: attempt.totalQuestions,
       answers: attempt.answers,
       time_spent_seconds: attempt.timeSpentSeconds
-    });
+    };
+
+    // Idempotent write: If client supplied an attempt ID (e.g. test session ID), upsert safely
+    if (attempt.id) {
+      row.id = attempt.id;
+      await supabase.from("attempts").upsert(row, { onConflict: "id" });
+    } else {
+      await supabase.from("attempts").insert(row);
+    }
   } catch (e: any) {
     console.warn("[Supabase] Attempt sync error:", e.message);
   }
@@ -816,11 +939,13 @@ export async function fetchUserAttemptsFromSupabase(userId?: string): Promise<an
     }
     if (!uid || uid === "student_default" || String(uid).startsWith("guest_")) return [];
 
+    // Selective projection using covering index idx_attempts_user_created_at
     const { data, error } = await supabase
       .from("attempts")
-      .select("*")
+      .select("id, topic_id, subject_id, score, total_questions, time_spent_seconds, created_at")
       .eq("user_id", uid)
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .limit(50);
 
     if (error) throw error;
     return data || [];
@@ -1055,7 +1180,7 @@ export async function fetchPaginatedQuestions(params: {
   try {
     let query = supabase
       .from("questions")
-      .select("*", { count: "exact" });
+      .select("id, question, options, correct_answer, explanation, subject_id, chapter_id, topic_id, exam, year, level, verified, created_at", { count: "exact" });
 
     if (params.subjectId && params.subjectId !== "all") {
       query = query.eq("subject_id", params.subjectId);
@@ -1072,6 +1197,7 @@ export async function fetchPaginatedQuestions(params: {
 
     const { data, count, error } = await query
       .order("created_at", { ascending: false })
+      .order("id", { ascending: true })
       .range(from, to);
 
     if (error) throw error;

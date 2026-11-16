@@ -1959,9 +1959,23 @@ export async function fetchTopicQuestionsOnDemand(topicId: string): Promise<Ques
 
 /**
  * Asynchronously fetches and hydrates full question details for all topics within a chapter on-demand.
+ * High-performance: Fetches all questions for the chapter in a single indexed query, eliminating N+1 topic query loops.
  */
 export async function fetchChapterQuestionsOnDemand(chapterId: string): Promise<Question[]> {
   if (!chapterId) return [];
+
+  // 1. First attempt high-speed single-query indexed fetch from Supabase/IDB
+  try {
+    const { fetchQuestionsByChapter } = await import("./supabaseSyncService");
+    const chapterQs = await fetchQuestionsByChapter(chapterId);
+    if (chapterQs && chapterQs.length > 0) {
+      return deduplicateQuestions(chapterQs);
+    }
+  } catch (e) {
+    console.warn("[questionsStorage] fetchQuestionsByChapter fallback to topics:", e);
+  }
+
+  // 2. Fallback to topic-by-topic aggregation if chapter query returns empty
   const store = loadUserQuestionsStore();
   const chapters = getCombinedChapters(store);
   const targetChapter = chapters.find((ch) => ch.id === chapterId);

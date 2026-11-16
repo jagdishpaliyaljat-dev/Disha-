@@ -105,7 +105,11 @@ const hotMemoryTopicCache = new Map<string, { questions: Question[]; timestamp: 
 let isCacheWarming = false;
 let isCacheWarmed = false;
 
+// In-flight deduplication map for concurrent cache-first fetch requests
+const inFlightCacheFirstFetches = new Map<string, Promise<Question[]>>();
+
 const HOT_CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes hot memory TTL
+const MAX_GLOBAL_MONOLITHIC_CACHE_SIZE = 500; // Cap monolithic blob to avoid freezing UI thread with 100k+ MCQs
 
 /**
  * Validates whether a record conforms to a playable MCQ question
@@ -228,13 +232,14 @@ export async function saveQuestionsToCache(
       } as CacheMetadata);
     }
 
-    // 3. Update global question bank bundle
+    // 3. Update global question bank bundle (capped to prevent monolithic JSON heap bloat at scale)
     const globalKey = "bank:all_questions";
     const existingGlobal = (await questionBankStore.getItem<Question[]>(globalKey)) || [];
     const mergedGlobal = deduplicateQuestionsList([...existingGlobal, ...validQuestions]);
-    await questionBankStore.setItem(globalKey, mergedGlobal);
+    const cappedGlobal = mergedGlobal.slice(0, MAX_GLOBAL_MONOLITHIC_CACHE_SIZE);
+    await questionBankStore.setItem(globalKey, cappedGlobal);
 
-    // Save global metadata
+    // Save global metadata with true count
     await questionMetaStore.setItem(`meta:${globalKey}`, {
       cachedAt: now,
       itemCount: mergedGlobal.length,
@@ -248,6 +253,23 @@ export async function saveQuestionsToCache(
 
   } catch (err) {
     console.warn("[QuestionBankCache] Error saving questions to localforage:", err);
+  }
+}
+
+/**
+ * Invalidates cached questions and metadata for a specific topic across RAM and IndexedDB.
+ * Used when admin modifies or imports questions to prevent stale data.
+ */
+export async function invalidateTopicCache(topicId: string): Promise<void> {
+  if (!topicId) return;
+  hotMemoryTopicCache.delete(topicId);
+  hotMemoryTopicCache.delete(topicId.toLowerCase());
+  try {
+    const topicKey = `topic:${topicId}`;
+    await questionBankStore.removeItem(topicKey);
+    await questionMetaStore.removeItem(`meta:${topicKey}`);
+  } catch (err) {
+    console.warn(`[QuestionBankCache] Error invalidating cache for topic ${topicId}:`, err);
   }
 }
 
@@ -334,8 +356,8 @@ export async function getAllCachedQuestions(): Promise<Question[]> {
 
     if (aggregated.length > 0) {
       const deduped = deduplicateQuestionsList(aggregated);
-      // Save global bundle for faster future queries
-      await questionBankStore.setItem("bank:all_questions", deduped);
+      // Save capped bundle for fast preview without freezing storage
+      await questionBankStore.setItem("bank:all_questions", deduped.slice(0, MAX_GLOBAL_MONOLITHIC_CACHE_SIZE));
       return deduped;
     }
   } catch (err) {
@@ -366,113 +388,129 @@ export async function fetchQuestionsCacheFirst(
 ): Promise<Question[]> {
   if (!topicId) return [];
 
-  // Special handling for 'all'
-  if (topicId === "all") {
-    const cachedAll = await getAllCachedQuestions();
-    if (cachedAll.length > 0 && !options?.forceRefresh) {
-      // Revalidate in background if online
-      if (typeof navigator !== "undefined" && navigator.onLine && options?.remoteFetcher) {
-        options.remoteFetcher("all").then((remoteQs) => {
-          if (Array.isArray(remoteQs) && remoteQs.length > 0) {
-            saveQuestionsToCache(remoteQs, { topicId: "all", source: "firestore" }).catch(() => {});
-          }
-        }).catch(() => {});
-      }
-      return cachedAll;
-    }
-  }
-
-  // Step 1: Check IndexedDB Cache First (unless explicitly forcing refresh)
   if (!options?.forceRefresh) {
-    const cached = await getCachedQuestionsByTopic(topicId);
-    if (cached && cached.length > 0) {
-      // Revalidate in background if online without blocking student practice
-      if (typeof navigator !== "undefined" && navigator.onLine && options?.remoteFetcher) {
-        options.remoteFetcher(topicId).then((remoteQs) => {
-          if (Array.isArray(remoteQs) && remoteQs.length > 0) {
-            saveQuestionsToCache(remoteQs, { topicId, source: "firestore" }).catch(() => {});
-          }
-        }).catch(() => {});
-      }
-      return cached;
+    const existingInFlight = inFlightCacheFirstFetches.get(topicId);
+    if (existingInFlight) {
+      return existingInFlight;
     }
   }
 
-  // Step 2: Cache Miss (or Force Refresh) — Attempt remote fetch if fetcher provided or via supabaseSyncService
-  try {
-    let remoteQuestions: Question[] = [];
-    if (options?.remoteFetcher) {
-      remoteQuestions = await options.remoteFetcher(topicId);
-    } else {
-      const { fetchQuestionsByTopic } = await import("./supabaseSyncService");
-      const fetched = await fetchQuestionsByTopic(topicId);
-      if (Array.isArray(fetched) && fetched.length > 0) {
-        remoteQuestions = fetched.map(normalizeCachedQuestion);
-      }
-    }
-
-    if (remoteQuestions.length > 0) {
-      const valid = deduplicateQuestionsList(remoteQuestions);
-      // Persist in localforage IndexedDB for future offline practice sessions
-      saveQuestionsToCache(valid, { topicId, source: "supabase" }).catch(() => {});
-      return valid;
-    }
-  } catch (remoteErr) {
-    console.warn(`[QuestionBankCache] Remote fetch failed for topic ${topicId} (offline or quota):`, remoteErr);
-  }
-
-  // Step 3: Remote failed or empty — Check in-memory store and seed curriculum
-  try {
-    const { loadUserQuestionsStore } = await import("./questionsStorage");
-    const store = loadUserQuestionsStore();
-    const allStoreQs = [...(store.customQuestions || []), ...(store.cloudCacheQuestions || [])];
-    const tIdLower = topicId.toLowerCase();
-
-    const matchedInStore = allStoreQs.filter((q) => {
-      if (!isValidQuestion(q)) return false;
-      if (topicId === "all") return true;
-      if (q.topicId && q.topicId.toLowerCase() === tIdLower) return true;
-      if ((q as any).topic && String((q as any).topic).toLowerCase() === tIdLower) return true;
-      if (q.chapterId && q.chapterId.toLowerCase() === tIdLower) return true;
-      return false;
-    });
-
-    if (matchedInStore.length > 0) {
-      const valid = deduplicateQuestionsList(matchedInStore);
-      saveQuestionsToCache(valid, { topicId, source: "user" }).catch(() => {});
-      return valid;
-    }
-  } catch (storeErr) {
-    console.warn("[QuestionBankCache] Store lookup fallback error:", storeErr);
-  }
-
-  // Step 4: Check CHAPTERS_DATA base dataset
-  try {
-    const baseQuestions = CHAPTERS_DATA.flatMap((c) =>
-      c.topics.flatMap((t) => {
-        if (topicId === "all" || t.id.toLowerCase() === topicId.toLowerCase()) {
-          return t.questions || [];
+  const fetchPromise = (async () => {
+    // Special handling for 'all'
+    if (topicId === "all") {
+      const cachedAll = await getAllCachedQuestions();
+      if (cachedAll.length > 0 && !options?.forceRefresh) {
+        // Revalidate in background if online
+        if (typeof navigator !== "undefined" && navigator.onLine && options?.remoteFetcher) {
+          options.remoteFetcher("all").then((remoteQs) => {
+            if (Array.isArray(remoteQs) && remoteQs.length > 0) {
+              saveQuestionsToCache(remoteQs, { topicId: "all", source: "firestore" }).catch(() => {});
+            }
+          }).catch(() => {});
         }
-        return [];
-      })
-    );
-
-    if (baseQuestions.length > 0) {
-      const valid = deduplicateQuestionsList(baseQuestions);
-      saveQuestionsToCache(valid, { topicId, source: "initial" }).catch(() => {});
-      return valid;
+        return cachedAll;
+      }
     }
-  } catch (_) {}
 
-  // Step 5: Final fallback to cached questions from any topic if allowed
-  if (options?.fallbackToAll) {
-    const all = await getAllCachedQuestions();
-    if (all.length > 0) {
-      return all.slice(0, 30);
+    // Step 1: Check IndexedDB Cache First (unless explicitly forcing refresh)
+    if (!options?.forceRefresh) {
+      const cached = await getCachedQuestionsByTopic(topicId);
+      if (cached && cached.length > 0) {
+        // Revalidate in background if online without blocking student practice
+        if (typeof navigator !== "undefined" && navigator.onLine && options?.remoteFetcher) {
+          options.remoteFetcher(topicId).then((remoteQs) => {
+            if (Array.isArray(remoteQs) && remoteQs.length > 0) {
+              saveQuestionsToCache(remoteQs, { topicId, source: "firestore" }).catch(() => {});
+            }
+          }).catch(() => {});
+        }
+        return cached;
+      }
     }
+
+    // Step 2: Cache Miss (or Force Refresh) — Attempt remote fetch if fetcher provided or via supabaseSyncService
+    try {
+      let remoteQuestions: Question[] = [];
+      if (options?.remoteFetcher) {
+        remoteQuestions = await options.remoteFetcher(topicId);
+      } else {
+        const { fetchQuestionsByTopic } = await import("./supabaseSyncService");
+        const fetched = await fetchQuestionsByTopic(topicId);
+        if (Array.isArray(fetched) && fetched.length > 0) {
+          remoteQuestions = fetched.map(normalizeCachedQuestion);
+        }
+      }
+
+      if (remoteQuestions.length > 0) {
+        const valid = deduplicateQuestionsList(remoteQuestions);
+        // Persist in localforage IndexedDB for future offline practice sessions
+        saveQuestionsToCache(valid, { topicId, source: "supabase" }).catch(() => {});
+        return valid;
+      }
+    } catch (remoteErr) {
+      console.warn(`[QuestionBankCache] Remote fetch failed for topic ${topicId} (offline or quota):`, remoteErr);
+    }
+
+    // Step 3: Remote failed or empty — Check in-memory store and seed curriculum
+    try {
+      const { loadUserQuestionsStore } = await import("./questionsStorage");
+      const store = loadUserQuestionsStore();
+      const allStoreQs = [...(store.customQuestions || []), ...(store.cloudCacheQuestions || [])];
+      const tIdLower = topicId.toLowerCase();
+
+      const matchedInStore = allStoreQs.filter((q) => {
+        if (!isValidQuestion(q)) return false;
+        if (topicId === "all") return true;
+        if (q.topicId && q.topicId.toLowerCase() === tIdLower) return true;
+        if ((q as any).topic && String((q as any).topic).toLowerCase() === tIdLower) return true;
+        if (q.chapterId && q.chapterId.toLowerCase() === tIdLower) return true;
+        return false;
+      });
+
+      if (matchedInStore.length > 0) {
+        const valid = deduplicateQuestionsList(matchedInStore);
+        saveQuestionsToCache(valid, { topicId, source: "user" }).catch(() => {});
+        return valid;
+      }
+    } catch (storeErr) {
+      console.warn("[QuestionBankCache] Store lookup fallback error:", storeErr);
+    }
+
+    // Step 4: Check CHAPTERS_DATA base dataset
+    try {
+      const baseQuestions = CHAPTERS_DATA.flatMap((c) =>
+        c.topics.flatMap((t) => {
+          if (topicId === "all" || t.id.toLowerCase() === topicId.toLowerCase()) {
+            return t.questions || [];
+          }
+          return [];
+        })
+      );
+
+      if (baseQuestions.length > 0) {
+        const valid = deduplicateQuestionsList(baseQuestions);
+        saveQuestionsToCache(valid, { topicId, source: "initial" }).catch(() => {});
+        return valid;
+      }
+    } catch (_) {}
+
+    // Step 5: Final fallback to cached questions from any topic if allowed
+    if (options?.fallbackToAll) {
+      const all = await getAllCachedQuestions();
+      if (all.length > 0) {
+        return all.slice(0, 30);
+      }
+    }
+
+    return [];
+  })().finally(() => {
+    inFlightCacheFirstFetches.delete(topicId);
+  });
+
+  if (!options?.forceRefresh) {
+    inFlightCacheFirstFetches.set(topicId, fetchPromise);
   }
-
-  return [];
+  return fetchPromise;
 }
 
 /**
