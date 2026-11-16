@@ -934,14 +934,42 @@ export default function App() {
     };
   }, [updateProgress]);
 
-  // Background fetch of curriculum from Supabase on startup
+  // Background fetch of curriculum from Supabase on startup & live sync
   React.useEffect(() => {
-    import('./utils/supabaseSyncService').then(({ fetchSubjects, fetchChapters, fetchTopics }) => {
-      fetchSubjects().catch(() => []);
-      fetchChapters().catch(() => []);
-      fetchTopics().catch(() => []);
-    }).catch(() => {});
-  }, []);
+    let isSubscribed = true;
+
+    const syncFromSupabase = () => {
+      import('./utils/supabaseSyncService').then(({ fetchSubjects, fetchChapters, fetchTopics }) => {
+        Promise.all([
+          fetchSubjects({ forceRefresh: true }),
+          fetchChapters(),
+          fetchTopics()
+        ]).then(([subs, chaps, tops]) => {
+          if (!isSubscribed) return;
+          if (subs && subs.length > 0) {
+            setQuestionsStore((prev) => ({
+              ...prev,
+              customSubjects: subs,
+              customChapters: chaps && chaps.length > 0 ? chaps : prev.customChapters,
+              customTopics: tops && tops.length > 0 ? tops : prev.customTopics
+            }));
+          }
+        }).catch(() => {});
+      }).catch(() => {});
+    };
+
+    syncFromSupabase();
+
+    const handleCurriculumSynced = () => {
+      syncFromSupabase();
+    };
+
+    window.addEventListener("quizpro_curriculum_synced", handleCurriculumSynced);
+    return () => {
+      isSubscribed = false;
+      window.removeEventListener("quizpro_curriculum_synced", handleCurriculumSynced);
+    };
+  }, [setQuestionsStore]);
 
   const isAdmin = userProfile ? isUserAdmin(userProfile) : false;
 
