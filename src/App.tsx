@@ -33,9 +33,13 @@ import { ToastNotificationContainer, ToastMessage } from './components/ToastNoti
 import { PWAUpdateToast } from './components/PWAUpdateToast';
 import { BrandSplashAndOnboarding } from './components/BrandSplashAndOnboarding';
 import { AdminErrorBoundary } from './components/admin/AdminErrorBoundary';
+import { RouteErrorBoundary } from './components/RouteErrorBoundary';
+import { NotFoundView } from './components/NotFoundView';
 import { useNavigation } from './hooks/useNavigation';
 import { useCurriculumManager } from './hooks/useCurriculumManager';
 import { loadUserProfile, saveUserProfile, isUserAdmin } from './utils/userProfileStorage';
+import { resolvePathToNavigationState, buildCanonicalPath, isKnownTab } from './utils/routeNavigation';
+import { prefetchCoreRoutes } from './utils/routePrefetcher';
 import { loadSettingsFromStorage, saveSettingsToStorage, loadProgressFromStorage, saveProgressToStorage, recordStudyAnswerToHistory, loadStudyHistoryFromStorage, saveStudyHistoryToStorage } from './utils/storage';
 import { loadNotifications, saveNotifications } from './utils/notificationsStorage';
 import { getTodayDateString, calculateNextProgress } from './utils/revision';
@@ -148,136 +152,22 @@ const TestSeriesPage = safeLazy<typeof import('./components/TestSeriesPage').Tes
 const HTMLImportMCQModal = safeLazy<typeof import('./components/admin/HTMLImportMCQModal').HTMLImportMCQModal>(() => import('./components/admin/HTMLImportMCQModal'), 'HTMLImportMCQModal');
 const GlobalSearchModal = safeLazy<typeof import('./components/GlobalSearchModal').GlobalSearchModal>(() => import('./components/GlobalSearchModal'), 'GlobalSearchModal');
 
-// Navigation helpers for deep-linking and browser history synchronization
-function getInitialNavigationState() {
-  if (typeof window === 'undefined') {
-    return {
-      tab: 'home' as ActiveTab,
-      articleSlug: null as string | null,
-      subjectId: null as string | null,
-      chapterId: null as string | null,
-      topicId: null as string | null,
-      coachingId: null as string | null,
-      examId: null as string | null,
-      seriesId: null as string | null,
-    };
-  }
-
-  const path = window.location.pathname;
-  const searchParams = new URLSearchParams(window.location.search);
-
-  let tab: ActiveTab = 'home';
-  let articleSlug: string | null = null;
-  let coachingId: string | null = null;
-  let examId: string | null = null;
-  let seriesId: string | null = null;
-
-  if (path.startsWith('/news')) {
-    tab = 'news';
-    articleSlug = path.split('/news/')[1]?.split('/')[0] || null;
-  } else if (path.startsWith('/test-series') || path.startsWith('/test_series')) {
-    tab = 'test_series';
-    const parts = path.split('/');
-    const coachingIdx = parts.indexOf('coaching');
-    if (coachingIdx !== -1 && parts[coachingIdx + 1]) {
-      coachingId = decodeURIComponent(parts[coachingIdx + 1]);
-    }
-    const examIdx = parts.indexOf('exam');
-    if (examIdx !== -1 && parts[examIdx + 1]) {
-      examId = decodeURIComponent(parts[examIdx + 1]);
-    }
-    const seriesIdx = parts.indexOf('series');
-    if (seriesIdx !== -1 && parts[seriesIdx + 1]) {
-      seriesId = decodeURIComponent(parts[seriesIdx + 1]);
-    }
-  } else if (path.startsWith('/topics')) {
-    tab = 'topics';
-  } else if (path.startsWith('/pyq_vault')) {
-    tab = 'pyq_vault';
-  } else if (path.startsWith('/live_tests')) {
-    tab = 'live_tests';
-  } else if (path.startsWith('/wrong')) {
-    tab = 'wrong';
-  } else if (path.startsWith('/profile')) {
-    tab = 'profile';
-  } else if (path.startsWith('/admin')) {
-    tab = 'admin';
-  } else if (path.startsWith('/notifications')) {
-    tab = 'notifications';
-  } else if (path.startsWith('/analytics')) {
-    tab = 'analytics';
-  } else if (path.startsWith('/about')) {
-    tab = 'about';
-  } else if (path.startsWith('/privacy-policy')) {
-    tab = 'privacy-policy';
-  } else if (path.startsWith('/terms-of-service')) {
-    tab = 'terms-of-service';
-  } else if (path.startsWith('/contact')) {
-    tab = 'contact';
-  } else if (path.startsWith('/disclaimer')) {
-    tab = 'disclaimer';
-  }
-
-  return {
-    tab,
-    articleSlug,
-    subjectId: searchParams.get('subject') || null,
-    chapterId: searchParams.get('chapter') || null,
-    topicId: searchParams.get('topic') || null,
-    coachingId,
-    examId,
-    seriesId,
-  };
-}
-
-function buildCanonicalPath(
-  tab: ActiveTab,
-  slug: string | null,
-  subjectId: string | null,
-  chapterId: string | null,
-  topicId: string | null,
-  coachingId: string | null,
-  examId: string | null,
-  seriesId: string | null,
-  hasSession: boolean
-): string {
-  if (tab === 'home') return '/';
-  if (tab === 'news') {
-    return slug ? `/news/${slug}` : '/news';
-  }
-  if (tab === 'test_series') {
-    let pathStr = '/test-series';
-    if (coachingId) {
-      pathStr += `/coaching/${encodeURIComponent(coachingId)}`;
-      if (examId) {
-        pathStr += `/exam/${encodeURIComponent(examId)}`;
-        if (seriesId) {
-          pathStr += `/series/${encodeURIComponent(seriesId)}`;
-        }
-      }
-    }
-    if (hasSession) {
-      pathStr += '?session=1';
-    }
-    return pathStr;
-  }
-
-  const params = new URLSearchParams();
-  if (tab === 'topics') {
-    if (subjectId) params.set('subject', subjectId);
-    if (chapterId) params.set('chapter', chapterId);
-    if (topicId) params.set('topic', topicId);
-  }
-  if (hasSession) {
-    params.set('session', '1');
-  }
-
-  const qs = params.toString();
-  return `/${tab}${qs ? `?${qs}` : ''}`;
-}
-
 export default function App() {
-  const initialNavState = React.useMemo(() => getInitialNavigationState(), []);
+  const initialNavState = React.useMemo(() => {
+    if (typeof window === 'undefined') {
+      return {
+        tab: 'home' as ActiveTab,
+        articleSlug: null as string | null,
+        subjectId: null as string | null,
+        chapterId: null as string | null,
+        topicId: null as string | null,
+        coachingId: null as string | null,
+        examId: null as string | null,
+        seriesId: null as string | null,
+      };
+    }
+    return resolvePathToNavigationState(window.location.pathname, new URLSearchParams(window.location.search));
+  }, []);
   const { 
     activeTab, setActiveTab, selectedArticleSlug, setSelectedArticleSlug,
     selectedSubjectId, setSelectedSubjectId, selectedChapterId, setSelectedChapterId,
@@ -604,64 +494,16 @@ export default function App() {
       if (isHTMLImportOpen) { setIsHTMLImportOpen(false); return; }
       if (isGlobalSearchOpen) { setIsGlobalSearchOpen(false); return; }
 
-      // 4. Parse new URL after back action
-      if (path === '/' || path === '/home') {
-        setActiveTab('home');
-        setSelectedArticleSlug(null);
-        setSelectedSubjectId(null);
-        setSelectedChapterId(null);
-        setSelectedTopicId(null);
-        setSelectedCoachingId(null);
-        setSelectedExamId(null);
-        setSelectedSeriesId(null);
-      } else if (path.startsWith('/news')) {
-        setActiveTab('news');
-        const slug = path.split('/news/')[1]?.split('/')[0] || null;
-        setSelectedArticleSlug(slug);
-        setSelectedSubjectId(null);
-        setSelectedChapterId(null);
-        setSelectedTopicId(null);
-      } else if (path.startsWith('/test-series') || path.startsWith('/test_series')) {
-        setActiveTab('test_series');
-        const parts = path.split('/');
-        let coachingId: string | null = null;
-        let examId: string | null = null;
-        let seriesId: string | null = null;
-
-        const coachingIdx = parts.indexOf('coaching');
-        if (coachingIdx !== -1 && parts[coachingIdx + 1]) {
-          coachingId = decodeURIComponent(parts[coachingIdx + 1]);
-        }
-        const examIdx = parts.indexOf('exam');
-        if (examIdx !== -1 && parts[examIdx + 1]) {
-          examId = decodeURIComponent(parts[examIdx + 1]);
-        }
-        const seriesIdx = parts.indexOf('series');
-        if (seriesIdx !== -1 && parts[seriesIdx + 1]) {
-          seriesId = decodeURIComponent(parts[seriesIdx + 1]);
-        }
-
-        setSelectedCoachingId(coachingId);
-        setSelectedExamId(examId);
-        setSelectedSeriesId(seriesId);
-        setSelectedArticleSlug(null);
-        setSelectedSubjectId(null);
-        setSelectedChapterId(null);
-        setSelectedTopicId(null);
-      } else if (path.startsWith('/topics')) {
-        setActiveTab('topics');
-        setSelectedArticleSlug(null);
-        setSelectedSubjectId(searchParams.get('subject') || null);
-        setSelectedChapterId(searchParams.get('chapter') || null);
-        setSelectedTopicId(searchParams.get('topic') || null);
-      } else {
-        const tab = path.slice(1).split('?')[0].split('/')[0] as ActiveTab;
-        setActiveTab(tab || 'home');
-        setSelectedArticleSlug(null);
-        setSelectedSubjectId(null);
-        setSelectedChapterId(null);
-        setSelectedTopicId(null);
-      }
+      // 4. Parse new URL after back/forward action using centralized resolver
+      const parsed = resolvePathToNavigationState(path, searchParams);
+      setActiveTab(parsed.tab);
+      setSelectedArticleSlug(parsed.articleSlug);
+      setSelectedSubjectId(parsed.subjectId);
+      setSelectedChapterId(parsed.chapterId);
+      setSelectedTopicId(parsed.topicId);
+      setSelectedCoachingId(parsed.coachingId);
+      setSelectedExamId(parsed.examId);
+      setSelectedSeriesId(parsed.seriesId);
     };
 
     window.addEventListener('popstate', handlePopState);
@@ -791,6 +633,11 @@ export default function App() {
     }, 1500);
 
     return () => clearTimeout(timer);
+  }, []);
+
+  // Idle background prefetcher for core application routes and heavy components
+  React.useEffect(() => {
+    prefetchCoreRoutes();
   }, []);
 
   // Supabase Auth & Session Lifecycle Listener
@@ -1288,6 +1135,7 @@ export default function App() {
 
       {/* Main Content Rendering */}
       <main className="flex-1 pb-16 md:pb-6">
+        <RouteErrorBoundary tabName={activeTab} onNavigateHome={() => setActiveTab('home')}>
         <React.Suspense fallback={<div className="flex items-center justify-center py-20"><div className="w-7 h-7 border-3 border-[#800020] dark:border-[#F47B20] border-t-transparent rounded-full animate-spin" /></div>}>
         {activeTab === 'home' && (
           <HomeTab
@@ -1552,7 +1400,12 @@ export default function App() {
             onOpenContact={() => setActiveTab('contact')}
           />
         )}
+
+        {(activeTab === 'not_found' || (!isKnownTab(activeTab) && activeTab !== 'analyzer')) && (
+          <NotFoundView onNavigateTab={(tab) => setActiveTab(tab)} />
+        )}
         </React.Suspense>
+        </RouteErrorBoundary>
       </main>
 
       {/* Bottom Navigation (Student view only; Admin has its own specialized management bottom bar) */}
@@ -1560,14 +1413,27 @@ export default function App() {
         <BottomNav
           activeTab={activeTab}
           onChangeTab={(tab: ActiveTab) => {
-            if (tab !== activeTab) {
+            if (tab === activeTab) {
+              // Re-tapping current active tab resets drill-down state to section root
               setSelectedArticleSlug(null);
               setSelectedSubjectId(null);
               setSelectedChapterId(null);
               setSelectedTopicId(null);
+              setSelectedCoachingId(null);
+              setSelectedExamId(null);
+              setSelectedSeriesId(null);
               setActiveSession(null);
-              setActiveTab(tab);
+              return;
             }
+            setSelectedArticleSlug(null);
+            setSelectedSubjectId(null);
+            setSelectedChapterId(null);
+            setSelectedTopicId(null);
+            setSelectedCoachingId(null);
+            setSelectedExamId(null);
+            setSelectedSeriesId(null);
+            setActiveSession(null);
+            setActiveTab(tab);
           }}
           isAdmin={isAdmin}
         />

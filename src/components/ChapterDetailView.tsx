@@ -162,7 +162,11 @@ export const ChapterDetailView: React.FC<ChapterDetailViewProps> = ({
         <div className="flex items-center justify-between max-w-3xl mx-auto w-full">
           <button
             onClick={() => {
-              // Priority: clear local state to return to subject view
+              if (selectedTopicForModal) {
+                if (onSelectTopic) onSelectTopic(null);
+                setLocalTopicForModal(null);
+                return;
+              }
               if (typeof onBack === "function") {
                 onBack();
               } else if (typeof window !== "undefined" && window.history.length > 1) {

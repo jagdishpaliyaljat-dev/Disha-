@@ -218,6 +218,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
   const sessionStartTimeRef = useRef<number | null>(null);
   const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const hasSubmittedRef = useRef<boolean>(false);
+  const isNavigatingRef = useRef<boolean>(false);
 
   // Per-question timing tracking (seconds)
   const questionStartTimeRef = useRef<number>(Date.now());
@@ -1332,6 +1333,12 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
   };
 
   const handleNextQuestionPractice = () => {
+    if (isNavigatingRef.current) return;
+    isNavigatingRef.current = true;
+    setTimeout(() => {
+      isNavigatingRef.current = false;
+    }, 120);
+
     if (currentIndex < questions.length - 1) {
       const nextIdx = currentIndex + 1;
       setCurrentIndex(nextIdx);
@@ -1375,6 +1382,12 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
   };
 
   const handlePrevQuestionPractice = () => {
+    if (isNavigatingRef.current) return;
+    isNavigatingRef.current = true;
+    setTimeout(() => {
+      isNavigatingRef.current = false;
+    }, 120);
+
     if (currentIndex > 0) {
       const prevIdx = currentIndex - 1;
       setCurrentIndex(prevIdx);
@@ -2597,18 +2610,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
         <footer className="w-full bg-white dark:bg-[#1F2330] border-t border-[#E8D9C0] dark:border-[#31374A] px-4 py-3 shrink-0 z-40 pb-[calc(12px+env(safe-area-inset-bottom,0px))]">
           <div className="max-w-3xl mx-auto flex gap-3">
             <button
-              onClick={() => {
-                if (currentIndex > 0) {
-                  const prevIdx = currentIndex - 1;
-                  setCurrentIndex(prevIdx);
-                  const prevQ = questions[prevIdx];
-                  const prevAnswer = sessionResults[prevQ?.id]?.selectedIndex;
-                  setSelectedOptionIndex(prevAnswer !== undefined ? prevAnswer : null);
-                  if (!isTestMode) {
-                    setIsSubmitted(Boolean(sessionResults[prevQ?.id]));
-                  }
-                }
-              }}
+              onClick={handlePrevQuestionPractice}
               disabled={currentIndex === 0}
               className="h-12 sm:h-14 w-12 sm:w-14 rounded-2xl bg-[#F7EFE2] dark:bg-[#252A3A] text-[#171923] dark:text-[#FFF9EF] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center disabled:opacity-30 active:scale-90 transition-transform cursor-pointer shrink-0"
               title="Previous Question"
@@ -3380,7 +3382,14 @@ function RedesignedLiveAndPYQTestView({
       <footer className="sticky bottom-0 z-30 px-4 py-3 bg-white dark:bg-[#1F2330] border-t border-[#E8D9C0] dark:border-[#31374A] shadow-[0_-4px_20px_rgba(0,0,0,0.03)] pb-[calc(12px+env(safe-area-inset-bottom,0px))]">
         <div className="max-w-3xl lg:max-w-7xl mx-auto flex items-center justify-between gap-3">
           <button
-            onClick={() => currentIndex > 0 && setCurrentIndex(currentIndex - 1)}
+            onClick={() => {
+              if (isNavigatingRef.current) return;
+              isNavigatingRef.current = true;
+              setTimeout(() => {
+                isNavigatingRef.current = false;
+              }, 120);
+              if (currentIndex > 0) setCurrentIndex(currentIndex - 1);
+            }}
             disabled={currentIndex === 0}
             className="w-12 h-12 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] text-[#171923] dark:text-[#FFF9EF] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center disabled:opacity-30 active:scale-90 transition-transform cursor-pointer shrink-0"
             title="Previous Question"
@@ -3411,6 +3420,11 @@ function RedesignedLiveAndPYQTestView({
 
           <button
             onClick={() => {
+              if (isNavigatingRef.current) return;
+              isNavigatingRef.current = true;
+              setTimeout(() => {
+                isNavigatingRef.current = false;
+              }, 120);
               if (currentIndex < totalQuestions - 1) {
                 setCurrentIndex(currentIndex + 1);
               } else {

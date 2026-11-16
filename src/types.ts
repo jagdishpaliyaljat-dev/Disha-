@@ -273,7 +273,7 @@ export interface UserPersonalAIKey {
   latencyMs?: number;
 }
 
-export type ActiveTab = "home" | "topics" | "analytics" | "wrong" | "profile" | "admin" | "notifications" | "analyzer" | "pyq_vault" | "live_tests" | "test_series" | "news" | "admin_news" | "about" | "privacy-policy" | "terms-of-service" | "contact" | "disclaimer";
+export type ActiveTab = "home" | "topics" | "analytics" | "wrong" | "profile" | "admin" | "notifications" | "analyzer" | "pyq_vault" | "live_tests" | "test_series" | "news" | "admin_news" | "about" | "privacy-policy" | "terms-of-service" | "contact" | "disclaimer" | "not_found";
 
 export interface FAQItem {
   question: string;
