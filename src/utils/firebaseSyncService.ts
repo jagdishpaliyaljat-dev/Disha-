@@ -536,114 +536,43 @@ export async function saveMCQ(mcq: any): Promise<CloudSyncResult> {
   try {
     const textVal = mcq.text || mcq.question || "Untitled Question";
     const topicIdVal = mcq.topicId || "topic_general";
-    // CRITICAL: Preserve stable document ID if question already has one
     const stableId = mcq.id || (await generateDeterministicMCQId(textVal, topicIdVal));
-    
-    const enrichedMcq = {
-      ...mcq,
+
+    const optionsVal = Array.isArray(mcq.options) && mcq.options.length >= 2 
+      ? mcq.options 
+      : ["Option A", "Option B"];
+    const correctIdxVal = typeof mcq.correctIndex === "number" 
+      ? mcq.correctIndex 
+      : (typeof mcq.correctAnswer === "number" ? mcq.correctAnswer : 0);
+
+    const questionItem = {
       id: stableId,
+      text: textVal,
+      options: optionsVal,
+      correctIndex: correctIdxVal,
+      explanation: mcq.explanation || "",
+      subjectId: mcq.subjectId,
+      chapterId: mcq.chapterId,
       topicId: topicIdVal,
+      exam: mcq.exam,
+      year: mcq.year,
+      difficulty: mcq.difficulty,
     };
 
-    if (typeof localStorage !== "undefined") {
-      try {
-        localStorage.setItem(`quizpro_mcq_${stableId}`, JSON.stringify(enrichedMcq));
-      } catch (_) {}
-    }
-    if (isFirebaseConfigured()) {
-      const { doc } = await import('firebase/firestore');
-      const { getEffectiveAuthUser, guardedSetDoc, clearFirestoreCache } = await import('./quotaTracker');
-      if (!getEffectiveAuthUser()) {
-        throw new Error("Authentication Required: Please log in with an authorized admin account to save to the cloud.");
-      }
-      clearFirestoreCache();
-      // Ensure all required fields for Firestore security rules (isValidMCQ)
-      const optionsVal = Array.isArray(enrichedMcq.options) && enrichedMcq.options.length >= 2 
-        ? enrichedMcq.options 
-        : ["Option A", "Option B"];
-      const correctIdxVal = typeof enrichedMcq.correctIndex === "number" 
-        ? enrichedMcq.correctIndex 
-        : (typeof enrichedMcq.correctAnswer === "number" ? enrichedMcq.correctAnswer : 0);
-      const explanationVal = enrichedMcq.explanation || "No explanation provided.";
+    const { upsertQuestionsToSupabase } = await import('./supabaseSyncService');
+    const res = await upsertQuestionsToSupabase([questionItem as any]);
 
-      const firestoreMcq = {
-        id: stableId,
-        topicId: topicIdVal,
-        chapterId: enrichedMcq.chapterId || "chapter_general",
-        subjectId: enrichedMcq.subjectId || "economics",
-        text: textVal,
-        options: optionsVal,
-        correctIndex: correctIdxVal,
-        explanation: explanationVal,
-        ...(enrichedMcq.hindiText ? { hindiText: enrichedMcq.hindiText } : {}),
-        ...(enrichedMcq.hindiOptions ? { hindiOptions: enrichedMcq.hindiOptions } : {}),
-        ...(enrichedMcq.hindiExplanation ? { hindiExplanation: enrichedMcq.hindiExplanation } : {}),
-        ...(enrichedMcq.difficulty ? { difficulty: enrichedMcq.difficulty } : {}),
-        ...(enrichedMcq.isTest !== undefined ? { isTest: enrichedMcq.isTest } : {}),
-        ...(enrichedMcq.isUserAdded !== undefined ? { isUserAdded: enrichedMcq.isUserAdded } : {}),
-        ...(enrichedMcq.createdAt ? { createdAt: enrichedMcq.createdAt } : {}),
-        ...(enrichedMcq.paperId ? { paperId: enrichedMcq.paperId } : {}),
-        ...(enrichedMcq.testId ? { testId: enrichedMcq.testId } : {}),
-        updatedAt: new Date().toISOString()
-      };
-
-      await guardedSetDoc(
-        doc(db, "mcqs", stableId),
-        firestoreMcq,
-        { merge: true },
-        "Admin",
-        "Save MCQ"
-      );
-
-      // Phase 4: Eliminated redundant mirror write to legacy 'questions' collection.
-      // Canonical question data is stored exclusively in 'mcqs'.
-
-      // Invalidate topic MCQ query cache
-      try {
-        localStorage.removeItem(`quizpro_mcqs_${topicIdVal}`);
-        localStorage.removeItem("quizpro_mcqs_all");
-      } catch (_) {}
-
-      // Bump curriculum version in Firestore so all user devices receive updated question
-      try {
-        const { bumpRemoteCurriculumVersion } = await import('./appVersionService');
-        await bumpRemoteCurriculumVersion([topicIdVal]);
-      } catch (_) {}
-
-      // Write directly into quizpro-db-v5 and notify user app immediately
-      try {
-        const { putRecords, SNAPSHOT_STORES, recalculateQuestionCounts } = await import("../services/snapshot/indexedDbV5");
-        await putRecords(SNAPSHOT_STORES.MCQS, [firestoreMcq]);
-        await recalculateQuestionCounts();
-        const { mergeQuestionsIntoStore, loadUserQuestionsStore } = await import("./questionsStorage");
-        mergeQuestionsIntoStore([firestoreMcq]);
-        if (typeof window !== "undefined") {
-          window.dispatchEvent(new CustomEvent("quizpro_store_updated", { detail: loadUserQuestionsStore() }));
-        }
-      } catch (idbErr) {
-        console.warn("[saveMCQ] IndexedDB v5 sync notice:", idbErr);
-      }
-
-      triggerAdminToast("success", "Question Updated in Firebase", `Question '${stableId}' saved to Firestore & synced to user apps.`);
-
-      return {
-        success: true,
-        message: `Question saved to Firebase Firestore & synced to user apps!`,
-        isFirebase: true
-      };
-    }
     return {
-      success: true,
-      message: `Question saved locally!`,
-      isFirebase: false
+      success: res.success,
+      message: res.message,
+      isFirebase: true
     };
   } catch (err: any) {
-    console.error("Error saving MCQ to cloud:", err);
     return {
       success: false,
-      message: `Failed to save question to Firebase: ${err?.message || String(err)}`,
+      message: err.message,
       isFirebase: true,
-      error: err?.message || String(err)
+      error: err.message
     };
   }
 }
@@ -680,106 +609,27 @@ export async function moveMCQsInCloud(
     };
   }
 
-  // 1. Update localStorage cache for each moved question
   try {
-    for (const id of uniqueIds) {
-      const localKey = `quizpro_mcq_${id}`;
-      const itemStr = localStorage.getItem(localKey);
-      if (itemStr) {
-        try {
-          const item = JSON.parse(itemStr);
-          item.topicId = targetTopicId;
-          item.chapterId = targetChapterId;
-          if (targetSubjectId) item.subjectId = targetSubjectId;
-          item.updatedAt = new Date().toISOString();
-          localStorage.setItem(localKey, JSON.stringify(item));
-        } catch {
-          // ignore parsing error on individual local cache
-        }
-      }
+    const { supabase, isSupabaseConfigured } = await import("../lib/supabase");
+    if (isSupabaseConfigured()) {
+      const { error } = await supabase
+        .from("questions")
+        .update({
+          topic_id: targetTopicId,
+          chapter_id: targetChapterId,
+          ...(targetSubjectId ? { subject_id: targetSubjectId } : {}),
+          updated_at: new Date().toISOString()
+        })
+        .in("id", uniqueIds);
+
+      if (error) throw error;
     }
-    // Invalidate cached query results for destination and source topics
-    try {
-      localStorage.removeItem(`quizpro_mcqs_${targetTopicId}`);
-      for (const id of uniqueIds) {
-        const existing = questionsMap?.[id];
-        if (existing?.topicId) localStorage.removeItem(`quizpro_mcqs_${existing.topicId}`);
-      }
-    } catch {}
-  } catch (e) {
-    console.warn("Could not update local storage cache during move:", e);
-  }
-
-  // 2. If Firebase is not configured or user is not an authenticated admin, return local success
-  const { getEffectiveAuthUser } = await import("./quotaTracker");
-  if (!isFirebaseConfigured() || !getEffectiveAuthUser()) {
-    return {
-      success: true,
-      movedCount: uniqueIds.length,
-      totalRequested: uniqueIds.length,
-      message: `${uniqueIds.length} question(s) moved in local store.`,
-      isFirebase: false,
-    };
-  }
-
-  // 3. Batched Firestore Update (preserves stable document IDs, avoids creating copies)
-  try {
-    const { doc } = await import("firebase/firestore");
-    const { guardedWriteBatch } = await import("./quotaTracker");
-
-    const BATCH_SIZE = 100;
-    for (let i = 0; i < uniqueIds.length; i += BATCH_SIZE) {
-      const chunk = uniqueIds.slice(i, i + BATCH_SIZE);
-      const batch = guardedWriteBatch(db);
-
-      for (const id of chunk) {
-        const docRef = doc(db, "mcqs", id);
-        const updatePayload: Record<string, any> = {
-          topicId: targetTopicId,
-          chapterId: targetChapterId,
-          updatedAt: new Date().toISOString(),
-        };
-        if (targetSubjectId) {
-          updatePayload.subjectId = targetSubjectId;
-        }
-
-        const existing = questionsMap?.[id];
-        if (existing) {
-          if (existing.text || existing.question) {
-            updatePayload.text = existing.text || existing.question;
-          }
-          if (Array.isArray(existing.options) && existing.options.length >= 2) {
-            updatePayload.options = existing.options;
-          }
-          if (typeof existing.correctIndex === "number") {
-            updatePayload.correctIndex = existing.correctIndex;
-          }
-          if (existing.explanation) {
-            updatePayload.explanation = existing.explanation;
-          }
-          if (existing.hindiText) updatePayload.hindiText = existing.hindiText;
-          if (existing.hindiOptions) updatePayload.hindiOptions = existing.hindiOptions;
-          if (existing.hindiExplanation) updatePayload.hindiExplanation = existing.hindiExplanation;
-          if (existing.difficulty) updatePayload.difficulty = existing.difficulty;
-        }
-
-        batch.set(docRef, updatePayload, { merge: true });
-      }
-
-      await batch.commit("Admin", "Move MCQs Batch", "ManageQuestions");
-    }
-
-    triggerAdminToast(
-      "success",
-      "Questions Moved in Cloud",
-      `Successfully moved ${uniqueIds.length} question(s) to destination topic without duplicating.`
-    );
 
     return {
       success: true,
       movedCount: uniqueIds.length,
       totalRequested: uniqueIds.length,
-      message: `${uniqueIds.length} question(s) successfully moved in Firestore.`,
+      message: `Successfully moved ${uniqueIds.length} question(s) to destination topic.`,
       isFirebase: true,
     };
   } catch (err: any) {
@@ -788,7 +638,7 @@ export async function moveMCQsInCloud(
       success: false,
       movedCount: 0,
       totalRequested: uniqueIds.length,
-      message: `Failed to move questions in Firebase: ${err?.message || String(err)}`,
+      message: `Failed to move questions: ${err?.message || String(err)}`,
       isFirebase: true,
       error: err?.message || String(err),
     };
@@ -855,160 +705,40 @@ export async function purgeStaleMovedRecords(): Promise<{ success: boolean; dele
 
 export async function deleteMCQFromCloud(id: string, topicId?: string): Promise<CloudSyncResult> {
   try {
-    localStorage.removeItem(`quizpro_mcq_${id}`);
-    if (topicId) {
-      localStorage.removeItem(`quizpro_mcqs_${topicId}`);
-    }
-    localStorage.removeItem("quizpro_mcqs_all");
-    import("./questionBankCache").then(({ removeQuestionsFromCache }) => {
-      removeQuestionsFromCache([id], topicId ? [topicId] : undefined).catch(() => {});
-    }).catch(() => {});
-
-    if (isFirebaseConfigured()) {
-      const { doc } = await import('firebase/firestore');
-      const { guardedDeleteDoc, clearFirestoreCache } = await import('./quotaTracker');
-      clearFirestoreCache();
-      await guardedDeleteDoc(doc(db, "mcqs", id), "Admin", "Delete MCQ");
-      // Phase 4: Eliminated redundant fallback delete to 'questions' collection.
-
-      try {
-        const { bumpRemoteCurriculumVersion } = await import('./appVersionService');
-        await bumpRemoteCurriculumVersion(topicId ? [topicId] : undefined);
-      } catch (_) {}
-
-      triggerAdminToast("delete", "Question Deleted from Firebase", `MCQ ID '${id}' successfully removed from Firestore.`);
-      return {
-        success: true,
-        message: `Question deleted from Firebase Firestore!`,
-        isFirebase: true
-      };
-    }
+    const { deleteQuestionFromSupabase } = await import('./supabaseSyncService');
+    const res = await deleteQuestionFromSupabase(id);
     return {
-      success: true,
-      message: `Question deleted locally!`,
-      isFirebase: false
+      success: res.success,
+      message: res.message,
+      isFirebase: true
     };
   } catch (err: any) {
-    const isQuotaErr = 
-      err?.message?.includes("Daily write quota limit reached") ||
-      err?.code === "resource-exhausted" ||
-      err?.message?.includes("quota") ||
-      err?.message?.includes("Quota");
-
-    if (isQuotaErr) {
-      console.warn(`[deleteMCQFromCloud] Cloud deletion deferred for MCQ '${id}' (Firestore daily write quota reached). Local deletion is preserved.`);
-      return {
-        success: true,
-        message: "Question deleted locally. Cloud deletion will sync when daily quota resets.",
-        isFirebase: false,
-        isQuotaExceeded: true
-      };
-    }
-
-    console.warn("Notice deleting MCQ from cloud:", err);
     return {
       success: false,
-      message: `Failed to delete question from Firebase: ${err?.message || String(err)}`,
+      message: err.message,
       isFirebase: true,
-      error: err?.message || String(err)
+      error: err.message
     };
   }
 }
 
-/**
- * Bulk deletes questions from Firestore using writeBatch to drastically reduce write consumption.
- * Bumps the remote curriculum version once at the end instead of on every question.
- */
 export async function deleteMCQsBulkFromCloud(ids: string[], topicIds?: string[]): Promise<CloudSyncResult> {
-  if (!ids || ids.length === 0) {
-    return { success: true, message: "No questions to delete.", isFirebase: false, deletedCount: 0 };
-  }
-
-  // 1. Clean localStorage & IndexedDB caches
   try {
-    for (const id of ids) {
-      localStorage.removeItem(`quizpro_mcq_${id}`);
-    }
-    if (topicIds && topicIds.length > 0) {
-      for (const tId of topicIds) {
-        localStorage.removeItem(`quizpro_mcqs_${tId}`);
-      }
-    }
-    localStorage.removeItem("quizpro_mcqs_all");
-    import("./questionBankCache").then(({ removeQuestionsFromCache }) => {
-      removeQuestionsFromCache(ids, topicIds).catch(() => {});
-    }).catch(() => {});
-  } catch {}
-
-  if (!isFirebaseConfigured()) {
+    const { deleteQuestionsBulkFromSupabase } = await import('./supabaseSyncService');
+    const res = await deleteQuestionsBulkFromSupabase(ids);
     return {
-      success: true,
-      message: `${ids.length} questions deleted locally.`,
-      isFirebase: false,
-      deletedCount: ids.length,
-    };
-  }
-
-  try {
-    const { doc } = await import('firebase/firestore');
-    const { guardedWriteBatch, clearFirestoreCache } = await import('./quotaTracker');
-    clearFirestoreCache();
-
-    const CHUNK_SIZE = 200; // 200 mcqs + 200 questions = 400 ops max per batch
-    let deletedCount = 0;
-
-    for (let i = 0; i < ids.length; i += CHUNK_SIZE) {
-      const chunk = ids.slice(i, i + CHUNK_SIZE);
-      const batch = guardedWriteBatch(db);
-
-      for (const id of chunk) {
-        batch.delete(doc(db, "mcqs", id));
-        batch.delete(doc(db, "questions", id));
-      }
-
-      await batch.commit("Admin", "Bulk Delete MCQs", "AdminQuestions");
-      deletedCount += chunk.length;
-    }
-
-    try {
-      const { bumpRemoteCurriculumVersion } = await import('./appVersionService');
-      const uniqueTopicIds = topicIds ? Array.from(new Set(topicIds.filter(Boolean))) : undefined;
-      await bumpRemoteCurriculumVersion(uniqueTopicIds);
-    } catch (_) {}
-
-    triggerAdminToast("delete", "Questions Deleted from Firebase", `${deletedCount} MCQs removed from Firestore.`);
-
-    return {
-      success: true,
-      message: `${deletedCount} questions deleted from Firestore!`,
+      success: res.success,
+      message: `Deleted ${res.count} questions from Supabase`,
       isFirebase: true,
-      deletedCount,
+      deletedCount: res.count
     };
   } catch (err: any) {
-    const isQuotaErr = 
-      err?.message?.includes("Daily write quota limit reached") ||
-      err?.code === "resource-exhausted" ||
-      err?.message?.includes("quota") ||
-      err?.message?.includes("Quota");
-
-    if (isQuotaErr) {
-      console.warn(`[deleteMCQsBulkFromCloud] Cloud deletion deferred for ${ids.length} MCQs (Firestore daily write quota reached). Local deletions are preserved.`);
-      return {
-        success: true,
-        message: `${ids.length} questions deleted locally. Cloud sync will finalize when daily quota resets.`,
-        isFirebase: false,
-        isQuotaExceeded: true,
-        deletedCount: ids.length,
-      };
-    }
-
-    console.warn("Notice deleting MCQs in bulk from cloud:", err);
     return {
       success: false,
-      message: `Failed to delete some questions from Firebase: ${err?.message || String(err)}`,
+      message: err.message,
       isFirebase: true,
-      error: err?.message || String(err),
-      deletedCount: 0,
+      error: err.message,
+      deletedCount: 0
     };
   }
 }

@@ -840,187 +840,107 @@ export default function App() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Firebase Auth State Listener
-  React.useEffect(() => {
-    let unsubscribe: (() => void) | undefined;
-    try {
-      if (auth && typeof auth.onAuthStateChanged === 'function') {
-        unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
-          setIsAuthReady(true);
-          
-          if (firebaseUser) {
-            // User is signed in to Firebase Auth
-            const { fetchUserProfileFromCloud } = await import('./utils/firebaseSyncService');
-            
-            let profile: UserProfile | null = null;
-            try {
-              profile = await fetchUserProfileFromCloud(firebaseUser.uid);
-            } catch (err) {
-              console.warn("Could not fetch remote profile on auth change:", err);
-            }
-
-            const emailLower = (firebaseUser.email || "").trim().toLowerCase();
-            const { ADMIN_EMAILS, ADMIN_UIDS } = await import('./utils/userProfileStorage');
-            const isAdminUser = Boolean((firebaseUser.email && ADMIN_EMAILS.includes(emailLower)) || ADMIN_UIDS.includes(firebaseUser.uid));
-
-            if (!profile) {
-              profile = {
-                id: firebaseUser.uid,
-                name: firebaseUser.displayName || "Student",
-                email: firebaseUser.email || "",
-                photoURL: firebaseUser.photoURL || "",
-                role: isAdminUser ? "admin" : "student",
-                status: "active",
-                createdAt: new Date().toISOString(),
-              };
-            } else if (isAdminUser || profile.role === "admin") {
-              profile.role = "admin";
-            }
-
-            setUserProfile(profile);
-            setIsAuthenticated(true);
-            saveUserProfile(profile);
-
-            // Non-destructively restore and merge cloud progress, bookmarks & revision history
-            try {
-              const cloudData = await loadUserData();
-              if (cloudData?.progress && Object.keys(cloudData.progress).length > 0) {
-                updateProgress((prev) => {
-                  const merged: ProgressStore = { ...cloudData.progress, ...prev };
-                  Object.keys(cloudData.progress).forEach((qId) => {
-                    const remoteP = cloudData.progress[qId];
-                    const localP = prev[qId];
-                    if (localP && remoteP) {
-                      merged[qId] = {
-                        ...remoteP,
-                        ...localP,
-                        bookmarked: Boolean(localP.bookmarked || remoteP.bookmarked),
-                        timesAttempted: Math.max(localP.timesAttempted || 0, remoteP.timesAttempted || 0),
-                      };
-                    }
-                  });
-                  return merged;
-                });
-              }
-              if (cloudData?.history && Object.keys(cloudData.history).length > 0) {
-                const { loadStudyHistoryFromStorage, saveStudyHistoryToStorage } = await import('./utils/storage');
-                const localHist = loadStudyHistoryFromStorage();
-                const mergedHist = { ...cloudData.history, ...localHist };
-                Object.keys(cloudData.history).forEach((dateKey) => {
-                  const rH = cloudData.history[dateKey];
-                  const lH = localHist[dateKey];
-                  if (lH && rH) {
-                    mergedHist[dateKey] = {
-                      correct: Math.max(lH.correct || 0, rH.correct || 0),
-                      wrong: Math.max(lH.wrong || 0, rH.wrong || 0),
-                    };
-                  }
-                });
-                saveStudyHistoryToStorage(mergedHist);
-              }
-            } catch {}
-          } else {
-            // Keep existing loaded profile if available without wiping
-            const currentProfile = loadUserProfile();
-            if (currentProfile) {
-               setUserProfile(currentProfile);
-               setIsAuthenticated(true);
-            }
-          }
-        });
-      } else {
-        setIsAuthReady(true);
-      }
-    } catch (e) {
-      console.warn('[App] Could not initialize auth listener:', e);
-      setIsAuthReady(true);
-    }
-
-    return () => {
-      try {
-        if (typeof unsubscribe === 'function') {
-          unsubscribe();
-        }
-      } catch {}
-    };
-  }, []);
-
-  // Supabase Auth State Listener
+  // Supabase Auth & Session Lifecycle Listener
   React.useEffect(() => {
     let unsub = () => {};
     import('./lib/supabase').then(({ supabase, isSupabaseConfigured }) => {
-      if (!isSupabaseConfigured()) return;
+      if (!isSupabaseConfigured()) {
+        setIsAuthReady(true);
+        return;
+      }
+
+      const processSession = async (session: any) => {
+        setIsAuthReady(true);
+        if (session?.user) {
+          const u = session.user;
+          const emailLower = (u.email || "").trim().toLowerCase();
+          const { ADMIN_EMAILS, ADMIN_UIDS, saveUserProfile: saveProfile } = await import('./utils/userProfileStorage');
+          const isAdminUser = Boolean(
+            (u.email && ADMIN_EMAILS.includes(emailLower)) ||
+            ADMIN_UIDS.includes(u.id)
+          );
+          const profile: UserProfile = {
+            id: u.id,
+            name: u.user_metadata?.full_name || u.user_metadata?.name || u.email?.split("@")[0] || "Student",
+            email: u.email || "",
+            photoURL: u.user_metadata?.avatar_url || "",
+            role: isAdminUser ? "admin" : "student",
+            status: "active",
+            createdAt: u.created_at || new Date().toISOString(),
+          };
+          setUserProfile(profile);
+          setIsAuthenticated(true);
+          saveProfile(profile);
+          if (isAdminUser) {
+            setActiveTab("admin");
+          }
+          setIsLoginOpen(false);
+
+          // Restore and merge bookmarks from Supabase PostgreSQL
+          try {
+            const { fetchUserBookmarksFromSupabase } = await import('./utils/supabaseSyncService');
+            const bookmarkedIds = await fetchUserBookmarksFromSupabase(u.id);
+            if (bookmarkedIds.length > 0) {
+              updateProgress((prev) => {
+                const merged = { ...prev };
+                bookmarkedIds.forEach((qId) => {
+                  merged[qId] = {
+                    ...(merged[qId] || {
+                      status: "unattempted",
+                      stage: 0,
+                      nextReviewAt: "",
+                      wrongCount: 0,
+                      bookmarked: true,
+                      lastAnsweredAt: null,
+                    }),
+                    bookmarked: true,
+                  };
+                });
+                return merged;
+              });
+            }
+          } catch {}
+        } else {
+          // Restore local cached profile if user was previously in guest/offline mode
+          const currentProfile = loadUserProfile();
+          if (currentProfile && currentProfile.id !== "student_default") {
+            setUserProfile(currentProfile);
+            setIsAuthenticated(true);
+          }
+        }
+      };
 
       supabase.auth.getSession().then(({ data: { session } }) => {
-        if (session?.user) {
-          const u = session.user;
-          const emailLower = (u.email || "").trim().toLowerCase();
-          import('./utils/userProfileStorage').then(({ ADMIN_EMAILS, ADMIN_UIDS, saveUserProfile: saveProfile }) => {
-            const isAdminUser = Boolean(
-              (u.email && ADMIN_EMAILS.includes(emailLower)) ||
-              ADMIN_UIDS.includes(u.id)
-            );
-            const profile: UserProfile = {
-              id: u.id,
-              name: u.user_metadata?.full_name || u.user_metadata?.name || u.email?.split("@")[0] || "Student",
-              email: u.email || "",
-              photoURL: u.user_metadata?.avatar_url || "",
-              role: isAdminUser ? "admin" : "student",
-              status: "active",
-              createdAt: u.created_at || new Date().toISOString(),
-            };
-            setUserProfile(profile);
-            setIsAuthenticated(true);
-            saveProfile(profile);
-            if (isAdminUser) {
-              setActiveTab("admin");
-            }
-            setIsLoginOpen(false);
-          }).catch(() => {});
-        }
-      }).catch(() => {});
+        processSession(session).catch(() => {});
+      }).catch(() => {
+        setIsAuthReady(true);
+      });
 
       const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-        if (session?.user) {
-          const u = session.user;
-          const emailLower = (u.email || "").trim().toLowerCase();
-          import('./utils/userProfileStorage').then(({ ADMIN_EMAILS, ADMIN_UIDS, saveUserProfile: saveProfile }) => {
-            const isAdminUser = Boolean(
-              (u.email && ADMIN_EMAILS.includes(emailLower)) ||
-              ADMIN_UIDS.includes(u.id)
-            );
-            const profile: UserProfile = {
-              id: u.id,
-              name: u.user_metadata?.full_name || u.user_metadata?.name || u.email?.split("@")[0] || "Student",
-              email: u.email || "",
-              photoURL: u.user_metadata?.avatar_url || "",
-              role: isAdminUser ? "admin" : "student",
-              status: "active",
-              createdAt: u.created_at || new Date().toISOString(),
-            };
-            setUserProfile(profile);
-            setIsAuthenticated(true);
-            saveProfile(profile);
-            if (isAdminUser) {
-              setActiveTab("admin");
-            } else {
-              setActiveTab("home");
-            }
-            setIsLoginOpen(false);
-          }).catch(() => {});
-        }
+        processSession(session).catch(() => {});
       });
 
       unsub = () => {
         subscription?.unsubscribe();
       };
-    }).catch(() => {});
+    }).catch(() => {
+      setIsAuthReady(true);
+    });
 
     return () => {
       try {
         unsub();
       } catch {}
     };
+  }, [updateProgress]);
+
+  // Background fetch of curriculum from Supabase on startup
+  React.useEffect(() => {
+    import('./utils/supabaseSyncService').then(({ fetchSubjects, fetchChapters, fetchTopics }) => {
+      fetchSubjects().catch(() => []);
+      fetchChapters().catch(() => []);
+      fetchTopics().catch(() => []);
+    }).catch(() => {});
   }, []);
 
   const isAdmin = userProfile ? isUserAdmin(userProfile) : false;
@@ -1079,8 +999,11 @@ export default function App() {
     setActiveSession(session);
   };
 
-  const handleLogout = () => {
-    auth.signOut().catch(() => {});
+  const handleLogout = async () => {
+    try {
+      const { supabase } = await import('./lib/supabase');
+      await supabase.auth.signOut();
+    } catch {}
     setUserProfile(null);
     setIsAuthenticated(false);
     localStorage.removeItem('economic_survey_user_profile_v1');

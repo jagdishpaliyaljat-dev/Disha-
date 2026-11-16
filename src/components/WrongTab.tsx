@@ -1,8 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { doc } from "firebase/firestore";
-import { db, isFirebaseConfigured } from "../lib/firebase";
-import { guardedGetDoc } from "../utils/quotaTracker";
 import { ProgressStore, MCQSession, Chapter, Question } from "../types";
 import { CHAPTERS_DATA, ALL_QUESTIONS } from "../data/questions";
 import { getTodayDateString, sortQuestionsForRevision } from "../utils/revision";
@@ -115,6 +112,35 @@ export const WrongTab: React.FC<WrongTabProps> = ({
           localDocs.forEach((q) => {
             if (q && q.id) map.set(q.id, q);
           });
+
+          // Fallback to Supabase for any remaining missing IDs
+          const stillMissing = missingIds.filter((qId) => !map.has(qId));
+          if (stillMissing.length > 0) {
+            try {
+              const { supabase, isSupabaseConfigured } = await import("../lib/supabase");
+              if (isSupabaseConfigured()) {
+                const { data } = await supabase.from("questions").select("*").in("id", stillMissing);
+                if (data && data.length > 0) {
+                  data.forEach((q) => {
+                    map.set(q.id, {
+                      id: q.id,
+                      text: q.question,
+                      options: Array.isArray(q.options) ? q.options : [],
+                      correctIndex: q.correct_answer ?? 0,
+                      explanation: q.explanation || "",
+                      subjectId: q.subject_id,
+                      chapterId: q.chapter_id,
+                      topicId: q.topic_id,
+                      exam: q.exam,
+                      year: q.year,
+                      difficulty: q.level || "medium",
+                      isUserAdded: false,
+                    });
+                  });
+                }
+              }
+            } catch {}
+          }
         }
 
         if (isMounted) {
