@@ -920,16 +920,11 @@ export default function App() {
               }
             } catch {}
           } else {
-            // User is signed out of Firebase Auth
-            // ONLY clear if we have finished initializing and it's definitely null
+            // Keep existing loaded profile if available without wiping
             const currentProfile = loadUserProfile();
-            if (currentProfile && isUserAdmin(currentProfile)) {
+            if (currentProfile) {
                setUserProfile(currentProfile);
                setIsAuthenticated(true);
-            } else if (currentProfile && currentProfile.id !== 'student_default') {
-               setUserProfile(null);
-               setIsAuthenticated(false);
-               localStorage.removeItem('economic_survey_user_profile_v1');
             }
           }
         });
@@ -946,6 +941,74 @@ export default function App() {
         if (typeof unsubscribe === 'function') {
           unsubscribe();
         }
+      } catch {}
+    };
+  }, []);
+
+  // Supabase Auth State Listener
+  React.useEffect(() => {
+    let unsub = () => {};
+    import('./lib/supabase').then(({ supabase, isSupabaseConfigured }) => {
+      if (!isSupabaseConfigured()) return;
+
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session?.user) {
+          const u = session.user;
+          const emailLower = (u.email || "").trim().toLowerCase();
+          import('./utils/userProfileStorage').then(({ ADMIN_EMAILS, ADMIN_UIDS, saveUserProfile: saveProfile }) => {
+            const isAdminUser = Boolean(
+              (u.email && ADMIN_EMAILS.includes(emailLower)) ||
+              ADMIN_UIDS.includes(u.id)
+            );
+            const profile: UserProfile = {
+              id: u.id,
+              name: u.user_metadata?.full_name || u.user_metadata?.name || u.email?.split("@")[0] || "Student",
+              email: u.email || "",
+              photoURL: u.user_metadata?.avatar_url || "",
+              role: isAdminUser ? "admin" : "student",
+              status: "active",
+              createdAt: u.created_at || new Date().toISOString(),
+            };
+            setUserProfile(profile);
+            setIsAuthenticated(true);
+            saveProfile(profile);
+          }).catch(() => {});
+        }
+      }).catch(() => {});
+
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        if (session?.user) {
+          const u = session.user;
+          const emailLower = (u.email || "").trim().toLowerCase();
+          import('./utils/userProfileStorage').then(({ ADMIN_EMAILS, ADMIN_UIDS, saveUserProfile: saveProfile }) => {
+            const isAdminUser = Boolean(
+              (u.email && ADMIN_EMAILS.includes(emailLower)) ||
+              ADMIN_UIDS.includes(u.id)
+            );
+            const profile: UserProfile = {
+              id: u.id,
+              name: u.user_metadata?.full_name || u.user_metadata?.name || u.email?.split("@")[0] || "Student",
+              email: u.email || "",
+              photoURL: u.user_metadata?.avatar_url || "",
+              role: isAdminUser ? "admin" : "student",
+              status: "active",
+              createdAt: u.created_at || new Date().toISOString(),
+            };
+            setUserProfile(profile);
+            setIsAuthenticated(true);
+            saveProfile(profile);
+          }).catch(() => {});
+        }
+      });
+
+      unsub = () => {
+        subscription?.unsubscribe();
+      };
+    }).catch(() => {});
+
+    return () => {
+      try {
+        unsub();
       } catch {}
     };
   }, []);

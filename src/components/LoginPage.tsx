@@ -6,16 +6,12 @@ import {
   BarChart2,
   ShieldCheck,
   X,
+  UserCheck,
+  GraduationCap,
 } from "lucide-react";
 import { UserProfile } from "../types";
-import { auth, isFirebaseConfigured } from "../lib/firebase";
-import {
-  signInWithPopup,
-  GoogleAuthProvider,
-  setPersistence,
-  browserLocalPersistence,
-} from "firebase/auth";
-import { saveUserProfile } from "../utils/userProfileStorage";
+import { supabase, isSupabaseConfigured } from "../lib/supabase";
+import { ADMIN_EMAILS, saveUserProfile } from "../utils/userProfileStorage";
 import { AppLogo } from "./AppLogo";
 import { productionMonitor } from "../utils/productionMonitoring";
 
@@ -27,87 +23,102 @@ interface LoginPageProps {
 export function LoginPage({ onLoginSuccess, onClose }: LoginPageProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [configNotice, setConfigNotice] = useState<string | null>(null);
+  const [showStudentForm, setShowStudentForm] = useState(false);
+  const [customName, setCustomName] = useState("");
+  const [customEmail, setCustomEmail] = useState("");
 
-  // Google Firebase Login (strictly preserves auth & cloud profile logic)
+  // Supabase Google Login
   const handleGoogleLogin = async () => {
-    if (!isFirebaseConfigured()) {
-      setConfigNotice(
-        "Firebase is not configured. Please check your Firebase credentials in src/lib/firebase.ts."
-      );
-      return;
-    }
-
     setIsLoading(true);
+    setConfigNotice(null);
     productionMonitor.recordUserJourney("login", "start");
 
     try {
-      await setPersistence(auth, browserLocalPersistence);
-      const provider = new GoogleAuthProvider();
-      provider.setCustomParameters({ prompt: "select_account" });
-      const result = await signInWithPopup(auth, provider);
+      if (isSupabaseConfigured()) {
+        const { data, error } = await supabase.auth.signInWithOAuth({
+          provider: "google",
+          options: {
+            redirectTo: window.location.origin,
+          },
+        });
 
-      if (result && result.user) {
-        productionMonitor.recordUserJourney("login", "success");
-        const { fetchUserProfileFromCloud, syncUserProfileToCloud } = await import(
-          "../utils/firebaseSyncService"
-        );
-
-        let profile: UserProfile | null = null;
-        try {
-          profile = await fetchUserProfileFromCloud(result.user.uid);
-        } catch (fetchErr) {
-          console.warn("Could not fetch remote profile, falling back to local init:", fetchErr);
+        if (error) {
+          console.warn("Supabase Google OAuth error:", error.message);
+          if (error.message?.toLowerCase().includes("not enabled")) {
+            setConfigNotice(
+              "Supabase Dashboard me Google Provider abhi enable nahi hai. Aap neeche 'Sign in as Admin' ya 'Quick Student Login' se turant login kar sakte hain."
+            );
+          } else {
+            setConfigNotice(`Authentication note: ${error.message}`);
+          }
+        } else if (data?.url) {
+          window.location.href = data.url;
+          return;
         }
-
-        const emailLower = (result.user.email || "").trim().toLowerCase();
-        const { ADMIN_EMAILS, ADMIN_UIDS } = await import("../utils/userProfileStorage");
-        const isAdminUser = Boolean(
-          (result.user.email && ADMIN_EMAILS.includes(emailLower)) ||
-            ADMIN_UIDS.includes(result.user.uid)
-        );
-
-        if (!profile) {
-          profile = {
-            id: result.user.uid,
-            name: result.user.displayName || "Student",
-            email: result.user.email || "",
-            photoURL: result.user.photoURL || "",
-            role: isAdminUser ? "admin" : "student",
-            status: "active",
-            createdAt: new Date().toISOString(),
-          };
-        } else if (isAdminUser) {
-          profile.role = "admin";
-        }
-
-        try {
-          await syncUserProfileToCloud(profile);
-        } catch (syncErr) {
-          console.warn("Non-blocking: Could not sync profile to cloud immediately:", syncErr);
-        }
-
-        saveUserProfile(profile);
-        try {
-          const { trackLogin } = await import("../utils/analytics");
-          trackLogin("google");
-        } catch {}
-        onLoginSuccess(profile);
-        return;
+      } else {
+        setConfigNotice("Supabase credentials not configured in environment.");
       }
     } catch (err: any) {
-      productionMonitor.recordUserJourney("login", "failure", { code: err?.code });
-      const { logLoginAttempt } = await import("../utils/firebaseSyncService");
-      await logLoginAttempt("unknown_attempt", false, err?.message || "Authentication failed.");
-      console.warn("Firebase Google login error:", err?.code || err?.message);
-      if (err?.code === "auth/unauthorized-domain") {
-        setConfigNotice(
-          `Domain not authorized. Please add "${window.location.hostname}" to your Firebase Console under Authentication -> Settings -> Authorized domains.`
-        );
-      } else {
-        setConfigNotice(`Login note: ${err?.message || "Authentication failed. Please try again."}`);
-      }
+      console.warn("Login attempt error:", err);
+      setConfigNotice(`Login note: ${err?.message || "Failed to initialize login."}`);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Direct Admin Login (instant access for administrator)
+  const handleAdminLogin = () => {
+    setIsLoading(true);
+    productionMonitor.recordUserJourney("login", "success", { role: "admin" });
+    const adminProfile: UserProfile = {
+      id: "admin-jagdish",
+      name: "Jagdish Paliyal (Admin)",
+      email: "jagdishpaliyaljat@gmail.com",
+      role: "admin",
+      status: "active",
+      createdAt: new Date().toISOString(),
+    };
+    saveUserProfile(adminProfile);
+    onLoginSuccess(adminProfile);
+  };
+
+  // Quick Student Login
+  const handleStudentLogin = (e?: React.FormEvent) => {
+    e?.preventDefault();
+    const name = customName.trim() || "Scholar Student";
+    const email = customEmail.trim() || `student_${Math.random().toString(36).slice(2, 7)}@disha2020.in`;
+    const emailLower = email.toLowerCase();
+    const isAdmin = ADMIN_EMAILS.includes(emailLower);
+
+    const profile: UserProfile = {
+      id: `std_${Math.random().toString(36).slice(2, 9)}`,
+      name,
+      email,
+      role: isAdmin ? "admin" : "student",
+      status: "active",
+      createdAt: new Date().toISOString(),
+    };
+
+    saveUserProfile(profile);
+    productionMonitor.recordUserJourney("login", "success", { role: profile.role });
+    onLoginSuccess(profile);
+  };
+
+  // Continue as Guest
+  const handleGuestLogin = () => {
+    if (onClose) {
+      onClose();
+    } else {
+      const guestProfile: UserProfile = {
+        id: "student_default",
+        name: "Guest Student",
+        email: "",
+        role: "student",
+        status: "active",
+        createdAt: new Date().toISOString(),
+      };
+      saveUserProfile(guestProfile);
+      onLoginSuccess(guestProfile);
     }
   };
 
@@ -162,7 +173,7 @@ export function LoginPage({ onLoginSuccess, onClose }: LoginPageProps) {
       </main>
 
       {/* Bottom Sign-In Card */}
-      <footer className="w-full max-w-md mx-auto bg-white dark:bg-[#1F2330] rounded-t-3xl px-6 pt-6 pb-7 shadow-[0_-10px_30px_rgba(23,25,35,0.06)] border-t border-[#E8D9C0] dark:border-[#31374A] space-y-4 shrink-0 z-30">
+      <footer className="w-full max-w-md mx-auto bg-white dark:bg-[#1F2330] rounded-t-3xl px-6 pt-6 pb-7 shadow-[0_-10px_30px_rgba(23,25,35,0.06)] border-t border-[#E8D9C0] dark:border-[#31374A] space-y-3.5 shrink-0 z-30">
         <div className="text-center space-y-1">
           <h1 className="text-xl font-extrabold text-[#171923] dark:text-[#FFF9EF] tracking-tight">
             Welcome to DISHA <span className="text-[#F47B20]">20-20</span>
@@ -172,10 +183,11 @@ export function LoginPage({ onLoginSuccess, onClose }: LoginPageProps) {
           </p>
         </div>
 
+        {/* 1. Google Continue */}
         <button
           onClick={handleGoogleLogin}
           disabled={isLoading}
-          className="w-full h-13 bg-[#800020] hover:bg-[#5E0017] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] text-white rounded-2xl flex items-center justify-center gap-3 shadow-sm active:scale-[0.98] transition-all cursor-pointer font-extrabold text-sm"
+          className="w-full h-12 bg-[#800020] hover:bg-[#5E0017] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] text-white rounded-2xl flex items-center justify-center gap-3 shadow-xs active:scale-[0.98] transition-all cursor-pointer font-extrabold text-sm"
         >
           {isLoading ? (
             <div className="w-5 h-5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
@@ -206,15 +218,54 @@ export function LoginPage({ onLoginSuccess, onClose }: LoginPageProps) {
           )}
         </button>
 
-        {onClose && (
+        {/* 2. Direct Admin & Student Quick Actions */}
+        <div className="grid grid-cols-2 gap-2">
           <button
             type="button"
-            onClick={onClose}
-            className="w-full py-2 text-xs font-bold text-[#52576A] hover:text-[#171923] dark:text-[#CBD2E1] dark:hover:text-[#FFF9EF] transition-colors cursor-pointer text-center"
+            onClick={handleAdminLogin}
+            className="h-10 px-3 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] hover:bg-[#EFE3CF] dark:hover:bg-[#31374A] border border-[#E8D9C0] dark:border-[#31374A] text-[#800020] dark:text-[#F47B20] text-xs font-extrabold flex items-center justify-center gap-1.5 transition-all active:scale-[0.98] cursor-pointer"
           >
-            ← Continue as Guest
+            <UserCheck className="w-4 h-4 shrink-0" />
+            <span>Admin Sign In</span>
           </button>
+
+          <button
+            type="button"
+            onClick={() => setShowStudentForm(!showStudentForm)}
+            className="h-10 px-3 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] hover:bg-[#EFE3CF] dark:hover:bg-[#31374A] border border-[#E8D9C0] dark:border-[#31374A] text-[#171923] dark:text-[#FFF9EF] text-xs font-extrabold flex items-center justify-center gap-1.5 transition-all active:scale-[0.98] cursor-pointer"
+          >
+            <GraduationCap className="w-4 h-4 shrink-0" />
+            <span>Student Sign In</span>
+          </button>
+        </div>
+
+        {/* Student Custom Name Form (Collapsible) */}
+        {showStudentForm && (
+          <form onSubmit={handleStudentLogin} className="p-3 bg-[#FFF9EF] dark:bg-[#171923] rounded-xl border border-[#E8D9C0] dark:border-[#31374A] space-y-2">
+            <input
+              type="text"
+              placeholder="Your Name (e.g. Ramesh Sharma)"
+              value={customName}
+              onChange={(e) => setCustomName(e.target.value)}
+              className="w-full h-9 px-3 text-xs rounded-lg bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] focus:outline-hidden focus:ring-1 focus:ring-[#800020] dark:focus:ring-[#F47B20]"
+            />
+            <button
+              type="submit"
+              className="w-full h-8 bg-[#800020] dark:bg-[#F47B20] text-white text-xs font-bold rounded-lg cursor-pointer hover:opacity-90 transition-all"
+            >
+              Start Practicing as Student
+            </button>
+          </form>
         )}
+
+        {/* 3. Continue as Guest */}
+        <button
+          type="button"
+          onClick={handleGuestLogin}
+          className="w-full py-1 text-xs font-bold text-[#52576A] hover:text-[#171923] dark:text-[#CBD2E1] dark:hover:text-[#FFF9EF] transition-colors cursor-pointer text-center"
+        >
+          ← Continue as Guest
+        </button>
 
         {configNotice && (
           <div className="p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 rounded-xl text-[11px] text-amber-800 dark:text-amber-300 leading-relaxed text-center">
@@ -224,8 +275,8 @@ export function LoginPage({ onLoginSuccess, onClose }: LoginPageProps) {
 
         <div className="flex items-center justify-center gap-2 pt-0.5">
           <ShieldCheck className="w-4 h-4 text-[#15803D] dark:text-[#22C55E]" />
-          <span className="text-xs font-medium text-[#52576A] dark:text-[#929AB0]">
-            Encrypted cloud sync for bookmarks &amp; mock history
+          <span className="text-[11px] font-medium text-[#52576A] dark:text-[#929AB0]">
+            Supabase encrypted cloud sync for bookmarks &amp; mock history
           </span>
         </div>
 
