@@ -35,8 +35,14 @@ export const TopicInteractionModal: React.FC<TopicInteractionModalProps> = ({
       }
       try {
         const mcqs = await getLocalMCQsByTopic(topic.id);
+        if (mcqs && mcqs.length > 0) {
+          if (isMounted) setQuestionCount(mcqs.length);
+          return;
+        }
+        const { fetchTopicQuestionsOnDemand } = await import("../utils/questionsStorage");
+        const onDemand = await fetchTopicQuestionsOnDemand(topic.id);
         if (isMounted) {
-          setQuestionCount(mcqs ? mcqs.length : 0);
+          setQuestionCount(onDemand ? onDemand.length : 0);
         }
       } catch {
         if (isMounted) setQuestionCount(0);

@@ -85,11 +85,13 @@ export async function syncCurriculumAuthoritative(options?: { force?: boolean })
       const qSubs = supabase.from("subjects").select("*").order("order_index", { ascending: true });
       const qChaps = supabase.from("chapters").select("*").order("order_index", { ascending: true });
       const qTops = supabase.from("topics").select("*").order("order_index", { ascending: true });
+      const qQuestions = supabase.from("questions").select("*");
 
-      const [subsRes, chapsRes, topsRes] = await Promise.all([
+      const [subsRes, chapsRes, topsRes, questionsRes] = await Promise.all([
         typeof (qSubs as any).range === "function" ? (qSubs as any).range(0, 9999) : qSubs,
         typeof (qChaps as any).range === "function" ? (qChaps as any).range(0, 9999) : qChaps,
         typeof (qTops as any).range === "function" ? (qTops as any).range(0, 9999) : qTops,
+        typeof (qQuestions as any).range === "function" ? (qQuestions as any).range(0, 9999) : qQuestions,
       ]);
 
       if (subsRes.error) throw new Error(`Failed to fetch subjects: ${subsRes.error.message}`);
@@ -103,6 +105,33 @@ export async function syncCurriculumAuthoritative(options?: { force?: boolean })
       const serverSubjects = subsRes.data || [];
       const serverChapters = chapsRes.data || [];
       const serverTopics = topsRes.data || [];
+      const serverQuestions = Array.isArray(questionsRes?.data) ? questionsRes.data : [];
+
+      const topicQuestionCounts: Record<string, number> = {};
+      const chapterQuestionCounts: Record<string, number> = {};
+      const subjectQuestionCounts: Record<string, number> = {};
+
+      for (const q of serverQuestions) {
+        if (q.topic_id) topicQuestionCounts[q.topic_id] = (topicQuestionCounts[q.topic_id] || 0) + 1;
+        if (q.chapter_id) chapterQuestionCounts[q.chapter_id] = (chapterQuestionCounts[q.chapter_id] || 0) + 1;
+        if (q.subject_id) subjectQuestionCounts[q.subject_id] = (subjectQuestionCounts[q.subject_id] || 0) + 1;
+
+        await idbPut(STORES.MCQS, {
+          id: q.id,
+          text: q.question,
+          options: Array.isArray(q.options) ? q.options : [],
+          correctIndex: q.correct_answer ?? 0,
+          explanation: q.explanation || "",
+          subjectId: q.subject_id,
+          chapterId: q.chapter_id,
+          topicId: q.topic_id,
+          exam: q.exam,
+          year: q.year,
+          difficulty: q.level || "medium",
+          isUserAdded: false,
+          updatedAt: q.created_at,
+        });
+      }
 
       const serverSubjIds = new Set(serverSubjects.map(s => s.id));
       const serverChapIds = new Set(serverChapters.map(c => c.id));
@@ -131,6 +160,7 @@ export async function syncCurriculumAuthoritative(options?: { force?: boolean })
           icon: s.icon || "book",
           color: s.color || "#8B1E3F",
           order: s.order_index || 0,
+          questionCount: subjectQuestionCounts[s.id] || 0,
           isUserAdded: false,
         });
         result.subjectsCount++;
@@ -157,6 +187,7 @@ export async function syncCurriculumAuthoritative(options?: { force?: boolean })
           title: c.name,
           hindiTitle: c.hindi_name || c.name,
           number: c.order_index || 0,
+          questionCount: chapterQuestionCounts[c.id] || 0,
           topics: [],
           isUserAdded: false,
         });
@@ -185,6 +216,7 @@ export async function syncCurriculumAuthoritative(options?: { force?: boolean })
           title: t.name,
           hindiTitle: t.hindi_name || t.name,
           number: t.order_index || 0,
+          questionCount: topicQuestionCounts[t.id] || 0,
           questions: [],
           isUserAdded: false,
         });

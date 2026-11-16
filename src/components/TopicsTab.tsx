@@ -601,6 +601,14 @@ const TopicDetailView: React.FC<TopicDetailViewProps> = ({
         getLocalMCQsByTopic(topic.id).then((qs) => {
           if (isMounted && qs && qs.length > 0) {
             setTopicCount(qs.length);
+          } else {
+            import("../utils/questionsStorage").then(({ fetchTopicQuestionsOnDemand }) => {
+              fetchTopicQuestionsOnDemand(topic.id).then((onDemand) => {
+                if (isMounted && onDemand && onDemand.length > 0) {
+                  setTopicCount(onDemand.length);
+                }
+              }).catch(() => {});
+            }).catch(() => {});
           }
         }).catch(() => {});
       });

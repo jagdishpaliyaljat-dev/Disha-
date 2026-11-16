@@ -943,16 +943,22 @@ export default function App() {
         Promise.all([
           fetchSubjects({ forceRefresh: true }),
           fetchChapters(),
-          fetchTopics()
-        ]).then(([subs, chaps, tops]) => {
+          fetchTopics(),
+          import('./utils/localDatabaseEngine').then(({ getAllLocalMCQs }) => getAllLocalMCQs()).catch(() => [])
+        ]).then(([subs, chaps, tops, mcqs]) => {
           if (!isSubscribed) return;
           if (subs && subs.length > 0) {
-            setQuestionsStore((prev) => ({
-              ...prev,
-              customSubjects: subs,
-              customChapters: chaps && chaps.length > 0 ? chaps : prev.customChapters,
-              customTopics: tops && tops.length > 0 ? tops : prev.customTopics
-            }));
+            setQuestionsStore((prev) => {
+              const next = {
+                ...prev,
+                customSubjects: subs,
+                customChapters: chaps && chaps.length > 0 ? chaps : prev.customChapters,
+                customTopics: tops && tops.length > 0 ? tops : prev.customTopics,
+                cloudCacheQuestions: mcqs && mcqs.length > 0 ? mcqs : prev.cloudCacheQuestions
+              };
+              saveUserQuestionsStore(next);
+              return next;
+            });
           }
         }).catch(() => {});
       }).catch(() => {});
