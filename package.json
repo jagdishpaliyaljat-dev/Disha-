@@ -1,39 +1,24 @@
 {
-  "name": "quizpro-exam-prep",
+  "name": "disha-20-20-exam-prep",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
-  "engines": {
-    "node": "22.x"
-  },
   "scripts": {
-    "dev": "tsx server.ts",
-    "build": "vite build && esbuild src/server/vercelHandler.ts --bundle --platform=node --format=esm --external:vite \"--banner:js=import { createRequire as __cr } from 'module'; import { fileURLToPath as __futp } from 'url'; import { dirname as __dname } from 'path'; const require = __cr(import.meta.url); const __filename = __futp(import.meta.url); const __dirname = __dname(__filename);\" --outfile=api/index.js && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --outfile=dist/server.cjs",
-    "start": "node server.ts",
-    "clean": "rm -rf dist server.js",
-    "lint": "NODE_OPTIONS='--max-old-space-size=4096' tsc --noEmit",
-    "test": "vitest run --fileParallelism=false",
-    "sitemap": "tsx scripts/generate-sitemap.ts",
-    "test:integrity": "tsx scripts/verify-phase2-integrity.ts",
-    "test:phase3": "tsx scripts/phase3-deep-audit.ts",
-    "test:phase4": "tsx scripts/phase4-controlled-migration.ts"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "start": "vite preview",
+    "clean": "rm -rf dist",
+    "lint": "tsc --noEmit",
+    "test": "vitest run --fileParallelism=false"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
     "@tailwindcss/vite": "^4.3.3",
-    "@types/canvas-confetti": "^1.9.0",
-    "@types/d3": "^7.4.3",
-    "@types/dompurify": "^3.2.0",
-    "@types/katex": "^0.16.8",
-    "@types/localforage": "^0.0.33",
     "@vitejs/plugin-react": "^6.1.1",
     "canvas-confetti": "^1.9.4",
     "d3": "^7.9.0",
     "dompurify": "^3.4.17",
-    "dotenv": "^17.2.3",
-    "express": "^4.21.2",
-    "firebase": "^12.19.0",
-    "firebase-admin": "^14.5.0",
     "html2canvas": "^1.4.1",
     "jspdf": "^4.2.1",
     "katex": "^0.19.0",
@@ -50,10 +35,12 @@
     "vite-plugin-pwa": "^2.0.0"
   },
   "devDependencies": {
-    "@firebase/eslint-plugin-security-rules": "^0.0.2",
-    "@firebase/rules-unit-testing": "^6.0.0",
-    "@types/express": "^4.17.21",
+    "@types/canvas-confetti": "^1.9.0",
+    "@types/d3": "^7.4.3",
+    "@types/dompurify": "^3.2.0",
     "@types/jsdom": "^30.0.0",
+    "@types/katex": "^0.16.8",
+    "@types/localforage": "^0.0.33",
     "@types/node": "^22.14.0",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
@@ -64,7 +51,6 @@
     "tailwindcss": "^4.3.3",
     "tsx": "^4.21.0",
     "typescript": "^7.0.2",
-    "vercel": "^65.4.0",
     "vitest": "^5.1.0"
   }
 }

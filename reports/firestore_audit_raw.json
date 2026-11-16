@@ -1,0 +1,564 @@
+{
+  "collections": {
+    "subjects": [
+      "/data/user/0/com.termux/files/home/Disha-/src/components/AddQuestionsModal.tsx",
+      "/data/user/0/com.termux/files/home/Disha-/src/components/QATestRunnerModal.tsx",
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/phase4MigrationService.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/bootstrapService.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/firebaseSyncService.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/syncCoordinator.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/permanentDataIntegrity.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/components/admin/AdminDiagnosticsSection.tsx",
+      "/data/user/0/com.termux/files/home/Disha-/src/components/AIImportModal.tsx",
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/categoryStorage.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/hooks/useFirebaseSync.ts"
+    ],
+    "chapters": [
+      "/data/user/0/com.termux/files/home/Disha-/src/components/AddQuestionsModal.tsx",
+      "/data/user/0/com.termux/files/home/Disha-/src/components/QATestRunnerModal.tsx",
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/phase4MigrationService.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/bootstrapService.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/firebaseSyncService.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/syncCoordinator.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/permanentDataIntegrity.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/components/admin/AdminDiagnosticsSection.tsx",
+      "/data/user/0/com.termux/files/home/Disha-/src/components/AIImportModal.tsx",
+      "/data/user/0/com.termux/files/home/Disha-/src/hooks/useFirebaseSync.ts"
+    ],
+    "topics": [
+      "/data/user/0/com.termux/files/home/Disha-/src/components/AddQuestionsModal.tsx",
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/phase4MigrationService.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/shareService.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/bootstrapService.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/firebaseSyncService.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/syncCoordinator.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/permanentDataIntegrity.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/components/admin/AdminDiagnosticsSection.tsx",
+      "/data/user/0/com.termux/files/home/Disha-/src/components/AIImportModal.tsx",
+      "/data/user/0/com.termux/files/home/Disha-/src/hooks/useFirebaseSync.ts"
+    ],
+    "question_bundles": [
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/firebaseSyncService.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/hooks/useFirebaseSync.ts"
+    ],
+    "metadata": [
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/appVersionService.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/bulkSyncService.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/bootstrapService.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/syncCoordinator.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/components/admin/FirebaseDataExplorer.tsx",
+      "/data/user/0/com.termux/files/home/Disha-/src/hooks/useFirebaseSync.ts"
+    ],
+    "users": [
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/guestManager.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/userManagementStorage.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/components/QATestRunnerModal.tsx",
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/firebaseSyncService.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/services/snapshot/userActivityQueue.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/hooks/useFirebaseSync.ts"
+    ],
+    "test": [
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/firebaseSyncService.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/lib/firebase.ts"
+    ],
+    "analytics_daily": [
+      "/data/user/0/com.termux/files/home/Disha-/src/components/admin/AdminAnalyticsDashboard.tsx",
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/firebaseSyncService.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/analytics.ts"
+    ],
+    "articles": [
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/sitemapGenerator.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/shareService.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/articleStorage.ts"
+    ],
+    "article_categories": [
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/articleStorage.ts"
+    ],
+    "link_rules": [
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/articleStorage.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/smartArticleImporter.ts"
+    ],
+    "pyq_papers": [
+      "/data/user/0/com.termux/files/home/Disha-/src/components/QATestRunnerModal.tsx",
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/shareService.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/pyqStorage.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/bootstrapService.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/firebaseSyncService.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/categoryStorage.ts"
+    ],
+    "mcqs": [
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/duplicateAuditService.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/components/QATestRunnerModal.tsx",
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/phase4MigrationService.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/shareService.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/bootstrapService.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/firebaseSyncService.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/syncCoordinator.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/lib/mcqImport/commit.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/components/admin/FirebaseQuotaHealthPanel.tsx",
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/permanentDataIntegrity.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/categoryStorage.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/components/admin/AdminDiagnosticsSection.tsx"
+    ],
+    "examCategories": [
+      "/data/user/0/com.termux/files/home/Disha-/src/components/QATestRunnerModal.tsx",
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/categoryStorage.ts"
+    ],
+    "live_tests": [
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/categoryStorage.ts"
+    ],
+    "liveTests": [
+      "/data/user/0/com.termux/files/home/Disha-/src/components/QATestRunnerModal.tsx",
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/liveTestStorage.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/shareService.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/firebaseSyncService.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/categoryStorage.ts"
+    ],
+    "exam_categories": [
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/categoryStorage.ts"
+    ],
+    "coaching": [
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/coachingHierarchyStorage.ts"
+    ],
+    "coaching_exams": [
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/coachingHierarchyStorage.ts"
+    ],
+    "coaching_test_series": [
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/coachingHierarchyStorage.ts"
+    ],
+    "examPaperAnalyses": [
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/examPaperStorage.ts"
+    ],
+    "questions": [
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/phase4MigrationService.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/components/admin/ProductionStabilityPanel.tsx",
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/firebaseSyncService.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/lib/mcqImport/commit.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/permanentDataIntegrity.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/components/admin/AdminDiagnosticsSection.tsx"
+    ],
+    "liveTestAnswerKeys": [
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/firebaseSyncService.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/liveTestStorage.ts"
+    ],
+    "banners": [
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/firebaseSyncService.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/components/QATestRunnerModal.tsx"
+    ],
+    "attempts": [
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/firebaseSyncService.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/guestManager.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/userManagementStorage.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/components/QATestRunnerModal.tsx"
+    ],
+    "leaderboard": [
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/firebaseSyncService.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/components/QATestRunnerModal.tsx",
+      "/data/user/0/com.termux/files/home/Disha-/src/components/SessionLeaderboard.tsx"
+    ],
+    "_health": [
+      "/data/user/0/com.termux/files/home/Disha-/src/components/QATestRunnerModal.tsx",
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/firebaseTest.ts"
+    ],
+    "liveTestSubmissions": [
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/liveTestStorage.ts"
+    ],
+    "archived_mcqs": [
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/phase4MigrationService.ts"
+    ],
+    "pyq_attempts": [
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/pyqStorage.ts"
+    ],
+    "usage_daily": [
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/quotaTracker.ts"
+    ],
+    "user_stats_weekly": [
+      "/data/user/0/com.termux/files/home/Disha-/src/components/WeeklyLeaderboard.tsx",
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/studentWriteBuffer.ts"
+    ],
+    "adminAuditLogs": [
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/userManagementStorage.ts",
+      "/data/user/0/com.termux/files/home/Disha-/src/components/admin/AuditLogWidget.tsx"
+    ],
+    "content_changelog": [
+      "/data/user/0/com.termux/files/home/Disha-/src/utils/syncCoordinator.ts"
+    ],
+    "curriculum_questions": [
+      "/data/user/0/com.termux/files/home/Disha-/src/lib/mcqImport/commit.ts"
+    ],
+    "import_batches": [
+      "/data/user/0/com.termux/files/home/Disha-/src/lib/mcqImport/commit.ts"
+    ],
+    "broadcast_notifications": [
+      "/data/user/0/com.termux/files/home/Disha-/src/components/admin/AdminNotificationBroadcastSection.tsx",
+      "/data/user/0/com.termux/files/home/Disha-/src/App.tsx"
+    ],
+    "_unauthorized_protected_collection": [
+      "/data/user/0/com.termux/files/home/Disha-/src/components/QATestRunnerModal.tsx"
+    ],
+    "ai_api_configs": [
+      "/data/user/0/com.termux/files/home/Disha-/src/components/admin/AIApiManagementSection.tsx",
+      "/data/user/0/com.termux/files/home/Disha-/src/components/admin/ApiSettingsModal.tsx"
+    ],
+    "contact_messages": [
+      "/data/user/0/com.termux/files/home/Disha-/src/components/admin/AdminMessagesSection.tsx"
+    ],
+    "question_reports": [
+      "/data/user/0/com.termux/files/home/Disha-/src/components/admin/QuestionReportDesk.tsx"
+    ],
+    "curriculum": [
+      "/data/user/0/com.termux/files/home/Disha-/src/components/admin/FirebaseDataExplorer.tsx"
+    ],
+    "login_attempts": [
+      "/data/user/0/com.termux/files/home/Disha-/src/components/admin/RecentActivityWidget.tsx"
+    ]
+  },
+  "operations_by_file": {
+    "/data/user/0/com.termux/files/home/Disha-/src/server/backupEngine.ts": {
+      "setDoc": [
+        [
+          372,
+          "setDoc(docPath: string, data: any, merge?: boolean)"
+        ],
+        [
+          409,
+          "setDoc(docPath, data, merge = false)"
+        ],
+        [
+          553,
+          "setDoc(docPath, data, _merge = false)"
+        ],
+        [
+          1304,
+          "setDoc(docPath, deserializedData, false)"
+        ],
+        [
+          1316,
+          "setDoc(docPath, deserializedData, false)"
+        ],
+        [
+          1328,
+          "setDoc(docPath, deserializedData, true)"
+        ],
+        [
+          1332,
+          "setDoc(docPath, deserializedData, false)"
+        ],
+        [
+          1340,
+          "setDoc(docPath, deserializedData, true)"
+        ],
+        [
+          1376,
+          "setDoc(subDocPath, deserializedData, true)"
+        ],
+        [
+          1408,
+          "setDoc(`adminAuditLogs/restore_${jobId}`, auditEntry, false)"
+        ]
+      ]
+    },
+    "/data/user/0/com.termux/files/home/Disha-/src/services/firestoreDataService.ts": {
+      "getDoc": [
+        [
+          217,
+          "getDoc(docRef)"
+        ]
+      ],
+      "onSnapshot": [
+        [
+          491,
+          "onSnapshot(       queryOrRef as any,       (snap: any)"
+        ]
+      ]
+    },
+    "/data/user/0/com.termux/files/home/Disha-/src/utils/coachingHierarchyStorage.ts": {
+      "getDocs": [
+        [
+          79,
+          "getDocs(collection(db, \"coaching\")"
+        ],
+        [
+          198,
+          "getDocs(collection(db, \"coaching_exams\")"
+        ],
+        [
+          326,
+          "getDocs(collection(db, \"coaching_test_series\")"
+        ]
+      ],
+      "onSnapshot": [
+        [
+          98,
+          "onSnapshot(     collection(db, \"coaching\")"
+        ],
+        [
+          222,
+          "onSnapshot(     collection(db, \"coaching_exams\")"
+        ],
+        [
+          356,
+          "onSnapshot(     collection(db, \"coaching_test_series\")"
+        ]
+      ]
+    },
+    "/data/user/0/com.termux/files/home/Disha-/src/utils/firebaseSyncService.ts": {
+      "getDoc": [
+        [
+          310,
+          "getDoc(doc(db, \"analytics_daily\", dateStr)"
+        ]
+      ]
+    },
+    "/data/user/0/com.termux/files/home/Disha-/src/utils/mockFirestoreDriver.ts": {
+      "runTransaction": [
+        [
+          6,
+          "runTransaction ("
+        ]
+      ]
+    },
+    "/data/user/0/com.termux/files/home/Disha-/src/utils/phase4MigrationService.ts": {
+      "getDoc": [
+        [
+          669,
+          "getDoc(mcqsRef)"
+        ],
+        [
+          669,
+          "getDoc(qsRef)"
+        ],
+        [
+          692,
+          "getDoc(mcqsRef)"
+        ],
+        [
+          818,
+          "getDoc(mcqsDocRef)"
+        ],
+        [
+          818,
+          "getDoc(qsDocRef)"
+        ],
+        [
+          882,
+          "getDoc(doc(db, \"mcqs\", mapping.id)"
+        ],
+        [
+          883,
+          "getDoc(doc(db, \"questions\", mapping.id)"
+        ],
+        [
+          981,
+          "getDoc(qRef)"
+        ],
+        [
+          981,
+          "getDoc(mRef)"
+        ],
+        [
+          1028,
+          "getDoc(doc(db, \"questions\", c.id)"
+        ],
+        [
+          1136,
+          "getDoc(archiveRef)"
+        ],
+        [
+          1145,
+          "getDoc(doc(db, \"mcqs\", retainedId)"
+        ],
+        [
+          1146,
+          "getDoc(doc(db, \"questions\", retainedId)"
+        ],
+        [
+          1147,
+          "getDoc(doc(db, \"mcqs\", archiveTargetId)"
+        ],
+        [
+          1148,
+          "getDoc(doc(db, \"questions\", archiveTargetId)"
+        ],
+        [
+          1185,
+          "getDoc(archiveRef)"
+        ],
+        [
+          1225,
+          "getDoc(archiveRef)"
+        ],
+        [
+          1254,
+          "getDoc(doc(db, \"mcqs\", archivedDocId)"
+        ],
+        [
+          1258,
+          "getDoc(doc(db, \"questions\", archivedDocId)"
+        ]
+      ],
+      "getDocs": [
+        [
+          732,
+          "getDocs(collection(db, \"subjects\")"
+        ],
+        [
+          733,
+          "getDocs(collection(db, \"chapters\")"
+        ],
+        [
+          734,
+          "getDocs(collection(db, \"topics\")"
+        ],
+        [
+          855,
+          "getDocs(collection(db, \"subjects\")"
+        ],
+        [
+          856,
+          "getDocs(collection(db, \"chapters\")"
+        ],
+        [
+          857,
+          "getDocs(collection(db, \"topics\")"
+        ]
+      ]
+    },
+    "/data/user/0/com.termux/files/home/Disha-/src/utils/quotaTracker.ts": {
+      "getDoc": [
+        [
+          1265,
+          "getDoc(docRef)"
+        ]
+      ],
+      "getDocs": [
+        [
+          1364,
+          "getDocs(queryOrRef)"
+        ]
+      ],
+      "onSnapshot": [
+        [
+          1437,
+          "onSnapshot(     queryOrRef as any,     (snap: any)"
+        ]
+      ],
+      "setDoc": [
+        [
+          941,
+          "setDoc(docRef, payload, { merge: true })"
+        ],
+        [
+          1618,
+          "setDoc(docRef, safeData, options)"
+        ],
+        [
+          1620,
+          "setDoc(docRef, safeData)"
+        ]
+      ],
+      "updateDoc": [
+        [
+          1721,
+          "updateDoc(docRef, safeData)"
+        ]
+      ],
+      "deleteDoc": [
+        [
+          1817,
+          "deleteDoc(docRef)"
+        ]
+      ],
+      "writeBatch": [
+        [
+          1899,
+          "writeBatch("
+        ]
+      ],
+      "runTransaction": [
+        [
+          2115,
+          "runTransaction("
+        ]
+      ]
+    },
+    "/data/user/0/com.termux/files/home/Disha-/src/utils/smartArticleImporter.ts": {
+      "getDocs": [
+        [
+          103,
+          "getDocs(q)"
+        ]
+      ]
+    },
+    "/data/user/0/com.termux/files/home/Disha-/src/services/snapshot/userActivityQueue.ts": {
+      "writeBatch": [
+        [
+          149,
+          "writeBatch("
+        ]
+      ]
+    },
+    "/data/user/0/com.termux/files/home/Disha-/src/App.tsx": {
+      "onSnapshot": [
+        [
+          401,
+          "onSnapshot(           q,           (snapshot)"
+        ]
+      ]
+    },
+    "/data/user/0/com.termux/files/home/Disha-/src/components/admin/AIApiManagementSection.tsx": {
+      "getDocs": [
+        [
+          156,
+          "getDocs(collection(db, \"ai_api_configs\")"
+        ]
+      ]
+    },
+    "/data/user/0/com.termux/files/home/Disha-/src/components/admin/AdminDiagnosticsSection.tsx": {
+      "getDocs": [
+        [
+          117,
+          "getDocs(collection(db, \"subjects\")"
+        ],
+        [
+          118,
+          "getDocs(collection(db, \"chapters\")"
+        ],
+        [
+          119,
+          "getDocs(collection(db, \"topics\")"
+        ],
+        [
+          120,
+          "getDocs(collection(db, \"mcqs\")"
+        ],
+        [
+          121,
+          "getDocs(collection(db, \"questions\")"
+        ]
+      ]
+    },
+    "/data/user/0/com.termux/files/home/Disha-/src/components/admin/QuestionReportDesk.tsx": {
+      "getDocs": [
+        [
+          69,
+          "getDocs(q)"
+        ]
+      ],
+      "updateDoc": [
+        [
+          118,
+          "updateDoc(doc(db, \"question_reports\", reportId)"
+        ]
+      ]
+    },
+    "/data/user/0/com.termux/files/home/Disha-/src/components/admin/ProductionStabilityPanel.tsx": {
+      "getDocs": [
+        [
+          51,
+          "getDocs(collection(db, \"questions\")"
+        ]
+      ]
+    }
+  }
+}
