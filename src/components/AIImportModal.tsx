@@ -1199,7 +1199,41 @@ export const AIImportModal: React.FC<AIImportModalProps> = ({
           console.log(`[MCQ Import] [Step: Image] Question index ${idx + 1}/${toImport.length}: SVG/diagram stored inline (${Math.round(imgSize / 1024)}KB).`);
         }
 
-        const tId = selectedTopicId || "topic_general";
+        // Resolve subject, chapter, and topic IDs with semantic fallback
+        let resolvedSubjectId = selectedSubjectId === "all" ? (selectedChapter?.subjectId || availableSubjects[0]?.id || "sub_raj_hist") : (selectedSubjectId || availableSubjects[0]?.id || "sub_raj_hist");
+        let resolvedChapterId = selectedChapterId || availableChapters[0]?.id || fetchedChapters[0]?.id || "";
+        let resolvedTopicId = selectedTopicId || availableTopics[0]?.id || "";
+
+        if (d.topic && availableTopics.length > 0) {
+          const tLower = String(d.topic).trim().toLowerCase();
+          const matchT = availableTopics.find(
+            (t) => t.id.toLowerCase() === tLower || (t.title && t.title.toLowerCase() === tLower) || (t.hindiTitle && t.hindiTitle.toLowerCase() === tLower)
+          );
+          if (matchT) {
+            resolvedTopicId = matchT.id;
+            if (matchT.chapterId) resolvedChapterId = matchT.chapterId;
+            if (matchT.subjectId) resolvedSubjectId = matchT.subjectId;
+          }
+        }
+        if (d.chapter && fetchedChapters.length > 0) {
+          const cLower = String(d.chapter).trim().toLowerCase();
+          const matchC = fetchedChapters.find(
+            (c) => c.id.toLowerCase() === cLower || (c.title && c.title.toLowerCase() === cLower) || (c.hindiTitle && c.hindiTitle.toLowerCase() === cLower)
+          );
+          if (matchC) {
+            resolvedChapterId = matchC.id;
+            if (matchC.subjectId) resolvedSubjectId = matchC.subjectId;
+          }
+        }
+        if (d.subject && availableSubjects.length > 0) {
+          const sLower = String(d.subject).trim().toLowerCase();
+          const matchS = availableSubjects.find(
+            (s) => s.id.toLowerCase() === sLower || (s.name && s.name.toLowerCase() === sLower) || (s.hindiName && s.hindiName.toLowerCase() === sLower)
+          );
+          if (matchS) resolvedSubjectId = matchS.id;
+        }
+
+        const tId = resolvedTopicId || (availableTopics[0]?.id) || "top_inscriptions";
         
         // Requirement: Stable deterministic ID for idempotency and duplicate prevention
         const contentHash = d.hash || generateQuestionHash({
@@ -1219,8 +1253,8 @@ export const AIImportModal: React.FC<AIImportModalProps> = ({
           options: d.options as [string, string, string, string],
           correctIndex: d.correctIndex,
           explanation: d.explanation || "",
-          subjectId: selectedSubjectId === "all" ? (selectedChapter?.subjectId || "economics") : selectedSubjectId,
-          chapterId: selectedChapterId,
+          subjectId: resolvedSubjectId,
+          chapterId: resolvedChapterId,
           topicId: tId,
           questionType: resolvedQuestionType,
           matchTable: d.matchTable || undefined,

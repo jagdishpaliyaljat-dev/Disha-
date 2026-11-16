@@ -352,6 +352,16 @@ export function processJSONImport(
     };
   }
 
+  // Maximum 25 questions per batch limit guard
+  if (rawList.length > 25) {
+    return {
+      success: false,
+      parseError: `Batch size exceeded: Maximum 25 questions allowed per import batch (found ${rawList.length}). Please split your questions into batches of 25 or fewer.`,
+      results: [],
+      summary: { total: rawList.length, valid: 0, warnings: 0, errors: rawList.length, duplicates: 0 },
+    };
+  }
+
   let validCount = 0;
   let warnCount = 0;
   let errCount = 0;

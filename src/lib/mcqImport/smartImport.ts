@@ -69,6 +69,18 @@ export async function smartJSONImport(
     };
   }
 
+  // Maximum 25 questions per batch limit guard
+  if (rawList.length > 25) {
+    return {
+      success: false,
+      parseError: `Batch size exceeded: Maximum 25 questions allowed per import batch (found ${rawList.length}). Please split your questions into batches of 25 or fewer.`,
+      results: [],
+      summary: { total: rawList.length, valid: 0, recoveredByAI: 0, needsReview: 0, errors: rawList.length, duplicates: 0 },
+      aiRecoveryRequired: false,
+      recoveredCount: 0,
+    };
+  }
+
   // Step 2: Deterministic Validation Pass across all items
   let initialInvalidCount = 0;
   const seenBatchHashes = new Set<string>();
@@ -131,11 +143,12 @@ export async function smartJSONImport(
     };
   });
 
-  // If 100% valid deterministically -> Return immediately with 0 AI latency!
-  if (initialInvalidCount === 0) {
-    const validCount = initialResults.length;
+  // If 100% valid deterministically or AI recovery explicitly disabled -> Return immediately with 0 AI latency!
+  if (initialInvalidCount === 0 || options.skipAIRecovery) {
+    const validCount = initialResults.filter((r) => r.isValid).length;
     const dupeCount = initialResults.filter((r) => r.isDuplicate).length;
     const reviewCount = initialResults.filter((r) => r.needsReview).length;
+    const errCount = initialResults.filter((r) => !r.isValid).length;
 
     return {
       success: true,
@@ -145,7 +158,7 @@ export async function smartJSONImport(
         valid: validCount,
         recoveredByAI: 0,
         needsReview: reviewCount,
-        errors: 0,
+        errors: errCount,
         duplicates: dupeCount,
       },
       aiRecoveryRequired: false,

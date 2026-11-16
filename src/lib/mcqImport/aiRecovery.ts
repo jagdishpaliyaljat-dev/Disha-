@@ -17,6 +17,7 @@ export interface AIRecoveryOptions {
   batchSize?: number;
   onProgress?: (progress: AIRecoveryProgress) => void;
   signal?: AbortSignal;
+  skipAIRecovery?: boolean;
 }
 
 /**
