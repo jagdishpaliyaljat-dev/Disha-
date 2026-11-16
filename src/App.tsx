@@ -842,96 +842,112 @@ export default function App() {
 
   // Firebase Auth State Listener
   React.useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
-      setIsAuthReady(true);
-      
-      if (firebaseUser) {
-        // User is signed in to Firebase Auth
-        const { fetchUserProfileFromCloud } = await import('./utils/firebaseSyncService');
-        
-        let profile: UserProfile | null = null;
-        try {
-          profile = await fetchUserProfileFromCloud(firebaseUser.uid);
-        } catch (err) {
-          console.warn("Could not fetch remote profile on auth change:", err);
-        }
+    let unsubscribe: (() => void) | undefined;
+    try {
+      if (auth && typeof auth.onAuthStateChanged === 'function') {
+        unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
+          setIsAuthReady(true);
+          
+          if (firebaseUser) {
+            // User is signed in to Firebase Auth
+            const { fetchUserProfileFromCloud } = await import('./utils/firebaseSyncService');
+            
+            let profile: UserProfile | null = null;
+            try {
+              profile = await fetchUserProfileFromCloud(firebaseUser.uid);
+            } catch (err) {
+              console.warn("Could not fetch remote profile on auth change:", err);
+            }
 
-        const emailLower = (firebaseUser.email || "").trim().toLowerCase();
-        const { ADMIN_EMAILS, ADMIN_UIDS } = await import('./utils/userProfileStorage');
-        const isAdminUser = Boolean((firebaseUser.email && ADMIN_EMAILS.includes(emailLower)) || ADMIN_UIDS.includes(firebaseUser.uid));
+            const emailLower = (firebaseUser.email || "").trim().toLowerCase();
+            const { ADMIN_EMAILS, ADMIN_UIDS } = await import('./utils/userProfileStorage');
+            const isAdminUser = Boolean((firebaseUser.email && ADMIN_EMAILS.includes(emailLower)) || ADMIN_UIDS.includes(firebaseUser.uid));
 
-        if (!profile) {
-          profile = {
-            id: firebaseUser.uid,
-            name: firebaseUser.displayName || "Student",
-            email: firebaseUser.email || "",
-            photoURL: firebaseUser.photoURL || "",
-            role: isAdminUser ? "admin" : "student",
-            status: "active",
-            createdAt: new Date().toISOString(),
-          };
-        } else if (isAdminUser || profile.role === "admin") {
-          profile.role = "admin";
-        }
+            if (!profile) {
+              profile = {
+                id: firebaseUser.uid,
+                name: firebaseUser.displayName || "Student",
+                email: firebaseUser.email || "",
+                photoURL: firebaseUser.photoURL || "",
+                role: isAdminUser ? "admin" : "student",
+                status: "active",
+                createdAt: new Date().toISOString(),
+              };
+            } else if (isAdminUser || profile.role === "admin") {
+              profile.role = "admin";
+            }
 
-        setUserProfile(profile);
-        setIsAuthenticated(true);
-        saveUserProfile(profile);
+            setUserProfile(profile);
+            setIsAuthenticated(true);
+            saveUserProfile(profile);
 
-        // Non-destructively restore and merge cloud progress, bookmarks & revision history
-        try {
-          const cloudData = await loadUserData();
-          if (cloudData?.progress && Object.keys(cloudData.progress).length > 0) {
-            updateProgress((prev) => {
-              const merged: ProgressStore = { ...cloudData.progress, ...prev };
-              Object.keys(cloudData.progress).forEach((qId) => {
-                const remoteP = cloudData.progress[qId];
-                const localP = prev[qId];
-                if (localP && remoteP) {
-                  merged[qId] = {
-                    ...remoteP,
-                    ...localP,
-                    bookmarked: Boolean(localP.bookmarked || remoteP.bookmarked),
-                    timesAttempted: Math.max(localP.timesAttempted || 0, remoteP.timesAttempted || 0),
-                  };
-                }
-              });
-              return merged;
-            });
-          }
-          if (cloudData?.history && Object.keys(cloudData.history).length > 0) {
-            const { loadStudyHistoryFromStorage, saveStudyHistoryToStorage } = await import('./utils/storage');
-            const localHist = loadStudyHistoryFromStorage();
-            const mergedHist = { ...cloudData.history, ...localHist };
-            Object.keys(cloudData.history).forEach((dateKey) => {
-              const rH = cloudData.history[dateKey];
-              const lH = localHist[dateKey];
-              if (lH && rH) {
-                mergedHist[dateKey] = {
-                  correct: Math.max(lH.correct || 0, rH.correct || 0),
-                  wrong: Math.max(lH.wrong || 0, rH.wrong || 0),
-                };
+            // Non-destructively restore and merge cloud progress, bookmarks & revision history
+            try {
+              const cloudData = await loadUserData();
+              if (cloudData?.progress && Object.keys(cloudData.progress).length > 0) {
+                updateProgress((prev) => {
+                  const merged: ProgressStore = { ...cloudData.progress, ...prev };
+                  Object.keys(cloudData.progress).forEach((qId) => {
+                    const remoteP = cloudData.progress[qId];
+                    const localP = prev[qId];
+                    if (localP && remoteP) {
+                      merged[qId] = {
+                        ...remoteP,
+                        ...localP,
+                        bookmarked: Boolean(localP.bookmarked || remoteP.bookmarked),
+                        timesAttempted: Math.max(localP.timesAttempted || 0, remoteP.timesAttempted || 0),
+                      };
+                    }
+                  });
+                  return merged;
+                });
               }
-            });
-            saveStudyHistoryToStorage(mergedHist);
+              if (cloudData?.history && Object.keys(cloudData.history).length > 0) {
+                const { loadStudyHistoryFromStorage, saveStudyHistoryToStorage } = await import('./utils/storage');
+                const localHist = loadStudyHistoryFromStorage();
+                const mergedHist = { ...cloudData.history, ...localHist };
+                Object.keys(cloudData.history).forEach((dateKey) => {
+                  const rH = cloudData.history[dateKey];
+                  const lH = localHist[dateKey];
+                  if (lH && rH) {
+                    mergedHist[dateKey] = {
+                      correct: Math.max(lH.correct || 0, rH.correct || 0),
+                      wrong: Math.max(lH.wrong || 0, rH.wrong || 0),
+                    };
+                  }
+                });
+                saveStudyHistoryToStorage(mergedHist);
+              }
+            } catch {}
+          } else {
+            // User is signed out of Firebase Auth
+            // ONLY clear if we have finished initializing and it's definitely null
+            const currentProfile = loadUserProfile();
+            if (currentProfile && isUserAdmin(currentProfile)) {
+               setUserProfile(currentProfile);
+               setIsAuthenticated(true);
+            } else if (currentProfile && currentProfile.id !== 'student_default') {
+               setUserProfile(null);
+               setIsAuthenticated(false);
+               localStorage.removeItem('economic_survey_user_profile_v1');
+            }
           }
-        } catch {}
+        });
       } else {
-        // User is signed out of Firebase Auth
-        // ONLY clear if we have finished initializing and it's definitely null
-        const currentProfile = loadUserProfile();
-        if (currentProfile && isUserAdmin(currentProfile)) {
-           setUserProfile(currentProfile);
-           setIsAuthenticated(true);
-        } else if (currentProfile && currentProfile.id !== 'student_default') {
-           setUserProfile(null);
-           setIsAuthenticated(false);
-           localStorage.removeItem('economic_survey_user_profile_v1');
-        }
+        setIsAuthReady(true);
       }
-    });
+    } catch (e) {
+      console.warn('[App] Could not initialize auth listener:', e);
+      setIsAuthReady(true);
+    }
 
-    return () => unsubscribe();
+    return () => {
+      try {
+        if (typeof unsubscribe === 'function') {
+          unsubscribe();
+        }
+      } catch {}
+    };
   }, []);
 
   const isAdmin = userProfile ? isUserAdmin(userProfile) : false;

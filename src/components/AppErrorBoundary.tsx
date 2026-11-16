@@ -94,6 +94,7 @@ export class AppErrorBoundary extends React.Component<AppErrorBoundaryProps, App
             "cached_curriculum_v1",
             "quizpro_curriculum_cache_v1",
             "quizpro_clean_slate_zero_mock_v7_0",
+            "quizpro_clean_slate_zero_mock_v8_0",
           ];
           purgeKeys.forEach((k) => localStorage.removeItem(k));
         }

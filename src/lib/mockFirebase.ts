@@ -12,11 +12,28 @@ export const getApp = (_name?: string) => ({ name: '[DEFAULT]' });
 // --- Firebase Auth Mock ---
 const LOCAL_USER_KEY = 'disha_local_auth_user_v1';
 
+function wrapUserWithMethods(user: any): any {
+  if (!user || typeof user !== 'object') return null;
+  return {
+    ...user,
+    getIdToken: async (_forceRefresh?: boolean) => 'mock-local-token',
+    getIdTokenResult: async (_forceRefresh?: boolean) => ({
+      token: 'mock-local-token',
+      claims: { admin: user.email === 'jagdishpaliyaljat@gmail.com' },
+      authTime: new Date().toISOString(),
+      issuedAtTime: new Date().toISOString(),
+      expirationTime: new Date(Date.now() + 3600000).toISOString(),
+    }),
+    reload: async () => {},
+  };
+}
+
 function getStoredLocalUser(): any {
   if (typeof localStorage === 'undefined') return null;
   try {
     const raw = localStorage.getItem(LOCAL_USER_KEY);
-    return raw ? JSON.parse(raw) : null;
+    if (!raw) return null;
+    return wrapUserWithMethods(JSON.parse(raw));
   } catch {
     return null;
   }
@@ -37,10 +54,25 @@ const authListeners = new Set<(user: any) => void>();
 
 export const auth = {
   currentUser: getStoredLocalUser(),
+  onAuthStateChanged(callback: (user: any) => void) {
+    authListeners.add(callback);
+    try {
+      callback(this.currentUser);
+    } catch (err) {
+      console.warn('[mockFirebase] onAuthStateChanged callback threw:', err);
+    }
+    return () => {
+      authListeners.delete(callback);
+    };
+  },
   async signOut() {
     setStoredLocalUser(null);
     this.currentUser = null;
-    authListeners.forEach((cb) => cb(null));
+    authListeners.forEach((cb) => {
+      try {
+        cb(null);
+      } catch {}
+    });
   },
 };
 
@@ -48,26 +80,28 @@ export const getAuth = (_app?: any) => auth;
 export const setPersistence = async (_auth: any, _persistence: any) => {};
 export const browserLocalPersistence = 'LOCAL';
 
-export const onAuthStateChanged = (_auth: any, callback: (user: any) => void) => {
-  authListeners.add(callback);
-  callback(auth.currentUser);
-  return () => {
-    authListeners.delete(callback);
-  };
+export const onAuthStateChanged = (authOrCb: any, callback?: (user: any) => void) => {
+  const cb = typeof authOrCb === 'function' ? authOrCb : callback;
+  if (typeof cb !== 'function') return () => {};
+  return auth.onAuthStateChanged(cb);
 };
 
 export const signInWithEmailAndPassword = async (_auth: any, email: string, _pass: string) => {
-  const user = {
+  const rawUser = {
     uid: 'local-user-' + Math.random().toString(36).slice(2, 9),
     email,
     displayName: email.split('@')[0],
     emailVerified: true,
     isAnonymous: false,
-    getIdToken: async () => 'mock-local-token',
   };
+  const user = wrapUserWithMethods(rawUser);
   setStoredLocalUser(user);
   auth.currentUser = user;
-  authListeners.forEach((cb) => cb(user));
+  authListeners.forEach((cb) => {
+    try {
+      cb(user);
+    } catch {}
+  });
   return { user };
 };
 
@@ -75,29 +109,41 @@ export const createUserWithEmailAndPassword = async (_auth: any, email: string, 
   return signInWithEmailAndPassword(_auth, email, _pass);
 };
 
-export class GoogleAuthProvider {}
+export class GoogleAuthProvider {
+  setCustomParameters(_params: any) { return this; }
+  addScope(_scope: string) { return this; }
+}
 
 export const signInWithPopup = async (_auth: any, _provider: any) => {
-  const user = {
+  const rawUser = {
     uid: 'local-google-user',
     email: 'student@example.com',
     displayName: 'Student',
     emailVerified: true,
     isAnonymous: false,
-    getIdToken: async () => 'mock-local-token',
   };
+  const user = wrapUserWithMethods(rawUser);
   setStoredLocalUser(user);
   auth.currentUser = user;
-  authListeners.forEach((cb) => cb(user));
+  authListeners.forEach((cb) => {
+    try {
+      cb(user);
+    } catch {}
+  });
   return { user };
 };
 
 export const updateProfile = async (user: any, profile: { displayName?: string; photoURL?: string }) => {
   if (user) {
     Object.assign(user, profile);
-    setStoredLocalUser(user);
-    auth.currentUser = user;
-    authListeners.forEach((cb) => cb(user));
+    const updated = wrapUserWithMethods(user);
+    setStoredLocalUser(updated);
+    auth.currentUser = updated;
+    authListeners.forEach((cb) => {
+      try {
+        cb(updated);
+      } catch {}
+    });
   }
 };
 
@@ -116,6 +162,14 @@ export interface MockDocRef {
   id: string;
   path: string;
 }
+
+export class DocumentReference {}
+export class Query {}
+export class CollectionReference {}
+export class DocumentSnapshot {}
+export class QuerySnapshot {}
+export class QueryConstraint {}
+export type Unsubscribe = () => void;
 
 export const doc = (_db: any, pathOrCollection: any, ...pathSegments: string[]): MockDocRef => {
   let fullPath = '';
