@@ -81,18 +81,18 @@ export const ChapterDetailView: React.FC<ChapterDetailViewProps> = ({
   }
 
   // Real question counts for the chapter
-  const allChapterQuestions = (chapter.topics || []).flatMap((t) => t.questions || []);
+  const allChapterQuestions = (chapter.topics || []).flatMap((t) => (t && Array.isArray(t.questions)) ? t.questions : []).filter((q): q is Question => Boolean(q && q.id));
   
   // Real mastery calculation
   const correctInChapter = allChapterQuestions.filter(
-    (q) => progressStore[q.id]?.status === "correct"
+    (q) => progressStore && q && q.id && progressStore[q.id]?.status === "correct"
   ).length;
   const mastery = allChapterQuestions.length > 0 
     ? Math.round((correctInChapter / allChapterQuestions.length) * 100) 
     : 0;
 
   const wrongInChapter = allChapterQuestions.filter(
-    (q) => progressStore[q.id]?.status === "wrong"
+    (q) => progressStore && q && q.id && progressStore[q.id]?.status === "wrong"
   ).length;
 
   const [shareModalConfig, setShareModalConfig] = useState<{ isOpen: boolean; data: ShareData }>({
@@ -200,17 +200,20 @@ export const ChapterDetailView: React.FC<ChapterDetailViewProps> = ({
 
       <main className="p-4 grid grid-cols-1 md:grid-cols-2 gap-2.5 max-w-3xl mx-auto w-full">
         {(chapter.topics || []).map((topic, index) => {
-          const topicNum = index + 1;
+          if (!topic) return null;
+          const topicNum = topic.number || index + 1;
           const qCount =
-            topic.questions && topic.questions.length > 0
+            Array.isArray(topic.questions) && topic.questions.length > 0
               ? topic.questions.length
-              : topic.questionCount || 0;
+              : typeof topic.questionCount === "number"
+              ? topic.questionCount
+              : 0;
 
           return (
             <div
-              key={`${topic.id}-${index}`}
+              key={`${topic.id || 'topic'}-${index}`}
               onClick={() => {
-                if (onSelectTopic) {
+                if (onSelectTopic && topic.id) {
                   onSelectTopic(topic.id);
                 } else {
                   setLocalTopicForModal(topic);

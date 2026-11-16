@@ -65,6 +65,36 @@ export class AppErrorBoundary extends React.Component<AppErrorBoundaryProps, App
     this.setState({ hasError: false, error: undefined, errorEventId: undefined, isChunkError: false, showDetails: false });
   };
 
+  handleGoHome = (): void => {
+    try {
+      if (typeof window !== "undefined") {
+        window.history.replaceState({}, "", "/");
+        window.location.replace(`/?recovery=1&_t=${Date.now()}`);
+        return;
+      }
+    } catch {}
+    this.handleRetry();
+  };
+
+  handleCopyDiagnostics = async (): Promise<void> => {
+    try {
+      const err = this.state.error;
+      const report = {
+        name: err?.name || "UnknownError",
+        message: err?.message || "",
+        reference: this.state.errorEventId || "",
+        stack: err?.stack || "",
+        url: typeof window !== "undefined" ? window.location.href : "",
+        userAgent: typeof navigator !== "undefined" ? navigator.userAgent : "",
+        timestamp: new Date().toISOString(),
+      };
+      if (navigator?.clipboard?.writeText) {
+        await navigator.clipboard.writeText(JSON.stringify(report, null, 2));
+        alert("Diagnostic report copied to clipboard.");
+      }
+    } catch {}
+  };
+
   handleReload = (): void => {
     if (typeof window !== "undefined") {
       window.location.reload();
@@ -145,31 +175,62 @@ export class AppErrorBoundary extends React.Component<AppErrorBoundaryProps, App
               )}
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
-              <button
-                onClick={this.handleClearCacheAndReload}
-                className="w-full sm:flex-1 py-3 px-4 bg-[#800020] hover:bg-[#600018] text-[#FFF9EF] rounded-xl text-xs font-bold shadow-md transition-all active:scale-95 cursor-pointer"
-              >
-                {isChunk ? "Update & Launch" : "Clear Cache & Launch"}
-              </button>
-              <button
-                onClick={this.handleReload}
-                className="w-full sm:flex-1 py-3 px-4 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold transition-all active:scale-95 cursor-pointer"
-              >
-                Reload Page
-              </button>
+            <div className="flex flex-col gap-2.5 pt-2">
+              <div className="flex flex-col sm:flex-row items-center gap-2.5">
+                {isChunk ? (
+                  <button
+                    onClick={this.handleClearCacheAndReload}
+                    className="w-full sm:flex-1 py-3 px-4 bg-[#800020] hover:bg-[#600018] text-[#FFF9EF] rounded-xl text-xs font-bold shadow-md transition-all active:scale-95 cursor-pointer"
+                  >
+                    Update & Launch
+                  </button>
+                ) : (
+                  <button
+                    onClick={this.handleGoHome}
+                    className="w-full sm:flex-1 py-3 px-4 bg-[#800020] hover:bg-[#600018] text-[#FFF9EF] rounded-xl text-xs font-bold shadow-md transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-1.5"
+                  >
+                    <span>Go to Home Dashboard</span>
+                  </button>
+                )}
+                <button
+                  onClick={this.handleReload}
+                  className="w-full sm:flex-1 py-3 px-4 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold transition-all active:scale-95 cursor-pointer"
+                >
+                  Reload Page
+                </button>
+              </div>
+
+              {!isChunk && (
+                <button
+                  onClick={this.handleClearCacheAndReload}
+                  className="w-full py-2.5 px-3 bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800/60 text-slate-500 dark:text-slate-400 rounded-xl text-[11px] font-bold transition-all active:scale-95 cursor-pointer border border-dashed border-slate-300 dark:border-slate-700"
+                >
+                  Reset Temporary Cache & Launch
+                </button>
+              )}
             </div>
 
             {/* Collapsible Error Diagnostics Details for Admins & Debugging */}
             {this.state.error && (
               <div className="pt-2 text-left">
-                <button
-                  type="button"
-                  onClick={() => this.setState((prev) => ({ showDetails: !prev.showDetails }))}
-                  className="text-[10px] font-bold text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 underline cursor-pointer"
-                >
-                  {this.state.showDetails ? "Hide Error Details" : "Show Error Details"}
-                </button>
+                <div className="flex items-center justify-between">
+                  <button
+                    type="button"
+                    onClick={() => this.setState((prev) => ({ showDetails: !prev.showDetails }))}
+                    className="text-[10px] font-bold text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 underline cursor-pointer"
+                  >
+                    {this.state.showDetails ? "Hide Error Details" : "Show Error Details"}
+                  </button>
+                  {this.state.showDetails && (
+                    <button
+                      type="button"
+                      onClick={this.handleCopyDiagnostics}
+                      className="text-[10px] font-bold text-[#800020] dark:text-[#F47B20] hover:underline cursor-pointer"
+                    >
+                      Copy Diagnostic Report
+                    </button>
+                  )}
+                </div>
                 {this.state.showDetails && (
                   <div className="mt-2 p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-[10px] font-mono text-rose-600 dark:text-rose-400 break-all select-text max-h-36 overflow-y-auto">
                     <p className="font-bold">{this.state.error.name}: {this.state.error.message}</p>

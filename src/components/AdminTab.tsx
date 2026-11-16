@@ -133,6 +133,48 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
   const [isAdminMenuOpen, setIsAdminMenuOpen] = React.useState(false);
   const adminMenuRef = React.useRef<HTMLDivElement>(null);
 
+  const [cloudAuthState, setCloudAuthState] = React.useState<{
+    checked: boolean;
+    hasActiveSession: boolean;
+    userEmail: string | null;
+  }>({
+    checked: false,
+    hasActiveSession: false,
+    userEmail: null,
+  });
+
+  React.useEffect(() => {
+    let mounted = true;
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (mounted) {
+        setCloudAuthState({
+          checked: true,
+          hasActiveSession: Boolean(session?.user),
+          userEmail: session?.user?.email || null,
+        });
+      }
+    }).catch(() => {
+      if (mounted) {
+        setCloudAuthState({ checked: true, hasActiveSession: false, userEmail: null });
+      }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (mounted) {
+        setCloudAuthState({
+          checked: true,
+          hasActiveSession: Boolean(session?.user),
+          userEmail: session?.user?.email || null,
+        });
+      }
+    });
+
+    return () => {
+      mounted = false;
+      subscription?.unsubscribe();
+    };
+  }, []);
+
   React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (adminMenuRef.current && !adminMenuRef.current.contains(event.target as Node)) {
@@ -771,6 +813,20 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
               <span className="absolute top-2 right-2 w-2 h-2 bg-rose-500 rounded-full border-2 border-white dark:border-[#0B1220]"></span>
             </button>
 
+            {cloudAuthState.checked && (
+              cloudAuthState.hasActiveSession ? (
+                <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/50 text-[11px] font-bold text-emerald-700 dark:text-emerald-300">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                  <span className="max-w-[140px] truncate" title={cloudAuthState.userEmail || "Cloud Connected"}>Cloud Live</span>
+                </div>
+              ) : (
+                <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/50 text-[11px] font-bold text-amber-700 dark:text-amber-300">
+                  <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+                  <span>Local Mode</span>
+                </div>
+              )
+            )}
+
             <div className="h-5 sm:h-6 w-px bg-slate-200 dark:bg-slate-800 hidden xs:block"></div>
 
             <div className="relative" ref={adminMenuRef}>
@@ -1016,6 +1072,40 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
             <React.Suspense fallback={null}>
               <AdminQuotaAlert />
             </React.Suspense>
+
+            {cloudAuthState.checked && !cloudAuthState.hasActiveSession && (
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 sm:p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 shadow-2xs">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-700 dark:text-amber-300 flex items-center justify-center shrink-0 mt-0.5">
+                    <AlertCircle className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-xs sm:text-sm font-extrabold text-amber-950 dark:text-amber-200">
+                      Local Offline Mode Active
+                    </h3>
+                    <p className="text-[11px] sm:text-xs text-amber-800/90 dark:text-amber-300/90 mt-0.5 leading-relaxed">
+                      Changes to Subjects, Chapters, Topics, and Questions are preserved in your browser's local storage. To synchronize live with Supabase Cloud, sign in with your admin Google account (<strong>jagdishpaliyaljat@gmail.com</strong>).
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={async () => {
+                    try {
+                      await supabase.auth.signInWithOAuth({
+                        provider: "google",
+                        options: { redirectTo: window.location.origin }
+                      });
+                    } catch (e: any) {
+                      console.warn("OAuth sign-in error:", e);
+                    }
+                  }}
+                  className="px-3.5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-extrabold text-xs shadow-xs transition-colors shrink-0 flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  <span>Sign In for Cloud Sync</span>
+                </button>
+              </div>
+            )}
             
             {activeGroup === "dashboard" && (
               <div className="space-y-5 sm:space-y-6">

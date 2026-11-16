@@ -328,6 +328,9 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
 
   // Helper to shuffle options while keeping "All of the above" type options at the bottom
   const getShuffledOptionIndices = (options: string[], q?: Question | any) => {
+    if (!Array.isArray(options) || options.length === 0) {
+      return [0, 1, 2, 3];
+    }
     const indices = options.map((_, i) => i);
 
     if (q) {
@@ -572,7 +575,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
     const newShuffledOptions: Record<string, number[]> = {};
     uniqueIds.forEach((id) => {
       const q = effectiveQuestionsMap[id] || questionsMap[id] || QUESTIONS_MAP[id];
-      if (q) {
+      if (q && Array.isArray(q.options) && q.options.length > 0) {
         newShuffledOptions[id] = getShuffledOptionIndices(q.options, q);
       }
     });
@@ -612,7 +615,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
     allSessionQuestionIds.forEach(id => {
       if (!nextShuffledOptions[id]) {
         const q = effectiveQuestionsMap[id] || questionsMap[id] || QUESTIONS_MAP[id];
-        if (q) {
+        if (q && Array.isArray(q.options) && q.options.length > 0) {
           nextShuffledOptions[id] = getShuffledOptionIndices(q.options, q);
           hasUpdates = true;
         }
@@ -676,8 +679,13 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
     }
   }, [isCompleted, sessionResults, questions.length]);
 
-  const currentQuestion = questions[currentIndex];
-  const currentProgress = currentQuestion
+  const safeCurrentIndex = (questions && questions.length > 0)
+    ? Math.max(0, Math.min(currentIndex, questions.length - 1))
+    : 0;
+  const currentQuestion = (questions && questions.length > 0)
+    ? questions[safeCurrentIndex]
+    : undefined;
+  const currentProgress = currentQuestion && currentQuestion.id
     ? progressStore[currentQuestion.id]
     : undefined;
   const isBookmarked = Boolean(currentProgress?.bookmarked);
@@ -723,7 +731,9 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
   const displayedOptions = useMemo(() => {
     if (!currentQuestion) return [];
     
-    let baseOptions: string[] = [...currentQuestion.options];
+    let baseOptions: string[] = Array.isArray(currentQuestion.options) && currentQuestion.options.length > 0
+      ? [...currentQuestion.options]
+      : ["(A)", "(B)", "(C)", "(D)"];
 
     // For match-the-following, sometimes the raw options array includes the list items themselves.
     const qType = currentQuestion.questionType?.toLowerCase() || "";
@@ -799,7 +809,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
     const newShuffledOptions: Record<string, number[]> = {};
     uniqueIds.forEach(id => {
       const q = effectiveQuestionsMap[id] || questionsMap[id] || QUESTIONS_MAP[id];
-      if (q) {
+      if (q && Array.isArray(q.options) && q.options.length > 0) {
         newShuffledOptions[id] = getShuffledOptionIndices(q.options, q);
       }
     });
@@ -2050,17 +2060,18 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                       <div className="space-y-2.5">
                         {(() => {
                           const order = shuffledOptionsOrder[q.id];
-                          const displayIndices = order && order.length === q.options.length ? order : q.options.map((_, i) => i);
+                          const optList = Array.isArray(q.options) ? q.options : [];
+                          const displayIndices = order && order.length === optList.length ? order : optList.map((_, i) => i);
                           
                           return displayIndices.map((originalIdx, displayIdx) => {
-                            const optText = q.options[originalIdx];
+                            const optText = optList[originalIdx] || "";
                             const isThisCorrect = originalIdx === correctOptIdx;
                             const isUserSelection = selectedOptIdx === originalIdx;
                             
                             const qType = q.questionType?.toLowerCase() || "";
                             const isMatch = qType === "match_following" || qType === "match" || qType === "pair_based" || qType === "pairs";
                             
-                            if (isMatch && q.options.length > 4) {
+                            if (isMatch && optList.length > 4) {
                               const looksLikePairing = /[-–—]/.test(optText) || /\([a-z]\)/i.test(optText) || /,\s*\d+/.test(optText);
                               if (!looksLikePairing) return null;
                             }
@@ -2439,7 +2450,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
             </button>
 
             <button
-              onClick={() => onToggleBookmark(currentQuestion.id)}
+              onClick={() => currentQuestion && onToggleBookmark(currentQuestion.id)}
               className={`w-9 h-9 rounded-xl border flex items-center justify-center transition-all active:scale-90 cursor-pointer ${
                 isBookmarked
                   ? "bg-[#C99A45] border-[#C99A45] text-white shadow-lg shadow-[#C99A45]/25"
@@ -2473,9 +2484,9 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
             <div className="h-[2px] flex-1 bg-[#E8D9C0] dark:bg-[#31374A]" />
           </div>
 
-          <div key={currentQuestion.id} className="bg-white dark:bg-[#1F2330] p-[0.85rem] sm:p-[1.19rem] rounded-[21px] border border-[#E8D9C0] dark:border-[#31374A] shadow-2xs">
+          <div key={currentQuestion?.id || 'q'} className="bg-white dark:bg-[#1F2330] p-[0.85rem] sm:p-[1.19rem] rounded-[21px] border border-[#E8D9C0] dark:border-[#31374A] shadow-2xs">
             <ParsedQuestion 
-              text={currentQuestion.text} 
+              text={currentQuestion?.text || ""} 
               fontSizeClass={questionFontSizeClass} 
               question={currentQuestion}
             />
@@ -2484,7 +2495,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
           <div className="space-y-2.5">
             {displayedOptions.map((opt, idx) => {
               const isSelected = selectedOptionIndex === opt.originalIndex;
-              const isCorrectOption = opt.originalIndex === currentQuestion.correctIndex;
+              const isCorrectOption = currentQuestion ? opt.originalIndex === currentQuestion.correctIndex : false;
 
               let cardStyles = "bg-white dark:bg-[#111A2E] border-slate-200 dark:border-slate-800";
               let labelStyles = "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400";
@@ -2535,7 +2546,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
 
               return (
                 <motion.button
-                  key={`${currentQuestion.id}-opt-${opt.originalIndex}`}
+                  key={`${currentQuestion?.id || 'q'}-opt-${opt.originalIndex}`}
                   disabled={!isTestMode && isSubmitted}
                   onClick={() => {
                     if (isTestMode) {
@@ -2974,7 +2985,12 @@ function RedesignedLiveAndPYQTestView({
   const [showPaletteDrawer, setShowPaletteDrawer] = useState(false);
   const [shareData, setShareData] = useState<ShareData | null>(null);
 
-  const currentQuestion = questions[currentIndex];
+  const safeCurrentIndex = (questions && questions.length > 0)
+    ? Math.max(0, Math.min(currentIndex, questions.length - 1))
+    : 0;
+  const currentQuestion = (questions && questions.length > 0)
+    ? questions[safeCurrentIndex]
+    : undefined;
   const totalQuestions = questions.length;
   const isLive = session.testType === "live" || Boolean(session.isLiveTest);
 
@@ -4313,17 +4329,18 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
                     <div className="space-y-2.5">
                       {(() => {
                         const order = shuffledOptionsOrder[q.id];
-                        const displayIndices = order && order.length === q.options.length ? order : q.options.map((_, i) => i);
+                        const optList = Array.isArray(q.options) ? q.options : [];
+                        const displayIndices = order && order.length === optList.length ? order : optList.map((_, i) => i);
                         
                         return displayIndices.map((originalIdx, displayIdx) => {
-                          const optText = q.options[originalIdx];
+                          const optText = optList[originalIdx] || "";
                           const isThisCorrect = originalIdx === q.correctIndex;
                           const isUserSelection = userPick === originalIdx;
                           
                           const qType = q.questionType?.toLowerCase() || "";
                           const isMatch = qType === "match_following" || qType === "match" || qType === "pair_based" || qType === "pairs";
                           
-                          if (isMatch && q.options.length > 4) {
+                          if (isMatch && optList.length > 4) {
                             const looksLikePairing = /[-–—]/.test(optText) || /\([a-z]\)/i.test(optText) || /,\s*\d+/.test(optText);
                             if (!looksLikePairing) return null;
                           }

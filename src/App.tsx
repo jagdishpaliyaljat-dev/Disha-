@@ -34,6 +34,7 @@ import { PWAUpdateToast } from './components/PWAUpdateToast';
 import { BrandSplashAndOnboarding } from './components/BrandSplashAndOnboarding';
 import { AdminErrorBoundary } from './components/admin/AdminErrorBoundary';
 import { RouteErrorBoundary } from './components/RouteErrorBoundary';
+import { OverlayErrorBoundary } from './components/OverlayErrorBoundary';
 import { NotFoundView } from './components/NotFoundView';
 import { useNavigation } from './hooks/useNavigation';
 import { useCurriculumManager } from './hooks/useCurriculumManager';
@@ -913,7 +914,11 @@ export default function App() {
     const { upsertQuestionsToSupabase } = await import('./utils/supabaseSyncService');
     const res = await upsertQuestionsToSupabase([updatedQuestion]);
     if (res.success) {
-      addToast('success', 'Backend Sync Success', 'Question updated in Supabase!');
+      if (res.cloudSynced) {
+        addToast('success', 'Backend Sync Success', 'Question updated in Supabase!');
+      } else {
+        addToast('info', 'Saved Locally', res.message);
+      }
     } else {
       addToast('error', 'Save Error', res.message);
     }
@@ -927,7 +932,11 @@ export default function App() {
     const { deleteQuestionFromSupabase } = await import('./utils/supabaseSyncService');
     const res = await deleteQuestionFromSupabase(questionId);
     if (res.success) {
-      addToast('success', 'Backend Sync Success', 'Question removed from Supabase!');
+      if (res.cloudSynced) {
+        addToast('success', 'Backend Sync Success', 'Question removed from Supabase!');
+      } else {
+        addToast('info', 'Deleted Locally', res.message);
+      }
     } else {
       addToast('error', 'Delete Error', res.message);
     }
@@ -943,9 +952,13 @@ export default function App() {
     const { deleteQuestionsBulkFromSupabase } = await import('./utils/supabaseSyncService');
     const res = await deleteQuestionsBulkFromSupabase(questionIds);
     if (res.success) {
-      addToast('success', 'Backend Sync Success', `${res.count || questionIds.length} questions removed from Supabase!`);
+      if (res.cloudSynced) {
+        addToast('success', 'Backend Sync Success', `${questionIds.length} question(s) removed from Supabase!`);
+      } else {
+        addToast('info', 'Deleted Locally', res.message || `${questionIds.length} question(s) deleted locally.`);
+      }
     } else {
-      addToast('error', 'Delete Notice', 'Failed to remove questions from backend');
+      addToast('error', 'Delete Error', res.message || 'Failed to delete questions');
     }
   };
 

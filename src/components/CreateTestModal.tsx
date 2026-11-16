@@ -37,9 +37,9 @@ type SubMode = "smart" | "custom-select";
 const CreateTestModal: React.FC<CreateTestModalProps> = ({
   isOpen,
   onClose,
-  questions,
-  chapters,
-  progressStore,
+  questions = [],
+  chapters = [],
+  progressStore = {},
   perfStore,
   onStartSession,
 }) => {
@@ -95,8 +95,9 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({
     setQuestionSearchQuery("");
 
     if (newScope === "all-chapters") {
-      setSelectedQuestionCount(Math.min(25, questions.length));
-      setCustomCountInput(String(Math.min(25, questions.length)));
+      const qLen = Array.isArray(questions) ? questions.length : 0;
+      setSelectedQuestionCount(Math.min(25, qLen));
+      setCustomCountInput(String(Math.min(25, qLen)));
     } else if (newScope === "chapter-wise") {
       setSelectedQuestionCount(20);
       setCustomCountInput("20");
@@ -132,8 +133,8 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({
       }
 
       if (questionFilterTag !== "all") {
-        const perf = effectivePerfStore[item.id];
-        const prog = progressStore[item.id];
+        const perf = effectivePerfStore ? effectivePerfStore[item.id] : undefined;
+        const prog = progressStore ? progressStore[item.id] : undefined;
 
         if (questionFilterTag === "weak-area") {
           if (!perf || perf.lastResult !== "wrong") return false;

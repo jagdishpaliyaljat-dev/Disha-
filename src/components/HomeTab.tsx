@@ -156,8 +156,11 @@ export const HomeTab: React.FC<HomeTabProps> = ({
   const { attemptedCount, correctCount, accuracy } = useMemo(() => {
     let attempted = 0;
     let correct = 0;
-    for (let i = 0; i < questions.length; i++) {
-      const p = progressStore[questions[i].id];
+    const qList = Array.isArray(questions) ? questions : [];
+    for (let i = 0; i < qList.length; i++) {
+      const q = qList[i];
+      if (!q || !q.id) continue;
+      const p = progressStore ? progressStore[q.id] : undefined;
       if (p && p.status !== "unattempted") {
         attempted++;
         if (p.status === "correct") {

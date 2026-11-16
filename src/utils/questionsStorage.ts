@@ -1151,25 +1151,36 @@ export function getCombinedQuestions(chapters: Chapter[], store?: UserQuestionsS
 
 // Build helper lookup maps
 export function getCombinedQuestionsMap(questions: Question[]): Record<string, Question> {
+  if (!Array.isArray(questions)) return {};
   return questions.reduce((acc, q) => {
-    acc[q.id] = q;
+    if (q && q.id) {
+      acc[q.id] = q;
+    }
     return acc;
   }, {} as Record<string, Question>);
 }
 
 export function getCombinedChaptersMap(chapters: Chapter[]): Record<string, Chapter> {
+  if (!Array.isArray(chapters)) return {};
   return chapters.reduce((acc, ch) => {
-    acc[ch.id] = ch;
+    if (ch && ch.id) {
+      acc[ch.id] = ch;
+    }
     return acc;
   }, {} as Record<string, Chapter>);
 }
 
 export function getCombinedTopicsMap(chapters: Chapter[]): Record<string, Topic> {
+  if (!Array.isArray(chapters)) return {};
   const map: Record<string, Topic> = {};
-  (chapters || []).forEach((ch) => {
-    (ch?.topics || []).forEach((t) => {
-      map[t.id] = t;
-    });
+  chapters.forEach((ch) => {
+    if (ch && Array.isArray(ch.topics)) {
+      ch.topics.forEach((t) => {
+        if (t && t.id) {
+          map[t.id] = t;
+        }
+      });
+    }
   });
   return map;
 }

@@ -487,9 +487,22 @@ export function fetchQuestionsByChapter(chapterId: string): Promise<Question[]> 
 // ADMIN OPERATIONS (WRITE / MUTATIONS)
 // ─────────────────────────────────────────────────────────────────────────────
 
-export async function saveSubjectToSupabase(subject: Subject): Promise<{ success: boolean; message: string }> {
+export async function saveSubjectToSupabase(subject: Subject): Promise<{ success: boolean; cloudSynced: boolean; message: string }> {
+  // 1. Local-First: Always persist in IndexedDB immediately
+  let localSaved = false;
   try {
-    if (isSupabaseConfigured()) {
+    await openLocalDatabase();
+    await idbPut(STORES.SUBJECTS, subject);
+    localSaved = true;
+  } catch (idbErr: any) {
+    console.warn("[LocalDB] Failed to save subject locally:", idbErr);
+  }
+
+  // 2. Cloud Synchronization
+  let cloudSynced = false;
+  let cloudErrorMsg = "";
+  if (isSupabaseConfigured()) {
+    try {
       const { error } = await supabase.from("subjects").upsert({
         id: subject.id,
         name: subject.name,
@@ -501,43 +514,110 @@ export async function saveSubjectToSupabase(subject: Subject): Promise<{ success
         updated_at: new Date().toISOString()
       }, { onConflict: "id" });
 
-      if (error) throw error;
+      if (error) {
+        cloudErrorMsg = error.message;
+        console.warn("[Supabase] Cloud save subject warning:", error);
+      } else {
+        cloudSynced = true;
+      }
+    } catch (err: any) {
+      cloudErrorMsg = err?.message || "Network error";
     }
+  }
 
-    await openLocalDatabase();
-    await idbPut(STORES.SUBJECTS, subject);
-
+  if (cloudSynced) {
     return { 
       success: true, 
-      message: isSupabaseConfigured() 
-        ? `Subject '${subject.name || subject.hindiName}' saved to Supabase!` 
-        : `Subject '${subject.name || subject.hindiName}' saved locally!` 
+      cloudSynced: true,
+      message: `Subject '${subject.name || subject.hindiName}' saved to Supabase & local storage!` 
     };
-  } catch (err: any) {
-    console.error("[Supabase] Failed to save subject:", err);
-    return { success: false, message: err.message || "Failed to save subject to Supabase" };
   }
+
+  if (localSaved) {
+    const isAuthErr = cloudErrorMsg.toLowerCase().includes("permission") || cloudErrorMsg.toLowerCase().includes("jwt") || cloudErrorMsg.toLowerCase().includes("policy") || cloudErrorMsg.toLowerCase().includes("42501");
+    return {
+      success: true,
+      cloudSynced: false,
+      message: isAuthErr 
+        ? `Subject '${subject.name || subject.hindiName}' saved locally! Sign in with Admin Google Account (jagdishpaliyaljat@gmail.com) to sync with Supabase cloud.`
+        : `Subject '${subject.name || subject.hindiName}' saved locally! Changes will sync to cloud when connected.`
+    };
+  }
+
+  return { 
+    success: false, 
+    cloudSynced: false,
+    message: cloudErrorMsg || "Failed to save subject" 
+  };
 }
 
-export async function deleteSubjectFromSupabase(subjectId: string): Promise<{ success: boolean; message: string }> {
+export async function deleteSubjectFromSupabase(subjectId: string): Promise<{ success: boolean; cloudSynced: boolean; message: string }> {
+  // 1. Local-First: Always delete from IndexedDB immediately
+  let localDeleted = false;
   try {
-    if (isSupabaseConfigured()) {
-      const { error } = await supabase.from("subjects").delete().eq("id", subjectId);
-      if (error) throw error;
-    }
-
     await openLocalDatabase();
     await idbDelete(STORES.SUBJECTS, subjectId);
-    return { success: true, message: isSupabaseConfigured() ? "Subject deleted from Supabase" : "Deleted locally" };
-  } catch (err: any) {
-    console.error("[Supabase] Failed to delete subject:", err);
-    return { success: false, message: err.message || "Failed to delete subject from Supabase" };
+    localDeleted = true;
+  } catch (idbErr: any) {
+    console.warn("[LocalDB] Failed to delete subject locally:", idbErr);
   }
+
+  // 2. Cloud Deletion
+  let cloudSynced = false;
+  let cloudErrorMsg = "";
+  if (isSupabaseConfigured()) {
+    try {
+      const { error } = await supabase.from("subjects").delete().eq("id", subjectId);
+      if (error) {
+        cloudErrorMsg = error.message;
+        console.warn("[Supabase] Cloud delete subject warning:", error);
+      } else {
+        cloudSynced = true;
+      }
+    } catch (err: any) {
+      cloudErrorMsg = err?.message || "Network error";
+    }
+  }
+
+  if (cloudSynced) {
+    return { 
+      success: true, 
+      cloudSynced: true,
+      message: "Subject deleted from Supabase & local storage!" 
+    };
+  }
+
+  if (localDeleted) {
+    return { 
+      success: true, 
+      cloudSynced: false,
+      message: "Subject deleted locally! Sign in with Admin to sync deletion to cloud." 
+    };
+  }
+
+  return { 
+    success: false, 
+    cloudSynced: false,
+    message: cloudErrorMsg || "Failed to delete subject" 
+  };
 }
 
-export async function saveChapterToSupabase(chapter: Chapter): Promise<{ success: boolean; message: string }> {
+export async function saveChapterToSupabase(chapter: Chapter): Promise<{ success: boolean; cloudSynced: boolean; message: string }> {
+  // 1. Local-First: Always persist in IndexedDB immediately
+  let localSaved = false;
   try {
-    if (isSupabaseConfigured()) {
+    await openLocalDatabase();
+    await idbPut(STORES.CHAPTERS, chapter);
+    localSaved = true;
+  } catch (idbErr: any) {
+    console.warn("[LocalDB] Failed to save chapter locally:", idbErr);
+  }
+
+  // 2. Cloud Synchronization
+  let cloudSynced = false;
+  let cloudErrorMsg = "";
+  if (isSupabaseConfigured()) {
+    try {
       const { error } = await supabase.from("chapters").upsert({
         id: chapter.id,
         subject_id: chapter.subjectId,
@@ -547,93 +627,145 @@ export async function saveChapterToSupabase(chapter: Chapter): Promise<{ success
         updated_at: new Date().toISOString()
       }, { onConflict: "id" });
 
-      if (error) throw error;
+      if (error) {
+        cloudErrorMsg = error.message;
+        console.warn("[Supabase] Cloud save chapter warning:", error);
+      } else {
+        cloudSynced = true;
+      }
+    } catch (err: any) {
+      cloudErrorMsg = err?.message || "Network error";
     }
+  }
 
-    await openLocalDatabase();
-    await idbPut(STORES.CHAPTERS, chapter);
-
+  if (cloudSynced) {
     return { 
       success: true, 
-      message: isSupabaseConfigured() 
-        ? `Chapter '${chapter.title || chapter.hindiTitle}' saved to Supabase!` 
-        : `Chapter '${chapter.title || chapter.hindiTitle}' saved locally!` 
+      cloudSynced: true,
+      message: `Chapter '${chapter.title || chapter.hindiTitle}' saved to Supabase!` 
     };
-  } catch (err: any) {
-    console.error("[Supabase] Failed to save chapter:", err);
-    return { success: false, message: err.message || "Failed to save chapter to Supabase" };
   }
+
+  if (localSaved) {
+    const isAuthErr = cloudErrorMsg.toLowerCase().includes("permission") || cloudErrorMsg.toLowerCase().includes("jwt") || cloudErrorMsg.toLowerCase().includes("policy") || cloudErrorMsg.toLowerCase().includes("42501");
+    return {
+      success: true,
+      cloudSynced: false,
+      message: isAuthErr
+        ? `Chapter '${chapter.title || chapter.hindiTitle}' saved locally! Sign in with Admin Google Account (jagdishpaliyaljat@gmail.com) to sync to cloud.`
+        : `Chapter '${chapter.title || chapter.hindiTitle}' saved locally! Will sync when connected.`
+    };
+  }
+
+  return { 
+    success: false, 
+    cloudSynced: false,
+    message: cloudErrorMsg || "Failed to save chapter" 
+  };
 }
 
-export async function deleteChapterFromSupabase(chapterId: string): Promise<{ success: boolean; message: string }> {
+export async function deleteChapterFromSupabase(chapterId: string): Promise<{ success: boolean; cloudSynced: boolean; message: string }> {
+  let localDeleted = false;
   try {
-    if (isSupabaseConfigured()) {
-      const { error } = await supabase.from("chapters").delete().eq("id", chapterId);
-      if (error) throw error;
-    }
-
     await openLocalDatabase();
     await idbDelete(STORES.CHAPTERS, chapterId);
-    return { success: true, message: isSupabaseConfigured() ? "Chapter deleted from Supabase" : "Deleted locally" };
-  } catch (err: any) {
-    console.error("[Supabase] Failed to delete chapter:", err);
-    return { success: false, message: err.message || "Failed to delete chapter from Supabase" };
+    localDeleted = true;
+  } catch (idbErr: any) {
+    console.warn("[LocalDB] Failed to delete chapter locally:", idbErr);
   }
+
+  let cloudSynced = false;
+  let cloudErrorMsg = "";
+  if (isSupabaseConfigured()) {
+    try {
+      const { error } = await supabase.from("chapters").delete().eq("id", chapterId);
+      if (error) {
+        cloudErrorMsg = error.message;
+        console.warn("[Supabase] Cloud delete chapter warning:", error);
+      } else {
+        cloudSynced = true;
+      }
+    } catch (err: any) {
+      cloudErrorMsg = err?.message || "Network error";
+    }
+  }
+
+  if (cloudSynced) {
+    return { 
+      success: true, 
+      cloudSynced: true,
+      message: "Chapter deleted from Supabase & local storage!" 
+    };
+  }
+
+  if (localDeleted) {
+    return { 
+      success: true, 
+      cloudSynced: false,
+      message: "Chapter deleted locally! Sign in with Admin to sync deletion to cloud." 
+    };
+  }
+
+  return { 
+    success: false, 
+    cloudSynced: false,
+    message: cloudErrorMsg || "Failed to delete chapter" 
+  };
 }
 
-export async function saveTopicToSupabase(topic: Topic): Promise<{ success: boolean; message: string }> {
-  try {
-    let resolvedSubjectId = topic.subjectId;
-    if (!resolvedSubjectId && topic.chapterId) {
-      // 1. Try local IDB
+export async function saveTopicToSupabase(topic: Topic): Promise<{ success: boolean; cloudSynced: boolean; message: string }> {
+  let resolvedSubjectId = topic.subjectId;
+  if (!resolvedSubjectId && topic.chapterId) {
+    try {
+      const localChap = await idbGet<Chapter>(STORES.CHAPTERS, topic.chapterId);
+      if (localChap?.subjectId) {
+        resolvedSubjectId = localChap.subjectId;
+      }
+    } catch (err) {}
+    if (!resolvedSubjectId) {
       try {
-        const localChap = await idbGet<Chapter>(STORES.CHAPTERS, topic.chapterId);
-        if (localChap?.subjectId) {
-          resolvedSubjectId = localChap.subjectId;
+        const { loadUserQuestionsStore } = await import("./questionsStorage");
+        const store = loadUserQuestionsStore();
+        const storeChap = (store.customChapters || []).find(c => c.id === topic.chapterId);
+        if (storeChap?.subjectId) {
+          resolvedSubjectId = storeChap.subjectId;
         }
-      } catch (err) {
-        // IDB fallback
-      }
-      // 2. Try questions store (localStorage / in-memory cache)
-      if (!resolvedSubjectId) {
-        try {
-          const { loadUserQuestionsStore } = await import("./questionsStorage");
-          const store = loadUserQuestionsStore();
-          const storeChap = (store.customChapters || []).find(c => c.id === topic.chapterId);
-          if (storeChap?.subjectId) {
-            resolvedSubjectId = storeChap.subjectId;
-          }
-        } catch (err) {
-          // Questions store lookup fallback
-        }
-      }
-      // 3. Try Supabase
-      if (!resolvedSubjectId && isSupabaseConfigured()) {
-        try {
-          const { data: dbChap } = await supabase
-            .from("chapters")
-            .select("subject_id")
-            .eq("id", topic.chapterId)
-            .maybeSingle();
-          if (dbChap?.subject_id) {
-            resolvedSubjectId = dbChap.subject_id;
-          }
-        } catch (err) {
-          // Supabase lookup fallback
-        }
-      }
+      } catch (err) {}
     }
+    if (!resolvedSubjectId && isSupabaseConfigured()) {
+      try {
+        const { data: dbChap } = await supabase
+          .from("chapters")
+          .select("subject_id")
+          .eq("id", topic.chapterId)
+          .maybeSingle();
+        if (dbChap?.subject_id) {
+          resolvedSubjectId = dbChap.subject_id;
+        }
+      } catch (err) {}
+    }
+  }
 
-    const enrichedTopic: Topic = {
-      ...topic,
-      subjectId: resolvedSubjectId || topic.subjectId,
-    };
+  const enrichedTopic: Topic = {
+    ...topic,
+    subjectId: resolvedSubjectId || topic.subjectId,
+  };
 
-    if (isSupabaseConfigured()) {
-      if (!resolvedSubjectId) {
-        throw new Error(`Cannot save topic without valid subject_id (chapter_id: ${topic.chapterId})`);
-      }
+  // 1. Local-First: Always persist in IndexedDB immediately
+  let localSaved = false;
+  try {
+    await openLocalDatabase();
+    await idbPut(STORES.TOPICS, enrichedTopic);
+    localSaved = true;
+  } catch (idbErr: any) {
+    console.warn("[LocalDB] Failed to save topic locally:", idbErr);
+  }
 
+  // 2. Cloud Synchronization
+  let cloudSynced = false;
+  let cloudErrorMsg = "";
+  if (isSupabaseConfigured() && resolvedSubjectId) {
+    try {
       const { error } = await supabase.from("topics").upsert({
         id: enrichedTopic.id,
         chapter_id: enrichedTopic.chapterId,
@@ -644,49 +776,130 @@ export async function saveTopicToSupabase(topic: Topic): Promise<{ success: bool
         updated_at: new Date().toISOString()
       }, { onConflict: "id" });
 
-      if (error) throw error;
+      if (error) {
+        cloudErrorMsg = error.message;
+        console.warn("[Supabase] Cloud save topic warning:", error);
+      } else {
+        cloudSynced = true;
+      }
+    } catch (err: any) {
+      cloudErrorMsg = err?.message || "Network error";
     }
+  }
 
-    await openLocalDatabase();
-    await idbPut(STORES.TOPICS, enrichedTopic);
-
+  if (cloudSynced) {
     return { 
       success: true, 
+      cloudSynced: true,
       message: isSupabaseConfigured()
         ? `Topic '${topic.title || topic.hindiTitle}' saved to Supabase!`
         : `Topic '${topic.title || topic.hindiTitle}' saved locally!`
     };
-  } catch (err: any) {
-    console.error("[Supabase] Failed to save topic:", err);
-    return { success: false, message: err.message || "Failed to save topic to Supabase" };
   }
+
+  if (localSaved) {
+    const isAuthErr = cloudErrorMsg.toLowerCase().includes("permission") || cloudErrorMsg.toLowerCase().includes("jwt") || cloudErrorMsg.toLowerCase().includes("policy") || cloudErrorMsg.toLowerCase().includes("42501");
+    return {
+      success: true,
+      cloudSynced: false,
+      message: isAuthErr
+        ? `Topic '${topic.title || topic.hindiTitle}' saved locally! Sign in with Admin Google Account (jagdishpaliyaljat@gmail.com) to sync to cloud.`
+        : `Topic '${topic.title || topic.hindiTitle}' saved locally! Will sync when connected.`
+    };
+  }
+
+  return { 
+    success: false, 
+    cloudSynced: false,
+    message: cloudErrorMsg || "Failed to save topic to Supabase" 
+  };
 }
 
-export async function deleteTopicFromSupabase(topicId: string): Promise<{ success: boolean; message: string }> {
+export async function deleteTopicFromSupabase(topicId: string): Promise<{ success: boolean; cloudSynced: boolean; message: string }> {
+  let localDeleted = false;
   try {
-    if (isSupabaseConfigured()) {
-      const { error } = await supabase.from("topics").delete().eq("id", topicId);
-      if (error) throw error;
-    }
-
     await openLocalDatabase();
     await idbDelete(STORES.TOPICS, topicId);
-    return { success: true, message: isSupabaseConfigured() ? "Topic deleted from Supabase" : "Deleted locally" };
-  } catch (err: any) {
-    console.error("[Supabase] Failed to delete topic:", err);
-    return { success: false, message: err.message || "Failed to delete topic from Supabase" };
+    localDeleted = true;
+  } catch (idbErr: any) {
+    console.warn("[LocalDB] Failed to delete topic locally:", idbErr);
   }
+
+  let cloudSynced = false;
+  let cloudErrorMsg = "";
+  if (isSupabaseConfigured()) {
+    try {
+      const { error } = await supabase.from("topics").delete().eq("id", topicId);
+      if (error) {
+        cloudErrorMsg = error.message;
+        console.warn("[Supabase] Cloud delete topic warning:", error);
+      } else {
+        cloudSynced = true;
+      }
+    } catch (err: any) {
+      cloudErrorMsg = err?.message || "Network error";
+    }
+  }
+
+  if (cloudSynced) {
+    return { 
+      success: true, 
+      cloudSynced: true,
+      message: "Topic deleted from Supabase & local storage!" 
+    };
+  }
+
+  if (localDeleted) {
+    return { 
+      success: true, 
+      cloudSynced: false,
+      message: "Topic deleted locally! Sign in with Admin to sync deletion to cloud." 
+    };
+  }
+
+  return { 
+    success: false, 
+    cloudSynced: false,
+    message: cloudErrorMsg || "Failed to delete topic from Supabase" 
+  };
 }
 
-export async function upsertQuestionsToSupabase(questions: Question[]): Promise<{ success: boolean; count: number; message: string }> {
+export async function upsertQuestionsToSupabase(questions: Question[]): Promise<{ success: boolean; count: number; cloudSynced: boolean; message: string }> {
   if (!questions || questions.length === 0) {
-    return { success: true, count: 0, message: "No questions to save" };
+    return { success: true, count: 0, cloudSynced: true, message: "No questions to save" };
   }
 
+  // 1. Local-First: Always save into IndexedDB immediately
+  let localSaved = false;
   try {
-    let uploadedCount = 0;
+    await openLocalDatabase();
+    for (const q of questions) {
+      await idbPut(STORES.MCQS, q);
+    }
+    localSaved = true;
+  } catch (idbErr) {
+    console.warn("[LocalDB] Failed to save questions locally:", idbErr);
+  }
 
-    if (isSupabaseConfigured()) {
+  // Invalidate affected topic caches so queries show updated questions
+  try {
+    const { invalidateTopicCache } = await import("./questionBankCache");
+    const affectedTopics = new Set<string>();
+    for (const q of questions) {
+      if (q.topicId) affectedTopics.add(q.topicId);
+    }
+    for (const tid of affectedTopics) {
+      await invalidateTopicCache(tid);
+    }
+  } catch (_) {}
+
+  // 2. Cloud Synchronization
+  let cloudSynced = false;
+  let cloudErrorMsg = "";
+  let uploadedCount = 0;
+
+  if (isSupabaseConfigured()) {
+    try {
       const BATCH_SIZE = 100;
       for (let i = 0; i < questions.length; i += BATCH_SIZE) {
         const chunk = questions.slice(i, i + BATCH_SIZE);
@@ -707,97 +920,167 @@ export async function upsertQuestionsToSupabase(questions: Question[]): Promise<
         }));
 
         const { error } = await supabase.from("questions").upsert(rows, { onConflict: "id" });
-        if (error) throw error;
+        if (error) {
+          throw error;
+        }
         uploadedCount += rows.length;
       }
-    } else {
-      uploadedCount = questions.length;
+      cloudSynced = true;
+    } catch (err: any) {
+      cloudErrorMsg = err?.message || "Cloud sync error";
+      console.warn("[Supabase] Failed to upsert questions to cloud:", err);
     }
+  } else {
+    uploadedCount = questions.length;
+  }
 
-    await openLocalDatabase();
-    for (const q of questions) {
-      await idbPut(STORES.MCQS, q);
-    }
-
-    // Invalidate affected topic caches so students fetch fresh questions immediately
-    try {
-      const { invalidateTopicCache } = await import("./questionBankCache");
-      const affectedTopics = new Set<string>();
-      for (const q of questions) {
-        if (q.topicId) affectedTopics.add(q.topicId);
-      }
-      for (const tid of affectedTopics) {
-        await invalidateTopicCache(tid);
-      }
-    } catch (_) {}
-
+  if (cloudSynced) {
     return { 
       success: true, 
       count: uploadedCount, 
-      message: isSupabaseConfigured() 
-        ? `${uploadedCount} question(s) saved to Supabase!` 
-        : `${uploadedCount} question(s) saved locally!` 
+      cloudSynced: true,
+      message: `${uploadedCount} question(s) saved to Supabase!` 
     };
-  } catch (err: any) {
-    console.error("[Supabase] Failed to upsert questions:", err);
-    return { success: false, count: 0, message: err.message || "Failed to save questions to Supabase" };
   }
+
+  if (localSaved) {
+    const isAuthErr = cloudErrorMsg.toLowerCase().includes("permission") || cloudErrorMsg.toLowerCase().includes("jwt") || cloudErrorMsg.toLowerCase().includes("policy") || cloudErrorMsg.toLowerCase().includes("42501");
+    return {
+      success: true,
+      count: questions.length,
+      cloudSynced: false,
+      message: isAuthErr
+        ? `${questions.length} question(s) saved locally! Sign in with Admin Google Account (jagdishpaliyaljat@gmail.com) to sync to cloud.`
+        : `${questions.length} question(s) saved locally! Will sync when connected.`
+    };
+  }
+
+  return { 
+    success: false, 
+    count: 0, 
+    cloudSynced: false,
+    message: cloudErrorMsg || "Failed to save questions to Supabase" 
+  };
 }
 
-export async function deleteQuestionFromSupabase(questionId: string): Promise<{ success: boolean; message: string }> {
+export async function deleteQuestionFromSupabase(questionId: string): Promise<{ success: boolean; cloudSynced: boolean; message: string }> {
+  // 1. Local-First: Always delete from IndexedDB
+  let localDeleted = false;
   try {
-    if (isSupabaseConfigured()) {
-      const { error } = await supabase.from("questions").delete().eq("id", questionId);
-      if (error) throw error;
-    }
-
     await openLocalDatabase();
     await idbDelete(STORES.MCQS, questionId);
-
-    // Invalidate cache
-    try {
-      const { removeQuestionsFromCache } = await import("./questionBankCache");
-      await removeQuestionsFromCache([questionId]);
-    } catch (_) {}
-
-    return { success: true, message: isSupabaseConfigured() ? "Question deleted from Supabase" : "Deleted locally" };
-  } catch (err: any) {
-    console.error("[Supabase] Failed to delete question:", err);
-    return { success: false, message: err.message || "Failed to delete question from Supabase" };
+    localDeleted = true;
+  } catch (idbErr) {
+    console.warn("[LocalDB] Failed to delete question locally:", idbErr);
   }
+
+  // Invalidate cache
+  try {
+    const { removeQuestionsFromCache } = await import("./questionBankCache");
+    await removeQuestionsFromCache([questionId]);
+  } catch (_) {}
+
+  // 2. Cloud Deletion
+  let cloudSynced = false;
+  let cloudErrorMsg = "";
+  if (isSupabaseConfigured()) {
+    try {
+      const { error } = await supabase.from("questions").delete().eq("id", questionId);
+      if (error) {
+        cloudErrorMsg = error.message;
+        console.warn("[Supabase] Failed to delete question from cloud:", error);
+      } else {
+        cloudSynced = true;
+      }
+    } catch (err: any) {
+      cloudErrorMsg = err?.message || "Cloud deletion error";
+    }
+  }
+
+  if (cloudSynced) {
+    return { 
+      success: true, 
+      cloudSynced: true,
+      message: "Question deleted from Supabase & local storage!" 
+    };
+  }
+
+  if (localDeleted) {
+    return { 
+      success: true, 
+      cloudSynced: false,
+      message: "Question deleted locally! Sign in with Admin to sync deletion to cloud." 
+    };
+  }
+
+  return { 
+    success: false, 
+    cloudSynced: false,
+    message: cloudErrorMsg || "Failed to delete question from Supabase" 
+  };
 }
 
-export async function deleteQuestionsBulkFromSupabase(questionIds: string[]): Promise<{ success: boolean; count: number; message?: string }> {
+export async function deleteQuestionsBulkFromSupabase(questionIds: string[]): Promise<{ success: boolean; count: number; cloudSynced: boolean; message?: string }> {
   if (!questionIds || questionIds.length === 0) {
-    return { success: true, count: 0 };
+    return { success: true, count: 0, cloudSynced: true };
+  }
+
+  let localDeleted = false;
+  try {
+    await openLocalDatabase();
+    for (const id of questionIds) {
+      await idbDelete(STORES.MCQS, id);
+    }
+    localDeleted = true;
+  } catch (idbErr) {
+    console.warn("[LocalDB] Failed to bulk delete questions locally:", idbErr);
   }
 
   try {
-    if (isSupabaseConfigured()) {
+    const { removeQuestionsFromCache } = await import("./questionBankCache");
+    await removeQuestionsFromCache(questionIds);
+  } catch (_) {}
+
+  let cloudSynced = false;
+  let cloudErrorMsg = "";
+  if (isSupabaseConfigured()) {
+    try {
       const BATCH_SIZE = 100;
       for (let i = 0; i < questionIds.length; i += BATCH_SIZE) {
         const chunk = questionIds.slice(i, i + BATCH_SIZE);
         const { error } = await supabase.from("questions").delete().in("id", chunk);
         if (error) throw error;
       }
+      cloudSynced = true;
+    } catch (err: any) {
+      cloudErrorMsg = err?.message || "Cloud bulk delete error";
     }
-
-    await openLocalDatabase();
-    for (const id of questionIds) {
-      await idbDelete(STORES.MCQS, id);
-    }
-
-    // Invalidate cache
-    try {
-      const { removeQuestionsFromCache } = await import("./questionBankCache");
-      await removeQuestionsFromCache(questionIds);
-    } catch (_) {}
-
-    return { success: true, count: questionIds.length };
-  } catch (err: any) {
-    console.error("[Supabase] Failed to bulk delete questions:", err);
-    return { success: false, count: 0, message: err.message || "Failed to delete questions in bulk" };
   }
+
+  if (cloudSynced) {
+    return { 
+      success: true, 
+      count: questionIds.length, 
+      cloudSynced: true,
+      message: `${questionIds.length} question(s) deleted from Supabase!` 
+    };
+  }
+
+  if (localDeleted) {
+    return { 
+      success: true, 
+      count: questionIds.length, 
+      cloudSynced: false,
+      message: `${questionIds.length} question(s) deleted locally!` 
+    };
+  }
+
+  return { 
+    success: false, 
+    count: 0, 
+    cloudSynced: false,
+    message: cloudErrorMsg || "Failed to delete questions in bulk" 
+  };
 }
 
 export interface MoveQuestionsResult {

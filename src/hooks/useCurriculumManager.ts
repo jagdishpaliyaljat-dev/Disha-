@@ -33,12 +33,16 @@ export const useCurriculumManager = (
       const nextStore = addSubject(questionsStore, newSubject);
       setQuestionsStore(nextStore);
       saveUserQuestionsStore(nextStore);
-      addToast('success', 'Backend Sync Success', res.message);
-      triggerDatabaseSavedToast({
-        title: "Subject Saved!",
-        message: `Subject "${newSubject.name || newSubject.hindiName}" saved to Supabase and live!`,
-        itemName: newSubject.name,
-      });
+      if (res.cloudSynced) {
+        addToast('success', 'Backend Sync Success', res.message);
+        triggerDatabaseSavedToast({
+          title: "Subject Saved!",
+          message: `Subject "${newSubject.name || newSubject.hindiName}" saved to Supabase and live!`,
+          itemName: newSubject.name,
+        });
+      } else {
+        addToast('info', 'Saved Locally', res.message);
+      }
     } else {
       addToast('error', 'Save Error', res.message);
     }
@@ -51,12 +55,16 @@ export const useCurriculumManager = (
       const nextStore = editSubject(questionsStore, updatedSubject);
       setQuestionsStore(nextStore);
       saveUserQuestionsStore(nextStore);
-      addToast('success', 'Backend Sync Success', res.message);
-      triggerDatabaseSavedToast({
-        title: "Subject Updated!",
-        message: `Subject "${updatedSubject.name || updatedSubject.hindiName}" updated in Supabase!`,
-        itemName: updatedSubject.name,
-      });
+      if (res.cloudSynced) {
+        addToast('success', 'Backend Sync Success', res.message);
+        triggerDatabaseSavedToast({
+          title: "Subject Updated!",
+          message: `Subject "${updatedSubject.name || updatedSubject.hindiName}" updated in Supabase!`,
+          itemName: updatedSubject.name,
+        });
+      } else {
+        addToast('info', 'Saved Locally', res.message);
+      }
     } else {
       addToast('error', 'Save Error', res.message);
     }
@@ -69,7 +77,11 @@ export const useCurriculumManager = (
       const nextStore = deleteSubject(questionsStore, subjectId);
       setQuestionsStore(nextStore);
       saveUserQuestionsStore(nextStore);
-      addToast('success', 'Backend Sync Success', res.message);
+      if (res.cloudSynced) {
+        addToast('success', 'Backend Sync Success', res.message);
+      } else {
+        addToast('info', 'Deleted Locally', res.message);
+      }
     } else {
       addToast('error', 'Delete Error', res.message);
     }
@@ -91,12 +103,16 @@ export const useCurriculumManager = (
       };
       setQuestionsStore(nextStore);
       saveUserQuestionsStore(nextStore);
-      addToast('success', 'Backend Sync Success', res.message);
-      triggerDatabaseSavedToast({
-        title: "Chapter Saved!",
-        message: `Chapter "${chapterToSave.title || chapterToSave.hindiTitle}" saved to Supabase and live!`,
-        itemName: chapterToSave.title,
-      });
+      if (res.cloudSynced) {
+        addToast('success', 'Backend Sync Success', res.message);
+        triggerDatabaseSavedToast({
+          title: "Chapter Saved!",
+          message: `Chapter "${chapterToSave.title || chapterToSave.hindiTitle}" saved to Supabase and live!`,
+          itemName: chapterToSave.title,
+        });
+      } else {
+        addToast('info', 'Saved Locally', res.message);
+      }
     } else {
       addToast('error', 'Save Error', res.message);
     }
@@ -113,12 +129,16 @@ export const useCurriculumManager = (
       const nextStore = editChapter(questionsStore, chapterToSave);
       setQuestionsStore(nextStore);
       saveUserQuestionsStore(nextStore);
-      addToast('success', 'Backend Sync Success', res.message);
-      triggerDatabaseSavedToast({
-        title: "Chapter Updated!",
-        message: `Chapter "${chapterToSave.title || chapterToSave.hindiTitle}" updated in Supabase!`,
-        itemName: chapterToSave.title,
-      });
+      if (res.cloudSynced) {
+        addToast('success', 'Backend Sync Success', res.message);
+        triggerDatabaseSavedToast({
+          title: "Chapter Updated!",
+          message: `Chapter "${chapterToSave.title || chapterToSave.hindiTitle}" updated in Supabase!`,
+          itemName: chapterToSave.title,
+        });
+      } else {
+        addToast('info', 'Saved Locally', res.message);
+      }
     } else {
       addToast('error', 'Save Error', res.message);
     }
@@ -131,7 +151,11 @@ export const useCurriculumManager = (
       const nextStore = deleteChapter(questionsStore, chapterId);
       setQuestionsStore(nextStore);
       saveUserQuestionsStore(nextStore);
-      addToast('success', 'Backend Sync Success', res.message);
+      if (res.cloudSynced) {
+        addToast('success', 'Backend Sync Success', res.message);
+      } else {
+        addToast('info', 'Deleted Locally', res.message);
+      }
     } else {
       addToast('error', 'Delete Error', res.message);
     }
@@ -172,12 +196,16 @@ export const useCurriculumManager = (
       };
       setQuestionsStore(nextStore);
       saveUserQuestionsStore(nextStore);
-      addToast('success', 'Backend Sync Success', res.message);
-      triggerDatabaseSavedToast({
-        title: "Topic Saved!",
-        message: `Topic "${newTopic.title || newTopic.hindiTitle}" saved to Supabase and live!`,
-        itemName: newTopic.title,
-      });
+      if (res.cloudSynced) {
+        addToast('success', 'Backend Sync Success', res.message);
+        triggerDatabaseSavedToast({
+          title: "Topic Saved!",
+          message: `Topic "${newTopic.title || newTopic.hindiTitle}" saved to Supabase and live!`,
+          itemName: newTopic.title,
+        });
+      } else {
+        addToast('info', 'Saved Locally', res.message);
+      }
     } else {
       addToast('error', 'Save Error', res.message);
     }
@@ -207,12 +235,16 @@ export const useCurriculumManager = (
       const nextStore = editTopic(questionsStore, enrichedTopic);
       setQuestionsStore(nextStore);
       saveUserQuestionsStore(nextStore);
-      addToast('success', 'Backend Sync Success', res.message);
-      triggerDatabaseSavedToast({
-        title: "Topic Updated!",
-        message: `Topic "${updatedTopic.title || updatedTopic.hindiTitle}" updated in Supabase!`,
-        itemName: updatedTopic.title,
-      });
+      if (res.cloudSynced) {
+        addToast('success', 'Backend Sync Success', res.message);
+        triggerDatabaseSavedToast({
+          title: "Topic Updated!",
+          message: `Topic "${updatedTopic.title || updatedTopic.hindiTitle}" updated in Supabase!`,
+          itemName: updatedTopic.title,
+        });
+      } else {
+        addToast('info', 'Saved Locally', res.message);
+      }
     } else {
       addToast('error', 'Save Error', res.message);
     }
@@ -225,7 +257,11 @@ export const useCurriculumManager = (
       const nextStore = deleteTopic(questionsStore, topicId);
       setQuestionsStore(nextStore);
       saveUserQuestionsStore(nextStore);
-      addToast('success', 'Backend Sync Success', res.message);
+      if (res.cloudSynced) {
+        addToast('success', 'Backend Sync Success', res.message);
+      } else {
+        addToast('info', 'Deleted Locally', res.message);
+      }
     } else {
       addToast('error', 'Delete Error', res.message);
     }
