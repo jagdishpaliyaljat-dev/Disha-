@@ -427,11 +427,13 @@ export async function deleteQuestionsBulkFromSupabase(questionIds: string[]): Pr
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// ATTEMPTS & PROGRESS SYNC
+// ATTEMPTS, BOOKMARKS & USER PROGRESS SYNC
 // ─────────────────────────────────────────────────────────────────────────────
 
 export async function recordStudentAttempt(attempt: {
+  userId?: string;
   topicId?: string;
+  subjectId?: string;
   score: number;
   totalQuestions: number;
   answers: Record<string, any>;
@@ -439,12 +441,17 @@ export async function recordStudentAttempt(attempt: {
 }) {
   if (!isSupabaseConfigured()) return;
   try {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return; // Guest mode
+    let uid = attempt.userId;
+    if (!uid) {
+      const { data: { user } } = await supabase.auth.getUser();
+      uid = user?.id;
+    }
+    if (!uid || uid === "student_default" || String(uid).startsWith("guest_")) return;
 
     await supabase.from("attempts").insert({
-      user_id: user.id,
-      topic_id: attempt.topicId,
+      user_id: uid,
+      topic_id: attempt.topicId || null,
+      subject_id: attempt.subjectId || null,
       score: attempt.score,
       total_questions: attempt.totalQuestions,
       answers: attempt.answers,
@@ -452,6 +459,380 @@ export async function recordStudentAttempt(attempt: {
     });
   } catch (e: any) {
     console.warn("[Supabase] Attempt sync error:", e.message);
+  }
+}
+
+export async function fetchUserAttemptsFromSupabase(userId?: string): Promise<any[]> {
+  if (!isSupabaseConfigured()) return [];
+  try {
+    let uid = userId;
+    if (!uid) {
+      const { data: { user } } = await supabase.auth.getUser();
+      uid = user?.id;
+    }
+    if (!uid || uid === "student_default" || String(uid).startsWith("guest_")) return [];
+
+    const { data, error } = await supabase
+      .from("attempts")
+      .select("*")
+      .eq("user_id", uid)
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+    return data || [];
+  } catch (e: any) {
+    console.warn("[Supabase] Attempts fetch error:", e.message);
+    return [];
+  }
+}
+
+export async function fetchUserBookmarksFromSupabase(userId?: string): Promise<string[]> {
+  if (!isSupabaseConfigured()) return [];
+  try {
+    let uid = userId;
+    if (!uid) {
+      const { data: { user } } = await supabase.auth.getUser();
+      uid = user?.id;
+    }
+    if (!uid || uid === "student_default" || String(uid).startsWith("guest_")) return [];
+
+    const { data, error } = await supabase
+      .from("bookmarks")
+      .select("question_id")
+      .eq("user_id", uid);
+
+    if (error) throw error;
+    return (data || []).map(b => b.question_id);
+  } catch (e: any) {
+    console.warn("[Supabase] Bookmarks fetch error:", e.message);
+    return [];
+  }
+}
+
+export async function toggleBookmarkInSupabase(questionId: string, bookmarked: boolean, userId?: string): Promise<boolean> {
+  if (!isSupabaseConfigured() || !questionId) return false;
+  try {
+    let uid = userId;
+    if (!uid) {
+      const { data: { user } } = await supabase.auth.getUser();
+      uid = user?.id;
+    }
+    if (!uid || uid === "student_default" || String(uid).startsWith("guest_")) return false;
+
+    if (bookmarked) {
+      const { error } = await supabase.from("bookmarks").upsert({
+        user_id: uid,
+        question_id: questionId
+      }, { onConflict: "user_id,question_id" });
+      if (error) throw error;
+      return true;
+    } else {
+      const { error } = await supabase
+        .from("bookmarks")
+        .delete()
+        .match({ user_id: uid, question_id: questionId });
+      if (error) throw error;
+      return true;
+    }
+  } catch (e: any) {
+    console.warn("[Supabase] Bookmark toggle error:", e.message);
+    return false;
+  }
+}
+
+export async function fetchUserProfileFromSupabase(userId?: string): Promise<any | null> {
+  if (!isSupabaseConfigured()) return null;
+  try {
+    let uid = userId;
+    if (!uid) {
+      const { data: { user } } = await supabase.auth.getUser();
+      uid = user?.id;
+    }
+    if (!uid || uid === "student_default" || String(uid).startsWith("guest_")) return null;
+
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", uid)
+      .maybeSingle();
+
+    if (error) throw error;
+    if (!data) return null;
+
+    return {
+      id: data.id,
+      uid: data.id,
+      email: data.email || "",
+      name: data.display_name || "Student",
+      displayName: data.display_name || "Student",
+      photoURL: data.photo_url || "",
+      role: data.role || "student",
+      createdAt: data.created_at,
+      updatedAt: data.updated_at
+    };
+  } catch (e: any) {
+    console.warn("[Supabase] Profile fetch error:", e.message);
+    return null;
+  }
+}
+
+export async function syncUserProfileToSupabase(profile: any): Promise<boolean> {
+  if (!isSupabaseConfigured() || !profile) return false;
+  const uid = profile.id || profile.uid;
+  if (!uid || uid === "student_default" || String(uid).startsWith("guest_")) return false;
+
+  try {
+    const { error } = await supabase.from("profiles").upsert({
+      id: uid,
+      email: profile.email || null,
+      display_name: profile.name || profile.displayName || "Student",
+      photo_url: profile.photoURL || null,
+      role: profile.role || "student",
+      updated_at: new Date().toISOString()
+    }, { onConflict: "id" });
+
+    if (error) throw error;
+    return true;
+  } catch (e: any) {
+    console.warn("[Supabase] Profile sync error:", e.message);
+    return false;
+  }
+}
+
+export async function fetchPYQQuestionsFromSupabase(params?: {
+  exam?: string;
+  year?: string;
+}): Promise<Question[]> {
+  if (!isSupabaseConfigured()) return [];
+  try {
+    let query = supabase.from("questions").select("*");
+    if (params?.exam) {
+      query = query.ilike("exam", `%${params.exam}%`);
+    }
+    if (params?.year) {
+      query = query.eq("year", params.year);
+    }
+    const { data, error } = await query.order("created_at", { ascending: false }).limit(200);
+    if (error) throw error;
+    if (data && data.length > 0) {
+      return data.map(q => ({
+        id: q.id,
+        text: q.question,
+        options: Array.isArray(q.options) ? q.options : [],
+        correctIndex: q.correct_answer ?? 0,
+        explanation: q.explanation || "",
+        subjectId: q.subject_id,
+        chapterId: q.chapter_id,
+        topicId: q.topic_id,
+        exam: q.exam,
+        year: q.year,
+        difficulty: q.level || "medium",
+        isUserAdded: false,
+        updatedAt: q.created_at
+      }));
+    }
+    return [];
+  } catch (e: any) {
+    console.warn("[Supabase] PYQ fetch error:", e.message);
+    return [];
+  }
+}
+
+export async function fetchMockTestQuestions(params?: {
+  count?: number;
+  subjectId?: string;
+}): Promise<Question[]> {
+  if (!isSupabaseConfigured()) return [];
+  try {
+    const limit = Math.min(params?.count || 25, 100);
+    let query = supabase.from("questions").select("*");
+    if (params?.subjectId && params.subjectId !== "all") {
+      query = query.eq("subject_id", params.subjectId);
+    }
+    const { data, error } = await query.limit(limit);
+    if (error) throw error;
+    if (data && data.length > 0) {
+      return data.map(q => ({
+        id: q.id,
+        text: q.question,
+        options: Array.isArray(q.options) ? q.options : [],
+        correctIndex: q.correct_answer ?? 0,
+        explanation: q.explanation || "",
+        subjectId: q.subject_id,
+        chapterId: q.chapter_id,
+        topicId: q.topic_id,
+        exam: q.exam,
+        year: q.year,
+        difficulty: q.level || "medium",
+        isUserAdded: false,
+        updatedAt: q.created_at
+      }));
+    }
+    return [];
+  } catch (e: any) {
+    console.warn("[Supabase] Mock test questions fetch error:", e.message);
+    return [];
+  }
+}
+
+export async function fetchPaginatedQuestions(params: {
+  page?: number;
+  limit?: number;
+  subjectId?: string;
+  chapterId?: string;
+  topicId?: string;
+  search?: string;
+}): Promise<{ questions: Question[]; total: number; page: number; totalPages: number }> {
+  const page = Math.max(1, params.page || 1);
+  const limit = Math.min(100, Math.max(1, params.limit || 20));
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
+
+  if (!isSupabaseConfigured()) {
+    return { questions: [], total: 0, page, totalPages: 0 };
+  }
+
+  try {
+    let query = supabase
+      .from("questions")
+      .select("*", { count: "exact" });
+
+    if (params.subjectId && params.subjectId !== "all") {
+      query = query.eq("subject_id", params.subjectId);
+    }
+    if (params.chapterId && params.chapterId !== "all") {
+      query = query.eq("chapter_id", params.chapterId);
+    }
+    if (params.topicId && params.topicId !== "all") {
+      query = query.eq("topic_id", params.topicId);
+    }
+    if (params.search && params.search.trim()) {
+      query = query.ilike("question", `%${params.search.trim()}%`);
+    }
+
+    const { data, count, error } = await query
+      .order("created_at", { ascending: false })
+      .range(from, to);
+
+    if (error) throw error;
+
+    const total = count || 0;
+    const questions: Question[] = (data || []).map(q => ({
+      id: q.id,
+      text: q.question,
+      options: Array.isArray(q.options) ? q.options : [],
+      correctIndex: q.correct_answer ?? 0,
+      explanation: q.explanation || "",
+      subjectId: q.subject_id,
+      chapterId: q.chapter_id,
+      topicId: q.topic_id,
+      exam: q.exam,
+      year: q.year,
+      difficulty: q.level || "medium",
+      isUserAdded: false,
+      updatedAt: q.created_at
+    }));
+
+    return {
+      questions,
+      total,
+      page,
+      totalPages: Math.ceil(total / limit)
+    };
+  } catch (e: any) {
+    console.warn("[Supabase] Paginated questions error:", e.message);
+    return { questions: [], total: 0, page, totalPages: 0 };
+  }
+}
+
+export async function getSupabaseTableCounts(): Promise<{
+  subjects: number;
+  chapters: number;
+  topics: number;
+  questions: number;
+  profiles: number;
+  attempts: number;
+  bookmarks: number;
+}> {
+  const result = {
+    subjects: 0,
+    chapters: 0,
+    topics: 0,
+    questions: 0,
+    profiles: 0,
+    attempts: 0,
+    bookmarks: 0,
+  };
+
+  if (!isSupabaseConfigured()) return result;
+
+  try {
+    const [sub, chap, top, q, prof, att, bm] = await Promise.all([
+      supabase.from("subjects").select("id", { count: "exact", head: true }),
+      supabase.from("chapters").select("id", { count: "exact", head: true }),
+      supabase.from("topics").select("id", { count: "exact", head: true }),
+      supabase.from("questions").select("id", { count: "exact", head: true }),
+      supabase.from("profiles").select("id", { count: "exact", head: true }),
+      supabase.from("attempts").select("id", { count: "exact", head: true }),
+      supabase.from("bookmarks").select("id", { count: "exact", head: true }),
+    ]);
+
+    result.subjects = sub.count || 0;
+    result.chapters = chap.count || 0;
+    result.topics = top.count || 0;
+    result.questions = q.count || 0;
+    result.profiles = prof.count || 0;
+    result.attempts = att.count || 0;
+    result.bookmarks = bm.count || 0;
+  } catch (e) {
+    console.warn("[Supabase] Error fetching table counts:", e);
+  }
+
+  return result;
+}
+
+export async function checkSupabaseHealth(): Promise<{
+  healthy: boolean;
+  latencyMs: number;
+  details: Record<string, any>;
+}> {
+  const start = performance.now();
+  if (!isSupabaseConfigured()) {
+    return {
+      healthy: false,
+      latencyMs: 0,
+      details: { error: "Supabase not configured in environment" }
+    };
+  }
+
+  try {
+    const { count, error } = await supabase.from("subjects").select("id", { count: "exact", head: true });
+    const latencyMs = Math.round(performance.now() - start);
+
+    if (error) {
+      return {
+        healthy: false,
+        latencyMs,
+        details: { error: error.message, code: error.code }
+      };
+    }
+
+    return {
+      healthy: true,
+      latencyMs,
+      details: {
+        subjectsCount: count || 0,
+        status: "connected",
+        endpoint: "PostgreSQL via PostgREST",
+      }
+    };
+  } catch (err: any) {
+    const latencyMs = Math.round(performance.now() - start);
+    return {
+      healthy: false,
+      latencyMs,
+      details: { error: err.message || "Unknown error" }
+    };
   }
 }
 

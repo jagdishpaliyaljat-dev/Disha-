@@ -2,7 +2,7 @@ import * as React from "react";
 import { 
   BookOpen, Layers, LayoutDashboard, Users, Image as ImageIcon, Terminal, Flame, X, 
   FolderPlus, PlusCircle, Database, LayoutGrid, Settings, ShieldCheck, 
-  Upload, Sparkles, Menu, ChevronRight, Activity, Cpu, RefreshCw, Newspaper,
+  Upload, Sparkles, Menu, ChevronRight, ChevronLeft, HardDrive, Activity, Cpu, RefreshCw, Newspaper,
   Trophy, CheckCircle2, ListFilter, ChevronDown, Trash2, AlertCircle, Building2,
   FileCode, Archive, LogOut, ArrowRight, Timer, FileText, FileSpreadsheet
 } from "lucide-react";
@@ -168,6 +168,24 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
     };
   }, [props.questionsStore, activeGroup]);
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = React.useState<boolean>(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("disha_admin_sidebar_collapsed") === "true";
+    }
+    return false;
+  });
+
+  const toggleSidebarCollapsed = () => {
+    setIsSidebarCollapsed((prev) => {
+      const next = !prev;
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem("disha_admin_sidebar_collapsed", String(next));
+        } catch {}
+      }
+      return next;
+    });
+  };
   const [syncProgress, setSyncProgress] = React.useState<SyncProgressState | null>(null);
   const [isSyncing, setIsSyncing] = React.useState(false);
   const [showConfirm, setShowConfirm] = React.useState(false);
@@ -592,7 +610,8 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
     {
       id: "supabase",
       title: "Supabase Database",
-      icon: Database,
+      icon: HardDrive,
+      badge: "PG",
     },
     {
       id: "integrations",
@@ -611,12 +630,83 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
     },
   ], [subjectCount, questionCount]);
 
+  const categorizedNavGroups = React.useMemo(() => [
+    {
+      category: "Academic Engine",
+      items: [
+        {
+          id: "dashboard" as AdminGroupSection,
+          title: "Overview",
+          icon: LayoutDashboard,
+        },
+        {
+          id: "syllabus" as AdminGroupSection,
+          title: "Syllabus",
+          icon: Layers,
+          badge: subjectCount > 0 ? `${subjectCount}` : undefined,
+        },
+        {
+          id: "questions" as AdminGroupSection,
+          title: "Question Bank",
+          icon: Database,
+          badge: questionCount > 0 ? `${questionCount}` : undefined,
+        },
+        {
+          id: "tests" as AdminGroupSection,
+          title: "Exams & Tests",
+          icon: Trophy,
+        },
+      ],
+    },
+    {
+      category: "Community & Editorial",
+      items: [
+        {
+          id: "content" as AdminGroupSection,
+          title: "News & Banners",
+          icon: Newspaper,
+        },
+        {
+          id: "users" as AdminGroupSection,
+          title: "Students & Doubts",
+          icon: Users,
+        },
+      ],
+    },
+    {
+      category: "Database & Platform",
+      items: [
+        {
+          id: "supabase" as AdminGroupSection,
+          title: "Supabase Cloud",
+          icon: HardDrive,
+          badge: "PG",
+        },
+        {
+          id: "integrations" as AdminGroupSection,
+          title: "AI API Config",
+          icon: Cpu,
+        },
+        {
+          id: "backup" as AdminGroupSection,
+          title: "Backup & Restore",
+          icon: Archive,
+        },
+        {
+          id: "settings" as AdminGroupSection,
+          title: "System Settings",
+          icon: Settings,
+        },
+      ],
+    },
+  ], [subjectCount, questionCount]);
+
   const mobileBottomShortcuts: { id: AdminGroupSection; label: string; icon: any }[] = React.useMemo(() => [
     { id: "dashboard", label: "Overview", icon: LayoutDashboard },
     { id: "syllabus", label: "Syllabus", icon: Layers },
     { id: "questions", label: "Questions", icon: Database },
     { id: "tests", label: "Tests", icon: Trophy },
-    { id: "users", label: "Users", icon: Users },
+    { id: "supabase", label: "Supabase", icon: HardDrive },
   ], []);
 
   if (!isUserAdmin(props.userProfile)) {
@@ -765,79 +855,128 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
           />
         )}
 
-        {/* 2. Responsive Navigation Drawer */}
+        {/* 2. Responsive Navigation Drawer / Collapsible Sidebar */}
         <aside
-          className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-[#1F2330] border-r border-[#E8D9C0] dark:border-[#31374A] transform ${
+          className={`fixed inset-y-0 left-0 z-50 bg-white dark:bg-[#1F2330] border-r border-[#E8D9C0] dark:border-[#31374A] transform ${
             isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-          } lg:translate-x-0 transition-transform duration-200 ease-in-out lg:static lg:z-0 flex flex-col`}
+          } lg:translate-x-0 transition-all duration-200 ease-in-out lg:static lg:z-0 flex flex-col ${
+            isSidebarCollapsed ? "lg:w-20 w-72" : "w-64"
+          }`}
         >
           {/* Mobile-only Drawer Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-[#E8D9C0]/70 dark:border-[#31374A] lg:hidden">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-[#800020] text-[#FFF9EF] flex items-center justify-center font-black text-xs shadow-xs">
+          <div className="flex items-center justify-between px-4 py-3.5 border-b border-[#E8D9C0]/70 dark:border-[#31374A] lg:hidden">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-[#800020] text-[#FFF9EF] flex items-center justify-center font-black text-sm shadow-xs">
                 D
               </div>
-              <span className="text-sm font-bold text-[#171923] dark:text-[#FFF9EF]">Admin Navigation</span>
+              <div>
+                <span className="text-sm font-bold text-[#171923] dark:text-[#FFF9EF] block leading-tight">Admin Console</span>
+                <span className="text-[10px] text-[#787D91] dark:text-[#929AB0] font-medium">DISHA 20-20 Management</span>
+              </div>
             </div>
             <button
               onClick={() => setIsSidebarOpen(false)}
-              className="p-1.5 rounded-lg text-[#52576A] hover:text-[#171923] dark:hover:text-[#FFF9EF] hover:bg-[#F7EFE2] dark:hover:bg-[#252A3A] transition-colors cursor-pointer"
+              className="p-2 rounded-xl text-[#52576A] hover:text-[#171923] dark:hover:text-[#FFF9EF] hover:bg-[#F7EFE2] dark:hover:bg-[#252A3A] transition-colors cursor-pointer"
               aria-label="Close sidebar"
             >
-              <X className="w-4 h-4" />
+              <X className="w-5 h-5" />
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto py-3 px-3 space-y-1">
-            <div className="px-3 mb-2">
-              <p className="text-[10px] font-bold text-[#787D91] dark:text-[#929AB0] uppercase tracking-widest">Management</p>
-            </div>
+          {/* Categorized Nav Groups */}
+          <div className="flex-1 overflow-y-auto py-3 px-2 sm:px-3 space-y-4 no-scrollbar">
+            {categorizedNavGroups.map((group) => (
+              <div key={group.category} className="space-y-1">
+                <div className={`px-2.5 pt-1 pb-1 ${isSidebarCollapsed ? "lg:hidden" : ""}`}>
+                  <p className="text-[10px] font-extrabold text-[#787D91] dark:text-[#929AB0] uppercase tracking-wider">
+                    {group.category}
+                  </p>
+                </div>
 
-            {navGroupItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = activeGroup === item.id;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => handleSelectGroup(item.id)}
-                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all active:scale-[0.98] cursor-pointer touch-manipulation min-h-[42px] ${
-                    isActive
-                      ? "bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] font-black"
-                      : "text-[#52576A] dark:text-[#CBD2E1] hover:bg-[#F7EFE2] dark:hover:bg-[#252A3A] hover:text-[#171923] dark:hover:text-[#FFF9EF]"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <Icon className={`w-4 h-4 ${isActive ? "text-[#800020] dark:text-[#F47B20]" : "text-[#787D91] group-hover:text-[#171923]"}`} />
-                    <span className="truncate">{item.title}</span>
-                  </div>
-                  {item.badge && (
-                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md shrink-0 ${
-                      isActive ? "bg-[#800020]/15 dark:bg-[#F47B20]/25 text-[#800020] dark:text-[#F47B20]" : "bg-[#F7EFE2] dark:bg-[#252A3A] text-[#787D91] dark:text-[#929AB0]"
-                    }`}>
-                      {item.badge}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
+                {group.items.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = activeGroup === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => handleSelectGroup(item.id)}
+                      title={item.title}
+                      className={`w-full flex items-center rounded-xl transition-all cursor-pointer touch-manipulation min-h-[42px] relative ${
+                        isSidebarCollapsed
+                          ? "lg:justify-center lg:px-2 px-3 py-2.5 justify-between"
+                          : "justify-between px-3 py-2.5"
+                      } ${
+                        isActive
+                          ? "bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] font-black"
+                          : "text-[#52576A] dark:text-[#CBD2E1] hover:bg-[#F7EFE2] dark:hover:bg-[#252A3A] hover:text-[#171923] dark:hover:text-[#FFF9EF]"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <Icon className={`w-4.5 h-4.5 shrink-0 ${isActive ? "text-[#800020] dark:text-[#F47B20]" : "text-[#787D91]"}`} />
+                        <span className={`truncate text-sm ${isSidebarCollapsed ? "lg:hidden" : ""}`}>
+                          {item.title}
+                        </span>
+                      </div>
+
+                      {item.badge && (
+                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md shrink-0 ${
+                          isSidebarCollapsed ? "lg:hidden" : ""
+                        } ${
+                          isActive
+                            ? "bg-[#800020]/15 dark:bg-[#F47B20]/25 text-[#800020] dark:text-[#F47B20]"
+                            : "bg-[#F7EFE2] dark:bg-[#252A3A] text-[#787D91] dark:text-[#929AB0]"
+                        }`}>
+                          {item.badge}
+                        </span>
+                      )}
+
+                      {/* Dot badge in collapsed mode */}
+                      {item.badge && isSidebarCollapsed && (
+                        <span className="hidden lg:block absolute top-2 right-2 w-2 h-2 rounded-full bg-[#800020] dark:bg-[#F47B20]" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            ))}
           </div>
 
-          <div className="p-3 border-t border-[#E8D9C0]/70 dark:border-[#31374A]">
+          {/* Sidebar Footer Controls */}
+          <div className="p-2 sm:p-3 border-t border-[#E8D9C0]/70 dark:border-[#31374A] space-y-1">
             <button
               onClick={() => {
                 setShowQATestRunner(true);
                 setIsSidebarOpen(false);
               }}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-[#52576A] dark:text-[#CBD2E1] hover:bg-[#F7EFE2] dark:hover:bg-[#252A3A] transition-colors min-h-[42px] cursor-pointer"
+              title="QA Debug Suite"
+              className={`w-full flex items-center rounded-xl text-xs font-semibold text-[#52576A] dark:text-[#CBD2E1] hover:bg-[#F7EFE2] dark:hover:bg-[#252A3A] transition-colors min-h-[40px] cursor-pointer ${
+                isSidebarCollapsed ? "lg:justify-center lg:px-2 px-3 py-2 justify-start gap-3" : "px-3 py-2 gap-3"
+              }`}
             >
-              <Terminal className="w-4 h-4 text-[#787D91]" />
-              <span>QA Debug Suite</span>
+              <Terminal className="w-4 h-4 text-[#787D91] shrink-0" />
+              <span className={isSidebarCollapsed ? "lg:hidden" : ""}>QA Debug Suite</span>
+            </button>
+
+            {/* Desktop Collapsible Toggle */}
+            <button
+              onClick={toggleSidebarCollapsed}
+              title={isSidebarCollapsed ? "Expand Sidebar (Wider Navigation)" : "Collapse Sidebar (More Workspace)"}
+              className="hidden lg:flex items-center justify-center gap-2 w-full py-2 px-2.5 rounded-xl text-xs font-semibold text-[#787D91] dark:text-[#929AB0] hover:bg-[#F7EFE2] dark:hover:bg-[#252A3A] hover:text-[#171923] dark:hover:text-[#FFF9EF] transition-colors cursor-pointer"
+            >
+              {isSidebarCollapsed ? (
+                <ChevronRight className="w-4 h-4" />
+              ) : (
+                <>
+                  <ChevronLeft className="w-4 h-4" />
+                  <span>Collapse Sidebar</span>
+                </>
+              )}
             </button>
           </div>
         </aside>
 
         {/* 3. Main Content Workspace */}
-        <main className="flex-1 overflow-y-auto bg-[#FFF9EF]/40 dark:bg-[#171923] p-3 sm:p-6 lg:p-8 pb-24 lg:pb-8">
+        <main className="flex-1 overflow-y-auto bg-[#FFF9EF]/40 dark:bg-[#171923] p-3 sm:p-6 lg:p-8 pb-28 lg:pb-12">
           <div className="max-w-screen-xl mx-auto space-y-5 sm:space-y-6">
             
             {/* Mobile Horizontal Quick Navigation Strip (lg:hidden) */}
@@ -1509,11 +1648,11 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
 
       <ConfirmDialog
         isOpen={Boolean(deleteConfirmTarget)}
-        title={deleteConfirmTarget?.type === "subject" ? "Delete Subject from Cloud" : "Delete Chapter from Cloud"}
+        title={deleteConfirmTarget?.type === "subject" ? "Delete Subject from Supabase" : "Delete Chapter from Supabase"}
         message={
           deleteConfirmTarget?.type === "subject"
-            ? `Are you sure you want to delete subject "${deleteConfirmTarget?.title}"? This action triggers deleteSubjectFromCloud, removing the subject and its associated chapters/topics from Firebase Firestore. This cannot be undone.`
-            : `Are you sure you want to delete chapter "${deleteConfirmTarget?.title}"? This action triggers deleteChapterFromCloud, removing the chapter and its associated topics/questions from Firebase Firestore. This cannot be undone.`
+            ? `Are you sure you want to delete subject "${deleteConfirmTarget?.title}"? This action triggers deleteSubjectFromSupabase, removing the subject and its associated chapters/topics from Supabase Database. This cannot be undone.`
+            : `Are you sure you want to delete chapter "${deleteConfirmTarget?.title}"? This action triggers deleteChapterFromSupabase, removing the chapter and its associated topics/questions from Supabase Database. This cannot be undone.`
         }
         confirmText="Confirm Delete"
         cancelText="Cancel"
@@ -1523,6 +1662,57 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
           if (!isDeletingCloud) setDeleteConfirmTarget(null);
         }}
       />
+
+      {/* 4. Mobile Fixed Bottom Action Bar (lg:hidden) */}
+      <nav
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#1F2330]/95 backdrop-blur-md border-t border-[#E8D9C0] dark:border-[#31374A] shadow-[0_-4px_20px_rgba(0,0,0,0.06)] px-1 py-1 safe-area-pb"
+        aria-label="Mobile Navigation"
+      >
+        <div className="flex items-center justify-around max-w-lg mx-auto">
+          {mobileBottomShortcuts.map((item) => {
+            const Icon = item.icon;
+            const isActive = activeGroup === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => handleSelectGroup(item.id)}
+                className={`flex-1 flex flex-col items-center justify-center py-1 px-1 rounded-xl transition-all cursor-pointer min-h-[46px] relative ${
+                  isActive
+                    ? "text-[#800020] dark:text-[#F47B20] font-black"
+                    : "text-[#787D91] dark:text-[#929AB0] hover:text-[#171923] dark:hover:text-[#FFF9EF]"
+                }`}
+              >
+                <div className={`p-1 rounded-lg transition-transform ${isActive ? "scale-110 bg-[#800020]/10 dark:bg-[#F47B20]/15" : ""}`}>
+                  <Icon className="w-4.5 h-4.5" />
+                </div>
+                <span className="text-[10px] tracking-tight truncate max-w-[58px]">
+                  {item.label}
+                </span>
+                {isActive && (
+                  <span className="w-4 h-0.5 bg-[#800020] dark:bg-[#F47B20] rounded-full mt-0.5" />
+                )}
+              </button>
+            );
+          })}
+
+          <button
+            onClick={() => setIsSidebarOpen(true)}
+            className={`flex-1 flex flex-col items-center justify-center py-1 px-1 rounded-xl transition-all cursor-pointer min-h-[46px] ${
+              ["content", "users", "integrations", "backup", "settings"].includes(activeGroup)
+                ? "text-[#800020] dark:text-[#F47B20] font-black"
+                : "text-[#787D91] dark:text-[#929AB0] hover:text-[#171923] dark:hover:text-[#FFF9EF]"
+            }`}
+          >
+            <div className="p-1 rounded-lg">
+              <Menu className="w-4.5 h-4.5" />
+            </div>
+            <span className="text-[10px] tracking-tight">More</span>
+            {["content", "users", "integrations", "backup", "settings"].includes(activeGroup) && (
+              <span className="w-4 h-0.5 bg-[#800020] dark:bg-[#F47B20] rounded-full mt-0.5" />
+            )}
+          </button>
+        </div>
+      </nav>
     </div>
   );
 };

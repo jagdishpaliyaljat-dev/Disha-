@@ -168,11 +168,30 @@ export function saveSmartTestRecord(record: SmartTestRecord): void {
     console.error("Failed to save smart test record", e);
   }
 
-  // Persist into unified IndexedDB test_results repository & durable sync queue
+  // Persist into unified IndexedDB test_results repository & sync to Supabase
   import("./localDatabaseEngine").then(({ saveLocalTestResult }) => {
-    import("../lib/firebase").then(({ auth }) => {
-      const uid = auth.currentUser?.uid || "guest";
-      saveLocalTestResult(record, uid).catch(() => {});
+    import("../lib/supabase").then(({ supabase, isSupabaseConfigured }) => {
+      if (isSupabaseConfigured()) {
+        supabase.auth.getUser().then(({ data: { user } }) => {
+          const uid = user?.id || "guest";
+          saveLocalTestResult(record, uid).catch(() => {});
+          if (user?.id) {
+            import("./supabaseSyncService").then(({ recordStudentAttempt }) => {
+              recordStudentAttempt({
+                userId: user.id,
+                score: record.score || 0,
+                totalQuestions: record.totalQuestions || 0,
+                answers: record.answers || {},
+                timeSpentSeconds: record.timeSpentSeconds || 0,
+              }).catch(() => {});
+            }).catch(() => {});
+          }
+        }).catch(() => {
+          saveLocalTestResult(record, "guest").catch(() => {});
+        });
+      } else {
+        saveLocalTestResult(record, "guest").catch(() => {});
+      }
     }).catch(() => {});
   }).catch(() => {});
 }

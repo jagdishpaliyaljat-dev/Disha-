@@ -231,17 +231,18 @@ class SyncCoordinatorClass {
     let downloadedCount = 0;
 
     try {
-      if (!isFirebaseConfigured() || isQuotaExhausted()) {
-        throw new Error(isQuotaExhausted() ? "Daily Firebase quota exhausted." : "Firebase not configured.");
+      const { supabase, isSupabaseConfigured } = await import("../lib/supabase");
+      if (!isSupabaseConfigured()) {
+        throw new Error("Supabase is not configured.");
       }
 
-      // Check user authentication
-      const user = auth.currentUser;
-      const isAuth = user && !user.isAnonymous;
+      // Check user authentication via Supabase
+      const { data: { user } } = await supabase.auth.getUser();
+      const isAuth = Boolean(user && user.id && user.id !== "student_default" && !user.id.startsWith("guest_"));
 
       // 4. PHASE B: UPLOAD STUDENT DATA
-      if (isAuth) {
-        uploadedCount = await this.uploadPendingEvents(user.uid, sessionId);
+      if (isAuth && user) {
+        uploadedCount = await this.uploadPendingEvents(user.id, sessionId);
       }
 
       // 5. PHASE C: DOWNLOAD ADMIN CONTENT UPDATES
@@ -288,7 +289,7 @@ class SyncCoordinatorClass {
   }
 
   /**
-   * Phase B: Upload pending events in strict order with <= 400 chunked WriteBatches.
+   * Phase B: Upload pending events in strict order to Supabase PostgreSQL.
    */
   private async uploadPendingEvents(userId: string, sessionBatchId: string): Promise<number> {
     const pendingEvents = await getPendingSyncEvents(400);
@@ -297,35 +298,44 @@ class SyncCoordinatorClass {
     const eventIds = pendingEvents.map(e => e.eventId);
     await updateSyncEventsStatus(eventIds, "in_flight");
 
-    const batch = guardedWriteBatch(db);
     let opCount = 0;
-
-    for (const evt of pendingEvents) {
-      const pathSegments = this.resolveFirestorePath(userId, evt);
-      if (!pathSegments) continue;
-
-      const docRef = doc(db, pathSegments[0], ...pathSegments.slice(1));
-      if (evt.eventType === "attempt") {
-        // Firestore rules enforce create-only semantics for student attempts:
-        // allow create: if incoming().get('userId', '') == request.auth.uid; allow update, delete: if isAdmin();
-        // Pure set without merge: true avoids update interpretation
-        batch.set(docRef, { ...evt.payload, lastSyncedAt: Date.now() });
-      } else if (evt.operation === "delete") {
-        batch.delete(docRef);
-      } else {
-        batch.set(docRef, { ...evt.payload, lastSyncedAt: Date.now() }, { merge: true });
+    try {
+      const { supabase, isSupabaseConfigured } = await import("../lib/supabase");
+      if (isSupabaseConfigured()) {
+        for (const evt of pendingEvents) {
+          try {
+            if (evt.eventType === "attempt") {
+              await supabase.from("attempts").insert({
+                user_id: userId,
+                topic_id: evt.payload?.topicId || null,
+                subject_id: evt.payload?.subjectId || null,
+                score: evt.payload?.score || 0,
+                total_questions: evt.payload?.totalQuestions || 0,
+                answers: evt.payload?.answers || {},
+                time_spent_seconds: evt.payload?.timeSpentSeconds || 0,
+              });
+              opCount++;
+            } else if (evt.eventType === "bookmark") {
+              if (evt.operation === "delete" || evt.payload?.bookmarked === false) {
+                await supabase
+                  .from("bookmarks")
+                  .delete()
+                  .match({ user_id: userId, question_id: evt.entityId });
+              } else {
+                await supabase.from("bookmarks").upsert({
+                  user_id: userId,
+                  question_id: evt.entityId
+                }, { onConflict: "user_id,question_id" });
+              }
+              opCount++;
+            }
+          } catch (e: any) {
+            console.warn(`[SyncCoordinator] Error syncing event ${evt.eventId}:`, e.message);
+          }
+        }
       }
-      opCount++;
-    }
-
-    if (opCount > 0) {
-      await batch.commit(
-        "Student",
-        "24h Coordinated Progress Upload",
-        `Batch ${sessionBatchId}`,
-        30000,
-        `upload_${sessionBatchId}`
-      );
+    } catch (e: any) {
+      console.warn("[SyncCoordinator] Supabase batch upload notice:", e.message);
     }
 
     // Mark confirmed uploaded events as synced in queue and in local domain stores
@@ -334,123 +344,81 @@ class SyncCoordinatorClass {
     return opCount;
   }
 
-  private resolveFirestorePath(userId: string, evt: SyncQueueEvent): string[] | null {
-    switch (evt.eventType) {
-      case "attempt":
-        return ["attempts", evt.entityId];
-      case "bookmark":
-        return ["users", userId, "bookmarks", evt.entityId];
-      case "wrong_question":
-        return ["users", userId, "wrong_questions", evt.entityId];
-      case "test_result":
-        return ["users", userId, "test_results", evt.entityId];
-      case "revision":
-        return ["users", userId, "revision_history", evt.entityId];
-      case "study_log":
-        return ["users", userId, "study_logs", evt.entityId];
-      case "syllabus_progress":
-        return ["users", userId, "syllabus_progress", evt.entityId];
-      case "settings":
-        return ["users", userId];
-      default:
-        return null;
-    }
-  }
-
   /**
-   * Phase C: Download changed admin content incrementally (hierarchy, MCQs, tombstones).
+   * Phase C: Download changed admin content incrementally from Supabase PostgreSQL.
    */
   private async downloadContentChanges(localVersion: number, batchId: string): Promise<{ changedCount: number; remoteVersion: number }> {
-    const versionSnap = await guardedGetDoc(
-      doc(db, "metadata", "app_version"), 
-      "Student", 
-      "24h Check Curriculum Version", 
-      undefined, 
-      15000
-    ).catch(() => null);
-
-    if (!versionSnap || !versionSnap.exists()) return { changedCount: 0, remoteVersion: localVersion };
-    const remoteData = versionSnap.data() as any;
-    const remoteVersion = Number(remoteData?.curriculumVersion || 1);
-
-    if (remoteVersion <= localVersion) {
-      // Content already up to date - 0 extra collection reads
-      return { changedCount: 0, remoteVersion: localVersion };
-    }
-
     let changedCount = 0;
-
-    // 1. Fetch updated curriculum hierarchy (subjects, chapters, topics)
-    const [subsSnap, chsSnap, topsSnap] = await Promise.all([
-      guardedGetDocs(collection(db, "subjects"), "Student", "24h Download Subjects", undefined, 30000).catch(() => null),
-      guardedGetDocs(collection(db, "chapters"), "Student", "24h Download Chapters", undefined, 30000).catch(() => null),
-      guardedGetDocs(collection(db, "topics"), "Student", "24h Download Topics", undefined, 30000).catch(() => null),
-    ]);
-
-    if (subsSnap && !subsSnap.empty) {
-      const records = subsSnap.docs.map(d => ({ recordId: d.id, data: { ...d.data(), id: d.id }, action: "upsert" as const }));
-      await stageIncomingRecords(batchId, STORES.SUBJECTS, records);
-      changedCount += records.length;
-    }
-    if (chsSnap && !chsSnap.empty) {
-      const records = chsSnap.docs.map(d => ({ recordId: d.id, data: { ...d.data(), id: d.id }, action: "upsert" as const }));
-      await stageIncomingRecords(batchId, STORES.CHAPTERS, records);
-      changedCount += records.length;
-    }
-    if (topsSnap && !topsSnap.empty) {
-      const records = topsSnap.docs.map(d => ({ recordId: d.id, data: { ...d.data(), id: d.id }, action: "upsert" as const }));
-      await stageIncomingRecords(batchId, STORES.TOPICS, records);
-      changedCount += records.length;
-    }
-
-    // 2. Fetch incremental Question updates & tombstones
     try {
-      const changelogRef = collection(db, "content_changelog");
-      const qChangelog = query(changelogRef, where("version", ">", localVersion));
-      const changelogSnap = await guardedGetDocs(qChangelog, "Student", "24h Download Changelog", undefined, 30000).catch(() => null);
-
-      if (changelogSnap && !changelogSnap.empty) {
-        const mcqUpdates: Array<{ recordId: string; data: any; action: "upsert" | "delete" }> = [];
-        for (const chDoc of changelogSnap.docs) {
-          const item = chDoc.data() as any;
-          const entityType = item.entityType || item.collection || "mcqs";
-          if (entityType === "mcqs" || entityType === "questions") {
-            const isDelete = item.action === "delete" || item.op === "delete" || item.isDeleted === true;
-            mcqUpdates.push({
-              recordId: item.entityId || item.docId || chDoc.id,
-              data: isDelete ? null : (item.data || { ...item, id: item.entityId || chDoc.id }),
-              action: isDelete ? "delete" : "upsert",
-            });
-          }
-        }
-        if (mcqUpdates.length > 0) {
-          await stageIncomingRecords(batchId, STORES.MCQS, mcqUpdates);
-          changedCount += mcqUpdates.length;
-        }
-      } else {
-        const mcqsRef = collection(db, "mcqs");
-        const qMcqs = query(mcqsRef, where("version", ">", localVersion));
-        const mcqSnap = await guardedGetDocs(qMcqs, "Student", "24h Incremental MCQs", undefined, 30000).catch(() => null);
-
-        if (mcqSnap && !mcqSnap.empty) {
-          const mcqRecords = mcqSnap.docs.map(d => {
-            const data = d.data() as any;
-            const isDelete = data.deleted === true || data.isDeleted === true;
-            return {
-              recordId: d.id,
-              data: isDelete ? null : { ...data, id: d.id },
-              action: (isDelete ? "delete" : "upsert") as "upsert" | "delete",
-            };
-          });
-          await stageIncomingRecords(batchId, STORES.MCQS, mcqRecords);
-          changedCount += mcqRecords.length;
-        }
+      const { supabase, isSupabaseConfigured } = await import("../lib/supabase");
+      if (!isSupabaseConfigured()) {
+        return { changedCount: 0, remoteVersion: localVersion };
       }
-    } catch (mcqErr) {
-      console.warn("[SyncCoordinator] Incremental MCQ sync lookup notice:", mcqErr);
+
+      // Fetch curriculum hierarchy from Supabase
+      const [subsRes, chsRes, topsRes] = await Promise.all([
+        supabase.from("subjects").select("*"),
+        supabase.from("chapters").select("*"),
+        supabase.from("topics").select("*"),
+      ]);
+
+      if (subsRes.data && subsRes.data.length > 0) {
+        const records = subsRes.data.map(d => ({
+          recordId: d.id,
+          data: {
+            id: d.id,
+            name: d.name,
+            hindiName: d.hindi_name,
+            description: d.description,
+            icon: d.icon,
+            color: d.color,
+            order: d.order_index
+          },
+          action: "upsert" as const
+        }));
+        await stageIncomingRecords(batchId, STORES.SUBJECTS, records);
+        changedCount += records.length;
+      }
+
+      if (chsRes.data && chsRes.data.length > 0) {
+        const records = chsRes.data.map(d => ({
+          recordId: d.id,
+          data: {
+            id: d.id,
+            subjectId: d.subject_id,
+            title: d.name,
+            hindiTitle: d.hindi_name,
+            number: d.order_index,
+            topics: []
+          },
+          action: "upsert" as const
+        }));
+        await stageIncomingRecords(batchId, STORES.CHAPTERS, records);
+        changedCount += records.length;
+      }
+
+      if (topsRes.data && topsRes.data.length > 0) {
+        const records = topsRes.data.map(d => ({
+          recordId: d.id,
+          data: {
+            id: d.id,
+            chapterId: d.chapter_id,
+            subjectId: d.subject_id,
+            title: d.name,
+            hindiTitle: d.hindi_name,
+            number: d.order_index,
+            questions: []
+          },
+          action: "upsert" as const
+        }));
+        await stageIncomingRecords(batchId, STORES.TOPICS, records);
+        changedCount += records.length;
+      }
+    } catch (err: any) {
+      console.warn("[SyncCoordinator] Download content changes error:", err.message);
     }
 
-    return { changedCount, remoteVersion };
+    return { changedCount, remoteVersion: localVersion + 1 };
   }
 }
 

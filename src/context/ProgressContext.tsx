@@ -34,11 +34,24 @@ export const ProgressProvider: React.FC<{ children: ReactNode }> = ({ children }
       const existing = prev[questionId] || defaultProgress;
       const newStatus = !existing.bookmarked;
       
-      // Persist in local IndexedDB bookmarks repository & queue
+      // Persist in local IndexedDB bookmarks repository and sync to Supabase
       import("../utils/localDatabaseEngine").then(({ setLocalBookmark }) => {
-        import("../lib/firebase").then(({ auth }) => {
-          const uid = auth.currentUser?.uid || "guest";
-          setLocalBookmark(questionId, newStatus, uid).catch(() => {});
+        import("../lib/supabase").then(({ supabase, isSupabaseConfigured }) => {
+          if (isSupabaseConfigured()) {
+            supabase.auth.getUser().then(({ data: { user } }) => {
+              const uid = user?.id || "guest";
+              setLocalBookmark(questionId, newStatus, uid).catch(() => {});
+              if (user?.id) {
+                import("../utils/supabaseSyncService").then(({ toggleBookmarkInSupabase }) => {
+                  toggleBookmarkInSupabase(questionId, newStatus, user.id).catch(() => {});
+                }).catch(() => {});
+              }
+            }).catch(() => {
+              setLocalBookmark(questionId, newStatus, "guest").catch(() => {});
+            });
+          } else {
+            setLocalBookmark(questionId, newStatus, "guest").catch(() => {});
+          }
         }).catch(() => {});
       }).catch(() => {});
 
