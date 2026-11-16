@@ -6,12 +6,9 @@ import {
   BarChart2,
   ShieldCheck,
   X,
-  UserCheck,
-  GraduationCap,
 } from "lucide-react";
 import { UserProfile } from "../types";
 import { supabase, isSupabaseConfigured } from "../lib/supabase";
-import { ADMIN_EMAILS, saveUserProfile } from "../utils/userProfileStorage";
 import { AppLogo } from "./AppLogo";
 import { productionMonitor } from "../utils/productionMonitoring";
 
@@ -23,9 +20,6 @@ interface LoginPageProps {
 export function LoginPage({ onLoginSuccess, onClose }: LoginPageProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [configNotice, setConfigNotice] = useState<string | null>(null);
-  const [showStudentForm, setShowStudentForm] = useState(false);
-  const [customName, setCustomName] = useState("");
-  const [customEmail, setCustomEmail] = useState("");
 
   // Supabase Google Login
   const handleGoogleLogin = async () => {
@@ -46,10 +40,10 @@ export function LoginPage({ onLoginSuccess, onClose }: LoginPageProps) {
           console.warn("Supabase Google OAuth error:", error.message);
           if (error.message?.toLowerCase().includes("not enabled")) {
             setConfigNotice(
-              "Supabase Dashboard me Google Provider abhi enable nahi hai. Aap neeche 'Sign in as Admin' ya 'Quick Student Login' se turant login kar sakte hain."
+              "Google Sign-In Supabase Dashboard में अभी सक्षम (Enable) नहीं है। कृपया Supabase Console > Authentication > Providers > Google में जाकर Client ID व Secret दर्ज करें और Enable करें।"
             );
           } else {
-            setConfigNotice(`Authentication note: ${error.message}`);
+            setConfigNotice(`Authentication notice: ${error.message}`);
           }
         } else if (data?.url) {
           window.location.href = data.url;
@@ -66,45 +60,7 @@ export function LoginPage({ onLoginSuccess, onClose }: LoginPageProps) {
     }
   };
 
-  // Direct Admin Login (instant access for administrator)
-  const handleAdminLogin = () => {
-    setIsLoading(true);
-    productionMonitor.recordUserJourney("login", "success", { role: "admin" });
-    const adminProfile: UserProfile = {
-      id: "admin-jagdish",
-      name: "Jagdish Paliyal (Admin)",
-      email: "jagdishpaliyaljat@gmail.com",
-      role: "admin",
-      status: "active",
-      createdAt: new Date().toISOString(),
-    };
-    saveUserProfile(adminProfile);
-    onLoginSuccess(adminProfile);
-  };
-
-  // Quick Student Login
-  const handleStudentLogin = (e?: React.FormEvent) => {
-    e?.preventDefault();
-    const name = customName.trim() || "Scholar Student";
-    const email = customEmail.trim() || `student_${Math.random().toString(36).slice(2, 7)}@disha2020.in`;
-    const emailLower = email.toLowerCase();
-    const isAdmin = ADMIN_EMAILS.includes(emailLower);
-
-    const profile: UserProfile = {
-      id: `std_${Math.random().toString(36).slice(2, 9)}`,
-      name,
-      email,
-      role: isAdmin ? "admin" : "student",
-      status: "active",
-      createdAt: new Date().toISOString(),
-    };
-
-    saveUserProfile(profile);
-    productionMonitor.recordUserJourney("login", "success", { role: profile.role });
-    onLoginSuccess(profile);
-  };
-
-  // Continue as Guest
+  // Continue as Guest (Student view)
   const handleGuestLogin = () => {
     if (onClose) {
       onClose();
@@ -117,7 +73,6 @@ export function LoginPage({ onLoginSuccess, onClose }: LoginPageProps) {
         status: "active",
         createdAt: new Date().toISOString(),
       };
-      saveUserProfile(guestProfile);
       onLoginSuccess(guestProfile);
     }
   };
@@ -183,7 +138,7 @@ export function LoginPage({ onLoginSuccess, onClose }: LoginPageProps) {
           </p>
         </div>
 
-        {/* 1. Google Continue */}
+        {/* 1. Google Continue Only */}
         <button
           onClick={handleGoogleLogin}
           disabled={isLoading}
@@ -218,54 +173,16 @@ export function LoginPage({ onLoginSuccess, onClose }: LoginPageProps) {
           )}
         </button>
 
-        {/* 2. Direct Admin & Student Quick Actions */}
-        <div className="grid grid-cols-2 gap-2">
+        {/* 2. Continue as Guest */}
+        {onClose && (
           <button
             type="button"
-            onClick={handleAdminLogin}
-            className="h-10 px-3 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] hover:bg-[#EFE3CF] dark:hover:bg-[#31374A] border border-[#E8D9C0] dark:border-[#31374A] text-[#800020] dark:text-[#F47B20] text-xs font-extrabold flex items-center justify-center gap-1.5 transition-all active:scale-[0.98] cursor-pointer"
+            onClick={handleGuestLogin}
+            className="w-full py-2 text-xs font-bold text-[#52576A] hover:text-[#171923] dark:text-[#CBD2E1] dark:hover:text-[#FFF9EF] transition-colors cursor-pointer text-center"
           >
-            <UserCheck className="w-4 h-4 shrink-0" />
-            <span>Admin Sign In</span>
+            ← Continue as Guest
           </button>
-
-          <button
-            type="button"
-            onClick={() => setShowStudentForm(!showStudentForm)}
-            className="h-10 px-3 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] hover:bg-[#EFE3CF] dark:hover:bg-[#31374A] border border-[#E8D9C0] dark:border-[#31374A] text-[#171923] dark:text-[#FFF9EF] text-xs font-extrabold flex items-center justify-center gap-1.5 transition-all active:scale-[0.98] cursor-pointer"
-          >
-            <GraduationCap className="w-4 h-4 shrink-0" />
-            <span>Student Sign In</span>
-          </button>
-        </div>
-
-        {/* Student Custom Name Form (Collapsible) */}
-        {showStudentForm && (
-          <form onSubmit={handleStudentLogin} className="p-3 bg-[#FFF9EF] dark:bg-[#171923] rounded-xl border border-[#E8D9C0] dark:border-[#31374A] space-y-2">
-            <input
-              type="text"
-              placeholder="Your Name (e.g. Ramesh Sharma)"
-              value={customName}
-              onChange={(e) => setCustomName(e.target.value)}
-              className="w-full h-9 px-3 text-xs rounded-lg bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] focus:outline-hidden focus:ring-1 focus:ring-[#800020] dark:focus:ring-[#F47B20]"
-            />
-            <button
-              type="submit"
-              className="w-full h-8 bg-[#800020] dark:bg-[#F47B20] text-white text-xs font-bold rounded-lg cursor-pointer hover:opacity-90 transition-all"
-            >
-              Start Practicing as Student
-            </button>
-          </form>
         )}
-
-        {/* 3. Continue as Guest */}
-        <button
-          type="button"
-          onClick={handleGuestLogin}
-          className="w-full py-1 text-xs font-bold text-[#52576A] hover:text-[#171923] dark:text-[#CBD2E1] dark:hover:text-[#FFF9EF] transition-colors cursor-pointer text-center"
-        >
-          ← Continue as Guest
-        </button>
 
         {configNotice && (
           <div className="p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 rounded-xl text-[11px] text-amber-800 dark:text-amber-300 leading-relaxed text-center">

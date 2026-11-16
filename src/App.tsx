@@ -972,6 +972,10 @@ export default function App() {
             setUserProfile(profile);
             setIsAuthenticated(true);
             saveProfile(profile);
+            if (isAdminUser) {
+              setActiveTab("admin");
+            }
+            setIsLoginOpen(false);
           }).catch(() => {});
         }
       }).catch(() => {});
@@ -997,6 +1001,12 @@ export default function App() {
             setUserProfile(profile);
             setIsAuthenticated(true);
             saveProfile(profile);
+            if (isAdminUser) {
+              setActiveTab("admin");
+            } else {
+              setActiveTab("home");
+            }
+            setIsLoginOpen(false);
           }).catch(() => {});
         }
       });
@@ -1660,6 +1670,11 @@ export default function App() {
             setIsAuthenticated(true);
             saveUserProfile(profile);
             setIsLoginOpen(false);
+            if (isUserAdmin(profile)) {
+              setActiveTab('admin');
+            } else {
+              setActiveTab('home');
+            }
           }}
         />
       )}

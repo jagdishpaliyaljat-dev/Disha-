@@ -42,10 +42,9 @@ export function loadUserProfile(): UserProfile | null {
       ...parsed,
     };
     
-    // Check hardcoded super admins or dynamic admin role
+    // Check hardcoded super admins
     const isActuallyAdmin = (profile.email && ADMIN_EMAILS.includes(profile.email.trim().toLowerCase())) || 
-                            (profile.id && ADMIN_UIDS.includes(profile.id)) ||
-                            profile.role === "admin";
+                            (profile.id && ADMIN_UIDS.includes(profile.id));
     
     if (isActuallyAdmin) {
       profile.role = "admin";
@@ -61,9 +60,10 @@ export function loadUserProfile(): UserProfile | null {
 }
 
 export function saveUserProfile(profile: UserProfile): void {
-  const isActuallyAdmin = (profile.email && ADMIN_EMAILS.includes(profile.email.trim().toLowerCase())) || 
-                          (profile.id && ADMIN_UIDS.includes(profile.id)) ||
-                          profile.role === "admin";
+  const isActuallyAdmin = Boolean(
+    (profile.email && ADMIN_EMAILS.includes(profile.email.trim().toLowerCase())) || 
+    (profile.id && ADMIN_UIDS.includes(profile.id))
+  );
   
   if (isActuallyAdmin) {
     profile.role = "admin";
@@ -85,12 +85,12 @@ export function saveUserProfile(profile: UserProfile): void {
 export function isUserAdmin(profileOrRole?: UserProfile | string | null): boolean {
   const normalize = (s: string) => s.trim().toLowerCase();
 
-  // 1. If passed a string (email, UID, or role)
+  // 1. If passed a string (email or UID)
   if (typeof profileOrRole === "string") {
     const cleaned = normalize(profileOrRole);
     if (ADMIN_EMAILS.includes(cleaned)) return true;
     if (ADMIN_UIDS.includes(profileOrRole)) return true;
-    if (cleaned === "admin") return true;
+    return false;
   }
 
   // 2. Handle UserProfile object
@@ -98,10 +98,6 @@ export function isUserAdmin(profileOrRole?: UserProfile | string | null): boolea
     const email = profileOrRole.email ? normalize(profileOrRole.email) : null;
     if (email && ADMIN_EMAILS.includes(email)) return true;
     if (profileOrRole.id && ADMIN_UIDS.includes(profileOrRole.id)) return true;
-    if (profileOrRole.role === "admin") {
-        console.log("[Auth] User is admin via role check");
-        return true;
-    }
     return false;
   }
 
