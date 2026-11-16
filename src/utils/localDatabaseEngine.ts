@@ -316,12 +316,29 @@ export async function openLocalDatabase(): Promise<IDBDatabase | null> {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// GENERIC INDEXEDDB TRANSACTION HELPERS
+// GENERIC INDEXEDDB TRANSACTION HELPERS (WITH IN-MEMORY FALLBACK)
 // ─────────────────────────────────────────────────────────────────────────────
+
+const memoryStores: Record<string, Map<any, any>> = {};
+
+function getMemoryStore(storeName: string): Map<any, any> {
+  if (!memoryStores[storeName]) {
+    memoryStores[storeName] = new Map();
+  }
+  return memoryStores[storeName];
+}
+
+function extractKey(val: any): any {
+  if (!val || typeof val !== "object") return undefined;
+  return val.id ?? val.key ?? val.eventId ?? val.sessionId ?? val.entityId ?? val.examId;
+}
 
 export async function idbGet<T = any>(storeName: StoreName, key: IDBValidKey): Promise<T | null> {
   const db = await openLocalDatabase();
-  if (!db) return null;
+  if (!db) {
+    const memVal = getMemoryStore(storeName).get(key);
+    return memVal ? (memVal as T) : null;
+  }
 
   return new Promise((resolve) => {
     try {
@@ -337,7 +354,10 @@ export async function idbGet<T = any>(storeName: StoreName, key: IDBValidKey): P
 
 export async function idbGetAll<T = any>(storeName: StoreName, query?: IDBValidKey | IDBKeyRange, count?: number): Promise<T[]> {
   const db = await openLocalDatabase();
-  if (!db) return [];
+  if (!db) {
+    const list = Array.from(getMemoryStore(storeName).values()) as T[];
+    return typeof count === "number" ? list.slice(0, count) : list;
+  }
 
   return new Promise((resolve) => {
     try {
@@ -353,7 +373,13 @@ export async function idbGetAll<T = any>(storeName: StoreName, query?: IDBValidK
 
 export async function idbPut<T = any>(storeName: StoreName, value: T): Promise<void> {
   const db = await openLocalDatabase();
-  if (!db) return;
+  if (!db) {
+    const k = extractKey(value);
+    if (k !== undefined) {
+      getMemoryStore(storeName).set(k, value);
+    }
+    return;
+  }
 
   return new Promise((resolve) => {
     try {
@@ -370,7 +396,16 @@ export async function idbPut<T = any>(storeName: StoreName, value: T): Promise<v
 export async function idbPutBatch<T = any>(storeName: StoreName, values: T[]): Promise<void> {
   if (!values || values.length === 0) return;
   const db = await openLocalDatabase();
-  if (!db) return;
+  if (!db) {
+    const store = getMemoryStore(storeName);
+    for (const val of values) {
+      const k = extractKey(val);
+      if (k !== undefined) {
+        store.set(k, val);
+      }
+    }
+    return;
+  }
 
   return new Promise((resolve, reject) => {
     try {
@@ -389,7 +424,10 @@ export async function idbPutBatch<T = any>(storeName: StoreName, values: T[]): P
 
 export async function idbDelete(storeName: StoreName, key: IDBValidKey): Promise<void> {
   const db = await openLocalDatabase();
-  if (!db) return;
+  if (!db) {
+    getMemoryStore(storeName).delete(key);
+    return;
+  }
 
   return new Promise((resolve) => {
     try {
@@ -403,9 +441,30 @@ export async function idbDelete(storeName: StoreName, key: IDBValidKey): Promise
   });
 }
 
+export async function idbClear(storeName: StoreName): Promise<void> {
+  const db = await openLocalDatabase();
+  if (!db) {
+    getMemoryStore(storeName).clear();
+    return;
+  }
+
+  return new Promise((resolve) => {
+    try {
+      const tx = db.transaction(storeName, "readwrite");
+      tx.objectStore(storeName).clear();
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => resolve();
+    } catch {
+      resolve();
+    }
+  });
+}
+
 export async function idbCount(storeName: StoreName): Promise<number> {
   const db = await openLocalDatabase();
-  if (!db) return 0;
+  if (!db) {
+    return getMemoryStore(storeName).size;
+  }
 
   return new Promise((resolve) => {
     try {

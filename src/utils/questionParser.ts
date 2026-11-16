@@ -74,6 +74,15 @@ const HDIGIT: Record<string, number> = {
   '५': 5, '६': 6, '७': 7, '८': 8, '९': 9
 };
 
+export const FAMILIES_5 = [
+  { keys: ['A', 'B', 'C', 'D', 'E'], bare: true },
+  { keys: ['a', 'b', 'c', 'd', 'e'], bare: false },
+  { keys: ['1', '2', '3', '4', '5'], bare: false },
+  { keys: ['क', 'ख', 'ग', 'घ', 'ङ'], bare: false },
+  { keys: ['अ', 'ब', 'स', 'द', 'य'], bare: false },
+  { keys: ['i', 'ii', 'iii', 'iv', 'v'], bare: false },
+];
+
 export const FAMILIES_4 = [
   { keys: ['A', 'B', 'C', 'D'], bare: true },
   { keys: ['a', 'b', 'c', 'd'], bare: false },
@@ -598,7 +607,46 @@ export interface ExtractedOptionsResult {
 }
 
 export function extractOptions(lines: string[], endIdx: number): ExtractedOptionsResult | null {
-  // 1. Check 4-option families first
+  // 1. Check 5-option families first (RPSC 5-option compliance)
+  for (const f of FAMILIES_5) {
+    let i = endIdx, ok = true;
+    const opts: string[] = [];
+    let hintIndex = -1;
+
+    for (let kIdx = f.keys.length - 1; kIdx >= 0; kIdx--) {
+      const k = f.keys[kIdx];
+      const re = markerRe(k, f.bare);
+      const buf: string[] = [];
+      let gap = 0, found = false;
+
+      while (i >= 0 && gap <= 3) {
+        const line = lines[i];
+        const m = line.match(re);
+        if (m) {
+          if (/\*\*|✓|✔/.test(line)) {
+            hintIndex = kIdx;
+          }
+          buf.unshift(m[1]);
+          i--;
+          found = true;
+          break;
+        }
+        buf.unshift(line);
+        i--;
+        gap++;
+      }
+
+      if (!found) {
+        ok = false;
+        break;
+      }
+      opts.unshift(buf.join(' ').trim());
+    }
+
+    if (ok) return { opts, stemEnd: i, family: f, hintIndex };
+  }
+
+  // 2. Check 4-option families next
   for (const f of FAMILIES_4) {
     let i = endIdx, ok = true;
     const opts: string[] = [];
@@ -637,11 +685,23 @@ export function extractOptions(lines: string[], endIdx: number): ExtractedOption
     if (ok) return { opts, stemEnd: i, family: f, hintIndex };
   }
 
-  // 2. Check inline options on a single line (e.g. (a) x (b) y (c) z (d) w or A. x B. y C. z D. w)
+  // 3. Check inline options on a single line
   for (let idx = endIdx; idx >= Math.max(0, endIdx - 2); idx--) {
     const last = lines[idx] || '';
 
-    // Check parenthesized inline: (a) x (b) y (c) z (d) w
+    // Check parenthesized inline with 5 options: (a) x (b) y (c) z (d) w (e) v
+    const partsParen5 = last.split(/\s*\(([a-eA-E1-5क-ङअ-य])\)\s*/);
+    if (partsParen5.length >= 11) {
+      return {
+        opts: [partsParen5[2], partsParen5[4], partsParen5[6], partsParen5[8], partsParen5[10]],
+        stemEnd: idx - 1,
+        family: FAMILIES_5[1],
+        stemTail: partsParen5[0] ? '\n' + partsParen5[0] : '',
+        hintIndex: -1
+      };
+    }
+
+    // Check parenthesized inline with 4 options: (a) x (b) y (c) z (d) w
     const partsParen = last.split(/\s*\(([a-dA-D1-4क-घ])\)\s*/);
     if (partsParen.length >= 9) {
       return {
@@ -649,6 +709,18 @@ export function extractOptions(lines: string[], endIdx: number): ExtractedOption
         stemEnd: idx - 1,
         family: FAMILIES_4[1],
         stemTail: partsParen[0] ? '\n' + partsParen[0] : '',
+        hintIndex: -1
+      };
+    }
+
+    // Check dotted inline with 5 options: A. x B. y C. z D. w E. v
+    const partsDot5 = last.split(/(?:^|\s+)([A-Ea-e1-5क-ङअ-य])[\.\:\)\-]\s+/);
+    if (partsDot5.length >= 11) {
+      return {
+        opts: [partsDot5[2], partsDot5[4], partsDot5[6], partsDot5[8], partsDot5[10]],
+        stemEnd: idx - 1,
+        family: FAMILIES_5[0],
+        stemTail: partsDot5[0] ? '\n' + partsDot5[0] : '',
         hintIndex: -1
       };
     }
@@ -666,7 +738,7 @@ export function extractOptions(lines: string[], endIdx: number): ExtractedOption
     }
   }
 
-  // 3. Check 2-option families (e.g. True/False or A, B)
+  // 4. Check 2-option families (e.g. True/False or A, B)
   for (const f of FAMILIES_2) {
     let i = endIdx, ok = true;
     const opts: string[] = [];
@@ -715,15 +787,23 @@ export function extractOptions(lines: string[], endIdx: number): ExtractedOption
 export function parseAnswer(line: string, opts: string[]): number {
   const t = line.replace(/^(answer|ans|correct|उत्तर|सही\s*उत्तर|right\s*option)\s*[:\-–]?\s*/i, '').trim();
 
-  // 1. Pehle letter nikalo: e.g. "(a) 1-B, 2-A, 3-D, 4-C", "(b)", "A", "option 1", "(1)", "क"
-  const m = t.match(/^(?:option\s*)?\(?([A-Da-d1-4क-घअ-द])\)?(?:\s*[\.:\-–]|\s+|$)/i);
+  // 1. First extract letter or number marker: e.g. "(a)", "(b)", "A", "option 1", "(1)", "क", "(E)", "5", "ङ"
+  const m = t.match(/^(?:option\s*)?\(?([A-Ea-e1-5क-ङअ-य])\)?(?:\s*[\.:\-–]|\s+|$)/i);
   if (m) {
-    const all = 'ABCD' + 'abcd' + '1234' + 'कखगघ' + 'अबसद';
-    const idx = all.indexOf(m[1]) % 4;
-    if (idx >= 0) return idx;
+    const char = m[1];
+    const map5: Record<string, number> = {
+      'A': 0, 'B': 1, 'C': 2, 'D': 3, 'E': 4,
+      'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 4,
+      '1': 0, '2': 1, '3': 2, '4': 3, '5': 4,
+      'क': 0, 'ख': 1, 'ग': 2, 'घ': 3, 'ङ': 4,
+      'अ': 0, 'ब': 1, 'स': 2, 'द': 3, 'य': 4,
+    };
+    if (map5[char] !== undefined) {
+      return map5[char];
+    }
   }
 
-  // 2. Na mile to option text se match karo (normalize karke):
+  // 2. Otherwise match by option text:
   const norm = (s: string) => s.toLowerCase().replace(/[\s\p{P}\p{S}]/gu, '');
   const targetNorm = norm(t);
 
@@ -1150,9 +1230,15 @@ export function parseRawMcqText(
     // Answer priority: Answer line > answer key > ✓/bold hint
     let ci = hasAns ? parseAnswer(ansText, res.opts) : -1;
     if (ci < 0 && key[qNo]) {
-      const all = 'ABCD' + 'abcd' + '1234' + 'कखगघ' + 'अबसद';
-      const idx = all.indexOf(key[qNo]) % 4;
-      if (idx >= 0) ci = idx;
+      const char = key[qNo];
+      const map5: Record<string, number> = {
+        'A': 0, 'B': 1, 'C': 2, 'D': 3, 'E': 4,
+        'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 4,
+        '1': 0, '2': 1, '3': 2, '4': 3, '5': 4,
+        'क': 0, 'ख': 1, 'ग': 2, 'घ': 3, 'ङ': 4,
+        'अ': 0, 'ब': 1, 'स': 2, 'द': 3, 'य': 4,
+      };
+      if (map5[char] !== undefined) ci = map5[char];
     }
     if (ci < 0 && res.hintIndex !== undefined && res.hintIndex >= 0) {
       ci = res.hintIndex;
@@ -1183,6 +1269,7 @@ export function parseRawMcqText(
     const blockErrors: string[] = [];
     if (!stem) blockErrors.push("Question text is empty");
     if (cleanOpts.length < 2) blockErrors.push("Fewer than 2 options found");
+    if (cleanOpts.some(o => !o || !o.trim())) blockErrors.push("One or more options are empty");
     if (ci < 0) {
       blockErrors.push("Correct answer is missing");
       errors.push({ blockNo: qNo, reason: 'Answer nahi mila', rawText: lines.join('\n') });
@@ -1206,7 +1293,7 @@ export function parseRawMcqText(
       instruction: finalAskLine,
       matchTable,
       matchData: matchTable ? { listI: matchTable.rows.map(r => r.left), listII: matchTable.rows.map(r => r.right) } : undefined,
-      options: cleanOpts.length === 2 ? [cleanOpts[0], cleanOpts[1]] : [cleanOpts[0] || "", cleanOpts[1] || "", cleanOpts[2] || "", cleanOpts[3] || ""],
+      options: cleanOpts,
       correctIndex: ci >= 0 ? ci : -1,
       answer: ansLetter,
       explanation,

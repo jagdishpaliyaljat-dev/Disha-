@@ -253,6 +253,7 @@ export const ChapterDetailView: React.FC<ChapterDetailViewProps> = ({
             onAddTopic(id, topic);
             setShowAddTopicModal(false);
           }}
+          initialSubjectId={chapter.subjectId}
           initialChapterId={chapter.id}
         />
       )}

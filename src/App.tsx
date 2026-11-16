@@ -952,12 +952,12 @@ export default function App() {
     trackPageView(path, title, { isUserAdmin: isAdmin, isLoggedIn: isAuthenticated }).catch(() => {});
   }, [activeTab, isAdmin, isAuthenticated]);
 
-  // Sync profile to cloud on boot or change
+  // Sync profile to Supabase on boot or change when authenticated
   React.useEffect(() => {
     if (isAuthenticated && userProfile) {
-      import('./utils/firebaseSyncService').then(({ syncUserProfileToCloud }) => {
-        syncUserProfileToCloud(userProfile).catch(err => {
-          console.warn("Background profile sync failed:", err);
+      import('./utils/supabaseSyncService').then(({ syncUserProfileToSupabase }) => {
+        syncUserProfileToSupabase(userProfile).catch(err => {
+          console.warn("Background profile sync note:", err?.message || err);
         });
       }).catch(() => {});
     }

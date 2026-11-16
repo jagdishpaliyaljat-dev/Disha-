@@ -27,13 +27,12 @@ export const useCurriculumManager = (
 ) => {
 
   const handleAddSubject = useCallback(async (newSubject: Subject) => {
-    const nextStore = addSubject(questionsStore, newSubject);
-    setQuestionsStore(nextStore);
-    saveUserQuestionsStore(nextStore);
-    
     addToast('info', 'Saving...', 'Saving subject...');
     const res = await saveSubjectToSupabase(newSubject);
     if (res.success) {
+      const nextStore = addSubject(questionsStore, newSubject);
+      setQuestionsStore(nextStore);
+      saveUserQuestionsStore(nextStore);
       addToast('success', 'Backend Sync Success', res.message);
       triggerFirebaseSavedToast({
         title: "Subject Saved!",
@@ -46,13 +45,12 @@ export const useCurriculumManager = (
   }, [questionsStore, setQuestionsStore, saveUserQuestionsStore, addToast]);
 
   const handleEditSubject = useCallback(async (updatedSubject: Subject) => {
-    const nextStore = editSubject(questionsStore, updatedSubject);
-    setQuestionsStore(nextStore);
-    saveUserQuestionsStore(nextStore);
-    
     addToast('info', 'Saving...', 'Saving subject...');
     const res = await saveSubjectToSupabase(updatedSubject);
     if (res.success) {
+      const nextStore = editSubject(questionsStore, updatedSubject);
+      setQuestionsStore(nextStore);
+      saveUserQuestionsStore(nextStore);
       addToast('success', 'Backend Sync Success', res.message);
       triggerFirebaseSavedToast({
         title: "Subject Updated!",
@@ -65,13 +63,12 @@ export const useCurriculumManager = (
   }, [questionsStore, setQuestionsStore, saveUserQuestionsStore, addToast]);
 
   const handleDeleteSubject = useCallback(async (subjectId: string) => {
-    const nextStore = deleteSubject(questionsStore, subjectId);
-    setQuestionsStore(nextStore);
-    saveUserQuestionsStore(nextStore);
-    
     addToast('info', 'Deleting...', 'Deleting subject...');
     const res = await deleteSubjectFromSupabase(subjectId);
     if (res.success) {
+      const nextStore = deleteSubject(questionsStore, subjectId);
+      setQuestionsStore(nextStore);
+      saveUserQuestionsStore(nextStore);
       addToast('success', 'Backend Sync Success', res.message);
     } else {
       addToast('error', 'Delete Error', res.message);
@@ -83,18 +80,17 @@ export const useCurriculumManager = (
       ...newChapter,
       isUserAdded: true,
     };
-    const currentCustom = questionsStore.customChapters || [];
-    const filteredCustom = currentCustom.filter(c => c.id !== chapterToSave.id);
-    const nextStore = {
-      ...questionsStore,
-      customChapters: [...filteredCustom, chapterToSave],
-    };
-    setQuestionsStore(nextStore);
-    saveUserQuestionsStore(nextStore);
-    
     addToast('info', 'Saving...', 'Saving chapter...');
     const res = await saveChapterToSupabase(chapterToSave);
     if (res.success) {
+      const currentCustom = questionsStore.customChapters || [];
+      const filteredCustom = currentCustom.filter(c => c.id !== chapterToSave.id);
+      const nextStore = {
+        ...questionsStore,
+        customChapters: [...filteredCustom, chapterToSave],
+      };
+      setQuestionsStore(nextStore);
+      saveUserQuestionsStore(nextStore);
       addToast('success', 'Backend Sync Success', res.message);
       triggerFirebaseSavedToast({
         title: "Chapter Saved!",
@@ -111,13 +107,12 @@ export const useCurriculumManager = (
       ...updatedChapter,
       isUserAdded: true,
     };
-    const nextStore = editChapter(questionsStore, chapterToSave);
-    setQuestionsStore(nextStore);
-    saveUserQuestionsStore(nextStore);
-    
     addToast('info', 'Saving...', 'Saving chapter...');
     const res = await saveChapterToSupabase(chapterToSave);
     if (res.success) {
+      const nextStore = editChapter(questionsStore, chapterToSave);
+      setQuestionsStore(nextStore);
+      saveUserQuestionsStore(nextStore);
       addToast('success', 'Backend Sync Success', res.message);
       triggerFirebaseSavedToast({
         title: "Chapter Updated!",
@@ -130,13 +125,12 @@ export const useCurriculumManager = (
   }, [questionsStore, setQuestionsStore, saveUserQuestionsStore, addToast]);
 
   const handleDeleteChapter = useCallback(async (chapterId: string) => {
-    const nextStore = deleteChapter(questionsStore, chapterId);
-    setQuestionsStore(nextStore);
-    saveUserQuestionsStore(nextStore);
-    
     addToast('info', 'Deleting...', 'Deleting chapter...');
     const res = await deleteChapterFromSupabase(chapterId);
     if (res.success) {
+      const nextStore = deleteChapter(questionsStore, chapterId);
+      setQuestionsStore(nextStore);
+      saveUserQuestionsStore(nextStore);
       addToast('success', 'Backend Sync Success', res.message);
     } else {
       addToast('error', 'Delete Error', res.message);
@@ -144,37 +138,40 @@ export const useCurriculumManager = (
   }, [questionsStore, setQuestionsStore, saveUserQuestionsStore, addToast]);
 
   const handleAddTopic = useCallback(async (chapterId: string, newTopic: Topic) => {
+    const parentChapter = (questionsStore.customChapters || []).find(ch => ch.id === chapterId);
+    const resolvedSubjectId = newTopic.subjectId || parentChapter?.subjectId;
     const topicWithCh: Topic = {
       ...newTopic,
       chapterId,
+      subjectId: resolvedSubjectId,
       isUserAdded: true,
     };
-    const currentCustomTopics = questionsStore.customTopics || [];
-    const filteredCustomTopics = currentCustomTopics.filter(t => t.id !== topicWithCh.id);
 
-    const updatedCustomChapters = (questionsStore.customChapters || []).map(ch => {
-      if (ch.id === chapterId) {
-        const existingTopics = ch.topics || [];
-        const filteredTopics = existingTopics.filter(t => t.id !== topicWithCh.id);
-        return {
-          ...ch,
-          topics: [...filteredTopics, topicWithCh],
-        };
-      }
-      return ch;
-    });
-
-    const nextStore = {
-      ...questionsStore,
-      customChapters: updatedCustomChapters,
-      customTopics: [...filteredCustomTopics, topicWithCh],
-    };
-    setQuestionsStore(nextStore);
-    saveUserQuestionsStore(nextStore);
-    
     addToast('info', 'Saving...', 'Saving topic...');
     const res = await saveTopicToSupabase(topicWithCh);
     if (res.success) {
+      const currentCustomTopics = questionsStore.customTopics || [];
+      const filteredCustomTopics = currentCustomTopics.filter(t => t.id !== topicWithCh.id);
+
+      const updatedCustomChapters = (questionsStore.customChapters || []).map(ch => {
+        if (ch.id === chapterId) {
+          const existingTopics = ch.topics || [];
+          const filteredTopics = existingTopics.filter(t => t.id !== topicWithCh.id);
+          return {
+            ...ch,
+            topics: [...filteredTopics, topicWithCh],
+          };
+        }
+        return ch;
+      });
+
+      const nextStore = {
+        ...questionsStore,
+        customChapters: updatedCustomChapters,
+        customTopics: [...filteredCustomTopics, topicWithCh],
+      };
+      setQuestionsStore(nextStore);
+      saveUserQuestionsStore(nextStore);
       addToast('success', 'Backend Sync Success', res.message);
       triggerFirebaseSavedToast({
         title: "Topic Saved!",
@@ -195,18 +192,21 @@ export const useCurriculumManager = (
         (ch.topics || []).some((t) => t.id === updatedTopic.id)
       )?.id || "";
 
+    const parentChapter = (questionsStore.customChapters || []).find(ch => ch.id === targetChId);
+    const resolvedSubjectId = updatedTopic.subjectId || parentChapter?.subjectId;
+
     const enrichedTopic = {
       ...updatedTopic,
       chapterId: targetChId,
+      subjectId: resolvedSubjectId,
     };
 
-    const nextStore = editTopic(questionsStore, enrichedTopic);
-    setQuestionsStore(nextStore);
-    saveUserQuestionsStore(nextStore);
-    
     addToast('info', 'Saving...', 'Saving topic...');
     const res = await saveTopicToSupabase(enrichedTopic);
     if (res.success) {
+      const nextStore = editTopic(questionsStore, enrichedTopic);
+      setQuestionsStore(nextStore);
+      saveUserQuestionsStore(nextStore);
       addToast('success', 'Backend Sync Success', res.message);
       triggerFirebaseSavedToast({
         title: "Topic Updated!",
@@ -219,13 +219,12 @@ export const useCurriculumManager = (
   }, [questionsStore, setQuestionsStore, saveUserQuestionsStore, addToast]);
 
   const handleDeleteTopic = useCallback(async (topicId: string, chapterId?: string) => {
-    const nextStore = deleteTopic(questionsStore, topicId);
-    setQuestionsStore(nextStore);
-    saveUserQuestionsStore(nextStore);
-    
     addToast('info', 'Deleting...', 'Deleting topic from Supabase...');
     const res = await deleteTopicFromSupabase(topicId);
     if (res.success) {
+      const nextStore = deleteTopic(questionsStore, topicId);
+      setQuestionsStore(nextStore);
+      saveUserQuestionsStore(nextStore);
       addToast('success', 'Backend Sync Success', res.message);
     } else {
       addToast('error', 'Delete Error', res.message);

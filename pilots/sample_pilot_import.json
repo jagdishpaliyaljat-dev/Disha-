@@ -1,0 +1,193 @@
+{
+  "subject": {
+    "id": "sub_raj_hist",
+    "name": "Rajasthan History",
+    "hindi_name": "राजस्थान का इतिहास",
+    "description": "राजस्थान का प्राचीन, मध्यकालीन एवं आधुनिक इतिहास",
+    "icon": "landmark",
+    "color": "#8B1E3F",
+    "order_index": 1
+  },
+  "chapters": [
+    {
+      "id": "chap_raj_sources",
+      "subject_id": "sub_raj_hist",
+      "name": "Historical Sources & Inscriptions",
+      "hindi_name": "राजस्थान के ऐतिहासिक स्रोत, अभिलेख एवं सिक्के",
+      "order_index": 1
+    },
+    {
+      "id": "chap_raj_1857",
+      "subject_id": "sub_raj_hist",
+      "name": "Revolt of 1857 in Rajasthan",
+      "hindi_name": "1857 की क्रान्ति एवं राजस्थान",
+      "order_index": 2
+    }
+  ],
+  "topics": [
+    {
+      "id": "top_inscriptions",
+      "subject_id": "sub_raj_hist",
+      "chapter_id": "chap_raj_sources",
+      "name": "Major Inscriptions",
+      "hindi_name": "प्रमुख अभिलेख व शिलालेख",
+      "order_index": 1
+    },
+    {
+      "id": "top_coins",
+      "subject_id": "sub_raj_hist",
+      "chapter_id": "chap_raj_sources",
+      "name": "Ancient Coins & Copperplates",
+      "hindi_name": "प्राचीन सिक्के एवं ताम्रपत्र",
+      "order_index": 2
+    },
+    {
+      "id": "top_cantonments",
+      "subject_id": "sub_raj_hist",
+      "chapter_id": "chap_raj_1857",
+      "name": "Military Cantonments of 1857",
+      "hindi_name": "1857 की छह सैनिक छावनियाँ",
+      "order_index": 1
+    },
+    {
+      "id": "top_auwa",
+      "subject_id": "sub_raj_hist",
+      "chapter_id": "chap_raj_1857",
+      "name": "Auwa Revolt & Kushal Singh",
+      "hindi_name": "आउवा का विद्रोह व ठाकुर कुशाल सिंह",
+      "order_index": 2
+    }
+  ],
+  "questions": [
+    {
+      "id": "q_pilot_001",
+      "subject_id": "sub_raj_hist",
+      "chapter_id": "chap_raj_sources",
+      "topic_id": "top_inscriptions",
+      "question": "बिजौलिया शिलालेख (1170 ई.) के अनुसार सांभर झील का निर्माण किस चौहान शासक ने करवाया था?",
+      "options": ["अजयराज", "वासुदेव", "विग्रहराज चतुर्थ", "पृथ्वीराज तृतीय"],
+      "correct_answer": 1,
+      "explanation": "बिजौलिया शिलालेख (गुणभद्र रचित) के अनुसार चौहान वंश के मूल पुरुष वासुदेव ने 551 ई. में शाकम्भरी में चौहान राज्य की स्थापना की तथा सांभर झील का निर्माण करवाया।",
+      "exam": "RAS Pre / 2nd Grade",
+      "year": "2021",
+      "level": "medium"
+    },
+    {
+      "id": "q_pilot_002",
+      "subject_id": "sub_raj_hist",
+      "chapter_id": "chap_raj_sources",
+      "topic_id": "top_inscriptions",
+      "question": "बड़वा ग्राम (कोटा) से प्राप्त यूप अभिलेख का संबंध किस प्राचीन वंश से है?",
+      "options": ["मौखरि वंश", "मालव वंश", "गुप्त वंश", "कुषाण वंश"],
+      "correct_answer": 0,
+      "explanation": "कोटा के बड़वा ग्राम से मौखरि राजाओं के यूप अभिलेख (239 ई.) प्राप्त हुए हैं, जिनसे मौखरि वंश के त्रिरात्र यज्ञ का विवरण मिलता है।",
+      "exam": "Assistant Professor / College Lecturer",
+      "year": "2020",
+      "level": "hard"
+    },
+    {
+      "id": "q_pilot_003",
+      "subject_id": "sub_raj_hist",
+      "chapter_id": "chap_raj_sources",
+      "topic_id": "top_coins",
+      "question": "प्राचीन राजस्थान में 'मालव सिक्के' सर्वाधिक संख्या में किस पुरातात्विक स्थल से प्राप्त हुए हैं?",
+      "options": ["बैराठ (विराटनगर)", "रैढ़ (टोंक)", "नगर (टोंक)", "नगरी (चित्तौड़गढ़)"],
+      "correct_answer": 2,
+      "explanation": "टोंक जिले के 'नगर' (प्राचीन मालवनगर) से भारी संख्या में मालव गण के तांबे के सिक्के मिले हैं। (रैढ़ को भारत का टाटानगर कहा जाता है)।",
+      "exam": "RSMSSB Patwar",
+      "year": "2021",
+      "level": "medium"
+    },
+    {
+      "id": "q_pilot_004",
+      "subject_id": "sub_raj_hist",
+      "chapter_id": "chap_raj_sources",
+      "topic_id": "top_coins",
+      "question": "रियासतकालीन 'मदनशाही सिक्के' किस रियासत में प्रचलित थे?",
+      "options": ["झालावाड़", "कोटा", "बूंदी", "बीकानेर"],
+      "correct_answer": 0,
+      "explanation": "झालावाड़ रियासत में मदनसिंह के समय 'मदनशाही' सिक्के (रुपया) ढाले गए थे।",
+      "exam": "CET Graduate Level",
+      "year": "2023",
+      "level": "easy"
+    },
+    {
+      "id": "q_pilot_005",
+      "subject_id": "sub_raj_hist",
+      "chapter_id": "chap_raj_sources",
+      "topic_id": "top_inscriptions",
+      "question": "अपराजित का शिलालेख (661 ई.) किस जिले से प्राप्त हुआ है?",
+      "options": ["उदयपुर", "राजसमंद", "भीलवाड़ा", "चित्तौड़गढ़"],
+      "correct_answer": 0,
+      "explanation": "अपराजित का शिलालेख उदयपुर के नागदा के निकट कुण्डेश्वर मंदिर से प्राप्त हुआ, जो गुहिल शासक अपराजित की विजयों का उल्लेख करता है।",
+      "exam": "1st Grade Teacher",
+      "year": "2022",
+      "level": "medium"
+    },
+    {
+      "id": "q_pilot_006",
+      "subject_id": "sub_raj_hist",
+      "chapter_id": "chap_raj_1857",
+      "topic_id": "top_cantonments",
+      "question": "राजस्थान में 1857 की क्रान्ति का प्रथम विद्रोह 28 मई 1857 को किस छावनी में हुआ था?",
+      "options": ["नीमच छावनी", "नसीराबाद छावनी", "एरिनपुरा छावनी", "देवली छावनी", "अनुत्तरित प्रश्न"],
+      "correct_answer": 1,
+      "explanation": "28 मई 1857 को नसीराबाद छावनी में 15वीं बंगाल नेटिव इन्फैंट्री के सैनिकों ने विद्रोह का बिगुल फूंका। कैप्टन स्पोटिस वुड व न्यूबरी मारे गए।",
+      "exam": "RPSC RAS Pre",
+      "year": "2023",
+      "level": "easy"
+    },
+    {
+      "id": "q_pilot_007",
+      "subject_id": "sub_raj_hist",
+      "chapter_id": "chap_raj_1857",
+      "topic_id": "top_cantonments",
+      "question": "1857 की क्रांति के समय राजस्थान की कौन-सी दो सैनिक छावनियों ने प्रत्यक्ष विद्रोह में भाग नहीं लिया था?",
+      "options": ["ब्यावर एवं खेरवाड़ा", "देवली एवं एरिनपुरा", "नीमच एवं नसीराबाद", "ब्यावर एवं देवली", "अनुत्तरित प्रश्न"],
+      "correct_answer": 0,
+      "explanation": "ब्यावर (मेर रेजीमेंट) तथा खेरवाड़ा (मेवाड़ भील कोर - MBK) छावनियों के सैनिकों ने प्रत्यक्ष रूप से विद्रोह में भाग नहीं लिया।",
+      "exam": "RPSC 2nd Grade",
+      "year": "2022",
+      "level": "medium"
+    },
+    {
+      "id": "q_pilot_008",
+      "subject_id": "sub_raj_hist",
+      "chapter_id": "chap_raj_1857",
+      "topic_id": "top_auwa",
+      "question": "18 सितंबर 1857 को लड़ा गया 'चेलावास का युद्ध' किस अन्य नाम से भी जाना जाता है?",
+      "options": ["बिथोड़ा का युद्ध", "कालों और गोरों का युद्ध", "आउवा का प्रथम युद्ध", "पाली का महायुद्ध", "अनुत्तरित प्रश्न"],
+      "correct_answer": 1,
+      "explanation": "चेलावास के युद्ध में क्रांतिकारियों ने जोधपुर के पॉलिटिकल एजेंट मॉक मेसन का सिर काटकर आउवा के किले पर लटका दिया था। इसे 'गोरों-कालों का युद्ध' कहा जाता है।",
+      "exam": "RPSC RAS Pre",
+      "year": "2021",
+      "level": "medium"
+    },
+    {
+      "id": "q_pilot_009",
+      "subject_id": "sub_raj_hist",
+      "chapter_id": "chap_raj_1857",
+      "topic_id": "top_auwa",
+      "question": "1857 की क्रान्ति में आउवा के ठाकुर कुशाल सिंह की कुलदेवी कौन थीं, जिनकी मूर्ति 10 सिर व 54 हाथों वाली मानी जाती है?",
+      "options": ["बाण माता", "सुगाली माता", "करणी माता", "जीण माता", "अनुत्तरित प्रश्न"],
+      "correct_answer": 1,
+      "explanation": "सुगाली माता को 1857 के स्वाधीनता संग्राम की देवी कहा जाता है। इनकी अष्टधातु की मूर्ति के 10 सिर और 54 हाथ हैं।",
+      "exam": "RSMSSB VDO",
+      "year": "2022",
+      "level": "easy"
+    },
+    {
+      "id": "q_pilot_010",
+      "subject_id": "sub_raj_hist",
+      "chapter_id": "chap_raj_1857",
+      "topic_id": "top_auwa",
+      "question": "आउवा के ठाकुर कुशाल सिंह की जांच के लिए ब्रिटिश सरकार ने किस आयोग का गठन किया था?",
+      "options": ["मेजर बर्टन कमीशन", "मेजर टेलर कमीशन", "ट्रेन्च कमीशन", "हंटर कमीशन", "अनुत्तरित प्रश्न"],
+      "correct_answer": 1,
+      "explanation": "10 नवंबर 1860 को मेजर टेलर कमीशन की रिपोर्ट के आधार पर कुशाल सिंह को निर्दोष मानकर रिहा किया गया।",
+      "exam": "RPSC College Lecturer",
+      "year": "2021",
+      "level": "hard"
+    }
+  ]
+}

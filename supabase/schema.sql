@@ -105,6 +105,46 @@ CREATE INDEX IF NOT EXISTS idx_attempts_user_id ON public.attempts(user_id);
 CREATE INDEX IF NOT EXISTS idx_bookmarks_user_id ON public.bookmarks(user_id);
 
 -- ----------------------------------------------------------------------------
+-- SECURITY & AUTHORIZATION FUNCTIONS
+-- ----------------------------------------------------------------------------
+-- Designated Administrator: jagdishpaliyaljat@gmail.com (provisioned via app_metadata.role = 'admin')
+-- Hardened Admin Authorization: Security Definer with empty search_path
+-- Relies exclusively on server-controlled Supabase Auth app_metadata
+CREATE OR REPLACE FUNCTION public.is_admin()
+RETURNS boolean
+LANGUAGE sql
+SECURITY DEFINER
+STABLE
+SET search_path = ''
+AS $$
+  SELECT COALESCE(
+    (auth.jwt() -> 'app_metadata' ->> 'role' = 'admin'),
+    false
+  );
+$$;
+
+REVOKE ALL ON FUNCTION public.is_admin() FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.is_admin() TO anon, authenticated, service_role;
+
+-- Trigger to prevent privilege escalation on profiles
+CREATE OR REPLACE FUNCTION public.handle_profile_role_guard()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NEW.role IS DISTINCT FROM OLD.role AND NOT public.is_admin() THEN
+    NEW.role := OLD.role;
+  END IF;
+  NEW.updated_at := NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS trg_profile_role_guard ON public.profiles;
+CREATE TRIGGER trg_profile_role_guard
+BEFORE UPDATE ON public.profiles
+FOR EACH ROW
+EXECUTE FUNCTION public.handle_profile_role_guard();
+
+-- ----------------------------------------------------------------------------
 -- ROW LEVEL SECURITY (RLS) POLICIES
 -- ----------------------------------------------------------------------------
 ALTER TABLE public.subjects ENABLE ROW LEVEL SECURITY;
@@ -115,31 +155,55 @@ ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.attempts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.bookmarks ENABLE ROW LEVEL SECURITY;
 
--- Curriculum & Questions: Public Read (Students can read without quota limit)
+-- 16 Granular Curriculum Policies (4 Tables x 4 Commands)
+-- Subjects
 CREATE POLICY "Public Read Subjects" ON public.subjects FOR SELECT USING (true);
+CREATE POLICY "Admin Insert Subjects" ON public.subjects FOR INSERT WITH CHECK (public.is_admin());
+CREATE POLICY "Admin Update Subjects" ON public.subjects FOR UPDATE USING (public.is_admin()) WITH CHECK (public.is_admin());
+CREATE POLICY "Admin Delete Subjects" ON public.subjects FOR DELETE USING (public.is_admin());
+
+-- Chapters
 CREATE POLICY "Public Read Chapters" ON public.chapters FOR SELECT USING (true);
+CREATE POLICY "Admin Insert Chapters" ON public.chapters FOR INSERT WITH CHECK (public.is_admin());
+CREATE POLICY "Admin Update Chapters" ON public.chapters FOR UPDATE USING (public.is_admin()) WITH CHECK (public.is_admin());
+CREATE POLICY "Admin Delete Chapters" ON public.chapters FOR DELETE USING (public.is_admin());
+
+-- Topics
 CREATE POLICY "Public Read Topics" ON public.topics FOR SELECT USING (true);
+CREATE POLICY "Admin Insert Topics" ON public.topics FOR INSERT WITH CHECK (public.is_admin());
+CREATE POLICY "Admin Update Topics" ON public.topics FOR UPDATE USING (public.is_admin()) WITH CHECK (public.is_admin());
+CREATE POLICY "Admin Delete Topics" ON public.topics FOR DELETE USING (public.is_admin());
+
+-- Questions
 CREATE POLICY "Public Read Questions" ON public.questions FOR SELECT USING (true);
+CREATE POLICY "Admin Insert Questions" ON public.questions FOR INSERT WITH CHECK (public.is_admin());
+CREATE POLICY "Admin Update Questions" ON public.questions FOR UPDATE USING (public.is_admin()) WITH CHECK (public.is_admin());
+CREATE POLICY "Admin Delete Questions" ON public.questions FOR DELETE USING (public.is_admin());
 
--- Admin Only Writes for Curriculum & Questions
-CREATE POLICY "Admin All Subjects" ON public.subjects FOR ALL USING (
-    auth.jwt()->>'email' = 'jagdishpaliyaljat@gmail.com'
-);
-CREATE POLICY "Admin All Chapters" ON public.chapters FOR ALL USING (
-    auth.jwt()->>'email' = 'jagdishpaliyaljat@gmail.com'
-);
-CREATE POLICY "Admin All Topics" ON public.topics FOR ALL USING (
-    auth.jwt()->>'email' = 'jagdishpaliyaljat@gmail.com'
-);
-CREATE POLICY "Admin All Questions" ON public.questions FOR ALL USING (
-    auth.jwt()->>'email' = 'jagdishpaliyaljat@gmail.com'
-);
+-- Least-Privilege Grants
+REVOKE ALL ON TABLE public.subjects, public.chapters, public.topics, public.questions FROM PUBLIC, anon, authenticated;
+REVOKE TRUNCATE, TRIGGER, REFERENCES ON TABLE public.subjects, public.chapters, public.topics, public.questions FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON ALL SEQUENCES IN SCHEMA public FROM PUBLIC, anon;
+GRANT SELECT ON TABLE public.subjects, public.chapters, public.topics, public.questions TO anon;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.subjects, public.chapters, public.topics, public.questions TO authenticated;
 
--- User Profiles: Read public, update own
-CREATE POLICY "Profiles are viewable by owner" ON public.profiles FOR SELECT USING (auth.uid() = id);
-CREATE POLICY "Profiles updateable by owner" ON public.profiles FOR UPDATE USING (auth.uid() = id);
+-- User Profiles: Isolated by owner, role-guarded
+CREATE POLICY "Profiles are viewable by owner" ON public.profiles FOR SELECT USING (auth.uid() = id OR public.is_admin());
+CREATE POLICY "Profiles updateable by owner" ON public.profiles FOR UPDATE USING (auth.uid() = id) WITH CHECK (auth.uid() = id);
 CREATE POLICY "Profiles insertable by owner" ON public.profiles FOR INSERT WITH CHECK (auth.uid() = id);
 
--- Attempts & Bookmarks: User isolated
-CREATE POLICY "Users can manage own attempts" ON public.attempts FOR ALL USING (auth.uid() = user_id);
-CREATE POLICY "Users can manage own bookmarks" ON public.bookmarks FOR ALL USING (auth.uid() = user_id);
+-- Attempts: Immutable student audit records (INSERT with check, SELECT by owner/admin, NO student UPDATE)
+CREATE POLICY "Users can insert own attempts" ON public.attempts FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can view own attempts" ON public.attempts FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Admins can view all attempts" ON public.attempts FOR SELECT USING (public.is_admin());
+
+-- Bookmarks: User isolated
+CREATE POLICY "Users can view own bookmarks" ON public.bookmarks FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert own bookmarks" ON public.bookmarks FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can delete own bookmarks" ON public.bookmarks FOR DELETE USING (auth.uid() = user_id);
+
+-- Additional Scalability Indexes for 100,000+ MCQs
+CREATE INDEX IF NOT EXISTS idx_questions_cursor ON public.questions(created_at DESC, id DESC);
+CREATE INDEX IF NOT EXISTS idx_questions_facet_filter ON public.questions(exam, year, subject_id);
+CREATE INDEX IF NOT EXISTS idx_questions_hierarchy_seek ON public.questions(subject_id, chapter_id, topic_id);
+CREATE INDEX IF NOT EXISTS idx_attempts_user_created ON public.attempts(user_id, created_at DESC);

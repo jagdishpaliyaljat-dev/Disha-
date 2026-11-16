@@ -1,0 +1,62 @@
+{
+  "timestamp": "2026-11-16T17:16:12.189Z",
+  "tiers": [
+    {
+      "tierName": "Tier 1: 100 Concurrent Requests",
+      "totalRequests": 100,
+      "concurrency": 100,
+      "successfulRequests": 100,
+      "failedRequests": 0,
+      "failureRate": "0.00%",
+      "totalTimeSeconds": 3.22,
+      "throughputReqSec": 31,
+      "egressKb": 19.73,
+      "stats": {
+        "p50": 2656.7223830000003,
+        "p95": 3143.0377289999997,
+        "p99": 3190.0690740000005,
+        "min": 1894.5368069999997,
+        "max": 3190.0690740000005,
+        "avg": 2671
+      }
+    },
+    {
+      "tierName": "Tier 2: 500 Requests (50 Concurrency)",
+      "totalRequests": 500,
+      "concurrency": 50,
+      "successfulRequests": 500,
+      "failedRequests": 0,
+      "failureRate": "0.00%",
+      "totalTimeSeconds": 11.49,
+      "throughputReqSec": 44,
+      "egressKb": 98.63,
+      "stats": {
+        "p50": 915.0405379999993,
+        "p95": 2330.979268000001,
+        "p99": 2464.8149209999992,
+        "min": 495.60576799999944,
+        "max": 2585.5184599999993,
+        "avg": 1119
+      }
+    },
+    {
+      "tierName": "Tier 3: 1,000 Requests (100 Concurrency)",
+      "totalRequests": 1000,
+      "concurrency": 100,
+      "successfulRequests": 1000,
+      "failedRequests": 0,
+      "failureRate": "0.00%",
+      "totalTimeSeconds": 22.01,
+      "throughputReqSec": 45,
+      "egressKb": 197.27,
+      "stats": {
+        "p50": 2081.5791910000007,
+        "p95": 3930.569535999999,
+        "p99": 4378.441727999998,
+        "min": 527.2773850000012,
+        "max": 4922.319803999999,
+        "avg": 2125
+      }
+    }
+  ]
+}

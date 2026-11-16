@@ -414,6 +414,23 @@ export function isOptionDLine(str: string, allowDigits = false): boolean {
   return /^(?:(?:\(?|\[?)(?:Option\s+|Opt\s+|विकल्प\s+)?(?:D|d|घ)(?:\.|\)|\]|\:|\-)?(?:\s+|$))/i.test(trimmed);
 }
 
+export function isOptionELine(str: string, allowDigits = false): boolean {
+  const trimmed = str.trim();
+  if (trimmed.includes("|") && trimmed.split("|").filter(c => c.trim().length > 0).length >= 2) {
+    return false;
+  }
+  if (trimmed.includes("\t") && trimmed.split("\t").filter(c => c.trim().length > 0).length >= 2) {
+    return false;
+  }
+  if (/^[A-Ea-eक-ङ1-5]\s*[\+\-\=\→\←\⇌\>\<]/.test(trimmed) || /^[A-Ea-eक-ङ1-5]\s*(?:->|-->|=>)/.test(trimmed)) {
+    return false;
+  }
+  if (allowDigits) {
+    return /^(?:(?:\(?|\[?)(?:Option\s+|Opt\s+|विकल्प\s+)?(?:E|e|ङ|य|5)(?:\.|\)|\]|\:|\-)?(?:\s+|$))/i.test(trimmed);
+  }
+  return /^(?:(?:\(?|\[?)(?:Option\s+|Opt\s+|विकल्प\s+)?(?:E|e|ङ|य)(?:\.|\)|\]|\:|\-)?(?:\s+|$))/i.test(trimmed);
+}
+
 /**
  * RECOVERY ENGINE: Extracts options A, B, C, D from raw text or explanation
  * if standard backward-scanning missed them or if they were swallowed into explanation.
@@ -2037,10 +2054,13 @@ export function parseTextQuestions(
     let optBIdx = -1;
     let optCIdx = -1;
     let optDIdx = -1;
+    let optEIdx = -1;
 
     for (let i = candidateOptionLines.length - 1; i >= 0; i--) {
       const line = candidateOptionLines[i];
-      if (optDIdx === -1 && isOptionDLine(line)) {
+      if (optEIdx === -1 && isOptionELine(line)) {
+        optEIdx = i;
+      } else if (optDIdx === -1 && isOptionDLine(line)) {
         optDIdx = i;
       } else if (optDIdx !== -1 && optCIdx === -1 && isOptionCLine(line)) {
         optCIdx = i;
@@ -2056,6 +2076,7 @@ export function parseTextQuestions(
     let optB = "";
     let optC = "";
     let optD = "";
+    let optE = "";
 
     if (optAIdx !== -1) {
       const endA = optBIdx !== -1 ? optBIdx : candidateOptionLines.length;
@@ -2070,7 +2091,11 @@ export function parseTextQuestions(
         optC = [stripOptPrefix(candidateOptionLines[optCIdx]), ...candidateOptionLines.slice(optCIdx + 1, endC)].join("\n").trim();
       }
       if (optDIdx !== -1) {
-        optD = [stripOptPrefix(candidateOptionLines[optDIdx]), ...candidateOptionLines.slice(optDIdx + 1)].join("\n").trim();
+        const endD = optEIdx !== -1 ? optEIdx : candidateOptionLines.length;
+        optD = [stripOptPrefix(candidateOptionLines[optDIdx]), ...candidateOptionLines.slice(optDIdx + 1, endD)].join("\n").trim();
+      }
+      if (optEIdx !== -1) {
+        optE = [stripOptPrefix(candidateOptionLines[optEIdx]), ...candidateOptionLines.slice(optEIdx + 1)].join("\n").trim();
       }
     }
 
@@ -2096,6 +2121,9 @@ export function parseTextQuestions(
       { label: "C", text: optC },
       { label: "D", text: optD },
     ];
+    if (optEIdx !== -1 || optE) {
+      optionsList.push({ label: "E", text: optE || "अनुत्तरित प्रश्न" });
+    }
 
     // Step 5: Answer field resolution without fixed-length slicing
     const resolvedAns = resolveAnswerToOption(rawAnswerCaptured, optionsList);

@@ -130,9 +130,9 @@ export const QATestRunnerModal: React.FC<QATestRunnerModalProps> = ({ isOpen, on
     const id1 = addLog("B", suite, "Curriculum Reader & Empty Database Graceful Handling", "running", "functional");
     const t1 = Date.now();
     try {
-      const subjects = await fetchSubjects();
-      const chapters = await fetchChapters();
-      const topics = await fetchTopics();
+      const subjects = await fetchSubjects({ forceRefresh: true });
+      const chapters = await fetchChapters(undefined, { forceRefresh: true });
+      const topics = await fetchTopics(undefined, { forceRefresh: true });
       updateLog(id1, "pass", Date.now() - t1, undefined, `Curriculum loaded safely: ${subjects.length} subjects, ${chapters.length} chapters, ${topics.length} topics`);
     } catch (e: any) {
       updateLog(id1, "fail", Date.now() - t1, "CURRICULUM_READ_ERROR", e.message);
@@ -229,6 +229,7 @@ Answer: A`;
       const { error: topErr } = await supabase.from("topics").insert([{
         id: testTopicId,
         chapter_id: testChapterId,
+        subject_id: testSubjectId,
         name: "QA Test Topic",
         hindi_name: "क्यूए टॉपिक",
         order_index: 1
@@ -238,11 +239,12 @@ Answer: A`;
       // 4. Create Question
       const { error: qErr } = await supabase.from("questions").insert([{
         id: testQId,
+        subject_id: testSubjectId,
+        chapter_id: testChapterId,
         topic_id: testTopicId,
-        question_text: "What is 2 + 2 in QA verification?",
-        hindi_question_text: "क्यूए सत्यापन में 2 + 2 क्या है?",
+        question: "What is 2 + 2 in QA verification?",
         options: ["3", "4", "5", "6", "अनुत्तरित प्रश्न"],
-        correct_index: 1,
+        correct_answer: 1,
         explanation: "2 + 2 = 4"
       }]);
       if (qErr) throw qErr;
@@ -356,11 +358,20 @@ Answer: A`;
     const id1 = addLog("H", suite, "Anonymous Users Cannot Access Private Profiles Table Without Auth", "running", "security");
     const t1 = Date.now();
     try {
+      const sessionRes = await supabase.auth.getSession();
+      const user = sessionRes.data.session?.user;
       const { data, error } = await supabase.from("profiles").select("*").limit(5);
       if (error) {
         updateLog(id1, "pass", Date.now() - t1, undefined, `RLS rejected unauthorized profile query: ${error.message}`);
+      } else if (!user && data && data.length > 0) {
+        updateLog(id1, "fail", Date.now() - t1, "RLS_PROFILES_ERROR", `Security violation: Anonymous caller received ${data.length} private profiles!`);
+      } else if (user && data && data.some(p => p.id !== user.id)) {
+        updateLog(id1, "fail", Date.now() - t1, "RLS_PROFILES_ERROR", `Security violation: User received other users' profiles via SELECT!`);
       } else {
-        updateLog(id1, "pass", Date.now() - t1, undefined, `RLS policy active: returned ${data?.length || 0} visible records for anon caller`);
+        const msg = user
+          ? `RLS active: Authenticated user isolated to own profile (1 visible row, other users blocked)`
+          : `RLS active: Anonymous caller received 0 private profiles (total isolation)`;
+        updateLog(id1, "pass", Date.now() - t1, undefined, msg);
       }
     } catch (e: any) {
       updateLog(id1, "pass", Date.now() - t1, undefined, `Network/RLS security boundary verified: ${e.message}`);

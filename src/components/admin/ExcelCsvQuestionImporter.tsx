@@ -210,8 +210,7 @@ export const ExcelCsvQuestionImporter: React.FC<ExcelCsvQuestionImporterProps> =
         const d = rawCells[optDIdx] || "";
         const e = optEIdx !== -1 ? rawCells[optEIdx] : "";
         opts = [a, b, c, d];
-        if (e) opts.push(e);
-        else opts.push("अनुत्तरित प्रश्न");
+        if (e && e.trim()) opts.push(e.trim());
 
         const ansRaw = ansIdx !== -1 ? (rawCells[ansIdx] || "").trim().toUpperCase() : "";
         if (ansRaw === "A" || ansRaw === "1") correct = 0;
@@ -229,19 +228,35 @@ export const ExcelCsvQuestionImporter: React.FC<ExcelCsvQuestionImporterProps> =
         }
         if (topicIdx !== -1) rowTopic = rawCells[topicIdx] || "";
       } else {
-        // Fallback positional: col0=Q, col1=A, col2=B, col3=C, col4=D, col5=Ans, col6=Exp
+        // Fallback positional:
+        // 8 cols: col0=Q, col1=A, col2=B, col3=C, col4=D, col5=E, col6=Ans, col7=Exp
+        // 7 cols: col0=Q, col1=A, col2=B, col3=C, col4=D, col5=Ans, col6=Exp
         qText = rawCells[0] || "";
         opts = [rawCells[1] || "", rawCells[2] || "", rawCells[3] || "", rawCells[4] || ""];
-        if (rawCells[5] && rawCells.length > 6) {
-          const ansRaw = rawCells[5].trim().toUpperCase();
+        if (rawCells.length >= 8) {
+          if (rawCells[5] && rawCells[5].trim()) {
+            opts.push(rawCells[5].trim());
+          }
+          const ansRaw = (rawCells[6] || "").trim().toUpperCase();
           if (ansRaw === "A" || ansRaw === "1") correct = 0;
           else if (ansRaw === "B" || ansRaw === "2") correct = 1;
           else if (ansRaw === "C" || ansRaw === "3") correct = 2;
           else if (ansRaw === "D" || ansRaw === "4") correct = 3;
           else if (ansRaw === "E" || ansRaw === "5") correct = 4;
-          explanation = rawCells[6] || "";
+          else if (!isNaN(Number(ansRaw))) correct = Math.max(0, Math.min(4, Number(ansRaw) - 1));
+          explanation = rawCells[7] || "";
+        } else {
+          if (rawCells[5] && rawCells.length > 6) {
+            const ansRaw = rawCells[5].trim().toUpperCase();
+            if (ansRaw === "A" || ansRaw === "1") correct = 0;
+            else if (ansRaw === "B" || ansRaw === "2") correct = 1;
+            else if (ansRaw === "C" || ansRaw === "3") correct = 2;
+            else if (ansRaw === "D" || ansRaw === "4") correct = 3;
+            else if (ansRaw === "E" || ansRaw === "5") correct = 4;
+            else if (!isNaN(Number(ansRaw))) correct = Math.max(0, Math.min(4, Number(ansRaw) - 1));
+            explanation = rawCells[6] || "";
+          }
         }
-        opts.push("अनुत्तरित प्रश्न");
       }
 
       // Validate
@@ -256,7 +271,7 @@ export const ExcelCsvQuestionImporter: React.FC<ExcelCsvQuestionImporterProps> =
         errorMsg = "Options incomplete (need at least A-D)";
       } else if (correct < 0 || correct > opts.length - 1) {
         status = "error";
-        errorMsg = "Invalid or missing correct answer (must be 1-4 or A-D)";
+        errorMsg = "Invalid or missing correct answer (must be 1-5 or A-E)";
       } else if (!explanation.trim()) {
         status = "warning";
         errorMsg = "No explanation provided";
@@ -640,7 +655,7 @@ export const ExcelCsvQuestionImporter: React.FC<ExcelCsvQuestionImporterProps> =
                             {r.questionText}
                           </div>
                           <div className="text-[10px] text-slate-500 mt-1 flex flex-wrap gap-1.5 items-center">
-                            {r.options.slice(0, 4).map((opt, oIdx) => (
+                            {r.options.map((opt, oIdx) => (
                               <span 
                                 key={oIdx} 
                                 className={`px-1.5 py-0.5 rounded ${
