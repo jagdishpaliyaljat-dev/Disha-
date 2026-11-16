@@ -371,7 +371,7 @@ async function runStagingVerification() {
     let maxConcurrentSessions = 0;
 
     async function simulateTabSync(tabId: string) {
-      return (globalThis as any).navigator.locks.request("quizpro_sync_lock", async () => {
+      return (globalThis as any).navigator.locks.request("disha2020_sync_lock", async () => {
         activeSyncSessions++;
         maxConcurrentSessions = Math.max(maxConcurrentSessions, activeSyncSessions);
         // Small simulated delay

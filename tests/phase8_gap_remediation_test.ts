@@ -145,13 +145,13 @@ async function runPhase8RemediationTests() {
   // TEST 8.1: Routine Student Version Check is Strictly Local (0 Network Reads)
   // ───────────────────────────────────────────────────────────────────────────
   try {
-    mockLocalStorage["quizpro_user_profile"] = JSON.stringify({
+    mockLocalStorage["disha2020_user_profile"] = JSON.stringify({
       id: "student_u1",
       name: "Student",
       role: "student",
       email: "student@example.com"
     });
-    mockLocalStorage["quizpro_meta_curriculum_version_meta"] = JSON.stringify({
+    mockLocalStorage["disha2020_meta_curriculum_version_meta"] = JSON.stringify({
       curriculumVersion: 42,
       lastUpdated: new Date().toISOString()
     });

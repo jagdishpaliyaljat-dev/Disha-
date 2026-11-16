@@ -399,8 +399,8 @@ describe('Snapshot-Based Synchronization Architecture Master Suite (20 Scenarios
     expect(stores.attempt_history.get('att-tablet-q2').result.questionId).toBe('q2');
   });
 
-  // SCENARIO 19: Safe Migration from quizpro-db-v4 to quizpro-db-v5
-  it('Scenario 19: Legacy quizpro-db-v4 student data migrates safely to quizpro-db-v5', () => {
+  // SCENARIO 19: Safe Migration from legacy quizpro-db-v4 to disha2020-db-v5
+  it('Scenario 19: Legacy quizpro-db-v4 student data migrates safely to disha2020-db-v5', () => {
     // Legacy v4 items
     const legacyBookmarks = [{ id: 'u1_q10', userId: 'u1', questionId: 'q10', bookmarked: true }];
     const legacyWrong = [{ id: 'u1_q10', userId: 'u1', questionId: 'q10', wrongCount: 2 }];
