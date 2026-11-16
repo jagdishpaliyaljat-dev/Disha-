@@ -454,3 +454,177 @@ export async function recordStudentAttempt(attempt: {
     console.warn("[Supabase] Attempt sync error:", e.message);
   }
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ONE-CLICK BULK CLOUD SYNC FOR ADMIN PANEL
+// ─────────────────────────────────────────────────────────────────────────────
+
+export async function executeSupabaseBulkSync(
+  storeInput?: any,
+  onProgress?: (state: any) => void
+): Promise<{ success: boolean; totalImported: number; errorDetails: string[] }> {
+  try {
+    const { loadUserQuestionsStore, getCombinedSubjects, getCombinedChapters } = await import("./questionsStorage");
+    const store = storeInput || loadUserQuestionsStore();
+
+    onProgress?.({
+      status: "validating",
+      totalRecords: 100,
+      validRecords: 0,
+      invalidRecords: 0,
+      existingRecords: 0,
+      uploadedRecords: 0,
+      updatedRecords: 0,
+      skippedRecords: 0,
+      failedRecords: 0,
+      currentBatch: 0,
+      totalBatches: 1,
+      progressPercentage: 15,
+      currentStatusMessage: "Connecting to Supabase PostgreSQL...",
+      errorDetails: []
+    });
+
+    const subjects = getCombinedSubjects(store);
+    const chapters = getCombinedChapters(store);
+    const topics: Topic[] = [];
+    const questions: Question[] = [
+      ...(store.customQuestions || []),
+      ...Object.values(store.editedQuestions || {}) as Question[]
+    ];
+
+    chapters.forEach(c => {
+      if (c.topics) {
+        c.topics.forEach(t => {
+          topics.push(t);
+          if (t.questions) {
+            questions.push(...t.questions);
+          }
+        });
+      }
+    });
+
+    const qMap = new Map<string, Question>();
+    questions.forEach(q => {
+      if (q && q.id) qMap.set(q.id, q);
+    });
+    const uniqueQuestions = Array.from(qMap.values());
+
+    const totalOps = subjects.length + chapters.length + topics.length + uniqueQuestions.length;
+
+    onProgress?.({
+      status: "syncing",
+      totalRecords: totalOps,
+      validRecords: totalOps,
+      invalidRecords: 0,
+      existingRecords: 0,
+      uploadedRecords: 0,
+      updatedRecords: 0,
+      skippedRecords: 0,
+      failedRecords: 0,
+      currentBatch: 1,
+      totalBatches: 4,
+      progressPercentage: 30,
+      currentStatusMessage: `Syncing ${subjects.length} subjects to Supabase...`,
+      errorDetails: []
+    });
+
+    for (const s of subjects) {
+      await saveSubjectToSupabase(s);
+    }
+
+    onProgress?.({
+      status: "syncing",
+      totalRecords: totalOps,
+      validRecords: totalOps,
+      invalidRecords: 0,
+      existingRecords: 0,
+      uploadedRecords: subjects.length,
+      updatedRecords: 0,
+      skippedRecords: 0,
+      failedRecords: 0,
+      currentBatch: 2,
+      totalBatches: 4,
+      progressPercentage: 55,
+      currentStatusMessage: `Syncing ${chapters.length} chapters & ${topics.length} topics...`,
+      errorDetails: []
+    });
+
+    for (const c of chapters) {
+      await saveChapterToSupabase(c);
+    }
+    for (const t of topics) {
+      await saveTopicToSupabase(t);
+    }
+
+    onProgress?.({
+      status: "syncing",
+      totalRecords: totalOps,
+      validRecords: totalOps,
+      invalidRecords: 0,
+      existingRecords: 0,
+      uploadedRecords: subjects.length + chapters.length + topics.length,
+      updatedRecords: 0,
+      skippedRecords: 0,
+      failedRecords: 0,
+      currentBatch: 3,
+      totalBatches: 4,
+      progressPercentage: 80,
+      currentStatusMessage: `Syncing ${uniqueQuestions.length} MCQs in PostgreSQL batches...`,
+      errorDetails: []
+    });
+
+    if (uniqueQuestions.length > 0) {
+      await upsertQuestionsToSupabase(uniqueQuestions);
+    }
+
+    if (store.deletedQuestionIds && store.deletedQuestionIds.length > 0) {
+      await deleteQuestionsBulkFromSupabase(store.deletedQuestionIds);
+    }
+
+    onProgress?.({
+      status: "success",
+      totalRecords: totalOps,
+      validRecords: totalOps,
+      invalidRecords: 0,
+      existingRecords: 0,
+      uploadedRecords: totalOps,
+      updatedRecords: 0,
+      skippedRecords: 0,
+      failedRecords: 0,
+      currentBatch: 4,
+      totalBatches: 4,
+      progressPercentage: 100,
+      currentStatusMessage: "All data successfully synced to Supabase PostgreSQL!",
+      errorDetails: []
+    });
+
+    return {
+      success: true,
+      totalImported: totalOps,
+      errorDetails: []
+    };
+  } catch (err: any) {
+    console.error("[SupabaseBulkSync] Error:", err);
+    onProgress?.({
+      status: "error",
+      totalRecords: 0,
+      validRecords: 0,
+      invalidRecords: 0,
+      existingRecords: 0,
+      uploadedRecords: 0,
+      updatedRecords: 0,
+      skippedRecords: 0,
+      failedRecords: 1,
+      currentBatch: 0,
+      totalBatches: 0,
+      progressPercentage: 0,
+      currentStatusMessage: err?.message || "Sync failed",
+      errorDetails: [err?.message || "Sync error"]
+    });
+    return {
+      success: false,
+      totalImported: 0,
+      errorDetails: [err?.message || "Sync error"]
+    };
+  }
+}

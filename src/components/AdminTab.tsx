@@ -17,7 +17,7 @@ import { loadLocalPYQPapers, getDeletedPYQIds } from "../utils/pyqStorage";
 import { loadLocalLiveTests, getDeletedLiveTestIds } from "../utils/liveTestStorage";
 import { getDeletedBannerIds } from "../utils/bannerStorage";
 import { triggerAdminToast, AdminToastPayload } from "../utils/adminToast";
-import { auth } from "../lib/firebase";
+import { supabase } from "../lib/supabase";
 import { AdminQuotaAlert } from "./admin/AdminQuotaAlert";
 
 // Resilient lazy loader helper for admin subcomponents compatible with React 19
@@ -46,10 +46,10 @@ const AdminBannerManagementSection = adminSafeLazy<any>(() => import("./admin/Ad
 const AdminUserManagementSection = adminSafeLazy<any>(() => import("./admin/AdminUserManagementSection"), "AdminUserManagementSection");
 const AdminMessagesSection = adminSafeLazy<any>(() => import("./admin/AdminMessagesSection"), "AdminMessagesSection");
 const AdminNotificationBroadcastSection = adminSafeLazy<any>(() => import("./admin/AdminNotificationBroadcastSection"), "AdminNotificationBroadcastSection");
-const FirebaseDataExplorer = adminSafeLazy<any>(() => import("./admin/FirebaseDataExplorer"), "FirebaseDataExplorer");
-const FirebaseAuditConsole = adminSafeLazy<any>(() => import("./admin/FirebaseAuditConsole"), "FirebaseAuditConsole");
+const SupabaseDataExplorer = adminSafeLazy<any>(() => import("./admin/SupabaseDataExplorer"), "SupabaseDataExplorer");
+const SupabaseAuditConsole = adminSafeLazy<any>(() => import("./admin/SupabaseAuditConsole"), "SupabaseAuditConsole");
 const ProductionStabilityPanel = adminSafeLazy<any>(() => import("./admin/ProductionStabilityPanel"), "ProductionStabilityPanel");
-const FirebaseQuotaHealthPanel = adminSafeLazy<any>(() => import("./admin/FirebaseQuotaHealthPanel"), "FirebaseQuotaHealthPanel");
+const SupabaseHealthPanel = adminSafeLazy<any>(() => import("./admin/SupabaseHealthPanel"), "SupabaseHealthPanel");
 const SyncHealthMonitorPanel = adminSafeLazy<any>(() => import("./admin/SyncHealthMonitorPanel"), "SyncHealthMonitorPanel");
 const AdminDiagnosticsSection = adminSafeLazy<any>(() => import("./admin/AdminDiagnosticsSection"), "AdminDiagnosticsSection");
 const DiagnosticReport = adminSafeLazy<any>(() => import("./admin/DiagnosticReport"), "DiagnosticReport");
@@ -97,7 +97,7 @@ export type AdminGroupSection =
   | "tests"
   | "content"
   | "users"
-  | "firebase"
+  | "supabase"
   | "diagnostics"
   | "integrations"
   | "backup"
@@ -112,7 +112,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
       if (sec) return sec;
       const p = window.location.pathname;
       const h = window.location.hash;
-      if (p.includes("/admin/firebase-data") || h.includes("#admin/firebase-data")) return "firebase";
+      if (p.includes("/admin/database") || h.includes("#admin/database") || p.includes("/admin/supabase") || h.includes("#admin/supabase") || p.includes("/admin/firebase-data")) return "supabase";
       if (p.includes("/admin/news") || h.includes("#admin/news")) return "content";
     }
     return "dashboard";
@@ -122,7 +122,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
   const [subTabDashboard, setSubTabDashboard] = React.useState<"overview" | "analytics">("overview");
   const [subTabContent, setSubTabContent] = React.useState<"news" | "banners">("news");
   const [subTabUsers, setSubTabUsers] = React.useState<"directory" | "messages" | "reports" | "notifications">("directory");
-  const [subTabFirebase, setSubTabFirebase] = React.useState<"diagnostics" | "explorer" | "report" | "audit" | "quota" | "sync" | "integrity">("diagnostics");
+  const [subTabSupabase, setSubTabSupabase] = React.useState<"overview" | "explorer" | "diagnostics" | "report" | "audit" | "sync">("overview");
 
   const [selectedUserForDetails, setSelectedUserForDetails] = React.useState<UserProfile | null>(null);
   const [showQATestRunner, setShowQATestRunner] = React.useState(false);
@@ -221,8 +221,8 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
         if (props.onDeleteSubject) {
           await props.onDeleteSubject(id);
         } else {
-          const { deleteSubjectFromCloud } = await import("../utils/firebaseSyncService");
-          const res = await deleteSubjectFromCloud(id);
+          const { deleteSubjectFromSupabase } = await import("../utils/supabaseSyncService");
+          const res = await deleteSubjectFromSupabase(id);
           const nextStore = deleteSubject(props.questionsStore, id);
           saveUserQuestionsStore(nextStore);
           props.onStoreUpdated?.(nextStore);
@@ -232,19 +232,19 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
         }
         setDeleteNotification({
           type: "success",
-          message: `Subject "${title}" deleted from Cloud & local storage.`
+          message: `Subject "${title}" deleted from Supabase & local storage.`
         });
         triggerAdminToast(
           "delete",
-          "Subject Deleted from Firebase",
-          `Subject "${title}" has been deleted from Firebase Firestore.`
+          "Subject Deleted from Supabase",
+          `Subject "${title}" has been deleted from Supabase Database.`
         );
       } else {
         if (props.onDeleteChapter) {
           await props.onDeleteChapter(id);
         } else {
-          const { deleteChapterFromCloud } = await import("../utils/firebaseSyncService");
-          const res = await deleteChapterFromCloud(id);
+          const { deleteChapterFromSupabase } = await import("../utils/supabaseSyncService");
+          const res = await deleteChapterFromSupabase(id);
           const nextStore = deleteChapter(props.questionsStore, id);
           saveUserQuestionsStore(nextStore);
           props.onStoreUpdated?.(nextStore);
@@ -254,12 +254,12 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
         }
         setDeleteNotification({
           type: "success",
-          message: `Chapter "${title}" deleted from Cloud & local storage.`
+          message: `Chapter "${title}" deleted from Supabase & local storage.`
         });
         triggerAdminToast(
           "delete",
-          "Chapter Deleted from Firebase",
-          `Chapter "${title}" has been deleted from Firebase Firestore.`
+          "Chapter Deleted from Supabase",
+          `Chapter "${title}" has been deleted from Supabase Database.`
         );
       }
       setTimeout(() => setDeleteNotification(null), 3500);
@@ -289,9 +289,9 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
           setActiveGroup(sec);
         } else if (window.location.pathname === "/admin") {
           setActiveGroup("dashboard");
-        } else if (window.location.pathname === "/admin/firebase-data" || window.location.hash === "#admin/firebase-data") {
-          setActiveGroup("firebase");
-          setSubTabFirebase("explorer");
+        } else if (window.location.pathname === "/admin/database" || window.location.hash === "#admin/database" || window.location.pathname === "/admin/supabase" || window.location.hash === "#admin/supabase" || window.location.pathname === "/admin/firebase-data" || window.location.hash === "#admin/firebase-data") {
+          setActiveGroup("supabase");
+          setSubTabSupabase("explorer");
         } else if (window.location.pathname === "/admin/news" || window.location.hash === "#admin/news") {
           setActiveGroup("content");
           setSubTabContent("news");
@@ -307,8 +307,8 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
     setIsSidebarOpen(false);
     if (typeof window !== "undefined") {
       try {
-        if (group === "firebase" && subTabFirebase === "explorer") {
-          window.history.pushState({ group }, "", "/admin/firebase-data");
+        if (group === "supabase" && subTabSupabase === "explorer") {
+          window.history.pushState({ group }, "", "/admin/database");
         } else if (group === "content" && subTabContent === "news") {
           window.history.pushState({ group }, "", "/admin/news");
         } else if (group === "dashboard") {
@@ -325,7 +325,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
         console.warn("Failed to push history state:", err);
       }
     }
-  }, [subTabFirebase, subTabContent]);
+  }, [subTabSupabase, subTabContent]);
 
   // Compatibility helper for legacy section triggers
   const handleLegacyNavigateSection = (sec: string) => {
@@ -370,20 +370,22 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
         setSubTabContent("banners");
         break;
       case "health":
-        setActiveGroup("firebase");
-        setSubTabFirebase("quota");
+        setActiveGroup("supabase");
+        setSubTabSupabase("overview");
         break;
       case "sync-health":
-        setActiveGroup("firebase");
-        setSubTabFirebase("sync");
+        setActiveGroup("supabase");
+        setSubTabSupabase("sync");
         break;
       case "firebase-data":
-        setActiveGroup("firebase");
-        setSubTabFirebase("explorer");
+      case "database":
+      case "supabase":
+        setActiveGroup("supabase");
+        setSubTabSupabase("explorer");
         break;
       case "firebase-audit":
-        setActiveGroup("firebase");
-        setSubTabFirebase("audit");
+        setActiveGroup("supabase");
+        setSubTabSupabase("audit");
         break;
       case "ai-api":
         setActiveGroup("integrations");
@@ -451,7 +453,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
     if (cost > 0) {
       setShowConfirm(true);
     } else {
-      alert("All custom data is already synced with Cloud Firestore.");
+      alert("All custom data is already synced with Supabase Database.");
     }
   };
 
@@ -460,9 +462,8 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
     setIsSyncing(true);
 
     // Diagnostic Log for Sync Initialization
-    console.log("[AdminSync] Initializing bulk sync...", {
-      user: props.userProfile?.email || auth.currentUser?.email || "unknown",
-      uid: auth.currentUser?.uid || "missing",
+    console.log("[AdminSync] Initializing bulk sync to Supabase...", {
+      user: props.userProfile?.email || "unknown",
       isAdmin: isUserAdmin(props.userProfile),
       recordCount: getSyncCost()
     });
@@ -480,14 +481,14 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
       currentBatch: 0,
       totalBatches: 0,
       progressPercentage: 0,
-      currentStatusMessage: "Validating data records and preparing cloud sync...",
+      currentStatusMessage: "Validating data records and preparing Supabase sync...",
       errorDetails: []
     };
     setSyncProgress(initialProgress);
 
     try {
-      const { executeBulkSync } = await import("../utils/bulkSyncService");
-      const report = await executeBulkSync(props.questionsStore, (p) => setSyncProgress(p));
+      const { executeSupabaseBulkSync } = await import("../utils/supabaseSyncService");
+      const report = await executeSupabaseBulkSync(props.questionsStore, (p) => setSyncProgress(p));
       if (report.success) {
         // Clear deleted IDs from store after successful sync
         const syncedStore: UserQuestionsStore = {
@@ -589,9 +590,9 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
       icon: Users,
     },
     {
-      id: "firebase",
-      title: "Cloud & Database",
-      icon: Terminal,
+      id: "supabase",
+      title: "Supabase Database",
+      icon: Database,
     },
     {
       id: "integrations",
@@ -714,7 +715,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                         </span>
                       </div>
                       <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
-                        {props.userProfile?.email || auth.currentUser?.email || "admin@quizpro.local"}
+                        {props.userProfile?.email || "admin@disha2020.in"}
                       </p>
                     </div>
                   </div>
@@ -735,7 +736,10 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                     <button
                       onClick={() => {
                         setIsAdminMenuOpen(false);
-                        auth.signOut().catch(() => {});
+                        supabase.auth.signOut().catch(() => {});
+                        if (typeof window !== "undefined") {
+                          window.location.href = "/";
+                        }
                       }}
                       className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors text-left cursor-pointer"
                     >
@@ -1283,36 +1287,36 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
               </div>
             )}
 
-            {/* Firebase Section */}
-            {activeGroup === "firebase" && (
+            {/* Supabase PostgreSQL Section */}
+            {activeGroup === "supabase" && (
               <div className="space-y-5 sm:space-y-6">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
                   <div>
-                    <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">Cloud & Database Explorer</h2>
-                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">Direct inspection of Firestore records, diagnostics, quotas and audit trails.</p>
+                    <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">Supabase Cloud Database</h2>
+                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">Authoritative PostgreSQL tables, PostgREST explorer, schema diagnostics & live sync.</p>
                   </div>
                   <div className="flex items-center p-1 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xs overflow-x-auto max-w-full no-scrollbar self-start sm:self-auto">
-                    <button onClick={() => setSubTabFirebase("diagnostics")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${subTabFirebase === "diagnostics" ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}>Diagnostics</button>
-                    <button onClick={() => setSubTabFirebase("explorer")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${subTabFirebase === "explorer" ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}>Explorer</button>
-                    <button onClick={() => setSubTabFirebase("report")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${subTabFirebase === "report" ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}>Counts Report</button>
-                    <button onClick={() => setSubTabFirebase("audit")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${subTabFirebase === "audit" ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}>Audit</button>
-                    <button onClick={() => setSubTabFirebase("quota")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${subTabFirebase === "quota" ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}>Quota</button>
-                    <button onClick={() => setSubTabFirebase("sync")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${subTabFirebase === "sync" ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}>Sync</button>
+                    <button onClick={() => setSubTabSupabase("overview")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${subTabSupabase === "overview" ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}>Overview</button>
+                    <button onClick={() => setSubTabSupabase("explorer")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${subTabSupabase === "explorer" ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}>Explorer</button>
+                    <button onClick={() => setSubTabSupabase("diagnostics")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${subTabSupabase === "diagnostics" ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}>Diagnostics</button>
+                    <button onClick={() => setSubTabSupabase("report")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${subTabSupabase === "report" ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}>Row Counts</button>
+                    <button onClick={() => setSubTabSupabase("audit")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${subTabSupabase === "audit" ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}>Audit</button>
+                    <button onClick={() => setSubTabSupabase("sync")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${subTabSupabase === "sync" ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}>Sync</button>
                   </div>
                 </div>
 
                 <React.Suspense fallback={<AdminSectionLoader type="table" title="Loading Database Tools..." />}>
-                  {subTabFirebase === "diagnostics" && <AdminDiagnosticsSection userProfile={props.userProfile} subjects={combinedSubjectsList} chapters={combinedChaptersList} />}
-                  {subTabFirebase === "explorer" && <FirebaseDataExplorer userProfile={props.userProfile} />}
-                  {subTabFirebase === "report" && <DiagnosticReport userProfile={props.userProfile} />}
-                  {subTabFirebase === "audit" && <FirebaseAuditConsole userProfile={props.userProfile} />}
-                  {subTabFirebase === "quota" && (
+                  {subTabSupabase === "overview" && (
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                       <ProductionStabilityPanel />
-                      <FirebaseQuotaHealthPanel onBulkSync={handleSyncInit} />
+                      <SupabaseHealthPanel onBulkSync={handleSyncInit} />
                     </div>
                   )}
-                  {subTabFirebase === "sync" && <SyncHealthMonitorPanel questionsStore={props.questionsStore} onStoreUpdated={props.onStoreUpdated} userProfile={props.userProfile} />}
+                  {subTabSupabase === "explorer" && <SupabaseDataExplorer userProfile={props.userProfile} />}
+                  {subTabSupabase === "diagnostics" && <AdminDiagnosticsSection userProfile={props.userProfile} subjects={combinedSubjectsList} chapters={combinedChaptersList} />}
+                  {subTabSupabase === "report" && <DiagnosticReport userProfile={props.userProfile} />}
+                  {subTabSupabase === "audit" && <SupabaseAuditConsole userProfile={props.userProfile} />}
+                  {subTabSupabase === "sync" && <SyncHealthMonitorPanel questionsStore={props.questionsStore} onStoreUpdated={props.onStoreUpdated} userProfile={props.userProfile} />}
                 </React.Suspense>
               </div>
             )}

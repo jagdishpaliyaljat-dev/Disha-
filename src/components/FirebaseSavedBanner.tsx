@@ -27,10 +27,10 @@ export const FirebaseSavedBanner: React.FC = () => {
 
       setCurrent({
         id: Date.now(),
-        title: detail.title || "Saved Securely to Database!",
+        title: detail.title || "Saved Securely to Supabase Database!",
         message:
           detail.message ||
-          "Data successfully persisted to backend storage and immediately live for users.",
+          "Data successfully persisted to Supabase PostgreSQL and immediately live for users.",
         itemName: detail.itemName,
         category: detail.category,
         count: detail.count,

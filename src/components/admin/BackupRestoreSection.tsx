@@ -724,7 +724,7 @@ export const BackupRestoreSection: React.FC<BackupRestoreSectionProps> = ({ user
                 </div>
                 <h3 className="text-base font-black text-slate-900 dark:text-white">Disaster Recovery Restore</h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                  Upload a previously created ZIP backup archive, preview conflicts, and restore into this project or an empty Firebase database with full ID preservation.
+                  Upload a previously created ZIP backup archive, preview conflicts, and restore into this project or an empty Supabase database with full ID preservation.
                 </p>
               </div>
 
@@ -818,17 +818,17 @@ export const BackupRestoreSection: React.FC<BackupRestoreSectionProps> = ({ user
               Full Application Backup Engine
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Generates a verified ZIP archive containing all {availableCollections.length} Firestore collections, subcollections, typed serialization markers, application blueprint, rules, and checksum integrity reports.
+              Generates a verified ZIP archive containing all application tables, typed serialization markers, blueprint schema, and checksum integrity reports.
             </p>
 
             <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60 space-y-3">
               <div className="flex items-center justify-between text-xs">
-                <span className="font-bold text-slate-700 dark:text-slate-300">Target Firebase Project:</span>
-                <span className="font-mono text-slate-500">{firebaseConfig.projectId}</span>
+                <span className="font-bold text-slate-700 dark:text-slate-300">Target Database Instance:</span>
+                <span className="font-mono text-slate-500">eaidivceejkdqsshlraj.supabase.co</span>
               </div>
               <div className="flex items-center justify-between text-xs">
-                <span className="font-bold text-slate-700 dark:text-slate-300">Firestore Database ID:</span>
-                <span className="font-mono text-slate-500">{firebaseConfig.firestoreDatabaseId}</span>
+                <span className="font-bold text-slate-700 dark:text-slate-300">Database Engine:</span>
+                <span className="font-mono text-emerald-600 dark:text-emerald-400 font-bold">Supabase PostgreSQL</span>
               </div>
               <div className="flex items-center justify-between text-xs">
                 <span className="font-bold text-slate-700 dark:text-slate-300">Format Standard:</span>
@@ -842,7 +842,7 @@ export const BackupRestoreSection: React.FC<BackupRestoreSectionProps> = ({ user
                     onChange={(e) => setExportStorageAssets(e.target.checked)}
                     className="rounded text-blue-600"
                   />
-                  <span className="font-bold text-slate-700 dark:text-slate-300">Include Firebase Storage assets (images, PDFs)</span>
+                  <span className="font-bold text-slate-700 dark:text-slate-300">Include media assets & banners</span>
                 </label>
               </div>
             </div>
@@ -1222,7 +1222,7 @@ export const BackupRestoreSection: React.FC<BackupRestoreSectionProps> = ({ user
               Are you sure you want to delete <span className="font-mono font-bold text-slate-800 dark:text-slate-200">{deleteCandidate.filename}</span>?
             </p>
             <div className="p-3 rounded-xl bg-amber-500/10 text-amber-700 dark:text-amber-300 text-xs font-semibold">
-              Notice: This only removes the local ZIP file on the server. It will NEVER modify or delete production Firebase Firestore data.
+              Notice: This only removes the local ZIP file on the server. It will NEVER modify or delete production Supabase PostgreSQL data.
             </div>
             <div className="flex items-center justify-end gap-2 pt-2">
               <button

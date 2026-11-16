@@ -173,7 +173,7 @@ export const SyncHealthMonitorPanel: React.FC<SyncHealthMonitorPanelProps> = ({
             <h1 className="text-2xl font-black tracking-tight">Sync & Data Health Monitor</h1>
           </div>
           <p className="text-xs text-slate-300 max-w-xl font-medium">
-            Real-time consistency inspector for LocalStorage, IndexedDB, and Firebase Firestore. Detects orphaned question references, cache desyncs, and duplicate entries.
+            Real-time consistency inspector for LocalStorage, IndexedDB, and Supabase Cloud PostgreSQL. Detects orphaned question references, cache desyncs, and duplicate entries.
           </p>
         </div>
         <div className="flex items-center gap-3 relative z-10">

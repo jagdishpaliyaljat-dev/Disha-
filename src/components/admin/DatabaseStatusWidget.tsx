@@ -1,9 +1,7 @@
 import * as React from "react";
 import { Database, BookOpen, Layers, Target, HelpCircle, Loader2 } from "lucide-react";
-import { collection } from "firebase/firestore";
-import { guardedGetCountFromServer } from "../../utils/quotaTracker";
-import { db } from "../../lib/firebase";
-import { AdminCard } from "./AdminCard";
+import { supabase, isSupabaseConfigured } from "../../lib/supabase";
+import { openLocalDatabase, idbGetAll, STORES } from "../../utils/localDatabaseEngine";
 
 export const DatabaseStatusWidget: React.FC = () => {
   const [counts, setCounts] = React.useState<{
@@ -19,33 +17,65 @@ export const DatabaseStatusWidget: React.FC = () => {
     const fetchCounts = async () => {
       setLoading(true);
       try {
-        const collections = ["subjects", "chapters", "topics", "mcqs"];
-        const results = await Promise.allSettled(
-          collections.map((coll) => guardedGetCountFromServer(collection(db, coll), "Admin", `Count ${coll}`))
-        );
+        if (isSupabaseConfigured()) {
+          const [subRes, chapRes, topRes, qRes] = await Promise.allSettled([
+            supabase.from("subjects").select("*", { count: "exact", head: true }),
+            supabase.from("chapters").select("*", { count: "exact", head: true }),
+            supabase.from("topics").select("*", { count: "exact", head: true }),
+            supabase.from("questions").select("*", { count: "exact", head: true }),
+          ]);
 
-        if (!isMounted) return;
+          if (!isMounted) return;
 
-        const getCountVal = (idx: number) => {
-          const res = results[idx];
-          if (res.status === "fulfilled" && res.value?.data) {
-            return res.value.data().count ?? 0;
+          const getCount = (res: PromiseSettledResult<any>) => {
+            if (res.status === "fulfilled" && !res.value.error && typeof res.value.count === "number") {
+              return res.value.count;
+            }
+            return null;
+          };
+
+          const sCount = getCount(subRes);
+          const cCount = getCount(chapRes);
+          const tCount = getCount(topRes);
+          const qCount = getCount(qRes);
+
+          // If counts are available, update state
+          if (sCount !== null || cCount !== null || tCount !== null || qCount !== null) {
+            setCounts({
+              subjects: sCount ?? 0,
+              chapters: cCount ?? 0,
+              topics: tCount ?? 0,
+              mcqs: qCount ?? 0,
+            });
+            setLoading(false);
+            return;
           }
-          return 0;
-        };
+        }
 
-        setCounts({
-          subjects: getCountVal(0),
-          chapters: getCountVal(1),
-          topics: getCountVal(2),
-          mcqs: getCountVal(3),
-        });
+        // Fallback to IndexedDB local cache counts
+        await openLocalDatabase();
+        const [localSubs, localChaps, localTops, localQ] = await Promise.all([
+          idbGetAll(STORES.SUBJECTS),
+          idbGetAll(STORES.CHAPTERS),
+          idbGetAll(STORES.TOPICS),
+          idbGetAll(STORES.MCQS),
+        ]);
+
+        if (isMounted) {
+          setCounts({
+            subjects: localSubs.length,
+            chapters: localChaps.length,
+            topics: localTops.length,
+            mcqs: localQ.length,
+          });
+        }
       } catch (error) {
-        console.warn("Notice while fetching database counts:", error);
+        console.warn("Notice while fetching Supabase database counts:", error);
       } finally {
         if (isMounted) setLoading(false);
       }
     };
+
     fetchCounts();
     return () => {
       isMounted = false;
@@ -60,10 +90,15 @@ export const DatabaseStatusWidget: React.FC = () => {
   ];
 
   return (
-    <div className="bg-white dark:bg-[#111A2E] border border-slate-200/80 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-4">
-      <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
-        <Database className="w-4 h-4 text-slate-400" />
-        <h3 className="text-xs font-black uppercase tracking-wider text-slate-400">Content Engine Inventory</h3>
+    <div className="bg-white dark:bg-[#111A2E] border border-slate-200/80 dark:border-slate-800 rounded-3xl p-6 shadow-xs space-y-4">
+      <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div className="flex items-center gap-2">
+          <Database className="w-4 h-4 text-emerald-500" />
+          <h3 className="text-xs font-black uppercase tracking-wider text-slate-400">Supabase Database Inventory</h3>
+        </div>
+        <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 px-2 py-0.5 rounded-full">
+          PostgreSQL Active
+        </span>
       </div>
       
       <div className="grid grid-cols-2 gap-3">

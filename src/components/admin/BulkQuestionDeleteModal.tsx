@@ -332,8 +332,8 @@ export const BulkQuestionDeleteModal: React.FC<BulkQuestionDeleteModalProps> = (
           const nextStore = bulkDeleteQuestions(questionsStore, idsToDelete);
           onStoreUpdated(nextStore);
         }
-        const { deleteMCQsBulkFromCloud } = await import("../../utils/firebaseSyncService");
-        await deleteMCQsBulkFromCloud(idsToDelete);
+        const { deleteQuestionsBulkFromSupabase } = await import("../../utils/supabaseSyncService");
+        await deleteQuestionsBulkFromSupabase(idsToDelete);
       }
 
       triggerAdminToast(
@@ -369,8 +369,8 @@ export const BulkQuestionDeleteModal: React.FC<BulkQuestionDeleteModalProps> = (
           const nextStore = bulkDeleteQuestions(questionsStore, [id]);
           onStoreUpdated(nextStore);
         }
-        const { deleteMCQsBulkFromCloud } = await import("../../utils/firebaseSyncService");
-        await deleteMCQsBulkFromCloud([id]);
+        const { deleteQuestionFromSupabase } = await import("../../utils/supabaseSyncService");
+        await deleteQuestionFromSupabase(id);
       }
 
       setSelectedIds((prev) => {
@@ -964,7 +964,7 @@ export const BulkQuestionDeleteModal: React.FC<BulkQuestionDeleteModalProps> = (
                 className="mt-0.5 rounded text-rose-600 focus:ring-rose-500"
               />
               <span className="text-[11px] font-semibold text-amber-900 dark:text-amber-200 leading-tight">
-                I understand that deleting these {selectedStats.total} question(s) will permanently remove them from local storage and sync tombstone deletion to Firebase.
+                I understand that deleting these {selectedStats.total} question(s) will permanently remove them from local storage and sync deletion to Supabase PostgreSQL.
               </span>
             </label>
 

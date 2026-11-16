@@ -1,6 +1,5 @@
 import * as React from "react";
-import { auth, db } from "../../lib/firebase";
-import { collection, getDocs, doc } from "firebase/firestore";
+import { supabase } from "../../lib/supabase";
 import { guardedSetDoc, guardedDeleteDoc } from "../../utils/quotaTracker";
 import { loadUserProfile } from "../../utils/userProfileStorage";
 import { AIApiConfig, AIProvider, AIKeyHealthStatus } from "../../types";
@@ -98,15 +97,13 @@ export const AIApiManagementSection: React.FC = () => {
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
     };
-    const user = auth.currentUser;
-    if (user) {
-      try {
-        const token = await user.getIdToken();
-        if (token) {
-          headers["Authorization"] = `Bearer ${token}`;
-        }
-      } catch {}
-    }
+    try {
+      const { data } = await supabase.auth.getSession();
+      const token = data?.session?.access_token;
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+    } catch {}
     return headers;
   };
 
@@ -588,7 +585,7 @@ export const AIApiManagementSection: React.FC = () => {
           <div className="flex flex-wrap items-center gap-4">
             <div className="flex items-center gap-1.5">
               <ShieldCheck className="w-3.5 h-3.5 text-indigo-500" />
-              <span>Project ID: <span className="font-bold text-slate-700">{firebaseInfo?.projectId?.slice(0, 12)}...</span></span>
+              <span>Database Instance: <span className="font-bold text-slate-700">eaidivceejkdqsshlraj</span></span>
             </div>
             <div className="flex items-center gap-1.5">
               <Database className="w-3.5 h-3.5 text-emerald-500" />
