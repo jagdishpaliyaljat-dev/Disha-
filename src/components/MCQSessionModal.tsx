@@ -212,9 +212,12 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
     };
   }, []);
 
-  // Test Timer
+  // Test Timer with single source of truth & timestamp calculation
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   latestSessionMetaRef.current.elapsedSeconds = elapsedSeconds;
+  const sessionStartTimeRef = useRef<number | null>(null);
+  const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const hasSubmittedRef = useRef<boolean>(false);
 
   // Per-question timing tracking (seconds)
   const questionStartTimeRef = useRef<number>(Date.now());
@@ -384,23 +387,55 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
     return [...shuffleArray(shufflableIndices), ...bottomIndices];
   };
 
-  // Format time utility
+  // Format time utility (Supports HH:MM:SS and MM:SS without string concatenation)
   const formatTime = (totalSeconds: number) => {
-    const mins = Math.floor(totalSeconds / 60);
-    const secs = totalSeconds % 60;
+    const safeSecs = Math.max(0, Math.floor(Number(totalSeconds) || 0));
+    const hrs = Math.floor(safeSecs / 3600);
+    const mins = Math.floor((safeSecs % 3600) / 60);
+    const secs = safeSecs % 60;
+    if (hrs > 0) {
+      return `${String(hrs).padStart(2, "0")}:${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+    }
     return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
   };
 
-  // Timer effect
+  // Timer effect using single source of truth & real timestamp-based calculation
   useEffect(() => {
-    if (!isStarted || isCompleted) return;
-    const timer = setInterval(() => {
-      setElapsedSeconds((prev) => prev + 1);
-    }, 1000);
-    return () => clearInterval(timer);
+    if (!isStarted || isCompleted || hasSubmittedRef.current) {
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
+        timerIntervalRef.current = null;
+      }
+      return;
+    }
+
+    if (sessionStartTimeRef.current === null) {
+      sessionStartTimeRef.current = Date.now();
+    }
+
+    const tick = () => {
+      if (hasSubmittedRef.current || sessionStartTimeRef.current === null) return;
+      const now = Date.now();
+      const currentElapsed = Math.max(0, Math.floor((now - sessionStartTimeRef.current) / 1000));
+      setElapsedSeconds(currentElapsed);
+    };
+
+    tick();
+
+    if (timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current);
+    }
+    timerIntervalRef.current = setInterval(tick, 1000);
+
+    return () => {
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
+        timerIntervalRef.current = null;
+      }
+    };
   }, [isStarted, isCompleted]);
 
-  // Tab visibility listener for accurate active time tracking
+  // Tab visibility listener for accurate active time tracking & timer resync
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.hidden) {
@@ -410,6 +445,11 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
         );
       } else {
         questionStartTimeRef.current = Date.now();
+        // Immediately sync elapsed timer from timestamp when user returns to tab
+        if (isStarted && !isCompleted && !hasSubmittedRef.current && sessionStartTimeRef.current !== null) {
+          const currentElapsed = Math.max(0, Math.floor((Date.now() - sessionStartTimeRef.current) / 1000));
+          setElapsedSeconds(currentElapsed);
+        }
       }
     };
 
@@ -417,7 +457,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
     return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, []);
+  }, [isStarted, isCompleted]);
 
   // Reset per-question timing timer when currentIndex or session start changes
   useEffect(() => {
@@ -488,26 +528,57 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
     };
   }, [isExamMode, isCompleted, showExitConfirm, showPalette, showSettingsModal, showSubmitConfirm, onClose]);
 
-  // Reset when session changes
+  // Stable unique session identity key
+  const sessionKey = useMemo(() => {
+    return (
+      session.testId ||
+      session.liveTestDetails?.id ||
+      session.pyqDetails?.id ||
+      `${session.source}_${session.chapterId || ""}_${session.topicId || ""}_${session.title}_${session.isTestMode ? "test" : "practice"}`
+    );
+  }, [
+    session.testId,
+    session.liveTestDetails?.id,
+    session.pyqDetails?.id,
+    session.source,
+    session.chapterId,
+    session.topicId,
+    session.title,
+    session.isTestMode,
+  ]);
+
+  const activeSessionKeyRef = useRef<string | null>(null);
+
+  // Reset when session changes (guarded strictly by sessionKey to prevent mid-session re-shuffle or index/timer reset)
   useEffect(() => {
+    if (activeSessionKeyRef.current === sessionKey) {
+      // Session has not changed; do not reset mid-session state
+      return;
+    }
+    activeSessionKeyRef.current = sessionKey;
+
     const initialShuffle = Boolean(session.shuffleQuestions ?? settings.shuffleQuestions ?? false);
     setShuffleQuestions(initialShuffle);
-    
-    const uniqueIds = Array.from(new Set(allSessionQuestionIds));
-    const newQuestionIds = initialShuffle ? shuffleArray(uniqueIds) : uniqueIds;
+
+    const candidateIds = allSessionQuestionIds && allSessionQuestionIds.length > 0
+      ? allSessionQuestionIds
+      : (session.questionIds || []);
+    const uniqueIds = Array.from(new Set(candidateIds.filter(Boolean)));
+    const newQuestionIds = initialShuffle ? shuffleArray([...uniqueIds]) : [...uniqueIds];
     setActiveQuestionIds(newQuestionIds);
-    
+
     // Pre-shuffle options for all questions in the session
     const newShuffledOptions: Record<string, number[]> = {};
-    uniqueIds.forEach(id => {
-      const q = effectiveQuestionsMap[id];
+    uniqueIds.forEach((id) => {
+      const q = effectiveQuestionsMap[id] || questionsMap[id] || QUESTIONS_MAP[id];
       if (q) {
         newShuffledOptions[id] = getShuffledOptionIndices(q.options, q);
       }
     });
     setShuffledOptionsOrder(newShuffledOptions);
 
-    setIsStarted(session.source === "topic" || !isExamMode);
+    const willStart = session.source === "topic" || !isExamMode;
+    setIsStarted(willStart);
     setCurrentIndex(0);
     setSelectedOptionIndex(null);
     setIsSubmitted(false);
@@ -520,11 +591,15 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
     setShowExitConfirm(false);
     setShowSubmitConfirm(false);
     setAnalyticsFilter("all");
+    hasSubmittedRef.current = false;
+    sessionStartTimeRef.current = willStart ? Date.now() : null;
+    questionStartTimeRef.current = Date.now();
+    questionElapsedBeforeInactiveRef.current = 0;
     if (autoAdvanceTimeoutRef.current) {
       clearTimeout(autoAdvanceTimeoutRef.current);
       autoAdvanceTimeoutRef.current = null;
     }
-  }, [allSessionQuestionIds, session.title, session.isTestMode, effectiveQuestionsMap]);
+  }, [sessionKey]);
 
   // Handle late-loading questions for the current session
   useEffect(() => {
@@ -535,7 +610,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
     
     allSessionQuestionIds.forEach(id => {
       if (!nextShuffledOptions[id]) {
-        const q = effectiveQuestionsMap[id];
+        const q = effectiveQuestionsMap[id] || questionsMap[id] || QUESTIONS_MAP[id];
         if (q) {
           nextShuffledOptions[id] = getShuffledOptionIndices(q.options, q);
           hasUpdates = true;
@@ -546,32 +621,44 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
     if (hasUpdates) {
       setShuffledOptionsOrder(nextShuffledOptions);
     }
-  }, [effectiveQuestionsMap, allSessionQuestionIds]);
+  }, [effectiveQuestionsMap, allSessionQuestionIds, questionsMap]);
 
   // Base raw questions from session
   const baseQuestions: Question[] = useMemo(() => {
     const raw = allSessionQuestionIds
-      .map((id) => effectiveQuestionsMap[id])
+      .map((id) => effectiveQuestionsMap[id] || questionsMap[id] || QUESTIONS_MAP[id])
       .filter((q): q is Question => Boolean(q));
     const deduped = new Map<string, Question>();
     raw.forEach(q => deduped.set(q.id, q));
     return Array.from(deduped.values());
-  }, [allSessionQuestionIds, effectiveQuestionsMap]);
+  }, [allSessionQuestionIds, effectiveQuestionsMap, questionsMap]);
 
-  // Active ordered questions
+  // Active ordered questions (guaranteed 1-to-1 mapped with activeQuestionIds, immune to async loading shift)
   const questions: Question[] = useMemo(() => {
-    const isFullQ = (q: any): q is Question => Boolean(q && (q.text || (q as any).question) && Array.isArray(q.options) && q.options.length >= 2);
-    const list = activeQuestionIds
-      .map((id) => effectiveQuestionsMap[id])
-      .filter(isFullQ);
-    
+    const isFullQ = (q: any): q is Question =>
+      Boolean(q && (q.text || (q as any).question) && Array.isArray(q.options) && q.options.length >= 2);
+
+    const list = activeQuestionIds.map((id) => {
+      const q = effectiveQuestionsMap[id] || questionsMap[id] || QUESTIONS_MAP[id];
+      if (isFullQ(q)) {
+        return { ...q, id: q.id || id };
+      }
+      return {
+        id,
+        text: (q as any)?.text || "लोड हो रहा है... (Loading question...)",
+        options: Array.isArray(q?.options) && q.options.length >= 2 ? q.options : ["(A)", "(B)", "(C)", "(D)"],
+        correctIndex: q?.correctIndex ?? 0,
+        explanation: q?.explanation || "",
+      } as Question;
+    });
+
     if (list.length === 0 && session.extraQuestions && session.extraQuestions.length > 0) {
       return session.extraQuestions
         .filter(isFullQ)
         .map((q, idx) => ({ ...q, id: q.id || `extra_q_${idx}` }));
     }
     return list;
-  }, [activeQuestionIds, effectiveQuestionsMap, session.extraQuestions]);
+  }, [activeQuestionIds, effectiveQuestionsMap, questionsMap, session.extraQuestions]);
 
   // Trigger Framer-Motion Confetti celebration when a student completes a full MCQ session with 100% accuracy
   useEffect(() => {
@@ -672,7 +759,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
     }
 
     return base;
-  }, [currentQuestion?.id, shuffledOptionsOrder]);
+  }, [currentQuestion?.id, currentQuestion?.options, shuffledOptionsOrder]);
 
   // Filter questions for the detailed analytics section
   const filteredAnalyticsQuestions = useMemo(() => {
@@ -720,8 +807,12 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
     setCurrentIndex(0);
     setSelectedOptionIndex(null);
     setIsSubmitted(false);
-    setIsStarted(true);
+    hasSubmittedRef.current = false;
+    sessionStartTimeRef.current = Date.now();
+    questionStartTimeRef.current = Date.now();
+    questionElapsedBeforeInactiveRef.current = 0;
     setElapsedSeconds(0);
+    setIsStarted(true);
   };
 
   // Allow toggling shuffle mid-session or re-shuffling remaining (for non-test mode)
@@ -850,6 +941,11 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
             return;
           }
           // All answered - Complete test & flush buffered student writes
+          if (timerIntervalRef.current) {
+            clearInterval(timerIntervalRef.current);
+            timerIntervalRef.current = null;
+          }
+          hasSubmittedRef.current = true;
           setIsCompleted(true);
           flushStudentWriteBuffer({
             trigger: "session_complete",
@@ -921,6 +1017,13 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
   const handleConfirmSubmitTest = async (
     overrideResults?: Record<string, { selectedIndex: number; isCorrect: boolean; isSubmitted: boolean }>
   ) => {
+    if (hasSubmittedRef.current) return;
+    hasSubmittedRef.current = true;
+    if (timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current);
+      timerIntervalRef.current = null;
+    }
+
     // 1. Immediately hide dialogs and show results screen via state
     setShowSubmitConfirm(false);
     setShowExitConfirm(false);
@@ -1251,6 +1354,11 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
         }
       }, 30);
     } else {
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
+        timerIntervalRef.current = null;
+      }
+      hasSubmittedRef.current = true;
       setIsCompleted(true);
       flushStudentWriteBuffer({
         trigger: "session_complete",
@@ -2352,7 +2460,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
             <div className="h-[2px] flex-1 bg-[#E8D9C0] dark:bg-[#31374A]" />
           </div>
 
-          <div className="bg-white dark:bg-[#1F2330] p-[0.85rem] sm:p-[1.19rem] rounded-[21px] border border-[#E8D9C0] dark:border-[#31374A] shadow-2xs">
+          <div key={currentQuestion.id} className="bg-white dark:bg-[#1F2330] p-[0.85rem] sm:p-[1.19rem] rounded-[21px] border border-[#E8D9C0] dark:border-[#31374A] shadow-2xs">
             <ParsedQuestion 
               text={currentQuestion.text} 
               fontSizeClass={questionFontSizeClass} 
@@ -2414,7 +2522,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
 
               return (
                 <motion.button
-                  key={`${opt.originalIndex}-${idx}`}
+                  key={`${currentQuestion.id}-opt-${opt.originalIndex}`}
                   disabled={!isTestMode && isSubmitted}
                   onClick={() => {
                     if (isTestMode) {
@@ -2597,7 +2705,8 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
 
               <div className="flex-1 overflow-y-auto p-5 scrollbar-hide">
                 <div className="grid grid-cols-5 sm:grid-cols-8 gap-3">
-                  {activeQuestionIds.map((qid, idx) => {
+                  {questions.map((q, idx) => {
+                    const qid = q.id;
                     const result = sessionResults[qid];
                     const isBookmarked = progressStore[qid]?.bookmarked;
                     const isCurrent = idx === currentIndex;
@@ -2611,13 +2720,12 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
 
                     return (
                       <button
-                        key={qid}
+                        key={`pal-${qid}`}
                         onClick={() => {
                           if (isTestMode) handleNavigateQuestionTestMode(idx);
                           else {
                             setCurrentIndex(idx);
-                            const q = questions[idx];
-                            const res = sessionResults[q?.id];
+                            const res = sessionResults[qid];
                             if (res) {
                               setSelectedOptionIndex(res.selectedIndex);
                               setIsSubmitted(res.isSubmitted);
@@ -2884,18 +2992,19 @@ function RedesignedLiveAndPYQTestView({
   const isTimeUrgent = remainingSecs <= 300; // < 5 mins left
 
   const formatCountdown = (secs: number) => {
-    const h = Math.floor(secs / 3600);
-    const m = Math.floor((secs % 3600) / 60);
-    const s = secs % 60;
-    if (h > 0) {
-      return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
-    }
-    return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+    const safeSecs = Math.max(0, Math.floor(Number(secs) || 0));
+    const h = Math.floor(safeSecs / 3600);
+    const m = Math.floor((safeSecs % 3600) / 60);
+    const s = safeSecs % 60;
+    return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
   };
 
-  // Auto-submit when countdown timer reaches zero
+  const hasAutoSubmittedRef = useRef(false);
+
+  // Auto-submit when countdown timer reaches zero (fires exactly once)
   useEffect(() => {
-    if (totalLimitSecs > 0 && elapsedSeconds >= totalLimitSecs) {
+    if (totalLimitSecs > 0 && elapsedSeconds >= totalLimitSecs && !hasAutoSubmittedRef.current) {
+      hasAutoSubmittedRef.current = true;
       onConfirmSubmit();
     }
   }, [elapsedSeconds, totalLimitSecs, onConfirmSubmit]);
@@ -3146,7 +3255,7 @@ function RedesignedLiveAndPYQTestView({
               </div>
             </div>
 
-            <div className="bg-white dark:bg-[#1F2330] p-[1.06rem] sm:p-[1.7rem] rounded-[26px] border border-[#E8D9C0] dark:border-[#31374A] shadow-2xs">
+            <div key={currentQuestion?.id} className="bg-white dark:bg-[#1F2330] p-[1.06rem] sm:p-[1.7rem] rounded-[26px] border border-[#E8D9C0] dark:border-[#31374A] shadow-2xs">
               <div className="text-[1.10rem] sm:text-[1.22rem] font-bold text-[#171923] dark:text-[#FFF9EF] leading-snug font-hindi">
                 <ParsedQuestion text={currentQuestion?.text || ""} fontSizeClass="text-[1.10rem] sm:text-[1.22rem]" question={currentQuestion} />
               </div>
@@ -3157,7 +3266,7 @@ function RedesignedLiveAndPYQTestView({
                 const isSelected = selectedOptionIndex === opt.originalIndex;
                 return (
                   <motion.button
-                    key={`${opt.originalIndex}-${idx}`}
+                    key={`${currentQuestion?.id}-opt-${opt.originalIndex}`}
                     onClick={() => handleSelectOption(opt.originalIndex)}
                     whileTap={{ scale: 0.97 }}
                     className={`w-full p-[0.85rem] sm:p-[1.06rem] rounded-[18px] border-2 text-left flex items-start gap-3.5 transition-all duration-200 cursor-pointer ${
@@ -3239,7 +3348,7 @@ function RedesignedLiveAndPYQTestView({
 
                   return (
                     <button
-                      key={`cbt-${q.id}-${idx}`}
+                      key={`cbt-${q.id}`}
                       onClick={() => setCurrentIndex(idx)}
                       className={`h-9 rounded-xl flex items-center justify-center font-black text-xs font-mono border-2 transition-all cursor-pointer active:scale-95 ${bg} ${
                         isCurr ? 'ring-2 ring-[#800020] dark:ring-[#F47B20] scale-105 z-10 !border-[#800020] dark:!border-[#F47B20]' : ''
@@ -3388,7 +3497,7 @@ function RedesignedLiveAndPYQTestView({
 
                     return (
                       <button
-                        key={`${q.id}-${idx}`}
+                        key={`drawer-${q.id}`}
                         onClick={() => {
                           setCurrentIndex(idx);
                           setShowPaletteDrawer(false);
@@ -3768,8 +3877,13 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
   const isRpscDisqualified = serverSubmission ? Boolean(serverSubmission.isRpscDisqualified) : (totalQuestions > 0 && totalCompletelyBlank > totalQuestions * 0.10);
 
   const formatTime = (totalSecs: number) => {
-    const mins = Math.floor(totalSecs / 60);
-    const secs = totalSecs % 60;
+    const safeSecs = Math.max(0, Math.floor(Number(totalSecs) || 0));
+    const hrs = Math.floor(safeSecs / 3600);
+    const mins = Math.floor((safeSecs % 3600) / 60);
+    const secs = safeSecs % 60;
+    if (hrs > 0) {
+      return `${String(hrs).padStart(2, "0")}:${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+    }
     return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
   };
 

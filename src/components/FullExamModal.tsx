@@ -201,15 +201,13 @@ export const FullExamModal: React.FC<FullExamModalProps> = ({
     }
   }, [currentIdx, screen, activeQuestionIds]);
 
-  // Format Time display: HH:MM:SS or MM:SS
+  // Format Time display: always HH:MM:SS format
   const formatCountdown = (totalSecs: number) => {
-    const hours = Math.floor(totalSecs / 3600);
-    const mins = Math.floor((totalSecs % 3600) / 60);
-    const secs = totalSecs % 60;
-    if (hours > 0) {
-      return `${String(hours).padStart(2, "0")}:${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
-    }
-    return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+    const safeSecs = Math.max(0, Math.floor(Number(totalSecs) || 0));
+    const hours = Math.floor(safeSecs / 3600);
+    const mins = Math.floor((safeSecs % 3600) / 60);
+    const secs = safeSecs % 60;
+    return `${String(hours).padStart(2, "0")}:${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
   };
 
   // Start Exam generator
@@ -847,7 +845,7 @@ export const FullExamModal: React.FC<FullExamModalProps> = ({
 
                     return (
                       <button
-                        key={optIdx}
+                        key={`${currentQuestion.id}-opt-${optIdx}`}
                         onClick={() => handleSelectOption(optIdx)}
                         className={`group w-full p-[0.77rem] sm:p-[0.96rem] rounded-[20px] border-2 text-left transition-all duration-200 flex items-center gap-3 select-none relative overflow-hidden active:scale-[0.98] ${
                           isSelected

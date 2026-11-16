@@ -598,14 +598,19 @@ export function hasPendingStudentWrites(): boolean {
 export function bufferProgressUpdate(
   questionId: string,
   progress: QuestionProgress,
-  opts?: { userProfile?: UserProfile | null; isAdminPreview?: boolean }
+  opts?: { userProfile?: UserProfile | null; isAdminPreview?: boolean } | string
 ): void {
   if (!questionId || !progress) return;
-  if (!isStudentTrackingAllowed(opts?.userProfile, { isAdminPreview: opts?.isAdminPreview })) {
+  const userProfile = typeof opts === "string" 
+    ? ({ id: opts, email: `${opts}@example.com`, name: "Student" } as UserProfile) 
+    : opts?.userProfile;
+  const isAdminPreview = typeof opts === "object" ? opts?.isAdminPreview : false;
+
+  if (!isStudentTrackingAllowed(userProfile, { isAdminPreview })) {
     return;
   }
 
-  const identity = getActiveUserIdentity(opts?.userProfile);
+  const identity = getActiveUserIdentity(userProfile);
   if (!identity) return;
 
   const buf = getStagingBuffer();
@@ -626,14 +631,19 @@ export function bufferProgressUpdate(
 export function bufferHistoryUpdate(
   dateStr: string,
   record: { correct: number; wrong: number },
-  opts?: { userProfile?: UserProfile | null; isAdminPreview?: boolean }
+  opts?: { userProfile?: UserProfile | null; isAdminPreview?: boolean } | string
 ): void {
   if (!dateStr || !record) return;
-  if (!isStudentTrackingAllowed(opts?.userProfile, { isAdminPreview: opts?.isAdminPreview })) {
+  const userProfile = typeof opts === "string" 
+    ? ({ id: opts, email: `${opts}@example.com`, name: "Student" } as UserProfile) 
+    : opts?.userProfile;
+  const isAdminPreview = typeof opts === "object" ? opts?.isAdminPreview : false;
+
+  if (!isStudentTrackingAllowed(userProfile, { isAdminPreview })) {
     return;
   }
 
-  const identity = getActiveUserIdentity(opts?.userProfile);
+  const identity = getActiveUserIdentity(userProfile);
   if (!identity) return;
 
   const buf = getStagingBuffer();
