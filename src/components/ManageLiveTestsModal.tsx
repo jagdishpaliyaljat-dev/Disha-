@@ -125,7 +125,7 @@ export const ManageLiveTestsModal: React.FC<ManageLiveTestsModalProps> = ({
     
     // Auto select questions from chapters if available
     const allQuestions: Question[] = [];
-    chapters.forEach((ch) => ch.topics.forEach((t) => allQuestions.push(...t.questions)));
+    chapters.forEach((ch) => (ch.topics || []).forEach((t) => allQuestions.push(...(t.questions || []))));
     setSelectedQuestions(deduplicateQuestions(allQuestions).slice(0, 10));
 
     setIsCreating(true);

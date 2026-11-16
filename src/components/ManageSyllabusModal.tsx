@@ -243,7 +243,7 @@ export const ManageSyllabusModal: React.FC<ManageSyllabusModalProps> = ({
               }`}
             >
               <Layers className="w-3.5 h-3.5" />
-              <span>Topics ({chapters.reduce((acc, c) => acc + c.topics.length, 0)})</span>
+              <span>Topics ({chapters.reduce((acc, c) => acc + (c.topics?.length || 0), 0)})</span>
             </button>
           </div>
 
@@ -473,7 +473,7 @@ export const ManageSyllabusModal: React.FC<ManageSyllabusModalProps> = ({
                                     {getChapterDisplayName(ch)}
                                 </h4>
                                 <p className="text-xs text-slate-400 truncate">
-                                    {getChapterSecondaryTitle(ch) ? `${getChapterSecondaryTitle(ch)} • ` : ""}{ch.topics.length} Topics • {ch.isPublished ? 'Published' : 'Draft'}
+                                    {getChapterSecondaryTitle(ch) ? `${getChapterSecondaryTitle(ch)} • ` : ""}{(ch.topics?.length || 0)} Topics • {ch.isPublished ? 'Published' : 'Draft'}
                                 </p>
                             </div>
                         </div>
@@ -523,7 +523,7 @@ export const ManageSyllabusModal: React.FC<ManageSyllabusModalProps> = ({
                     </span>
                     <div className="flex items-center gap-2">
                       <span className="text-[11px] font-mono text-slate-400 font-bold">
-                        {ch.topics.length} Topics
+                        {(ch.topics?.length || 0)} Topics
                       </span>
                       {onShowAddTopic && (
                         <button
@@ -540,12 +540,12 @@ export const ManageSyllabusModal: React.FC<ManageSyllabusModalProps> = ({
                   </div>
 
                   <div className="space-y-2">
-                    {ch.topics.length === 0 ? (
+                    {(ch.topics?.length || 0) === 0 ? (
                       <p className="text-xs text-slate-400 italic">
                         No topics found
                       </p>
                     ) : (
-                      ch.topics
+                      (ch.topics || [])
                         .sort((a, b) => (a.number || 0) - (b.number || 0))
                         .map((t, tIdx) => {
                         const isEditing = editingTopic?.id === t.id;

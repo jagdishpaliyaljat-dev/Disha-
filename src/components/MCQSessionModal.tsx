@@ -610,7 +610,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
     const topId = currentQuestion.topicId;
     if (topId && TOPICS_MAP[topId]) return TOPICS_MAP[topId];
     if (currentChapter && topId) {
-      return currentChapter.topics.find((t: any) => t.id === topId) || null;
+      return (currentChapter.topics || []).find((t: any) => t.id === topId) || null;
     }
     return null;
   }, [currentChapter, currentQuestion]);

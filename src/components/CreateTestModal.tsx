@@ -112,10 +112,10 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({
       return questions;
     }
     if (scope === "chapter-wise" && selectedChapter) {
-      return selectedChapter.topics.flatMap((t) => t.questions);
+      return (selectedChapter.topics || []).flatMap((t) => t.questions || []);
     }
     if (scope === "topic" && selectedTopic) {
-      return selectedTopic.questions;
+      return selectedTopic.questions || [];
     }
     return [];
   }, [scope, selectedChapter, selectedTopic, questions]);
@@ -428,7 +428,7 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({
                     ch.hindiTitle.toLowerCase().includes(chapterSearchQuery.toLowerCase())
                   )
                   .map((ch) => {
-                    const qCount = ch.topics.flatMap((t) => t.questions).length;
+                    const qCount = (ch.topics || []).flatMap((t) => t.questions || []).length;
                     return (
                       <button
                         key={ch.id}
@@ -471,7 +471,7 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({
 
               <div className="space-y-4">
                 {chapters.map((ch) => {
-                  const filteredTopics = ch.topics.filter(
+                  const filteredTopics = (ch.topics || []).filter(
                     (t) =>
                       t.title.toLowerCase().includes(topicSearchQuery.toLowerCase()) ||
                       t.hindiTitle.toLowerCase().includes(topicSearchQuery.toLowerCase())

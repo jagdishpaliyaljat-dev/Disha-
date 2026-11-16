@@ -61,7 +61,7 @@ export const ChapterDetailView: React.FC<ChapterDetailViewProps> = ({
 
   const selectedTopicForModal = React.useMemo(() => {
     if (selectedTopicId && chapter) {
-      return chapter.topics.find((t) => t.id === selectedTopicId) || null;
+      return (chapter.topics || []).find((t) => t.id === selectedTopicId) || null;
     }
     return localTopicForModal;
   }, [selectedTopicId, chapter, localTopicForModal]);
@@ -81,7 +81,7 @@ export const ChapterDetailView: React.FC<ChapterDetailViewProps> = ({
   }
 
   // Real question counts for the chapter
-  const allChapterQuestions = chapter.topics.flatMap((t) => t.questions);
+  const allChapterQuestions = (chapter.topics || []).flatMap((t) => t.questions || []);
   
   // Real mastery calculation
   const correctInChapter = allChapterQuestions.filter(
@@ -183,7 +183,7 @@ export const ChapterDetailView: React.FC<ChapterDetailViewProps> = ({
       </div>
 
       <main className="p-4 grid grid-cols-1 md:grid-cols-2 gap-2.5 max-w-3xl mx-auto w-full">
-        {chapter.topics.map((topic, index) => {
+        {(chapter.topics || []).map((topic, index) => {
           const topicNum = index + 1;
           const qCount =
             topic.questions && topic.questions.length > 0

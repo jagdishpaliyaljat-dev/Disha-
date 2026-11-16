@@ -85,7 +85,7 @@ export const ManageQuestionsModal: React.FC<ManageQuestionsModalProps> = ({
 
   const activeTopic = useMemo(() => {
     if (!activeChapter || !selectedTopic) return null;
-    return activeChapter.topics.find((t) => t.id === selectedTopic.topicId) || null;
+    return (activeChapter.topics || []).find((t) => t.id === selectedTopic.topicId) || null;
   }, [activeChapter, selectedTopic]);
 
   // Search & filter
@@ -246,8 +246,9 @@ export const ManageQuestionsModal: React.FC<ManageQuestionsModalProps> = ({
 
     for (let cIdx = 0; cIdx < chapters.length; cIdx++) {
       const ch = chapters[cIdx];
-      for (let tIdx = 0; tIdx < ch.topics.length; tIdx++) {
-        const top = ch.topics[tIdx];
+      const chTopics = ch.topics || [];
+      for (let tIdx = 0; tIdx < chTopics.length; tIdx++) {
+        const top = chTopics[tIdx];
         if (!top.questions) continue;
         for (let qIdx = 0; qIdx < top.questions.length; qIdx++) {
           const item = top.questions[qIdx];
@@ -339,8 +340,9 @@ export const ManageQuestionsModal: React.FC<ManageQuestionsModalProps> = ({
     const list: Question[] = [];
     for (let cIdx = 0; cIdx < chapters.length; cIdx++) {
       const ch = chapters[cIdx];
-      for (let tIdx = 0; tIdx < ch.topics.length; tIdx++) {
-        const top = ch.topics[tIdx];
+      const chTopics = ch.topics || [];
+      for (let tIdx = 0; tIdx < chTopics.length; tIdx++) {
+        const top = chTopics[tIdx];
         if (!top.questions) continue;
         for (let qIdx = 0; qIdx < top.questions.length; qIdx++) {
           list.push(top.questions[qIdx]);
@@ -431,7 +433,7 @@ export const ManageQuestionsModal: React.FC<ManageQuestionsModalProps> = ({
   // Select entire chapter
   const handleToggleChapterSelect = (chapter: Chapter, e: React.MouseEvent) => {
     e.stopPropagation();
-    const chapterQuestionIds = chapter.topics.flatMap(t => (t.questions || []).map(q => q.id));
+    const chapterQuestionIds = (chapter.topics || []).flatMap(t => (t.questions || []).map(q => q.id));
     const isChapterFullySelected = chapterQuestionIds.length > 0 && chapterQuestionIds.every(id => selectedQuestionIds.has(id));
 
     setSelectedQuestionIds(prev => {
@@ -519,7 +521,7 @@ export const ManageQuestionsModal: React.FC<ManageQuestionsModalProps> = ({
       }
 
       const targetChapter = chapters.find((c) => c.id === targetChapterId);
-      const targetTopic = targetChapter?.topics.find((t) => t.id === targetTopicId);
+      const targetTopic = (targetChapter?.topics || []).find((t) => t.id === targetTopicId);
 
       showNotification(
         `Moved ${ids.length} question(s) to "${targetTopic?.title || "selected topic"}".`

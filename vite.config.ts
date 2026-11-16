@@ -10,7 +10,7 @@ export default defineConfig(({ command }) => {
       react(), 
       tailwindcss(),
       VitePWA({
-        registerType: 'prompt',
+        registerType: 'autoUpdate',
         includeAssets: [
           'favicon.ico',
           'favicon.png',

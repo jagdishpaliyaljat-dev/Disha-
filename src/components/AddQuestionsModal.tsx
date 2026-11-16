@@ -743,8 +743,8 @@ export const AddQuestionsModal: React.FC<AddQuestionsModalProps> = ({
     if (!draftQuestions) return new Set<string>();
     const existingHashes = new Set(
       chapters.flatMap((c) =>
-        c.topics.flatMap((t) =>
-          t.questions.map((q) =>
+        (c.topics || []).flatMap((t) =>
+          (t.questions || []).map((q) =>
             generateQuestionHash({
               question: q.text,
               options: q.options,
@@ -884,8 +884,8 @@ export const AddQuestionsModal: React.FC<AddQuestionsModalProps> = ({
 
     const existingHashes = new Set(
       chapters.flatMap((c) =>
-        c.topics.flatMap((t) =>
-          t.questions.map((q) =>
+        (c.topics || []).flatMap((t) =>
+          (t.questions || []).map((q) =>
             generateQuestionHash({
               question: q.text,
               options: q.options,
@@ -1306,10 +1306,10 @@ export const AddQuestionsModal: React.FC<AddQuestionsModalProps> = ({
           chapters[0]?.id;
         const targetCh = chapters.find((c) => c.id === chId) || selectedChapter || chapters[0];
         const tId =
-          (selectedTopicId && targetCh?.topics.some((t) => t.id === selectedTopicId) ? selectedTopicId : null) ||
-          (d.topicId && targetCh?.topics.some((t) => t.id === d.topicId) ? d.topicId : null) ||
+          (selectedTopicId && targetCh?.topics?.some((t) => t.id === selectedTopicId) ? selectedTopicId : null) ||
+          (d.topicId && targetCh?.topics?.some((t) => t.id === d.topicId) ? d.topicId : null) ||
           selectedTopicId ||
-          targetCh?.topics[0]?.id ||
+          targetCh?.topics?.[0]?.id ||
           "";
         const questionSubjectId =
           (selectedSubjectId && selectedSubjectId !== "all" ? selectedSubjectId : undefined) ||
@@ -1590,9 +1590,9 @@ export const AddQuestionsModal: React.FC<AddQuestionsModalProps> = ({
       (d.chapterId && chapters.some((c) => c.id === d.chapterId) ? d.chapterId : null) ||
       selectedChapterId || chapters[0]?.id;
     const targetCh = chapters.find((c) => c.id === chId) || selectedChapter || chapters[0];
-    const tId = (selectedTopicId && targetCh?.topics.some((t) => t.id === selectedTopicId) ? selectedTopicId : null) ||
-      (d.topicId && targetCh?.topics.some((t) => t.id === d.topicId) ? d.topicId : null) ||
-      selectedTopicId || targetCh?.topics[0]?.id || "";
+    const tId = (selectedTopicId && targetCh?.topics?.some((t) => t.id === selectedTopicId) ? selectedTopicId : null) ||
+      (d.topicId && targetCh?.topics?.some((t) => t.id === d.topicId) ? d.topicId : null) ||
+      selectedTopicId || targetCh?.topics?.[0]?.id || "";
     const questionSubjectId =
       (selectedSubjectId && selectedSubjectId !== "all" ? selectedSubjectId : undefined) ||
       targetCh?.subjectId ||

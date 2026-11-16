@@ -139,7 +139,7 @@ export const TopicsTab: React.FC<TopicsTabProps> = ({
 
   const activeTopic = React.useMemo(() => {
     if (!currentTopicId || !activeChapter) return null;
-    return activeChapter.topics.find((t) => t.id === currentTopicId) || null;
+    return (activeChapter.topics || []).find((t) => t.id === currentTopicId) || null;
   }, [currentTopicId, activeChapter]);
 
   const getSubjectStats = (subjectId: string) => {
@@ -227,7 +227,7 @@ export const TopicsTab: React.FC<TopicsTabProps> = ({
 
         <main className="flex-1 overflow-y-auto px-4 pt-4 pb-20 max-w-4xl mx-auto w-full">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-            {activeChapter.topics
+            {(activeChapter.topics || [])
               .sort((a, b) => (a.number || 0) - (b.number || 0))
               .map((topic, idx) => (
                 <TopicListItem

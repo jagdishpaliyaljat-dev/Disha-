@@ -77,8 +77,31 @@ function safeLazy<T extends React.ComponentType<any>>(
   return React.lazy(() =>
     importFn()
       .catch((err) => {
-        console.warn('Dynamic import failed, retrying once...', err);
-        return new Promise((resolve) => setTimeout(resolve, 1000)).then(() => importFn());
+        console.warn('Dynamic import failed, retrying...', err);
+        const errMsg = String(err?.message || '');
+        const isChunkFail =
+          errMsg.includes('dynamically imported module') ||
+          errMsg.includes('Loading chunk') ||
+          errMsg.includes('Failed to fetch') ||
+          err?.name === 'ChunkLoadError';
+
+        if (isChunkFail && typeof window !== 'undefined') {
+          const RELOAD_KEY = 'disha_chunk_reload_lock';
+          const lastReload = sessionStorage.getItem(RELOAD_KEY);
+          if (!lastReload || Date.now() - Number(lastReload) > 15000) {
+            sessionStorage.setItem(RELOAD_KEY, String(Date.now()));
+            if ('caches' in window) {
+              caches.keys().then((names) => Promise.all(names.map((n) => caches.delete(n)))).finally(() => {
+                window.location.reload();
+              });
+              return new Promise(() => {});
+            } else {
+              window.location.reload();
+              return new Promise(() => {});
+            }
+          }
+        }
+        return new Promise((resolve) => setTimeout(resolve, 800)).then(() => importFn());
       })
       .then((mod) => {
         const component = exportName ? mod[exportName] || mod.default : mod.default || Object.values(mod)[0];
@@ -384,82 +407,9 @@ export default function App() {
     }
   }, []);
 
-  // Realtime Broadcast Notifications Listener
+  // Offline-first local notifications persistence
   React.useEffect(() => {
-    let unsubscribe: (() => void) | null = null;
-    let isMounted = true;
-
-    try {
-      import('firebase/firestore').then(({ collection, query, orderBy, limit, onSnapshot }) => {
-        if (!isMounted) return;
-        const q = query(
-          collection(db, "broadcast_notifications"),
-          orderBy("timestamp", "desc"),
-          limit(50)
-        );
-
-        unsubscribe = onSnapshot(
-          q,
-          (snapshot) => {
-            if (!snapshot || snapshot.empty) return;
-            const remoteBroadcasts: AppNotification[] = snapshot.docs.map((docSnap) => {
-              const data = docSnap.data();
-              return {
-                id: docSnap.id,
-                title: data.title || "",
-                hindiTitle: data.hindiTitle,
-                message: data.message || "",
-                hindiMessage: data.hindiMessage,
-                category: data.category || "system",
-                priority: data.priority || "normal",
-                timestamp: data.timestamp || new Date().toISOString(),
-                read: false,
-                actionType: data.actionType,
-                actionData: data.actionData,
-              };
-            });
-
-            setNotifications((prev) => {
-              const readMap = new Map<string, boolean>();
-              prev.forEach((n) => {
-                readMap.set(n.id, n.read);
-              });
-
-              const remoteIds = new Set(remoteBroadcasts.map((b) => b.id));
-              const merged: AppNotification[] = remoteBroadcasts.map((rb) => ({
-                ...rb,
-                read: readMap.has(rb.id) ? (readMap.get(rb.id) ?? false) : false,
-              }));
-
-              prev.forEach((localNotif) => {
-                if (!remoteIds.has(localNotif.id)) {
-                  merged.push(localNotif);
-                }
-              });
-
-              merged.sort(
-                (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-              );
-
-              saveNotifications(merged);
-              return merged;
-            });
-          },
-          (err) => {
-            console.warn("Firestore broadcast_notifications listener error:", err);
-          }
-        );
-      }).catch((err) => {
-        console.warn("Failed to load firestore for broadcast listener:", err);
-      });
-    } catch (e) {
-      console.warn("Broadcast notifications listener setup failed:", e);
-    }
-
-    return () => {
-      isMounted = false;
-      if (unsubscribe) unsubscribe();
-    };
+    // Loaded from loadNotifications(), synced locally via saveNotifications()
   }, []);
 
   const {

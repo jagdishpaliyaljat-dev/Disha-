@@ -47,13 +47,13 @@ export const MoveQuestionsDialog: React.FC<MoveQuestionsDialogProps> = ({
     if (isMoving) return;
     setTargetChapterId(chId);
     const ch = chapters.find((c) => c.id === chId);
-    if (ch && ch.topics.length > 0) {
-      const differentTopic = ch.topics.find((t) => t.id !== currentTopicId);
-      setTargetTopicId(differentTopic ? differentTopic.id : ch.topics[0].id);
+    if (ch && (ch.topics?.length || 0) > 0) {
+      const differentTopic = ch.topics?.find((t) => t.id !== currentTopicId);
+      setTargetTopicId(differentTopic ? differentTopic.id : (ch.topics?.[0]?.id || ""));
     }
   };
 
-  const selectedTopic = targetChapter?.topics.find((t) => t.id === targetTopicId);
+  const selectedTopic = targetChapter?.topics?.find((t) => t.id === targetTopicId);
 
   // Check if target is identical to source
   const isSameLocation = Boolean(
@@ -163,9 +163,9 @@ export const MoveQuestionsDialog: React.FC<MoveQuestionsDialogProps> = ({
             onChange={(e) => setTargetTopicId(e.target.value)}
             className="w-full p-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-900 dark:text-slate-100 font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer disabled:opacity-50"
           >
-            {targetChapter?.topics.map((t, tIdx) => (
+            {(targetChapter?.topics || []).map((t, tIdx) => (
               <option key={`${t.id}-${tIdx}`} value={t.id}>
-                {t.title} ({t.hindiTitle}) — {t.questions.length} Qs
+                {t.title} ({t.hindiTitle}) — {t.questions?.length || 0} Qs
               </option>
             ))}
           </select>

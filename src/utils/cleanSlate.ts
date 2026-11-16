@@ -19,8 +19,8 @@ import {
  * test MCQs, mock data, sample quizzes, and stress-test artifacts.
  */
 
-const CLEAN_SLATE_VERSION_KEY = "quizpro_clean_slate_zero_mock_v7_0";
-const CURRENT_CLEAN_SLATE_VERSION = "7.0.0";
+const CLEAN_SLATE_VERSION_KEY = "quizpro_clean_slate_zero_mock_v8_0";
+const CURRENT_CLEAN_SLATE_VERSION = "8.0.0";
 
 // Only legacy mock/sample array keys — NEVER reset genuine student progress, bookmarks, or auth
 const KEYS_TO_RESET_TO_EMPTY = [
@@ -491,7 +491,7 @@ export function ensureCleanSlateOnStartup(): void {
 
     // Mark clean slate version as applied
     localStorage.setItem(CLEAN_SLATE_VERSION_KEY, CURRENT_CLEAN_SLATE_VERSION);
-    console.log("[CleanSlate] 7.0.0 applied successfully: All orphaned parent references and mock data completely purged.");
+    console.log("[CleanSlate] 8.0.0 applied successfully: Zero-mock clean slate verified.");
   } catch (e) {
     console.error("[CleanSlate] Startup verification failed:", e);
   }

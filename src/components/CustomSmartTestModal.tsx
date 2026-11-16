@@ -110,7 +110,7 @@ export const CustomSmartTestModal: React.FC<CustomSmartTestModalProps> = ({
     if (selectedChapterId !== "all" && currentChapter) {
       sub = `Ch ${currentChapter.number}: ${currentChapter.title}`;
       if (selectedTopicId !== "all") {
-        const topic = currentChapter.topics.find((t) => t.id === selectedTopicId);
+        const topic = (currentChapter.topics || []).find((t) => t.id === selectedTopicId);
         if (topic) sub += ` • ${topic.title}`;
       }
     } else if (selectedSubject === "all") {

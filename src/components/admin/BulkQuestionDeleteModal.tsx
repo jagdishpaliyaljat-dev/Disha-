@@ -95,8 +95,9 @@ export const BulkQuestionDeleteModal: React.FC<BulkQuestionDeleteModalProps> = (
       const subTitle = sub?.name || sub?.hindiName || "General Studies";
       const chTitle = getChapterDisplayName(ch);
 
-      for (let tIdx = 0; tIdx < ch.topics.length; tIdx++) {
-        const top = ch.topics[tIdx];
+      const chTopics = ch.topics || [];
+      for (let tIdx = 0; tIdx < chTopics.length; tIdx++) {
+        const top = chTopics[tIdx];
         const topTitle = getTopicDisplayName(top);
         const qs = top.questions || [];
 
