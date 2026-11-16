@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import { UserQuestionsStore, Subject, Chapter, Topic, Question } from '../types';
+import { UserQuestionsStore, Subject, Chapter, Topic } from '../types';
 import { 
   addSubject, 
   editSubject, 
@@ -7,18 +7,16 @@ import {
   editChapter, 
   deleteChapter, 
   editTopic, 
-  deleteTopic, 
-  bulkDeleteQuestions, 
-  bulkMoveQuestions 
+  deleteTopic 
 } from '../utils/questionsStorage';
 import {
-  saveSubject,
-  deleteSubjectFromCloud,
-  saveChapter,
-  deleteChapterFromCloud,
-  saveTopic,
-  deleteTopicFromCloud
-} from '../utils/firebaseSyncService';
+  saveSubjectToSupabase,
+  deleteSubjectFromSupabase,
+  saveChapterToSupabase,
+  deleteChapterFromSupabase,
+  saveTopicToSupabase,
+  deleteTopicFromSupabase
+} from '../utils/supabaseSyncService';
 import { triggerFirebaseSavedToast } from '../utils/adminToast';
 
 export const useCurriculumManager = (
@@ -34,16 +32,16 @@ export const useCurriculumManager = (
     saveUserQuestionsStore(nextStore);
     
     addToast('info', 'Saving...', 'Saving subject...');
-    const res = await saveSubject(newSubject);
+    const res = await saveSubjectToSupabase(newSubject);
     if (res.success) {
-      addToast('success', res.isFirebase ? 'Firebase Sync Success' : 'Local Save Success', res.message);
+      addToast('success', 'Backend Sync Success', res.message);
       triggerFirebaseSavedToast({
-        title: "Subject Saved to Firebase!",
-        message: `Subject "${newSubject.name || newSubject.hindiName}" saved to database and live for users!`,
+        title: "Subject Saved!",
+        message: `Subject "${newSubject.name || newSubject.hindiName}" saved to Supabase and live!`,
         itemName: newSubject.name,
       });
     } else {
-      addToast('error', 'Firebase Save Error', res.message);
+      addToast('error', 'Save Error', res.message);
     }
   }, [questionsStore, setQuestionsStore, saveUserQuestionsStore, addToast]);
 
@@ -53,16 +51,16 @@ export const useCurriculumManager = (
     saveUserQuestionsStore(nextStore);
     
     addToast('info', 'Saving...', 'Saving subject...');
-    const res = await saveSubject(updatedSubject);
+    const res = await saveSubjectToSupabase(updatedSubject);
     if (res.success) {
-      addToast('success', res.isFirebase ? 'Firebase Sync Success' : 'Local Save Success', res.message);
+      addToast('success', 'Backend Sync Success', res.message);
       triggerFirebaseSavedToast({
-        title: "Subject Updated in Firebase!",
-        message: `Subject "${updatedSubject.name || updatedSubject.hindiName}" updated in database and live for users!`,
+        title: "Subject Updated!",
+        message: `Subject "${updatedSubject.name || updatedSubject.hindiName}" updated in Supabase!`,
         itemName: updatedSubject.name,
       });
     } else {
-      addToast('error', 'Firebase Save Error', res.message);
+      addToast('error', 'Save Error', res.message);
     }
   }, [questionsStore, setQuestionsStore, saveUserQuestionsStore, addToast]);
 
@@ -72,11 +70,11 @@ export const useCurriculumManager = (
     saveUserQuestionsStore(nextStore);
     
     addToast('info', 'Deleting...', 'Deleting subject...');
-    const res = await deleteSubjectFromCloud(subjectId);
+    const res = await deleteSubjectFromSupabase(subjectId);
     if (res.success) {
-      addToast('success', res.isFirebase ? 'Firebase Sync Success' : 'Local Delete Success', res.message);
+      addToast('success', 'Backend Sync Success', res.message);
     } else {
-      addToast('error', 'Firebase Delete Error', res.message);
+      addToast('error', 'Delete Error', res.message);
     }
   }, [questionsStore, setQuestionsStore, saveUserQuestionsStore, addToast]);
 
@@ -95,16 +93,16 @@ export const useCurriculumManager = (
     saveUserQuestionsStore(nextStore);
     
     addToast('info', 'Saving...', 'Saving chapter...');
-    const res = await saveChapter(chapterToSave);
+    const res = await saveChapterToSupabase(chapterToSave);
     if (res.success) {
-      addToast('success', res.isFirebase ? 'Firebase Sync Success' : 'Local Save Success', res.message);
+      addToast('success', 'Backend Sync Success', res.message);
       triggerFirebaseSavedToast({
-        title: "Chapter Saved to Firebase!",
-        message: `Chapter "${chapterToSave.title || chapterToSave.hindiTitle}" saved to database and live for users!`,
+        title: "Chapter Saved!",
+        message: `Chapter "${chapterToSave.title || chapterToSave.hindiTitle}" saved to Supabase and live!`,
         itemName: chapterToSave.title,
       });
     } else {
-      addToast('error', 'Firebase Save Error', res.message);
+      addToast('error', 'Save Error', res.message);
     }
   }, [questionsStore, setQuestionsStore, saveUserQuestionsStore, addToast]);
 
@@ -118,16 +116,16 @@ export const useCurriculumManager = (
     saveUserQuestionsStore(nextStore);
     
     addToast('info', 'Saving...', 'Saving chapter...');
-    const res = await saveChapter(chapterToSave);
+    const res = await saveChapterToSupabase(chapterToSave);
     if (res.success) {
-      addToast('success', res.isFirebase ? 'Firebase Sync Success' : 'Local Save Success', res.message);
+      addToast('success', 'Backend Sync Success', res.message);
       triggerFirebaseSavedToast({
-        title: "Chapter Updated in Firebase!",
-        message: `Chapter "${chapterToSave.title || chapterToSave.hindiTitle}" updated in database and live for users!`,
+        title: "Chapter Updated!",
+        message: `Chapter "${chapterToSave.title || chapterToSave.hindiTitle}" updated in Supabase!`,
         itemName: chapterToSave.title,
       });
     } else {
-      addToast('error', 'Firebase Save Error', res.message);
+      addToast('error', 'Save Error', res.message);
     }
   }, [questionsStore, setQuestionsStore, saveUserQuestionsStore, addToast]);
 
@@ -137,11 +135,11 @@ export const useCurriculumManager = (
     saveUserQuestionsStore(nextStore);
     
     addToast('info', 'Deleting...', 'Deleting chapter...');
-    const res = await deleteChapterFromCloud(chapterId);
+    const res = await deleteChapterFromSupabase(chapterId);
     if (res.success) {
-      addToast('success', res.isFirebase ? 'Firebase Sync Success' : 'Local Delete Success', res.message);
+      addToast('success', 'Backend Sync Success', res.message);
     } else {
-      addToast('error', 'Firebase Delete Error', res.message);
+      addToast('error', 'Delete Error', res.message);
     }
   }, [questionsStore, setQuestionsStore, saveUserQuestionsStore, addToast]);
 
@@ -154,7 +152,6 @@ export const useCurriculumManager = (
     const currentCustomTopics = questionsStore.customTopics || [];
     const filteredCustomTopics = currentCustomTopics.filter(t => t.id !== topicWithCh.id);
 
-    // Also sync topic into topics array of matching customChapter if present
     const updatedCustomChapters = (questionsStore.customChapters || []).map(ch => {
       if (ch.id === chapterId) {
         const existingTopics = ch.topics || [];
@@ -176,16 +173,16 @@ export const useCurriculumManager = (
     saveUserQuestionsStore(nextStore);
     
     addToast('info', 'Saving...', 'Saving topic...');
-    const res = await saveTopic(topicWithCh);
+    const res = await saveTopicToSupabase(topicWithCh);
     if (res.success) {
-      addToast('success', res.isFirebase ? 'Firebase Sync Success' : 'Local Save Success', res.message);
+      addToast('success', 'Backend Sync Success', res.message);
       triggerFirebaseSavedToast({
-        title: "Topic Saved to Firebase!",
-        message: `Topic "${newTopic.title || newTopic.hindiTitle}" saved to database and live for users!`,
+        title: "Topic Saved!",
+        message: `Topic "${newTopic.title || newTopic.hindiTitle}" saved to Supabase and live!`,
         itemName: newTopic.title,
       });
     } else {
-      addToast('error', 'Firebase Save Error', res.message);
+      addToast('error', 'Save Error', res.message);
     }
   }, [questionsStore, setQuestionsStore, saveUserQuestionsStore, addToast]);
 
@@ -208,37 +205,30 @@ export const useCurriculumManager = (
     saveUserQuestionsStore(nextStore);
     
     addToast('info', 'Saving...', 'Saving topic...');
-    const res = await saveTopic(enrichedTopic);
+    const res = await saveTopicToSupabase(enrichedTopic);
     if (res.success) {
-      addToast('success', res.isFirebase ? 'Firebase Sync Success' : 'Local Save Success', res.message);
+      addToast('success', 'Backend Sync Success', res.message);
       triggerFirebaseSavedToast({
-        title: "Topic Updated in Firebase!",
-        message: `Topic "${updatedTopic.title || updatedTopic.hindiTitle}" updated in database and live for users!`,
+        title: "Topic Updated!",
+        message: `Topic "${updatedTopic.title || updatedTopic.hindiTitle}" updated in Supabase!`,
         itemName: updatedTopic.title,
       });
     } else {
-      addToast('error', 'Firebase Save Error', res.message);
+      addToast('error', 'Save Error', res.message);
     }
   }, [questionsStore, setQuestionsStore, saveUserQuestionsStore, addToast]);
 
   const handleDeleteTopic = useCallback(async (topicId: string, chapterId?: string) => {
-    const targetChId =
-      chapterId ||
-      (questionsStore.customTopics || []).find((t) => t.id === topicId)?.chapterId ||
-      (questionsStore.customChapters || []).find((ch) =>
-        (ch.topics || []).some((t) => t.id === topicId)
-      )?.id;
-
     const nextStore = deleteTopic(questionsStore, topicId);
     setQuestionsStore(nextStore);
     saveUserQuestionsStore(nextStore);
     
-    addToast('info', 'Deleting...', 'Deleting topic from Firebase...');
-    const res = await deleteTopicFromCloud(topicId, targetChId);
+    addToast('info', 'Deleting...', 'Deleting topic from Supabase...');
+    const res = await deleteTopicFromSupabase(topicId);
     if (res.success) {
-      addToast('success', res.isFirebase ? 'Firebase Sync Success' : 'Local Delete Success', res.message);
+      addToast('success', 'Backend Sync Success', res.message);
     } else {
-      addToast('error', 'Firebase Delete Error', res.message);
+      addToast('error', 'Delete Error', res.message);
     }
   }, [questionsStore, setQuestionsStore, saveUserQuestionsStore, addToast]);
 

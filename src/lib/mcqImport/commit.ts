@@ -234,6 +234,38 @@ export const commitQuestions = async (
   const activeUserId = currentUser?.uid || userProfile?.id || "admin_system";
   const activeUserEmail = currentUser?.email || userProfile?.email || "jagdishpaliyaljat@gmail.com";
 
+  // Check if Supabase backend is configured: direct quota-free PostgreSQL import
+  try {
+    const { isSupabaseConfigured } = await import('../../lib/supabase');
+    if (isSupabaseConfigured()) {
+      const { upsertQuestionsToSupabase } = await import('../../utils/supabaseSyncService');
+      const sbRes = await upsertQuestionsToSupabase(questions);
+      if (sbRes.success) {
+        if (onProgress) {
+          onProgress({
+            currentChunk: 1,
+            totalChunks: 1,
+            committedCount: questions.length,
+            totalCount: questions.length,
+            progressText: `${questions.length}/${questions.length} saved`,
+          });
+        }
+        return {
+          success: true,
+          committedCount: questions.length,
+          skippedCount: 0,
+          failedCount: 0,
+          batchId,
+          failedQuestionIds: [],
+          skippedQuestionIds: [],
+          batchErrors: [],
+        };
+      }
+    }
+  } catch (sbErr) {
+    console.warn("[MCQ Import] Supabase direct commit notice:", sbErr);
+  }
+
   // 2. Duplicate & Change Detection against batch + local store + imported hash registry
   const hashRegistry = loadImportedHashRegistry();
   const existingById = new Map<string, string>();

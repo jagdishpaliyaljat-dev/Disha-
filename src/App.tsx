@@ -1095,16 +1095,15 @@ export default function App() {
     saveUserQuestionsStore(nextStore);
 
     try {
-      const { commitQuestions } = await import('./lib/mcqImport/commit');
-      const batchId = `import-${Date.now()}`;
-      const commitRes = await commitQuestions(newQuestions, batchId);
+      const { upsertQuestionsToSupabase } = await import('./utils/supabaseSyncService');
+      const commitRes = await upsertQuestionsToSupabase(newQuestions);
       if (commitRes.success) {
-        addToast('success', 'Firebase Sync Success', `${commitRes.committedCount} question(s) saved to Firebase!`);
+        addToast('success', 'Backend Sync Success', commitRes.message);
       } else {
-        addToast('error', 'Firebase Save Error', commitRes.error || 'Failed to save questions');
+        addToast('error', 'Save Notice', commitRes.message || 'Failed to save questions');
       }
     } catch (saveErr: any) {
-      addToast('error', 'Firebase Save Error', saveErr?.message || 'Error saving questions to cloud');
+      addToast('error', 'Save Error', saveErr?.message || 'Error saving questions to cloud');
     }
   };
 
@@ -1113,50 +1112,42 @@ export default function App() {
     const nextStore = editQuestionInStore(questionsStore, updatedQuestion);
     setQuestionsStore(nextStore);
     saveUserQuestionsStore(nextStore);
-    const { saveMCQ } = await import('./utils/firebaseSyncService');
-    const res = await saveMCQ(updatedQuestion);
+    const { upsertQuestionsToSupabase } = await import('./utils/supabaseSyncService');
+    const res = await upsertQuestionsToSupabase([updatedQuestion]);
     if (res.success) {
-      addToast('success', res.isFirebase ? 'Firebase Sync Success' : 'Local Save Success', res.message);
+      addToast('success', 'Backend Sync Success', 'Question updated in Supabase!');
     } else {
-      addToast('error', 'Firebase Save Error', res.message);
+      addToast('error', 'Save Error', res.message);
     }
   };
 
   const handleDeleteQuestion = async (questionId: string) => {
-    const targetQ = combinedQuestions.find(q => q.id === questionId);
-    const topicId = targetQ?.topicId;
-
     const nextStore = bulkDeleteQuestions(questionsStore, [questionId]);
     setQuestionsStore(nextStore);
     saveUserQuestionsStore(nextStore);
 
-    const { deleteMCQFromCloud } = await import('./utils/firebaseSyncService');
-    const res = await deleteMCQFromCloud(questionId, topicId);
-    if (res.isQuotaExceeded) {
-      addToast('info', 'Local Delete Complete', res.message);
-    } else if (res.success) {
-      addToast('success', res.isFirebase ? 'Firebase Sync Success' : 'Local Delete Success', res.message);
+    const { deleteQuestionFromSupabase } = await import('./utils/supabaseSyncService');
+    const res = await deleteQuestionFromSupabase(questionId);
+    if (res.success) {
+      addToast('success', 'Backend Sync Success', 'Question removed from Supabase!');
     } else {
-      addToast('error', 'Firebase Delete Error', res.message);
+      addToast('error', 'Delete Error', res.message);
     }
   };
 
   const handleBulkDeleteQuestions = async (questionIds: string[]) => {
     if (!questionIds || questionIds.length === 0) return;
-    const topicIds = questionIds.map(id => combinedQuestions.find(q => q.id === id)?.topicId).filter(Boolean) as string[];
 
     const nextStore = bulkDeleteQuestions(questionsStore, questionIds);
     setQuestionsStore(nextStore);
     saveUserQuestionsStore(nextStore);
 
-    const { deleteMCQsBulkFromCloud } = await import('./utils/firebaseSyncService');
-    const res = await deleteMCQsBulkFromCloud(questionIds, topicIds);
-    if (res.isQuotaExceeded) {
-      addToast('info', 'Local Deletion Complete', `${questionIds.length} questions deleted locally. Cloud deletion will sync when daily quota resets.`);
-    } else if (res.success) {
-      addToast('success', 'Firebase Sync', `${res.deletedCount || questionIds.length} questions removed from Firebase!`);
+    const { deleteQuestionsBulkFromSupabase } = await import('./utils/supabaseSyncService');
+    const res = await deleteQuestionsBulkFromSupabase(questionIds);
+    if (res.success) {
+      addToast('success', 'Backend Sync Success', `${res.count || questionIds.length} questions removed from Supabase!`);
     } else {
-      addToast('error', 'Firebase Delete Notice', res.message);
+      addToast('error', 'Delete Notice', 'Failed to remove questions from backend');
     }
   };
 
