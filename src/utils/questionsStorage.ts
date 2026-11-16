@@ -164,6 +164,35 @@ export async function hydrateUserQuestionsStoreFromIndexedDB(): Promise<UserQues
       }
     }
 
+    // Hydrate directly from Supabase if configured
+    if ((inMemoryQuestionsStore.customSubjects?.length || 0) === 0) {
+      try {
+        const { isSupabaseConfigured } = await import("../lib/supabase");
+        if (isSupabaseConfigured()) {
+          const { fetchSubjects, fetchChapters, fetchTopics } = await import("./supabaseSyncService");
+          const [sbSubjects, sbChapters, sbTopics] = await Promise.all([
+            fetchSubjects(),
+            fetchChapters(),
+            fetchTopics()
+          ]);
+          if (sbSubjects && sbSubjects.length > 0) {
+            inMemoryQuestionsStore = {
+              ...inMemoryQuestionsStore,
+              customSubjects: sbSubjects,
+              customChapters: sbChapters,
+              customTopics: sbTopics
+            };
+            isMemoryStoreHydrated = true;
+            if (typeof window !== "undefined") {
+              window.dispatchEvent(new CustomEvent("quizpro_store_updated", { detail: inMemoryQuestionsStore }));
+            }
+          }
+        }
+      } catch (sbErr) {
+        console.warn("[QuestionsStorage] Supabase hydration error:", sbErr);
+      }
+    }
+
     // Direct Snapshot v1 fallback if still incomplete (< 500 questions)
     if (restoredCount < 500 && typeof fetch !== "undefined") {
       try {
@@ -1899,6 +1928,22 @@ export async function fetchTopicQuestionsOnDemand(topicId: string): Promise<Ques
     }
   } catch (e) {
     console.warn("IndexedDB topic question fetch fallback:", e);
+  }
+
+  // 4. Check Supabase (quota-free PostgreSQL)
+  try {
+    const { isSupabaseConfigured } = await import("../lib/supabase");
+    if (isSupabaseConfigured()) {
+      const { fetchQuestionsByTopic } = await import("./supabaseSyncService");
+      const supabaseQs = await fetchQuestionsByTopic(topicId);
+      if (supabaseQs && supabaseQs.length > 0) {
+        mergeQuestionsIntoStore(supabaseQs);
+        saveCachedQuestionBundle(topicId, supabaseQs).catch(() => {});
+        return supabaseQs;
+      }
+    }
+  } catch (e) {
+    console.warn("Supabase topic question fetch fallback:", e);
   }
 
   // 3. Fallback to remote Firestore fetch via firebaseSyncService
