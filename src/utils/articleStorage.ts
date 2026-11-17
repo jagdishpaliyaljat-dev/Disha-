@@ -590,16 +590,56 @@ export const DEFAULT_ARTICLE_CATEGORIES = [
 
 const LOCAL_CATEGORIES_KEY = "disha2020_article_categories_v1";
 const LEGACY_LOCAL_CATEGORIES_KEY = "quizpro_article_categories_v1";
+const DELETED_ARTICLE_CATEGORIES_KEY = "disha2020_deleted_article_categories_v1";
+
+export function getDeletedArticleCategories(): string[] {
+  try {
+    if (typeof window === "undefined" || !window.localStorage) return [];
+    const raw = localStorage.getItem(DELETED_ARTICLE_CATEGORIES_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function addDeletedArticleCategory(name: string): void {
+  try {
+    const clean = name.trim();
+    if (!clean) return;
+    const ids = getDeletedArticleCategories();
+    if (!ids.includes(clean)) {
+      ids.push(clean);
+      if (typeof window !== "undefined" && window.localStorage) {
+        localStorage.setItem(DELETED_ARTICLE_CATEGORIES_KEY, JSON.stringify(ids));
+      }
+    }
+  } catch {}
+}
+
+export function clearDeletedArticleCategories(): void {
+  try {
+    if (typeof window !== "undefined" && window.localStorage) {
+      localStorage.removeItem(DELETED_ARTICLE_CATEGORIES_KEY);
+    }
+  } catch {}
+}
 
 export async function fetchArticleCategories(): Promise<string[]> {
-  const categoriesSet = new Set<string>(DEFAULT_ARTICLE_CATEGORIES);
+  const deleted = new Set(getDeletedArticleCategories());
+  const categoriesSet = new Set<string>();
+  DEFAULT_ARTICLE_CATEGORIES.forEach((c) => {
+    if (!deleted.has(c)) categoriesSet.add(c);
+  });
   try {
     if (typeof window !== "undefined" && window.localStorage) {
       const raw = localStorage.getItem(LOCAL_CATEGORIES_KEY) || localStorage.getItem(LEGACY_LOCAL_CATEGORIES_KEY);
       if (raw) {
         const parsed = JSON.parse(raw);
         if (Array.isArray(parsed)) {
-          parsed.forEach((c: string) => c && categoriesSet.add(c.trim()));
+          parsed.forEach((c: string) => {
+            const clean = (c || "").trim();
+            if (clean && !deleted.has(clean)) categoriesSet.add(clean);
+          });
         }
       }
     }
@@ -608,7 +648,8 @@ export async function fetchArticleCategories(): Promise<string[]> {
   try {
     const articles = await fetchPublishedArticles();
     articles.forEach((a) => {
-      if (a.category) categoriesSet.add(a.category.trim());
+      const clean = (a.category || "").trim();
+      if (clean && !deleted.has(clean)) categoriesSet.add(clean);
     });
   } catch {}
 
@@ -618,6 +659,14 @@ export async function fetchArticleCategories(): Promise<string[]> {
 export async function saveArticleCategory(name: string, _hindiName?: string): Promise<string[]> {
   const cleanName = name.trim();
   if (!cleanName) return fetchArticleCategories();
+
+  // Re-adding a previously deleted category restores it.
+  try {
+    const deleted = getDeletedArticleCategories().filter((c) => c !== cleanName);
+    if (typeof window !== "undefined" && window.localStorage) {
+      localStorage.setItem(DELETED_ARTICLE_CATEGORIES_KEY, JSON.stringify(deleted));
+    }
+  } catch {}
 
   try {
     const categories = await fetchArticleCategories();
@@ -635,6 +684,8 @@ export async function saveArticleCategory(name: string, _hindiName?: string): Pr
 export async function deleteArticleCategory(name: string): Promise<string[]> {
   const cleanName = name.trim();
   if (!cleanName) return fetchArticleCategories();
+
+  addDeletedArticleCategory(cleanName);
 
   try {
     const categories = (await fetchArticleCategories()).filter((c) => c !== cleanName);

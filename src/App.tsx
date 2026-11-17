@@ -933,6 +933,13 @@ export default function App() {
       setQuestionsStore(nextStore);
       saveUserQuestionsStore(nextStore);
       addToast('success', 'Import Success', `${newQuestions.length} question(s) added and synced!`);
+      const { triggerDatabaseSavedToast } = await import('./utils/adminToast');
+      triggerDatabaseSavedToast({
+        type: "add",
+        title: "प्रश्न Supabase में लाइव हो गए!",
+        message: `${newQuestions.length} नए प्रश्न Supabase में सुरक्षित सेव हो गए हैं और यूजर ऐप में लाइव उपलब्ध हैं।`,
+        count: newQuestions.length,
+      });
       return;
     }
 
@@ -949,6 +956,13 @@ export default function App() {
       const commitRes = await upsertQuestionsToSupabase(newQuestions);
       if (commitRes.success) {
         addToast('success', 'Backend Sync Success', commitRes.message);
+        const { triggerDatabaseSavedToast } = await import('./utils/adminToast');
+        triggerDatabaseSavedToast({
+          type: "add",
+          title: "प्रश्न Supabase में लाइव हो गए!",
+          message: `${newQuestions.length} नए प्रश्न Supabase में सुरक्षित सेव हो गए हैं और यूजर ऐप में लाइव उपलब्ध हैं।`,
+          count: newQuestions.length,
+        });
       } else {
         addToast('error', 'Save Notice', commitRes.message || 'Failed to save questions');
       }
@@ -967,6 +981,12 @@ export default function App() {
     if (res.success) {
       if (res.cloudSynced) {
         addToast('success', 'Backend Sync Success', 'Question updated in Supabase!');
+        const { triggerDatabaseSavedToast } = await import('./utils/adminToast');
+        triggerDatabaseSavedToast({
+          type: "update",
+          title: "प्रश्न Supabase में अपडेट हुआ!",
+          message: "प्रश्न का विवरण Supabase में लाइव अपडेट हो चुका है और यूजर ऐप में प्रदर्शित हो रहा है।",
+        });
       } else {
         addToast('info', 'Saved Locally', res.message);
       }
@@ -985,6 +1005,12 @@ export default function App() {
     if (res.success) {
       if (res.cloudSynced) {
         addToast('success', 'Backend Sync Success', 'Question removed from Supabase!');
+        const { triggerAdminToast } = await import('./utils/adminToast');
+        triggerAdminToast(
+          "delete",
+          "प्रश्न Supabase से हटाया गया",
+          "प्रश्न को Supabase डेटाबेस से हटा दिया गया है और यह यूजर ऐप से तुरंत रिमूव हो चुका है।"
+        );
       } else {
         addToast('info', 'Deleted Locally', res.message);
       }
@@ -1005,6 +1031,13 @@ export default function App() {
     if (res.success) {
       if (res.cloudSynced) {
         addToast('success', 'Backend Sync Success', `${questionIds.length} question(s) removed from Supabase!`);
+        const { triggerAdminToast } = await import('./utils/adminToast');
+        triggerAdminToast(
+          "delete",
+          "प्रश्न बल्क डिलीट (Supabase Live)",
+          `${questionIds.length} प्रश्न Supabase डेटाबेस से हटा दिए गए हैं और यूजर ऐप से तुरंत रिमूव हो चुके हैं।`,
+          { count: questionIds.length }
+        );
       } else {
         addToast('info', 'Deleted Locally', res.message || `${questionIds.length} question(s) deleted locally.`);
       }

@@ -21,7 +21,7 @@ import {
   saveTopicToSupabase,
   deleteTopicFromSupabase
 } from '../utils/supabaseSyncService';
-import { triggerDatabaseSavedToast } from '../utils/adminToast';
+import { triggerDatabaseSavedToast, triggerAdminToast } from '../utils/adminToast';
 
 export const useCurriculumManager = (
   questionsStore: UserQuestionsStore,
@@ -83,6 +83,11 @@ export const useCurriculumManager = (
       saveUserQuestionsStore(nextStore);
       if (res.cloudSynced) {
         addToast('success', 'Backend Sync Success', res.message);
+        triggerAdminToast(
+          'delete',
+          'विषय Supabase से हटाया गया',
+          'विषय को Supabase से हटा दिया गया है और यह यूजर ऐप से तुरंत रिमूव हो चुका है।'
+        );
       } else {
         addToast('info', 'Deleted Locally', res.message);
       }
@@ -152,6 +157,11 @@ export const useCurriculumManager = (
       saveUserQuestionsStore(nextStore);
       if (res.cloudSynced) {
         addToast('success', 'Backend Sync Success', res.message);
+        triggerAdminToast(
+          'delete',
+          'अध्याय Supabase से हटाया गया',
+          'अध्याय को Supabase से हटा दिया गया है और यह यूजर ऐप से तुरंत रिमूव हो चुका है।'
+        );
       } else {
         addToast('info', 'Deleted Locally', res.message);
       }
@@ -263,6 +273,11 @@ export const useCurriculumManager = (
       saveUserQuestionsStore(nextStore);
       if (res.cloudSynced) {
         addToast('success', 'Backend Sync Success', res.message);
+        triggerAdminToast(
+          'delete',
+          'टॉपिक Supabase से हटाया गया',
+          'टॉपिक को Supabase से हटा दिया गया है और यह यूजर ऐप से तुरंत रिमूव हो चुका है।'
+        );
       } else {
         addToast('info', 'Deleted Locally', res.message);
       }

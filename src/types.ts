@@ -705,6 +705,7 @@ export interface AppBanner {
 export interface UserProfile {
   id: string;
   name: string;
+  displayName?: string;
   email?: string;
   photoURL?: string;
   avatar?: string;

@@ -8,7 +8,7 @@ const LEGACY_DELETED_BANNERS_KEY = "quizpro_deleted_banners_v1";
 let inMemoryBanners: AppBanner[] = [];
 
 /** Upgrades legacy (pre-AppBanner) records to the current shape. */
-function normalizeBanner(raw: any, idx = 0): AppBanner {
+export function normalizeBanner(raw: any, idx = 0): AppBanner {
   const legacy = raw || {};
   const actionTab = legacy.actionTab
     || (typeof legacy.actionData === "string" ? legacy.actionData : undefined)

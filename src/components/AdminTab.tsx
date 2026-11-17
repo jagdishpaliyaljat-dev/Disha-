@@ -315,8 +315,8 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
         });
         triggerAdminToast(
           "delete",
-          "Subject Deleted from Supabase",
-          `Subject "${title}" has been deleted from Supabase Database.`
+          "विषय Supabase से हटाया गया",
+          `विषय "${title}" को Supabase से हटा दिया गया है और यह यूजर ऐप से तुरंत रिमूव हो चुका है।`
         );
       } else {
         if (props.onDeleteChapter) {
@@ -333,12 +333,12 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
         }
         setDeleteNotification({
           type: "success",
-          message: `Chapter "${title}" deleted from Supabase & local storage.`
+          message: `अध्याय "${title}" Supabase से हटा दिया गया है।`
         });
         triggerAdminToast(
           "delete",
-          "Chapter Deleted from Supabase",
-          `Chapter "${title}" has been deleted from Supabase Database.`
+          "अध्याय Supabase से हटाया गया",
+          `अध्याय "${title}" को Supabase से हटा दिया गया है और यह यूजर ऐप से तुरंत रिमूव हो चुका है।`
         );
       }
       setTimeout(() => setDeleteNotification(null), 3500);

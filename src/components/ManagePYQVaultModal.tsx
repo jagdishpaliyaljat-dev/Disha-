@@ -7,6 +7,7 @@ import {
 } from "../utils/pyqStorage";
 import { fetchExamCategories } from "../utils/categoryStorage";
 import { loadUserQuestionsStore, deduplicateQuestions } from "../utils/questionsStorage";
+import { triggerDatabaseSavedToast, triggerAdminToast } from "../utils/adminToast";
 import { AIImportModal } from "./AIImportModal";
 import { HTMLImportMCQModal } from "./admin/HTMLImportMCQModal";
 import {
@@ -244,6 +245,12 @@ export const ManagePYQVaultModal: React.FC<ManagePYQVaultModalProps> = ({
       setIsFormOpen(false);
       if (onPYQUpdated) onPYQUpdated();
       setToastMessage({ type: "success", msg: "Saved successfully!" });
+      triggerDatabaseSavedToast({
+        type: "add",
+        title: "PYQ पेपर Supabase में लाइव हुआ!",
+        message: `विगत वर्ष पेपर "${paperToSave.title}" Supabase में सुरक्षित पब्लिश हो गया है और यूजर ऐप में लाइव उपलब्ध है।`,
+        itemName: paperToSave.title,
+      });
       setTimeout(() => setToastMessage(null), 5000);
     } catch (err: any) {
       console.error("Failed to save paper:", err);
@@ -268,6 +275,11 @@ export const ManagePYQVaultModal: React.FC<ManagePYQVaultModalProps> = ({
       await deletePYQPaper(paperId);
       if (onPYQUpdated) onPYQUpdated();
       setToastMessage({ type: "success", msg: "PYQ Paper deleted successfully!" });
+      triggerAdminToast(
+        "delete",
+        "PYQ पेपर Supabase से हटाया गया",
+        "PYQ पेपर को Supabase डेटाबेस से हटा दिया गया है और यह यूजर ऐप से तुरंत रिमूव हो चुका है।"
+      );
       setTimeout(() => setToastMessage(null), 5000);
     } catch (err: any) {
       console.error("Delete failed:", err);

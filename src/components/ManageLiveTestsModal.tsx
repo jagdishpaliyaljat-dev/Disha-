@@ -9,6 +9,7 @@ import {
 } from "../utils/liveTestStorage";
 import { fetchExamCategories } from "../utils/categoryStorage";
 import { loadUserQuestionsStore, deduplicateQuestions } from "../utils/questionsStorage";
+import { triggerDatabaseSavedToast, triggerAdminToast } from "../utils/adminToast";
 import {
   X,
   Plus,
@@ -186,6 +187,12 @@ export const ManageLiveTestsModal: React.FC<ManageLiveTestsModalProps> = ({
       setIsCreating(false);
       setEditingTest(null);
       setToastMessage({ type: "success", msg: "Live Test saved successfully!" });
+      triggerDatabaseSavedToast({
+        type: "add",
+        title: "लाइव टेस्ट Supabase में लाइव हुआ!",
+        message: `लाइव टेस्ट "${testToSave.title}" Supabase में सुरक्षित पब्लिश हो गया है और यूजर ऐप में लाइव उपलब्ध है।`,
+        itemName: testToSave.title,
+      });
       setTimeout(() => setToastMessage(null), 5000);
     } catch (err: any) {
       console.error("Save live test failed:", err);
@@ -207,6 +214,11 @@ export const ManageLiveTestsModal: React.FC<ManageLiveTestsModalProps> = ({
     try {
       await deleteLiveTest(testId);
       setToastMessage({ type: "success", msg: "Live Test deleted successfully!" });
+      triggerAdminToast(
+        "delete",
+        "लाइव टेस्ट Supabase से हटाया गया",
+        "लाइव टेस्ट को Supabase डेटाबेस से हटा दिया गया है और यूजर ऐप से तुरंत रिमूव हो चुका है।"
+      );
       setTimeout(() => setToastMessage(null), 5000);
     } catch (err: any) {
       console.error("Delete live test failed:", err);

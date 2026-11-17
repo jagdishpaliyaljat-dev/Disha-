@@ -27,8 +27,9 @@ export async function registerUserToDirectory(profile: UserProfile): Promise<voi
       {
         id: profile.id,
         email: profile.email || "",
-        full_name: profile.name || "User",
-        avatar_url: profile.photoURL || profile.avatar || "",
+        // Column names must match public.profiles(display_name, photo_url).
+        display_name: profile.name || (profile as any).displayName || "User",
+        photo_url: profile.photoURL || profile.avatar || "",
         role: isAdminUID ? "admin" : (profile.role || "student"),
         updated_at: now,
       },
@@ -132,7 +133,7 @@ export type UserActivitySummary = {
   history: UserTestHistoryItem[];
 };
 
-function mapRowToUserProfile(row: any): UserProfile {
+export function mapRowToUserProfile(row: any): UserProfile {
   const id = row.id;
   const email = (row.email || "").trim().toLowerCase();
   const isSuperAdmin = ADMIN_UIDS.includes(id) || ADMIN_EMAILS.includes(email);
@@ -140,10 +141,10 @@ function mapRowToUserProfile(row: any): UserProfile {
 
   return {
     id,
-    name: row.full_name || row.name || email.split("@")[0] || "User",
+    name: row.display_name || row.full_name || row.name || email.split("@")[0] || "User",
     email,
-    photoURL: row.avatar_url || row.photoURL || "",
-    avatar: row.avatar_url || row.avatar || "",
+    photoURL: row.photo_url || row.avatar_url || row.photoURL || "",
+    avatar: row.photo_url || row.avatar_url || row.avatar || "",
     role,
     status: row.status || "active",
     blocked: Boolean(row.blocked),
@@ -157,7 +158,11 @@ function mapRowToUserProfile(row: any): UserProfile {
 }
 
 /**
- * Fetch registered users from Supabase profiles table
+ * Fetch registered users from Supabase profiles table.
+ *
+ * `lastDoc` is an opaque offset cursor (number or `{ offset }`) returned as
+ * `lastVisible` by the previous page. Keeping an explicit offset avoids the
+ * classic "load more returns page 1 again" bug.
  */
 export async function fetchRegisteredUsers(lastDoc?: any, pageSize = 50): Promise<{ users: UserProfile[]; lastVisible: any; hasMore: boolean }> {
   const profile = loadUserProfile();
@@ -165,12 +170,17 @@ export async function fetchRegisteredUsers(lastDoc?: any, pageSize = 50): Promis
     return { users: getLocalUsersDirectory(), lastVisible: null, hasMore: false };
   }
 
+  const safePageSize = Math.max(1, Math.floor(pageSize));
+  const offset = typeof lastDoc === "number"
+    ? Math.max(0, lastDoc)
+    : Math.max(0, Number(lastDoc?.offset) || 0);
+
   try {
     const { data, error } = await supabase
       .from("profiles")
       .select("*")
       .order("created_at", { ascending: false })
-      .limit(pageSize + 1);
+      .range(offset, offset + safePageSize);
 
     if (error) {
       console.warn("[UserManagement] Supabase profiles fetch note:", error.message);
@@ -178,12 +188,18 @@ export async function fetchRegisteredUsers(lastDoc?: any, pageSize = 50): Promis
     }
 
     const rows = data || [];
-    const hasMore = rows.length > pageSize;
-    const pageRows = hasMore ? rows.slice(0, pageSize) : rows;
+    const hasMore = rows.length > safePageSize;
+    const pageRows = hasMore ? rows.slice(0, safePageSize) : rows;
     const users: UserProfile[] = pageRows.map(mapRowToUserProfile);
 
-    setLocalUsersDirectory(users);
-    return { users, lastVisible: null, hasMore };
+    // Only page 1 replaces the directory; later pages extend it so the
+    // in-memory list stays usable when the admin closes the panel.
+    setLocalUsersDirectory(offset > 0 ? [...getLocalUsersDirectory(), ...users] : users);
+    return {
+      users,
+      lastVisible: hasMore ? offset + safePageSize : null,
+      hasMore,
+    };
   } catch (err: any) {
     console.warn("[UserManagement] fetchRegisteredUsers fallback to local:", err?.message || err);
     return { users: getLocalUsersDirectory(), lastVisible: null, hasMore: false };
@@ -272,6 +288,9 @@ export async function updateUserAccountStatus(
  */
 export async function updateUserRole(userId: string, newRole: "admin" | "student" | "user"): Promise<void> {
   const currentAdmin = loadUserProfile();
+  if (!isUserAdmin(currentAdmin)) {
+    throw new Error("Unauthorized: Only verified administrators can change user roles.");
+  }
   if (userId === currentAdmin?.id && newRole !== "admin") {
     throw new Error("Action Restricted: Administrators cannot remove their own admin role.");
   }

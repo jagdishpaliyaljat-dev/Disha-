@@ -26,6 +26,7 @@ import {
   deleteBanner, 
   compressBannerImage 
 } from "../../utils/bannerStorage";
+import { triggerDatabaseSavedToast, triggerAdminToast } from "../../utils/adminToast";
 import { ListRowSkeleton } from "./AdminSkeletonLoaders";
 
 export const AdminBannerManagementSection: React.FC<{ onBannerUpdated?: () => void }> = ({
@@ -119,6 +120,12 @@ export const AdminBannerManagementSection: React.FC<{ onBannerUpdated?: () => vo
     try {
       await saveBanner(currentBanner as AppBanner);
       setNotification({ type: "success", message: "Campaign published." });
+      triggerDatabaseSavedToast({
+        type: "add",
+        title: "बैनर Supabase में लाइव हुआ!",
+        message: "बैनर Supabase में सुरक्षित पब्लिश हो गया है और यूजर ऐप के होम स्क्रीन पर लाइव है।",
+        itemName: currentBanner.title,
+      });
       setIsEditing(false);
       setCurrentBanner(null);
       await loadBanners();
@@ -136,6 +143,12 @@ export const AdminBannerManagementSection: React.FC<{ onBannerUpdated?: () => vo
       const updated = { ...banner, isActive: !banner.isActive };
       await saveBanner(updated);
       setBanners(prev => prev.map(b => b.id === banner.id ? updated : b));
+      triggerDatabaseSavedToast({
+        type: "update",
+        title: "बैनर स्थिति अपडेट हुई!",
+        message: `बैनर "${banner.title}" की स्थिति Supabase में लाइव अपडेट कर दी गई है।`,
+        itemName: banner.title,
+      });
       onBannerUpdated?.();
     } catch (err) {
       console.error(err);
@@ -167,6 +180,11 @@ export const AdminBannerManagementSection: React.FC<{ onBannerUpdated?: () => vo
     try {
       await deleteBanner(deletingBanner.id);
       setBanners(prev => prev.filter(b => b.id !== deletingBanner.id));
+      triggerAdminToast(
+        "delete",
+        "बैनर Supabase से हटाया गया",
+        `बैनर "${deletingBanner.title}" को Supabase से हटा दिया गया है और यह यूजर ऐप से तुरंत रिमूव हो चुका है।`
+      );
       setDeletingBanner(null);
       onBannerUpdated?.();
     } catch (err) {
