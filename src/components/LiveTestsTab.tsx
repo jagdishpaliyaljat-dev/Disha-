@@ -17,27 +17,17 @@ import {
   Radio,
   Trophy,
   ArrowLeft,
-  ChevronRight,
   HelpCircle,
-  FileText,
   RefreshCw,
-  Sparkles,
   Layers,
-  BookOpen,
   Calendar,
   AlertCircle,
-  Flame,
   Check,
   Edit2,
   Trash2,
   Share2,
   Medal,
-  User,
-  Search,
   Zap,
-  Star,
-  Compass,
-  ArrowUpRight,
 } from "lucide-react";
 import ShareModal, { ShareData } from "./ShareModal";
 import { buildLiveTestShareData } from "../utils/shareService";
@@ -62,8 +52,7 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
   const [submissions, setSubmissions] = React.useState<LiveTestSubmission[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
 
-  // Filters & Subtabs
-  const [selectedCategory, setSelectedCategory] = React.useState<string>("all");
+  // Subtabs & State
   const [activeSubTab, setActiveSubTab] = React.useState<"live" | "series" | "results" | "leaderboard">(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
@@ -121,24 +110,10 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
     };
   }, []);
 
-  // Exam Categories derived from real data
-  const categoryOptions = React.useMemo(() => {
-    const set = new Set<string>();
-    tests.forEach((t) => t.examCategory && set.add(t.examCategory));
-    return ["all", ...Array.from(set)];
-  }, [tests]);
-
-  // Filtered Tests
-  const filteredTests = React.useMemo(() => {
-    return tests.filter((t) => {
-      if (selectedCategory !== "all" && t.examCategory !== selectedCategory) return false;
-      return true;
-    });
-  }, [tests, selectedCategory]);
-
+  // Live and Upcoming Tests
   const liveAndUpcoming = React.useMemo(() => {
-    return filteredTests.filter((t) => t.status === "live" || t.status === "upcoming");
-  }, [filteredTests]);
+    return tests.filter((t) => t.status === "live" || t.status === "upcoming");
+  }, [tests]);
 
   // Check if test was attempted
   const getTestSubmission = (testId: string) => {
@@ -446,96 +421,7 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
           </button>
         </nav>
 
-        {/* ── 3. PYQ VAULT BANNER CARD ────────────────────────────────────── */}
-        <section aria-label="PYQ Vault Entry">
-          <button
-            onClick={() => {
-              triggerHaptic("light");
-              playClickSound();
-              onNavigateTab?.("pyq_vault");
-            }}
-            className="w-full bg-gradient-to-r from-[#4A0012] via-[#800020] to-[#590016] p-3.5 sm:p-4 rounded-2xl text-[#FFF9EF] flex items-center justify-between shadow-md relative overflow-hidden group active:scale-[0.99] transition-all cursor-pointer text-left border border-[#C5A059]/40"
-          >
-            {/* Subtle background ornamentation */}
-            <div className="absolute -right-6 -bottom-6 w-28 h-28 rounded-full bg-[#C5A059]/10 blur-xl pointer-events-none" />
-
-            <div className="flex items-center gap-3 relative z-10 min-w-0">
-              <div className="w-10 h-10 sm:w-11 sm:h-11 bg-[#C5A059]/15 rounded-xl flex items-center justify-center text-[#C5A059] shrink-0 border border-[#C5A059]/30 group-hover:scale-105 transition-transform">
-                <FileText size={20} />
-              </div>
-              <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="text-[9.5px] text-[#C5A059] font-black uppercase tracking-wider">
-                    Official Papers Archive
-                  </span>
-                  <span className="text-[9px] text-[#FFF9EF]/80 font-bold bg-white/10 px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
-                    <Star size={9} className="text-[#C5A059] fill-current" /> Authentic Keys
-                  </span>
-                </div>
-                <h3 className="text-sm sm:text-base font-black text-white mt-0.5 leading-tight">
-                  PYQ Vault — Solved Question Papers
-                </h3>
-                <p className="text-[11px] text-[#FFF9EF]/85 font-medium leading-none mt-1 truncate">
-                  RAS, CET, REET, Patwar &amp; 1st Grade past papers with official answer keys
-                </p>
-              </div>
-            </div>
-
-            <div className="w-8 h-8 rounded-full bg-white/10 group-hover:bg-[#C5A059] group-hover:text-[#171923] flex items-center justify-center text-[#FFF9EF] transition-all shrink-0 ml-2 relative z-10 border border-white/15">
-              <ChevronRight size={15} />
-            </div>
-          </button>
-        </section>
-
-        {/* ── 4. EXAM FILTER CHIPS ────────────────────────────────────────── */}
-        <section aria-label="Exam Filters">
-          <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 no-scrollbar snap-x -mx-1 px-1">
-            {categoryOptions.map((cat) => {
-              const isActive = selectedCategory === cat;
-              const displayLabel = cat === "all" ? "All Exams" : cat;
-              const testCount = cat === "all" ? tests.length : tests.filter((t) => t.examCategory === cat).length;
-
-              return (
-                <button
-                  key={cat}
-                  onClick={() => {
-                    triggerHaptic("light");
-                    setSelectedCategory(cat);
-                  }}
-                  className={`px-3 py-1.5 rounded-xl text-[11px] font-black transition-all shrink-0 snap-start active:scale-95 cursor-pointer flex items-center gap-1.5 ${
-                    isActive
-                      ? "bg-[#800020] text-white shadow-xs border border-[#C5A059]/40"
-                      : "bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] text-slate-600 dark:text-slate-300 hover:text-[#171923] dark:hover:text-white"
-                  }`}
-                >
-                  {cat === "all" ? (
-                    <BookOpen size={11} className={isActive ? "text-[#C5A059]" : "text-[#800020] dark:text-[#C5A059]"} />
-                  ) : (
-                    <span
-                      className={`w-1.5 h-1.5 rounded-full ${
-                        isActive ? "bg-[#C5A059]" : "bg-[#800020] dark:bg-[#C5A059]"
-                      }`}
-                    />
-                  )}
-                  <span>{displayLabel}</span>
-                  {testCount > 0 && (
-                    <span
-                      className={`ml-0.5 px-1 py-0.2 rounded-md text-[8.5px] font-mono tabular-nums ${
-                        isActive
-                          ? "bg-white/20 text-white"
-                          : "bg-[#F7EFE2] dark:bg-[#252A3A] text-slate-500 dark:text-slate-400"
-                      }`}
-                    >
-                      {testCount}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* ── 5. LIVE TESTS TAB CONTENT ───────────────────────────────────── */}
+        {/* ── 3. LIVE TESTS TAB CONTENT ───────────────────────────────────── */}
         {activeSubTab === "live" && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
             {isLoading ? (
@@ -557,14 +443,11 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
                   No Active Live Tests Scheduled
                 </h3>
                 <p className="text-slate-500 dark:text-slate-400 text-xs mb-3.5 max-w-xs leading-relaxed">
-                  {selectedCategory !== "all"
-                    ? `No test currently live under "${selectedCategory}". Select "All Exams" or explore comprehensive Test Series.`
-                    : "No test is live right now. Prepare with Test Series or check back shortly for scheduled sessions."}
+                  No live test is currently scheduled. Prepare with comprehensive Test Series or check back shortly for upcoming official sessions.
                 </p>
                 <button
                   onClick={() => {
                     triggerHaptic("light");
-                    setSelectedCategory("all");
                     setActiveSubTab("series");
                   }}
                   className="px-4 py-2 rounded-xl bg-[#800020] hover:bg-[#5E0017] dark:bg-[#800020] text-[#FFF9EF] text-xs font-black border border-[#C5A059]/40 active:scale-95 transition-all shadow-xs cursor-pointer flex items-center gap-1.5"
@@ -752,7 +635,7 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
           </div>
         )}
 
-        {/* ── 6. TEST SERIES TAB CONTENT ──────────────────────────────────── */}
+        {/* ── 4. TEST SERIES TAB CONTENT ──────────────────────────────────── */}
         {activeSubTab === "series" && (
           <CoachingHierarchySection
             liveTests={tests}
@@ -764,7 +647,7 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
           />
         )}
 
-        {/* ── 7. SCORES TAB CONTENT ───────────────────────────────────────── */}
+        {/* ── 5. SCORES TAB CONTENT ───────────────────────────────────────── */}
         {activeSubTab === "results" && (
           <div className="space-y-3">
             {submissions.length === 0 ? (
@@ -862,7 +745,7 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
           </div>
         )}
 
-        {/* ── 8. GLOBAL LEADERBOARD & RANKS ────────────────────────────────── */}
+        {/* ── 6. GLOBAL LEADERBOARD & RANKS ────────────────────────────────── */}
         {activeSubTab === "leaderboard" && (
           <div className="space-y-3.5">
             {/* Filter Selector Header */}
