@@ -9,7 +9,7 @@ export const McqDuplicateScannerWidget: React.FC = () => {
   const [loading, setLoading] = React.useState(false);
   const [repairing, setRepairing] = React.useState(false);
   const [repairStatus, setRepairStatus] = React.useState<string | null>(null);
-  const [targetCollection, setTargetCollection] = React.useState("mcqs");
+  const [targetCollection, setTargetCollection] = React.useState("questions");
   const [expandedGroupIdx, setExpandedGroupIdx] = React.useState<number | null>(null);
   const [showExplanation, setShowExplanation] = React.useState(false);
 
@@ -94,7 +94,7 @@ export const McqDuplicateScannerWidget: React.FC = () => {
   return (
     <AdminCard
       title="MCQ Data Integrity & Count Diagnostic Utility"
-      subtitle="Comprehensive audit of Firestore documents, unique question texts, mapped active questions, and safe re-mapping"
+      subtitle="Comprehensive audit of Supabase PostgreSQL questions, unique question texts, mapped active questions, and safe re-mapping"
       icon={Search}
       headerAction={
         <div className="flex flex-wrap items-center gap-2">
@@ -104,9 +104,8 @@ export const McqDuplicateScannerWidget: React.FC = () => {
             disabled={loading}
             className="px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10px] font-bold border border-slate-200 dark:border-slate-700 outline-none"
           >
-            <option value="mcqs">mcqs collection</option>
-            <option value="questions">questions collection</option>
-            <option value="curriculum_questions">curriculum_questions</option>
+            <option value="questions">questions table (Supabase)</option>
+            <option value="all">All Repositories (Cloud & Local)</option>
           </select>
 
           <button
@@ -115,7 +114,7 @@ export const McqDuplicateScannerWidget: React.FC = () => {
             className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-all disabled:opacity-50 cursor-pointer shadow-xs active:scale-95"
           >
             {loading ? <RefreshCw className="w-3 h-3 animate-spin" /> : <Search className="w-3 h-3" />}
-            <span>{loading ? "Scanning..." : "Scan Collection"}</span>
+            <span>{loading ? "Scanning..." : "Scan Database"}</span>
           </button>
         </div>
       }
@@ -134,23 +133,23 @@ export const McqDuplicateScannerWidget: React.FC = () => {
             className="text-[10px] font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1 hover:underline cursor-pointer"
           >
             <HelpCircle className="w-3.5 h-3.5" />
-            <span>{showExplanation ? "Hide Count Explanation" : "Why do 1,188, 1,156 & 996 differ?"}</span>
+            <span>{showExplanation ? "Hide Count Explanation" : "How are question counts & duplicates analyzed?"}</span>
           </button>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
           <div className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 text-center">
-            <span className="text-[9px] font-black uppercase text-slate-400 block">Scanned Firestore Docs</span>
+            <span className="text-[9px] font-black uppercase text-slate-400 block">Scanned Database MCQs</span>
             <span className="text-xl font-black text-slate-900 dark:text-white font-mono">
-              {result ? result.totalScanned : "1,188"}
+              {result ? result.totalScanned : activeStats.mappedQuestionsCount}
             </span>
-            <span className="text-[9px] text-slate-400 block mt-0.5">Raw documents in database</span>
+            <span className="text-[9px] text-slate-400 block mt-0.5">Records in questions table</span>
           </div>
 
           <div className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 text-center">
             <span className="text-[9px] font-black uppercase text-slate-400 block">Unique Question Texts</span>
             <span className="text-xl font-black text-blue-600 dark:text-blue-400 font-mono">
-              {result ? result.totalUniqueTexts : "1,156"}
+              {result ? result.totalUniqueTexts : activeStats.mappedQuestionsCount}
             </span>
             <span className="text-[9px] text-slate-400 block mt-0.5">Deduped by text signature</span>
           </div>
@@ -172,13 +171,13 @@ export const McqDuplicateScannerWidget: React.FC = () => {
             </p>
             <ul className="list-disc list-inside space-y-1 text-[11px] leading-relaxed">
               <li>
-                <strong>1,188 Scanned Documents:</strong> Represents the total raw document records found inside the Firestore collection.
+                <strong>Total Database MCQs:</strong> Represents the total raw records retrieved from the Supabase PostgreSQL <code className="font-mono text-[10px]">questions</code> table.
               </li>
               <li>
-                <strong>1,156 Unique Question Texts:</strong> Explains that 32 documents in Firestore contain duplicate question text (e.g. re-imported or batch uploaded versions).
+                <strong>Unique Question Texts:</strong> Groups and deduplicates questions sharing matching text signatures to identify repeated imports or multi-topic duplicate entries.
               </li>
               <li>
-                <strong>{activeStats.mappedQuestionsCount} Active Mapped Questions in Question Bank:</strong> Represents the active, deduplicated, and mapped questions attached to valid subjects and chapters in the current syllabus after filtering out deleted IDs and unmapped orphans.
+                <strong>{activeStats.mappedQuestionsCount} Active Mapped Questions in Question Bank:</strong> Represents the active, deduplicated, and mapped questions attached to valid subjects, chapters, and topics in the current syllabus after filtering out deleted IDs and unmapped records.
               </li>
             </ul>
           </div>
@@ -334,7 +333,7 @@ export const McqDuplicateScannerWidget: React.FC = () => {
         <div className="py-6 text-center space-y-2">
           <Database className="w-8 h-8 text-slate-300 mx-auto" />
           <p className="text-xs text-slate-500 font-medium">
-            Click "Scan Collection" above to inspect the 'mcqs' collection for duplicate document IDs or identical question texts.
+            Click "Scan Database" above to inspect the 'questions' table for duplicate question IDs or identical question texts.
           </p>
         </div>
       )}

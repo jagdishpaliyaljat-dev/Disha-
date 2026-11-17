@@ -36,6 +36,8 @@ import {
   Search,
   Zap,
   Star,
+  Compass,
+  ArrowUpRight,
 } from "lucide-react";
 import ShareModal, { ShareData } from "./ShareModal";
 import { buildLiveTestShareData } from "../utils/shareService";
@@ -60,7 +62,7 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
   const [submissions, setSubmissions] = React.useState<LiveTestSubmission[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
 
-  // Filters
+  // Filters & Subtabs
   const [selectedCategory, setSelectedCategory] = React.useState<string>("all");
   const [activeSubTab, setActiveSubTab] = React.useState<"live" | "series" | "results" | "leaderboard">(() => {
     if (typeof window !== "undefined") {
@@ -190,7 +192,7 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
     }));
   }, [submissions, leaderboardFilterTestId, tests, userProfile?.id]);
 
-  // Start Exam Session with foolproof question resolution
+  // Start Exam Session with question resolution
   const handleStartLiveTest = async (test: LiveTest) => {
     if (fetchingTestId) return;
     triggerHaptic("light");
@@ -204,12 +206,12 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
 
       let rawQuestions: any[] = [];
 
-      // 1. Check if test already has complete questions directly
+      // 1. Direct questions on test object
       if (Array.isArray(test.questions) && test.questions.length > 0) {
         rawQuestions = test.questions.filter(isCompleteQ);
       }
 
-      // 2. If questions are missing or were just stub IDs, fetch them
+      // 2. Fetch from DB if empty
       if (rawQuestions.length === 0) {
         const { fetchMCQsByLiveTest } = await import("../utils/liveTestStorage");
         const fetched = await fetchMCQsByLiveTest(test.id);
@@ -218,11 +220,11 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
         }
       }
 
-      // 3. If still empty, resolve any candidate IDs from user questions store
+      // 3. Fallback to candidate IDs from user questions store
       if (rawQuestions.length === 0) {
         const candidateIds = [
-          ...(Array.isArray(test.questions) ? test.questions.map((q: any) => typeof q === "string" ? q : q?.id) : []),
-          ...(Array.isArray((test as any).questionIds) ? (test as any).questionIds : [])
+          ...(Array.isArray(test.questions) ? test.questions.map((q: any) => (typeof q === "string" ? q : q?.id)) : []),
+          ...(Array.isArray((test as any).questionIds) ? (test as any).questionIds : []),
         ].filter(Boolean);
 
         if (candidateIds.length > 0) {
@@ -242,7 +244,7 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
         const { loadUserQuestionsStore } = await import("../utils/questionsStorage");
         const store = loadUserQuestionsStore();
         const allStoreQs = [...(store.customQuestions || []), ...(store.cloudCacheQuestions || [])].filter(isCompleteQ);
-        
+
         if (allStoreQs.length > 0) {
           const categoryMatching = allStoreQs.filter(
             (q: any) => q.examCategory === test.examCategory || q.category === test.examCategory
@@ -253,7 +255,7 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
         }
       }
 
-      // 5. Ultimate safety: standard local curriculum questions so it never fails to start
+      // 5. Ultimate safety: standard local curriculum questions
       if (rawQuestions.length === 0) {
         const { getAllLocalMCQs } = await import("../utils/localDatabaseEngine");
         rawQuestions = await getAllLocalMCQs();
@@ -261,9 +263,9 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
 
       const extraQs = rawQuestions.map((q, idx) => ({
         ...q,
-        id: q.id || `live_${test.id}_q_${idx}`
+        id: q.id || `live_${test.id}_q_${idx}`,
       }));
-      const questionIds = extraQs.map(q => q.id);
+      const questionIds = extraQs.map((q) => q.id);
 
       onStartSession({
         title: test.title,
@@ -290,12 +292,13 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
 
   return (
     <div
-      className="flex flex-col w-full min-h-full bg-[#FFF9EF] dark:bg-[#171923] pb-32 overflow-y-auto text-[#171923] dark:text-[#FFF9EF] select-none antialiased"
+      className="flex flex-col w-full min-h-screen bg-[#FFF9EF] dark:bg-[#12151D] text-[#171923] dark:text-[#FFF9EF] select-none antialiased pb-32"
       id="tests-hub-mobile-view"
     >
-      {/* 1. STICKY HEADER */}
-      <header className="bg-white/95 dark:bg-[#1F2330]/95 backdrop-blur-md px-4 py-3 border-b border-[#E8D9C0] dark:border-[#31374A] sticky top-0 z-30 select-none shadow-[0_2px_12px_rgba(23,25,35,0.03)]">
+      {/* ── 1. PAGE HEADER ────────────────────────────────────────────────── */}
+      <header className="sticky top-0 z-30 bg-[#FFF9EF]/95 dark:bg-[#1F2330]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#2E3547] shadow-[0_2px_12px_rgba(23,25,35,0.03)] px-3.5 sm:px-4 py-2.5 sm:py-3 transition-colors">
         <div className="flex items-center justify-between gap-3 max-w-4xl mx-auto w-full">
+          {/* Back & Title */}
           <div className="flex items-center gap-2.5 min-w-0">
             {onNavigateTab && (
               <button
@@ -303,62 +306,80 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
                   triggerHaptic("light");
                   onNavigateTab("home");
                 }}
-                className="w-9 h-9 rounded-xl bg-[#F7EFE2] hover:bg-[#E8D9C0]/60 dark:bg-[#252A3A] dark:hover:bg-[#31374A] flex items-center justify-center text-[#171923] dark:text-[#FFF9EF] active:scale-95 transition-all cursor-pointer shrink-0 border border-[#E8D9C0] dark:border-[#31374A]"
+                className="w-9 h-9 rounded-xl bg-white dark:bg-[#252A3A] hover:bg-[#F7EFE2] dark:hover:bg-[#31374A] flex items-center justify-center text-[#171923] dark:text-[#FFF9EF] border border-[#E8D9C0] dark:border-[#31374A] shadow-xs active:scale-95 transition-all cursor-pointer shrink-0"
                 aria-label="Back to home"
               >
-                <ArrowLeft size={18} />
+                <ArrowLeft size={17} />
               </button>
             )}
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <h1 className="text-base sm:text-lg font-black text-[#171923] dark:text-[#FFF9EF] leading-tight truncate tracking-tight">
+                <h1 className="text-sm sm:text-base font-black text-[#171923] dark:text-[#FFF9EF] leading-tight truncate tracking-tight">
                   Live Tests &amp; Mocks
                 </h1>
-                <span className="w-2 h-2 rounded-full bg-[#F47B20] shrink-0" />
+                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-[#800020]/10 dark:bg-[#C5A059]/15 border border-[#800020]/20 dark:border-[#C5A059]/30 text-[9.5px] font-black text-[#800020] dark:text-[#E8D9C0] shrink-0">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#800020] dark:bg-[#C5A059] animate-pulse" />
+                  LIVE
+                </span>
               </div>
-              <p className="text-[#800020] dark:text-[#C99A45] text-[11px] font-semibold leading-none mt-0.5 truncate">
-                Real-Time Ranking · Test Series
+              <p className="text-[10.5px] text-[#800020] dark:text-[#C5A059] font-bold leading-none mt-0.5 truncate tracking-wide">
+                Official RPSC &amp; RSMSSB Simulation · All-India Ranks
               </p>
             </div>
           </div>
 
+          {/* Admin Create Action */}
           {isAdmin && onOpenAdminManage && (
             <button
               onClick={() => {
                 triggerHaptic("light");
                 onOpenAdminManage();
               }}
-              className="px-3 py-1.5 rounded-xl bg-[#800020] hover:bg-[#5E0017] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] text-white font-extrabold text-xs shadow-sm active:scale-95 transition-all cursor-pointer shrink-0 flex items-center gap-1"
+              className="px-3 py-1.5 rounded-xl bg-[#800020] hover:bg-[#5E0017] dark:bg-[#800020] dark:hover:bg-[#5E0017] text-[#FFF9EF] font-black text-[11px] shadow-sm border border-[#C5A059]/40 active:scale-95 transition-all cursor-pointer shrink-0 flex items-center gap-1.5"
             >
-              <Zap size={13} fill="currentColor" />
+              <Zap size={12} className="text-[#C5A059] fill-current" />
               <span>+ Create</span>
             </button>
           )}
         </div>
       </header>
 
-      {/* MAIN CONTENT CONTAINER */}
+      {/* ── MAIN CONTENT CONTAINER ────────────────────────────────────────── */}
       <main className="p-3.5 sm:p-4 space-y-3.5 max-w-4xl mx-auto w-full">
-        {/* 2. TOP SUBNAV TABS */}
+        {/* ── 2. NAVIGATION TABS (PILL BAR) ─────────────────────────────────── */}
         <nav
-          aria-label="Test Hub Views"
-          className="p-1 bg-[#F7EFE2] dark:bg-[#1F2330] rounded-2xl flex items-center border border-[#E8D9C0] dark:border-[#31374A]"
+          aria-label="Exam Portal Sections"
+          className="p-1 bg-[#F4ECE1] dark:bg-[#1A1D27] rounded-2xl flex items-center border border-[#E8D9C0] dark:border-[#2E3547] shadow-xs"
         >
+          {/* Tab 1: Live Tests */}
           <button
             onClick={() => {
               triggerHaptic("light");
               playClickSound();
               setActiveSubTab("live");
             }}
-            className={`flex-1 py-2.5 rounded-xl text-[11.5px] font-extrabold transition-all flex items-center justify-center gap-1.5 cursor-pointer min-h-[42px] ${
+            className={`flex-1 py-2 sm:py-2.5 rounded-xl text-[11.5px] font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer min-h-[40px] ${
               activeSubTab === "live"
-                ? "bg-[#800020] dark:bg-[#F47B20] text-white shadow-sm"
+                ? "bg-[#800020] text-white shadow-sm border border-[#C5A059]/30"
                 : "text-slate-600 dark:text-slate-300 hover:text-[#171923] dark:hover:text-[#FFF9EF]"
             }`}
           >
-            <Radio size={13.5} />
+            <Radio size={13} className={activeSubTab === "live" ? "text-[#C5A059]" : ""} />
             <span>Live Tests</span>
+            {liveAndUpcoming.length > 0 && (
+              <span
+                className={`ml-0.5 px-1.5 py-0.2 rounded-full text-[9px] font-mono tabular-nums ${
+                  activeSubTab === "live"
+                    ? "bg-[#C5A059] text-[#171923] font-black"
+                    : "bg-[#800020]/10 text-[#800020] dark:bg-[#252A3A] dark:text-slate-300"
+                }`}
+              >
+                {liveAndUpcoming.length}
+              </span>
+            )}
           </button>
+
+          {/* Tab 2: Test Series */}
           <button
             onClick={() => {
               triggerHaptic("light");
@@ -369,91 +390,111 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
                 setActiveSubTab("series");
               }
             }}
-            className={`flex-1 py-2.5 rounded-xl text-[11.5px] font-extrabold transition-all flex items-center justify-center gap-1.5 cursor-pointer min-h-[42px] ${
+            className={`flex-1 py-2 sm:py-2.5 rounded-xl text-[11.5px] font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer min-h-[40px] ${
               activeSubTab === "series"
-                ? "bg-[#800020] dark:bg-[#F47B20] text-white shadow-sm"
+                ? "bg-[#800020] text-white shadow-sm border border-[#C5A059]/30"
                 : "text-slate-600 dark:text-slate-300 hover:text-[#171923] dark:hover:text-[#FFF9EF]"
             }`}
           >
-            <Layers size={13.5} />
+            <Layers size={13} className={activeSubTab === "series" ? "text-[#C5A059]" : ""} />
             <span>Test Series</span>
           </button>
+
+          {/* Tab 3: Scores */}
           <button
             onClick={() => {
               triggerHaptic("light");
               playClickSound();
               setActiveSubTab("results");
             }}
-            className={`flex-1 py-2.5 rounded-xl text-[11.5px] font-extrabold transition-all flex items-center justify-center gap-1.5 cursor-pointer min-h-[42px] ${
+            className={`flex-1 py-2 sm:py-2.5 rounded-xl text-[11.5px] font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer min-h-[40px] ${
               activeSubTab === "results"
-                ? "bg-[#800020] dark:bg-[#F47B20] text-white shadow-sm"
+                ? "bg-[#800020] text-white shadow-sm border border-[#C5A059]/30"
                 : "text-slate-600 dark:text-slate-300 hover:text-[#171923] dark:hover:text-[#FFF9EF]"
             }`}
           >
-            <Award size={13.5} />
+            <Award size={13} className={activeSubTab === "results" ? "text-[#C5A059]" : ""} />
             <span>Scores</span>
+            {submissions.length > 0 && (
+              <span
+                className={`ml-0.5 px-1.5 py-0.2 rounded-full text-[9px] font-mono tabular-nums ${
+                  activeSubTab === "results"
+                    ? "bg-[#C5A059] text-[#171923] font-black"
+                    : "bg-[#800020]/10 text-[#800020] dark:bg-[#252A3A] dark:text-slate-300"
+                }`}
+              >
+                {submissions.length}
+              </span>
+            )}
           </button>
+
+          {/* Tab 4: Ranks */}
           <button
             onClick={() => {
               triggerHaptic("light");
               playClickSound();
               setActiveSubTab("leaderboard");
             }}
-            className={`flex-1 py-2.5 rounded-xl text-[11.5px] font-extrabold transition-all flex items-center justify-center gap-1.5 cursor-pointer min-h-[42px] ${
+            className={`flex-1 py-2 sm:py-2.5 rounded-xl text-[11.5px] font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer min-h-[40px] ${
               activeSubTab === "leaderboard"
-                ? "bg-[#800020] dark:bg-[#F47B20] text-white shadow-sm"
+                ? "bg-[#800020] text-white shadow-sm border border-[#C5A059]/30"
                 : "text-slate-600 dark:text-slate-300 hover:text-[#171923] dark:hover:text-[#FFF9EF]"
             }`}
           >
-            <Trophy size={13.5} />
+            <Trophy size={13} className={activeSubTab === "leaderboard" ? "text-[#C5A059]" : ""} />
             <span>Ranks</span>
           </button>
         </nav>
 
-        {/* 3. PYQ VAULT BANNER CARD */}
-        <section aria-label="PYQ Vault Banner">
+        {/* ── 3. PYQ VAULT BANNER CARD ────────────────────────────────────── */}
+        <section aria-label="PYQ Vault Entry">
           <button
             onClick={() => {
               triggerHaptic("light");
               playClickSound();
               onNavigateTab?.("pyq_vault");
             }}
-            className="w-full bg-gradient-to-r from-[#800020] via-[#5E0017] to-[#171923] p-4 rounded-2xl text-[#FFF9EF] flex items-center justify-between shadow-md relative overflow-hidden group active:scale-[0.98] transition-all cursor-pointer text-left border border-[#C99A45]/40"
+            className="w-full bg-gradient-to-r from-[#4A0012] via-[#800020] to-[#590016] p-3.5 sm:p-4 rounded-2xl text-[#FFF9EF] flex items-center justify-between shadow-md relative overflow-hidden group active:scale-[0.99] transition-all cursor-pointer text-left border border-[#C5A059]/40"
           >
-            <div className="flex items-center gap-3.5 relative z-10 min-w-0">
-              <div className="w-11 h-11 bg-[#C99A45]/15 rounded-xl flex items-center justify-center text-[#C99A45] shrink-0 border border-[#C99A45]/35">
-                <FileText size={22} />
+            {/* Subtle background ornamentation */}
+            <div className="absolute -right-6 -bottom-6 w-28 h-28 rounded-full bg-[#C5A059]/10 blur-xl pointer-events-none" />
+
+            <div className="flex items-center gap-3 relative z-10 min-w-0">
+              <div className="w-10 h-10 sm:w-11 sm:h-11 bg-[#C5A059]/15 rounded-xl flex items-center justify-center text-[#C5A059] shrink-0 border border-[#C5A059]/30 group-hover:scale-105 transition-transform">
+                <FileText size={20} />
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] text-[#C99A45] font-black uppercase tracking-wider">
-                    Official Papers
+                  <span className="text-[9.5px] text-[#C5A059] font-black uppercase tracking-wider">
+                    Official Papers Archive
                   </span>
-                  <span className="text-[10px] text-[#F47B20] font-bold flex items-center gap-0.5">
-                    <Star size={10} fill="currentColor" /> Solved
+                  <span className="text-[9px] text-[#FFF9EF]/80 font-bold bg-white/10 px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
+                    <Star size={9} className="text-[#C5A059] fill-current" /> Authentic Keys
                   </span>
                 </div>
-                <h3 className="text-base font-black text-white mt-0.5 leading-tight">
-                  PYQ Vault
+                <h3 className="text-sm sm:text-base font-black text-white mt-0.5 leading-tight">
+                  PYQ Vault — Solved Question Papers
                 </h3>
-                <p className="text-[11px] text-[#FFF9EF]/80 font-medium leading-none mt-1 truncate">
-                  Solve Previous Year Questions with Solutions
+                <p className="text-[11px] text-[#FFF9EF]/85 font-medium leading-none mt-1 truncate">
+                  RAS, CET, REET, Patwar &amp; 1st Grade past papers with official answer keys
                 </p>
               </div>
             </div>
 
-            <div className="w-8 h-8 rounded-full bg-white/10 group-hover:bg-[#F47B20] group-hover:text-white flex items-center justify-center text-[#FFF9EF] transition-all shrink-0 ml-2 relative z-10">
-              <ChevronRight size={16} />
+            <div className="w-8 h-8 rounded-full bg-white/10 group-hover:bg-[#C5A059] group-hover:text-[#171923] flex items-center justify-center text-[#FFF9EF] transition-all shrink-0 ml-2 relative z-10 border border-white/15">
+              <ChevronRight size={15} />
             </div>
           </button>
         </section>
 
-        {/* 4. EXAM FILTER CHIPS */}
+        {/* ── 4. EXAM FILTER CHIPS ────────────────────────────────────────── */}
         <section aria-label="Exam Filters">
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar snap-x -mx-1 px-1">
+          <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 no-scrollbar snap-x -mx-1 px-1">
             {categoryOptions.map((cat) => {
               const isActive = selectedCategory === cat;
               const displayLabel = cat === "all" ? "All Exams" : cat;
+              const testCount = cat === "all" ? tests.length : tests.filter((t) => t.examCategory === cat).length;
+
               return (
                 <button
                   key={cat}
@@ -461,49 +502,64 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
                     triggerHaptic("light");
                     setSelectedCategory(cat);
                   }}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-all shrink-0 snap-start active:scale-95 cursor-pointer flex items-center gap-1.5 ${
+                  className={`px-3 py-1.5 rounded-xl text-[11px] font-black transition-all shrink-0 snap-start active:scale-95 cursor-pointer flex items-center gap-1.5 ${
                     isActive
-                      ? "bg-[#800020] dark:bg-[#F47B20] text-white shadow-sm"
-                      : "bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] text-slate-600 dark:text-slate-300 hover:text-[#171923] dark:hover:text-white shadow-xs"
+                      ? "bg-[#800020] text-white shadow-xs border border-[#C5A059]/40"
+                      : "bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] text-slate-600 dark:text-slate-300 hover:text-[#171923] dark:hover:text-white"
                   }`}
                 >
                   {cat === "all" ? (
-                    <BookOpen size={12} className={isActive ? "text-white" : "text-[#800020] dark:text-[#F47B20]"} />
+                    <BookOpen size={11} className={isActive ? "text-[#C5A059]" : "text-[#800020] dark:text-[#C5A059]"} />
                   ) : (
-                    <span className={`w-1.5 h-1.5 rounded-full ${isActive ? "bg-white" : "bg-[#800020] dark:bg-[#F47B20]"}`} />
+                    <span
+                      className={`w-1.5 h-1.5 rounded-full ${
+                        isActive ? "bg-[#C5A059]" : "bg-[#800020] dark:bg-[#C5A059]"
+                      }`}
+                    />
                   )}
                   <span>{displayLabel}</span>
+                  {testCount > 0 && (
+                    <span
+                      className={`ml-0.5 px-1 py-0.2 rounded-md text-[8.5px] font-mono tabular-nums ${
+                        isActive
+                          ? "bg-white/20 text-white"
+                          : "bg-[#F7EFE2] dark:bg-[#252A3A] text-slate-500 dark:text-slate-400"
+                      }`}
+                    >
+                      {testCount}
+                    </span>
+                  )}
                 </button>
               );
             })}
           </div>
         </section>
 
-        {/* 5. LIVE TESTS TAB CONTENT */}
+        {/* ── 5. LIVE TESTS TAB CONTENT ───────────────────────────────────── */}
         {activeSubTab === "live" && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
             {isLoading ? (
               <div className="md:col-span-2 p-10 text-center bg-white dark:bg-[#1F2330] rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] flex flex-col items-center shadow-xs">
-                <RefreshCw size={26} className="text-[#800020] dark:text-[#F47B20] animate-spin mb-3" />
-                <p className="font-extrabold text-sm text-[#171923] dark:text-[#FFF9EF]">
+                <RefreshCw size={24} className="text-[#800020] dark:text-[#C5A059] animate-spin mb-2.5" />
+                <p className="font-black text-xs sm:text-sm text-[#171923] dark:text-[#FFF9EF]">
                   Syncing Live Tests...
                 </p>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  Fetching active test schedules
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                  Fetching official examination schedules
                 </p>
               </div>
             ) : liveAndUpcoming.length === 0 ? (
-              <div className="md:col-span-2 p-9 text-center bg-white dark:bg-[#1F2330] rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] flex flex-col items-center shadow-xs">
-                <div className="w-13 h-13 rounded-2xl bg-[#800020]/10 dark:bg-[#F47B20]/15 flex items-center justify-center text-[#800020] dark:text-[#F47B20] mb-3">
-                  <Radio size={26} />
+              <div className="md:col-span-2 p-8 text-center bg-white dark:bg-[#1F2330] rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] flex flex-col items-center shadow-xs">
+                <div className="w-12 h-12 rounded-2xl bg-[#800020]/10 dark:bg-[#C5A059]/15 flex items-center justify-center text-[#800020] dark:text-[#C5A059] mb-2.5 border border-[#800020]/15 dark:border-[#C5A059]/20">
+                  <Radio size={22} />
                 </div>
                 <h3 className="font-black text-sm text-[#171923] dark:text-[#FFF9EF] mb-1">
-                  No Active Live Tests Found
+                  No Active Live Tests Scheduled
                 </h3>
-                <p className="text-slate-500 dark:text-slate-400 text-xs mb-4 max-w-xs leading-relaxed">
+                <p className="text-slate-500 dark:text-slate-400 text-xs mb-3.5 max-w-xs leading-relaxed">
                   {selectedCategory !== "all"
-                    ? `No live test active under "${selectedCategory}". Select "All Exams" or explore Test Series.`
-                    : "No live test is currently running. Check back soon or practice with Test Series."}
+                    ? `No test currently live under "${selectedCategory}". Select "All Exams" or explore comprehensive Test Series.`
+                    : "No test is live right now. Prepare with Test Series or check back shortly for scheduled sessions."}
                 </p>
                 <button
                   onClick={() => {
@@ -511,58 +567,59 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
                     setSelectedCategory("all");
                     setActiveSubTab("series");
                   }}
-                  className="px-4 py-2.5 rounded-xl bg-[#800020] hover:bg-[#5E0017] dark:bg-[#800020] dark:hover:bg-[#650019] text-white text-xs font-semibold border border-[#C99A45]/35 active:scale-95 transition-all duration-180 shadow-sm cursor-pointer"
+                  className="px-4 py-2 rounded-xl bg-[#800020] hover:bg-[#5E0017] dark:bg-[#800020] text-[#FFF9EF] text-xs font-black border border-[#C5A059]/40 active:scale-95 transition-all shadow-xs cursor-pointer flex items-center gap-1.5"
                 >
-                  Explore Test Series
+                  <Layers size={13} className="text-[#C5A059]" />
+                  <span>Explore Test Series</span>
                 </button>
               </div>
             ) : (
               liveAndUpcoming.map((test) => {
                 const existingSub = getTestSubmission(test.id);
-                const questionCount =
-                  test.questionCount || (test.questions ? test.questions.length : 0);
+                const questionCount = test.questionCount || (test.questions ? test.questions.length : 0);
                 const durationMinutes = test.durationMinutes || 120;
                 const totalMarks = test.totalMarks || 200;
+                const negMark = test.negativeMarking ? `-${test.negativeMarking}` : "-0.33";
 
                 return (
                   <article
                     key={test.id}
-                    className="bg-white dark:bg-[#1F2330] rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] p-4 shadow-[0_3px_15px_rgba(23,25,35,0.03)] space-y-3.5 transition-all flex flex-col justify-between"
+                    className="bg-white dark:bg-[#1F2330] rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] p-4 shadow-xs hover:border-[#800020]/40 dark:hover:border-[#C5A059]/40 transition-all flex flex-col justify-between space-y-3"
                   >
-                    <div className="space-y-3.5">
-                      {/* Header & Badges */}
+                    <div className="space-y-2.5">
+                      {/* Top Badges Row */}
                       <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-2 min-w-0">
-                          <span className="bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] text-[10px] font-black uppercase px-2.5 py-1 rounded-lg border border-[#800020]/20 dark:border-[#F47B20]/30 truncate">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <span className="bg-[#800020]/10 text-[#800020] dark:bg-[#C5A059]/15 dark:text-[#E8D9C0] text-[9.5px] font-black uppercase px-2 py-0.5 rounded-lg border border-[#800020]/20 dark:border-[#C5A059]/30 truncate">
                             {test.examCategory || "General Exam"}
                           </span>
-                          <span className="bg-amber-500/10 dark:bg-amber-400/15 text-amber-700 dark:text-amber-400 text-[10px] font-black uppercase px-2 py-0.5 rounded-lg border border-amber-500/25 shrink-0 flex items-center gap-1">
+                          <span className="bg-amber-500/10 dark:bg-amber-400/15 text-amber-800 dark:text-amber-300 text-[9.5px] font-black uppercase px-1.5 py-0.5 rounded-lg border border-amber-500/25 shrink-0 flex items-center gap-1">
                             <ShieldCheck size={11} />
-                            RPSC Option E
+                            Option E
                           </span>
                         </div>
 
-                        <div className="flex items-center gap-1.5">
-                          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-rose-50 dark:bg-rose-950/40 border border-rose-200/70 dark:border-rose-800/60 text-rose-700 dark:text-rose-400 shrink-0">
-                            <span className="w-2 h-2 rounded-full bg-rose-600" />
-                            <span className="text-[9.5px] font-black uppercase tracking-wider">
-                              LIVE NOW
+                        <div className="flex items-center gap-1">
+                          <div className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-rose-50 dark:bg-rose-950/40 border border-rose-200/70 dark:border-rose-800/60 text-rose-700 dark:text-rose-400 shrink-0">
+                            <span className="w-1.5 h-1.5 rounded-full bg-rose-600 animate-ping" />
+                            <span className="text-[9px] font-black uppercase tracking-wider">
+                              LIVE
                             </span>
                           </div>
                           <button
                             onClick={() => handleShareLiveTest(test)}
-                            className="p-1.5 rounded-lg bg-[#F7EFE2] dark:bg-[#252A3A] text-[#800020] dark:text-[#F47B20] hover:bg-[#E8D9C0]/60 transition-all cursor-pointer border border-[#E8D9C0] dark:border-[#31374A] active:scale-95"
-                            title="Share Live Test"
+                            className="p-1.5 rounded-lg bg-[#F7EFE2] dark:bg-[#252A3A] text-[#800020] dark:text-[#C5A059] hover:bg-[#E8D9C0]/60 transition-all cursor-pointer border border-[#E8D9C0] dark:border-[#31374A] active:scale-95"
+                            title="Share Test"
                             aria-label="Share test"
                           >
-                            <Share2 size={14} />
+                            <Share2 size={13} />
                           </button>
                         </div>
                       </div>
 
-                      {/* Test Title & Info */}
+                      {/* Title & Instructions */}
                       <div>
-                        <h3 className="text-base font-black text-[#171923] dark:text-[#FFF9EF] leading-snug font-hindi">
+                        <h3 className="text-sm sm:text-base font-black text-[#171923] dark:text-[#FFF9EF] leading-snug font-hindi">
                           {test.title}
                         </h3>
                         {test.hindiTitle && (
@@ -571,72 +628,75 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
                           </p>
                         )}
                         {test.instructions && (
-                          <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-1 line-clamp-2">
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-1 line-clamp-2 leading-relaxed">
                             {test.instructions}
                           </p>
                         )}
-                        <div className="mt-2 p-2.5 rounded-xl bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-800/40 text-[10.5px] leading-relaxed text-amber-900 dark:text-amber-200 flex items-start gap-2">
-                          <AlertCircle size={14} className="shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
+
+                        {/* RPSC 5th Option Rule Notice */}
+                        <div className="mt-2 p-2 rounded-xl bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] text-[10px] leading-relaxed text-[#171923] dark:text-[#E8D9C0] flex items-start gap-1.5">
+                          <AlertCircle size={13} className="shrink-0 text-[#800020] dark:text-[#C5A059] mt-0.5" />
                           <div>
-                            <strong>RPSC 5वां विकल्प नियम:</strong> यदि प्रश्न हल नहीं करना है तो Option E ('अनुत्तरित प्रश्न') भरें। खाली छोड़ने पर 1/3 अंक कटौती तथा 10% से अधिक खाली छोड़ने पर अयोग्यता नियम लागू है।
+                            <strong className="text-[#800020] dark:text-[#C5A059]">RPSC 5वां विकल्प नियम:</strong> यदि प्रश्न हल नहीं करना है तो Option E ('अनुत्तरित') भरें। खाली छोड़ने पर {negMark} अंक कटौती तथा 10% से अधिक खाली छोड़ने पर अयोग्यता नियम लागू।
                           </div>
                         </div>
                       </div>
 
-                      {/* Information Grid */}
-                      <div className="grid grid-cols-3 gap-2 text-center">
-                        <div className="bg-[#FFF9EF] dark:bg-[#171923] p-2.5 rounded-xl border border-[#E8D9C0] dark:border-[#31374A] flex flex-col items-center justify-center">
-                          <div className="flex items-center gap-1 text-[#800020] dark:text-[#F47B20] mb-0.5">
-                            <HelpCircle size={12} />
-                            <span className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                              QUESTIONS
-                            </span>
-                          </div>
-                          <span className="text-sm font-black text-[#171923] dark:text-[#FFF9EF] tabular-nums">
+                      {/* Stats Micro-Cards */}
+                      <div className="grid grid-cols-4 gap-1.5 text-center pt-1">
+                        <div className="bg-[#F7EFE2]/60 dark:bg-[#171923] p-2 rounded-xl border border-[#E8D9C0] dark:border-[#31374A] flex flex-col items-center justify-center">
+                          <span className="text-[8.5px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                            Questions
+                          </span>
+                          <span className="text-xs sm:text-sm font-black text-[#171923] dark:text-[#FFF9EF] tabular-nums mt-0.5">
                             {questionCount}
                           </span>
                         </div>
 
-                        <div className="bg-[#FFF9EF] dark:bg-[#171923] p-2.5 rounded-xl border border-[#E8D9C0] dark:border-[#31374A] flex flex-col items-center justify-center">
-                          <div className="flex items-center gap-1 text-emerald-700 dark:text-emerald-400 mb-0.5">
-                            <Clock size={12} />
-                            <span className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                              DURATION
-                            </span>
-                          </div>
-                          <span className="text-sm font-black text-[#171923] dark:text-[#FFF9EF] tabular-nums">
-                            {durationMinutes} Min
+                        <div className="bg-[#F7EFE2]/60 dark:bg-[#171923] p-2 rounded-xl border border-[#E8D9C0] dark:border-[#31374A] flex flex-col items-center justify-center">
+                          <span className="text-[8.5px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                            Duration
+                          </span>
+                          <span className="text-xs sm:text-sm font-black text-[#171923] dark:text-[#FFF9EF] tabular-nums mt-0.5">
+                            {durationMinutes}m
                           </span>
                         </div>
 
-                        <div className="bg-[#FFF9EF] dark:bg-[#171923] p-2.5 rounded-xl border border-[#E8D9C0] dark:border-[#31374A] flex flex-col items-center justify-center">
-                          <div className="flex items-center gap-1 text-[#C99A45] mb-0.5">
-                            <Award size={12} />
-                            <span className="text-[9px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                              MARKS
-                            </span>
-                          </div>
-                          <span className="text-sm font-black text-[#171923] dark:text-[#FFF9EF] tabular-nums">
+                        <div className="bg-[#F7EFE2]/60 dark:bg-[#171923] p-2 rounded-xl border border-[#E8D9C0] dark:border-[#31374A] flex flex-col items-center justify-center">
+                          <span className="text-[8.5px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                            Marks
+                          </span>
+                          <span className="text-xs sm:text-sm font-black text-[#800020] dark:text-[#C5A059] tabular-nums mt-0.5">
                             {totalMarks}
+                          </span>
+                        </div>
+
+                        <div className="bg-[#F7EFE2]/60 dark:bg-[#171923] p-2 rounded-xl border border-[#E8D9C0] dark:border-[#31374A] flex flex-col items-center justify-center">
+                          <span className="text-[8.5px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                            Negative
+                          </span>
+                          <span className="text-xs sm:text-sm font-black text-rose-700 dark:text-rose-400 tabular-nums mt-0.5">
+                            {negMark}
                           </span>
                         </div>
                       </div>
                     </div>
 
-                    <div className="space-y-2">
+                    {/* Action Area */}
+                    <div className="space-y-2 pt-1 border-t border-[#E8D9C0]/70 dark:border-[#31374A]/70">
                       {existingSub ? (
-                        <div className="p-3 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200/70 dark:border-emerald-800/50 rounded-xl flex items-center justify-between gap-2">
+                        <div className="p-2.5 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200/70 dark:border-emerald-800/50 rounded-xl flex items-center justify-between gap-2">
                           <div className="min-w-0">
-                            <span className="text-[9.5px] font-black text-emerald-700 dark:text-emerald-400 uppercase tracking-wider block">
-                              ATTEMPTED
+                            <span className="text-[9px] font-black text-emerald-700 dark:text-emerald-400 uppercase tracking-wider block">
+                              ALREADY ATTEMPTED
                             </span>
-                            <p className="text-xs font-extrabold text-[#171923] dark:text-[#FFF9EF] mt-0.5 tabular-nums">
+                            <p className="text-xs font-black text-[#171923] dark:text-[#FFF9EF] mt-0.5 tabular-nums">
                               Score: {existingSub.score}/{existingSub.totalMarks} ({existingSub.accuracy.toFixed(0)}%)
                             </p>
                           </div>
                           <button
                             onClick={() => handleStartLiveTest(test)}
-                            className="px-3.5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-extrabold rounded-xl shadow-xs active:scale-95 transition-all cursor-pointer shrink-0"
+                            className="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-black rounded-lg shadow-xs active:scale-95 transition-all cursor-pointer shrink-0"
                           >
                             Re-attempt
                           </button>
@@ -644,28 +704,29 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
                       ) : (
                         <button
                           onClick={() => handleStartLiveTest(test)}
-                          className="w-full bg-[#800020] hover:bg-[#5E0017] dark:bg-[#800020] dark:hover:bg-[#650019] active:scale-[0.98] text-white py-2.5 px-4 rounded-xl font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 border border-[#C99A45]/35 shadow-sm transition-all duration-180 cursor-pointer min-h-[44px] group"
+                          className="w-full bg-[#800020] hover:bg-[#5E0017] dark:bg-[#800020] dark:hover:bg-[#5E0017] active:scale-[0.99] text-[#FFF9EF] py-2.5 px-4 rounded-xl font-black text-xs sm:text-sm flex items-center justify-center gap-2 border border-[#C5A059]/40 shadow-sm transition-all duration-150 cursor-pointer min-h-[44px] group"
                         >
                           {fetchingTestId === test.id ? (
-                            <RefreshCw size={16} className="animate-spin text-[#C99A45]" />
+                            <RefreshCw size={15} className="animate-spin text-[#C5A059]" />
                           ) : (
-                            <Play size={16} fill="currentColor" className="text-white group-hover:scale-105 transition-transform" />
+                            <Play size={15} fill="currentColor" className="text-[#C5A059] group-hover:scale-110 transition-transform" />
                           )}
-                          <span>{fetchingTestId === test.id ? "Loading Questions..." : "Start Live Test"}</span>
+                          <span>{fetchingTestId === test.id ? "Preparing Exam Simulation..." : "Start Live Test"}</span>
                         </button>
                       )}
 
+                      {/* Admin Tools */}
                       {isAdmin && (
-                        <div className="flex items-center gap-2 pt-2 border-t border-[#E8D9C0] dark:border-[#31374A]">
+                        <div className="flex items-center gap-2 pt-1">
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
                               onOpenAdminManage?.();
                             }}
-                            className="flex-1 py-2 bg-[#F7EFE2] dark:bg-[#252A3A] text-[#800020] dark:text-[#F47B20] font-extrabold rounded-xl text-xs flex items-center justify-center gap-1.5 cursor-pointer"
+                            className="flex-1 py-1.5 bg-[#F7EFE2] dark:bg-[#252A3A] text-[#800020] dark:text-[#C5A059] font-black rounded-lg text-xs flex items-center justify-center gap-1.5 cursor-pointer border border-[#E8D9C0] dark:border-[#31374A]"
                           >
-                            <Edit2 size={13} />
-                            <span>Edit / Manage Test</span>
+                            <Edit2 size={12} />
+                            <span>Manage Test</span>
                           </button>
                           <button
                             onClick={async (e) => {
@@ -675,10 +736,10 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
                                 setTests(updated.filter((t) => t.status !== "draft"));
                               }
                             }}
-                            className="px-3 py-2 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 text-rose-700 dark:text-rose-400 font-extrabold rounded-xl text-xs flex items-center justify-center gap-1 cursor-pointer"
+                            className="px-2.5 py-1.5 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 text-rose-700 dark:text-rose-400 font-black rounded-lg text-xs flex items-center justify-center gap-1 cursor-pointer border border-rose-200 dark:border-rose-900"
                             title="Delete Live Test"
                           >
-                            <Trash2 size={13} />
+                            <Trash2 size={12} />
                             <span>Delete</span>
                           </button>
                         </div>
@@ -691,7 +752,7 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
           </div>
         )}
 
-        {/* 6. TEST SERIES TAB CONTENT */}
+        {/* ── 6. TEST SERIES TAB CONTENT ──────────────────────────────────── */}
         {activeSubTab === "series" && (
           <CoachingHierarchySection
             liveTests={tests}
@@ -703,93 +764,94 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
           />
         )}
 
-        {/* 7. SCORES TAB CONTENT */}
+        {/* ── 7. SCORES TAB CONTENT ───────────────────────────────────────── */}
         {activeSubTab === "results" && (
-          <div className="space-y-3.5">
+          <div className="space-y-3">
             {submissions.length === 0 ? (
-              <div className="p-9 text-center bg-white dark:bg-[#1F2330] rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] flex flex-col items-center shadow-xs">
-                <div className="w-13 h-13 rounded-2xl bg-[#F7EFE2] dark:bg-[#252A3A] flex items-center justify-center text-[#C99A45] mb-3">
-                  <Trophy size={26} />
+              <div className="p-8 text-center bg-white dark:bg-[#1F2330] rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] flex flex-col items-center shadow-xs">
+                <div className="w-12 h-12 rounded-2xl bg-[#F7EFE2] dark:bg-[#252A3A] flex items-center justify-center text-[#C5A059] mb-2.5 border border-[#E8D9C0] dark:border-[#31374A]">
+                  <Trophy size={24} />
                 </div>
                 <h3 className="font-black text-sm text-[#171923] dark:text-[#FFF9EF] mb-1">
-                  No Attempted Tests Yet
+                  No Exam Records Found
                 </h3>
-                <p className="text-slate-500 dark:text-slate-400 text-xs mb-4 max-w-xs leading-relaxed">
-                  Your live test performance, accuracy analysis, and scores will be recorded here after taking a test.
+                <p className="text-slate-500 dark:text-slate-400 text-xs mb-3.5 max-w-xs leading-relaxed">
+                  Your detailed scorecards, RPSC accuracy analysis, and percentiles will appear here as soon as you submit a test.
                 </p>
                 <button
                   onClick={() => {
                     triggerHaptic("light");
                     setActiveSubTab("live");
                   }}
-                  className="px-4 py-2.5 rounded-xl bg-[#800020] hover:bg-[#5E0017] dark:bg-[#800020] dark:hover:bg-[#650019] text-white text-xs font-semibold border border-[#C99A45]/35 active:scale-95 transition-all duration-180 shadow-sm cursor-pointer"
+                  className="px-4 py-2 rounded-xl bg-[#800020] hover:bg-[#5E0017] dark:bg-[#800020] text-[#FFF9EF] text-xs font-black border border-[#C5A059]/40 active:scale-95 transition-all shadow-xs cursor-pointer flex items-center gap-1.5"
                 >
-                  Attempt a Live Test Now
+                  <Play size={13} fill="currentColor" className="text-[#C5A059]" />
+                  <span>Attempt a Live Test Now</span>
                 </button>
               </div>
             ) : (
               submissions.map((sub) => (
                 <article
                   key={sub.submissionId}
-                  className="bg-white dark:bg-[#1F2330] rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] p-4 shadow-xs space-y-3"
+                  className="bg-white dark:bg-[#1F2330] rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] p-4 shadow-xs space-y-2.5"
                 >
                   <div className="flex justify-between items-center">
-                    <span className="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1">
-                      <Calendar size={12} />
+                    <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                      <Calendar size={11} />
                       {new Date(sub.submittedAt).toLocaleDateString(undefined, {
                         month: "short",
                         day: "numeric",
                         year: "numeric",
                       })}
                     </span>
-                    <span className="bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 text-[10px] font-black px-2.5 py-1 rounded-lg border border-emerald-200/50 dark:border-emerald-800/40 tabular-nums">
+                    <span className="bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 text-[10px] font-black px-2 py-0.5 rounded-lg border border-emerald-200/50 dark:border-emerald-800/40 tabular-nums">
                       {sub.accuracy.toFixed(0)}% Accuracy
                     </span>
                   </div>
 
-                  <h3 className="text-sm font-black text-[#171923] dark:text-[#FFF9EF] leading-tight">
+                  <h3 className="text-sm font-black text-[#171923] dark:text-[#FFF9EF] leading-snug">
                     {sub.testTitle}
                   </h3>
 
                   {sub.isRpscDisqualified && (
-                    <div className="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-800 dark:text-rose-200 text-xs font-bold flex items-center gap-2">
-                      <AlertCircle size={15} className="shrink-0 text-rose-600 dark:text-rose-400" />
+                    <div className="p-2 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-800 dark:text-rose-200 text-[11px] font-bold flex items-center gap-1.5">
+                      <AlertCircle size={14} className="shrink-0 text-rose-600 dark:text-rose-400" />
                       <span>RPSC अयोग्य (Disqualified): 10% से अधिक प्रश्न खाली छोड़े गए</span>
                     </div>
                   )}
 
-                  <div className="grid grid-cols-4 gap-1.5 bg-[#FFF9EF] dark:bg-[#171923] p-3 rounded-xl border border-[#E8D9C0] dark:border-[#31374A]">
-                    <div className="text-center border-r border-[#E8D9C0] dark:border-[#31374A]">
-                      <p className="text-[9px] text-slate-500 dark:text-slate-400 font-extrabold uppercase mb-0.5">
+                  <div className="grid grid-cols-4 gap-1.5 bg-[#FFF9EF] dark:bg-[#171923] p-2.5 rounded-xl border border-[#E8D9C0] dark:border-[#31374A] text-center">
+                    <div>
+                      <p className="text-[8.5px] text-slate-500 dark:text-slate-400 font-black uppercase">
                         Score
                       </p>
-                      <p className="text-xs font-black text-[#171923] dark:text-[#FFF9EF] tabular-nums">
+                      <p className="text-xs font-black text-[#800020] dark:text-[#C5A059] tabular-nums mt-0.5">
                         {sub.score}/{sub.totalMarks}
                       </p>
                     </div>
-                    <div className="text-center border-r border-[#E8D9C0] dark:border-[#31374A]">
-                      <p className="text-[9px] text-slate-500 dark:text-slate-400 font-extrabold uppercase mb-0.5">
+                    <div>
+                      <p className="text-[8.5px] text-slate-500 dark:text-slate-400 font-black uppercase">
                         Correct / Wrong
                       </p>
-                      <p className="text-xs font-black tabular-nums">
+                      <p className="text-xs font-black tabular-nums mt-0.5">
                         <span className="text-emerald-700 dark:text-emerald-400">{sub.correctCount}</span>
                         <span className="text-slate-400 mx-0.5">/</span>
                         <span className="text-rose-700 dark:text-rose-400">{sub.wrongCount}</span>
                       </p>
                     </div>
-                    <div className="text-center border-r border-[#E8D9C0] dark:border-[#31374A]">
-                      <p className="text-[9px] text-slate-500 dark:text-slate-400 font-extrabold uppercase mb-0.5">
+                    <div>
+                      <p className="text-[8.5px] text-slate-500 dark:text-slate-400 font-black uppercase">
                         Option E
                       </p>
-                      <p className="text-xs font-black text-amber-700 dark:text-amber-400 tabular-nums">
+                      <p className="text-xs font-black text-amber-700 dark:text-amber-400 tabular-nums mt-0.5">
                         {sub.unattemptedECount ?? 0}
                       </p>
                     </div>
-                    <div className="text-center">
-                      <p className="text-[9px] text-slate-500 dark:text-slate-400 font-extrabold uppercase mb-0.5">
+                    <div>
+                      <p className="text-[8.5px] text-slate-500 dark:text-slate-400 font-black uppercase">
                         Time
                       </p>
-                      <p className="text-xs font-black text-[#171923] dark:text-[#FFF9EF] tabular-nums">
+                      <p className="text-xs font-black text-[#171923] dark:text-[#FFF9EF] tabular-nums mt-0.5">
                         {Math.floor(sub.timeSpentSeconds / 60)}m
                       </p>
                     </div>
@@ -800,23 +862,23 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
           </div>
         )}
 
-        {/* 8. GLOBAL LEADERBOARD TAB CONTENT */}
+        {/* ── 8. GLOBAL LEADERBOARD & RANKS ────────────────────────────────── */}
         {activeSubTab === "leaderboard" && (
           <div className="space-y-3.5">
             {/* Filter Selector Header */}
             <div className="bg-white dark:bg-[#1F2330] p-3 rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] shadow-xs flex items-center justify-between gap-3">
               <div className="flex items-center gap-2 min-w-0">
-                <Trophy size={16} className="text-[#C99A45] shrink-0" />
+                <Trophy size={16} className="text-[#C5A059] shrink-0" />
                 <span className="text-xs font-black text-[#171923] dark:text-[#FFF9EF] truncate">
-                  State Rankings
+                  State Merit Ranks
                 </span>
               </div>
               <select
                 value={leaderboardFilterTestId}
                 onChange={(e) => setLeaderboardFilterTestId(e.target.value)}
-                className="bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] text-xs font-extrabold rounded-xl px-2.5 py-1.5 text-[#171923] dark:text-[#FFF9EF] outline-none max-w-[200px] truncate"
+                className="bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] text-xs font-black rounded-xl px-2.5 py-1.5 text-[#171923] dark:text-[#FFF9EF] outline-none max-w-[200px] truncate cursor-pointer"
               >
-                <option value="all">All Live Tests (Overall)</option>
+                <option value="all">All Live Tests (Cumulative)</option>
                 {tests.map((t) => (
                   <option key={t.id} value={t.id}>
                     {t.title}
@@ -827,56 +889,56 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
 
             {/* Podium for Top 3 */}
             {leaderboardEntries.length >= 3 && (
-              <div className="bg-gradient-to-b from-[#800020]/10 via-[#F47B20]/5 to-transparent dark:from-[#800020]/20 p-4 rounded-2xl border border-[#C99A45]/40">
-                <div className="flex items-end justify-center gap-2 pt-3 pb-1">
+              <div className="bg-gradient-to-b from-[#800020]/15 via-[#C5A059]/10 to-transparent dark:from-[#800020]/25 p-4 rounded-2xl border border-[#C5A059]/40">
+                <div className="flex items-end justify-center gap-2 pt-2 pb-1">
                   {/* Rank 2 - Silver */}
-                  <div className="flex-1 max-w-[100px] flex flex-col items-center">
-                    <div className="w-11 h-11 rounded-full bg-slate-200 dark:bg-slate-700 border-2 border-slate-300 dark:border-slate-500 flex items-center justify-center font-black text-slate-700 dark:text-slate-200 text-sm shadow-md relative">
-                      <Medal size={16} className="text-slate-500 absolute -top-2 -left-1" />
+                  <div className="flex-1 max-w-[95px] flex flex-col items-center">
+                    <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 border-2 border-slate-300 dark:border-slate-500 flex items-center justify-center font-black text-slate-700 dark:text-slate-200 text-xs shadow-md relative">
+                      <Medal size={15} className="text-slate-500 absolute -top-2 -left-1" />
                       {leaderboardEntries[1].userName.charAt(0)}
                     </div>
-                    <span className="text-[11px] font-black text-[#171923] dark:text-[#FFF9EF] mt-1.5 truncate max-w-full text-center">
+                    <span className="text-[10.5px] font-black text-[#171923] dark:text-[#FFF9EF] mt-1 truncate max-w-full text-center">
                       {leaderboardEntries[1].userName}
                     </span>
-                    <span className="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 tabular-nums">
+                    <span className="text-[9.5px] font-black text-slate-500 dark:text-slate-400 tabular-nums">
                       {leaderboardEntries[1].score} pts
                     </span>
-                    <div className="w-full bg-slate-200 dark:bg-slate-700/80 rounded-t-xl h-12 mt-2 flex items-center justify-center font-black text-slate-700 dark:text-slate-200 text-xs tabular-nums">
+                    <div className="w-full bg-slate-200 dark:bg-slate-700/80 rounded-t-xl h-11 mt-1.5 flex items-center justify-center font-black text-slate-700 dark:text-slate-200 text-xs tabular-nums">
                       #2
                     </div>
                   </div>
 
-                  {/* Rank 1 - Gold */}
-                  <div className="flex-1 max-w-[110px] flex flex-col items-center -mt-4">
-                    <div className="w-13 h-13 rounded-full bg-[#C99A45]/20 border-2 border-[#C99A45] flex items-center justify-center font-black text-[#800020] dark:text-[#C99A45] text-base shadow-lg relative">
-                      <Trophy size={18} className="text-[#C99A45] absolute -top-2.5 left-1/2 -translate-x-1/2" />
+                  {/* Rank 1 - Gold (Elevated) */}
+                  <div className="flex-1 max-w-[105px] flex flex-col items-center -mt-3">
+                    <div className="w-12 h-12 rounded-full bg-[#C5A059]/25 border-2 border-[#C5A059] flex items-center justify-center font-black text-[#800020] dark:text-[#C5A059] text-sm shadow-lg relative">
+                      <Trophy size={17} className="text-[#C5A059] absolute -top-2.5 left-1/2 -translate-x-1/2" />
                       {leaderboardEntries[0].userName.charAt(0)}
                     </div>
-                    <span className="text-xs font-black text-[#171923] dark:text-[#FFF9EF] mt-1.5 truncate max-w-full text-center">
+                    <span className="text-[11px] font-black text-[#171923] dark:text-[#FFF9EF] mt-1 truncate max-w-full text-center">
                       {leaderboardEntries[0].userName}
                     </span>
-                    <span className="text-[10px] font-black text-[#800020] dark:text-[#C99A45] tabular-nums">
+                    <span className="text-[10px] font-black text-[#800020] dark:text-[#C5A059] tabular-nums">
                       {leaderboardEntries[0].score} pts
                     </span>
-                    <div className="w-full bg-[#C99A45] rounded-t-2xl h-16 mt-2 flex flex-col items-center justify-center font-black text-[#171923] text-xs shadow-md tabular-nums">
+                    <div className="w-full bg-gradient-to-t from-[#B8860B] to-[#C5A059] rounded-t-2xl h-16 mt-1.5 flex flex-col items-center justify-center font-black text-[#171923] text-xs shadow-md tabular-nums">
                       <span>#1</span>
-                      <span className="text-[8.5px] font-extrabold uppercase tracking-wider opacity-95">TOPPER</span>
+                      <span className="text-[8px] font-black uppercase tracking-wider">TOPPER</span>
                     </div>
                   </div>
 
                   {/* Rank 3 - Bronze */}
-                  <div className="flex-1 max-w-[100px] flex flex-col items-center">
-                    <div className="w-11 h-11 rounded-full bg-[#F47B20]/15 border-2 border-[#F47B20]/60 flex items-center justify-center font-black text-[#F47B20] text-sm shadow-md relative">
-                      <Award size={16} className="text-[#F47B20] absolute -top-2 -right-1" />
+                  <div className="flex-1 max-w-[95px] flex flex-col items-center">
+                    <div className="w-10 h-10 rounded-full bg-amber-700/20 border-2 border-amber-600/60 flex items-center justify-center font-black text-amber-700 dark:text-amber-400 text-xs shadow-md relative">
+                      <Award size={15} className="text-amber-600 absolute -top-2 -right-1" />
                       {leaderboardEntries[2].userName.charAt(0)}
                     </div>
-                    <span className="text-[11px] font-black text-[#171923] dark:text-[#FFF9EF] mt-1.5 truncate max-w-full text-center">
+                    <span className="text-[10.5px] font-black text-[#171923] dark:text-[#FFF9EF] mt-1 truncate max-w-full text-center">
                       {leaderboardEntries[2].userName}
                     </span>
-                    <span className="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 tabular-nums">
+                    <span className="text-[9.5px] font-black text-slate-500 dark:text-slate-400 tabular-nums">
                       {leaderboardEntries[2].score} pts
                     </span>
-                    <div className="w-full bg-[#F47B20]/25 rounded-t-xl h-10 mt-2 flex items-center justify-center font-black text-[#800020] dark:text-[#F47B20] text-xs tabular-nums">
+                    <div className="w-full bg-amber-700/20 dark:bg-amber-900/40 rounded-t-xl h-9 mt-1.5 flex items-center justify-center font-black text-[#800020] dark:text-amber-300 text-xs tabular-nums">
                       #3
                     </div>
                   </div>
@@ -884,30 +946,30 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
               </div>
             )}
 
-            {/* Rankings List */}
-            <div className="space-y-2">
+            {/* Standings List */}
+            <div className="space-y-1.5">
               <h3 className="text-[10px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 px-1">
-                Leaderboard Standings
+                Full Merit Standings
               </h3>
 
               {leaderboardEntries.map((entry) => (
                 <article
                   key={entry.id}
-                  className={`p-3 rounded-2xl border transition-all flex items-center justify-between gap-3 ${
+                  className={`p-2.5 sm:p-3 rounded-2xl border transition-all flex items-center justify-between gap-3 ${
                     entry.isCurrentUser
-                      ? "bg-[#800020]/5 dark:bg-[#F47B20]/10 border-[#800020]/40 dark:border-[#F47B20]/40 shadow-sm"
+                      ? "bg-[#800020]/10 dark:bg-[#C5A059]/15 border-[#800020]/40 dark:border-[#C5A059]/40 shadow-xs"
                       : "bg-white dark:bg-[#1F2330] border-[#E8D9C0] dark:border-[#31374A] shadow-xs"
                   }`}
                 >
-                  <div className="flex items-center gap-3 min-w-0">
+                  <div className="flex items-center gap-2.5 min-w-0">
                     <div
                       className={`w-7 h-7 rounded-xl flex items-center justify-center font-black text-xs shrink-0 tabular-nums ${
                         entry.rank === 1
-                          ? "bg-[#C99A45] text-[#171923]"
+                          ? "bg-[#C5A059] text-[#171923]"
                           : entry.rank === 2
                           ? "bg-slate-300 text-slate-800 dark:bg-slate-600 dark:text-white"
                           : entry.rank === 3
-                          ? "bg-[#F47B20] text-white"
+                          ? "bg-amber-700/30 text-amber-900 dark:text-amber-200"
                           : "bg-[#F7EFE2] dark:bg-[#252A3A] text-slate-600 dark:text-slate-300"
                       }`}
                     >
@@ -919,7 +981,7 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
                           {entry.userName}
                         </p>
                         {entry.isCurrentUser && (
-                          <span className="text-[8.5px] font-black uppercase px-1.5 py-0.5 rounded bg-[#800020] dark:bg-[#F47B20] text-white">
+                          <span className="text-[8px] font-black uppercase px-1.5 py-0.2 rounded bg-[#800020] text-white">
                             YOU
                           </span>
                         )}
@@ -934,7 +996,7 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
                     <p className="text-xs font-black text-[#171923] dark:text-[#FFF9EF] tabular-nums">
                       {entry.score} pts
                     </p>
-                    <p className="text-[9.5px] text-emerald-700 dark:text-emerald-400 font-extrabold tabular-nums">
+                    <p className="text-[9px] text-emerald-700 dark:text-emerald-400 font-black tabular-nums">
                       {entry.accuracy}% Acc
                     </p>
                   </div>
