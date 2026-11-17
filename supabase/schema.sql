@@ -209,3 +209,47 @@ CREATE INDEX IF NOT EXISTS idx_questions_cursor ON public.questions(created_at D
 CREATE INDEX IF NOT EXISTS idx_questions_facet_filter ON public.questions(exam, year, subject_id);
 CREATE INDEX IF NOT EXISTS idx_questions_hierarchy_seek ON public.questions(subject_id, chapter_id, topic_id);
 CREATE INDEX IF NOT EXISTS idx_attempts_user_created ON public.attempts(user_id, created_at DESC);
+
+-- ----------------------------------------------------------------------------
+-- 8. QUESTION REPORTS & STUDENT OBJECTION DESK
+-- ----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS public.question_reports (
+    id TEXT PRIMARY KEY,
+    question_id TEXT NOT NULL REFERENCES public.questions(id) ON DELETE CASCADE,
+    question_text TEXT NOT NULL,
+    subject_name TEXT,
+    chapter_name TEXT,
+    topic_name TEXT,
+    student_name TEXT,
+    student_email TEXT,
+    student_uid UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+    issue_type TEXT NOT NULL,
+    student_comment TEXT,
+    status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'resolved', 'dismissed')),
+    admin_notes TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_question_reports_status ON public.question_reports(status);
+CREATE INDEX IF NOT EXISTS idx_question_reports_question_id ON public.question_reports(question_id);
+CREATE INDEX IF NOT EXISTS idx_question_reports_created ON public.question_reports(created_at DESC);
+
+ALTER TABLE public.question_reports ENABLE ROW LEVEL SECURITY;
+
+-- Students can insert reports (anonymous or authenticated)
+CREATE POLICY "Anyone or authenticated can submit report" ON public.question_reports 
+    FOR INSERT WITH CHECK (true);
+
+-- Admins can view, update and delete reports
+CREATE POLICY "Admins can view all reports" ON public.question_reports 
+    FOR SELECT USING (public.is_admin());
+
+CREATE POLICY "Admins can update reports" ON public.question_reports 
+    FOR UPDATE USING (public.is_admin()) WITH CHECK (public.is_admin());
+
+CREATE POLICY "Admins can delete reports" ON public.question_reports 
+    FOR DELETE USING (public.is_admin());
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.question_reports TO anon, authenticated, service_role;
+

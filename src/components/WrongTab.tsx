@@ -20,7 +20,9 @@ import {
   EyeOff,
   CheckCircle2,
   BookOpen,
+  Flag,
 } from "lucide-react";
+import { QuestionReportModal } from "./QuestionReportModal";
 
 interface WrongTabProps {
   progressStore: ProgressStore;
@@ -45,6 +47,8 @@ export const WrongTab: React.FC<WrongTabProps> = ({
   const { toggleBookmark: contextToggleBookmark } = useProgress();
   const [activeFilter, setActiveFilter] = useState<"bookmarked" | "mistakes" | "by-chapter">("bookmarked");
   const [showScheduleModal, setShowScheduleModal] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportingQuestion, setReportingQuestion] = useState<Question | null>(null);
   const [revealedIds, setRevealedIds] = useState<Record<string, boolean>>({});
   const [hydratedQuestions, setHydratedQuestions] = useState<Question[]>([]);
   const todayStr = getTodayDateString();
@@ -391,18 +395,35 @@ export const WrongTab: React.FC<WrongTabProps> = ({
             )}
           </div>
 
-          <button
-            type="button"
-            onClick={() => handleBookmarkClick(q.id)}
-            title={isBookmarked ? "Remove Bookmark" : "Bookmark Question"}
-            className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-all cursor-pointer active:scale-90 ${
-              isBookmarked
-                ? "bg-[#C99A45]/20 text-[#946B1E] dark:text-[#E5BC6B] border border-[#C99A45]/40"
-                : "bg-[#F7EFE2] dark:bg-[#252A3A] text-[#787D91] dark:text-[#929AB0] border border-[#E8D9C0] dark:border-[#31374A]"
-            }`}
-          >
-            <Bookmark size={15} className={isBookmarked ? "fill-current" : ""} />
-          </button>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              type="button"
+              onClick={() => {
+                triggerHaptic("light");
+                playClickSound();
+                setReportingQuestion(q);
+                setShowReportModal(true);
+              }}
+              title="प्रश्न पर दावा / आपत्ति दर्ज करें (Report Question)"
+              className="w-8 h-8 rounded-xl flex items-center justify-center transition-all cursor-pointer active:scale-90 bg-[#F7EFE2] dark:bg-[#252A3A] text-amber-600 dark:text-amber-400 border border-[#E8D9C0] dark:border-[#31374A] hover:bg-amber-50 dark:hover:bg-amber-950/30"
+              aria-label="Report Question"
+            >
+              <Flag size={14} />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleBookmarkClick(q.id)}
+              title={isBookmarked ? "Remove Bookmark" : "Bookmark Question"}
+              className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-all cursor-pointer active:scale-90 ${
+                isBookmarked
+                  ? "bg-[#C99A45]/20 text-[#946B1E] dark:text-[#E5BC6B] border border-[#C99A45]/40"
+                  : "bg-[#F7EFE2] dark:bg-[#252A3A] text-[#787D91] dark:text-[#929AB0] border border-[#E8D9C0] dark:border-[#31374A]"
+              }`}
+            >
+              <Bookmark size={15} className={isBookmarked ? "fill-current" : ""} />
+            </button>
+          </div>
         </div>
 
         {/* Question Text */}
@@ -853,6 +874,15 @@ export const WrongTab: React.FC<WrongTabProps> = ({
           </motion.div>
         )}
       </AnimatePresence>
+
+      <QuestionReportModal
+        isOpen={showReportModal}
+        onClose={() => {
+          setShowReportModal(false);
+          setReportingQuestion(null);
+        }}
+        question={reportingQuestion}
+      />
     </div>
   );
 };

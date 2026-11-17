@@ -365,6 +365,9 @@ export interface NewsArticle {
   slug: string;
   title: string;
   subtitle?: string;
+  subjectName?: string;
+  chapterName?: string;
+  topicName?: string;
   hindiTitle?: string;
   excerpt: string;
   content: string; // Markdown or fallback plain text
@@ -522,6 +525,9 @@ export interface AppNotification {
 export interface MCQSession {
   title: string;
   subtitle?: string;
+  subjectName?: string;
+  chapterName?: string;
+  topicName?: string;
   questionIds: string[];
   source:
     | "topic"

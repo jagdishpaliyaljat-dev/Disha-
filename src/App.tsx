@@ -1,4 +1,5 @@
 import * as React from "react";
+import { Analytics } from '@vercel/analytics/react';
 import { useQuestions } from './context/QuestionsContext';
 import { useProgress } from './context/ProgressContext';
 import { 
@@ -1130,6 +1131,7 @@ export default function App() {
       <ToastNotificationContainer toasts={toasts} onDismiss={handleDismissToast} />
       <PWAUpdateToast />
       <OfflineIndicator />
+      <Analytics />
 
       {/* Desktop Top Navigation Header */}
       <header className="hidden md:block sticky top-0 z-40 bg-[#FFF9EF]/95 dark:bg-[#171923]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] select-none shadow-xs">

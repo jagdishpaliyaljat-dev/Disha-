@@ -60,6 +60,7 @@ import {
 } from "../utils/studentWriteBuffer";
 import { BASELINE_REFERENCE_TIME_SECONDS } from "../utils/smartPriority";
 import { AppSettingsModal } from "./AppSettingsModal";
+import { QuestionReportModal } from "./QuestionReportModal";
 import { ParsedQuestion } from "./ParsedQuestion";
 import { MathText } from "./MathText";
 import { RichText } from "./RichText";
@@ -244,6 +245,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
+  const [reportingQuestion, setReportingQuestion] = useState<Question | null>(null);
 
   // Shuffled options order map: questionId -> array of original indices
   const [shuffledOptionsOrder, setShuffledOptionsOrder] = useState<Record<string, number[]>>({});
@@ -2507,39 +2509,57 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
   // Active Live Exam / PYQ Test View
   if (isLiveOrPYQTest) {
     return (
-      <RedesignedLiveAndPYQTestView
-        session={session}
-        questions={questions}
-        currentIndex={currentIndex}
-        setCurrentIndex={setCurrentIndex}
-        selectedOptionIndex={selectedOptionIndex}
-        setSelectedOptionIndex={setSelectedOptionIndex}
-        sessionResults={sessionResults}
-        setSessionResults={setSessionResults}
-        reviewStates={reviewStates}
-        setReviewStates={setReviewStates}
-        visitedStates={visitedStates}
-        setVisitedStates={setVisitedStates}
-        elapsedSeconds={elapsedSeconds}
-        onUpdateProgress={onUpdateProgress}
-        onToggleBookmark={onToggleBookmark}
-        isBookmarked={Boolean(currentQuestion && progressStore[currentQuestion.id]?.bookmarked)}
-        onClose={onClose}
-        showSubmitConfirm={showSubmitConfirm}
-        setShowSubmitConfirm={setShowSubmitConfirm}
-        showExitConfirm={showExitConfirm}
-        setShowExitConfirm={setShowExitConfirm}
-        onConfirmSubmit={handleConfirmSubmitTest}
-        settings={settings}
-        displayedOptions={displayedOptions}
-        optionLabels={optionLabels}
-        calculateQuestionElapsedSeconds={calculateQuestionElapsedSeconds}
-        setQuestionTimes={setQuestionTimes}
-        onUpdateSettings={onUpdateSettings}
-        onMarkAnswerRecorded={() => {
-          hasRecordedAnswersRef.current = true;
-        }}
-      />
+      <>
+        <RedesignedLiveAndPYQTestView
+          session={session}
+          questions={questions}
+          currentIndex={currentIndex}
+          setCurrentIndex={setCurrentIndex}
+          selectedOptionIndex={selectedOptionIndex}
+          setSelectedOptionIndex={setSelectedOptionIndex}
+          sessionResults={sessionResults}
+          setSessionResults={setSessionResults}
+          reviewStates={reviewStates}
+          setReviewStates={setReviewStates}
+          visitedStates={visitedStates}
+          setVisitedStates={setVisitedStates}
+          elapsedSeconds={elapsedSeconds}
+          onUpdateProgress={onUpdateProgress}
+          onToggleBookmark={onToggleBookmark}
+          isBookmarked={Boolean(currentQuestion && progressStore[currentQuestion.id]?.bookmarked)}
+          onClose={onClose}
+          showSubmitConfirm={showSubmitConfirm}
+          setShowSubmitConfirm={setShowSubmitConfirm}
+          showExitConfirm={showExitConfirm}
+          setShowExitConfirm={setShowExitConfirm}
+          onConfirmSubmit={handleConfirmSubmitTest}
+          settings={settings}
+          displayedOptions={displayedOptions}
+          optionLabels={optionLabels}
+          calculateQuestionElapsedSeconds={calculateQuestionElapsedSeconds}
+          setQuestionTimes={setQuestionTimes}
+          onUpdateSettings={onUpdateSettings}
+          onOpenReport={(q) => {
+            setReportingQuestion(q);
+            setShowReportModal(true);
+          }}
+          onMarkAnswerRecorded={() => {
+            hasRecordedAnswersRef.current = true;
+          }}
+        />
+        <QuestionReportModal
+          isOpen={showReportModal}
+          onClose={() => {
+            setShowReportModal(false);
+            setReportingQuestion(null);
+          }}
+          question={reportingQuestion || currentQuestion}
+          userProfile={userProfile}
+          subjectName={session.subjectName || session.title}
+          chapterName={session.chapterName || session.subtitle}
+          topicName={session.topicName}
+        />
+      </>
     );
   }
 
@@ -2623,6 +2643,21 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
               title="Share Practice"
             >
               <Share2 className="w-4.5 h-4.5" />
+            </button>
+
+            <button
+              onClick={() => {
+                if (currentQuestion) {
+                  playClickSound();
+                  setReportingQuestion(currentQuestion);
+                  setShowReportModal(true);
+                }
+              }}
+              className="w-9 h-9 rounded-xl border bg-white dark:bg-[#252A3A] border-[#E8D9C0] dark:border-[#31374A] text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/20 flex items-center justify-center active:scale-90 transition-transform cursor-pointer"
+              title="प्रश्न पर दावा / आपत्ति दर्ज करें (Report Question)"
+              aria-label="Report Question"
+            >
+              <Flag className="w-4.5 h-4.5" />
             </button>
 
             <button
@@ -2786,6 +2821,22 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                   </div>
                   <div className="text-[15px] sm:text-[16px] text-slate-100 font-hindi leading-relaxed font-bold">
                     <RichText text={currentQuestion.explanation} enablePronunciation={true} />
+                  </div>
+                  <div className="pt-3.5 mt-3.5 border-t border-white/10 flex items-center justify-between">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (currentQuestion) {
+                          playClickSound();
+                          setReportingQuestion(currentQuestion);
+                          setShowReportModal(true);
+                        }
+                      }}
+                      className="text-xs font-bold text-amber-300 hover:text-amber-200 flex items-center gap-1.5 transition-colors cursor-pointer"
+                    >
+                      <Flag className="w-3.5 h-3.5 fill-current" />
+                      <span>प्रश्न / उत्तर में कोई त्रुटि या मिसप्रिंट है? दावा / रिपोर्ट करें</span>
+                    </button>
                   </div>
                 </div>
               </motion.div>
@@ -3034,62 +3085,18 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
         />
       )}
       {/* 9. REPORT MODAL */}
-      {showReportModal && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="bg-white dark:bg-[#111A2E] w-full max-w-sm rounded-[32px] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
-            <div className="p-6">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-2xl bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
-                  <Flag className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-black text-slate-900 dark:text-white leading-tight">
-                    Report Issue
-                  </h3>
-                  <p className="text-xs font-bold text-slate-500 dark:text-slate-400">
-                    QID: {currentQuestion.id.slice(0, 8)}
-                  </p>
-                </div>
-                <button
-                  onClick={() => setShowReportModal(false)}
-                  className="ml-auto w-8 h-8 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center transition-colors cursor-pointer"
-                >
-                  <X className="w-4 h-4 text-slate-400" />
-                </button>
-              </div>
-
-              <div className="space-y-2 mb-6">
-                {[
-                  "Wrong Answer",
-                  "Incorrect Question",
-                  "Translation Error",
-                  "Formatting Issue",
-                  "Other"
-                ].map((reason) => (
-                  <button
-                    key={reason}
-                    onClick={() => {
-                      // In a real app, send report to backend
-                      setShowReportModal(false);
-                      // Show success toast or message
-                    }}
-                    className="w-full p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800 text-left text-sm font-bold text-slate-700 dark:text-slate-300 hover:border-rose-300 dark:hover:border-rose-800 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-all active:scale-[0.98] cursor-pointer"
-                  >
-                    {reason}
-                  </button>
-                ))}
-              </div>
-
-              <button
-                onClick={() => setShowReportModal(false)}
-                className="w-full h-12 rounded-2xl border border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-bold text-sm active:scale-95 transition-all cursor-pointer"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <QuestionReportModal
+        isOpen={showReportModal}
+        onClose={() => {
+          setShowReportModal(false);
+          setReportingQuestion(null);
+        }}
+        question={reportingQuestion || currentQuestion}
+        userProfile={userProfile}
+        subjectName={session.subjectName || session.title}
+        chapterName={session.chapterName || session.subtitle}
+        topicName={session.topicName}
+      />
     </>
   );
 };
@@ -3124,6 +3131,7 @@ interface RedesignedLiveAndPYQTestViewProps {
   setQuestionTimes: React.Dispatch<React.SetStateAction<Record<string, number>>>;
   onUpdateSettings?: (newSettings: Partial<AppSettings>) => void;
   onMarkAnswerRecorded?: () => void;
+  onOpenReport?: (q: Question) => void;
 }
 
 function RedesignedLiveAndPYQTestView({
@@ -3156,6 +3164,7 @@ function RedesignedLiveAndPYQTestView({
   setQuestionTimes,
   onUpdateSettings,
   onMarkAnswerRecorded,
+  onOpenReport,
 }: RedesignedLiveAndPYQTestViewProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showPaletteDrawer, setShowPaletteDrawer] = useState(false);
@@ -3410,6 +3419,21 @@ function RedesignedLiveAndPYQTestView({
           >
             <Share2 size={18} className="text-[#800020] dark:text-[#F47B20]" />
           </button>
+
+          {onOpenReport && currentQuestion && (
+            <button
+              type="button"
+              onClick={() => {
+                playClickSound();
+                onOpenReport(currentQuestion);
+              }}
+              className="w-10 h-10 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] text-amber-600 dark:text-amber-400 flex items-center justify-center active:scale-90 transition-transform cursor-pointer border border-[#E8D9C0] dark:border-[#31374A]"
+              title="प्रश्न पर दावा / आपत्ति दर्ज करें (Report Question)"
+              aria-label="Report Question"
+            >
+              <Flag size={18} />
+            </button>
+          )}
 
           <button
             onClick={() => setShowPaletteDrawer(true)}
@@ -4036,6 +4060,8 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
 }) => {
   const optionLabels = ["A", "B", "C", "D", "E", "F"];
   const [filter, setFilter] = useState<"all" | "correct" | "wrong" | "skipped">("all");
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportingQuestion, setReportingQuestion] = useState<any>(null);
 
   const isLive = session.testType === "live" || session.isLiveTest;
 
@@ -4667,18 +4693,36 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
                       </div>
                     </div>
 
-                    <motion.button
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                      onClick={() => onToggleBookmark(q.id)}
-                      className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl border flex items-center justify-center transition-all cursor-pointer ${
-                        isQBookmarked
-                          ? "bg-[#C99A45] border-[#C99A45] text-white shadow-md shadow-[#C99A45]/20"
-                          : "bg-white dark:bg-[#20181B] border-[#E8D9C0] dark:border-[#33252A] text-[#718096]"
-                      }`}
-                    >
-                      <Bookmark className={`w-4 h-4 sm:w-5 sm:h-5 ${isQBookmarked ? 'fill-current' : ''}`} />
-                    </motion.button>
+                    <div className="flex items-center gap-2">
+                      <motion.button
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => {
+                          playClickSound();
+                          setReportingQuestion(q);
+                          setShowReportModal(true);
+                        }}
+                        className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl border flex items-center justify-center transition-all cursor-pointer bg-white dark:bg-[#20181B] border-[#E8D9C0] dark:border-[#33252A] text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/20"
+                        title="प्रश्न पर दावा / आपत्ति दर्ज करें (Report Question)"
+                        aria-label="Report Question"
+                      >
+                        <Flag className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
+                      </motion.button>
+
+                      <motion.button
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => onToggleBookmark(q.id)}
+                        className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl border flex items-center justify-center transition-all cursor-pointer ${
+                          isQBookmarked
+                            ? "bg-[#C99A45] border-[#C99A45] text-white shadow-md shadow-[#C99A45]/20"
+                            : "bg-white dark:bg-[#20181B] border-[#E8D9C0] dark:border-[#33252A] text-[#718096]"
+                        }`}
+                        title={isQBookmarked ? "Remove Bookmark" : "Bookmark Question"}
+                      >
+                        <Bookmark className={`w-4 h-4 sm:w-5 sm:h-5 ${isQBookmarked ? 'fill-current' : ''}`} />
+                      </motion.button>
+                    </div>
                   </div>
 
                   <div className="p-4 sm:p-6 space-y-5">
@@ -4749,6 +4793,20 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
                         <div className="text-[13px] sm:text-[14px] text-[#FAF5ED] font-hindi leading-relaxed font-bold">
                           <RichText text={q.explanation} enablePronunciation={true} />
                         </div>
+                        <div className="pt-3 mt-3 border-t border-white/10 flex items-center justify-between">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              playClickSound();
+                              setReportingQuestion(q);
+                              setShowReportModal(true);
+                            }}
+                            className="text-xs font-bold text-amber-300/90 hover:text-amber-200 flex items-center gap-1.5 transition-colors cursor-pointer"
+                          >
+                            <Flag className="w-3.5 h-3.5 fill-current" />
+                            <span>प्रश्न / समाधान पर आपत्ति दर्ज करें (Report Question)</span>
+                          </button>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -4792,6 +4850,18 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
           data={shareData}
         />
       )}
+      <QuestionReportModal
+        isOpen={showReportModal}
+        onClose={() => {
+          setShowReportModal(false);
+          setReportingQuestion(null);
+        }}
+        question={reportingQuestion}
+        userProfile={userProfile}
+        subjectName={session.subjectName || session.title}
+        chapterName={session.chapterName || session.subtitle}
+        topicName={session.topicName}
+      />
       </div>
     </motion.div>
   );

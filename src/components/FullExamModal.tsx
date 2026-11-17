@@ -42,6 +42,7 @@ import { MotionConfettiCelebration } from "./MotionConfettiCelebration";
 import { recordQuestionAttempt } from "../utils/performanceStorage";
 import { flushStudentWriteBuffer } from "../utils/studentWriteBuffer";
 import { ParsedQuestion } from "./ParsedQuestion";
+import { QuestionReportModal } from "./QuestionReportModal";
 import { RichText } from "./RichText";
 import {
   playCorrectSound,
@@ -119,6 +120,8 @@ export const FullExamModal: React.FC<FullExamModalProps> = ({
   // Result screen filters
   const [resultFilter, setResultFilter] = useState<"all" | "correct" | "wrong" | "skipped" | "review">("all");
   const [showPerfectCelebration, setShowPerfectCelebration] = useState<boolean>(false);
+  const [showReportModal, setShowReportModal] = useState<boolean>(false);
+  const [reportingQuestion, setReportingQuestion] = useState<Question | null>(null);
 
   // Timer Ref
   const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -1157,7 +1160,8 @@ export const FullExamModal: React.FC<FullExamModalProps> = ({
     skippedCount === 0;
 
   return (
-    <motion.div
+    <>
+      <motion.div
       initial={{ opacity: 0, scale: 0.96, y: 24, filter: "blur(8px)" }}
       animate={{ opacity: 1, scale: 1, y: 0, filter: "blur(0px)" }}
       exit={{ opacity: 0, scale: 0.96, y: -20, filter: "blur(8px)" }}
@@ -1461,14 +1465,30 @@ export const FullExamModal: React.FC<FullExamModalProps> = ({
                       )}
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={() => onToggleBookmark(qId)}
-                      className="p-1 rounded text-slate-400 hover:text-amber-500 transition-colors"
-                      title="Bookmark Question"
-                    >
-                      <Bookmark className={`w-4 h-4 ${isBookmarked ? "text-amber-500 fill-amber-500" : ""}`} />
-                    </button>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          playClickSound();
+                          setReportingQuestion(q);
+                          setShowReportModal(true);
+                        }}
+                        className="p-1.5 rounded-lg text-amber-600 hover:text-amber-700 hover:bg-amber-50 dark:hover:bg-amber-950/30 transition-colors cursor-pointer"
+                        title="प्रश्न पर दावा / आपत्ति दर्ज करें (Report Question)"
+                        aria-label="Report Question"
+                      >
+                        <Flag className="w-4 h-4" />
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => onToggleBookmark(qId)}
+                        className="p-1 rounded text-slate-400 hover:text-amber-500 transition-colors cursor-pointer"
+                        title="Bookmark Question"
+                      >
+                        <Bookmark className={`w-4 h-4 ${isBookmarked ? "text-amber-500 fill-amber-500" : ""}`} />
+                      </button>
+                    </div>
                   </div>
 
                   {/* Question Text */}
@@ -1544,5 +1564,14 @@ export const FullExamModal: React.FC<FullExamModalProps> = ({
         </div>
       </div>
     </motion.div>
+    <QuestionReportModal
+      isOpen={showReportModal}
+      onClose={() => {
+        setShowReportModal(false);
+        setReportingQuestion(null);
+      }}
+      question={reportingQuestion}
+    />
+  </>
   );
 };

@@ -17,22 +17,20 @@ import {
   MessageSquare
 } from "lucide-react";
 import { Question, Subject, Chapter } from "../../types";
+import {
+  QuestionReport,
+  getStoredReports,
+  saveStoredReports,
+  updateReportStatus,
+  deleteReport,
+  ISSUE_TYPE_LABELS,
+  REPORT_EVENT_NAME,
+  REPORTS_STORAGE_KEY,
+  LEGACY_REPORTS_STORAGE_KEY,
+} from "../../utils/questionReportService";
+import { triggerAdminToast, triggerDatabaseSavedToast } from "../../utils/adminToast";
 
-export interface QuestionReport {
-  id: string;
-  questionId: string;
-  questionText: string;
-  subjectName?: string;
-  chapterName?: string;
-  studentName?: string;
-  studentEmail?: string;
-  studentUid?: string;
-  issueType: "wrong_answer" | "typo" | "ambiguous" | "outdated" | "other";
-  studentComment: string;
-  reportedAt: string;
-  status: "pending" | "resolved" | "dismissed";
-  adminNotes?: string;
-}
+export type { QuestionReport };
 
 interface QuestionReportDeskProps {
   questions?: Question[];
@@ -40,9 +38,6 @@ interface QuestionReportDeskProps {
   chapters?: Chapter[];
   onUpdateQuestion?: (updatedQuestion: Question) => void;
 }
-
-const REPORTS_STORAGE_KEY = "disha2020_question_reports_v1";
-const LEGACY_REPORTS_STORAGE_KEY = "quizpro_question_reports_v1";
 
 export const QuestionReportDesk: React.FC<QuestionReportDeskProps> = ({
   questions = [],
@@ -62,18 +57,15 @@ export const QuestionReportDesk: React.FC<QuestionReportDeskProps> = ({
   const [fixExplanation, setFixExplanation] = React.useState<string>("");
   const [isSavingFix, setIsSavingFix] = React.useState(false);
 
-  // Initial seed mock reports if none exist in database
+  // Load reports from storage & seed realistic initial doubts if empty
   const fetchReports = async () => {
     setLoading(true);
     try {
-      const raw = localStorage.getItem(REPORTS_STORAGE_KEY) || localStorage.getItem(LEGACY_REPORTS_STORAGE_KEY);
-      if (raw) {
-        const loaded = JSON.parse(raw);
-        if (Array.isArray(loaded) && loaded.length > 0) {
-          setReports(loaded);
-          setLoading(false);
-          return;
-        }
+      const loaded = getStoredReports();
+      if (loaded.length > 0) {
+        setReports(loaded);
+        setLoading(false);
+        return;
       }
 
       // Fallback / seed initial realistic doubts
@@ -106,9 +98,7 @@ export const QuestionReportDesk: React.FC<QuestionReportDeskProps> = ({
         }
       ];
       setReports(sampleReports);
-      try {
-        localStorage.setItem(REPORTS_STORAGE_KEY, JSON.stringify(sampleReports));
-      } catch {}
+      saveStoredReports(sampleReports);
     } catch (e) {
       console.warn("Using local report buffer", e);
     } finally {
@@ -118,16 +108,32 @@ export const QuestionReportDesk: React.FC<QuestionReportDeskProps> = ({
 
   React.useEffect(() => {
     fetchReports();
+
+    const handleReportLiveEvent = () => {
+      fetchReports();
+    };
+
+    window.addEventListener(REPORT_EVENT_NAME, handleReportLiveEvent);
+    return () => {
+      window.removeEventListener(REPORT_EVENT_NAME, handleReportLiveEvent);
+    };
   }, []);
 
   const handleUpdateStatus = async (reportId: string, status: "resolved" | "dismissed") => {
-    setReports(prev => {
-      const updated = prev.map(r => r.id === reportId ? { ...r, status } : r);
-      try {
-        localStorage.setItem(REPORTS_STORAGE_KEY, JSON.stringify(updated));
-      } catch {}
-      return updated;
-    });
+    await updateReportStatus(reportId, status);
+    setReports(prev => prev.map(r => r.id === reportId ? { ...r, status } : r));
+    triggerAdminToast(
+      status === "resolved" ? "success" : "info",
+      status === "resolved" ? "आपत्ति निस्तारित (Resolved)" : "आपत्ति निरस्त (Dismissed)",
+      `रिपोर्ट ID: ${reportId} को ${status === "resolved" ? "सफलतापूर्वक हल" : "खारिज"} कर दिया गया है।`
+    );
+  };
+
+  const handleDeleteReport = async (reportId: string) => {
+    if (!confirm("क्या आप इस आपत्ति को हटाना चाहते हैं?")) return;
+    await deleteReport(reportId);
+    setReports(prev => prev.filter(r => r.id !== reportId));
+    triggerAdminToast("delete", "आपत्ति हटाई गई", `रिपोर्ट ${reportId} सुरक्षित हटा दी गई।`);
   };
 
   const handleOpenFixModal = (report: QuestionReport) => {
@@ -271,14 +277,18 @@ export const QuestionReportDesk: React.FC<QuestionReportDeskProps> = ({
             >
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
                 <div className="flex items-center gap-2 flex-wrap text-xs">
-                  <span className={`px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider ${
+                  <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider ${
                     report.issueType === "wrong_answer"
                       ? "bg-rose-500/10 text-rose-600 border border-rose-500/20"
                       : report.issueType === "typo"
                       ? "bg-amber-500/10 text-amber-600 border border-amber-500/20"
+                      : report.issueType === "incomplete_options"
+                      ? "bg-purple-500/10 text-purple-600 border border-purple-500/20"
+                      : report.issueType === "wrong_explanation"
+                      ? "bg-indigo-500/10 text-indigo-600 border border-indigo-500/20"
                       : "bg-blue-500/10 text-blue-600 border border-blue-500/20"
                   }`}>
-                    {report.issueType.replace("_", " ")}
+                    {ISSUE_TYPE_LABELS[report.issueType]?.hi || report.issueType.replace("_", " ")}
                   </span>
                   {report.subjectName && (
                     <span className="text-slate-500 font-bold flex items-center gap-1">
@@ -320,6 +330,13 @@ export const QuestionReportDesk: React.FC<QuestionReportDeskProps> = ({
                       <XCircle className="w-4 h-4" /> Dismissed
                     </span>
                   )}
+                  <button
+                    onClick={() => handleDeleteReport(report.id)}
+                    className="p-1.5 text-slate-300 hover:text-rose-600 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer"
+                    title="Delete Objection Record"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
                 </div>
               </div>
 
