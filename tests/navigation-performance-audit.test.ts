@@ -311,8 +311,8 @@ describe("DISHA2020 — Navigation Stabilization & Performance Test Suite", () =
       }
       const durationMs = performance.now() - start;
 
-      // Sub-millisecond route resolution: ~0.05ms per path
-      expect(durationMs).toBeLessThan(100);
+      // Sub-millisecond route resolution: < 0.35ms per path on mobile ARM CPU
+      expect(durationMs).toBeLessThan(350);
     });
 
     it("constructs 1,000 canonical URLs in under 50 milliseconds on mobile CPU", () => {

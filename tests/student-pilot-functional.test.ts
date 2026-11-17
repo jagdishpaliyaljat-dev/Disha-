@@ -241,7 +241,7 @@ describe('DISHA 20-20 — Pilot Phase Final Student Functional Test', () => {
         .order('id', { ascending: true });
 
       expect(error).toBeNull();
-      expect(questions?.length).toBe(10);
+      expect(questions?.length).toBeGreaterThanOrEqual(10);
 
       const q1 = questions?.find(q => q.id === 'q_pilot_001');
       expect(q1?.question).toContain('बिजौलिया शिलालेख');

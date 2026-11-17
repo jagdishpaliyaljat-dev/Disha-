@@ -575,6 +575,8 @@ export function mergeQuestionsIntoStore(questionsToAdd: Question[]): UserQuestio
   return updatedStore;
 }
 
+let lastLoggedCombinedState = "";
+
 // Merge base CHAPTERS_DATA with user custom additions, edits, categorization moves, and deletions
 export function getCombinedChapters(store: UserQuestionsStore = loadUserQuestionsStore()): Chapter[] {
   const deletedSet = new Set(store.deletedQuestionIds || []);
@@ -749,7 +751,9 @@ export function getCombinedChapters(store: UserQuestionsStore = loadUserQuestion
     customTopicsList
   );
 
-  if (allActive.length > 0 || finalActive.length > 0) {
+  const logStateKey = `${allActive.length}-${finalActive.length}-${activeBaseQuestions.length}-${activeCustomQuestions.length}-${activeCachedQuestions.length}`;
+  if (logStateKey !== lastLoggedCombinedState && (allActive.length > 0 || finalActive.length > 0)) {
+    lastLoggedCombinedState = logStateKey;
     console.log(`[getCombinedChapters] Total: ${allActive.length}, Deduped: ${finalActive.length}, Base: ${activeBaseQuestions.length}, Custom: ${activeCustomQuestions.length}, Cached: ${activeCachedQuestions.length}`);
   }
 

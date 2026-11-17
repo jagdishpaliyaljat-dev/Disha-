@@ -180,6 +180,10 @@ export default function App() {
   } = useNavigation(initialNavState.tab);
 
   React.useEffect(() => {
+    if (initialNavState.articleSlug) setSelectedArticleSlug(initialNavState.articleSlug);
+    if (initialNavState.subjectId) setSelectedSubjectId(initialNavState.subjectId);
+    if (initialNavState.chapterId) setSelectedChapterId(initialNavState.chapterId);
+    if (initialNavState.topicId) setSelectedTopicId(initialNavState.topicId);
     if (initialNavState.coachingId) setSelectedCoachingId(initialNavState.coachingId);
     if (initialNavState.examId) setSelectedExamId(initialNavState.examId);
     if (initialNavState.seriesId) setSelectedSeriesId(initialNavState.seriesId);
@@ -735,27 +739,62 @@ export default function App() {
     };
   }, [updateProgress]);
 
-  // Background fetch of curriculum from Supabase on startup & live sync
+  // Background fetch of curriculum from Supabase on startup (non-destructive merge, single run)
   React.useEffect(() => {
     let isSubscribed = true;
+    let syncThrottleTimeout: any = null;
 
-    const syncFromSupabase = () => {
+    const syncFromSupabase = (force: boolean = false) => {
       import('./utils/supabaseSyncService').then(({ fetchSubjects, fetchChapters, fetchTopics }) => {
         Promise.all([
-          fetchSubjects({ forceRefresh: true }),
-          fetchChapters(),
-          fetchTopics(),
+          fetchSubjects(force ? { forceRefresh: true } : undefined),
+          fetchChapters(undefined, force ? { forceRefresh: true } : undefined),
+          fetchTopics(undefined, force ? { forceRefresh: true } : undefined),
           import('./utils/localDatabaseEngine').then(({ getAllLocalMCQs }) => getAllLocalMCQs()).catch(() => [])
         ]).then(([subs, chaps, tops, mcqs]) => {
           if (!isSubscribed) return;
           if (subs && subs.length > 0) {
             setQuestionsStore((prev) => {
+              // 1. Non-destructive merge: preserve local user-added subjects not yet on server
+              const existingUserSubs = (prev.customSubjects || []).filter(
+                (s) => (s.isUserAdded || String(s.id).startsWith("subj-")) && !subs.some((sub) => sub.id === s.id)
+              );
+              const mergedSubs = [...subs, ...existingUserSubs];
+
+              // 2. Non-destructive merge for chapters
+              const existingUserChaps = (prev.customChapters || []).filter(
+                (c) => (c.isUserAdded || String(c.id).startsWith("custom-ch-")) && !chaps.some((ch) => ch.id === c.id)
+              );
+              const mergedChaps = [...(chaps && chaps.length > 0 ? chaps : prev.customChapters || []), ...existingUserChaps];
+
+              // 3. Non-destructive merge for topics
+              const existingUserTops = (prev.customTopics || []).filter(
+                (t) => (t.isUserAdded || String(t.id).startsWith("custom-topic-")) && !tops.some((top) => top.id === t.id)
+              );
+              const mergedTops = [...(tops && tops.length > 0 ? tops : prev.customTopics || []), ...existingUserTops];
+
+              // 4. Filter out any question IDs deleted locally
+              const deletedSet = new Set(prev.deletedQuestionIds || []);
+              const mergedMcqs = (mcqs && mcqs.length > 0 ? mcqs : prev.cloudCacheQuestions || []).filter(
+                (q) => q && q.id && !deletedSet.has(q.id)
+              );
+
+              // 5. Shallow comparison to avoid redundant re-renders and loops
+              const subsEqual = mergedSubs.length === (prev.customSubjects || []).length;
+              const chapsEqual = mergedChaps.length === (prev.customChapters || []).length;
+              const topsEqual = mergedTops.length === (prev.customTopics || []).length;
+              const mcqsEqual = mergedMcqs.length === (prev.cloudCacheQuestions || []).length;
+
+              if (subsEqual && chapsEqual && topsEqual && mcqsEqual) {
+                return prev; // No state change -> prevents re-render cascade
+              }
+
               const next = {
                 ...prev,
-                customSubjects: subs,
-                customChapters: chaps && chaps.length > 0 ? chaps : prev.customChapters,
-                customTopics: tops && tops.length > 0 ? tops : prev.customTopics,
-                cloudCacheQuestions: mcqs && mcqs.length > 0 ? mcqs : prev.cloudCacheQuestions
+                customSubjects: mergedSubs,
+                customChapters: mergedChaps,
+                customTopics: mergedTops,
+                cloudCacheQuestions: mergedMcqs,
               };
               saveUserQuestionsStore(next);
               return next;
@@ -765,16 +804,26 @@ export default function App() {
       }).catch(() => {});
     };
 
-    syncFromSupabase();
+    // Initial startup fetch (without force, uses cached IDB first, throttled server check)
+    syncFromSupabase(false);
 
+    // Guarded external event handler (throttled to at most once per 30 seconds, NEVER loops)
+    let lastHandledSync = Date.now();
     const handleCurriculumSynced = () => {
-      syncFromSupabase();
+      const now = Date.now();
+      if (now - lastHandledSync < 30000) return; // Strict 30s cooldown
+      lastHandledSync = now;
+      clearTimeout(syncThrottleTimeout);
+      syncThrottleTimeout = setTimeout(() => {
+        if (isSubscribed) syncFromSupabase(false);
+      }, 2000);
     };
 
     window.addEventListener("disha2020_curriculum_synced", handleCurriculumSynced);
     window.addEventListener("quizpro_curriculum_synced", handleCurriculumSynced);
     return () => {
       isSubscribed = false;
+      clearTimeout(syncThrottleTimeout);
       window.removeEventListener("disha2020_curriculum_synced", handleCurriculumSynced);
       window.removeEventListener("quizpro_curriculum_synced", handleCurriculumSynced);
     };
@@ -1497,88 +1546,118 @@ export default function App() {
       )}
 
       {isFullExamOpen && (
-        <FullExamModal
-          isOpen={isFullExamOpen}
+        <OverlayErrorBoundary
+          viewName="Full Exam Simulation"
           onClose={() => setIsFullExamOpen(false)}
-          allQuestions={combinedQuestions}
-          chapters={combinedChapters}
-          subjects={combinedSubjects}
-          progressStore={progressStore}
-          settings={settings}
-          onUpdateProgress={handleUpdateProgress}
-          onToggleBookmark={handleToggleBookmark}
-        />
+        >
+          <FullExamModal
+            isOpen={isFullExamOpen}
+            onClose={() => setIsFullExamOpen(false)}
+            allQuestions={combinedQuestions}
+            chapters={combinedChapters}
+            subjects={combinedSubjects}
+            progressStore={progressStore}
+            settings={settings}
+            onUpdateProgress={handleUpdateProgress}
+            onToggleBookmark={handleToggleBookmark}
+          />
+        </OverlayErrorBoundary>
       )}
 
       {isCustomTestOpen && (
-        <CustomSmartTestModal
-          chapters={combinedChapters}
-          allQuestions={combinedQuestions}
-          perfStore={{}}
+        <OverlayErrorBoundary
+          viewName="Custom Test"
           onClose={() => setIsCustomTestOpen(false)}
-          onStartTest={handleStartSession}
-        />
+        >
+          <CustomSmartTestModal
+            chapters={combinedChapters}
+            allQuestions={combinedQuestions}
+            perfStore={{}}
+            onClose={() => setIsCustomTestOpen(false)}
+            onStartTest={handleStartSession}
+          />
+        </OverlayErrorBoundary>
       )}
 
       {!activeSession && selectedChapterId && (
-        <ChapterDetailView
-          chapterId={selectedChapterId}
-          chaptersMap={chaptersMap}
-          selectedTopicId={selectedTopicId}
-          onSelectTopic={(topId: string | null) => setSelectedTopicId(topId)}
-          onBack={() => {
-            // Hierarchical back: return to subject view
-            if (selectedChapterId) {
-              setSelectedChapterId(null);
-            } else if (typeof window !== 'undefined' && window.history.length > 1) {
-              window.history.back();
-            }
-          }}
-          onStartSession={handleStartSession}
-          onAddTopic={(chapId: string, topic: any) => handleAddTopic(chapId, topic)}
-          onEditTopic={(topic: any) => handleEditTopic(topic)}
-          onRemoveTopic={(topicId: string) => handleDeleteTopic(topicId)}
-          onAddQuestions={(chapId?: string, topId?: string) => {
-            setAddQuestionsChapterId(chapId || undefined);
-            setAddQuestionsTopicId(topId || undefined);
-            setIsAddQuestionsOpen(true);
-          }}
-          isAdmin={isAdmin}
-        />
+        <OverlayErrorBoundary
+          viewName="Chapter Detail"
+          onClose={() => setSelectedChapterId(null)}
+          onReset={() => setSelectedChapterId(null)}
+        >
+          <ChapterDetailView
+            chapterId={selectedChapterId}
+            chaptersMap={chaptersMap}
+            selectedTopicId={selectedTopicId}
+            onSelectTopic={(topId: string | null) => setSelectedTopicId(topId)}
+            onBack={() => {
+              // Hierarchical back: return to subject view
+              if (selectedChapterId) {
+                setSelectedChapterId(null);
+              } else if (typeof window !== 'undefined' && window.history.length > 1) {
+                window.history.back();
+              }
+            }}
+            onStartSession={handleStartSession}
+            onAddTopic={(chapId: string, topic: any) => handleAddTopic(chapId, topic)}
+            onEditTopic={(topic: any) => handleEditTopic(topic)}
+            onRemoveTopic={(topicId: string) => handleDeleteTopic(topicId)}
+            onAddQuestions={(chapId?: string, topId?: string) => {
+              setAddQuestionsChapterId(chapId || undefined);
+              setAddQuestionsTopicId(topId || undefined);
+              setIsAddQuestionsOpen(true);
+            }}
+            isAdmin={isAdmin}
+          />
+        </OverlayErrorBoundary>
       )}
 
       {activeSession && (
-        <MCQSessionModal
-          session={activeSession}
-          settings={settings}
-          userProfile={userProfile}
-          questionsMap={questionsMap}
-          chaptersMap={chaptersMap}
-          onUpdateProgress={handleUpdateProgress}
-          onToggleBookmark={handleToggleBookmark}
+        <OverlayErrorBoundary
+          viewName="MCQ Practice Session"
           onClose={handleCloseSession}
-          onStartNewSession={handleStartSession}
-          onUpdateSettings={(newSet: Partial<AppSettings>) => setSettings(prev => ({ ...prev, ...newSet }))}
-        />
+          onReset={handleCloseSession}
+        >
+          <MCQSessionModal
+            session={activeSession}
+            settings={settings}
+            userProfile={userProfile}
+            questionsMap={questionsMap}
+            chaptersMap={chaptersMap}
+            onUpdateProgress={handleUpdateProgress}
+            onToggleBookmark={handleToggleBookmark}
+            onClose={handleCloseSession}
+            onStartNewSession={handleStartSession}
+            onUpdateSettings={(newSet: Partial<AppSettings>) => setSettings(prev => ({ ...prev, ...newSet }))}
+          />
+        </OverlayErrorBoundary>
       )}
 
       {(activeTab === 'analyzer' || isExamAnalyzerOpen) && (
-        <ExamPaperAnalyzerModal
-          isOpen={true}
+        <OverlayErrorBoundary
+          viewName="Exam Paper Analyzer"
           onClose={() => {
             setIsExamAnalyzerOpen(false);
             if (activeTab === 'analyzer') setActiveTab('home');
           }}
-          subjects={combinedSubjects}
-          chapters={combinedChapters}
-          questions={combinedQuestions}
-          onStartSession={handleStartSession}
-          onNavigateToChapter={(chapId: string) => {
-            setSelectedChapterId(chapId);
-            setIsExamAnalyzerOpen(false);
-            if (activeTab === 'analyzer') setActiveTab('topics');
-          }}
-        />
+        >
+          <ExamPaperAnalyzerModal
+            isOpen={true}
+            onClose={() => {
+              setIsExamAnalyzerOpen(false);
+              if (activeTab === 'analyzer') setActiveTab('home');
+            }}
+            subjects={combinedSubjects}
+            chapters={combinedChapters}
+            questions={combinedQuestions}
+            onStartSession={handleStartSession}
+            onNavigateToChapter={(chapId: string) => {
+              setSelectedChapterId(chapId);
+              setIsExamAnalyzerOpen(false);
+              if (activeTab === 'analyzer') setActiveTab('topics');
+            }}
+          />
+        </OverlayErrorBoundary>
       )}
 
       {/* Curriculum Admin Modals */}

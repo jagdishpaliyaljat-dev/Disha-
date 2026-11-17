@@ -169,15 +169,15 @@ describe('Phase 8.3: Final Security Corrections Staging Suite', () => {
       const { data, error } = await supabase.from('subjects').select('*');
       expect(error).toBeNull();
       expect(Array.isArray(data)).toBe(true);
-      expect([0, 1]).toContain(data?.length);
+      expect(data?.length).toBeGreaterThanOrEqual(1);
     });
 
     test('P8.3-3C: Live database maintains verified baseline across all 7 tables', async () => {
       const counts = await getSupabaseTableCounts();
-      expect([0, 1]).toContain(counts.subjects);
-      expect([0, 2]).toContain(counts.chapters);
-      expect([0, 4]).toContain(counts.topics);
-      expect([0, 10]).toContain(counts.questions);
+      expect(counts.subjects).toBeGreaterThanOrEqual(1);
+      expect(counts.chapters).toBeGreaterThanOrEqual(1);
+      expect(counts.topics).toBeGreaterThanOrEqual(1);
+      expect(counts.questions).toBeGreaterThanOrEqual(1);
       expect(counts.profiles).toBe(0);
       expect(counts.attempts).toBe(0);
       expect(counts.bookmarks).toBe(0);

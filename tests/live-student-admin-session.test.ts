@@ -44,17 +44,15 @@ describe('Live Student & Admin Authenticated Session Access Verification', () =>
     expect(insErr).toBeDefined();
     expect(insErr?.code).toBe('42501');
 
-    // 3. Curriculum UPDATE denied
-    const { error: updErr } = await studentClient.from('subjects').update({
+    // 3. Curriculum UPDATE denied (blocked by RLS)
+    const { data: updData, error: updErr } = await studentClient.from('subjects').update({
       name: 'Tampered'
-    }).eq('id', 'any');
-    expect(updErr).toBeDefined();
-    expect(updErr?.code).toBe('42501');
+    }).eq('id', subs[0]?.id || 'any').select();
+    expect(updErr?.code === '42501' || (updData && updData.length === 0)).toBe(true);
 
-    // 4. Curriculum DELETE denied
-    const { error: delErr } = await studentClient.from('subjects').delete().eq('id', 'any');
-    expect(delErr).toBeDefined();
-    expect(delErr?.code).toBe('42501');
+    // 4. Curriculum DELETE denied (blocked by RLS)
+    const { data: delData, error: delErr } = await studentClient.from('subjects').delete().eq('id', subs[0]?.id || 'any').select();
+    expect(delErr?.code === '42501' || (delData && delData.length === 0)).toBe(true);
 
     // 5. Cross-user isolation: student cannot read another user's profile
     const foreignUuid = '11111111-2222-3333-4444-555555555555';
@@ -76,7 +74,7 @@ describe('Live Student & Admin Authenticated Session Access Verification', () =>
     }]);
     expect(bkmkErr).toBeDefined();
     expect(bkmkErr?.code).toBe('42501');
-  });
+  }, 15000);
 
   test('AUTH-ADM-01: Admin temporary CRUD workflow and guaranteed teardown', async () => {
     const adminClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);

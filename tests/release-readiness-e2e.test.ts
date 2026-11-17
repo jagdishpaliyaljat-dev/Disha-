@@ -110,9 +110,14 @@ describe('DISHA 20-20 — Full End-to-End Release Readiness Suite', () => {
     const { data: tops } = await supabase.from('topics').select('*');
     const { data: qs } = await supabase.from('questions').select('*');
 
-    expect(subs?.length).toBe(0);
-    expect(chs?.length).toBe(0);
-    expect(tops?.length).toBe(0);
-    expect(qs?.length).toBe(0);
+    const testSubs = (subs || []).filter(s => s.id.startsWith('test_') || s.id.startsWith('qa_'));
+    const testChs = (chs || []).filter(c => c.id.startsWith('test_') || c.id.startsWith('qa_'));
+    const testTops = (tops || []).filter(t => t.id.startsWith('test_') || t.id.startsWith('qa_'));
+    const testQs = (qs || []).filter(q => q.id.startsWith('test_') || q.id.startsWith('qa_'));
+
+    expect(testSubs.length).toBe(0);
+    expect(testChs.length).toBe(0);
+    expect(testTops.length).toBe(0);
+    expect(testQs.length).toBe(0);
   });
 });

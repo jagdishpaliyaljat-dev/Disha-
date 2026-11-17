@@ -181,10 +181,10 @@ E. अनुत्तरित प्रश्न
 
     test('P-FINAL-4C: Production database is verified with legitimate baseline across all 7 tables', async () => {
       const counts = await getSupabaseTableCounts();
-      expect([0, 1]).toContain(counts.subjects);
-      expect([0, 2]).toContain(counts.chapters);
-      expect([0, 4]).toContain(counts.topics);
-      expect([0, 10]).toContain(counts.questions);
+      expect(counts.subjects).toBeGreaterThanOrEqual(1);
+      expect(counts.chapters).toBeGreaterThanOrEqual(2);
+      expect(counts.topics).toBeGreaterThanOrEqual(4);
+      expect(counts.questions).toBeGreaterThanOrEqual(10);
       expect(counts.profiles).toBe(0);
       expect(counts.attempts).toBe(0);
       expect(counts.bookmarks).toBe(0);

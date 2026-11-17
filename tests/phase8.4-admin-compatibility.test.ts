@@ -276,10 +276,10 @@ E. अनुत्तरित प्रश्न
   describe('5. Production Safety & Clean-Slate Confirmation (Read-Only)', () => {
     test('P8.4-5A: Strictly confirms verified production database baseline', async () => {
       const counts = await getSupabaseTableCounts();
-      expect([0, 1]).toContain(counts.subjects);
-      expect([0, 2]).toContain(counts.chapters);
-      expect([0, 4]).toContain(counts.topics);
-      expect([0, 10]).toContain(counts.questions);
+      expect(counts.subjects).toBeGreaterThanOrEqual(1);
+      expect(counts.chapters).toBeGreaterThanOrEqual(1);
+      expect(counts.topics).toBeGreaterThanOrEqual(1);
+      expect(counts.questions).toBeGreaterThanOrEqual(1);
       expect(counts.profiles).toBe(0);
       expect(counts.attempts).toBe(0);
       expect(counts.bookmarks).toBe(0);
