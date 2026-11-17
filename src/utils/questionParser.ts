@@ -1297,20 +1297,12 @@ export function parseRawMcqText(
       correctIndex: ci >= 0 ? ci : -1,
       answer: ansLetter,
       explanation,
-      examHistory: normalizeExamHistory(
-        blockExams.length > 0
-          ? blockExams
-          : (blocks.meta?.exam ? [{ examName: blocks.meta.exam, year: blocks.meta.year, verified: true }] : [])
-      ),
-      questionClassification: (blockExams.length > 0 || blocks.meta?.exam) ? "pyq" : "practice",
-      isPYQ: (blockExams.length > 0 || Boolean(blocks.meta?.exam)),
+      examHistory: normalizeExamHistory(blockExams),
+      questionClassification: blockExams.length > 0 ? "pyq" : "practice",
+      isPYQ: blockExams.length > 0,
       meta: (() => {
         const mathMeta = detectMathMeta(finalCleanStem, cleanOpts, explanation, matchTable);
-        const resolvedHistory = normalizeExamHistory(
-          blockExams.length > 0
-            ? blockExams
-            : (blocks.meta?.exam ? [{ examName: blocks.meta.exam, year: blocks.meta.year, verified: true }] : [])
-        );
+        const resolvedHistory = normalizeExamHistory(blockExams);
         return {
           ...(blocks.meta || {}),
           ...(blockSubject ? { subject: blockSubject } : {}),

@@ -265,17 +265,8 @@ export function detectQuestionExams(
     }
   }
 
-  // 4. Fallback to section/batch metadata only if no question-level exam exists
-  if (combinedEntries.length === 0 && sectionMeta?.exam && typeof sectionMeta.exam === "string" && sectionMeta.exam.trim()) {
-    const yrStr = sectionMeta.year !== undefined ? toAsciiYear(sectionMeta.year) : undefined;
-    const yrNum = yrStr && /^\d{4}$/.test(yrStr) ? parseInt(yrStr, 10) : yrStr;
-    combinedEntries.push({
-      examName: cleanExamName(sectionMeta.exam),
-      ...(yrNum ? { year: yrNum } : {}),
-      verified: true,
-      source: "section_metadata",
-    });
-  }
+  // 4. STRICT RULE: Never fallback to section/batch/global metadata or automatically assign exam/year.
+  // Question-level metadata must be completely independent for each question.
 
   const finalHistory = normalizeExamHistory(combinedEntries);
   const isPYQ = finalHistory.some((e) => e.verified !== false) || Boolean(raw?.isPYQ);

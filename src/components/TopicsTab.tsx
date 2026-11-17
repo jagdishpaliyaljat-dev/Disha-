@@ -382,7 +382,7 @@ export const TopicsTab: React.FC<TopicsTabProps> = ({
       </header>
 
       <main className="flex-1 overflow-y-auto px-4 pt-5 pb-20 max-w-4xl mx-auto w-full">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 sm:gap-3">
           {(() => {
             const q = (searchQuery || "").trim().toLowerCase();
             const filteredSubjects = subjects
@@ -422,27 +422,27 @@ export const TopicsTab: React.FC<TopicsTabProps> = ({
                   key={`${subject.id || 'sub'}-${idx}`}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => onSelectSubject(subject.id)}
-                  className="bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-2xl p-4 flex items-center justify-between gap-4 group hover:border-[#800020]/50 dark:hover:border-[#F47B20]/60 transition-all shadow-xs cursor-pointer"
+                  className="bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-xl sm:rounded-2xl py-3 px-3.5 sm:p-4 flex items-center justify-between gap-3 sm:gap-4 group hover:border-[#800020]/50 dark:hover:border-[#F47B20]/60 transition-all shadow-xs cursor-pointer"
                 >
-                  <div className="flex items-center gap-4 min-w-0">
-                    <div className="w-10 h-10 rounded-xl bg-[#800020]/10 dark:bg-[#F47B20]/15 border border-[#800020]/20 dark:border-[#F47B20]/30 flex items-center justify-center text-[#800020] dark:text-[#F47B20] font-mono font-black text-sm shrink-0 tabular-nums">
+                  <div className="flex items-center gap-3 sm:gap-3.5 min-w-0">
+                    <div className="w-8.5 h-8.5 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-[#800020]/10 dark:bg-[#F47B20]/15 border border-[#800020]/20 dark:border-[#F47B20]/30 flex items-center justify-center text-[#800020] dark:text-[#F47B20] font-mono font-black text-xs sm:text-sm shrink-0 tabular-nums">
                       {idx + 1}
                     </div>
                     <div className="text-left min-w-0">
-                      <h4 className="text-base font-extrabold text-[#171923] dark:text-[#FFF9EF] truncate group-hover:text-[#800020] dark:group-hover:text-[#F47B20] transition-colors leading-tight">
+                      <h4 className="text-[14.5px] sm:text-base font-extrabold text-[#171923] dark:text-[#FFF9EF] truncate group-hover:text-[#800020] dark:group-hover:text-[#F47B20] transition-colors leading-snug">
                         {getSubjectDisplayName(subject)}
                       </h4>
                       {getSubjectSecondaryName(subject) && (
-                        <p className="text-xs text-slate-500 dark:text-slate-400 font-hindi truncate mt-0.5">
+                        <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-hindi truncate mt-0.5">
                           {getSubjectSecondaryName(subject)}
                         </p>
                       )}
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mt-0.5 tabular-nums">
+                      <p className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mt-0.5 tabular-nums">
                         {stats.questionsCount} {stats.questionsCount === 1 ? "Question" : "Questions"}
                       </p>
                     </div>
                   </div>
-                  <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-[#800020] dark:group-hover:text-[#F47B20] group-hover:translate-x-0.5 transition-all shrink-0" />
+                  <ChevronRight className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-slate-400 group-hover:text-[#800020] dark:group-hover:text-[#F47B20] group-hover:translate-x-0.5 transition-all shrink-0" />
                 </motion.button>
               );
             });

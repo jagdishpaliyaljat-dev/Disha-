@@ -647,8 +647,29 @@ export const normalizeQuestion = (raw: any): MCQImportQuestion => {
   const examHistory = examDetection.examHistory;
   const questionClassification = examDetection.questionClassification;
   const isPYQ = examDetection.isPYQ;
-  const exam = examHistory.length > 0 ? examHistory[0].examName : (raw.exam !== undefined ? String(raw.exam) : undefined);
-  const year = examHistory.length > 0 && examHistory[0].year !== undefined ? String(examHistory[0].year) : (raw.year !== undefined ? String(raw.year) : undefined);
+  const rawExamClean =
+    raw.exam !== undefined && raw.exam !== null && String(raw.exam).trim() !== ""
+      ? String(raw.exam).trim()
+      : raw.examName !== undefined && raw.examName !== null && String(raw.examName).trim() !== ""
+      ? String(raw.examName).trim()
+      : undefined;
+
+  const rawYearClean =
+    raw.year !== undefined && raw.year !== null && String(raw.year).trim() !== ""
+      ? String(raw.year).trim()
+      : raw.examYear !== undefined && raw.examYear !== null && String(raw.examYear).trim() !== ""
+      ? String(raw.examYear).trim()
+      : undefined;
+
+  const exam =
+    examHistory.length > 0 && examHistory[0].examName && examHistory[0].examName.trim()
+      ? examHistory[0].examName.trim()
+      : rawExamClean;
+
+  const year =
+    examHistory.length > 0 && examHistory[0].year !== undefined && examHistory[0].year !== null && String(examHistory[0].year).trim() !== ""
+      ? String(examHistory[0].year).trim()
+      : rawYearClean;
 
   const subject =
     raw.subject !== undefined

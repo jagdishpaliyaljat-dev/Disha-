@@ -1090,6 +1090,8 @@ export const AIImportModal: React.FC<AIImportModalProps> = ({
             if ((drafts[idx] as any)?.examHistory) res.examHistory = (drafts[idx] as any).examHistory;
             if ((drafts[idx] as any)?.questionClassification) res.questionClassification = (drafts[idx] as any).questionClassification;
             if ((drafts[idx] as any)?.isPYQ !== undefined) res.isPYQ = (drafts[idx] as any).isPYQ;
+            if ((drafts[idx] as any)?.exam !== undefined) res.exam = (drafts[idx] as any).exam;
+            if ((drafts[idx] as any)?.year !== undefined) res.year = (drafts[idx] as any).year;
           });
           setParseResult(parsed);
           const validIds = new Set<string>();
@@ -1342,8 +1344,8 @@ export const AIImportModal: React.FC<AIImportModalProps> = ({
           })(),
           questionClassification: d.questionClassification || (Array.isArray(d.examHistory) && d.examHistory.length > 0 ? "pyq" : "practice"),
           isPYQ: d.isPYQ ?? (Boolean(Array.isArray(d.examHistory) && d.examHistory.length > 0)),
-          exam: Array.isArray(d.examHistory) && d.examHistory.length > 0 ? d.examHistory[0].examName : (d.exam || undefined),
-          year: Array.isArray(d.examHistory) && d.examHistory.length > 0 && d.examHistory[0].year ? String(d.examHistory[0].year) : (d.year ? String(d.year) : undefined),
+          exam: Array.isArray(d.examHistory) && d.examHistory.length > 0 && d.examHistory[0].examName ? d.examHistory[0].examName.trim() : (d.exam && String(d.exam).trim() ? String(d.exam).trim() : undefined),
+          year: Array.isArray(d.examHistory) && d.examHistory.length > 0 && d.examHistory[0].year ? String(d.examHistory[0].year).trim() : (d.year && String(d.year).trim() ? String(d.year).trim() : undefined),
         } as Question);
       }
 

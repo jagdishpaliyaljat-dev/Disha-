@@ -980,8 +980,8 @@ export async function upsertQuestionsToSupabase(questions: Question[]): Promise<
           options: Array.isArray(q.options) ? q.options : [],
           correct_answer: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
           explanation: q.explanation || '',
-          exam: q.exam || 'RPSC / RSMSSB',
-          year: String(q.year || '2024'),
+          exam: q.exam && String(q.exam).trim() ? String(q.exam).trim() : null,
+          year: q.year !== undefined && q.year !== null && String(q.year).trim() !== '' ? String(q.year).trim() : null,
           level: q.difficulty || 'medium',
           verified: true,
           updated_at: new Date().toISOString()
