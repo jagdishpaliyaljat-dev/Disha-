@@ -80,7 +80,7 @@ function extractEmbeddedTablesFromText(
       tableErrorWarning = "Multiple HTML tables detected in a single question; please verify table structure.";
     }
     const firstHtmlTable = htmlTableMatches[0];
-    const rowMatches = firstHtmlTable.match(/<tr[\s\S]*?<\/tr>/gi) || [];
+    const rowMatches = (firstHtmlTable.match(/<tr[\s\S]*?<\/tr>/gi) || []) as string[];
     const parsedRows: string[][] = [];
     let headers: string[] = [];
 

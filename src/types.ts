@@ -223,6 +223,18 @@ export interface SmartTestRecord {
   score: number;
   accuracy: number;
   averageTimeSeconds: number;
+  // Optional runtime fields used by the MCQ session result writer.
+  title?: string;
+  testType?: string;
+  totalQuestions?: number;
+  attemptedQuestions?: number;
+  correctAnswers?: number;
+  wrongAnswers?: number;
+  skippedQuestions?: number;
+  timeSpentSeconds?: number;
+  completedAt?: string;
+  maxScore?: number;
+  answers?: Record<string, any>;
   insights?: {
     needPracticeCount: number;
     slowRecallCount: number;
@@ -385,6 +397,7 @@ export interface NewsArticle {
   views?: number;
   seoTitle?: string;
   seoDescription?: string;
+  seoKeywords?: string[];
   faqs?: FAQItem[];
   ogTitle?: string;
   ogDescription?: string;

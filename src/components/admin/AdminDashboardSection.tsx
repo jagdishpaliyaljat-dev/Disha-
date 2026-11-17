@@ -118,7 +118,7 @@ export const AdminDashboardSection: React.FC<AdminDashboardSectionProps> = ({
   const storeQuestionCount = React.useMemo(() => getTotalDisplayCount(questionsStore), [questionsStore]);
   const effectiveQuestionCount = Math.max(storeQuestionCount, databaseCounts?.mcqs ?? 0);
   const effectiveUserCount = Math.max(users.length, totalUserCount);
-  const activeBannersCount = React.useMemo(() => banners.filter(b => b.status === "active").length, [banners]);
+  const activeBannersCount = React.useMemo(() => banners.filter(b => b.isActive !== false).length, [banners]);
   const recentUsers = React.useMemo(() => users.slice(0, 5), [users]);
 
   const quickMetricCards = [

@@ -69,6 +69,47 @@ export function saveProgressToStorage(store: ProgressStore): void {
   }
 }
 
+/**
+ * Merge progress that was persisted to disk (e.g. while the app was in the
+ * background on another tab) into the in-memory store without discarding
+ * newer in-memory answers. Newer timestamps win; bookmark flags are additive.
+ */
+export function mergeRealtimeProgressDelta(
+  current: ProgressStore,
+  incoming: ProgressStore
+): { merged: ProgressStore; changedCount: number } {
+  const merged: ProgressStore = { ...current };
+  let changedCount = 0;
+
+  const timestampOf = (p?: QuestionProgress): string =>
+    p?.updatedAt || p?.lastAnsweredAt || "";
+
+  for (const [questionId, next] of Object.entries(incoming || {})) {
+    if (!next) continue;
+    const prev = merged[questionId];
+
+    if (!prev) {
+      merged[questionId] = next;
+      changedCount++;
+      continue;
+    }
+
+    if (timestampOf(next) > timestampOf(prev)) {
+      merged[questionId] = { ...prev, ...next };
+      changedCount++;
+      continue;
+    }
+
+    // Bookmarks can be toggled independently of answer timestamps.
+    if (next.bookmarked && !prev.bookmarked) {
+      merged[questionId] = { ...prev, bookmarked: true };
+      changedCount++;
+    }
+  }
+
+  return { merged, changedCount };
+}
+
 export function loadSettingsFromStorage(): AppSettings {
   try {
     const raw = localStorage.getItem(SETTINGS_STORAGE_KEY);

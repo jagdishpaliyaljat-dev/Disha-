@@ -106,6 +106,15 @@ export function addDeletedPYQId(id: string): void {
   } catch {}
 }
 
+/** Clears the local tombstones after a full cloud sync/restore. */
+export function clearDeletedPYQIds(): void {
+  try {
+    if (typeof localStorage !== "undefined") {
+      localStorage.removeItem(DELETED_PYQ_PAPERS_KEY);
+    }
+  } catch {}
+}
+
 export async function savePYQPaper(paper: Partial<PYQPaper> & { id: string }): Promise<PYQPaper[]> {
   const current = loadLocalPYQPapers();
   const idx = current.findIndex((p) => p.id === paper.id);

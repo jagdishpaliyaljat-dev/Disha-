@@ -213,9 +213,11 @@ export async function fetchShareContentFromCloud(
           explanation: data.explanation || "",
           table: data.table_data ? normalizeTable(data.table_data) : undefined,
           source: data.source,
+          // The share payload is intentionally loose; downstream code reads
+          // either the `question`/`correctAnswer` or `text`/`correctIndex` shape.
           examYear: data.exam_year,
           category: data.category,
-        } as Question;
+        } as unknown as Question;
       }
     }
 

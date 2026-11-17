@@ -1,1 +1,0 @@
-reports/QA_ARCHITECTURE_REPORT.md

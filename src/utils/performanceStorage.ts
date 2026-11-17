@@ -180,8 +180,12 @@ export function saveSmartTestRecord(record: SmartTestRecord): void {
               recordStudentAttempt({
                 userId: user.id,
                 score: record.score || 0,
-                totalQuestions: record.totalQuestions || 0,
-                answers: record.answers || {},
+                totalQuestions: record.totalQuestions ?? record.questionCount ?? 0,
+                answers: record.answers || {
+                  correct: record.correctAnswers ?? 0,
+                  wrong: record.wrongAnswers ?? 0,
+                  skipped: record.skippedQuestions ?? 0,
+                },
                 timeSpentSeconds: record.timeSpentSeconds || 0,
               }).catch(() => {});
             }).catch(() => {});

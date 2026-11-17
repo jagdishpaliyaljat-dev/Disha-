@@ -884,7 +884,7 @@ export function detectMathMeta(
   const elementPart = '(?:H[ef]?|L[ia]|B[er]?|C[alno]?|N[aeio]?|O[gs]?|F[er]?|Ne|Na|Mg|Al|Si|P[bort]?|S[bceimnr]?|Cl|Ar|K[r]?|Ca|Sc|Ti|V|Cr|Mn|Fe|Co|Ni|Cu|Zn|G[ade]|A[srtu]|Se|Br|Kr|R[bdefghu]|S[bnr]|Y[b]?|Zr|N[bd]|Mo|Tc|Ru|Rh|Pd|Ag|Cd|In|Sn|Sb|Te|I[r]?|Xe|Cs|Ba|L[aru]|Ce|Pr|Nd|Pm|Sm|Eu|Gd|Tb|Dy|Ho|Er|Tm|Lu|Hf|Ta|W|Os|Pt|Au|Hg|Tl|Bi|Po|At|Rn|Fr|Ra|Ac|Th|Pa|U|Np|Pu|Am|Cm|Bk|Cf|Es|Fm|Md|No|Rf|Db|Sg|Bh|Hs|Mt|Ds|Rg|Cn|Nh|Fl|Mc|Lv|Ts|Og)';
   const formulaMarkers = '[0-9₀-₉\\(\\)\\[\\]\\+\\-\\^\\{\\}⁺⁻]';
   const fullFormulaRe = new RegExp(`(?:^|\\s|[ \\.\\(\\[])(?:${formulaMarkers}*${elementPart}${formulaMarkers}*)+`, 'g');
-  const formulaMatches = combined.match(fullFormulaRe) || [];
+  const formulaMatches = (combined.match(fullFormulaRe) || []) as string[];
 
   const hasFormulaStructural = formulaMatches.some(m => {
     const clean = m.trim().replace(/[ \.\(\)\[\]]/g, '');

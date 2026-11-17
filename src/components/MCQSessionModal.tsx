@@ -639,7 +639,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
 
   // Active ordered questions (guaranteed 1-to-1 mapped with activeQuestionIds, immune to async loading shift)
   const questions: Question[] = useMemo(() => {
-    const isFullQ = (q: any): q is Question =>
+    const isFullQ = (q: any): boolean =>
       Boolean(q && (q.text || (q as any).question) && Array.isArray(q.options) && q.options.length >= 2);
 
     const list = activeQuestionIds.map((id) => {
@@ -3160,6 +3160,9 @@ function RedesignedLiveAndPYQTestView({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showPaletteDrawer, setShowPaletteDrawer] = useState(false);
   const [shareData, setShareData] = useState<ShareData | null>(null);
+
+  // Debounce duplicate taps on Prev/Next navigation buttons.
+  const isNavigatingRef = useRef<boolean>(false);
 
   const safeCurrentIndex = (questions && questions.length > 0)
     ? Math.max(0, Math.min(currentIndex, questions.length - 1))

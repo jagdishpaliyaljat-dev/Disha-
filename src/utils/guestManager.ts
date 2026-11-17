@@ -104,14 +104,14 @@ export async function migrateGuestDataToCloudOnAuth(userId: string): Promise<{
 
   if (localAttempts.length > 0) {
     try {
-      const rows = localAttempts.slice(0, 50).map(att => ({
+      const rows = localAttempts.slice(0, 50).map((att: any) => ({
         user_id: userId,
-        question_id: att.questionId,
-        selected_option: att.selectedOption,
-        is_correct: att.isCorrect,
+        question_id: att.questionId ?? att.question_id ?? null,
+        selected_option: att.selectedOption ?? att.selected_option ?? null,
+        is_correct: att.isCorrect ?? att.is_correct ?? false,
         time_spent: att.timeSpentSeconds || 0,
-        created_at: att.timestamp || new Date().toISOString(),
-      }));
+        created_at: att.timestamp || att.attemptedAt || new Date().toISOString(),
+      })).filter((row) => Boolean(row.question_id));
 
       const { error } = await supabase.from("attempts").insert(rows);
       if (!error) {

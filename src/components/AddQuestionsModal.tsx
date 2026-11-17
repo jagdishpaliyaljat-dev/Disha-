@@ -60,6 +60,7 @@ import { ImportTemplatesModal } from "./admin/ImportTemplatesModal";
 import { loadUserQuestionsStore, getCombinedSubjects, getCombinedChapters } from "../utils/questionsStorage";
 import { ensureStableUniqueDocId } from "../utils/permanentDataIntegrity";
 import { isUserAdmin, loadUserProfile, ADMIN_EMAILS } from "../utils/userProfileStorage";
+import { supabase } from "../lib/supabase";
 import {
   processJSONImport,
   parseJSONWithLocation,
@@ -1249,7 +1250,8 @@ export const AddQuestionsModal: React.FC<AddQuestionsModalProps> = ({
 
       // 1. Verify User Authentication & Authorization Pre-check
       console.log("[MCQ Import] [Step: Auth] Checking admin authorization...");
-      const currentUser = auth.currentUser;
+      const { data: sessionData } = await supabase.auth.getSession();
+      const currentUser = sessionData?.session?.user;
       const userProfile = loadUserProfile();
       const isAdminUser =
         isUserAdmin(userProfile) ||

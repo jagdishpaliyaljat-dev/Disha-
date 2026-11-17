@@ -1,1 +1,0 @@
-reports/DATABASE_SCHEMA_REPORT.md

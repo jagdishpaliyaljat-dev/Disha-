@@ -1,1 +1,0 @@
-reports/USER_AUTOMATION_TEST_REPORT.md

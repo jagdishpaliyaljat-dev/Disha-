@@ -54,6 +54,15 @@ export function addDeletedLiveTestId(id: string): void {
   } catch {}
 }
 
+/** Clears the local tombstones after a full cloud sync/restore. */
+export function clearDeletedLiveTestIds(): void {
+  try {
+    if (typeof localStorage !== "undefined") {
+      localStorage.removeItem(DELETED_LIVE_TESTS_KEY);
+    }
+  } catch {}
+}
+
 export function loadLocalLiveTests(): LiveTest[] {
   try {
     if (typeof window === "undefined" || !window.localStorage) {

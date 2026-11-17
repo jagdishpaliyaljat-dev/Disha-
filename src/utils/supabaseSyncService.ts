@@ -1677,12 +1677,13 @@ export async function fetchQuestionsCursorPaginated(
 
     if (error) throw error;
 
-    const rows = data || [];
+    // The projection is dynamic, so supabase-js cannot infer the row type.
+    const rows = (data || []) as any[];
     const hasMore = rows.length > limit;
     const pageRows = hasMore ? rows.slice(0, limit) : rows;
     const nextCursor = hasMore && pageRows.length > 0 ? pageRows[pageRows.length - 1].created_at : null;
 
-    const questions: Question[] = pageRows.map(q => ({
+    const questions: Question[] = pageRows.map((q: any) => ({
       id: q.id,
       text: q.question,
       options: Array.isArray(q.options) ? q.options : [],

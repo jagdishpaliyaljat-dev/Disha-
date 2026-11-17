@@ -41,7 +41,7 @@ import { useCurriculumManager } from './hooks/useCurriculumManager';
 import { loadUserProfile, saveUserProfile, isUserAdmin } from './utils/userProfileStorage';
 import { resolvePathToNavigationState, buildCanonicalPath, isKnownTab } from './utils/routeNavigation';
 import { prefetchCoreRoutes } from './utils/routePrefetcher';
-import { loadSettingsFromStorage, saveSettingsToStorage, loadProgressFromStorage, saveProgressToStorage, recordStudyAnswerToHistory, loadStudyHistoryFromStorage, saveStudyHistoryToStorage } from './utils/storage';
+import { loadSettingsFromStorage, saveSettingsToStorage, loadProgressFromStorage, saveProgressToStorage, recordStudyAnswerToHistory, loadStudyHistoryFromStorage, saveStudyHistoryToStorage, mergeRealtimeProgressDelta } from './utils/storage';
 import { loadNotifications, saveNotifications } from './utils/notificationsStorage';
 import { getTodayDateString, calculateNextProgress } from './utils/revision';
 import { trackPageView } from './utils/analytics';
@@ -98,7 +98,7 @@ function safeLazy<T extends React.ComponentType<any>>(
               });
               return new Promise(() => {});
             } else {
-              window.location.reload();
+              (window as Window).location.reload();
               return new Promise(() => {});
             }
           }

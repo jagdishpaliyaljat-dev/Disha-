@@ -65,7 +65,6 @@ import {
   bulkDeleteArticlesAdmin,
   bulkRefreshArticlesPublishDate,
   refreshSingleArticleDate,
-  convertMarkdownToBlocks,
   fetchArticleCategories,
   saveArticleCategory,
   deleteArticleCategory,

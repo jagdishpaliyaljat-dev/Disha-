@@ -27,6 +27,12 @@
     "node_modules",
     "dist",
     "tests",
+    "scripts",
+    "app",
+    "src/utils/__tests__",
+    "reports",
+    "docs",
+    "pilots",
     "opencode-antigravity-auth",
     ".archive"
   ]

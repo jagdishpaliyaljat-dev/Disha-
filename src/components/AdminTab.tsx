@@ -577,6 +577,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
         try {
           const { clearDeletedPYQIds } = await import("../utils/pyqStorage");
           const { clearDeletedLiveTestIds } = await import("../utils/liveTestStorage");
+          // Both helpers are defined in their respective modules below.
           const { clearDeletedBannerIds } = await import("../utils/bannerStorage");
           clearDeletedPYQIds();
           clearDeletedLiveTestIds();
@@ -926,7 +927,10 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
         {/* Mobile Backdrop Overlay */}
         {isSidebarOpen && (
           <div
-            onClick={() => setIsSidebarOpen(false)}
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsSidebarOpen(false);
+            }}
             className="fixed inset-0 z-40 bg-black/40 backdrop-blur-xs lg:hidden cursor-pointer"
             aria-hidden="true"
           />

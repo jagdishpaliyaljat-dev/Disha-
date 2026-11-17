@@ -7,6 +7,32 @@ const LEGACY_DELETED_BANNERS_KEY = "quizpro_deleted_banners_v1";
 
 let inMemoryBanners: AppBanner[] = [];
 
+/** Upgrades legacy (pre-AppBanner) records to the current shape. */
+function normalizeBanner(raw: any, idx = 0): AppBanner {
+  const legacy = raw || {};
+  const actionTab = legacy.actionTab
+    || (typeof legacy.actionData === "string" ? legacy.actionData : undefined)
+    || (legacy.actionType && legacy.actionType !== "none" ? legacy.actionType : undefined);
+
+  return {
+    id: legacy.id || `banner_${Date.now()}_${idx}`,
+    title: legacy.title || "",
+    subtitle: legacy.subtitle || "",
+    badge: legacy.badge || "",
+    color: legacy.color || "from-[#800020] to-[#3B0613]",
+    iconName: legacy.iconName || "Image",
+    actionLabel: legacy.actionLabel || "",
+    actionTab,
+    imageUrl: legacy.imageUrl || "",
+    isActive: legacy.isActive !== undefined ? Boolean(legacy.isActive) : true,
+    order: typeof legacy.order === "number"
+      ? legacy.order
+      : (typeof legacy.priority === "number" ? legacy.priority : idx),
+    createdAt: legacy.createdAt || new Date().toISOString(),
+    updatedAt: legacy.updatedAt,
+  };
+}
+
 export function getLocalBanners(): AppBanner[] {
   try {
     if (typeof window === "undefined" || typeof localStorage === "undefined") {
@@ -15,7 +41,7 @@ export function getLocalBanners(): AppBanner[] {
     const raw = localStorage.getItem(LOCAL_BANNERS_KEY) || localStorage.getItem(LEGACY_LOCAL_BANNERS_KEY);
     if (!raw) return inMemoryBanners;
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : inMemoryBanners;
+    return Array.isArray(parsed) ? parsed.map(normalizeBanner) : inMemoryBanners;
   } catch (err) {
     return inMemoryBanners;
   }
@@ -68,7 +94,7 @@ export async function fetchActiveBanners(): Promise<AppBanner[]> {
   const deleted = new Set(getDeletedBannerIds());
   return local
     .filter((b) => b.isActive !== false && !deleted.has(b.id))
-    .sort((a, b) => (a.priority || 0) - (b.priority || 0));
+    .sort((a, b) => (a.order || 0) - (b.order || 0));
 }
 
 export async function fetchAllBanners(): Promise<AppBanner[]> {
@@ -76,7 +102,7 @@ export async function fetchAllBanners(): Promise<AppBanner[]> {
   const deleted = new Set(getDeletedBannerIds());
   return local
     .filter((b) => !deleted.has(b.id))
-    .sort((a, b) => (a.priority || 0) - (b.priority || 0));
+    .sort((a, b) => (a.order || 0) - (b.order || 0));
 }
 
 export function compressBannerImage(file: File): Promise<string> {
@@ -120,21 +146,18 @@ export function compressBannerImage(file: File): Promise<string> {
 export async function saveBanner(banner: Partial<AppBanner>): Promise<string> {
   const current = getLocalBanners();
   const bannerId = banner.id || `banner_${Date.now()}`;
-  const completeBanner: AppBanner = {
+  const existing = current.find((b) => b.id === bannerId);
+  const completeBanner: AppBanner = normalizeBanner({
+    ...existing,
+    ...banner,
     id: bannerId,
-    title: banner.title || "",
-    imageUrl: banner.imageUrl || "",
-    actionType: banner.actionType || "none",
-    actionData: banner.actionData,
-    priority: typeof banner.priority === "number" ? banner.priority : 1,
-    isActive: banner.isActive !== undefined ? banner.isActive : true,
-    startDate: banner.startDate,
-    endDate: banner.endDate,
-    targetAudience: banner.targetAudience || "all",
-    targetExam: banner.targetExam,
-    createdAt: banner.createdAt || new Date().toISOString(),
+    order: typeof banner.order === "number"
+      ? banner.order
+      : (existing?.order ?? current.length),
+    isActive: banner.isActive !== undefined ? banner.isActive : (existing?.isActive ?? true),
+    createdAt: banner.createdAt || existing?.createdAt || new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-  };
+  });
 
   const idx = current.findIndex((b) => b.id === bannerId);
   const updatedList = idx >= 0 ? [...current] : [...current, completeBanner];
@@ -156,7 +179,7 @@ export function subscribeToActiveBanners(callback: (banners: AppBanner[]) => voi
   const deleted = new Set(getDeletedBannerIds());
   const active = local
     .filter((b) => b.isActive !== false && !deleted.has(b.id))
-    .sort((a, b) => (a.priority || 0) - (b.priority || 0));
+    .sort((a, b) => (a.order || 0) - (b.order || 0));
   callback(active);
   return () => {};
 }

@@ -176,7 +176,7 @@ Explanation: समाकलन करने पर: $\\int (4x^3 - 3x^{-4}) dx 
     const id2 = addLog("C", suite, "Chemistry Special Characters & Formula Preservation", "running", "functional");
     const t2 = Date.now();
     try {
-      const chemSample = CHEMISTRY_SAMPLES[0]?.raw || `Q1. FeSO_4 + 2NaOH -> Fe(OH)_2 + Na_2SO_4
+      const chemSample = Object.values(CHEMISTRY_SAMPLES)[0] || `Q1. FeSO_4 + 2NaOH -> Fe(OH)_2 + Na_2SO_4
 (A) Fe(OH)_2
 (B) Fe_2O_3
 (C) FeO

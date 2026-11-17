@@ -64,65 +64,131 @@ export function normalizeArticle(raw: any): NewsArticle {
     return field;
   };
 
+  const VALID_BLOCK_TYPES = new Set<string>([
+    "heading", "paragraph", "intro", "conclusion", "list", "image", "table",
+    "quote", "callout", "key_points", "faq", "cta", "embed", "related_quiz",
+    "diagram", "divider", "pdf_download", "book_course",
+  ]);
+
+  const normalizeBlockType = (rawType: any): ArticleBlock["type"] => {
+    if (rawType === "h2" || rawType === "h3" || rawType === "h4") return "heading";
+    if (rawType === "keytakeaways") return "key_points";
+    if (typeof rawType === "string" && VALID_BLOCK_TYPES.has(rawType)) {
+      return rawType as ArticleBlock["type"];
+    }
+    return "paragraph";
+  };
+
   const parseBlocksSafely = (blocksRaw: any): ArticleBlock[] => {
-    let blocks = parseJsonField(blocksRaw);
+    const blocks = parseJsonField(blocksRaw);
     if (!Array.isArray(blocks)) return [];
+
     return blocks.map((b: any, idx: number): ArticleBlock => {
-      let bType = b.type;
-      if (!["paragraph", "h2", "h3", "table", "callout", "faq", "keytakeaways", "quote"].includes(bType)) {
-        bType = "paragraph";
-      }
+      const type = normalizeBlockType(b?.type);
+      const legacyText = typeof b?.text === "string"
+        ? b.text
+        : (typeof b?.content === "string" ? b.content : "");
 
-      let parsedTableData = undefined;
-      if (bType === "table") {
-        if (Array.isArray(b.tableData)) {
-          parsedTableData = b.tableData;
-        } else if (typeof b.content === "string" && b.content.includes("|")) {
-          parsedTableData = parseMarkdownTableLines(b.content);
+      const block: ArticleBlock = {
+        id: b?.id || `blk_${Date.now()}_${idx}_${Math.random().toString(36).substring(2, 6)}`,
+        type,
+        text: legacyText,
+      };
+
+      // Preserve all currently-supported optional fields when present.
+      const copyIfPresent = (key: keyof ArticleBlock) => {
+        if (b?.[key] !== undefined && b?.[key] !== null) {
+          (block as any)[key] = b[key];
         }
+      };
+      ([
+        "level", "calloutType", "listType", "listItems", "imageUrl", "imageAlt",
+        "imageCaption", "tableHeaders", "tableRows", "tableAlignments",
+        "tableCaption", "faqs", "ctaText", "ctaUrl", "embedType", "embedUrl",
+        "relatedQuizTopicId", "relatedQuizTopicTitle", "relatedQuizSubjectId",
+        "diagramType", "diagramData", "pdfTitle", "pdfUrl", "pdfFileSize",
+        "pdfDescription", "pdfButtonText", "pdfBadge", "itemType", "itemTitle",
+        "itemSubtitle", "itemUrl", "itemImageUrl", "itemPrice",
+      ] as (keyof ArticleBlock)[]).forEach(copyIfPresent);
+
+      if (type === "heading") {
+        block.level = (b?.level === 1 || b?.level === 3 || b?.level === 4)
+          ? b.level
+          : (b?.type === "h3" ? 3 : 2);
       }
 
-      let parsedFaqItems: FAQItem[] = [];
-      if (bType === "faq") {
-        if (Array.isArray(b.faqItems)) {
-          parsedFaqItems = b.faqItems.map((fi: any) => ({
-            question: fi.question || "",
-            answer: fi.answer || "",
+      if (type === "callout") {
+        block.calloutType = b?.calloutType || b?.calloutVariant || "info";
+      }
+
+      if (type === "list" || type === "key_points") {
+        const listSource = b?.listItems ?? b?.takeaways;
+        if (Array.isArray(listSource)) {
+          block.listItems = listSource.map((item: any) => String(item));
+        } else if (legacyText) {
+          const parsed = (() => {
+            try {
+              const candidate = JSON.parse(legacyText);
+              return Array.isArray(candidate) ? candidate : null;
+            } catch {
+              return null;
+            }
+          })();
+          block.listItems = (parsed || legacyText.split("\n"))
+            .map((item: any) => String(item).trim())
+            .filter(Boolean);
+        }
+        if (b?.listType === "numbered") block.listType = "numbered";
+      }
+
+      if (type === "table") {
+        const headerSource = b?.tableHeaders;
+        if (Array.isArray(headerSource)) {
+          block.tableHeaders = headerSource.map((h: any) => String(h));
+        }
+
+        if (Array.isArray(b?.tableRows)) {
+          block.tableRows = b.tableRows.map((row: any) => ({
+            cells: Array.isArray(row?.cells)
+              ? row.cells.map((c: any) => String(c))
+              : (Array.isArray(row) ? row.map((c: any) => String(c)) : []),
           }));
-        } else if (typeof b.content === "string") {
-          try {
-            const parsed = JSON.parse(b.content);
-            if (Array.isArray(parsed)) parsedFaqItems = parsed;
-          } catch {}
-        }
-      }
-
-      let parsedTakeaways: string[] = [];
-      if (bType === "keytakeaways") {
-        if (Array.isArray(b.takeaways)) {
-          parsedTakeaways = b.takeaways;
-        } else if (typeof b.content === "string") {
-          try {
-            const parsed = JSON.parse(b.content);
-            if (Array.isArray(parsed)) parsedTakeaways = parsed;
-            else parsedTakeaways = b.content.split("\n").filter(Boolean);
-          } catch {
-            parsedTakeaways = b.content.split("\n").filter(Boolean);
+        } else if (Array.isArray(b?.tableData)) {
+          block.tableRows = b.tableData.map((row: any) => ({
+            cells: Array.isArray(row) ? row.map((c: any) => String(c)) : [],
+          }));
+        } else if (legacyText.includes("|")) {
+          const parsedTable = parseMarkdownTableLines(legacyText.split("\n"));
+          if (parsedTable) {
+            block.tableHeaders = parsedTable.headers;
+            block.tableRows = parsedTable.rows;
+            block.tableAlignments = parsedTable.alignments;
           }
         }
       }
 
-      return {
-        id: b.id || `blk_${Date.now()}_${idx}_${Math.random().toString(36).substring(2, 6)}`,
-        type: bType,
-        content: typeof b.content === "string" ? b.content : "",
-        orderIndex: typeof b.orderIndex === "number" ? b.orderIndex : idx,
-        calloutVariant: b.calloutVariant || "info",
-        tableHeaders: Array.isArray(b.tableHeaders) ? b.tableHeaders : undefined,
-        tableData: parsedTableData,
-        faqItems: parsedFaqItems,
-        takeaways: parsedTakeaways,
-      };
+      if (type === "faq") {
+        const faqSource = b?.faqs ?? b?.faqItems;
+        if (Array.isArray(faqSource)) {
+          block.faqs = faqSource.map((fi: any) => ({
+            question: fi?.question || "",
+            answer: fi?.answer || "",
+          }));
+        } else if (legacyText) {
+          try {
+            const parsed = JSON.parse(legacyText);
+            if (Array.isArray(parsed)) block.faqs = parsed;
+          } catch {}
+        }
+      }
+
+      if (type === "image") {
+        block.imageUrl = b?.imageUrl || b?.url || "";
+        block.imageAlt = b?.imageAlt || b?.alt || "";
+        block.imageCaption = b?.imageCaption || b?.caption || "";
+      }
+
+      return block;
     });
   };
 
@@ -132,28 +198,46 @@ export function normalizeArticle(raw: any): NewsArticle {
     if (!blocks || blocks.length === 0) return "";
     return blocks
       .map((b) => {
-        if (b.type === "h2") return `<h2>${b.content}</h2>`;
-        if (b.type === "h3") return `<h3>${b.content}</h3>`;
-        if (b.type === "quote") return `<blockquote>${b.content}</blockquote>`;
-        if (b.type === "callout") return `<div class="callout callout-${b.calloutVariant || "info"}">${b.content}</div>`;
-        if (b.type === "keytakeaways" && b.takeaways) {
-          return `<ul>${b.takeaways.map((t) => `<li>${t}</li>`).join("")}</ul>`;
-        }
-        if (b.type === "faq" && b.faqItems) {
-          return `<div class="faq-section">${b.faqItems.map((f) => `<div class="faq-item"><strong>${f.question}</strong><p>${f.answer}</p></div>`).join("")}</div>`;
-        }
-        if (b.type === "table") {
-          let rowsHtml = "";
-          if (b.tableHeaders) {
-            rowsHtml += `<tr>${b.tableHeaders.map((h) => `<th>${h}</th>`).join("")}</tr>`;
+        const text = b.text || "";
+        switch (b.type) {
+          case "heading":
+            return `<h${b.level || 2}>${text}</h${b.level || 2}>`;
+          case "quote":
+            return `<blockquote>${text}</blockquote>`;
+          case "callout":
+            return `<div class="callout callout-${b.calloutType || "info"}">${text}</div>`;
+          case "list":
+          case "key_points": {
+            const tag = b.listType === "numbered" ? "ol" : "ul";
+            return `<${tag}>${(b.listItems || []).map((item) => `<li>${item}</li>`).join("")}</${tag}>`;
           }
-          if (b.tableData) {
-            rowsHtml += b.tableData.map((r) => `<tr>${r.map((c) => `<td>${c}</td>`).join("")}</tr>`).join("");
+          case "faq":
+            return `<div class="faq-section">${(b.faqs || []).map((f) => `<div class="faq-item"><strong>${f.question}</strong><p>${f.answer}</p></div>`).join("")}</div>`;
+          case "table": {
+            let rowsHtml = "";
+            if (b.tableHeaders?.length) {
+              rowsHtml += `<tr>${b.tableHeaders.map((h) => `<th>${h}</th>`).join("")}</tr>`;
+            }
+            if (b.tableRows?.length) {
+              rowsHtml += b.tableRows
+                .map((r) => `<tr>${(r.cells || []).map((c) => `<td>${c}</td>`).join("")}</tr>`)
+                .join("");
+            }
+            return `<table>${rowsHtml}</table>`;
           }
-          return `<table>${rowsHtml}</table>`;
+          case "image":
+            return b.imageUrl
+              ? `<figure><img src="${b.imageUrl}" alt="${b.imageAlt || ""}" />${b.imageCaption ? `<figcaption>${b.imageCaption}</figcaption>` : ""}</figure>`
+              : "";
+          case "divider":
+            return "<hr />";
+          case "cta":
+            return b.ctaUrl ? `<p><a href="${b.ctaUrl}">${b.ctaText || text}</a></p>` : `<p>${text}</p>`;
+          default:
+            return text ? `<p>${text}</p>` : "";
         }
-        return `<p>${b.content}</p>`;
       })
+      .filter(Boolean)
       .join("\n");
   };
 
@@ -175,15 +259,13 @@ export function normalizeArticle(raw: any): NewsArticle {
     blocks: parsedBlocks,
     category: raw.category || "General",
     tags: Array.isArray(raw.tags) ? raw.tags : [],
-    coverImage: raw.coverImage || "",
-    featuredImage: raw.featuredImage || raw.coverImage || "",
+    coverImageUrl: raw.coverImageUrl || raw.coverImage || raw.featuredImage || "",
     authorName: !raw.authorName || raw.authorName === "QuizPro Editorial Team" ? "DISHA 20-20 Editorial Team" : raw.authorName,
     authorBio: !raw.authorBio || raw.authorBio.includes("QuizPro") ? "Senior Education Analyst & Competitive Exam Specialist at DISHA 20-20 (दिशा 20-20)." : raw.authorBio,
     authorPhotoUrl: raw.authorPhotoUrl && !raw.authorPhotoUrl.includes("unsplash.com") ? raw.authorPhotoUrl : "",
     status: raw.status || "published",
     isPinned: Boolean(raw.isPinned),
-    readTimeMinutes: Number(raw.readTimeMinutes) || Math.max(1, Math.ceil((rawContent.length || 500) / 800)),
-    viewsCount: Number(raw.viewsCount) || 0,
+    views: Number(raw.views ?? raw.viewsCount) || 0,
     storageVersion: CURRENT_STORAGE_VERSION,
     blockCount: parsedBlocks.length,
     seoTitle: raw.seoTitle || raw.title || "Untitled Article",
