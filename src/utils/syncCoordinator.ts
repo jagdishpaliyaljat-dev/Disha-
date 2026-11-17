@@ -329,9 +329,9 @@ class SyncCoordinatorClass {
 
       // Fetch curriculum hierarchy from Supabase
       const [subsRes, chsRes, topsRes] = await Promise.all([
-        supabase.from("subjects").select("*"),
-        supabase.from("chapters").select("*"),
-        supabase.from("topics").select("*"),
+        supabase.from("subjects").select("id,name,hindi_name,description,icon,color,order_index,created_at,updated_at"),
+        supabase.from("chapters").select("id,subject_id,name,hindi_name,order_index,created_at,updated_at"),
+        supabase.from("topics").select("id,chapter_id,subject_id,name,hindi_name,order_index,created_at,updated_at"),
       ]);
 
       if (subsRes.data && subsRes.data.length > 0) {

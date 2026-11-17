@@ -178,7 +178,7 @@ export async function fetchRegisteredUsers(lastDoc?: any, pageSize = 50): Promis
   try {
     const { data, error } = await supabase
       .from("profiles")
-      .select("*")
+      .select("id,email,display_name,photo_url,role,created_at,updated_at")
       .order("created_at", { ascending: false })
       .range(offset, offset + safePageSize);
 

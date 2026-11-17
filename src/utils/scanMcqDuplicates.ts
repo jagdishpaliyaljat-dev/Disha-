@@ -70,7 +70,7 @@ export async function scanMcqCollectionDuplicates(
 
   // 1. Fetch from Supabase questions table
   try {
-    const { data, error } = await supabase.from("questions").select("*").limit(maxScanLimit);
+    const { data, error } = await supabase.from("questions").select("id,question,options,correct_answer,explanation,subject_id,chapter_id,topic_id,exam,year,level,created_at,updated_at").limit(maxScanLimit);
     if (!error && data) {
       scannedSources.push(`Supabase 'questions' table (${data.length} rows)`);
       data.forEach((row) => {

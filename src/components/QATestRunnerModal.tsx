@@ -360,7 +360,7 @@ Answer: A`;
     try {
       const sessionRes = await supabase.auth.getSession();
       const user = sessionRes.data.session?.user;
-      const { data, error } = await supabase.from("profiles").select("*").limit(5);
+      const { data, error } = await supabase.from("profiles").select("id,email,display_name,photo_url,role,created_at,updated_at").limit(5);
       if (error) {
         updateLog(id1, "pass", Date.now() - t1, undefined, `RLS rejected unauthorized profile query: ${error.message}`);
       } else if (!user && data && data.length > 0) {

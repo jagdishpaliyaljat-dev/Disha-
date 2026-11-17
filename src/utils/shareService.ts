@@ -200,7 +200,7 @@ export async function fetchShareContentFromCloud(
     }
 
     if (type === "question") {
-      const { data } = await supabase.from("questions").select("*").eq("id", id).maybeSingle();
+      const { data } = await supabase.from("questions").select("id,question,options,correct_answer,explanation,subject_id,chapter_id,topic_id,exam,year,level,table_data,source,exam_year,category").eq("id", id).maybeSingle();
       if (data) {
         return {
           id: data.id,
@@ -222,7 +222,7 @@ export async function fetchShareContentFromCloud(
     }
 
     if (type === "topic") {
-      const { data: topicData } = await supabase.from("topics").select("*").eq("id", id).maybeSingle();
+      const { data: topicData } = await supabase.from("topics").select("id,name,hindi_name,chapter_id,subject_id,order_index").eq("id", id).maybeSingle();
       if (topicData) {
         const questions = await fetchQuestionsByTopic(id);
         return {

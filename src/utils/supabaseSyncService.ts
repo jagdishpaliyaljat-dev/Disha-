@@ -1386,7 +1386,7 @@ export async function fetchUserProfileFromSupabase(userId?: string): Promise<any
 
     const { data, error } = await supabase
       .from("profiles")
-      .select("*")
+      .select("id,email,display_name,photo_url,role,created_at,updated_at")
       .eq("id", uid)
       .maybeSingle();
 
@@ -1454,7 +1454,7 @@ export async function fetchPYQQuestionsFromSupabase(params?: {
 }): Promise<Question[]> {
   if (!isSupabaseConfigured()) return [];
   try {
-    let query = supabase.from("questions").select("*");
+    let query = supabase.from("questions").select("id,question,options,correct_answer,explanation,subject_id,chapter_id,topic_id,exam,year,level,created_at");
     if (params?.exam) {
       query = query.ilike("exam", `%${params.exam}%`);
     }
@@ -1497,7 +1497,7 @@ export async function fetchMockTestQuestions(params?: {
   if (!isSupabaseConfigured()) return [];
   try {
     const limit = Math.min(params?.count || 25, 100);
-    let query = supabase.from("questions").select("*");
+    let query = supabase.from("questions").select("id,question,options,correct_answer,explanation,subject_id,chapter_id,topic_id,exam,year,level,created_at");
     if (params?.subjectId && params.subjectId !== "all") {
       query = query.eq("subject_id", params.subjectId);
     }
@@ -1634,7 +1634,7 @@ export async function fetchQuestionsCursorPaginated(
 
   try {
     // Select compact or sanitized projection to minimize egress
-    let selectFields = "*";
+    let selectFields = "id,subject_id,chapter_id,topic_id,question,options,correct_answer,explanation,exam,year,level,created_at,updated_at";
     if (params.sanitizeForExam) {
       selectFields = "id, subject_id, chapter_id, topic_id, question, options, exam, year, level, created_at, updated_at";
     } else if (params.fields === "compact") {

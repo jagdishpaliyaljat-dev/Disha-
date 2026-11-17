@@ -119,7 +119,7 @@ export const WrongTab: React.FC<WrongTabProps> = ({
             try {
               const { supabase, isSupabaseConfigured } = await import("../lib/supabase");
               if (isSupabaseConfigured()) {
-                const { data } = await supabase.from("questions").select("*").in("id", stillMissing);
+                const { data } = await supabase.from("questions").select("id,question,options,correct_answer,explanation,subject_id,chapter_id,topic_id,exam,year,level").in("id", stillMissing);
                 if (data && data.length > 0) {
                   data.forEach((q) => {
                     map.set(q.id, {
