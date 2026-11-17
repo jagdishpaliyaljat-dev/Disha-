@@ -249,7 +249,6 @@ export default defineConfig(({ command }) => {
         'react-dom/client', 
         'motion/react',
         'motion',
-        'framer-motion',
         'lucide-react', 
         'canvas-confetti',
         'd3',
