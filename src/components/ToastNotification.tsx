@@ -5,11 +5,7 @@ import {
   AlertTriangle, 
   Info, 
   X, 
-  Database, 
-  Trash2, 
-  RefreshCw,
-  Sparkles,
-  CloudCheck
+  Trash2
 } from "lucide-react";
 import { AdminToastPayload } from "../utils/adminToast";
 import { playCorrectSound, playClickSound, triggerHaptic } from "../utils/audioFeedback";
@@ -18,7 +14,7 @@ export interface ToastMessage {
   id: string;
   type: "success" | "error" | "info" | "add" | "delete" | "update";
   title: string;
-  message: string;
+  message?: string;
   duration?: number; // ms
   itemName?: string;
   category?: string;
@@ -30,14 +26,81 @@ interface ToastNotificationProps {
   onDismiss?: (id: string) => void;
 }
 
+/**
+ * Compact, Non-Obstructive Notification Toast Manager
+ * - Max 1 active toast at a time (FIFO Queue)
+ * - Auto-dismiss: 2s (success/add/update/delete/info), 4s (error)
+ * - Compact Height: 48–56px
+ * - Width: 90–94% on mobile
+ * - Zero blockage of forms, buttons, chapter lists, topic lists
+ * - Lightweight deduplication to prevent duplicate toasts for the same operation
+ */
 export const ToastNotificationContainer: React.FC<ToastNotificationProps> = ({ 
   toasts = [], 
   onDismiss 
 }) => {
-  const [activeToasts, setActiveToasts] = useState<ToastMessage[]>([]);
+  const [currentToast, setCurrentToast] = useState<ToastMessage | null>(null);
+  const queueRef = useRef<ToastMessage[]>([]);
+  const recentFingerprintsRef = useRef<Map<string, number>>(new Map());
   const seenIdsRef = useRef<Set<string>>(new Set());
 
-  // Handle external window events from adminToast
+  // Dismiss current toast and dequeue next
+  const dismissCurrentToast = useCallback((id: string) => {
+    setCurrentToast((curr) => {
+      if (curr && curr.id === id) {
+        // Pop next toast from queue if available
+        const next = queueRef.current.shift() || null;
+        return next;
+      }
+      return curr;
+    });
+    onDismiss?.(id);
+  }, [onDismiss]);
+
+  // Enqueue new toast with deduplication
+  const enqueueToast = useCallback((toast: ToastMessage) => {
+    // Generate fingerprint for deduplication
+    const textKey = (toast.title || toast.message || "").trim();
+    const fingerprint = `${toast.type}_${textKey}_${toast.itemName || ""}`;
+    const now = Date.now();
+    const lastTimestamp = recentFingerprintsRef.current.get(fingerprint);
+
+    // Suppress duplicates emitted within 1800ms
+    if (lastTimestamp && now - lastTimestamp < 1800) {
+      return;
+    }
+    recentFingerprintsRef.current.set(fingerprint, now);
+
+    // Cleanup old fingerprint entries
+    if (recentFingerprintsRef.current.size > 25) {
+      recentFingerprintsRef.current.forEach((time, key) => {
+        if (now - time > 4000) recentFingerprintsRef.current.delete(key);
+      });
+    }
+
+    // Audio & haptic feedback
+    if (toast.type === "delete") {
+      playClickSound(true);
+      triggerHaptic("warning", true);
+    } else if (toast.type === "add" || toast.type === "success" || toast.type === "update") {
+      playCorrectSound(true);
+      triggerHaptic("success", true);
+    }
+
+    setCurrentToast((curr) => {
+      if (curr === null) {
+        return toast;
+      } else {
+        // If already showing a toast, queue this one (max 4 queued items)
+        if (queueRef.current.length < 4) {
+          queueRef.current.push(toast);
+        }
+        return curr;
+      }
+    });
+  }, []);
+
+  // Listen to external window events from adminToast & Supabase operations
   useEffect(() => {
     const handleAdminEvent = (e: Event) => {
       const customEvent = e as CustomEvent<AdminToastPayload>;
@@ -45,28 +108,19 @@ export const ToastNotificationContainer: React.FC<ToastNotificationProps> = ({
       const detail = customEvent.detail;
       const id = "admin_toast_" + Date.now() + "_" + Math.random().toString(36).substring(2, 6);
 
-      // Play audio & haptic confirmation
-      if (detail.type === "delete") {
-        playClickSound(true);
-        triggerHaptic("warning", true);
-      } else if (detail.type === "add" || detail.type === "success" || detail.type === "update") {
-        playCorrectSound(true);
-        triggerHaptic("success", true);
-      }
+      // Auto-dismiss: 2s for success/actions, 4s for errors
+      const duration = detail.type === "error" ? 4000 : 2000;
 
-      setActiveToasts((prev) => [
-        {
-          id,
-          type: detail.type,
-          title: detail.title,
-          message: detail.message,
-          itemName: detail.itemName,
-          category: detail.category,
-          count: detail.count,
-          duration: 4000,
-        },
-        ...prev.slice(0, 2), // Keep max 3 toasts visible simultaneously
-      ]);
+      enqueueToast({
+        id,
+        type: detail.type,
+        title: detail.title,
+        message: detail.message,
+        itemName: detail.itemName,
+        category: detail.category,
+        count: detail.count,
+        duration,
+      });
     };
 
     window.addEventListener("disha2020_saved", handleAdminEvent);
@@ -75,7 +129,7 @@ export const ToastNotificationContainer: React.FC<ToastNotificationProps> = ({
       window.removeEventListener("disha2020_saved", handleAdminEvent);
       window.removeEventListener("disha2020_admin_toast", handleAdminEvent);
     };
-  }, []);
+  }, [enqueueToast]);
 
   // Sync prop toasts
   useEffect(() => {
@@ -83,41 +137,27 @@ export const ToastNotificationContainer: React.FC<ToastNotificationProps> = ({
     toasts.forEach((t) => {
       if (!seenIdsRef.current.has(t.id)) {
         seenIdsRef.current.add(t.id);
-        setActiveToasts((prev) => {
-          if (prev.some((p) => p.id === t.id)) return prev;
-          if (t.type === "delete") {
-            playClickSound(true);
-            triggerHaptic("warning", true);
-          } else if (t.type === "add" || t.type === "success" || t.type === "update") {
-            playCorrectSound(true);
-            triggerHaptic("success", true);
-          }
-          return [t, ...prev.slice(0, 2)];
-        });
+        const duration = t.duration || (t.type === "error" ? 4000 : 2000);
+        enqueueToast({ ...t, duration });
       }
     });
-  }, [toasts]);
-
-  const dismissToast = useCallback((id: string) => {
-    setActiveToasts((prev) => prev.filter((t) => t.id !== id));
-    onDismiss?.(id);
-  }, [onDismiss]);
+  }, [toasts, enqueueToast]);
 
   return (
     <div 
-      className="fixed top-3 sm:top-5 inset-x-0 mx-auto z-[999999] pointer-events-none flex flex-col items-center gap-2 px-3 sm:px-4 max-w-md w-full"
+      className="fixed top-2 sm:top-3 inset-x-0 mx-auto z-[999999] pointer-events-none flex justify-center px-3"
       role="region"
       aria-live="polite"
-      aria-label="Live Status Notifications"
+      aria-label="Status Notifications"
     >
-      <AnimatePresence mode="popLayout">
-        {activeToasts.map((toast) => (
-          <TopMidPremiumToastItem
-            key={toast.id}
-            toast={toast}
-            onDismiss={dismissToast}
+      <AnimatePresence mode="wait">
+        {currentToast && (
+          <CompactToastItem
+            key={currentToast.id}
+            toast={currentToast}
+            onDismiss={dismissCurrentToast}
           />
-        ))}
+        )}
       </AnimatePresence>
     </div>
   );
@@ -128,8 +168,19 @@ interface ItemProps {
   onDismiss: (id: string) => void;
 }
 
-const TopMidPremiumToastItem: React.FC<ItemProps> = ({ toast, onDismiss }) => {
-  const duration = toast.duration || (toast.type === "error" ? 6000 : 4200);
+/**
+ * Compact Toast Item:
+ * - Height: 48–56px
+ * - Width: 90–94% of mobile screen (w-[92%] sm:w-auto sm:min-w-[320px] sm:max-w-md)
+ * - Icon: 18–20px
+ * - Font: 12–13px
+ * - Border radius: 12px
+ * - Padding: 10px
+ * - No oversized badges, no bloat, zero obstruction of working areas
+ */
+const CompactToastItem: React.FC<ItemProps> = ({ toast, onDismiss }) => {
+  // Required: Auto-dismiss 2s for success/info/delete/add/update, 4s for error
+  const duration = toast.duration || (toast.type === "error" ? 4000 : 2000);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -141,148 +192,57 @@ const TopMidPremiumToastItem: React.FC<ItemProps> = ({ toast, onDismiss }) => {
   const isDelete = toast.type === "delete";
   const isError = toast.type === "error";
   const isInfo = toast.type === "info";
-  const isLiveSuccess = !isDelete && !isError && !isInfo;
+
+  // Construct concise display text (Title + optional highlight)
+  const displayText = toast.itemName 
+    ? `${toast.title}: ${toast.itemName}` 
+    : toast.title || toast.message || "Operation completed";
 
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, y: -25, scale: 0.92, filter: "blur(4px)" }}
-      animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
-      exit={{ opacity: 0, y: -20, scale: 0.94, filter: "blur(4px)" }}
-      transition={{ type: "spring", damping: 26, stiffness: 380 }}
-      className={`pointer-events-auto w-full rounded-2xl sm:rounded-3xl p-3.5 sm:p-4 shadow-2xl border backdrop-blur-2xl relative overflow-hidden transition-all select-none ${
+      initial={{ opacity: 0, y: -18, scale: 0.96 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -12, scale: 0.96 }}
+      transition={{ duration: 0.2, ease: "easeOut" }}
+      className={`pointer-events-auto w-[92%] sm:w-auto sm:min-w-[320px] sm:max-w-md min-h-[48px] max-h-[58px] rounded-[12px] p-[10px] shadow-lg backdrop-blur-md border flex items-center justify-between gap-2.5 transition-all select-none ${
         isDelete
-          ? "bg-gradient-to-r from-[#200b0f]/95 via-[#160a14]/95 to-[#0b0f19]/95 text-white border-rose-500/40 ring-1 ring-rose-500/30 shadow-[0_12px_36px_rgba(244,63,94,0.3)]"
+          ? "bg-[#1f0b11]/95 text-white border-rose-500/40 shadow-rose-950/30"
           : isError
-          ? "bg-gradient-to-r from-[#280808]/95 via-[#180a0a]/95 to-[#0b0f19]/95 text-white border-red-500/50 ring-1 ring-red-500/35 shadow-[0_12px_36px_rgba(239,68,68,0.35)]"
+          ? "bg-[#240b0b]/95 text-white border-red-500/40 shadow-red-950/30"
           : isInfo
-          ? "bg-gradient-to-r from-[#0b142e]/95 via-[#0e172a]/95 to-[#080d1a]/95 text-white border-indigo-500/40 ring-1 ring-indigo-500/30 shadow-[0_12px_36px_rgba(99,102,241,0.25)]"
-          : "bg-gradient-to-r from-[#062015]/95 via-[#0b1926]/95 to-[#08121f]/95 text-white border-emerald-500/40 ring-1 ring-emerald-500/30 shadow-[0_12px_36px_rgba(16,185,129,0.3)]"
+          ? "bg-[#0b1329]/95 text-white border-indigo-500/40 shadow-indigo-950/30"
+          : "bg-[#082015]/95 text-white border-emerald-500/40 shadow-emerald-950/30"
       }`}
     >
-      {/* Top Meta Live Badge */}
-      <div className="flex items-center justify-between gap-2 mb-2">
-        <div className="flex items-center gap-1.5 flex-wrap">
-          {isDelete ? (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-500/15 border border-rose-500/30 text-rose-300">
-              <span className="w-1.5 h-1.5 rounded-full bg-rose-400 inline-block animate-pulse" />
-              <span>Supabase Live Sync • Deleted</span>
-            </span>
-          ) : isError ? (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-red-500/15 border border-red-500/30 text-red-300">
-              <span className="w-1.5 h-1.5 rounded-full bg-red-400 inline-block" />
-              <span>Cloud Sync Notice</span>
-            </span>
-          ) : isInfo ? (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-indigo-500/15 border border-indigo-500/30 text-indigo-300">
-              <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 inline-block" />
-              <span>Supabase Operations</span>
-            </span>
-          ) : (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/15 border border-emerald-500/30 text-emerald-300">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
-              </span>
-              <span>Supabase Live • Live in User App</span>
-            </span>
-          )}
-
-          {toast.category && (
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1">
-              • {toast.category}
-            </span>
-          )}
-        </div>
-
-        {/* Dismiss Button */}
-        <button
-          onClick={() => onDismiss(toast.id)}
-          className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors shrink-0 cursor-pointer"
-          aria-label="Close notification"
-        >
-          <X className="w-3.5 h-3.5" />
-        </button>
+      {/* Left Icon (18–20px) */}
+      <div className="shrink-0 flex items-center justify-center">
+        {isDelete ? (
+          <Trash2 className="w-[18px] h-[18px] text-rose-400" />
+        ) : isError ? (
+          <AlertTriangle className="w-[18px] h-[18px] text-red-400" />
+        ) : isInfo ? (
+          <Info className="w-[18px] h-[18px] text-indigo-400" />
+        ) : (
+          <CheckCircle2 className="w-[18px] h-[18px] text-emerald-400" />
+        )}
       </div>
 
-      {/* Main Content Body */}
-      <div className="flex items-start gap-3">
-        {/* Left Status Icon */}
-        <div
-          className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl flex items-center justify-center shrink-0 border ${
-            isDelete
-              ? "bg-rose-500/20 text-rose-300 border-rose-500/30"
-              : isError
-              ? "bg-red-500/20 text-red-300 border-red-500/30"
-              : isInfo
-              ? "bg-indigo-500/20 text-indigo-300 border-indigo-500/30"
-              : "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
-          }`}
-        >
-          {isDelete ? (
-            <Trash2 className="w-5 h-5" />
-          ) : isError ? (
-            <AlertTriangle className="w-5 h-5" />
-          ) : isInfo ? (
-            <Info className="w-5 h-5" />
-          ) : (
-            <CheckCircle2 className="w-5 h-5" />
-          )}
-        </div>
-
-        {/* Title and Message */}
-        <div className="flex-1 min-w-0 pr-1">
-          <h4 className="text-xs sm:text-sm font-black tracking-tight leading-snug text-white flex items-center gap-1.5">
-            <span>{toast.title}</span>
-            {isLiveSuccess && <Sparkles className="w-3.5 h-3.5 text-amber-300 shrink-0 inline" />}
-          </h4>
-          <p className="text-[11px] sm:text-xs font-medium text-slate-300 mt-0.5 leading-relaxed break-words">
-            {toast.message}
-          </p>
-        </div>
+      {/* Concise Notification Text (12–13px, max 2 lines, no oversized descriptions) */}
+      <div className="flex-1 min-w-0 pr-1">
+        <p className="text-[12px] sm:text-[13px] font-semibold text-white leading-tight truncate sm:whitespace-normal line-clamp-2">
+          {displayText}
+        </p>
       </div>
 
-      {/* Bottom Live Guarantee Sub-line */}
-      <div className="mt-2.5 pt-2 border-t border-white/10 flex items-center justify-between text-[10px] sm:text-[11px] font-bold">
-        <div className="flex items-center gap-1.5">
-          {isDelete ? (
-            <span className="text-rose-300 flex items-center gap-1">
-              <span>✓</span>
-              <span>यूजर ऐप से तुरंत रिमूव्ड (Live Sync)</span>
-            </span>
-          ) : isError ? (
-            <span className="text-red-300 flex items-center gap-1">
-              <span>!</span>
-              <span>कृपया कनेक्शन की जांच करें</span>
-            </span>
-          ) : (
-            <span className="text-emerald-300 flex items-center gap-1">
-              <span>✓</span>
-              <span>यूजर ऐप में तुरंत लाइव उपलब्ध (Live Sync)</span>
-            </span>
-          )}
-        </div>
-        <div className="text-slate-400 font-mono text-[9px] uppercase tracking-wider flex items-center gap-1">
-          <Database className="w-2.5 h-2.5 text-emerald-400" />
-          <span>PostgreSQL</span>
-        </div>
-      </div>
-
-      {/* Bottom Progress Countdown Bar */}
-      <motion.div
-        initial={{ width: "100%" }}
-        animate={{ width: "0%" }}
-        transition={{ duration: duration / 1000, ease: "linear" }}
-        className={`absolute bottom-0 left-0 h-0.5 ${
-          isDelete
-            ? "bg-rose-400"
-            : isError
-            ? "bg-red-400"
-            : isInfo
-            ? "bg-indigo-400"
-            : "bg-emerald-400"
-        }`}
-      />
+      {/* Small Close Button */}
+      <button
+        onClick={() => onDismiss(toast.id)}
+        className="p-1 -mr-0.5 rounded-lg text-white/60 hover:text-white hover:bg-white/10 active:scale-95 transition-all shrink-0 cursor-pointer"
+        aria-label="Close notification"
+      >
+        <X className="w-3.5 h-3.5" />
+      </button>
     </motion.div>
   );
 };

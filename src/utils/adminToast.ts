@@ -32,12 +32,12 @@ export function triggerDatabaseSavedToast(payload?: DatabaseSavedEventPayload | 
   const type = detail.type || "add";
   const defaultTitle =
     type === "delete"
-      ? "Supabase से डेटा हटाया गया (Live)"
-      : "डेटा Supabase में लाइव हो गया!";
+      ? "डेटा हटाया गया (Live)"
+      : "डेटा लाइव सेव हो गया";
   const defaultMessage =
     type === "delete"
-      ? "यह डेटा Supabase डेटाबेस से सुरक्षित हटा दिया गया है और अब यूजर ऐप से तुरंत रिमूव हो चुका है।"
-      : "डेटा Supabase में सुरक्षित सेव हो गया है और अब यूजर ऐप में तुरंत लाइव उपलब्ध है।";
+      ? "यूजर ऐप से हटा दिया गया है।"
+      : "यूजर ऐप में तुरंत लाइव उपलब्ध है।";
 
   const eventDetail: AdminToastPayload = {
     title: detail.title || defaultTitle,
