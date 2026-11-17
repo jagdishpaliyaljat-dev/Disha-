@@ -49,7 +49,7 @@ export const WrongTab: React.FC<WrongTabProps> = ({
   const [hydratedQuestions, setHydratedQuestions] = useState<Question[]>([]);
   const todayStr = getTodayDateString();
 
-  // Hydrate questions from IndexedDB bundles & questionBankCache, and fetch any still-missing bookmarked/wrong IDs from Firestore
+  // Hydrate questions from IndexedDB bundles & questionBankCache, and fetch any still-missing bookmarked/wrong IDs from Supabase database
   useEffect(() => {
     let isMounted = true;
 

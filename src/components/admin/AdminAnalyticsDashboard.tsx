@@ -70,7 +70,7 @@ export const AdminAnalyticsDashboard: React.FC = () => {
       list.sort((a, b) => a.date.localeCompare(b.date));
       setData(list);
     } catch (err) {
-      console.warn("Failed to fetch analytics_daily from Firestore:", err);
+      console.warn("Failed to fetch analytics_daily from database:", err);
     } finally {
       setLoading(false);
     }

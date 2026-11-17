@@ -14,13 +14,13 @@ export const SyncConfirmationModal: React.FC<{
           <button onClick={onClose} className="p-1 hover:bg-slate-100 rounded-lg"><X className="w-5 h-5"/></button>
         </div>
         
-        <div className="p-4 bg-amber-50 dark:bg-amber-950/30 rounded-2xl border border-amber-200 dark:border-amber-800 space-y-2">
-            <div className="flex items-center gap-2 text-amber-800 dark:text-amber-300 font-bold">
+        <div className="p-4 bg-blue-50 dark:bg-blue-950/30 rounded-2xl border border-blue-200 dark:border-blue-800 space-y-2">
+            <div className="flex items-center gap-2 text-blue-800 dark:text-blue-300 font-bold">
                 <AlertTriangle className="w-5 h-5"/>
-                <span>Cost Preview</span>
+                <span>Cloud Sync Confirmation</span>
             </div>
-            <p className="text-xs text-amber-700 dark:text-amber-400">
-                You are about to sync <strong className="font-black">{itemCount}</strong> document operations to Firestore. This will consume <strong className="font-black">{itemCount}</strong> write operations from your daily quota.
+            <p className="text-xs text-blue-700 dark:text-blue-400">
+                You are about to synchronize <strong className="font-black">{itemCount}</strong> records to Supabase PostgreSQL cloud database.
             </p>
         </div>
 

@@ -21,7 +21,7 @@ import {
   ArrowUpRight
 } from "lucide-react";
 import { UserProfile, AppBanner, UserQuestionsStore } from "../../types";
-import { fetchRegisteredUsers, getLocalUsersDirectory, fetchFirestoreUserCounts } from "../../utils/userManagementStorage";
+import { fetchRegisteredUsers, getLocalUsersDirectory, fetchRegisteredUserCounts } from "../../utils/userManagementStorage";
 import { fetchAllBanners, getLocalBanners } from "../../utils/bannerStorage";
 import { supabase, isSupabaseConfigured } from "../../lib/supabase";
 import { RecentActivityWidget } from "./RecentActivityWidget";
@@ -70,7 +70,7 @@ export const AdminDashboardSection: React.FC<AdminDashboardSectionProps> = ({
       const [usersRes, bannersRes, userCountsRes] = await Promise.allSettled([
         fetchRegisteredUsers(),
         fetchAllBanners(),
-        fetchFirestoreUserCounts(),
+        fetchRegisteredUserCounts(),
       ]);
       if (usersRes.status === "fulfilled") {
         setUsers(usersRes.value.users);

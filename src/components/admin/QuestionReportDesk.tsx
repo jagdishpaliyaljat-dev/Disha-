@@ -62,7 +62,7 @@ export const QuestionReportDesk: React.FC<QuestionReportDeskProps> = ({
   const [fixExplanation, setFixExplanation] = React.useState<string>("");
   const [isSavingFix, setIsSavingFix] = React.useState(false);
 
-  // Initial seed mock reports if none exist in firestore
+  // Initial seed mock reports if none exist in database
   const fetchReports = async () => {
     setLoading(true);
     try {

@@ -73,7 +73,7 @@ export const SyncProgressModal: React.FC<{
         {progress.status === 'success' && (
           <div className="p-4 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300 rounded-2xl flex items-center gap-3 font-bold text-xs">
             <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-600"/>
-            <span>All records synchronized successfully with Cloud Firestore!</span>
+            <span>All records synchronized successfully with Supabase Cloud Database!</span>
           </div>
         )}
         

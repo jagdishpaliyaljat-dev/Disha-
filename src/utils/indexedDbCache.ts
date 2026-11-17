@@ -221,7 +221,7 @@ export async function getCachedQuestionBundle(topicId: string, maxAgeMs = DEFAUL
 }
 
 /**
- * Get all cached Question Bundles from IndexedDB (0 Firestore reads)
+ * Get all cached Question Bundles from IndexedDB (0 cloud database reads)
  */
 export async function getAllCachedBundles(): Promise<CachedBundleRecord[]> {
   const db = await getQuizProDB();

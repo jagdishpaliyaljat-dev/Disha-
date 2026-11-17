@@ -55,12 +55,12 @@ export function normalizeQuestionText(text: string): string {
 }
 
 /**
- * Scans the Firestore 'mcqs' collection (and local question stores) for:
- * 1. Duplicate document IDs or duplicate internal 'id' properties.
- * 2. Documents with identical 'question' text but different document IDs.
+ * Scans the Supabase 'questions' table (and local question stores) for:
+ * 1. Duplicate question IDs or duplicate internal 'id' properties.
+ * 2. Questions with identical 'question' text but different IDs.
  */
 export async function scanMcqCollectionDuplicates(
-  targetCollection = "mcqs",
+  targetCollection = "questions",
   maxScanLimit = 2000
 ): Promise<McqScanResult> {
   const timestamp = new Date().toISOString();
@@ -207,9 +207,9 @@ export async function scanMcqCollectionDuplicates(
 
   let summaryMessage = "";
   if (totalScanned === 0) {
-    summaryMessage = `Scan complete for '${targetCollection}': No documents were found in Firestore or local storage.`;
+    summaryMessage = `Scan complete for '${targetCollection}': No question records were found in Supabase or local storage.`;
   } else if (duplicateTextGroupCount === 0 && duplicateIdCount === 0) {
-    summaryMessage = `Clean Scan! Total ${totalScanned} MCQs checked. Zero duplicate IDs and zero identical question text duplicates found. Import process is not creating duplicate documents in '${targetCollection}'.`;
+    summaryMessage = `Clean Scan! Total ${totalScanned} MCQs checked. Zero duplicate IDs and zero identical question text duplicates found. Import process is not creating duplicate records in '${targetCollection}'.`;
   } else {
     summaryMessage = `Scan Warning! Scanned ${totalScanned} MCQs. Found ${duplicateIdCount} duplicate IDs and ${duplicateTextGroupCount} duplicate question text group(s) containing ${totalDuplicateDocsInGroups} total documents.`;
   }

@@ -191,9 +191,9 @@ export async function fetchRegisteredUsers(lastDoc?: any, pageSize = 50): Promis
 }
 
 /**
- * Get accurate server counts for Admin Dashboard
+ * Get accurate server counts for Admin Dashboard from Supabase profiles table
  */
-export async function fetchFirestoreUserCounts(): Promise<{
+export async function fetchRegisteredUserCounts(): Promise<{
   totalRegistered: number;
   activeUsers: number;
   blockedUsers: number;
@@ -226,6 +226,8 @@ export async function fetchFirestoreUserCounts(): Promise<{
     return { totalRegistered: 0, activeUsers: 0, blockedUsers: 0, adminUsers: 0 };
   }
 }
+
+export const fetchFirestoreUserCounts = fetchRegisteredUserCounts;
 
 export async function findSuspiciousProfiles(): Promise<UserProfile[]> {
   try {

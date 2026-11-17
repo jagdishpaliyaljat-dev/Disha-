@@ -128,7 +128,7 @@ export function runDuplicateAudit(questions: Question[]): DuplicateAuditReport {
 
 /**
  * Safely merges duplicate question groups:
- * Deletes redundant duplicate document IDs from Firestore and removes them from local store.
+ * Deletes redundant duplicate document IDs from Supabase and removes them from local store.
  */
 export async function executeDuplicateMerge(
   groups: DuplicateGroup[],

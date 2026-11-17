@@ -358,7 +358,7 @@ export const SmartArticleImportModal: React.FC<SmartArticleImportModalProps> = (
       } else if (err.code === 'deadline-exceeded') {
         errMsg = "Timeout: The operation took too long. Please check your internet connection and try again.";
       } else if (err.message?.includes("Document size")) {
-        errMsg = "Error: Article content exceeds Firestore size limit. Try removing some blocks or breaking the article into two parts.";
+        errMsg = "Error: Article content exceeds payload size limit. Try removing some blocks or breaking the article into two parts.";
       }
       alert("Failed to save imported article: " + errMsg);
     } finally {

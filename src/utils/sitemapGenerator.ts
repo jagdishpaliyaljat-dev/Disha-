@@ -134,7 +134,7 @@ export async function generateSitemapFromDatabase(): Promise<SitemapGenerationRe
 
   const allArticles = getLocalArticles().filter((a) => !deletedIds.has(a.id));
 
-  // Also merge with local articles if Firestore returns fewer
+  // Also merge with local articles if database returns fewer
   const localArticles = getLocalArticles().filter((a) => !deletedIds.has(a.id));
   const mergedMap = new Map<string, NewsArticle>();
   allArticles.forEach((a) => mergedMap.set(a.id, a));

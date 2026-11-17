@@ -64,7 +64,7 @@ import {
   processJSONImport,
   parseJSONWithLocation,
   commitQuestions,
-  formatFirestoreError,
+  formatDatabaseError,
   undoImportBatch,
   getSampleImportJSON,
   generateQuestionHash,
@@ -1423,7 +1423,7 @@ export const AddQuestionsModal: React.FC<AddQuestionsModalProps> = ({
 
       console.log(`[MCQ Import] [Step: Finished] Successfully committed ${commitResult.committedCount} questions.`);
 
-      // Success confirmed by Firestore! Update local store
+      // Success confirmed by Supabase! Update local store
       try {
         await onImportQuestions(finalQuestions, true);
       } catch (storeErr) {
@@ -1515,7 +1515,7 @@ export const AddQuestionsModal: React.FC<AddQuestionsModalProps> = ({
       setBulkSaveErrorCode(null);
     } catch (err: any) {
       console.error("[MCQ Import] [Step: Finished] Uncaught Error:", err);
-      const formatted = formatFirestoreError(err);
+      const formatted = formatDatabaseError(err);
       setBulkSaveErrorCode(formatted.code);
       setParseError(`Import Failed [${formatted.code}]: ${formatted.message}`);
     } finally {

@@ -51,7 +51,7 @@ import {
   cleanExamName,
   toAsciiYear
 } from "../lib/mcqImport";
-import { commitQuestions, formatFirestoreError, promiseWithTimeout } from "../lib/mcqImport/commit";
+import { commitQuestions, formatDatabaseError, promiseWithTimeout } from "../lib/mcqImport/commit";
 import { loadLocalPYQPapers, fetchPYQPapers, savePYQPaper } from "../utils/pyqStorage";
 import { loadLocalLiveTests, fetchLiveTests, saveLiveTest } from "../utils/liveTestStorage";
 import { loadUserQuestionsStore, saveUserQuestionsStore, getCombinedChapters, getCombinedSubjects, deduplicateQuestions } from "../utils/questionsStorage";
@@ -161,7 +161,7 @@ export const AIImportModal: React.FC<AIImportModalProps> = ({
   const isCommittingRef = useRef<boolean>(false);
 
   // ───────────────────────────────────────────────────────────
-  // CLASSIFICATION & TARGET SELECTION WITH FIRESTORE SYNC
+  // CLASSIFICATION & TARGET SELECTION WITH DATABASE SYNC
   // ───────────────────────────────────────────────────────────
   const [fetchedSubjects, setFetchedSubjects] = useState<Subject[]>(subjects || []);
   const [fetchedChapters, setFetchedChapters] = useState<Chapter[]>(chapters || []);
@@ -1460,13 +1460,13 @@ export const AIImportModal: React.FC<AIImportModalProps> = ({
         const errorMsg = commitResult.error || "Failed to commit questions to database.";
         const code = commitResult.errorCode || "import-failed";
         console.error(`[MCQ Import] [Step: Finished] Commit returned error [${code}]:`, errorMsg);
-        const formatted = formatFirestoreError(new Error(errorMsg));
+        const formatted = formatDatabaseError(new Error(errorMsg));
         setErrorCode(commitResult.errorCode || formatted.code);
         setErrorMessage(formatted.message);
       }
     } catch (err: any) {
       console.error("[MCQ Import] Uncaught error during bulk import:", err);
-      const formatted = formatFirestoreError(err);
+      const formatted = formatDatabaseError(err);
       setErrorCode(formatted.code);
       setErrorMessage(formatted.message);
     } finally {

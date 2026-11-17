@@ -468,7 +468,7 @@ export const BackupRestoreSection: React.FC<BackupRestoreSectionProps> = ({ user
               </span>
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">
-              Full Firestore collections, subcollections, storage assets, and typed disaster recovery
+              Full Supabase PostgreSQL tables, storage assets, and typed disaster recovery
             </p>
           </div>
         </div>
@@ -705,7 +705,7 @@ export const BackupRestoreSection: React.FC<BackupRestoreSectionProps> = ({ user
                 </div>
                 <h3 className="text-base font-black text-slate-900 dark:text-white">Full Application Export</h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                  Export all 56 Firestore collections, subcollections, syllabus hierarchy, and application configuration into a single downloadable ZIP container.
+                  Export database tables, questions repository, syllabus hierarchy, and application configuration into a single downloadable ZIP container.
                 </p>
               </div>
 
@@ -1001,7 +1001,7 @@ export const BackupRestoreSection: React.FC<BackupRestoreSectionProps> = ({ user
                   <div className="text-[10px] font-bold text-blue-500 uppercase">Destination Target</div>
                   <div className="font-black text-slate-900 dark:text-white">{restorePreview.destinationProjectId}</div>
                   <div className="text-slate-500">Database: {restorePreview.destinationDatabaseId}</div>
-                  <div className="text-blue-600 dark:text-blue-400 text-[10px] font-bold">Active Live Firestore Instance</div>
+                  <div className="text-blue-600 dark:text-blue-400 text-[10px] font-bold">Active Live Supabase Instance</div>
                 </div>
               </div>
 

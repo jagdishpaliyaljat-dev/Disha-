@@ -377,12 +377,12 @@ export const ManageQuestionsModal: React.FC<ManageQuestionsModalProps> = ({
     if (!auditReport || auditReport.duplicateGroupCount === 0 || isMergingDuplicates) return;
     try {
       setIsMergingDuplicates(true);
-      setAuditMergeProgress("Merging duplicate records in Firestore...");
+      setAuditMergeProgress("Merging duplicate records in Supabase PostgreSQL...");
       const result = await executeDuplicateMerge(auditReport.groups, (progressText) => {
         setAuditMergeProgress(progressText);
       });
       if (result.success) {
-        showNotification(`Successfully merged ${result.mergedGroupsCount} duplicate group(s) and removed ${result.deletedQuestionIds.length} redundant document(s)!`);
+        showNotification(`Successfully merged ${result.mergedGroupsCount} duplicate group(s) and removed ${result.deletedQuestionIds.length} redundant record(s)!`);
         setShowAuditModal(false);
         setAuditReport(null);
       } else {

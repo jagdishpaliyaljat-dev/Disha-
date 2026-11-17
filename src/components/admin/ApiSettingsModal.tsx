@@ -325,7 +325,7 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({ onClose, onS
           console.warn(`[Admin ApiSettingsModal] Server endpoint returned ${response.status}:`, text);
         }
       } catch (fetchErr) {
-        console.warn("[Admin ApiSettingsModal] Server fetch notice, falling back to direct Firestore SDK:", fetchErr);
+        console.warn("[Admin ApiSettingsModal] Server fetch notice, falling back to local client store:", fetchErr);
       }
 
       // Persist non-secret metadata locally

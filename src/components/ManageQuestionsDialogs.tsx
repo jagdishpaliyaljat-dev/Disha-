@@ -173,7 +173,7 @@ export const MoveQuestionsDialog: React.FC<MoveQuestionsDialogProps> = ({
 
         {questionCount >= 100 && (
           <p className="text-[11px] text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 p-2.5 rounded-xl font-medium">
-            ⚡ Batched Atomic Move: {questionCount} questions will be safely remapped in Firestore in 100-item chunks. Document IDs are preserved with zero duplicates.
+            ⚡ Batched Atomic Move: {questionCount} questions will be safely remapped in Supabase PostgreSQL in 100-item chunks. Record IDs are preserved with zero duplicates.
           </p>
         )}
 

@@ -64,7 +64,7 @@ async function evictStaleVersionedUrls(prefixPath: string, activeUrl: string): P
 
 /**
  * Cache-First fetch helper backed by Service Worker CacheStorage ('static-quiz-data-cache').
- * - Step 1: Check CacheStorage directly for an instant 0-network, 0-Firestore hit.
+ * - Step 1: Check CacheStorage directly for an instant 0-network, 0-database hit.
  * - Step 2: Otherwise perform standard fetch() which the active Service Worker also intercepts
  *   with a Workbox CacheFirst strategy and stores into CacheStorage.
  * - Step 3: Ensure successful HTTP 200 JSON responses are persisted into CacheStorage even before
@@ -288,7 +288,7 @@ export async function fetchLiveTestsAssetCacheFirst(
 }
 
 /**
- * Prewarm static quiz assets in background so repeated visits and tab switches hit SW CacheStorage (0 Firestore reads).
+ * Prewarm static quiz assets in background so repeated visits and tab switches hit SW CacheStorage (0 database reads).
  */
 export async function prewarmStaticQuizAssets(versionMeta?: QuizAssetVersionManifest | null): Promise<void> {
   if (typeof navigator !== 'undefined' && navigator.onLine === false) return;

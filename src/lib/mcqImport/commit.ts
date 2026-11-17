@@ -67,15 +67,17 @@ export function promiseWithTimeout<T>(
   ]);
 }
 
-export function formatFirestoreError(err: any): { message: string; code: string } {
+export function formatDatabaseError(err: any): { message: string; code: string } {
   const code = err?.code || err?.status || "unknown";
   const message = err?.message || "An unexpected error occurred during import.";
   return { message, code: String(code) };
 }
+export const formatFirestoreError = formatDatabaseError;
 
-export function sanitizeFirestorePayload<T = any>(obj: T): T {
+export function sanitizeDatabasePayload<T = any>(obj: T): T {
   return obj;
 }
+export const sanitizeFirestorePayload = sanitizeDatabasePayload;
 
 /**
  * Commits a list of questions using authoritative Supabase PostgreSQL persistence

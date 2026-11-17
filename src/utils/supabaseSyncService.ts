@@ -1461,6 +1461,9 @@ export async function fetchPYQQuestionsFromSupabase(params?: {
     if (params?.year) {
       query = query.eq("year", params.year);
     }
+    if (!params?.exam && !params?.year) {
+      query = query.or("year.not.is.null,exam.not.is.null");
+    }
     const { data, error } = await query.order("created_at", { ascending: false }).limit(200);
     if (error) throw error;
     if (data && data.length > 0) {

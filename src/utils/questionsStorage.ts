@@ -2026,7 +2026,7 @@ export function loadEssentialSyllabusMetadata(): EssentialSyllabusMetadata {
 
 /**
  * Asynchronously fetches and hydrates full question details for a specific topic on-demand.
- * Checks IndexedDB bundle cache first, falling back to Firestore if needed.
+ * Checks IndexedDB bundle cache first, falling back to Supabase if needed.
  */
 export async function fetchTopicQuestionsOnDemand(topicId: string): Promise<Question[]> {
   if (!topicId) return [];

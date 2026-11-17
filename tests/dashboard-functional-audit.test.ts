@@ -10,6 +10,7 @@ import {
   getCombinedQuestions
 } from "../src/utils/questionsStorage";
 import { 
+  fetchRegisteredUserCounts,
   fetchFirestoreUserCounts, 
   fetchUserActivityData, 
   getLocalUsersDirectory 
@@ -183,12 +184,16 @@ describe("DISHA 20-20 — Comprehensive Dashboard Functional Audit & Verificatio
   describe("7. User Statistics & Account Profiles", () => {
     it("7.1 fetches user registration counts from Supabase profiles table", async () => {
       if (!isSupabaseConfigured()) return;
-      const counts = await fetchFirestoreUserCounts();
+      const counts = await fetchRegisteredUserCounts();
       expect(counts).toBeDefined();
       expect(typeof counts.totalRegistered).toBe("number");
       expect(typeof counts.activeUsers).toBe("number");
       expect(typeof counts.blockedUsers).toBe("number");
       expect(typeof counts.adminUsers).toBe("number");
+
+      // Backward compatibility alias test
+      const legacyCounts = await fetchFirestoreUserCounts();
+      expect(legacyCounts).toEqual(counts);
     });
 
     it("7.2 calculates user activity metrics without NaN or undefined errors", async () => {

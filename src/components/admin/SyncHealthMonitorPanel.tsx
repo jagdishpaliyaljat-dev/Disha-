@@ -307,11 +307,11 @@ export const SyncHealthMonitorPanel: React.FC<SyncHealthMonitorPanelProps> = ({
           <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 flex items-center justify-between gap-4">
             <div>
               <p className="text-sm font-black text-slate-900 dark:text-white">Clear Local Client Cache</p>
-              <p className="text-xs text-slate-500 mt-0.5">Force reload questions store from Firestore by wiping stale localStorage cache.</p>
+              <p className="text-xs text-slate-500 mt-0.5">Force reload questions store from Supabase by wiping stale localStorage cache.</p>
             </div>
             <button
               onClick={() => {
-                if (window.confirm("Are you sure you want to clear local cache and re-sync from Firestore?")) {
+                if (window.confirm("Are you sure you want to clear local cache and re-sync from Supabase?")) {
                   localStorage.removeItem("economic_survey_user_questions_v2");
                   window.location.reload();
                 }

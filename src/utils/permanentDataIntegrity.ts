@@ -286,7 +286,7 @@ export async function runGlobalDataIntegrityAudit(): Promise<GlobalDataIntegrity
         chapterId: q.chapterId,
         topicId: q.topicId,
         reason: issue,
-        source: q.id.startsWith("usr-q-") ? "User Custom Import" : "Firestore Document",
+        source: q.id.startsWith("usr-q-") ? "User Custom Import" : "Cloud Database Record",
       });
     }
   });

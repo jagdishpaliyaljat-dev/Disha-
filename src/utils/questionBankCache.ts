@@ -89,7 +89,7 @@ export interface CacheMetadata {
   itemCount: number;
   version?: number;
   topicId?: string;
-  source: "initial" | "sync" | "firestore" | "user";
+  source: "initial" | "sync" | "supabase" | "firestore" | "user";
 }
 
 export interface QuestionBankStats {
@@ -187,7 +187,7 @@ export function deduplicateQuestionsList(questions: Question[]): Question[] {
  */
 export async function saveQuestionsToCache(
   questions: Question[],
-  context?: { topicId?: string; chapterId?: string; subjectId?: string; source?: "initial" | "sync" | "firestore" | "user" }
+  context?: { topicId?: string; chapterId?: string; subjectId?: string; source?: "initial" | "sync" | "supabase" | "firestore" | "user" }
 ): Promise<void> {
   if (!Array.isArray(questions) || questions.length === 0) return;
 
@@ -404,7 +404,7 @@ export async function fetchQuestionsCacheFirst(
         if (typeof navigator !== "undefined" && navigator.onLine && options?.remoteFetcher) {
           options.remoteFetcher("all").then((remoteQs) => {
             if (Array.isArray(remoteQs) && remoteQs.length > 0) {
-              saveQuestionsToCache(remoteQs, { topicId: "all", source: "firestore" }).catch(() => {});
+              saveQuestionsToCache(remoteQs, { topicId: "all", source: "supabase" }).catch(() => {});
             }
           }).catch(() => {});
         }
@@ -420,7 +420,7 @@ export async function fetchQuestionsCacheFirst(
         if (typeof navigator !== "undefined" && navigator.onLine && options?.remoteFetcher) {
           options.remoteFetcher(topicId).then((remoteQs) => {
             if (Array.isArray(remoteQs) && remoteQs.length > 0) {
-              saveQuestionsToCache(remoteQs, { topicId, source: "firestore" }).catch(() => {});
+              saveQuestionsToCache(remoteQs, { topicId, source: "supabase" }).catch(() => {});
             }
           }).catch(() => {});
         }

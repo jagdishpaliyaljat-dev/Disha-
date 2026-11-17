@@ -133,16 +133,17 @@ export const AIApiManagementSection: React.FC = () => {
         console.warn("[AIApiManagement] Server fetch configs notice:", err);
       }
 
-      // Query Firestore client SDK to sync metadata (keys are stored encrypted on backend)
+      // Query local/client storage to sync metadata (keys are stored encrypted on backend)
       let mergedConfigs = [...serverConfigs];
       try {
-        const querySnapshot = await getDocs(collection(db, "ai_api_configs"));
-        querySnapshot.forEach(docSnap => {
-          const d = docSnap.data();
-          const existingIdx = mergedConfigs.findIndex(c => c.id === docSnap.id);
+        const raw = localStorage.getItem("disha2020_ai_api_configs_v1") || localStorage.getItem("quizpro_ai_api_configs_v1") || "{}";
+        const localMap = JSON.parse(raw);
+        Object.values(localMap).forEach((d: any) => {
+          if (!d || !d.id) return;
+          const existingIdx = mergedConfigs.findIndex(c => c.id === d.id);
           if (existingIdx === -1) {
             mergedConfigs.push({
-              id: docSnap.id,
+              id: d.id,
               name: d.name || "AI Key",
               provider: (d.provider as AIProvider) || "gemini",
               apiKey: "•••••••••••••",
@@ -150,13 +151,13 @@ export const AIApiManagementSection: React.FC = () => {
               enabled: d.enabled ?? true,
               priority: d.priority || (mergedConfigs.length + 1),
               status: "available",
-              isSystem: docSnap.id === "system-gemini",
+              isSystem: d.id === "system-gemini",
               createdAt: d.createdAt || d.updatedAt,
             });
           }
         });
-      } catch (fsErr) {
-        console.warn("[AIApiManagement] Firestore client fetch notice:", fsErr);
+      } catch (clientErr) {
+        console.warn("[AIApiManagement] Client configs read notice:", clientErr);
       }
 
       setConfigs(mergedConfigs);
