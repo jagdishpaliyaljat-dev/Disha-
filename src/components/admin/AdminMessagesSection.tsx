@@ -18,20 +18,10 @@ import {
   Inbox
 } from "lucide-react";
 
-interface ContactMessage {
-  id: string;
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
-  createdAt: any;
-  createdIso?: string;
-  statusText?: string;
-  status: "new" | "read" | "replied" | "archived";
-}
+import { loadContactMessages, saveContactMessages, type ContactMessage } from "../../utils/contactStorage";
 
+// Backwards-compatible aliases kept for any external references.
 const MESSAGES_STORAGE_KEY = "disha2020_contact_messages_v1";
-const LEGACY_MESSAGES_STORAGE_KEY = "quizpro_contact_messages_v1";
 
 export const AdminMessagesSection: React.FC<{ onBackToAdmin?: () => void }> = ({ onBackToAdmin }) => {
   const [messages, setMessages] = React.useState<ContactMessage[]>([]);
@@ -47,8 +37,7 @@ export const AdminMessagesSection: React.FC<{ onBackToAdmin?: () => void }> = ({
     else setLoading(true);
 
     try {
-      const raw = localStorage.getItem(MESSAGES_STORAGE_KEY) || localStorage.getItem(LEGACY_MESSAGES_STORAGE_KEY);
-      const msgs = raw ? JSON.parse(raw) : [];
+      const msgs = loadContactMessages();
       setMessages(msgs);
     } catch (err) {
       console.error("Failed to fetch messages:", err);
@@ -69,7 +58,7 @@ export const AdminMessagesSection: React.FC<{ onBackToAdmin?: () => void }> = ({
       const updated = messages.filter(m => m.id !== id);
       setMessages(updated);
       try {
-        localStorage.setItem(MESSAGES_STORAGE_KEY, JSON.stringify(updated));
+        saveContactMessages(updated);
       } catch {}
       if (selectedMessage?.id === id) setSelectedMessage(null);
     } catch (err) {
@@ -85,7 +74,7 @@ export const AdminMessagesSection: React.FC<{ onBackToAdmin?: () => void }> = ({
       const updated = messages.map(m => m.id === id ? { ...m, status: newStatus } : m);
       setMessages(updated);
       try {
-        localStorage.setItem(MESSAGES_STORAGE_KEY, JSON.stringify(updated));
+        saveContactMessages(updated);
       } catch {}
       if (selectedMessage?.id === id) setSelectedMessage({ ...selectedMessage, status: newStatus });
     } catch (err) {

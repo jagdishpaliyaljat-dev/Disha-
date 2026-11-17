@@ -18,6 +18,7 @@ import {
   Globe,
 } from "lucide-react";
 import { AppLogo } from "./AppLogo";
+import { submitContactMessage } from "../utils/contactStorage";
 
 interface ContactUsPageProps {
   onNavigateHome: () => void;
@@ -188,24 +189,16 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
     setSubmitError(null);
 
     try {
-      const response = await fetch("/api/contact", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: fullName.trim(),
-          email: email.trim(),
-          subject: subject,
-          message: message.trim(),
-        }),
+      const result = await submitContactMessage({
+        name: fullName.trim(),
+        email: email.trim(),
+        subject: subject,
+        message: message.trim(),
       });
 
-      const data = await response.json();
-
-      if (response.ok && data.success) {
+      if (result.success) {
         setSubmitSuccess(true);
-        // Clear fields on genuine success
+        // Clear fields only after confirmed successful persistence
         setFullName("");
         setEmail("");
         setSubject("");
@@ -213,16 +206,17 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
         setTouched({});
         setErrors({});
       } else {
-        // Submission failed - preserve user's entered info and show exact error message
-        setSubmitError(
-          "We couldn't submit your message right now. Please check your connection and try again."
-        );
+        // Preserve entered values on failure and show the real reason
+        setSubmitError(result.message);
       }
     } catch (err) {
-      // Submission network failure - preserve user's entered info and show exact error message
+      // Unexpected failure - preserve entered values
       setSubmitError(
-        "We couldn't submit your message right now. Please check your connection and try again."
+        "We couldn't submit your message right now. Please try again in a moment."
       );
+      if (import.meta.env.DEV) {
+        console.error("Contact submission unexpected error:", err);
+      }
     } finally {
       setIsSubmitting(false);
     }
