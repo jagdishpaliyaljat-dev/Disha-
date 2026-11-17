@@ -85,6 +85,7 @@ interface AdminTabProps {
   onShowManageLiveTests?: () => void;
   onShowManageExamCategories: () => void;
   onShowManageBanners?: () => void;
+  onExitAdmin?: () => void;
   onDeleteSubject?: (subjectId: string) => Promise<void>;
   onDeleteChapter?: (chapterId: string) => Promise<void>;
   onBulkDeleteQuestions?: (questionIds: string[]) => Promise<void> | void;
@@ -1027,7 +1028,9 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
             <button
               onClick={() => {
                 setIsSidebarOpen(false);
-                if (typeof window !== "undefined") {
+                if (props.onExitAdmin) {
+                  props.onExitAdmin();
+                } else if (typeof window !== "undefined") {
                   window.location.href = "/";
                 }
               }}

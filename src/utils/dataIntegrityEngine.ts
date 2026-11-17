@@ -281,11 +281,10 @@ export function resolveCanonicalForeignKeys(
 
     if (targetChapter) {
       if (!targetTopic) {
-        // Prefer 'General Practice' topic inside targetChapter if available, otherwise first topic
+        // Match existing topic in targetChapter by q.topicId, otherwise take first available topic
         targetTopic =
-          (targetChapter.topics || []).find((t) =>
-            (t.title || "").toLowerCase().includes("general")
-          ) || (targetChapter.topics || [])[0];
+          (targetChapter.topics || []).find((t) => t.id === q.topicId) ||
+          (targetChapter.topics || [])[0];
       }
 
       if (targetTopic) {

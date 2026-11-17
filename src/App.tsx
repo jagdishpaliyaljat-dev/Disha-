@@ -676,7 +676,12 @@ export default function App() {
           setUserProfile(profile);
           setIsAuthenticated(true);
           saveProfile(profile);
-          if (isAdminUser) {
+          // Only force admin view on (re)login when the admin hasn't explicitly
+          // chosen to browse the student app. This keeps "Return to Student App"
+          // from being overridden by the session restore redirect.
+          let preferStudentView = false;
+          try { preferStudentView = sessionStorage.getItem("disha_admin_view_mode") === "student"; } catch {}
+          if (isAdminUser && !preferStudentView) {
             setActiveTab("admin");
           }
           setIsLoginOpen(false);
@@ -892,6 +897,7 @@ export default function App() {
     } catch {}
     const { clearUserProfile } = await import('./utils/userProfileStorage');
     clearUserProfile();
+    try { sessionStorage.removeItem("disha_admin_view_mode"); } catch {}
     setUserProfile(null);
     setIsAuthenticated(false);
     setActiveTab('home');
@@ -1089,6 +1095,12 @@ export default function App() {
       setIsExamAnalyzerOpen(true);
       return;
     }
+    // Remember whether the admin is operating in the admin console or browsing
+    // the student app, so a page refresh doesn't yank them back unexpectedly.
+    try {
+      if (tab === 'admin') sessionStorage.setItem("disha_admin_view_mode", "admin");
+      else sessionStorage.setItem("disha_admin_view_mode", "student");
+    } catch {}
     if (tab !== activeTab) {
       setSelectedArticleSlug(null);
       setSelectedSubjectId(null);
@@ -1405,6 +1417,10 @@ export default function App() {
               onShowManageExamCategories={() => setIsManageCategoriesOpen(true)}
               onBulkDeleteQuestions={(ids: string[]) => handleBulkDeleteQuestions(ids)}
               onLogout={handleLogout}
+              onExitAdmin={() => {
+                try { sessionStorage.setItem("disha_admin_view_mode", "student"); } catch {}
+                setActiveTab('home');
+              }}
             />
           </AdminErrorBoundary>
         )}
