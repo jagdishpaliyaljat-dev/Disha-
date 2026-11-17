@@ -117,6 +117,8 @@ export function isTestOrMockId(id?: string | null): boolean {
     trimmed.startsWith("dummy_") ||
     trimmed.startsWith("DUMMY_") ||
     trimmed.startsWith("sample_") ||
+    trimmed.startsWith("reg_test_") ||
+    trimmed.startsWith("reg_") ||
     trimmed.startsWith("usr-q-custom-topic-1794149994193-jxf0o-") ||
     trimmed.startsWith("usr-q-gen-") ||
     trimmed.startsWith("cet_q") ||

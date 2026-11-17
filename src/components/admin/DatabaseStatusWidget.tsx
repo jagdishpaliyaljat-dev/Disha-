@@ -43,8 +43,8 @@ export const DatabaseStatusWidget: React.FC<DatabaseStatusWidgetProps> = ({
           supabase.from("subjects").select("*", { count: "exact", head: true }),
           supabase.from("chapters").select("*", { count: "exact", head: true }),
           supabase.from("topics").select("*", { count: "exact", head: true }),
-          supabase.from("questions").select("*", { count: "exact", head: true }),
-          supabase.from("questions").select("*", { count: "exact", head: true }).not("year", "is", null),
+          supabase.from("questions").select("*", { count: "exact", head: true }).not("topic_id", "is", null),
+          supabase.from("questions").select("*", { count: "exact", head: true }).not("year", "is", null).not("topic_id", "is", null),
         ]);
 
         const getCount = (res: PromiseSettledResult<any>) => {
