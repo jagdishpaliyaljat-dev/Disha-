@@ -18,6 +18,7 @@ import { motion } from "motion/react";
 
 interface AddSubjectModalProps {
   existingSubjectsCount: number;
+  existingSubjects?: Subject[];
   onAddSubject: (newSubject: Subject) => void;
   onClose: () => void;
 }
@@ -47,6 +48,7 @@ const AVAILABLE_COLORS = [
 
 export const AddSubjectModal: React.FC<AddSubjectModalProps> = ({
   existingSubjectsCount,
+  existingSubjects = [],
   onAddSubject,
   onClose,
 }) => {
@@ -60,15 +62,28 @@ export const AddSubjectModal: React.FC<AddSubjectModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() && !hindiName.trim()) {
+    const cleanName = name.trim();
+    const cleanHindi = hindiName.trim();
+
+    if (!cleanName && !cleanHindi) {
       setError("Please enter a subject title");
       return;
     }
 
+    if (existingSubjects && existingSubjects.length > 0) {
+      const isDuplicate = existingSubjects.some((s) => {
+        const matchName = cleanName && s.name && s.name.trim().toLowerCase() === cleanName.toLowerCase();
+        const matchHindi = cleanHindi && s.hindiName && s.hindiName.trim().toLowerCase() === cleanHindi.toLowerCase();
+        return matchName || matchHindi;
+      });
+      if (isDuplicate) {
+        setError(`A subject with the name "${cleanHindi || cleanName}" already exists. Duplicate subjects are not allowed.`);
+        return;
+      }
+    }
+
     setIsLoading(true);
     const subjectId = `subj-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
-    const cleanName = name.trim();
-    const cleanHindi = hindiName.trim();
     const newSubject: Subject = {
       id: subjectId,
       name: cleanName || cleanHindi,

@@ -21,11 +21,11 @@ import {
   ArrowUpRight
 } from "lucide-react";
 import { UserProfile, AppBanner, UserQuestionsStore } from "../../types";
-import { fetchRegisteredUsers, getLocalUsersDirectory } from "../../utils/userManagementStorage";
+import { fetchRegisteredUsers, getLocalUsersDirectory, fetchFirestoreUserCounts } from "../../utils/userManagementStorage";
 import { fetchAllBanners, getLocalBanners } from "../../utils/bannerStorage";
 import { supabase, isSupabaseConfigured } from "../../lib/supabase";
 import { RecentActivityWidget } from "./RecentActivityWidget";
-import { DatabaseStatusWidget } from "./DatabaseStatusWidget";
+import { DatabaseStatusWidget, DatabaseInventoryCounts } from "./DatabaseStatusWidget";
 import { AuditLogWidget } from "./AuditLogWidget";
 import { ExportDataWidget } from "./ExportDataWidget";
 import { QuickActionsWidget } from "./QuickActionsWidget";
@@ -49,6 +49,9 @@ export const AdminDashboardSection: React.FC<AdminDashboardSectionProps> = ({
   const cachedBanners = getLocalBanners();
   const [users, setUsers] = React.useState<UserProfile[]>(() => cachedUsers);
   const [banners, setBanners] = React.useState<AppBanner[]>(() => cachedBanners);
+  const [totalUserCount, setTotalUserCount] = React.useState<number>(() => cachedUsers.length);
+  const [databaseCounts, setDatabaseCounts] = React.useState<DatabaseInventoryCounts | null>(null);
+  const [refreshTrigger, setRefreshTrigger] = React.useState<number>(0);
   const [loading, setLoading] = React.useState(() => cachedUsers.length === 0 && cachedBanners.length === 0);
   const [refreshing, setRefreshing] = React.useState(false);
   const [healthStatus, setHealthStatus] = React.useState<{ success: boolean; latencyMs: number; error?: string } | null>(null);
@@ -58,20 +61,25 @@ export const AdminDashboardSection: React.FC<AdminDashboardSectionProps> = ({
   const loadData = async (isManual = false) => {
     if (isManual) {
       setRefreshing(true);
+      setRefreshTrigger((prev) => prev + 1);
     } else if (users.length === 0 && banners.length === 0) {
       setLoading(true);
     }
 
     try {
-      const [usersRes, bannersRes] = await Promise.allSettled([
+      const [usersRes, bannersRes, userCountsRes] = await Promise.allSettled([
         fetchRegisteredUsers(),
         fetchAllBanners(),
+        fetchFirestoreUserCounts(),
       ]);
       if (usersRes.status === "fulfilled") {
         setUsers(usersRes.value.users);
       }
       if (bannersRes.status === "fulfilled") {
         setBanners(bannersRes.value);
+      }
+      if (userCountsRes.status === "fulfilled" && userCountsRes.value.totalRegistered > 0) {
+        setTotalUserCount(userCountsRes.value.totalRegistered);
       }
     } catch (err) {
       console.warn("Failed to load dashboard metrics", err);
@@ -107,14 +115,16 @@ export const AdminDashboardSection: React.FC<AdminDashboardSectionProps> = ({
     loadData();
   }, []);
 
-  const totalQuestions = React.useMemo(() => getTotalDisplayCount(questionsStore), [questionsStore]);
+  const storeQuestionCount = React.useMemo(() => getTotalDisplayCount(questionsStore), [questionsStore]);
+  const effectiveQuestionCount = Math.max(storeQuestionCount, databaseCounts?.mcqs ?? 0);
+  const effectiveUserCount = Math.max(users.length, totalUserCount);
   const activeBannersCount = React.useMemo(() => banners.filter(b => b.status === "active").length, [banners]);
   const recentUsers = React.useMemo(() => users.slice(0, 5), [users]);
 
   const quickMetricCards = [
     {
       label: "Question Bank",
-      val: totalQuestions.toLocaleString(),
+      val: effectiveQuestionCount.toLocaleString(),
       desc: "Canonical MCQs available",
       icon: Database,
       action: () => onNavigateSection("curriculum"),
@@ -122,7 +132,7 @@ export const AdminDashboardSection: React.FC<AdminDashboardSectionProps> = ({
     },
     {
       label: "Registered Students",
-      val: users.length.toLocaleString(),
+      val: effectiveUserCount.toLocaleString(),
       desc: "Directory profiles",
       icon: Users,
       action: () => onNavigateSection("users"),
@@ -243,12 +253,12 @@ export const AdminDashboardSection: React.FC<AdminDashboardSectionProps> = ({
             </div>
           </div>
 
-          <DatabaseStatusWidget />
-          <QuickActionsWidget onRefresh={() => loadData(true)} onHealthCheck={checkHealth} />
+          <DatabaseStatusWidget refreshTrigger={refreshTrigger} onCountsLoaded={setDatabaseCounts} />
+          <QuickActionsWidget onRefresh={() => loadData(true)} onHealthCheck={checkHealth} isRefreshing={refreshing} />
         </div>
 
         <div className="lg:col-span-4 space-y-6">
-          <RecentActivityWidget />
+          <RecentActivityWidget refreshTrigger={refreshTrigger} />
           <AuditLogWidget />
           <ExportDataWidget questionsStore={questionsStore} />
           

@@ -1632,6 +1632,35 @@ export function getTotalDisplayCount(store?: UserQuestionsStore): number {
   return getReconciledCurriculumCounts(store).totalQuestions;
 }
 
+// Helper to add chapter
+export function addChapter(store: UserQuestionsStore, chapter: Chapter): UserQuestionsStore {
+  const normTitle = (chapter.title || (chapter as any).name || "").trim();
+  const normHindi = (chapter.hindiTitle || normTitle).trim();
+  const harmonizedChapter: Chapter = {
+    ...chapter,
+    title: normTitle || normHindi || "Untitled Chapter",
+    hindiTitle: normHindi || normTitle || "Untitled Chapter",
+    isUserAdded: true,
+  };
+
+  const cleanDeleted = (store.deletedChapterIds || []).filter(id => id !== chapter.id);
+  const remaining = (store.customChapters || []).filter(c => c.id !== chapter.id);
+
+  const updatedStore: UserQuestionsStore = {
+    ...store,
+    customChapters: [...remaining, harmonizedChapter],
+    deletedChapterIds: cleanDeleted,
+  };
+
+  saveCachedCurriculum(
+    updatedStore.customSubjects || [],
+    updatedStore.customChapters || [],
+    updatedStore.customTopics || []
+  ).catch(() => {});
+
+  return updatedStore;
+}
+
 // Helper to mark chapter for deletion
 export function deleteChapter(store: UserQuestionsStore, chapterId: string): UserQuestionsStore {
   const newDeleted = new Set(store.deletedChapterIds || []);

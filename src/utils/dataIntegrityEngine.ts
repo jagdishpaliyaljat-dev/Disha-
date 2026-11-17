@@ -163,12 +163,50 @@ export function resolveCanonicalForeignKeys(
   const reconciledQuestions = (questions || []).map((q) => {
     if (!q) return q;
 
+    // 0. Canonical pilot dataset deterministic mapping (q_pilot_001 to q_pilot_010)
+    if (q.id && q.id.startsWith("q_pilot_")) {
+      const pilotMapping: Record<string, { subjectId: string; chapterId: string; topicId: string }> = {
+        q_pilot_001: { subjectId: "sub_raj_hist", chapterId: "chap_raj_sources", topicId: "top_inscriptions" },
+        q_pilot_002: { subjectId: "sub_raj_hist", chapterId: "chap_raj_sources", topicId: "top_inscriptions" },
+        q_pilot_003: { subjectId: "sub_raj_hist", chapterId: "chap_raj_sources", topicId: "top_coins" },
+        q_pilot_004: { subjectId: "sub_raj_hist", chapterId: "chap_raj_sources", topicId: "top_coins" },
+        q_pilot_005: { subjectId: "sub_raj_hist", chapterId: "chap_raj_sources", topicId: "top_inscriptions" },
+        q_pilot_006: { subjectId: "sub_raj_hist", chapterId: "chap_raj_1857", topicId: "top_cantonments" },
+        q_pilot_007: { subjectId: "sub_raj_hist", chapterId: "chap_raj_1857", topicId: "top_cantonments" },
+        q_pilot_008: { subjectId: "sub_raj_hist", chapterId: "chap_raj_1857", topicId: "top_auwa" },
+        q_pilot_009: { subjectId: "sub_raj_hist", chapterId: "chap_raj_1857", topicId: "top_auwa" },
+        q_pilot_010: { subjectId: "sub_raj_hist", chapterId: "chap_raj_1857", topicId: "top_auwa" },
+      };
+
+      const pm = pilotMapping[q.id];
+      if (pm) {
+        resolvedOrphans.push({
+          id: q.id,
+          originalSubjectId: q.subjectId,
+          originalChapterId: q.chapterId,
+          originalTopicId: q.topicId,
+          resolvedSubjectId: pm.subjectId,
+          resolvedChapterId: pm.chapterId,
+          resolvedTopicId: pm.topicId,
+          resolvedChapterTitle: pm.chapterId === "chap_raj_sources" ? "Historical Sources & Inscriptions" : "Revolt of 1857 in Rajasthan",
+          resolvedTopicTitle: pm.topicId,
+        });
+
+        return {
+          ...q,
+          subjectId: pm.subjectId,
+          chapterId: pm.chapterId,
+          topicId: pm.topicId,
+        };
+      }
+    }
+
     // 1. Check if q.topicId directly matches an existing canonical topic
     if (q.topicId) {
       const match = topicMap.get(q.topicId) || topicMap.get(q.topicId.toLowerCase());
       if (match) {
         const canonicalChapter = match.chapter;
-        const canonicalSubjectId = canonicalChapter.subjectId || q.subjectId || subjects[0]?.id || "economics";
+        const canonicalSubjectId = canonicalChapter.subjectId || q.subjectId || subjects[0]?.id || "sub_raj_hist";
         if (
           q.topicId === match.topic.id &&
           q.chapterId === canonicalChapter.id &&
@@ -251,7 +289,7 @@ export function resolveCanonicalForeignKeys(
       }
 
       if (targetTopic) {
-        const resolvedSubId = targetChapter.subjectId || subjects[0]?.id || "economics";
+        const resolvedSubId = targetChapter.subjectId || subjects[0]?.id || "sub_raj_hist";
         resolvedOrphans.push({
           id: q.id,
           originalSubjectId: q.subjectId,

@@ -20,20 +20,20 @@ export const AddChapterModal: React.FC<AddChapterModalProps> = ({
 }) => {
   const normalizedSubjects = useMemo(() => {
     if (subjects && subjects.length > 0) return subjects;
-    return [{ id: "economics", name: "Economics", hindiName: "अर्थव्यवस्था" }];
+    return [{ id: "sub_raj_hist", name: "Rajasthan History", hindiName: "राजस्थान का इतिहास" }];
   }, [subjects]);
 
-  const [subjectId, setSubjectId] = useState<string>(initialSubjectId || normalizedSubjects[0]?.id || "economics");
+  const [subjectId, setSubjectId] = useState<string>(initialSubjectId || normalizedSubjects[0]?.id || "sub_raj_hist");
 
   const nextNum = useMemo(() => {
-    const subjChapters = chapters.filter(c => (c.subjectId || "economics") === subjectId);
+    const subjChapters = chapters.filter(c => (c.subjectId || "sub_raj_hist") === subjectId);
     return subjChapters.length + 1;
   }, [chapters, subjectId]);
 
   const [chapterNumber, setChapterNumber] = useState<number>(nextNum);
 
   useEffect(() => {
-    const subjChapters = chapters.filter(c => (c.subjectId || "economics") === subjectId);
+    const subjChapters = chapters.filter(c => (c.subjectId || "sub_raj_hist") === subjectId);
     setChapterNumber(subjChapters.length + 1);
   }, [subjectId, chapters]);
   const [title, setTitle] = useState("");
@@ -42,8 +42,23 @@ export const AddChapterModal: React.FC<AddChapterModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim()) {
+    const cleanTitle = title.trim();
+    const cleanHindiTitle = hindiTitle.trim();
+    if (!cleanTitle && !cleanHindiTitle) {
       setError("Please enter a chapter title");
+      return;
+    }
+
+    const targetSubjId = subjectId || normalizedSubjects[0]?.id || "sub_raj_hist";
+    const isDuplicate = chapters.some(
+      (c) =>
+        (c.subjectId || "sub_raj_hist") === targetSubjId &&
+        ((cleanTitle && c.title && c.title.trim().toLowerCase() === cleanTitle.toLowerCase()) ||
+         (cleanHindiTitle && c.hindiTitle && c.hindiTitle.trim().toLowerCase() === cleanHindiTitle.toLowerCase()))
+    );
+
+    if (isDuplicate) {
+      setError(`Chapter "${cleanHindiTitle || cleanTitle}" already exists in this subject. Duplicate chapters are not allowed.`);
       return;
     }
 
@@ -51,10 +66,10 @@ export const AddChapterModal: React.FC<AddChapterModalProps> = ({
 
     const newChapter: Chapter = {
       id: chapterId,
-      subjectId: subjectId || normalizedSubjects[0]?.id || "economics",
+      subjectId: targetSubjId,
       number: chapterNumber > 0 ? chapterNumber : nextNum,
-      title: title.trim(),
-      hindiTitle: hindiTitle.trim() || title.trim(),
+      title: cleanTitle || cleanHindiTitle,
+      hindiTitle: cleanHindiTitle || cleanTitle,
       topics: [],
       isUserAdded: true,
     };

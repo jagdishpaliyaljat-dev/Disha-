@@ -1664,6 +1664,7 @@ export default function App() {
       {isAddSubjectOpen && (
         <AddSubjectModal
           existingSubjectsCount={combinedSubjects.length}
+          existingSubjects={combinedSubjects}
           onAddSubject={(subject: any) => handleAddSubject(subject)}
           onClose={() => setIsAddSubjectOpen(false)}
         />

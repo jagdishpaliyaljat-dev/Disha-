@@ -129,8 +129,22 @@ export const commitQuestions = async (
   try {
     if (isSupabaseConfigured()) {
       const sbRes = await upsertQuestionsToSupabase(questions);
-      if (!sbRes.success) {
-        throw new Error(sbRes.message || "Failed to upsert questions to Supabase");
+      if (!sbRes.success || !sbRes.cloudSynced) {
+        throw new Error(sbRes.message || "Database write failed: Supabase did not confirm synchronization.");
+      }
+
+      // 2b. Authoritatively verify actual insertion in Supabase database
+      const sampleIds = questions.slice(0, 10).map((q) => q.id);
+      const { data: verifiedRows, error: verifyErr } = await supabase
+        .from("questions")
+        .select("id")
+        .in("id", sampleIds);
+
+      if (verifyErr) {
+        throw new Error(`Supabase verification query failed: ${verifyErr.message}`);
+      }
+      if (!verifiedRows || verifiedRows.length === 0) {
+        throw new Error("Supabase verification failed: inserted questions not found in database.");
       }
     }
   } catch (err: any) {

@@ -36,11 +36,20 @@ export const AddTopicModal: React.FC<AddTopicModalProps> = ({
   onClose,
   onOpenAddChapter,
 }) => {
-  // Normalize subjects list (fallback to Economics if none defined)
+  // Normalize subjects list (derive from existing chapters or fallback to standard subject if none defined)
   const normalizedSubjects = useMemo(() => {
     if (subjects && subjects.length > 0) return subjects;
-    return [{ id: "economics", name: "Economics", hindiName: "अर्थव्यवस्था" }];
-  }, [subjects]);
+    // Attempt to salvage subject info from chapters
+    const derivedSubjIds = Array.from(new Set(chapters.map((c) => c.subjectId).filter(Boolean)));
+    if (derivedSubjIds.length > 0) {
+      return derivedSubjIds.map((id) => ({
+        id: id as string,
+        name: id === "sub_raj_hist" ? "Rajasthan History" : (id as string),
+        hindiName: id === "sub_raj_hist" ? "राजस्थान का इतिहास" : (id as string),
+      }));
+    }
+    return [{ id: "sub_raj_hist", name: "Rajasthan History", hindiName: "राजस्थान का इतिहास" }];
+  }, [subjects, chapters]);
 
   // Determine initial subject and chapter
   const initialChapter = useMemo(() => {
@@ -51,8 +60,12 @@ export const AddTopicModal: React.FC<AddTopicModalProps> = ({
   const defaultSubjectId = useMemo(() => {
     if (initialSubjectId) return initialSubjectId;
     if (initialChapter?.subjectId) return initialChapter.subjectId;
-    return normalizedSubjects[0]?.id || "economics";
-  }, [initialSubjectId, initialChapter, normalizedSubjects]);
+    // Prefer the first subject that actually contains chapters
+    const subjectWithChaps = normalizedSubjects.find((s) =>
+      chapters.some((c) => (c.subjectId || "") === s.id || c.subjectId === s.id)
+    );
+    return subjectWithChaps?.id || normalizedSubjects[0]?.id || "sub_raj_hist";
+  }, [initialSubjectId, initialChapter, normalizedSubjects, chapters]);
 
   // Hierarchical states
   const [selectedSubjectId, setSelectedSubjectId] = useState<string>(defaultSubjectId);
@@ -62,19 +75,60 @@ export const AddTopicModal: React.FC<AddTopicModalProps> = ({
   const availableChapters = useMemo(() => {
     if (!selectedSubjectId) return [];
     return chapters.filter((ch) => {
-      const chSubj = ch.subjectId || "economics";
+      const chSubj = ch.subjectId || "";
       return chSubj === selectedSubjectId || ch.subjectId === selectedSubjectId;
     });
   }, [chapters, selectedSubjectId]);
 
   // Selected chapter state
   const [selectedChapterId, setSelectedChapterId] = useState<string>(() => {
-    if (initialChapterId && availableChapters.some((c) => c.id === initialChapterId)) {
+    if (initialChapterId && chapters.some((c) => c.id === initialChapterId)) {
       return initialChapterId;
     }
     return availableChapters[0]?.id || "";
   });
   const [chapterSearch, setChapterSearch] = useState("");
+
+  // Keep state synchronized whenever incoming props update
+  useEffect(() => {
+    if (initialChapterId) {
+      const targetChap = chapters.find((c) => c.id === initialChapterId);
+      if (targetChap) {
+        setSelectedChapterId(targetChap.id);
+        if (targetChap.subjectId) {
+          setSelectedSubjectId(targetChap.subjectId);
+          return;
+        }
+      }
+    }
+    if (initialSubjectId) {
+      setSelectedSubjectId(initialSubjectId);
+      const chaps = chapters.filter(
+        (c) => (c.subjectId || "") === initialSubjectId || c.subjectId === initialSubjectId
+      );
+      if (chaps.length > 0 && (!selectedChapterId || !chaps.some((c) => c.id === selectedChapterId))) {
+        setSelectedChapterId(chaps[0].id);
+      }
+    } else if (!selectedSubjectId || selectedSubjectId === "economics") {
+      const subWithChapters = normalizedSubjects.find((s) =>
+        chapters.some((c) => (c.subjectId || "") === s.id || c.subjectId === s.id)
+      );
+      if (subWithChapters) {
+        setSelectedSubjectId(subWithChapters.id);
+        const firstCh = chapters.find(
+          (c) => (c.subjectId || "") === subWithChapters.id || c.subjectId === subWithChapters.id
+        );
+        if (firstCh) setSelectedChapterId(firstCh.id);
+      }
+    }
+  }, [initialSubjectId, initialChapterId, chapters, normalizedSubjects]);
+
+  // Ensure chapter ID remains valid within current subject
+  useEffect(() => {
+    if (availableChapters.length > 0 && !availableChapters.some((c) => c.id === selectedChapterId)) {
+      setSelectedChapterId(availableChapters[0].id);
+    }
+  }, [availableChapters, selectedChapterId]);
 
   // Topic form fields
   const [title, setTitle] = useState("");
@@ -102,7 +156,7 @@ export const AddTopicModal: React.FC<AddTopicModalProps> = ({
     
     // Find eligible chapters under new subject
     const newChapters = chapters.filter((ch) => {
-      const chSubj = ch.subjectId || "economics";
+      const chSubj = ch.subjectId || "";
       return chSubj === newSubjectId || ch.subjectId === newSubjectId;
     });
 
@@ -141,8 +195,8 @@ export const AddTopicModal: React.FC<AddTopicModalProps> = ({
   );
 
   const currentChapter = useMemo(
-    () => availableChapters.find((c) => c.id === selectedChapterId) || null,
-    [availableChapters, selectedChapterId]
+    () => availableChapters.find((c) => c.id === selectedChapterId) || chapters.find((c) => c.id === selectedChapterId) || null,
+    [availableChapters, chapters, selectedChapterId]
   );
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -159,8 +213,35 @@ export const AddTopicModal: React.FC<AddTopicModalProps> = ({
       return;
     }
 
-    if (!title.trim()) {
+    const topicTitleTrimmed = title.trim();
+    if (!topicTitleTrimmed) {
       setError("Please enter a Topic Name.");
+      titleInputRef.current?.focus();
+      return;
+    }
+
+    if (topicTitleTrimmed.length < 2) {
+      setError("Topic Name must be at least 2 characters long.");
+      titleInputRef.current?.focus();
+      return;
+    }
+
+    const topicHindiTrimmed = hindiTitle.trim() || topicTitleTrimmed;
+
+    // Duplicate topic prevention within target chapter
+    const existingTopics = currentChapter?.topics || [];
+    const isDuplicate = existingTopics.some((t) => {
+      const tTitle = (t.title || (t as any).name || "").trim().toLowerCase();
+      const tHindi = (t.hindiTitle || (t as any).hindi_name || "").trim().toLowerCase();
+      const candEn = topicTitleTrimmed.toLowerCase();
+      const candHi = topicHindiTrimmed.toLowerCase();
+      return (tTitle && tTitle === candEn) || 
+             (tHindi && tHindi === candHi) || 
+             (tTitle && tTitle === candHi);
+    });
+
+    if (isDuplicate) {
+      setError(`Topic "${topicTitleTrimmed}" already exists in this chapter. Duplicate topics are not allowed.`);
       titleInputRef.current?.focus();
       return;
     }
@@ -168,9 +249,8 @@ export const AddTopicModal: React.FC<AddTopicModalProps> = ({
     setError(null);
     setIsSaving(true);
 
-    const topicTitleTrimmed = title.trim();
-    const topicHindiTrimmed = hindiTitle.trim() || topicTitleTrimmed;
     const topicId = `custom-topic-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
+    const nextNumber = existingTopics.length + 1;
 
     const newTopic: Topic = {
       id: topicId,
@@ -178,6 +258,7 @@ export const AddTopicModal: React.FC<AddTopicModalProps> = ({
       subjectId: selectedSubjectId,
       title: topicTitleTrimmed,
       hindiTitle: topicHindiTrimmed,
+      number: nextNumber,
       questions: [],
       isUserAdded: true,
     };

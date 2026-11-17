@@ -50,6 +50,47 @@ export async function smartJSONImport(
     };
   }
 
+  // 1. Validate schemaVersion if present on root object
+  if (data && typeof data === "object" && !Array.isArray(data)) {
+    if (data.schemaVersion !== undefined) {
+      const vNum = Number(data.schemaVersion);
+      if (isNaN(vNum) || vNum !== 1) {
+        return {
+          success: false,
+          parseError: `Unsupported schemaVersion: expected 1, found ${data.schemaVersion}.`,
+          results: [],
+          summary: { total: 0, valid: 0, recoveredByAI: 0, needsReview: 0, errors: 0, duplicates: 0 },
+          aiRecoveryRequired: false,
+          recoveredCount: 0,
+        };
+      }
+    }
+
+    // 2. Validate questions array if explicitly provided
+    if (data.questions !== undefined) {
+      if (!Array.isArray(data.questions)) {
+        return {
+          success: false,
+          parseError: "'questions' must be an array of questions.",
+          results: [],
+          summary: { total: 0, valid: 0, recoveredByAI: 0, needsReview: 0, errors: 0, duplicates: 0 },
+          aiRecoveryRequired: false,
+          recoveredCount: 0,
+        };
+      }
+      if (data.questions.length === 0) {
+        return {
+          success: false,
+          parseError: "No questions detected in JSON. Please ensure your JSON contains questions or an array of question objects.",
+          results: [],
+          summary: { total: 0, valid: 0, recoveredByAI: 0, needsReview: 0, errors: 0, duplicates: 0 },
+          aiRecoveryRequired: false,
+          recoveredCount: 0,
+        };
+      }
+    }
+  }
+
   // Extract raw questions
   let rawList: any[] = [];
   if (data?.isMultiBlock && Array.isArray(data.blocks)) {
@@ -69,11 +110,12 @@ export async function smartJSONImport(
     };
   }
 
-  // Maximum 25 questions per batch limit guard
-  if (rawList.length > 25) {
+  const limit = options?.maxBatchSize || 25;
+  // Maximum questions per batch limit guard
+  if (rawList.length > limit) {
     return {
       success: false,
-      parseError: `Batch size exceeded: Maximum 25 questions allowed per import batch (found ${rawList.length}). Please split your questions into batches of 25 or fewer.`,
+      parseError: `Batch size exceeded: Maximum ${limit} questions allowed per import batch (found ${rawList.length}). Please split your questions into batches of ${limit} or fewer.`,
       results: [],
       summary: { total: rawList.length, valid: 0, recoveredByAI: 0, needsReview: 0, errors: rawList.length, duplicates: 0 },
       aiRecoveryRequired: false,
@@ -88,7 +130,7 @@ export async function smartJSONImport(
   const initialResults: ValidatedQuestionResult[] = rawList.map((rawQ, idx) => {
     const qNum = idx + 1;
     const normalized = normalizeQuestion(rawQ);
-    const validation = validateQuestion(normalized, qNum);
+    const validation = validateQuestion(normalized, qNum, { curriculum: options.curriculum });
     const hash = generateQuestionHash(normalized);
     const isDbDupe = existingHashes.has(hash);
     const isBatchDupe = !isDbDupe && Boolean(normalized.question?.trim()) && seenBatchHashes.has(hash);

@@ -43,9 +43,18 @@ const SUPPORTED_TYPES = new Set([
  * Validates a single normalized MCQ question (Structural + Semantic Validation).
  * Never defaults missing/invalid answer to 0; returns correctIndex = -1 when missing/invalid.
  */
+export interface QuestionValidationContext {
+  curriculum?: {
+    subjects?: { id: string; name?: string; hindiName?: string }[];
+    chapters?: { id: string; subjectId?: string; title?: string; hindiTitle?: string }[];
+    topics?: { id: string; chapterId?: string; subjectId?: string; title?: string; hindiTitle?: string }[];
+  };
+}
+
 export const validateQuestion = (
   q: MCQImportQuestion,
-  questionNumber: number = 1
+  questionNumber: number = 1,
+  context?: QuestionValidationContext
 ): QuestionValidationResult => {
   const errors: string[] = [];
   const warnings: string[] = [];
@@ -372,6 +381,43 @@ export const validateQuestion = (
         needsReview = true;
       }
     });
+  }
+
+  // 11. Subject, Chapter, Topic Validation
+  if (context?.curriculum) {
+    const { subjects = [], chapters = [], topics = [] } = context.curriculum;
+    if (q.subject && String(q.subject).trim() && subjects.length > 0) {
+      const sLower = String(q.subject).trim().toLowerCase();
+      const matched = subjects.some(
+        (s) => (s.id && s.id.toLowerCase() === sLower) || (s.name && s.name.toLowerCase() === sLower) || (s.hindiName && s.hindiName.toLowerCase() === sLower)
+      );
+      if (!matched) {
+        warnings.push(`Q${questionNumber}: Subject "${q.subject}" could not be mapped to any existing subject in curriculum.`);
+        needsReview = true;
+      }
+    }
+
+    if (q.chapter && String(q.chapter).trim() && chapters.length > 0) {
+      const cLower = String(q.chapter).trim().toLowerCase();
+      const matched = chapters.some(
+        (c) => (c.id && c.id.toLowerCase() === cLower) || (c.title && c.title.toLowerCase() === cLower) || (c.hindiTitle && c.hindiTitle.toLowerCase() === cLower)
+      );
+      if (!matched) {
+        warnings.push(`Q${questionNumber}: Chapter "${q.chapter}" could not be mapped to any existing chapter in curriculum.`);
+        needsReview = true;
+      }
+    }
+
+    if (q.topic && String(q.topic).trim() && topics.length > 0) {
+      const tLower = String(q.topic).trim().toLowerCase();
+      const matched = topics.some(
+        (t) => (t.id && t.id.toLowerCase() === tLower) || (t.title && t.title.toLowerCase() === tLower) || (t.hindiTitle && t.hindiTitle.toLowerCase() === tLower)
+      );
+      if (!matched) {
+        warnings.push(`Q${questionNumber}: Topic "${q.topic}" could not be mapped to any existing topic in curriculum.`);
+        needsReview = true;
+      }
+    }
   }
 
   const isValid = errors.length === 0 && correctIndex >= 0;

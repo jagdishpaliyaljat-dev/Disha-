@@ -4,10 +4,14 @@ import {
   addSubject, 
   editSubject, 
   deleteSubject, 
+  addChapter,
   editChapter, 
   deleteChapter, 
+  addTopic,
   editTopic, 
-  deleteTopic 
+  deleteTopic,
+  getCombinedChapters,
+  getCombinedSubjects
 } from '../utils/questionsStorage';
 import {
   saveSubjectToSupabase,
@@ -95,12 +99,7 @@ export const useCurriculumManager = (
     addToast('info', 'Saving...', 'Saving chapter...');
     const res = await saveChapterToSupabase(chapterToSave);
     if (res.success) {
-      const currentCustom = questionsStore.customChapters || [];
-      const filteredCustom = currentCustom.filter(c => c.id !== chapterToSave.id);
-      const nextStore = {
-        ...questionsStore,
-        customChapters: [...filteredCustom, chapterToSave],
-      };
+      const nextStore = addChapter(questionsStore, chapterToSave);
       setQuestionsStore(nextStore);
       saveUserQuestionsStore(nextStore);
       if (res.cloudSynced) {
@@ -162,46 +161,43 @@ export const useCurriculumManager = (
   }, [questionsStore, setQuestionsStore, saveUserQuestionsStore, addToast]);
 
   const handleAddTopic = useCallback(async (chapterId: string, newTopic: Topic) => {
-    const parentChapter = (questionsStore.customChapters || []).find(ch => ch.id === chapterId);
-    const resolvedSubjectId = newTopic.subjectId || parentChapter?.subjectId;
+    // 1. Resolve parent chapter from combined chapters as well as custom chapters
+    const combinedChaps = getCombinedChapters(questionsStore);
+    const parentChapter = combinedChaps.find(ch => ch.id === chapterId) ||
+                          (questionsStore.customChapters || []).find(ch => ch.id === chapterId);
+
+    // 2. Resolve subject ID cleanly, avoiding fallback to nonexistent "economics"
+    let resolvedSubjectId = newTopic.subjectId || parentChapter?.subjectId;
+    if (!resolvedSubjectId || resolvedSubjectId === "economics") {
+      const activeSubjects = getCombinedSubjects(questionsStore);
+      const validSub = activeSubjects.find(s => s.id !== "economics");
+      resolvedSubjectId = validSub?.id || activeSubjects[0]?.id || "sub_raj_hist";
+    }
+
+    const existingTopics = parentChapter?.topics || [];
+    const assignedNumber = newTopic.number || (existingTopics.length + 1);
+
     const topicWithCh: Topic = {
       ...newTopic,
       chapterId,
       subjectId: resolvedSubjectId,
+      number: assignedNumber,
       isUserAdded: true,
     };
 
     addToast('info', 'Saving...', 'Saving topic...');
     const res = await saveTopicToSupabase(topicWithCh);
     if (res.success) {
-      const currentCustomTopics = questionsStore.customTopics || [];
-      const filteredCustomTopics = currentCustomTopics.filter(t => t.id !== topicWithCh.id);
-
-      const updatedCustomChapters = (questionsStore.customChapters || []).map(ch => {
-        if (ch.id === chapterId) {
-          const existingTopics = ch.topics || [];
-          const filteredTopics = existingTopics.filter(t => t.id !== topicWithCh.id);
-          return {
-            ...ch,
-            topics: [...filteredTopics, topicWithCh],
-          };
-        }
-        return ch;
-      });
-
-      const nextStore = {
-        ...questionsStore,
-        customChapters: updatedCustomChapters,
-        customTopics: [...filteredCustomTopics, topicWithCh],
-      };
+      // Use the canonical addTopic from questionsStorage to guarantee state & IDB consistency
+      const nextStore = addTopic(questionsStore, topicWithCh, chapterId);
       setQuestionsStore(nextStore);
       saveUserQuestionsStore(nextStore);
       if (res.cloudSynced) {
         addToast('success', 'Backend Sync Success', res.message);
         triggerDatabaseSavedToast({
           title: "Topic Saved!",
-          message: `Topic "${newTopic.title || newTopic.hindiTitle}" saved to Supabase and live!`,
-          itemName: newTopic.title,
+          message: `Topic "${topicWithCh.title || topicWithCh.hindiTitle}" saved to Supabase and live!`,
+          itemName: topicWithCh.title,
         });
       } else {
         addToast('info', 'Saved Locally', res.message);
@@ -212,21 +208,29 @@ export const useCurriculumManager = (
   }, [questionsStore, setQuestionsStore, saveUserQuestionsStore, addToast]);
 
   const handleEditTopic = useCallback(async (updatedTopic: Topic, chapterId?: string) => {
+    const combinedChaps = getCombinedChapters(questionsStore);
     const targetChId =
       chapterId ||
       updatedTopic.chapterId ||
       (questionsStore.customTopics || []).find((t) => t.id === updatedTopic.id)?.chapterId ||
-      (questionsStore.customChapters || []).find((ch) =>
+      combinedChaps.find((ch) =>
         (ch.topics || []).some((t) => t.id === updatedTopic.id)
       )?.id || "";
 
-    const parentChapter = (questionsStore.customChapters || []).find(ch => ch.id === targetChId);
-    const resolvedSubjectId = updatedTopic.subjectId || parentChapter?.subjectId;
+    const parentChapter = combinedChaps.find(ch => ch.id === targetChId) ||
+                          (questionsStore.customChapters || []).find(ch => ch.id === targetChId);
+    let resolvedSubjectId = updatedTopic.subjectId || parentChapter?.subjectId;
+    if (!resolvedSubjectId || resolvedSubjectId === "economics") {
+      const activeSubjects = getCombinedSubjects(questionsStore);
+      const validSub = activeSubjects.find(s => s.id !== "economics");
+      resolvedSubjectId = validSub?.id || activeSubjects[0]?.id || "sub_raj_hist";
+    }
 
-    const enrichedTopic = {
+    const enrichedTopic: Topic = {
       ...updatedTopic,
       chapterId: targetChId,
       subjectId: resolvedSubjectId,
+      isUserAdded: true,
     };
 
     addToast('info', 'Saving...', 'Saving topic...');

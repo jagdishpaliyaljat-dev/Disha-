@@ -1,0 +1,552 @@
+{
+  "timestamp": "2026-11-17T01:21:06.283Z",
+  "environment": {
+    "supabaseUrl": "https://eaidivceejkdqsshlraj.supabase.co",
+    "hasAnonKey": true,
+    "anonKeyLength": 46
+  },
+  "sections": {
+    "connection": {
+      "reachable": true,
+      "authEndpointStatus": 200,
+      "restEndpointStatus": 401,
+      "latencyMs": 717,
+      "protocol": "HTTPS (TLS 1.3)",
+      "error": null
+    },
+    "authSession": {
+      "emailSignupEnabled": true,
+      "googleOAuthEnabled": true,
+      "anonymousUsersAllowed": false,
+      "currentSessionPresent": false,
+      "clientPersistSession": true,
+      "clientAutoRefreshToken": true,
+      "clientDetectSessionInUrl": true,
+      "error": null
+    },
+    "rlsPolicies": {
+      "tablesAudited": [
+        "subjects",
+        "chapters",
+        "topics",
+        "questions",
+        "profiles",
+        "attempts",
+        "bookmarks"
+      ],
+      "curriculumPublicSelectActive": true,
+      "privateTablesRowIsolationActive": true,
+      "details": {
+        "subjects": {
+          "accessibleByAnon": true,
+          "rowsReturnedToAnon": 3,
+          "totalCountReported": 3,
+          "errorCode": null,
+          "errorMessage": null
+        },
+        "chapters": {
+          "accessibleByAnon": true,
+          "rowsReturnedToAnon": 3,
+          "totalCountReported": 3,
+          "errorCode": null,
+          "errorMessage": null
+        },
+        "topics": {
+          "accessibleByAnon": true,
+          "rowsReturnedToAnon": 5,
+          "totalCountReported": 5,
+          "errorCode": null,
+          "errorMessage": null
+        },
+        "questions": {
+          "accessibleByAnon": true,
+          "rowsReturnedToAnon": 5,
+          "totalCountReported": 10,
+          "errorCode": null,
+          "errorMessage": null
+        },
+        "profiles": {
+          "accessibleByAnon": true,
+          "rowsReturnedToAnon": 0,
+          "totalCountReported": 0,
+          "errorCode": null,
+          "errorMessage": null
+        },
+        "attempts": {
+          "accessibleByAnon": true,
+          "rowsReturnedToAnon": 0,
+          "totalCountReported": 0,
+          "errorCode": null,
+          "errorMessage": null
+        },
+        "bookmarks": {
+          "accessibleByAnon": true,
+          "rowsReturnedToAnon": 0,
+          "totalCountReported": 0,
+          "errorCode": null,
+          "errorMessage": null
+        }
+      }
+    },
+    "adminRole": {
+      "isAdminFunctionSecure": true,
+      "securityDefinerEnabled": true,
+      "searchPathHardened": true,
+      "checksAppMetadataRole": true,
+      "checksVerifiedAdminEmails": true,
+      "profilePrivilegeEscalationGuardTrigger": true,
+      "authorizedAdminEmails": [
+        "jagdishpaliyaljat@gmail.com",
+        "zdpaliyal@gmail.com"
+      ]
+    },
+    "insertPermissions": {
+      "allUnauthorizedInsertsBlocked": true,
+      "details": {
+        "subjects": {
+          "blocked": true,
+          "code": "42501",
+          "message": "permission denied for table subjects",
+          "status": "VERIFIED_BLOCKED"
+        },
+        "chapters": {
+          "blocked": true,
+          "code": "42501",
+          "message": "permission denied for table chapters",
+          "status": "VERIFIED_BLOCKED"
+        },
+        "topics": {
+          "blocked": true,
+          "code": "42501",
+          "message": "permission denied for table topics",
+          "status": "VERIFIED_BLOCKED"
+        },
+        "questions": {
+          "blocked": true,
+          "code": "42501",
+          "message": "permission denied for table questions",
+          "status": "VERIFIED_BLOCKED"
+        },
+        "profiles": {
+          "blocked": true,
+          "code": "42501",
+          "message": "new row violates row-level security policy for table \"profiles\"",
+          "status": "VERIFIED_BLOCKED"
+        },
+        "attempts": {
+          "blocked": true,
+          "code": "42501",
+          "message": "new row violates row-level security policy for table \"attempts\"",
+          "status": "VERIFIED_BLOCKED"
+        },
+        "bookmarks": {
+          "blocked": true,
+          "code": "42501",
+          "message": "new row violates row-level security policy for table \"bookmarks\"",
+          "status": "VERIFIED_BLOCKED"
+        }
+      }
+    },
+    "updatePermissions": {
+      "allUnauthorizedUpdatesBlocked": true,
+      "details": {
+        "subjects": {
+          "blocked": true,
+          "code": "42501",
+          "message": "permission denied for table subjects",
+          "mechanism": "Table Grant Revoked (42501)"
+        },
+        "chapters": {
+          "blocked": true,
+          "code": "42501",
+          "message": "permission denied for table chapters",
+          "mechanism": "Table Grant Revoked (42501)"
+        },
+        "topics": {
+          "blocked": true,
+          "code": "42501",
+          "message": "permission denied for table topics",
+          "mechanism": "Table Grant Revoked (42501)"
+        },
+        "questions": {
+          "blocked": true,
+          "code": "42501",
+          "message": "permission denied for table questions",
+          "mechanism": "Table Grant Revoked (42501)"
+        },
+        "profiles": {
+          "blocked": true,
+          "code": "RLS_ROW_ISOLATED",
+          "message": "0 rows modified (RLS denies modification)",
+          "mechanism": "RLS Row Level Security (0 rows affected)"
+        },
+        "attempts": {
+          "blocked": true,
+          "code": "RLS_ROW_ISOLATED",
+          "message": "0 rows modified (Attempts are immutable audit logs)",
+          "mechanism": "RLS Row Level Security (0 rows affected)"
+        },
+        "bookmarks": {
+          "blocked": true,
+          "code": "RLS_ROW_ISOLATED",
+          "message": "0 rows modified (RLS denies modification)",
+          "mechanism": "RLS Row Level Security (0 rows affected)"
+        }
+      }
+    },
+    "deletePermissions": {
+      "allUnauthorizedDeletesBlocked": true,
+      "details": {
+        "subjects": {
+          "blocked": true,
+          "code": "42501",
+          "message": "permission denied for table subjects",
+          "mechanism": "Table Grant Revoked (42501)"
+        },
+        "chapters": {
+          "blocked": true,
+          "code": "42501",
+          "message": "permission denied for table chapters",
+          "mechanism": "Table Grant Revoked (42501)"
+        },
+        "topics": {
+          "blocked": true,
+          "code": "42501",
+          "message": "permission denied for table topics",
+          "mechanism": "Table Grant Revoked (42501)"
+        },
+        "questions": {
+          "blocked": true,
+          "code": "42501",
+          "message": "permission denied for table questions",
+          "mechanism": "Table Grant Revoked (42501)"
+        },
+        "profiles": {
+          "blocked": true,
+          "code": "RLS_ROW_ISOLATED",
+          "message": "0 rows deleted (RLS denies delete)",
+          "mechanism": "RLS Row Level Security (0 rows affected)"
+        },
+        "attempts": {
+          "blocked": true,
+          "code": "RLS_ROW_ISOLATED",
+          "message": "0 rows deleted (Attempts cannot be deleted)",
+          "mechanism": "RLS Row Level Security (0 rows affected)"
+        },
+        "bookmarks": {
+          "blocked": true,
+          "code": "RLS_ROW_ISOLATED",
+          "message": "0 rows deleted (RLS denies delete)",
+          "mechanism": "RLS Row Level Security (0 rows affected)"
+        }
+      }
+    },
+    "foreignKeys": {
+      "referentialIntegrityClean": true,
+      "subjectCount": 3,
+      "chapterCount": 3,
+      "topicCount": 5,
+      "questionCount": 10,
+      "brokenChapters": [],
+      "brokenTopicsChapter": [],
+      "brokenTopicsSubject": [],
+      "brokenQuestionSubjects": [],
+      "brokenQuestionChapters": [],
+      "brokenQuestionTopics": [],
+      "foreignKeyRules": [
+        "chapters.subject_id -> subjects.id (ON DELETE CASCADE)",
+        "topics.chapter_id -> chapters.id (ON DELETE CASCADE)",
+        "topics.subject_id -> subjects.id (ON DELETE CASCADE)",
+        "questions.subject_id -> subjects.id (ON DELETE SET NULL)",
+        "questions.chapter_id -> chapters.id (ON DELETE SET NULL)",
+        "questions.topic_id -> topics.id (ON DELETE SET NULL)",
+        "bookmarks.question_id -> questions.id (ON DELETE CASCADE)",
+        "bookmarks.user_id -> auth.users.id (ON DELETE CASCADE)",
+        "attempts.user_id -> auth.users.id (ON DELETE CASCADE)",
+        "profiles.id -> auth.users.id (ON DELETE CASCADE)"
+      ]
+    },
+    "constraints": {
+      "schemaCheckConstraintsDefined": true,
+      "activeConstraintNames": [
+        "chk_questions_options_is_array",
+        "chk_questions_correct_answer_range",
+        "chk_attempts_score_non_negative",
+        "chk_attempts_total_questions_positive",
+        "chk_attempts_time_spent_non_negative"
+      ],
+      "invalidQuestionOptionsCount": 0,
+      "invalidQuestionAnswerRangeCount": 0,
+      "integrityVerified": true
+    },
+    "indexedDbCache": {
+      "databaseName": "disha2020-db-v1",
+      "legacyFallbackSupported": true,
+      "coreStoresConfigured": true,
+      "secondaryIndexesConfigured": true,
+      "localFirstArchitecture": true
+    },
+    "pendingSyncQueue": {
+      "syncQueueEventContractVerified": true,
+      "syncCoordinatorActive": true,
+      "userActivityQueueOutbox": true,
+      "supportsOfflineQueueing": true,
+      "storesPendingMutations": "STORES.SYNC_QUEUE / SNAPSHOT_STORES.PENDING_SYNC_QUEUE"
+    },
+    "retryMechanism": {
+      "exponentialBackoffEnabled": true,
+      "activityRetryCountTracked": true,
+      "onlineAutoRetryTrigger": true,
+      "crossTabLockingSupported": true,
+      "reconnectHandlerVerified": true
+    },
+    "duplicateWrites": {
+      "deterministicIdGenerator": true,
+      "inFlightRequestCoalescing": true,
+      "importDeduplicationService": true,
+      "idempotencyKeyRegistry": true,
+      "databaseUniqueConstraints": true
+    },
+    "offlineHandling": {
+      "useOnlineStatusHook": true,
+      "offlineIndicatorComponent": true,
+      "gracefulServiceFallback": true,
+      "readPathOfflineFunctional": true,
+      "writePathOptimisticWithQueue": true
+    },
+    "dataConsistency": {
+      "totalQuestions": 10,
+      "allQuestionsClean": true,
+      "details": [
+        {
+          "id": "q_pilot_004",
+          "hasText": true,
+          "optionsCount": 4,
+          "validOptions": true,
+          "validAnswer": true,
+          "validHierarchy": true,
+          "isPilotQuestion": true
+        },
+        {
+          "id": "q_pilot_001",
+          "hasText": true,
+          "optionsCount": 4,
+          "validOptions": true,
+          "validAnswer": true,
+          "validHierarchy": true,
+          "isPilotQuestion": true
+        },
+        {
+          "id": "q_pilot_002",
+          "hasText": true,
+          "optionsCount": 4,
+          "validOptions": true,
+          "validAnswer": true,
+          "validHierarchy": true,
+          "isPilotQuestion": true
+        },
+        {
+          "id": "q_pilot_005",
+          "hasText": true,
+          "optionsCount": 4,
+          "validOptions": true,
+          "validAnswer": true,
+          "validHierarchy": true,
+          "isPilotQuestion": true
+        },
+        {
+          "id": "q_pilot_009",
+          "hasText": true,
+          "optionsCount": 5,
+          "validOptions": true,
+          "validAnswer": true,
+          "validHierarchy": true,
+          "isPilotQuestion": true
+        },
+        {
+          "id": "q_pilot_006",
+          "hasText": true,
+          "optionsCount": 5,
+          "validOptions": true,
+          "validAnswer": true,
+          "validHierarchy": true,
+          "isPilotQuestion": true
+        },
+        {
+          "id": "q_pilot_007",
+          "hasText": true,
+          "optionsCount": 5,
+          "validOptions": true,
+          "validAnswer": true,
+          "validHierarchy": true,
+          "isPilotQuestion": true
+        },
+        {
+          "id": "q_pilot_003",
+          "hasText": true,
+          "optionsCount": 4,
+          "validOptions": true,
+          "validAnswer": true,
+          "validHierarchy": true,
+          "isPilotQuestion": true
+        },
+        {
+          "id": "q_pilot_008",
+          "hasText": true,
+          "optionsCount": 5,
+          "validOptions": true,
+          "validAnswer": true,
+          "validHierarchy": true,
+          "isPilotQuestion": true
+        },
+        {
+          "id": "q_pilot_010",
+          "hasText": true,
+          "optionsCount": 5,
+          "validOptions": true,
+          "validAnswer": true,
+          "validHierarchy": true,
+          "isPilotQuestion": true
+        }
+      ]
+    },
+    "adminModules": {
+      "allModulesVerified": true,
+      "modulesCount": 22,
+      "modules": [
+        {
+          "name": "AdminDashboardSection",
+          "path": "src/components/admin/AdminDashboardSection.tsx",
+          "exists": true,
+          "referenced": true
+        },
+        {
+          "name": "AdminAnalyticsDashboard",
+          "path": "src/components/admin/AdminAnalyticsDashboard.tsx",
+          "exists": true,
+          "referenced": true
+        },
+        {
+          "name": "AdminSyllabusSection",
+          "path": "src/components/admin/AdminSyllabusSection.tsx",
+          "exists": true,
+          "referenced": true
+        },
+        {
+          "name": "McqDuplicateScannerWidget",
+          "path": "src/components/admin/McqDuplicateScannerWidget.tsx",
+          "exists": true,
+          "referenced": true
+        },
+        {
+          "name": "AdminNewsSection",
+          "path": "src/components/admin/AdminNewsSectionV2.tsx",
+          "exists": true,
+          "referenced": true
+        },
+        {
+          "name": "AdminBannerManagementSection",
+          "path": "src/components/admin/AdminBannerManagementSection.tsx",
+          "exists": true,
+          "referenced": true
+        },
+        {
+          "name": "AdminUserManagementSection",
+          "path": "src/components/admin/AdminUserManagementSection.tsx",
+          "exists": true,
+          "referenced": true
+        },
+        {
+          "name": "AdminMessagesSection",
+          "path": "src/components/admin/AdminMessagesSection.tsx",
+          "exists": true,
+          "referenced": true
+        },
+        {
+          "name": "AdminNotificationBroadcastSection",
+          "path": "src/components/admin/AdminNotificationBroadcastSection.tsx",
+          "exists": true,
+          "referenced": true
+        },
+        {
+          "name": "SupabaseDataExplorer",
+          "path": "src/components/admin/SupabaseDataExplorer.tsx",
+          "exists": true,
+          "referenced": true
+        },
+        {
+          "name": "SupabaseAuditConsole",
+          "path": "src/components/admin/SupabaseAuditConsole.tsx",
+          "exists": true,
+          "referenced": true
+        },
+        {
+          "name": "ProductionStabilityPanel",
+          "path": "src/components/admin/ProductionStabilityPanel.tsx",
+          "exists": true,
+          "referenced": true
+        },
+        {
+          "name": "SupabaseHealthPanel",
+          "path": "src/components/admin/SupabaseHealthPanel.tsx",
+          "exists": true,
+          "referenced": true
+        },
+        {
+          "name": "SyncHealthMonitorPanel",
+          "path": "src/components/admin/SyncHealthMonitorPanel.tsx",
+          "exists": true,
+          "referenced": true
+        },
+        {
+          "name": "AdminDiagnosticsSection",
+          "path": "src/components/admin/AdminDiagnosticsSection.tsx",
+          "exists": true,
+          "referenced": true
+        },
+        {
+          "name": "DiagnosticReport",
+          "path": "src/components/admin/DiagnosticReport.tsx",
+          "exists": true,
+          "referenced": true
+        },
+        {
+          "name": "AIApiManagementSection",
+          "path": "src/components/admin/AIApiManagementSection.tsx",
+          "exists": true,
+          "referenced": true
+        },
+        {
+          "name": "ExportDataWidget",
+          "path": "src/components/admin/ExportDataWidget.tsx",
+          "exists": true,
+          "referenced": true
+        },
+        {
+          "name": "BackupRestoreSection",
+          "path": "src/components/admin/BackupRestoreSection.tsx",
+          "exists": true,
+          "referenced": true
+        },
+        {
+          "name": "ExcelCsvQuestionImporter",
+          "path": "src/components/admin/ExcelCsvQuestionImporter.tsx",
+          "exists": true,
+          "referenced": true
+        },
+        {
+          "name": "BulkQuestionDeleteModal",
+          "path": "src/components/admin/BulkQuestionDeleteModal.tsx",
+          "exists": true,
+          "referenced": true
+        },
+        {
+          "name": "QuestionReportDesk",
+          "path": "src/components/admin/QuestionReportDesk.tsx",
+          "exists": true,
+          "referenced": true
+        }
+      ]
+    }
+  }
+}

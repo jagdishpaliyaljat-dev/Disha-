@@ -13,6 +13,90 @@ export * from "./smartImport";
 export * from "./examDetector";
 
 /**
+ * Safely escapes unescaped control characters (literal newlines, carriage returns, tabs)
+ * inside string literals to ensure valid RFC 8259 JSON compliance.
+ */
+export function escapeControlCharsInStrings(jsonStr: string): string {
+  if (!jsonStr) return "";
+  let result = "";
+  let inString = false;
+  let escape = false;
+
+  for (let i = 0; i < jsonStr.length; i++) {
+    const ch = jsonStr[i];
+    if (escape) {
+      result += ch;
+      escape = false;
+      continue;
+    }
+    if (ch === "\\") {
+      result += ch;
+      if (inString) escape = true;
+      continue;
+    }
+    if (ch === "\"") {
+      inString = !inString;
+      result += ch;
+      continue;
+    }
+    if (inString) {
+      if (ch === "\n") {
+        result += "\\n";
+      } else if (ch === "\r") {
+        result += "\\r";
+      } else if (ch === "\t") {
+        result += "\\t";
+      } else {
+        result += ch;
+      }
+    } else {
+      result += ch;
+    }
+  }
+  return result;
+}
+
+/**
+ * Strips trailing commas before } or ] outside string literals.
+ */
+export function cleanTrailingCommas(jsonStr: string): string {
+  if (!jsonStr) return "";
+  let result = "";
+  let inString = false;
+  let escape = false;
+
+  for (let i = 0; i < jsonStr.length; i++) {
+    const ch = jsonStr[i];
+    if (escape) {
+      result += ch;
+      escape = false;
+      continue;
+    }
+    if (ch === "\\") {
+      result += ch;
+      if (inString) escape = true;
+      continue;
+    }
+    if (ch === "\"") {
+      inString = !inString;
+      result += ch;
+      continue;
+    }
+    if (!inString && ch === ",") {
+      let nextIdx = i + 1;
+      while (nextIdx < jsonStr.length && /\s/.test(jsonStr[nextIdx])) {
+        nextIdx++;
+      }
+      if (nextIdx < jsonStr.length && (jsonStr[nextIdx] === "}" || jsonStr[nextIdx] === "]")) {
+        continue;
+      }
+    }
+    result += ch;
+  }
+  return result;
+}
+
+/**
  * Parses raw JSON string and returns detailed syntax error with line/column position if invalid.
  */
 export function parseJSONWithLocation(rawText: string): { data: any; error?: string } {
@@ -21,22 +105,41 @@ export function parseJSONWithLocation(rawText: string): { data: any; error?: str
   }
 
   let text = rawText.trim();
+  // Strip UTF-8 BOM if present
+  if (text.charCodeAt(0) === 0xFEFF) {
+    text = text.slice(1);
+  }
 
-  // Try direct parse first
+  // 1. Try direct parse first
   try {
     const data = JSON.parse(text);
     return { data };
   } catch (err: any) {
-    // Attempt cleaning backticks if present
-    if (text.includes("```")) {
-      const stripped = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
+    // 2. Extract from markdown code fence anywhere in text: ```json ... ``` or ``` ... ```
+    const codeFenceMatch = text.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
+    if (codeFenceMatch && codeFenceMatch[1]) {
+      const fenceContent = codeFenceMatch[1].trim();
       try {
-        const data = JSON.parse(stripped);
+        const data = JSON.parse(fenceContent);
         return { data };
-      } catch (_) {}
+      } catch (_) {
+        try {
+          const cleaned = cleanTrailingCommas(escapeControlCharsInStrings(fenceContent));
+          const data = JSON.parse(cleaned);
+          return { data };
+        } catch (_) {}
+      }
     }
 
-    // Attempt multi-block JSON extraction (handles multiple JSON objects or arrays pasted sequentially)
+    // 3. Try parsing with control characters escaped and trailing commas cleaned
+    try {
+      const escaped = escapeControlCharsInStrings(text);
+      const cleaned = cleanTrailingCommas(escaped);
+      const data = JSON.parse(cleaned);
+      return { data };
+    } catch (_) {}
+
+    // 4. Attempt multi-block JSON extraction (handles multiple JSON objects or arrays pasted sequentially)
     const blocks = extractTopLevelJSONBlocks(text);
     if (blocks.length > 1) {
       return { data: { isMultiBlock: true, blocks } };
@@ -44,7 +147,7 @@ export function parseJSONWithLocation(rawText: string): { data: any; error?: str
       return { data: blocks[0] };
     }
 
-    // Attempt extracting candidate JSON block (from first { or [ to last } or ])
+    // 5. Attempt extracting candidate JSON block (from first { or [ to last } or ])
     const firstBrace = text.indexOf("{");
     const firstBracket = text.indexOf("[");
     let startIdx = -1;
@@ -65,7 +168,13 @@ export function parseJSONWithLocation(rawText: string): { data: any; error?: str
         try {
           const data = JSON.parse(extracted);
           return { data };
-        } catch (_) {}
+        } catch (_) {
+          try {
+            const cleaned = cleanTrailingCommas(escapeControlCharsInStrings(extracted));
+            const data = JSON.parse(cleaned);
+            return { data };
+          } catch (_) {}
+        }
       }
     }
 
@@ -312,7 +421,15 @@ export function getSampleImportJSON(): string {
  */
 export function processJSONImport(
   jsonString: string,
-  existingHashes: Set<string> = new Set()
+  existingHashes: Set<string> = new Set(),
+  options?: {
+    curriculum?: {
+      subjects?: any[];
+      chapters?: any[];
+      topics?: any[];
+    };
+    maxBatchSize?: number;
+  }
 ): {
   success: boolean;
   parseError?: string;
@@ -335,6 +452,41 @@ export function processJSONImport(
     };
   }
 
+  // 1. Validate schemaVersion if present on root object
+  if (data && typeof data === "object" && !Array.isArray(data)) {
+    if (data.schemaVersion !== undefined) {
+      const vNum = Number(data.schemaVersion);
+      if (isNaN(vNum) || vNum !== 1) {
+        return {
+          success: false,
+          parseError: `Unsupported schemaVersion: expected 1, found ${data.schemaVersion}.`,
+          results: [],
+          summary: { total: 0, valid: 0, warnings: 0, errors: 0, duplicates: 0 },
+        };
+      }
+    }
+
+    // 2. Validate questions array if explicitly provided
+    if (data.questions !== undefined) {
+      if (!Array.isArray(data.questions)) {
+        return {
+          success: false,
+          parseError: "'questions' must be an array of questions.",
+          results: [],
+          summary: { total: 0, valid: 0, warnings: 0, errors: 0, duplicates: 0 },
+        };
+      }
+      if (data.questions.length === 0) {
+        return {
+          success: false,
+          parseError: "No questions detected in JSON. Please ensure your JSON contains questions or an array of question objects.",
+          results: [],
+          summary: { total: 0, valid: 0, warnings: 0, errors: 0, duplicates: 0 },
+        };
+      }
+    }
+  }
+
   // Extract raw questions list with maximum flexibility for any JSON layout or multi-block streams
   let rawList: any[] = [];
   if (data?.isMultiBlock && Array.isArray(data.blocks)) {
@@ -352,11 +504,12 @@ export function processJSONImport(
     };
   }
 
-  // Maximum 25 questions per batch limit guard
-  if (rawList.length > 25) {
+  const limit = options?.maxBatchSize || 25;
+  // Maximum questions per batch limit guard
+  if (rawList.length > limit) {
     return {
       success: false,
-      parseError: `Batch size exceeded: Maximum 25 questions allowed per import batch (found ${rawList.length}). Please split your questions into batches of 25 or fewer.`,
+      parseError: `Batch size exceeded: Maximum ${limit} questions allowed per import batch (found ${rawList.length}). Please split your questions into batches of ${limit} or fewer.`,
       results: [],
       summary: { total: rawList.length, valid: 0, warnings: 0, errors: rawList.length, duplicates: 0 },
     };
@@ -379,7 +532,7 @@ export function processJSONImport(
     const hasNormTable = normKeysObj.includes("table") || normKeysObj.includes("tableData") || normKeysObj.includes("matchTable");
     const normKeysStr = hasNormTable ? normKeysObj.join(", ") : `${normKeysObj.join(", ")}, NO TABLE KEY`;
 
-    const validation = validateQuestion(normalized, qNum);
+    const validation = validateQuestion(normalized, qNum, { curriculum: options?.curriculum });
     const hash = generateQuestionHash(normalized);
     const isDbDupe = existingHashes.has(hash);
     const isBatchDupe = !isDbDupe && Boolean(normalized.question?.trim()) && seenBatchHashes.has(hash);

@@ -193,15 +193,15 @@ export const AdminAnalyticsDashboard: React.FC = () => {
       {/* Summary Metrics Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
         {[
-          { label: "Visits", value: totalVisits, icon: Eye, color: "blue", sub: "Total Volume" },
-          { label: "Users", value: uniqueVisitors, icon: Users, color: "emerald", sub: "Unique IDs" },
-          { label: "Auth Split", value: loggedInCount, icon: UserCheck, color: "purple", sub: `${guestCount} Guests`, percent: totalVisits > 0 ? Math.round((loggedInCount / totalVisits) * 100) : 0 },
-          { label: "Mobile", value: mobileCount, icon: Smartphone, color: "amber", sub: `${desktopCount} PC`, percent: mobileCount + desktopCount > 0 ? Math.round((mobileCount / (mobileCount + desktopCount)) * 100) : 0 },
+          { label: "Visits", value: totalVisits, icon: Eye, bgClass: "bg-blue-500/10 text-blue-600 dark:text-blue-400", textClass: "text-blue-600 dark:text-blue-400", sub: "Total Volume" },
+          { label: "Users", value: uniqueVisitors, icon: Users, bgClass: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400", textClass: "text-emerald-600 dark:text-emerald-400", sub: "Unique IDs" },
+          { label: "Auth Split", value: loggedInCount, icon: UserCheck, bgClass: "bg-purple-500/10 text-purple-600 dark:text-purple-400", textClass: "text-purple-600 dark:text-purple-400", sub: `${guestCount} Guests`, percent: totalVisits > 0 ? Math.round((loggedInCount / totalVisits) * 100) : 0 },
+          { label: "Mobile", value: mobileCount, icon: Smartphone, bgClass: "bg-amber-500/10 text-amber-600 dark:text-amber-400", textClass: "text-amber-600 dark:text-amber-400", sub: `${desktopCount} PC`, percent: mobileCount + desktopCount > 0 ? Math.round((mobileCount / (mobileCount + desktopCount)) * 100) : 0 },
         ].map((card, i) => (
           <AdminCard key={i} className="p-3.5 sm:p-4 space-y-1.5 sm:space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">{card.label}</span>
-              <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-${card.color}-500/10 text-${card.color}-600 flex items-center justify-center`}>
+              <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center ${card.bgClass}`}>
                 <card.icon className="w-4 h-4" />
               </div>
             </div>
@@ -211,7 +211,7 @@ export const AdminAnalyticsDashboard: React.FC = () => {
             <div className="flex items-center justify-between">
               <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">{card.sub}</p>
               {card.percent !== undefined && (
-                <span className={`text-[9px] font-black text-${card.color}-600`}>{card.percent}%</span>
+                <span className={`text-[9px] font-black ${card.textClass}`}>{card.percent}%</span>
               )}
             </div>
           </AdminCard>

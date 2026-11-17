@@ -24,6 +24,7 @@ import ShareModal, { ShareData } from "./ShareModal";
 import { buildChapterShareData } from "../utils/shareService";
 import { TopicInteractionModal } from "./TopicInteractionModal";
 import { getChapterDisplayName, getTopicDisplayName } from "../utils/curriculumUtils";
+import { getCombinedSubjects } from "../utils/questionsStorage";
 
 interface ChapterDetailViewProps {
   chapterId: string;
@@ -266,6 +267,7 @@ export const ChapterDetailView: React.FC<ChapterDetailViewProps> = ({
       )}
       {showAddTopicModal && (
         <AddTopicModal
+          subjects={getCombinedSubjects(questionsStore)}
           chapters={Object.values(chaptersMap || {})}
           onClose={() => setShowAddTopicModal(false)}
           onAddTopic={(id, topic) => {

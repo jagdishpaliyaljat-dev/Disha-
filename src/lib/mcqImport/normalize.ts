@@ -30,20 +30,30 @@ export function cleanOptionText(rawOpt: string): string {
 
 function extractStringValue(val: any): string {
   if (val === undefined || val === null) return "";
-  if (typeof val === "string") return val;
-  if (typeof val === "number" || typeof val === "boolean") return String(val);
-  if (typeof val === "object") {
-    if (typeof val.text === "string") return val.text;
-    if (typeof val.value === "string" || typeof val.value === "number") return String(val.value);
-    if (typeof val.content === "string") return val.content;
-    if (typeof val.option === "string" || typeof val.option === "number") return String(val.option);
-    if (typeof val.title === "string") return val.title;
-    if (typeof val.hi === "string" && typeof val.en === "string") return `${val.hi}\n${val.en}`;
-    if (typeof val.hi === "string") return val.hi;
-    if (typeof val.en === "string") return val.en;
-    if (typeof val.label === "string") return val.label;
+  let str = "";
+  if (typeof val === "string") str = val;
+  else if (typeof val === "number" || typeof val === "boolean") str = String(val);
+  else if (typeof val === "object") {
+    if (typeof val.text === "string") str = val.text;
+    else if (typeof val.value === "string" || typeof val.value === "number") str = String(val.value);
+    else if (typeof val.content === "string") str = val.content;
+    else if (typeof val.option === "string" || typeof val.option === "number") str = String(val.option);
+    else if (typeof val.title === "string") str = val.title;
+    else if (typeof val.hi === "string" && typeof val.en === "string") str = `${val.hi}\n${val.en}`;
+    else if (typeof val.hi === "string") str = val.hi;
+    else if (typeof val.en === "string") str = val.en;
+    else if (typeof val.label === "string") str = val.label;
   }
-  return "";
+  if (!str) return "";
+
+  // Normalize escaped newlines (\r\n -> \n, \r -> \n, and unescape literal \n when not a LaTeX command)
+  if (str.includes("\r")) {
+    str = str.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+  }
+  if (str.includes("\\n")) {
+    str = str.replace(/\\n(?![a-z])/g, "\n");
+  }
+  return str;
 }
 
 /**
@@ -829,8 +839,10 @@ export const normalizeQuestion = (raw: any): MCQImportQuestion => {
   let type: string = "single_correct";
   if (unsupportedReason) {
     type = "unsupported";
+  } else if (rawTypeStr === "match_list") {
+    type = "match_list";
   } else if (matchTable || /match_list|match_following|match_column/i.test(rawTypeStr) || isMatchKeyword) {
-    type = "match_following";
+    type = rawTypeStr && /match_list/i.test(rawTypeStr) ? "match_list" : "match_following";
   } else if (
     (assertion && reason) ||
     /assertion_reason/i.test(rawTypeStr) ||
@@ -850,7 +862,7 @@ export const normalizeQuestion = (raw: any): MCQImportQuestion => {
     /math|numerical|geometry/i.test(rawTypeStr) ||
     /\$[^$]+\$|\\frac|\\sqrt|[√π÷×≤≥≠²³]/.test(`${finalQuestion} ${options.join(" ")}`)
   ) {
-    type = rawTypeStr && /numerical|geometry/i.test(rawTypeStr) ? rawTypeStr : "math";
+    type = rawTypeStr && /math|numerical|geometry/i.test(rawTypeStr) ? rawTypeStr : "math";
   } else if (rawTypeStr) {
     type = rawTypeStr;
   }

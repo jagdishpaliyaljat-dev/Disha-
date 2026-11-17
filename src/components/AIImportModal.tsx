@@ -39,6 +39,7 @@ import { Question, Subject, Chapter, Topic, UserQuestionsStore, PYQPaper, LiveTe
 import {
   processJSONImport,
   smartJSONImport,
+  parseJSONWithLocation,
   getSampleImportJSON,
   ValidatedQuestionResult,
   generateQuestionHash,
@@ -613,34 +614,46 @@ export const AIImportModal: React.FC<AIImportModalProps> = ({
     const fileSizeKb = Math.round(file.size / 1024);
     const reader = new FileReader();
     reader.onload = (e) => {
-      try {
-        const text = e.target?.result as string;
-        const parsed = JSON.parse(text);
-        let qCount = 0;
-        if (Array.isArray(parsed)) qCount = parsed.length;
-        else if (Array.isArray(parsed.questions)) qCount = parsed.questions.length;
-        else if (Array.isArray(parsed.data)) qCount = parsed.data.length;
-        else qCount = 1;
-
-        setPasteJsonText(text);
-        setJsonUploadFile(file);
-        setJsonUploadStats({
-          fileName: file.name,
-          fileSizeKb,
-          questionCount: qCount,
-          isValidJson: true,
-        });
-        setErrorMessage(null);
-      } catch (err: any) {
+      const text = (e.target?.result as string) || "";
+      const { data: parsed, error } = parseJSONWithLocation(text);
+      if (error || !parsed) {
         setJsonUploadStats({
           fileName: file.name,
           fileSizeKb,
           questionCount: 0,
           isValidJson: false,
-          error: err.message || "Invalid JSON syntax",
+          error: error || "Invalid JSON syntax",
         });
-        setErrorMessage(`JSON parse error: ${err.message}`);
+        setErrorMessage(`JSON parse error: ${error || "Invalid JSON syntax"}`);
+        return;
       }
+
+      let qCount = 0;
+      if (parsed.isMultiBlock && Array.isArray(parsed.blocks)) {
+        qCount = parsed.blocks.reduce((acc: number, b: any) => {
+          if (Array.isArray(b)) return acc + b.length;
+          if (Array.isArray(b.questions)) return acc + b.questions.length;
+          return acc + 1;
+        }, 0);
+      } else if (Array.isArray(parsed)) {
+        qCount = parsed.length;
+      } else if (Array.isArray(parsed.questions)) {
+        qCount = parsed.questions.length;
+      } else if (Array.isArray(parsed.data)) {
+        qCount = parsed.data.length;
+      } else {
+        qCount = 1;
+      }
+
+      setPasteJsonText(text);
+      setJsonUploadFile(file);
+      setJsonUploadStats({
+        fileName: file.name,
+        fileSizeKb,
+        questionCount: qCount,
+        isValidJson: true,
+      });
+      setErrorMessage(null);
     };
     reader.readAsText(file);
   };
@@ -854,7 +867,12 @@ export const AIImportModal: React.FC<AIImportModalProps> = ({
       const content = event.target?.result as string;
       if (content) {
         const trimmed = content.trim();
-        const isJsonFile = file.name.toLowerCase().endsWith(".json") || ((trimmed.startsWith("{") || trimmed.startsWith("[")) && (trimmed.endsWith("}") || trimmed.endsWith("]")));
+        const isJsonFile =
+          file.name.toLowerCase().endsWith(".json") ||
+          ((trimmed.startsWith("{") || trimmed.startsWith("[")) && (trimmed.endsWith("}") || trimmed.endsWith("]"))) ||
+          trimmed.includes('"schemaVersion"') ||
+          trimmed.includes('"questions"') ||
+          /```(?:json)?\s*[\{\[]/i.test(trimmed);
         if (isJsonFile) {
           setActiveInputTab("json");
           setPasteJsonText(content);
@@ -914,7 +932,13 @@ export const AIImportModal: React.FC<AIImportModalProps> = ({
     // Auto-detect JSON if pasted in Text tab
     if (activeInputTab === "text") {
       const trimmed = rawInput.trim();
-      if ((trimmed.startsWith("{") || trimmed.startsWith("[")) && (trimmed.endsWith("}") || trimmed.endsWith("]"))) {
+      const isLikelyJson =
+        ((trimmed.startsWith("{") || trimmed.startsWith("[")) && (trimmed.endsWith("}") || trimmed.endsWith("]"))) ||
+        trimmed.includes('"schemaVersion"') ||
+        trimmed.includes('"questions"') ||
+        /```(?:json)?\s*[\{\[]/i.test(trimmed);
+
+      if (isLikelyJson) {
         setActiveInputTab("json");
         setPasteJsonText(trimmed);
         rawInput = trimmed;
@@ -936,53 +960,71 @@ export const AIImportModal: React.FC<AIImportModalProps> = ({
     try {
       // 1. JSON Mode: Use smartJSONImport directly (supports varied keys, matchTable, validation, AI recovery for broken items)
       if (effectiveMode === "json") {
+        const allCurriculumTopics = fetchedChapters.flatMap((c) =>
+          (c.topics || []).map((t) => ({ ...t, chapterId: c.id, subjectId: c.subjectId }))
+        );
+
         const parsed = await smartJSONImport(rawInput, existingHashes, {
+          curriculum: {
+            subjects: availableSubjects,
+            chapters: fetchedChapters,
+            topics: allCurriculumTopics,
+          },
           onProgress: (info) => {
             if (info?.message) setProcessingStatus(info.message);
           },
         });
-        if (parsed.success && parsed.results.length > 0) {
-          // Attach any matching images by filename
-          if (Object.keys(jsonAttachedFiles).length > 0) {
-            parsed.results.forEach((d) => {
-              if (d.question && !d.image) {
-                for (const [fname, fdata] of Object.entries(jsonAttachedFiles)) {
-                  if (d.question.includes(fname)) {
-                    d.image = {
-                      type: fdata.type,
-                      dataUrl: fdata.dataUrl,
-                      fileName: fname,
-                      alt: `Image ${fname}`,
-                    };
-                    break;
-                  }
-                }
-              }
-            });
-          }
-          setParseResult({
-            success: parsed.success,
-            parseError: parsed.parseError,
-            results: parsed.results,
-            summary: {
-              total: parsed.summary.total,
-              valid: parsed.summary.valid,
-              warnings: parsed.summary.needsReview,
-              errors: parsed.summary.errors,
-              duplicates: parsed.summary.duplicates,
-              unsupported: parsed.summary.unsupported,
-            },
-          });
-          const validIds = new Set<string>();
-          parsed.results.forEach((q) => {
-            if (q.isValid && q.correctIndex >= 0 && (!skipDuplicates || !q.isDuplicate)) {
-              validIds.add(q.tempId);
-            }
-          });
-          setSelectedDraftIds(validIds);
-          setActiveStep("preview");
+
+        if (!parsed.success) {
+          setErrorMessage(parsed.parseError || "Invalid JSON syntax. Please check the format.");
           return;
         }
+
+        if (parsed.results.length === 0) {
+          setErrorMessage("No questions detected in JSON. Please ensure your JSON contains questions or an array of question objects.");
+          return;
+        }
+
+        // Attach any matching images by filename
+        if (Object.keys(jsonAttachedFiles).length > 0) {
+          parsed.results.forEach((d) => {
+            if (d.question && !d.image) {
+              for (const [fname, fdata] of Object.entries(jsonAttachedFiles)) {
+                if (d.question.includes(fname)) {
+                  d.image = {
+                    type: fdata.type,
+                    dataUrl: fdata.dataUrl,
+                    fileName: fname,
+                    alt: `Image ${fname}`,
+                  };
+                  break;
+                }
+              }
+            }
+          });
+        }
+        setParseResult({
+          success: parsed.success,
+          parseError: parsed.parseError,
+          results: parsed.results,
+          summary: {
+            total: parsed.summary.total,
+            valid: parsed.summary.valid,
+            warnings: parsed.summary.needsReview,
+            errors: parsed.summary.errors,
+            duplicates: parsed.summary.duplicates,
+            unsupported: parsed.summary.unsupported,
+          },
+        });
+        const validIds = new Set<string>();
+        parsed.results.forEach((q) => {
+          if (q.isValid && q.correctIndex >= 0 && (!skipDuplicates || !q.isDuplicate)) {
+            validIds.add(q.tempId);
+          }
+        });
+        setSelectedDraftIds(validIds);
+        setActiveStep("preview");
+        return;
       }
 
       // 2. Universal Parser for Text / Mixed Formats
@@ -1180,6 +1222,10 @@ export const AIImportModal: React.FC<AIImportModalProps> = ({
     try {
       setProcessingStatus("Preparing questions for database...");
 
+      const allCurriculumTopics = fetchedChapters.flatMap((c) =>
+        (c.topics || []).map((t) => ({ ...t, chapterId: c.id, subjectId: c.subjectId }))
+      );
+
       const finalQuestions: Question[] = [];
       for (let idx = 0; idx < toImport.length; idx++) {
         const d = toImport[idx];
@@ -1204,10 +1250,10 @@ export const AIImportModal: React.FC<AIImportModalProps> = ({
         let resolvedChapterId = selectedChapterId || availableChapters[0]?.id || fetchedChapters[0]?.id || "";
         let resolvedTopicId = selectedTopicId || availableTopics[0]?.id || "";
 
-        if (d.topic && availableTopics.length > 0) {
+        if (d.topic && allCurriculumTopics.length > 0) {
           const tLower = String(d.topic).trim().toLowerCase();
-          const matchT = availableTopics.find(
-            (t) => t.id.toLowerCase() === tLower || (t.title && t.title.toLowerCase() === tLower) || (t.hindiTitle && t.hindiTitle.toLowerCase() === tLower)
+          const matchT = allCurriculumTopics.find(
+            (t) => (t.id && t.id.toLowerCase() === tLower) || (t.title && t.title.toLowerCase() === tLower) || (t.hindiTitle && t.hindiTitle.toLowerCase() === tLower)
           );
           if (matchT) {
             resolvedTopicId = matchT.id;
@@ -1218,22 +1264,25 @@ export const AIImportModal: React.FC<AIImportModalProps> = ({
         if (d.chapter && fetchedChapters.length > 0) {
           const cLower = String(d.chapter).trim().toLowerCase();
           const matchC = fetchedChapters.find(
-            (c) => c.id.toLowerCase() === cLower || (c.title && c.title.toLowerCase() === cLower) || (c.hindiTitle && c.hindiTitle.toLowerCase() === cLower)
+            (c) => (c.id && c.id.toLowerCase() === cLower) || (c.title && c.title.toLowerCase() === cLower) || (c.hindiTitle && c.hindiTitle.toLowerCase() === cLower)
           );
           if (matchC) {
             resolvedChapterId = matchC.id;
             if (matchC.subjectId) resolvedSubjectId = matchC.subjectId;
+            if (!resolvedTopicId && matchC.topics && matchC.topics.length > 0) {
+              resolvedTopicId = matchC.topics[0].id;
+            }
           }
         }
         if (d.subject && availableSubjects.length > 0) {
           const sLower = String(d.subject).trim().toLowerCase();
           const matchS = availableSubjects.find(
-            (s) => s.id.toLowerCase() === sLower || (s.name && s.name.toLowerCase() === sLower) || (s.hindiName && s.hindiName.toLowerCase() === sLower)
+            (s) => (s.id && s.id.toLowerCase() === sLower) || (s.name && s.name.toLowerCase() === sLower) || (s.hindiName && s.hindiName.toLowerCase() === sLower)
           );
           if (matchS) resolvedSubjectId = matchS.id;
         }
 
-        const tId = resolvedTopicId || (availableTopics[0]?.id) || "top_inscriptions";
+        const tId = resolvedTopicId || selectedTopicId || (availableTopics[0]?.id) || (allCurriculumTopics[0]?.id) || "top_inscriptions";
         
         // Requirement: Stable deterministic ID for idempotency and duplicate prevention
         const contentHash = d.hash || generateQuestionHash({
@@ -1896,18 +1945,7 @@ export const AIImportModal: React.FC<AIImportModalProps> = ({
                                 explanation: "73वें संविधान संशोधन द्वारा पंचायती राज संस्थाओं को संवैधानिक दर्जा दिया गया।",
                                 subject: "भारतीय राजव्यवस्था",
                                 chapter: "पंचायती राज",
-                                topic: "73वां संविधान संशोधन",
-                                examHistory: [
-                                  { examName: "CET 12th Level", year: 2023, verified: true },
-                                  { examName: "Patwari", year: 2021, verified: true }
-                                ]
-                              },
-                              {
-                                type: "single_correct",
-                                question: "अंतर्राष्ट्रीय ओजोन दिवस कब मनाया जाता है?",
-                                options: ["5 जून", "16 सितंबर", "22 मार्च", "11 जुलाई"],
-                                answer: "B",
-                                explanation: "16 सितंबर को अंतर्राष्ट्रीय ओजोन संरक्षण दिवस मनाया जाता है।"
+                                topic: "73वां संविधान संशोधन"
                               }
                             ]
                           }, null, 2);
@@ -1925,7 +1963,7 @@ export const AIImportModal: React.FC<AIImportModalProps> = ({
                     <textarea
                       value={jsonText}
                       onChange={(e) => setPasteJsonText(e.target.value)}
-                      placeholder={`{\n  "schemaVersion": 1,\n  "questions": [\n    {\n      "question": "Question text...",\n      "options": ["A", "B", "C", "D"],\n      "answer": "A",\n      "examHistory": [\n        { "examName": "CET 12th Level", "year": 2023, "verified": true }\n      ]\n    }\n  ]\n}`}
+                      placeholder={`{\n  "schemaVersion": 1,\n  "questions": [\n    {\n      "type": "single_correct",\n      "question": "Question text",\n      "options": ["Option 1", "Option 2", "Option 3", "Option 4"],\n      "answer": "A",\n      "explanation": "Explanation",\n      "subject": "Subject",\n      "chapter": "Chapter",\n      "topic": "Topic"\n    }\n  ]\n}`}
                       className="w-full h-64 p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-900 dark:text-white leading-relaxed focus:ring-2 focus:ring-indigo-500/20 outline-none resize-none font-mono"
                     />
                     {jsonText && (

@@ -170,10 +170,11 @@ describe("DISHA2020 — Admin Panel Curriculum & MCQ CRUD Functionality", () => 
   });
 
   it("12. Production Pilot Questions (q_pilot_001 to q_pilot_010) remain untouched", async () => {
-    const { fetchQuestionsByTopic } = await import("../src/utils/supabaseSyncService");
-    const pilotQuestions = await fetchQuestionsByTopic("top_inscriptions");
+    const { fetchPYQQuestionsFromSupabase, fetchQuestionsByTopic } = await import("../src/utils/supabaseSyncService");
+    const pilotQuestions = await fetchPYQQuestionsFromSupabase();
     expect(pilotQuestions.length).toBeGreaterThan(0);
     const pilot1 = pilotQuestions.find(q => q.id === "q_pilot_001");
     expect(pilot1).toBeDefined();
+    expect(pilot1?.year).toBe("2021");
   });
 });

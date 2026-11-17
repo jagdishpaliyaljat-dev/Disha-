@@ -762,9 +762,10 @@ export async function saveTopicToSupabase(topic: Topic): Promise<{ success: bool
     } catch (err) {}
     if (!resolvedSubjectId) {
       try {
-        const { loadUserQuestionsStore } = await import('./questionsStorage');
+        const { loadUserQuestionsStore, getCombinedChapters } = await import('./questionsStorage');
         const store = loadUserQuestionsStore();
-        const storeChap = (store.customChapters || []).find(c => c.id === topic.chapterId);
+        const chaps = getCombinedChapters(store);
+        const storeChap = chaps.find(c => c.id === topic.chapterId) || (store.customChapters || []).find(c => c.id === topic.chapterId);
         if (storeChap?.subjectId) {
           resolvedSubjectId = storeChap.subjectId;
         }
@@ -784,20 +785,34 @@ export async function saveTopicToSupabase(topic: Topic): Promise<{ success: bool
     }
   }
 
+  // Fallback: If still unresolved or invalid fallback like "economics" (not in Supabase), resolve from known subjects
+  if (!resolvedSubjectId || resolvedSubjectId === "economics") {
+    try {
+      const { loadUserQuestionsStore, getCombinedSubjects } = await import('./questionsStorage');
+      const store = loadUserQuestionsStore();
+      const validSubjects = getCombinedSubjects(store);
+      const matched = validSubjects.find(s => s.id !== "economics");
+      if (matched?.id) {
+        resolvedSubjectId = matched.id;
+      }
+    } catch (err) {}
+  }
+
   const enrichedTopic: Topic = {
     ...topic,
-    subjectId: resolvedSubjectId || topic.subjectId,
+    subjectId: resolvedSubjectId || topic.subjectId || "sub_raj_hist",
+    number: topic.number || 1,
+    isUserAdded: true,
   };
 
   await openLocalDatabase();
   const isDraft = isUserDraftOrCustom(enrichedTopic);
 
-  if (isDraft) {
-    try {
-      await idbPut(STORES.TOPICS, enrichedTopic);
-    } catch (idbErr: any) {
-      console.warn('[LocalDB] Failed to save topic locally:', idbErr);
-    }
+  // Always save locally to IndexedDB immediately so local queries find it
+  try {
+    await idbPut(STORES.TOPICS, enrichedTopic);
+  } catch (idbErr: any) {
+    console.warn('[LocalDB] Failed to save topic locally:', idbErr);
   }
 
   let cloudSynced = false;
@@ -826,9 +841,6 @@ export async function saveTopicToSupabase(topic: Topic): Promise<{ success: bool
   }
 
   if (cloudSynced) {
-    if (!isDraft) {
-      await idbPut(STORES.TOPICS, enrichedTopic);
-    }
     return { 
       success: true, 
       cloudSynced: true,
@@ -836,14 +848,26 @@ export async function saveTopicToSupabase(topic: Topic): Promise<{ success: bool
     };
   }
 
-  if (isDraft) {
-    const isAuthErr = cloudErrorMsg.toLowerCase().includes('permission') || cloudErrorMsg.toLowerCase().includes('jwt') || cloudErrorMsg.toLowerCase().includes('policy') || cloudErrorMsg.toLowerCase().includes('42501');
+  // Cloud sync did not complete: record change in Pending Sync queue
+  try {
+    const { recordLocalChange } = await import('./syncStorage');
+    recordLocalChange();
+  } catch {}
+
+  const isAuthErr = cloudErrorMsg.toLowerCase().includes('permission') || 
+                    cloudErrorMsg.toLowerCase().includes('jwt') || 
+                    cloudErrorMsg.toLowerCase().includes('policy') || 
+                    cloudErrorMsg.toLowerCase().includes('42501');
+
+  if (isDraft || isAuthErr) {
     return {
       success: true,
       cloudSynced: false,
       message: isAuthErr
         ? `Topic '${enrichedTopic.title || enrichedTopic.hindiTitle}' saved locally! Sign in with Admin Google Account (jagdishpaliyaljat@gmail.com) to sync to cloud.`
-        : `Topic '${enrichedTopic.title || enrichedTopic.hindiTitle}' saved locally! Will sync when connected.`
+        : (cloudErrorMsg 
+            ? `Topic '${enrichedTopic.title || enrichedTopic.hindiTitle}' saved locally (pending cloud sync: ${cloudErrorMsg}).`
+            : `Topic '${enrichedTopic.title || enrichedTopic.hindiTitle}' saved locally! Will sync when connected.`)
     };
   }
 

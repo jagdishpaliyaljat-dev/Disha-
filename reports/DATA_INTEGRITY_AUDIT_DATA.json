@@ -1,0 +1,188 @@
+{
+  "timestamp": "2026-11-17T02:15:54.358Z",
+  "recordCounts": {
+    "subjects": 3,
+    "chapters": 3,
+    "topics": 3,
+    "questions": 10,
+    "profiles": 0,
+    "attempts": 0,
+    "bookmarks": 0
+  },
+  "checks": {
+    "subjectChapterRelationships": {
+      "status": "PASSED",
+      "brokenCount": 0,
+      "details": []
+    },
+    "chapterTopicRelationships": {
+      "status": "PASSED",
+      "brokenCount": 0,
+      "details": []
+    },
+    "topicMCQRelationships": {
+      "status": "FLAGGED",
+      "brokenCount": 10,
+      "details": [
+        {
+          "questionId": "q_pilot_002",
+          "questionText": "बड़वा ग्राम (कोटा) से प्राप्त यूप अभिलेख का संबंध किस प्राची"
+        },
+        {
+          "questionId": "q_pilot_005",
+          "questionText": "अपराजित का शिलालेख (661 ई.) किस जिले से प्राप्त हुआ है?"
+        },
+        {
+          "questionId": "q_pilot_004",
+          "questionText": "रियासतकालीन 'मदनशाही सिक्के' किस रियासत में प्रचलित थे?"
+        },
+        {
+          "questionId": "q_pilot_001",
+          "questionText": "बिजौलिया शिलालेख (1170 ई.) के अनुसार सांभर झील का निर्माण कि"
+        },
+        {
+          "questionId": "q_pilot_009",
+          "questionText": "1857 की क्रान्ति में आउवा के ठाकुर कुशाल सिंह की कुलदेवी कौन"
+        },
+        {
+          "questionId": "q_pilot_006",
+          "questionText": "राजस्थान में 1857 की क्रान्ति का प्रथम विद्रोह 28 मई 1857 को"
+        },
+        {
+          "questionId": "q_pilot_007",
+          "questionText": "1857 की क्रांति के समय राजस्थान की कौन-सी दो सैनिक छावनियों "
+        },
+        {
+          "questionId": "q_pilot_003",
+          "questionText": "प्राचीन राजस्थान में 'मालव सिक्के' सर्वाधिक संख्या में किस प"
+        },
+        {
+          "questionId": "q_pilot_008",
+          "questionText": "18 सितंबर 1857 को लड़ा गया 'चेलावास का युद्ध' किस अन्य नाम स"
+        },
+        {
+          "questionId": "q_pilot_010",
+          "questionText": "आउवा के ठाकुर कुशाल सिंह की जांच के लिए ब्रिटिश सरकार ने किस"
+        }
+      ]
+    },
+    "missingForeignKeys": {
+      "status": "FLAGGED",
+      "summary": {
+        "chaptersWithoutSubjectId": [],
+        "topicsWithoutChapterId": [],
+        "topicsWithoutSubjectId": [],
+        "questionsWithoutTopicId": [
+          "q_pilot_002",
+          "q_pilot_005",
+          "q_pilot_004",
+          "q_pilot_001",
+          "q_pilot_009",
+          "q_pilot_006",
+          "q_pilot_007",
+          "q_pilot_003",
+          "q_pilot_008",
+          "q_pilot_010"
+        ],
+        "questionsWithoutChapterId": [
+          "q_pilot_009",
+          "q_pilot_006",
+          "q_pilot_007",
+          "q_pilot_003",
+          "q_pilot_008",
+          "q_pilot_010"
+        ],
+        "questionsWithoutSubjectId": []
+      }
+    },
+    "orphanRecords": {
+      "status": "FLAGGED",
+      "summary": {
+        "orphanChapters": [],
+        "orphanTopics": [],
+        "orphanQuestions": [
+          {
+            "questionId": "q_pilot_002",
+            "questionText": "बड़वा ग्राम (कोटा) से प्राप्त यूप अभिलेख का संबंध किस प्राची"
+          },
+          {
+            "questionId": "q_pilot_005",
+            "questionText": "अपराजित का शिलालेख (661 ई.) किस जिले से प्राप्त हुआ है?"
+          },
+          {
+            "questionId": "q_pilot_004",
+            "questionText": "रियासतकालीन 'मदनशाही सिक्के' किस रियासत में प्रचलित थे?"
+          },
+          {
+            "questionId": "q_pilot_001",
+            "questionText": "बिजौलिया शिलालेख (1170 ई.) के अनुसार सांभर झील का निर्माण कि"
+          },
+          {
+            "questionId": "q_pilot_009",
+            "questionText": "1857 की क्रान्ति में आउवा के ठाकुर कुशाल सिंह की कुलदेवी कौन"
+          },
+          {
+            "questionId": "q_pilot_006",
+            "questionText": "राजस्थान में 1857 की क्रान्ति का प्रथम विद्रोह 28 मई 1857 को"
+          },
+          {
+            "questionId": "q_pilot_007",
+            "questionText": "1857 की क्रांति के समय राजस्थान की कौन-सी दो सैनिक छावनियों "
+          },
+          {
+            "questionId": "q_pilot_003",
+            "questionText": "प्राचीन राजस्थान में 'मालव सिक्के' सर्वाधिक संख्या में किस प"
+          },
+          {
+            "questionId": "q_pilot_008",
+            "questionText": "18 सितंबर 1857 को लड़ा गया 'चेलावास का युद्ध' किस अन्य नाम स"
+          },
+          {
+            "questionId": "q_pilot_010",
+            "questionText": "आउवा के ठाकुर कुशाल सिंह की जांच के लिए ब्रिटिश सरकार ने किस"
+          }
+        ]
+      }
+    },
+    "duplicateIds": {
+      "status": "PASSED",
+      "summary": {
+        "subjects": [],
+        "chapters": [],
+        "topics": [],
+        "questions": []
+      }
+    },
+    "duplicateLogicalQuestions": {
+      "status": "PASSED",
+      "duplicateGroupsCount": 0,
+      "details": []
+    },
+    "missingRequiredFields": {
+      "status": "PASSED",
+      "summary": {
+        "subjects": [],
+        "chapters": [],
+        "topics": [],
+        "questions": []
+      }
+    },
+    "invalidReferences": {
+      "status": "PASSED",
+      "invalidCount": 0,
+      "details": []
+    },
+    "recordCountConsistency": {
+      "status": "VERIFIED",
+      "supabaseCounts": {
+        "subjects": 3,
+        "chapters": 3,
+        "topics": 3,
+        "questions": 10,
+        "profiles": 0,
+        "attempts": 0,
+        "bookmarks": 0
+      }
+    }
+  }
+}

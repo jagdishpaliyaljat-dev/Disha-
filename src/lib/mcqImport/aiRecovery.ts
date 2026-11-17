@@ -18,6 +18,12 @@ export interface AIRecoveryOptions {
   onProgress?: (progress: AIRecoveryProgress) => void;
   signal?: AbortSignal;
   skipAIRecovery?: boolean;
+  curriculum?: {
+    subjects?: any[];
+    chapters?: any[];
+    topics?: any[];
+  };
+  maxBatchSize?: number;
 }
 
 /**

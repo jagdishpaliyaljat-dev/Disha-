@@ -18,11 +18,12 @@ export interface SyncStatusInfo {
  */
 export function recordLocalChange(): void {
   try {
+    if (typeof window === "undefined" || typeof localStorage === "undefined") {
+      return;
+    }
     const now = Date.now();
     localStorage.setItem(LAST_LOCAL_MODIFIED_KEY, String(now));
-    if (typeof window !== "undefined") {
-      window.dispatchEvent(new Event(SYNC_STATUS_EVENT));
-    }
+    window.dispatchEvent(new Event(SYNC_STATUS_EVENT));
   } catch (e) {
     console.error("Failed to record local change", e);
   }
@@ -33,11 +34,12 @@ export function recordLocalChange(): void {
  */
 export function recordCloudSyncSuccess(): void {
   try {
+    if (typeof window === "undefined" || typeof localStorage === "undefined") {
+      return;
+    }
     const now = Date.now();
     localStorage.setItem(LAST_CLOUD_SYNC_KEY, String(now));
-    if (typeof window !== "undefined") {
-      window.dispatchEvent(new Event(SYNC_STATUS_EVENT));
-    }
+    window.dispatchEvent(new Event(SYNC_STATUS_EVENT));
   } catch (e) {
     console.error("Failed to record cloud sync", e);
   }
