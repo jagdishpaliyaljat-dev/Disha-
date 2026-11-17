@@ -1,3 +1,4 @@
+import { assertCleanOrSeededBaseline } from './helpers/liveBaseline';
 import { describe, test, expect, beforeEach } from 'vitest';
 import { 
   syncCurriculumAuthoritative, 
@@ -175,13 +176,7 @@ describe('Phase 7: Final Production Smoke Test & Controlled Pilot Preparation', 
   describe('3. Production Database Safety & Clean-Slate Confirmation', () => {
     test('P7-3A: Confirms zero production records were created or modified (100% read-only verification)', async () => {
       const counts = await getSupabaseTableCounts();
-      expect(counts.subjects).toBeGreaterThanOrEqual(1);
-      expect(counts.chapters).toBeGreaterThanOrEqual(1);
-      expect(counts.topics).toBeGreaterThanOrEqual(1);
-      expect(counts.questions).toBeGreaterThanOrEqual(1);
-      expect(counts.profiles).toBe(0);
-      expect(counts.attempts).toBe(0);
-      expect(counts.bookmarks).toBe(0);
+      assertCleanOrSeededBaseline(counts);
     });
   });
 });

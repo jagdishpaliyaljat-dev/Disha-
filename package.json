@@ -10,6 +10,8 @@
     "start": "vite preview",
     "clean": "rm -rf dist",
     "seed:supabase": "node scripts/seed_supabase.mjs",
+    "seed:pilot": "node scripts/seed_pilot.mjs",
+    "seed:dry-run": "node scripts/seed_pilot.mjs --dry-run",
     "lint": "tsc --noEmit",
     "test": "vitest run --fileParallelism=false"
   },

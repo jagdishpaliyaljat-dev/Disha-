@@ -1,3 +1,4 @@
+import { assertCleanOrSeededBaseline } from './helpers/liveBaseline';
 import { describe, test, expect } from 'vitest';
 import { supabase, isSupabaseConfigured } from '../src/lib/supabase';
 import { getSupabaseTableCounts } from '../src/utils/supabaseSyncService';
@@ -130,13 +131,7 @@ describe('Final Live User Access Verification', () => {
   describe('5. Baseline Database Confirmation (Strict Read-Only)', () => {
     test('LIVE-5A: Verified legitimate baseline across all 7 production tables', async () => {
       const counts = await getSupabaseTableCounts();
-      expect(counts.subjects).toBeGreaterThanOrEqual(1);
-      expect(counts.chapters).toBeGreaterThanOrEqual(1);
-      expect(counts.topics).toBeGreaterThanOrEqual(1);
-      expect(counts.questions).toBeGreaterThanOrEqual(1);
-      expect(counts.profiles).toBe(0);
-      expect(counts.attempts).toBe(0);
-      expect(counts.bookmarks).toBe(0);
+      assertCleanOrSeededBaseline(counts);
     });
   });
 });

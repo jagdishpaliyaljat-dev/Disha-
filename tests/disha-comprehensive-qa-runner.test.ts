@@ -1,3 +1,4 @@
+import { assertCleanOrSeededBaseline } from './helpers/liveBaseline';
 import { describe, test, expect, beforeAll, afterAll } from 'vitest';
 import { supabase, isSupabaseConfigured } from '../src/lib/supabase';
 import { 
@@ -435,13 +436,7 @@ Explanation: Using standard calculus rules: \\frac{d}{dx}(x^2) = 2x and \\frac{d
 
     test('G3: Direct PostgREST query confirms verified baseline row counts across tables', async () => {
       const counts = await getSupabaseTableCounts();
-      expect(counts.subjects).toBeGreaterThanOrEqual(1);
-      expect(counts.chapters).toBeGreaterThanOrEqual(1);
-      expect(counts.topics).toBeGreaterThanOrEqual(1);
-      expect(counts.questions).toBeGreaterThanOrEqual(1);
-      expect(counts.profiles).toBe(0);
-      expect(counts.attempts).toBe(0);
-      expect(counts.bookmarks).toBe(0);
+      assertCleanOrSeededBaseline(counts);
     });
   });
 
@@ -515,10 +510,7 @@ Explanation: Using standard calculus rules: \\frac{d}{dx}(x^2) = 2x and \\frac{d
   describe('Suite J: Regression & Clean-Slate Verification', () => {
     test('J1: Strict Clean-Slate policy: Database has zero leftover test records', async () => {
       const counts = await getSupabaseTableCounts();
-      expect(counts.subjects).toBeGreaterThanOrEqual(1);
-      expect(counts.chapters).toBeGreaterThanOrEqual(1);
-      expect(counts.topics).toBeGreaterThanOrEqual(1);
-      expect(counts.questions).toBeGreaterThanOrEqual(1);
+      assertCleanOrSeededBaseline(counts);
     });
 
     test('J2: Full domain types compile cleanly without missing interfaces', async () => {

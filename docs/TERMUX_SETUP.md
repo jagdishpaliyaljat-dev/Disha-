@@ -64,10 +64,30 @@ If this returns `200` with a JSON array, the client/database connection works.
 
 ## 6. Seed / restore pilot data
 
-Pilot data lives in `pilots/import_pilot.sql` and `pilots/sample_pilot_import.json`.
-Seeding requires a Supabase **service-role** key or dashboard SQL access; it
-cannot be done with the public anon key. Several integration tests expect the
-`q_pilot_001…q_pilot_010` rows to exist.
+Pilot data lives in `pilots/import_pilot.sql` and `pilots/sample_pilot_import.json`
+(1 subject, 2 chapters, 4 topics, 10 questions). Seeding requires a Supabase
+**service-role** key or dashboard SQL access; the public anon key is blocked by
+RLS. Integration tests tolerate an empty database but exercise the full flow
+when `q_pilot_001…q_pilot_010` exist.
+
+Preview the payload without writing:
+
+```bash
+pnpm seed:dry-run
+```
+
+Seed with the service-role key from
+**Supabase Dashboard → Project Settings → API → service_role secret**:
+
+```bash
+SUPABASE_SERVICE_ROLE_KEY='eyJ...' pnpm seed:pilot
+```
+
+Alternative: paste `pilots/import_pilot.sql` into the Supabase SQL editor.
+
+`pnpm seed:supabase` is the generic seeder and accepts
+`--file <path> --dry-run`. It reads `supabase/seed_data.json` when present and
+falls back to the pilot payload.
 
 ## Notes
 

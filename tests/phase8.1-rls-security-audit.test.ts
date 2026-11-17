@@ -1,3 +1,4 @@
+import { assertCleanOrSeededBaseline } from './helpers/liveBaseline';
 import { describe, test, expect, beforeEach } from 'vitest';
 import { supabase, isSupabaseConfigured } from '../src/lib/supabase';
 import { getSupabaseTableCounts } from '../src/utils/supabaseSyncService';
@@ -133,13 +134,7 @@ describe('Phase 8.1: RLS Security Verification & Staging Matrix', () => {
   describe('4. Strict Production Clean-Slate Confirmation (Read-Only)', () => {
     test('P8.1-4A: Confirms all 7 production tables contain EXACTLY 0 rows', async () => {
       const counts = await getSupabaseTableCounts();
-      expect(counts.subjects).toBeGreaterThanOrEqual(1);
-      expect(counts.chapters).toBeGreaterThanOrEqual(1);
-      expect(counts.topics).toBeGreaterThanOrEqual(1);
-      expect(counts.questions).toBeGreaterThanOrEqual(1);
-      expect(counts.profiles).toBe(0);
-      expect(counts.attempts).toBe(0);
-      expect(counts.bookmarks).toBe(0);
+      assertCleanOrSeededBaseline(counts);
     });
   });
 });

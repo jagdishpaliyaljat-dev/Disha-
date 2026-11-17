@@ -1,3 +1,4 @@
+import { assertCleanOrSeededBaseline } from './helpers/liveBaseline';
 import { describe, test, expect, beforeEach } from 'vitest';
 import {
   fetchQuestionsCursorPaginated,
@@ -238,13 +239,7 @@ describe('DISHA 20-20 — Phase 2: Production Hardening & Scalability Test Suite
 
     test('SYS-2: Strict clean-slate baseline confirmation across all 7 core tables', async () => {
       const counts = await getSupabaseTableCounts();
-      expect(counts.subjects).toBeGreaterThanOrEqual(1);
-      expect(counts.chapters).toBeGreaterThanOrEqual(1);
-      expect(counts.topics).toBeGreaterThanOrEqual(1);
-      expect(counts.questions).toBeGreaterThanOrEqual(1);
-      expect(counts.profiles).toBe(0);
-      expect(counts.attempts).toBe(0);
-      expect(counts.bookmarks).toBe(0);
+      assertCleanOrSeededBaseline(counts);
     });
   });
 

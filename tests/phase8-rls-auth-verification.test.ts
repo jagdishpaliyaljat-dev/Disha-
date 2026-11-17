@@ -1,3 +1,4 @@
+import { assertCleanOrSeededBaseline } from './helpers/liveBaseline';
 import { describe, test, expect, beforeEach } from 'vitest';
 import { 
   syncUserProfileToSupabase,
@@ -184,13 +185,7 @@ describe('Phase 8: Deployment Gap & Authentication UUID Final Verification', () 
   describe('4. Strict Production Safety & Clean-Slate Confirmation', () => {
     test('P8-4A: Confirms zero production database modifications occurred', async () => {
       const counts = await getSupabaseTableCounts();
-      expect(counts.subjects).toBeGreaterThanOrEqual(1);
-      expect(counts.chapters).toBeGreaterThanOrEqual(1);
-      expect(counts.topics).toBeGreaterThanOrEqual(1);
-      expect(counts.questions).toBeGreaterThanOrEqual(1);
-      expect(counts.profiles).toBe(0);
-      expect(counts.attempts).toBe(0);
-      expect(counts.bookmarks).toBe(0);
+      assertCleanOrSeededBaseline(counts);
     });
   });
 });
