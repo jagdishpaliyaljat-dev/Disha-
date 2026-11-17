@@ -375,10 +375,10 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
                 <CheckCircle2 className="w-6 h-6 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
                 <div className="space-y-1">
                   <h3 className="text-sm font-black text-emerald-800 dark:text-emerald-300">
-                    Message Sent Successfully
+                    Message Submitted Successfully
                   </h3>
                   <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-200 leading-relaxed">
-                    Thank you for contacting DISHA 20-20! Your message has been submitted successfully. We appreciate your feedback.
+                    Thank you for contacting DISHA 20-20. Your message has been received.
                   </p>
                 </div>
               </div>
