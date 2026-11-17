@@ -48,11 +48,10 @@ export function triggerDatabaseSavedToast(payload?: DatabaseSavedEventPayload | 
     type,
   };
 
+  // Dispatch only the saved event. triggerAdminToast handles the admin_toast
+  // event separately to avoid duplicate popups for a single action.
   window.dispatchEvent(
     new CustomEvent("disha2020_saved", { detail: eventDetail })
-  );
-  window.dispatchEvent(
-    new CustomEvent("disha2020_admin_toast", { detail: eventDetail })
   );
 }
 
@@ -71,13 +70,5 @@ export function triggerAdminToast(
     window.dispatchEvent(
       new CustomEvent("disha2020_admin_toast", { detail: toastDetail })
     );
-
-    // Also mirror to top-mid live confirmation popup
-    triggerDatabaseSavedToast({
-      title,
-      message,
-      type,
-      ...extra,
-    });
   }
 }
