@@ -19,8 +19,7 @@ SET search_path = ''
 AS $$
   SELECT COALESCE(
     (auth.jwt() -> 'app_metadata' ->> 'role' = 'admin') OR
-    (LOWER(auth.jwt() ->> 'email') IN ('jagdishpaliyaljat@gmail.com', 'zdpaliyal@gmail.com')) OR
-    (LOWER(auth.jwt() -> 'user_metadata' ->> 'email') IN ('jagdishpaliyaljat@gmail.com', 'zdpaliyal@gmail.com')),
+    (LOWER(auth.jwt() ->> 'email') IN ('jagdishpaliyaljat@gmail.com', 'zdpaliyal@gmail.com')),
     false
   );
 $$;

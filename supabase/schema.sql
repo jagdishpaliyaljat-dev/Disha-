@@ -108,19 +108,19 @@ CREATE INDEX IF NOT EXISTS idx_bookmarks_user_id ON public.bookmarks(user_id);
 -- SECURITY & AUTHORIZATION FUNCTIONS
 -- ----------------------------------------------------------------------------
 -- Designated Administrator: jagdishpaliyaljat@gmail.com (provisioned via app_metadata.role = 'admin')
--- Hardened Admin Authorization: Security Invoker with empty search_path
--- Relies exclusively on server-controlled Supabase Auth app_metadata
+-- Hardened Admin Authorization: Security Definer with empty search_path
+-- Relies on server-controlled Supabase Auth app_metadata (role) and the
+-- authenticated account email. Never trust user_metadata (client-controllable).
 CREATE OR REPLACE FUNCTION public.is_admin()
 RETURNS boolean
 LANGUAGE sql
-SECURITY INVOKER
+SECURITY DEFINER
 STABLE
 SET search_path = ''
 AS $$
   SELECT COALESCE(
     (auth.jwt() -> 'app_metadata' ->> 'role' = 'admin') OR
-    (LOWER(auth.jwt() ->> 'email') IN ('jagdishpaliyaljat@gmail.com', 'zdpaliyal@gmail.com')) OR
-    (LOWER(auth.jwt() -> 'user_metadata' ->> 'email') IN ('jagdishpaliyaljat@gmail.com', 'zdpaliyal@gmail.com')),
+    (LOWER(auth.jwt() ->> 'email') IN ('jagdishpaliyaljat@gmail.com', 'zdpaliyal@gmail.com')),
     false
   );
 $$;
