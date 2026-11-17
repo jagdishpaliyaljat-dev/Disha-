@@ -5,6 +5,7 @@ import {
   idbGet, 
   idbGetAll, 
   idbPut, 
+  idbPutBatch,
   idbDelete, 
   enqueueSyncEvent,
   STORES 
@@ -125,6 +126,7 @@ export async function syncCurriculumAuthoritative(options?: { force?: boolean })
       const deletedChapSet = new Set(currentQuestionsStore.deletedChapterIds || []);
       const deletedTopSet = new Set(currentQuestionsStore.deletedTopicIds || []);
 
+      const mcqsToBatch: any[] = [];
       for (const q of serverQuestions) {
         if (!q || !q.id || deletedQSet.has(q.id)) {
           continue; // Respect local question deletions
@@ -133,7 +135,7 @@ export async function syncCurriculumAuthoritative(options?: { force?: boolean })
         if (q.chapter_id) chapterQuestionCounts[q.chapter_id] = (chapterQuestionCounts[q.chapter_id] || 0) + 1;
         if (q.subject_id) subjectQuestionCounts[q.subject_id] = (subjectQuestionCounts[q.subject_id] || 0) + 1;
 
-        await idbPut(STORES.MCQS, {
+        mcqsToBatch.push({
           id: q.id,
           text: q.question,
           options: Array.isArray(q.options) ? q.options : [],
@@ -148,6 +150,9 @@ export async function syncCurriculumAuthoritative(options?: { force?: boolean })
           isUserAdded: false,
           updatedAt: q.created_at,
         });
+      }
+      if (mcqsToBatch.length > 0) {
+        await idbPutBatch(STORES.MCQS, mcqsToBatch);
       }
 
       const serverSubjIds = new Set(serverSubjects.map(s => s.id));
@@ -168,9 +173,10 @@ export async function syncCurriculumAuthoritative(options?: { force?: boolean })
           result.prunedSubjects++;
         }
       }
+      const subjectsToBatch: Subject[] = [];
       for (const s of serverSubjects) {
         if (deletedSubSet.has(s.id)) continue; // Respect local deletion
-        await idbPut(STORES.SUBJECTS, {
+        subjectsToBatch.push({
           id: s.id,
           name: s.name,
           hindiName: s.hindi_name,
@@ -182,6 +188,9 @@ export async function syncCurriculumAuthoritative(options?: { force?: boolean })
           isUserAdded: false,
         });
         result.subjectsCount++;
+      }
+      if (subjectsToBatch.length > 0) {
+        await idbPutBatch(STORES.SUBJECTS, subjectsToBatch);
       }
 
       // 2. Reconcile Chapters
@@ -198,9 +207,10 @@ export async function syncCurriculumAuthoritative(options?: { force?: boolean })
           result.prunedChapters++;
         }
       }
+      const chaptersToBatch: Chapter[] = [];
       for (const c of serverChapters) {
         if (deletedChapSet.has(c.id)) continue; // Respect local deletion
-        await idbPut(STORES.CHAPTERS, {
+        chaptersToBatch.push({
           id: c.id,
           subjectId: c.subject_id,
           title: c.name,
@@ -211,6 +221,9 @@ export async function syncCurriculumAuthoritative(options?: { force?: boolean })
           isUserAdded: false,
         });
         result.chaptersCount++;
+      }
+      if (chaptersToBatch.length > 0) {
+        await idbPutBatch(STORES.CHAPTERS, chaptersToBatch);
       }
 
       // 3. Reconcile Topics
@@ -227,9 +240,10 @@ export async function syncCurriculumAuthoritative(options?: { force?: boolean })
           result.prunedTopics++;
         }
       }
+      const topicsToBatch: Topic[] = [];
       for (const t of serverTopics) {
         if (deletedTopSet.has(t.id)) continue; // Respect local deletion
-        await idbPut(STORES.TOPICS, {
+        topicsToBatch.push({
           id: t.id,
           chapterId: t.chapter_id,
           subjectId: t.subject_id,
@@ -242,6 +256,9 @@ export async function syncCurriculumAuthoritative(options?: { force?: boolean })
         });
         result.topicsCount++;
       }
+      if (topicsToBatch.length > 0) {
+        await idbPutBatch(STORES.TOPICS, topicsToBatch);
+      }
 
       // 4. Update cache metadata in IndexedDB
       await idbPut(STORES.CURRICULUM_METADATA, {
@@ -252,6 +269,28 @@ export async function syncCurriculumAuthoritative(options?: { force?: boolean })
         serverTopicsCount: result.topicsCount,
         version: 1
       });
+
+      // 5. Update in-memory curriculum cache and persistent store immediately
+      try {
+        const { saveCachedCurriculum } = await import("./indexedDbCache");
+        await saveCachedCurriculum(subjectsToBatch, chaptersToBatch, topicsToBatch, mcqsToBatch).catch(() => {});
+        
+        const { saveUserQuestionsStore } = await import("./questionsStorage");
+        const existingCustomSubs = (currentQuestionsStore.customSubjects || []).filter(s => s.isUserAdded && !subjectsToBatch.some(sb => sb.id === s.id));
+        const existingCustomChaps = (currentQuestionsStore.customChapters || []).filter(c => c.isUserAdded && !chaptersToBatch.some(cb => cb.id === c.id));
+        const existingCustomTops = (currentQuestionsStore.customTopics || []).filter(t => t.isUserAdded && !topicsToBatch.some(tb => tb.id === t.id));
+
+        const nextStore = {
+          ...currentQuestionsStore,
+          customSubjects: [...subjectsToBatch, ...existingCustomSubs],
+          customChapters: [...chaptersToBatch, ...existingCustomChaps],
+          customTopics: [...topicsToBatch, ...existingCustomTops],
+          cloudCacheQuestions: mcqsToBatch,
+        };
+        saveUserQuestionsStore(nextStore);
+      } catch (cacheErr) {
+        console.warn("[SupabaseSync] Immediate cache update note:", cacheErr);
+      }
 
       if (typeof window !== "undefined") {
         window.dispatchEvent(new CustomEvent("disha2020_curriculum_synced", { detail: result }));

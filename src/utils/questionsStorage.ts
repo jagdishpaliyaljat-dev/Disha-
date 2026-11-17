@@ -851,10 +851,8 @@ export function getCombinedChapters(store: UserQuestionsStore = loadUserQuestion
     const direct = questionsByTopicId.get(t.id.toLowerCase()) || [];
     for (let i = 0; i < direct.length; i++) {
       const q = direct[i];
-      if (!q.chapterId || q.chapterId === chapter.id || !q.subjectId || q.subjectId === chapter.subjectId) {
-        assignedQuestionIds.add(q.id);
-        list.push(q);
-      }
+      assignedQuestionIds.add(q.id);
+      list.push(q);
     }
     for (let i = 0; i < unassignedCandidates.length; i++) {
       const q = unassignedCandidates[i];
@@ -1031,15 +1029,45 @@ export function getCombinedChapters(store: UserQuestionsStore = loadUserQuestion
       }
 
       if (targetChapter) {
-        const qTopTitle = (q as any).topicTitle || (q as any).topicName || (q as any).topic || "General Practice (सामान्य अभ्यास)";
-        const qHindiTitle = (q as any).hindiTopicTitle || (q as any).hindiTopicName || qTopTitle;
+        // Resolve known topic details first to prevent renaming custom topics to "General Practice"
+        const knownCustomTopic =
+          (customTopicsList || []).find(t => t.id === q.topicId) ||
+          (store.customTopics || []).find(t => t.id === q.topicId) ||
+          allCombined.flatMap(c => c.topics || []).find(t => t.id === q.topicId);
+
+        const knownEdited = q.topicId && store.editedTopics ? store.editedTopics[q.topicId] : undefined;
+
+        const resolvedTitle =
+          knownEdited?.title ||
+          knownCustomTopic?.title ||
+          (q as any).topicTitle ||
+          (q as any).topicName ||
+          (q as any).topic ||
+          (q.topicId && q.topicId !== "gen" && q.topicId !== "chapter_general"
+            ? (knownCustomTopic?.title || (q.topicId.startsWith("custom-topic-") ? "Custom Topic" : `Topic ${q.topicId}`))
+            : "General Practice (सामान्य अभ्यास)");
+
+        const resolvedHindiTitle =
+          knownEdited?.hindiTitle ||
+          knownCustomTopic?.hindiTitle ||
+          (q as any).hindiTopicTitle ||
+          (q as any).hindiTopicName ||
+          resolvedTitle;
+
+        const qTopTitle = resolvedTitle;
+        const qHindiTitle = resolvedHindiTitle;
 
         // Find existing topic or create salvage topic
         let targetTopic = targetChapter.topics.find(
-          t => t.id === q.topicId || t.title.toLowerCase() === qTopTitle.toLowerCase()
+          t => t.id === q.topicId || (qTopTitle && t.title.toLowerCase() === qTopTitle.toLowerCase())
         );
 
         if (targetTopic) {
+          // If the existing topic was previously defaulted to "General Practice" but has a known custom topic with a real name, restore the real name!
+          if (knownCustomTopic && (targetTopic.title.includes("General Practice") || targetTopic.title.includes("सामान्य अभ्यास"))) {
+            targetTopic.title = knownCustomTopic.title;
+            targetTopic.hindiTitle = knownCustomTopic.hindiTitle || knownCustomTopic.title;
+          }
           if (!targetTopic.questions.some(existingQ => existingQ.id === q.id)) {
             targetTopic.questions.push(q);
           }
@@ -1049,6 +1077,10 @@ export function getCombinedChapters(store: UserQuestionsStore = loadUserQuestion
             : `salvage_${targetChapter.id}_general`;
           const existingSalvage = targetChapter.topics.find(t => t.id === newTopicId);
           if (existingSalvage) {
+            if (knownCustomTopic && (existingSalvage.title.includes("General Practice") || existingSalvage.title.includes("सामान्य अभ्यास"))) {
+              existingSalvage.title = knownCustomTopic.title;
+              existingSalvage.hindiTitle = knownCustomTopic.hindiTitle || knownCustomTopic.title;
+            }
             if (!existingSalvage.questions.some(existingQ => existingQ.id === q.id)) {
               existingSalvage.questions.push(q);
             }
@@ -1057,10 +1089,11 @@ export function getCombinedChapters(store: UserQuestionsStore = loadUserQuestion
               id: newTopicId,
               chapterId: targetChapter.id,
               subjectId: targetChapter.subjectId,
-              title: qTopTitle,
-              hindiTitle: qHindiTitle,
+              title: knownCustomTopic?.title || qTopTitle,
+              hindiTitle: knownCustomTopic?.hindiTitle || qHindiTitle,
               number: targetChapter.topics.length + 1,
               questions: [q],
+              isUserAdded: knownCustomTopic?.isUserAdded ?? true,
             });
           }
         }

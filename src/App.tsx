@@ -449,13 +449,25 @@ export default function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // In-app session close that pops browser history when session=1 query exists
-  const handleCloseSession = () => {
+  // In-app session close that cleans up URL and selected topic state
+  const handleCloseSession = React.useCallback(() => {
     setActiveSession(null);
-    if (typeof window !== 'undefined' && window.location.search.includes('session=1')) {
-      window.history.back();
+    setSelectedTopicId(null);
+
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      if (url.searchParams.has('session')) {
+        url.searchParams.delete('session');
+        const cleanSearch = url.searchParams.toString();
+        const cleanUrl = url.pathname + (cleanSearch ? `?${cleanSearch}` : '');
+        window.history.replaceState(
+          { ...window.history.state, hasSession: false, dishaTestActive: false, quizProTestActive: false },
+          '',
+          cleanUrl
+        );
+      }
     }
-  };
+  }, []);
 
   // Handle Android Back button, browser Back button and gesture PopState navigation
   React.useEffect(() => {
@@ -471,6 +483,7 @@ export default function App() {
       // 1. If URL no longer has session=1, clear activeSession immediately
       if (!hasSessionParam && activeSession) {
         setActiveSession(null);
+        setSelectedTopicId(null);
       }
 
       // 2. If this is a sentinel state from MCQSessionModal (Back button protection),
@@ -1631,7 +1644,7 @@ export default function App() {
         </OverlayErrorBoundary>
       )}
 
-      {!activeSession && selectedChapterId && (
+      {!activeSession && selectedChapterId && activeTab !== 'topics' && (
         <OverlayErrorBoundary
           viewName="Chapter Detail"
           onClose={() => setSelectedChapterId(null)}

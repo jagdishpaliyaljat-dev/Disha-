@@ -177,14 +177,8 @@ export const TopicsTab: React.FC<TopicsTabProps> = ({
         activeChapter={activeChapter}
         activeSubject={activeSubject}
         onBack={() => {
-          // Robust hierarchical back: Ensure we return to topic list (chapter view)
-          if (currentTopicId) {
-            handleSelectTopic(null);
-          } else if (typeof window !== "undefined" && window.history.length > 1) {
-            window.history.back();
-          } else {
-            onSelectChapter(null);
-          }
+          // Robust hierarchical back: Return to topic list (chapter view)
+          handleSelectTopic(null);
         }}
         onStartSession={onStartSession}
       />
@@ -201,14 +195,8 @@ export const TopicsTab: React.FC<TopicsTabProps> = ({
           <div className="flex items-center gap-3 max-w-4xl mx-auto w-full">
             <button
               onClick={() => {
-                // If we are in the topics list of a chapter, return to the chapter list (subject view)
-                if (activeChapter) {
-                  onSelectChapter(null);
-                } else if (typeof window !== "undefined" && window.history.length > 1) {
-                  window.history.back();
-                } else {
-                  onSelectSubject(null);
-                }
+                // Return to chapter list (subject view)
+                onSelectChapter(null);
               }}
               className="w-9 h-9 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center text-[#171923] dark:text-[#FFF9EF] active:scale-95 transition-all cursor-pointer"
             >
@@ -261,14 +249,8 @@ export const TopicsTab: React.FC<TopicsTabProps> = ({
           <div className="flex items-center gap-3 max-w-4xl mx-auto w-full">
             <button
               onClick={() => {
-                // If we are in the chapters list of a subject, return to the subject list (all subjects)
-                if (activeSubject) {
-                  onSelectSubject(null);
-                } else if (typeof window !== "undefined" && window.history.length > 1) {
-                  window.history.back();
-                } else {
-                  onBack?.();
-                }
+                // Return to subject list (all subjects)
+                onSelectSubject(null);
               }}
               className="w-9 h-9 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center text-[#171923] dark:text-[#FFF9EF] active:scale-95 transition-all cursor-pointer"
             >
