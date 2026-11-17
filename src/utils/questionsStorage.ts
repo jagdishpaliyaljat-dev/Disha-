@@ -1743,6 +1743,89 @@ export function deleteTopic(store: UserQuestionsStore, topicId: string): UserQue
   return updatedStore;
 }
 
+// Helper to add topic
+export function addTopic(
+  store: UserQuestionsStore, 
+  topic: Topic, 
+  chapterId?: string
+): UserQuestionsStore {
+  const targetChapterId = chapterId || topic.chapterId;
+  const normTitle = (topic.title || (topic as any).name || "").trim();
+  const normHindi = (topic.hindiTitle || (topic as any).hindi_name || normTitle).trim();
+
+  // Find parent chapter to resolve subjectId and ordering
+  const combinedChaps = getCombinedChapters(store);
+  const parentChapter = combinedChaps.find(c => c.id === targetChapterId) ||
+                        (store.customChapters || []).find(c => c.id === targetChapterId);
+
+  const resolvedSubjectId = topic.subjectId || parentChapter?.subjectId || "economics";
+  const existingTopicsInChapter = parentChapter?.topics || [];
+  const assignedNumber = topic.number || (existingTopicsInChapter.length + 1);
+
+  const harmonizedTopic: Topic = {
+    ...topic,
+    id: topic.id,
+    chapterId: targetChapterId,
+    subjectId: resolvedSubjectId,
+    title: normTitle || "Untitled Topic",
+    hindiTitle: normHindi || normTitle || "Untitled Topic",
+    number: assignedNumber,
+    isUserAdded: true,
+    questions: Array.isArray(topic.questions) ? topic.questions : [],
+  };
+
+  // Clean from deletedTopicIds if present
+  const cleanDeleted = (store.deletedTopicIds || []).filter(id => id !== topic.id);
+
+  // Clean from editedTopics if present
+  const newEdited = { ...(store.editedTopics || {}) };
+  delete newEdited[topic.id];
+
+  // Update customTopics list
+  const currentCustomTopics = (store.customTopics || []).filter(t => t.id !== topic.id);
+  const nextCustomTopics = [...currentCustomTopics, harmonizedTopic];
+
+  // Update customChapters:
+  let chapterFoundInCustom = false;
+  let nextCustomChapters = (store.customChapters || []).map(ch => {
+    if (ch.id === targetChapterId) {
+      chapterFoundInCustom = true;
+      const filteredTopics = (ch.topics || []).filter(t => t.id !== topic.id);
+      return {
+        ...ch,
+        topics: [...filteredTopics, harmonizedTopic],
+      };
+    }
+    return ch;
+  });
+
+  if (!chapterFoundInCustom && parentChapter) {
+    const filteredTopics = (parentChapter.topics || []).filter(t => t.id !== topic.id);
+    const newCustomChapter: Chapter = {
+      ...parentChapter,
+      topics: [...filteredTopics, harmonizedTopic],
+      isUserAdded: true,
+    };
+    nextCustomChapters.push(newCustomChapter);
+  }
+
+  const updatedStore: UserQuestionsStore = {
+    ...store,
+    customChapters: nextCustomChapters,
+    customTopics: nextCustomTopics,
+    deletedTopicIds: cleanDeleted,
+    editedTopics: newEdited,
+  };
+
+  saveCachedCurriculum(
+    updatedStore.customSubjects || [],
+    updatedStore.customChapters || [],
+    updatedStore.customTopics || []
+  ).catch(() => {});
+
+  return updatedStore;
+}
+
 // Helper to edit topic
 export function editTopic(store: UserQuestionsStore, topic: Topic): UserQuestionsStore {
   const normTitle = (topic.title || (topic as any).name || "").trim();

@@ -292,6 +292,14 @@ class SyncCoordinatorClass {
                 }, { onConflict: "user_id,question_id" });
               }
               opCount++;
+            } else if (evt.eventType === "curriculum_topic") {
+              if (evt.operation === "delete") {
+                const { error: delErr } = await supabase.from("topics").delete().eq("id", evt.entityId);
+                if (!delErr) opCount++;
+              } else if (evt.payload) {
+                const { error: topErr } = await supabase.from("topics").upsert(evt.payload, { onConflict: "id" });
+                if (!topErr) opCount++;
+              }
             }
           } catch (e: any) {
             console.warn(`[SyncCoordinator] Error syncing event ${evt.eventId}:`, e.message);

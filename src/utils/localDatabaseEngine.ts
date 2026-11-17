@@ -62,7 +62,8 @@ export interface SyncQueueEvent {
     | "revision" 
     | "study_log" 
     | "syllabus_progress"
-    | "settings";
+    | "settings"
+    | "curriculum_topic";
   entityId: string;
   operation: "upsert" | "delete" | "append";
   payload: any;

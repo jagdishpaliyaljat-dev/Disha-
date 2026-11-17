@@ -2,10 +2,11 @@ import { supabase, isSupabaseConfigured } from "../lib/supabase";
 import { Subject, Chapter, Topic, Question } from "../types";
 import { 
   openLocalDatabase, 
-  idbGet,
+  idbGet, 
   idbGetAll, 
   idbPut, 
-  idbDelete,
+  idbDelete, 
+  enqueueSyncEvent,
   STORES 
 } from "./localDatabaseEngine";
 
