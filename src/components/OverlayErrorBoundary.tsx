@@ -7,6 +7,7 @@ interface OverlayErrorBoundaryProps {
   viewName: string;
   onClose?: () => void;
   onReset?: () => void;
+  fallbackComponent?: React.ReactNode;
 }
 
 interface OverlayErrorBoundaryState {
@@ -49,6 +50,9 @@ export class OverlayErrorBoundary extends React.Component<
 
   render(): React.ReactNode {
     if (this.state.hasError) {
+      if (this.props.fallbackComponent !== undefined) {
+        return this.props.fallbackComponent;
+      }
       return (
         <div
           role="alert"

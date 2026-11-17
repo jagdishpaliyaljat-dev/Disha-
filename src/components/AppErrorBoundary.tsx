@@ -1,5 +1,10 @@
 import * as React from "react";
 import { productionMonitor } from "../utils/productionMonitoring";
+import {
+  safeGetSessionStorageItem,
+  safeSetSessionStorageItem,
+  safeRemoveLocalStorageItem,
+} from "../utils/safeStorage";
 
 interface AppErrorBoundaryProps {
   children: React.ReactNode;
@@ -13,13 +18,13 @@ interface AppErrorBoundaryState {
   errorEventId?: string;
   isChunkError?: boolean;
   showDetails?: boolean;
+  autoHealAttempted?: boolean;
 }
 
 /**
  * Root Application Error Boundary for DISHA 20-20
- * Prevents full-screen whiteout / crash scenarios.
- * Integrates with productionMonitoring telemetry without logging secrets or credentials.
- * Handles automatic chunk cache busting on deployment hash mismatch.
+ * Prevents full-screen crashes with instant auto-healing recovery,
+ * stale service-worker cache purging, and webview resilience.
  */
 export class AppErrorBoundary extends React.Component<AppErrorBoundaryProps, AppErrorBoundaryState> {
   constructor(props: AppErrorBoundaryProps) {
@@ -33,36 +38,46 @@ export class AppErrorBoundary extends React.Component<AppErrorBoundaryProps, App
       msg.includes("dynamically imported module") ||
       msg.includes("Loading chunk") ||
       msg.includes("Failed to fetch") ||
+      msg.includes("ChunkLoadError") ||
       error?.name === "ChunkLoadError";
 
     return { hasError: true, error, isChunkError };
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
-    const entry = productionMonitor.captureReactError(error, errorInfo, "RootAppBoundary");
-    this.setState({ errorEventId: entry.id });
+    let entryId = "err_" + Date.now();
+    try {
+      const entry = productionMonitor.captureReactError(error, errorInfo, "RootAppBoundary");
+      entryId = entry.id;
+    } catch (_) {}
+    this.setState({ errorEventId: entryId });
     console.error("[DISHA 20-20 Root Error Boundary]", error, errorInfo);
 
-    // If chunk mismatch detected and not yet auto-reloaded in this session, auto-clear SW & reload seamlessly
-    const msg = String(error?.message || "");
-    const isChunkFail =
-      msg.includes("dynamically imported module") ||
-      msg.includes("Loading chunk") ||
-      msg.includes("Failed to fetch") ||
-      error?.name === "ChunkLoadError";
+    // Auto-healing recovery: If this is the first unexpected view error in the session,
+    // seamlessly purge stale service-worker cache and recover once without scaring the user
+    if (typeof window !== "undefined") {
+      const now = Date.now();
+      const lockKey = "disha_auto_heal_lock";
+      const lastHeal = Number(safeGetSessionStorageItem(lockKey) || "0");
 
-    if (isChunkFail && typeof window !== "undefined") {
-      const lockKey = "disha_auto_chunk_reload_done";
-      if (!sessionStorage.getItem(lockKey)) {
-        sessionStorage.setItem(lockKey, "1");
-        this.handleClearCacheAndReload();
+      if (!lastHeal || now - lastHeal > 10000) {
+        safeSetSessionStorageItem(lockKey, String(now));
+        this.setState({ autoHealAttempted: true });
+        console.info("[AppErrorBoundary] Triggering instant self-healing auto-recovery...");
+        this.handleSelfHealingRecovery();
       }
     }
   }
 
   handleRetry = (): void => {
     this.props.onReset?.();
-    this.setState({ hasError: false, error: undefined, errorEventId: undefined, isChunkError: false, showDetails: false });
+    this.setState({
+      hasError: false,
+      error: undefined,
+      errorEventId: undefined,
+      isChunkError: false,
+      showDetails: false,
+    });
   };
 
   handleGoHome = (): void => {
@@ -90,7 +105,7 @@ export class AppErrorBoundary extends React.Component<AppErrorBoundaryProps, App
       };
       if (navigator?.clipboard?.writeText) {
         await navigator.clipboard.writeText(JSON.stringify(report, null, 2));
-        alert("Diagnostic report copied to clipboard.");
+        alert("Diagnostic report copied to clipboard. / डायग्नोस्टिक रिपोर्ट क्लिपबोर्ड पर कॉपी हो गई।");
       }
     } catch {}
   };
@@ -101,44 +116,43 @@ export class AppErrorBoundary extends React.Component<AppErrorBoundaryProps, App
     }
   };
 
-  handleClearCacheAndReload = async (): Promise<void> => {
+  handleSelfHealingRecovery = async (): Promise<void> => {
     try {
       if (typeof window !== "undefined") {
-        // 1. Clear all CacheStorage entries
+        // 1. Clear all CacheStorage entries to discard stale chunks
         if ("caches" in window) {
-          const keys = await caches.keys();
-          await Promise.all(keys.map((k) => caches.delete(k)));
+          const keys = await caches.keys().catch(() => []);
+          await Promise.all(keys.map((k) => caches.delete(k).catch(() => false)));
         }
 
-        // 2. Unregister all active Service Workers to purge stale precache
+        // 2. Unregister all active Service Workers
         if ("serviceWorker" in navigator) {
-          const registrations = await navigator.serviceWorker.getRegistrations();
-          await Promise.all(registrations.map((r) => r.unregister()));
+          const registrations = await navigator.serviceWorker.getRegistrations().catch(() => []);
+          await Promise.all(registrations.map((r) => r.unregister().catch(() => false)));
         }
 
-        // 3. Purge curriculum and temporary cache keys while preserving authenticated profile & streak
-        if (typeof localStorage !== "undefined") {
-          const purgeKeys = [
-            "disha2020_cloud_cache_questions_v1",
-            "disha2020_pending_writes_queue_v1",
-            "disha2020_curriculum_cache_v1",
-            "disha2020_clean_slate_zero_mock_v8_0",
-            "quizpro_cloud_cache_questions_v1",
-            "quizpro_pending_writes_queue_v1",
-            "cached_curriculum_v1",
-            "quizpro_curriculum_cache_v1",
-            "quizpro_clean_slate_zero_mock_v7_0",
-            "quizpro_clean_slate_zero_mock_v8_0",
-          ];
-          purgeKeys.forEach((k) => localStorage.removeItem(k));
-        }
+        // 3. Purge transient corrupted cache keys while preserving authenticated profile, streak, & progress
+        const purgeKeys = [
+          "disha2020_cloud_cache_questions_v1",
+          "disha2020_pending_writes_queue_v1",
+          "disha2020_curriculum_cache_v1",
+          "disha2020_clean_slate_zero_mock_v8_0",
+          "quizpro_cloud_cache_questions_v1",
+          "quizpro_pending_writes_queue_v1",
+          "cached_curriculum_v1",
+          "quizpro_curriculum_cache_v1",
+          "quizpro_clean_slate_zero_mock_v7_0",
+          "quizpro_clean_slate_zero_mock_v8_0",
+          "disha_chunk_reload_lock",
+        ];
+        purgeKeys.forEach((k) => safeRemoveLocalStorageItem(k));
       }
     } catch (e) {
       console.warn("Could not completely flush caches:", e);
     }
 
     if (typeof window !== "undefined") {
-      window.location.replace(`/?_v=${Date.now()}`);
+      window.location.replace(`/?recovery=1&_t=${Date.now()}`);
     }
   };
 
@@ -158,13 +172,13 @@ export class AppErrorBoundary extends React.Component<AppErrorBoundaryProps, App
             <div className="space-y-2">
               <h1 className="text-lg sm:text-xl font-black text-[#171923] dark:text-[#FFF9EF] tracking-tight">
                 {isChunk
-                  ? "App Update Available"
-                  : this.props.fallbackTitle || "Something went wrong"}
+                  ? "ऐप अपडेट उपलब्ध है (Update Ready)"
+                  : this.props.fallbackTitle || "दिशा 20-20 — स्वतः मरम्मत (Auto-Repair)"}
               </h1>
               <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-hindi">
                 {isChunk
-                  ? "A newer version of DISHA 20-20 has been deployed with performance and database updates. Tap below to refresh."
-                  : "DISHA 20-20 encountered an unexpected view error. Your practice progress and bookmark records are safely stored."}
+                  ? "दिशा 20-20 का नया और तेज़ वर्शन लाइव है। नीचे 1-क्लिक रिपेयर बटन दबाकर तुरंत लॉन्च करें।"
+                  : "अस्थायी व्यू एरर पकड़ा गया। आपका अभ्यास, बुकमार्क और प्रोफाइल डेटा 100% सुरक्षित है।"}
               </p>
               {this.state.errorEventId && (
                 <div className="pt-1">
@@ -176,38 +190,30 @@ export class AppErrorBoundary extends React.Component<AppErrorBoundaryProps, App
             </div>
 
             <div className="flex flex-col gap-2.5 pt-2">
+              <button
+                type="button"
+                onClick={this.handleSelfHealingRecovery}
+                className="w-full py-3.5 px-4 bg-[#800020] hover:bg-[#600018] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] text-white rounded-xl text-xs font-bold shadow-md transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-2"
+              >
+                <span>🚀 1-क्लिक स्वतः मरम्मत और खोलें (1-Tap Auto-Repair & Launch)</span>
+              </button>
+
               <div className="flex flex-col sm:flex-row items-center gap-2.5">
-                {isChunk ? (
-                  <button
-                    onClick={this.handleClearCacheAndReload}
-                    className="w-full sm:flex-1 py-3 px-4 bg-[#800020] hover:bg-[#600018] text-[#FFF9EF] rounded-xl text-xs font-bold shadow-md transition-all active:scale-95 cursor-pointer"
-                  >
-                    Update & Launch
-                  </button>
-                ) : (
-                  <button
-                    onClick={this.handleGoHome}
-                    className="w-full sm:flex-1 py-3 px-4 bg-[#800020] hover:bg-[#600018] text-[#FFF9EF] rounded-xl text-xs font-bold shadow-md transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-1.5"
-                  >
-                    <span>Go to Home Dashboard</span>
-                  </button>
-                )}
                 <button
-                  onClick={this.handleReload}
-                  className="w-full sm:flex-1 py-3 px-4 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold transition-all active:scale-95 cursor-pointer"
+                  type="button"
+                  onClick={this.handleGoHome}
+                  className="w-full sm:flex-1 py-2.5 px-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold transition-all active:scale-95 cursor-pointer"
                 >
-                  Reload Page
+                  मुख्य पृष्ठ (Home)
+                </button>
+                <button
+                  type="button"
+                  onClick={this.handleReload}
+                  className="w-full sm:flex-1 py-2.5 px-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold transition-all active:scale-95 cursor-pointer"
+                >
+                  पुनः लोड (Reload)
                 </button>
               </div>
-
-              {!isChunk && (
-                <button
-                  onClick={this.handleClearCacheAndReload}
-                  className="w-full py-2.5 px-3 bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800/60 text-slate-500 dark:text-slate-400 rounded-xl text-[11px] font-bold transition-all active:scale-95 cursor-pointer border border-dashed border-slate-300 dark:border-slate-700"
-                >
-                  Reset Temporary Cache & Launch
-                </button>
-              )}
             </div>
 
             {/* Collapsible Error Diagnostics Details for Admins & Debugging */}
@@ -219,7 +225,7 @@ export class AppErrorBoundary extends React.Component<AppErrorBoundaryProps, App
                     onClick={() => this.setState((prev) => ({ showDetails: !prev.showDetails }))}
                     className="text-[10px] font-bold text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 underline cursor-pointer"
                   >
-                    {this.state.showDetails ? "Hide Error Details" : "Show Error Details"}
+                    {this.state.showDetails ? "विवरण छुपाएं (Hide Details)" : "त्रुटि विवरण देखें (Show Error Details)"}
                   </button>
                   {this.state.showDetails && (
                     <button
@@ -227,7 +233,7 @@ export class AppErrorBoundary extends React.Component<AppErrorBoundaryProps, App
                       onClick={this.handleCopyDiagnostics}
                       className="text-[10px] font-bold text-[#800020] dark:text-[#F47B20] hover:underline cursor-pointer"
                     >
-                      Copy Diagnostic Report
+                      कॉपी करें (Copy Report)
                     </button>
                   )}
                 </div>

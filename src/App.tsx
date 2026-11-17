@@ -71,40 +71,57 @@ import {
   hasPendingStudentWrites,
   rehydrateStudentWriteBuffer,
 } from './utils/studentWriteBuffer';
+import {
+  safeGetSessionStorageItem,
+  safeSetSessionStorageItem,
+  safeRemoveSessionStorageItem,
+  safeGetLocalStorageItem,
+  safeSetLocalStorageItem,
+} from './utils/safeStorage';
 
-// Helper for resilient dynamic imports with clean React 19 reconciler compatibility and retry on chunk load failure
+// Helper for resilient dynamic imports with clean React 19 reconciler compatibility, retry with backoff, and chunk auto-recovery
 function safeLazy<T extends React.ComponentType<any>>(
   importFn: () => Promise<any>,
   exportName?: string
 ): T {
-  return React.lazy(() =>
-    importFn()
+  return React.lazy(() => {
+    const attemptImport = (attemptsLeft: number): Promise<any> => {
+      return importFn().catch((err) => {
+        if (attemptsLeft <= 0) throw err;
+        console.warn(`[safeLazy] Retrying dynamic import (${attemptsLeft} tries left)...`, err);
+        return new Promise((resolve) => setTimeout(resolve, 600)).then(() => attemptImport(attemptsLeft - 1));
+      });
+    };
+
+    return attemptImport(2)
       .catch((err) => {
-        console.warn('Dynamic import failed, retrying...', err);
+        console.warn('[safeLazy] Dynamic import failed after retries, checking chunk error...', err);
         const errMsg = String(err?.message || '');
         const isChunkFail =
           errMsg.includes('dynamically imported module') ||
           errMsg.includes('Loading chunk') ||
           errMsg.includes('Failed to fetch') ||
+          errMsg.includes('ChunkLoadError') ||
           err?.name === 'ChunkLoadError';
 
         if (isChunkFail && typeof window !== 'undefined') {
           const RELOAD_KEY = 'disha_chunk_reload_lock';
-          const lastReload = sessionStorage.getItem(RELOAD_KEY);
+          const lastReload = safeGetSessionStorageItem(RELOAD_KEY);
           if (!lastReload || Date.now() - Number(lastReload) > 15000) {
-            sessionStorage.setItem(RELOAD_KEY, String(Date.now()));
-            if ('caches' in window) {
+            safeSetSessionStorageItem(RELOAD_KEY, String(Date.now()));
+            const targetUrl = `/?recovery=1&_t=${Date.now()}`;
+            if (typeof caches !== 'undefined') {
               caches.keys().then((names) => Promise.all(names.map((n) => caches.delete(n)))).finally(() => {
-                window.location.reload();
+                (window as Window).location.replace(targetUrl);
               });
               return new Promise(() => {});
             } else {
-              (window as Window).location.reload();
+              (window as Window).location.replace(targetUrl);
               return new Promise(() => {});
             }
           }
         }
-        return new Promise((resolve) => setTimeout(resolve, 800)).then(() => importFn());
+        throw err;
       })
       .then((mod) => {
         const component = exportName ? mod[exportName] || mod.default : mod.default || Object.values(mod)[0];
@@ -112,8 +129,8 @@ function safeLazy<T extends React.ComponentType<any>>(
           throw new Error(`Module export '${exportName || 'default'}' not found`);
         }
         return { default: component };
-      })
-  ) as unknown as T;
+      });
+  }) as unknown as T;
 }
 
 const HomeTab = safeLazy<typeof import('./components/HomeTab').HomeTab>(() => import('./components/HomeTab'), 'HomeTab');
@@ -278,26 +295,28 @@ export default function App() {
 
   // First-time app open notification permission request
   React.useEffect(() => {
-    const prompted = localStorage.getItem("disha2020_notification_prompted") || localStorage.getItem("quizpro_notification_prompted");
-    if (!prompted && typeof window !== "undefined" && "Notification" in window) {
-      localStorage.setItem("disha2020_notification_prompted", "true");
-      const timer = setTimeout(async () => {
-        try {
-          if (Notification.permission === "default") {
-            const perm = await Notification.requestPermission();
-            if (perm === "granted") {
-              new Notification("DISHA 20-20 — Welcome!", {
-                body: "You will now receive important exam updates, daily study reminders, and live test alerts.",
-                icon: "/favicon.svg"
-              });
+    try {
+      const prompted = safeGetLocalStorageItem("disha2020_notification_prompted") || safeGetLocalStorageItem("quizpro_notification_prompted");
+      if (!prompted && typeof window !== "undefined" && "Notification" in window) {
+        safeSetLocalStorageItem("disha2020_notification_prompted", "true");
+        const timer = setTimeout(async () => {
+          try {
+            if (Notification.permission === "default") {
+              const perm = await Notification.requestPermission();
+              if (perm === "granted") {
+                new Notification("DISHA 20-20 — Welcome!", {
+                  body: "You will now receive important exam updates, daily study reminders, and live test alerts.",
+                  icon: "/favicon.svg"
+                });
+              }
             }
+          } catch (e) {
+            console.warn("Notification permission request error:", e);
           }
-        } catch (e) {
-          console.warn("Notification permission request error:", e);
-        }
-      }, 2500);
-      return () => clearTimeout(timer);
-    }
+        }, 2500);
+        return () => clearTimeout(timer);
+      }
+    } catch {}
   }, []);
 
   // Offline-first local notifications persistence
@@ -693,8 +712,7 @@ export default function App() {
           // Only force admin view on (re)login when the admin hasn't explicitly
           // chosen to browse the student app. This keeps "Return to Student App"
           // from being overridden by the session restore redirect.
-          let preferStudentView = false;
-          try { preferStudentView = sessionStorage.getItem("disha_admin_view_mode") === "student"; } catch {}
+          const preferStudentView = safeGetSessionStorageItem("disha_admin_view_mode") === "student";
           if (isAdminUser && !preferStudentView) {
             setActiveTab("admin");
           }
@@ -911,7 +929,7 @@ export default function App() {
     } catch {}
     const { clearUserProfile } = await import('./utils/userProfileStorage');
     clearUserProfile();
-    try { sessionStorage.removeItem("disha_admin_view_mode"); } catch {}
+    safeRemoveSessionStorageItem("disha_admin_view_mode");
     setUserProfile(null);
     setIsAuthenticated(false);
     setActiveTab('home');
@@ -923,12 +941,51 @@ export default function App() {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
 
-  // Derived combined curriculum state
-  const combinedSubjects = React.useMemo(() => getCombinedSubjects(questionsStore), [questionsStore]);
-  const combinedChapters = React.useMemo(() => getCombinedChapters(questionsStore), [questionsStore]);
-  const combinedQuestions = React.useMemo(() => getCombinedQuestions(combinedChapters, questionsStore), [combinedChapters, questionsStore]);
-  const chaptersMap = React.useMemo(() => getCombinedChaptersMap(combinedChapters), [combinedChapters]);
-  const questionsMap = React.useMemo(() => getCombinedQuestionsMap(combinedQuestions), [combinedQuestions]);
+  // Derived combined curriculum state with bulletproof error shielding
+  const combinedSubjects = React.useMemo(() => {
+    try {
+      return getCombinedSubjects(questionsStore);
+    } catch (e) {
+      console.error("[Curriculum] Failed to derive combinedSubjects:", e);
+      return [];
+    }
+  }, [questionsStore]);
+
+  const combinedChapters = React.useMemo(() => {
+    try {
+      return getCombinedChapters(questionsStore);
+    } catch (e) {
+      console.error("[Curriculum] Failed to derive combinedChapters:", e);
+      return [];
+    }
+  }, [questionsStore]);
+
+  const combinedQuestions = React.useMemo(() => {
+    try {
+      return getCombinedQuestions(combinedChapters, questionsStore);
+    } catch (e) {
+      console.error("[Curriculum] Failed to derive combinedQuestions:", e);
+      return [];
+    }
+  }, [combinedChapters, questionsStore]);
+
+  const chaptersMap = React.useMemo(() => {
+    try {
+      return getCombinedChaptersMap(combinedChapters);
+    } catch (e) {
+      console.error("[Curriculum] Failed to derive chaptersMap:", e);
+      return {} as Record<string, Chapter>;
+    }
+  }, [combinedChapters]);
+
+  const questionsMap = React.useMemo(() => {
+    try {
+      return getCombinedQuestionsMap(combinedQuestions);
+    } catch (e) {
+      console.error("[Curriculum] Failed to derive questionsMap:", e);
+      return {} as Record<string, Question>;
+    }
+  }, [combinedQuestions]);
 
   // Curriculum handlers are now managed by useCurriculumManager
 
@@ -1109,12 +1166,7 @@ export default function App() {
       setIsExamAnalyzerOpen(true);
       return;
     }
-    // Remember whether the admin is operating in the admin console or browsing
-    // the student app, so a page refresh doesn't yank them back unexpectedly.
-    try {
-      if (tab === 'admin') sessionStorage.setItem("disha_admin_view_mode", "admin");
-      else sessionStorage.setItem("disha_admin_view_mode", "student");
-    } catch {}
+    safeSetSessionStorageItem("disha_admin_view_mode", tab === 'admin' ? "admin" : "student");
     if (tab !== activeTab) {
       setSelectedArticleSlug(null);
       setSelectedSubjectId(null);
@@ -1127,135 +1179,139 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#FFF9EF] dark:bg-[#171923] text-[#171923] dark:text-[#FFF9EF] flex flex-col font-sans selection:bg-[#800020] selection:text-white w-full max-w-full overflow-x-hidden">
-      <BrandSplashAndOnboarding allowAutoOnboarding={activeTab === 'home'} />
-      <ToastNotificationContainer toasts={toasts} onDismiss={handleDismissToast} />
-      <PWAUpdateToast />
-      <OfflineIndicator />
-      <Analytics />
+      <OverlayErrorBoundary viewName="System Overlays" fallbackComponent={null}>
+        <BrandSplashAndOnboarding allowAutoOnboarding={activeTab === 'home'} />
+        <ToastNotificationContainer toasts={toasts} onDismiss={handleDismissToast} />
+        <PWAUpdateToast />
+        <OfflineIndicator />
+        <Analytics />
+      </OverlayErrorBoundary>
 
       {/* Desktop Top Navigation Header */}
-      <header className="hidden md:block sticky top-0 z-40 bg-[#FFF9EF]/95 dark:bg-[#171923]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] select-none shadow-xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
-          {/* Brand Logo */}
-          <div
-            onClick={() => handleDesktopNavigateTab('home')}
-            className="flex items-center gap-2 cursor-pointer transition-transform hover:scale-[1.02] shrink-0"
-            role="button"
-            tabIndex={0}
-            aria-label="DISHA 20-20 Home"
-          >
-            <span className="text-lg font-black tracking-wider text-[#171923] dark:text-[#FFF9EF] uppercase font-serif whitespace-nowrap">
-              DISHA
-            </span>
-            <span className="px-2 py-0.5 rounded-lg bg-gradient-to-r from-[#F47B20] to-[#E06A12] text-white font-black text-xs tracking-tight shadow-xs whitespace-nowrap">
-              20-20
-            </span>
-          </div>
+      <OverlayErrorBoundary viewName="Desktop Navigation Header" fallbackComponent={null}>
+        <header className="hidden md:block sticky top-0 z-40 bg-[#FFF9EF]/95 dark:bg-[#171923]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] select-none shadow-xs">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
+            {/* Brand Logo */}
+            <div
+              onClick={() => handleDesktopNavigateTab('home')}
+              className="flex items-center gap-2 cursor-pointer transition-transform hover:scale-[1.02] shrink-0"
+              role="button"
+              tabIndex={0}
+              aria-label="DISHA 20-20 Home"
+            >
+              <span className="text-lg font-black tracking-wider text-[#171923] dark:text-[#FFF9EF] uppercase font-serif whitespace-nowrap">
+                DISHA
+              </span>
+              <span className="px-2 py-0.5 rounded-lg bg-gradient-to-r from-[#F47B20] to-[#E06A12] text-white font-black text-xs tracking-tight shadow-xs whitespace-nowrap">
+                20-20
+              </span>
+            </div>
 
-          {/* Desktop Navigation Bar */}
-          <nav aria-label="Desktop Navigation" className="hidden md:flex items-center gap-1">
-            {[
-              { id: 'home' as ActiveTab, label: 'Home', icon: Home },
-              { id: 'topics' as ActiveTab, label: 'Subjects', icon: BookOpen },
-              { id: 'live_tests' as ActiveTab, label: 'Tests', icon: Trophy },
-              { id: 'analyzer' as ActiveTab, label: 'Scan', icon: Scan },
-              { id: 'analytics' as ActiveTab, label: 'Analytics', icon: BarChart2 },
-              { id: 'profile' as ActiveTab, label: 'Profile', icon: User },
-              ...(isAdmin ? [{ id: 'admin' as ActiveTab, label: 'Admin', icon: ShieldCheck }] : []),
-            ].map((item) => {
-              const Icon = item.icon;
-              const isActive =
-                item.id === 'analyzer'
-                  ? isExamAnalyzerOpen || activeTab === 'analyzer'
-                  : item.id === 'live_tests'
-                  ? activeTab === 'live_tests' || activeTab === 'test_series'
-                  : activeTab === item.id;
+            {/* Desktop Navigation Bar */}
+            <nav aria-label="Desktop Navigation" className="hidden md:flex items-center gap-1">
+              {[
+                { id: 'home' as ActiveTab, label: 'Home', icon: Home },
+                { id: 'topics' as ActiveTab, label: 'Subjects', icon: BookOpen },
+                { id: 'live_tests' as ActiveTab, label: 'Tests', icon: Trophy },
+                { id: 'analyzer' as ActiveTab, label: 'Scan', icon: Scan },
+                { id: 'analytics' as ActiveTab, label: 'Analytics', icon: BarChart2 },
+                { id: 'profile' as ActiveTab, label: 'Profile', icon: User },
+                ...(isAdmin ? [{ id: 'admin' as ActiveTab, label: 'Admin', icon: ShieldCheck }] : []),
+              ].map((item) => {
+                const Icon = item.icon;
+                const isActive =
+                  item.id === 'analyzer'
+                    ? isExamAnalyzerOpen || activeTab === 'analyzer'
+                    : item.id === 'live_tests'
+                    ? activeTab === 'live_tests' || activeTab === 'test_series'
+                    : activeTab === item.id;
 
-              return (
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => handleDesktopNavigateTab(item.id)}
+                    aria-current={isActive ? 'page' : undefined}
+                    className={`px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                      isActive
+                        ? 'bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] shadow-xs'
+                        : 'text-[#52576A] dark:text-[#929AB0] hover:text-[#171923] dark:hover:text-[#FFF9EF] hover:bg-[#F7EFE2] dark:hover:bg-[#252A3A]/60'
+                    }`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    <span>{item.label}</span>
+                  </button>
+                );
+              })}
+            </nav>
+
+            {/* Desktop Right Quick Actions */}
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => setIsGlobalSearchOpen(true)}
+                className="w-9 h-9 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] hover:bg-[#EFE3CF] dark:hover:bg-[#31374A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center text-[#171923] dark:text-[#FFF9EF] active:scale-95 transition-all cursor-pointer"
+                aria-label="Search"
+                title="Global Search (Ctrl+K)"
+              >
+                <Search className="w-4 h-4" />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleDesktopNavigateTab('notifications')}
+                className="relative w-9 h-9 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] hover:bg-[#EFE3CF] dark:hover:bg-[#31374A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center text-[#171923] dark:text-[#FFF9EF] active:scale-95 transition-all cursor-pointer"
+                aria-label="Notifications"
+                title="Notifications"
+              >
+                <Bell className="w-4 h-4" />
+                {unreadNotificationsCount > 0 && (
+                  <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#F47B20] ring-2 ring-[#FFF9EF] dark:ring-[#171923]" />
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setSettings((prev) => ({ ...prev, darkMode: !prev.darkMode }))}
+                className="w-9 h-9 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] hover:bg-[#EFE3CF] dark:hover:bg-[#31374A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center text-[#171923] dark:text-[#C99A45] active:scale-95 transition-all cursor-pointer"
+                aria-label={settings.darkMode ? 'Switch to Day Mode' : 'Switch to Night Mode'}
+                title={settings.darkMode ? 'Day Mode' : 'Night Mode'}
+              >
+                {settings.darkMode ? (
+                  <Sun className="w-4 h-4 text-[#F47B20]" />
+                ) : (
+                  <Moon className="w-4 h-4 text-[#800020]" />
+                )}
+              </button>
+
+              {!isAuthenticated ? (
                 <button
-                  key={item.id}
                   type="button"
-                  onClick={() => handleDesktopNavigateTab(item.id)}
-                  aria-current={isActive ? 'page' : undefined}
-                  className={`px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
-                    isActive
-                      ? 'bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] shadow-xs'
-                      : 'text-[#52576A] dark:text-[#929AB0] hover:text-[#171923] dark:hover:text-[#FFF9EF] hover:bg-[#F7EFE2] dark:hover:bg-[#252A3A]/60'
-                  }`}
+                  onClick={() => setIsLoginOpen(true)}
+                  className="flex items-center gap-1.5 h-9 px-3 rounded-xl bg-[#800020] hover:bg-[#5E0017] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] text-white text-xs font-extrabold shadow-xs transition-all active:scale-95 cursor-pointer"
                 >
-                  <Icon className="w-4 h-4" />
-                  <span>{item.label}</span>
+                  <LogIn className="w-3.5 h-3.5" />
+                  <span>Sign In</span>
                 </button>
-              );
-            })}
-          </nav>
-
-          {/* Desktop Right Quick Actions */}
-          <div className="flex items-center gap-2 shrink-0">
-            <button
-              type="button"
-              onClick={() => setIsGlobalSearchOpen(true)}
-              className="w-9 h-9 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] hover:bg-[#EFE3CF] dark:hover:bg-[#31374A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center text-[#171923] dark:text-[#FFF9EF] active:scale-95 transition-all cursor-pointer"
-              aria-label="Search"
-              title="Global Search (Ctrl+K)"
-            >
-              <Search className="w-4 h-4" />
-            </button>
-
-            <button
-              type="button"
-              onClick={() => handleDesktopNavigateTab('notifications')}
-              className="relative w-9 h-9 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] hover:bg-[#EFE3CF] dark:hover:bg-[#31374A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center text-[#171923] dark:text-[#FFF9EF] active:scale-95 transition-all cursor-pointer"
-              aria-label="Notifications"
-              title="Notifications"
-            >
-              <Bell className="w-4 h-4" />
-              {unreadNotificationsCount > 0 && (
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#F47B20] ring-2 ring-[#FFF9EF] dark:ring-[#171923]" />
-              )}
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setSettings((prev) => ({ ...prev, darkMode: !prev.darkMode }))}
-              className="w-9 h-9 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] hover:bg-[#EFE3CF] dark:hover:bg-[#31374A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center text-[#171923] dark:text-[#C99A45] active:scale-95 transition-all cursor-pointer"
-              aria-label={settings.darkMode ? 'Switch to Day Mode' : 'Switch to Night Mode'}
-              title={settings.darkMode ? 'Day Mode' : 'Night Mode'}
-            >
-              {settings.darkMode ? (
-                <Sun className="w-4 h-4 text-[#F47B20]" />
               ) : (
-                <Moon className="w-4 h-4 text-[#800020]" />
+                <button
+                  type="button"
+                  onClick={() => handleDesktopNavigateTab('profile')}
+                  className="w-9 h-9 rounded-full ring-2 ring-[#C99A45]/60 hover:ring-[#800020] dark:hover:ring-[#F47B20] flex items-center justify-center overflow-hidden active:scale-95 transition-all cursor-pointer bg-[#F7EFE2] dark:bg-[#252A3A]"
+                  aria-label="Profile"
+                  title={userProfile?.name || 'User Profile'}
+                >
+                  <img
+                    src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(userProfile?.name || 'Scholar')}`}
+                    alt="Avatar"
+                    className="w-full h-full object-cover"
+                  />
+                </button>
               )}
-            </button>
-
-            {!isAuthenticated ? (
-              <button
-                type="button"
-                onClick={() => setIsLoginOpen(true)}
-                className="flex items-center gap-1.5 h-9 px-3 rounded-xl bg-[#800020] hover:bg-[#5E0017] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] text-white text-xs font-extrabold shadow-xs transition-all active:scale-95 cursor-pointer"
-              >
-                <LogIn className="w-3.5 h-3.5" />
-                <span>Sign In</span>
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={() => handleDesktopNavigateTab('profile')}
-                className="w-9 h-9 rounded-full ring-2 ring-[#C99A45]/60 hover:ring-[#800020] dark:hover:ring-[#F47B20] flex items-center justify-center overflow-hidden active:scale-95 transition-all cursor-pointer bg-[#F7EFE2] dark:bg-[#252A3A]"
-                aria-label="Profile"
-                title={userProfile?.name || 'User Profile'}
-              >
-                <img
-                  src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(userProfile?.name || 'Scholar')}`}
-                  alt="Avatar"
-                  className="w-full h-full object-cover"
-                />
-              </button>
-            )}
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
+      </OverlayErrorBoundary>
 
       {/* Main Content Rendering */}
       <main className="flex-1 pb-16 md:pb-6">
@@ -1433,7 +1489,7 @@ export default function App() {
               onBulkDeleteQuestions={(ids: string[]) => handleBulkDeleteQuestions(ids)}
               onLogout={handleLogout}
               onExitAdmin={() => {
-                try { sessionStorage.setItem("disha_admin_view_mode", "student"); } catch {}
+                safeSetSessionStorageItem("disha_admin_view_mode", "student");
                 setActiveTab('home');
               }}
             />
@@ -1539,11 +1595,22 @@ export default function App() {
 
       {/* Bottom Navigation (Student view only; Admin has its own specialized management bottom bar) */}
       {activeTab !== 'admin' && (
-        <BottomNav
-          activeTab={activeTab}
-          onChangeTab={(tab: ActiveTab) => {
-            if (tab === activeTab) {
-              // Re-tapping current active tab resets drill-down state to section root
+        <OverlayErrorBoundary viewName="Bottom Navigation" fallbackComponent={null}>
+          <BottomNav
+            activeTab={activeTab}
+            onChangeTab={(tab: ActiveTab) => {
+              if (tab === activeTab) {
+                // Re-tapping current active tab resets drill-down state to section root
+                setSelectedArticleSlug(null);
+                setSelectedSubjectId(null);
+                setSelectedChapterId(null);
+                setSelectedTopicId(null);
+                setSelectedCoachingId(null);
+                setSelectedExamId(null);
+                setSelectedSeriesId(null);
+                setActiveSession(null);
+                return;
+              }
               setSelectedArticleSlug(null);
               setSelectedSubjectId(null);
               setSelectedChapterId(null);
@@ -1552,64 +1619,63 @@ export default function App() {
               setSelectedExamId(null);
               setSelectedSeriesId(null);
               setActiveSession(null);
-              return;
-            }
-            setSelectedArticleSlug(null);
-            setSelectedSubjectId(null);
-            setSelectedChapterId(null);
-            setSelectedTopicId(null);
-            setSelectedCoachingId(null);
-            setSelectedExamId(null);
-            setSelectedSeriesId(null);
-            setActiveSession(null);
-            setActiveTab(tab);
-          }}
-          isAdmin={isAdmin}
-        />
+              setActiveTab(tab);
+            }}
+            isAdmin={isAdmin}
+          />
+        </OverlayErrorBoundary>
       )}
 
       {/* Modals & Overlays */}
       <React.Suspense fallback={null}>
       {isLoginOpen && (
-        <LoginPage
-          onClose={() => setIsLoginOpen(false)}
-          onLoginSuccess={(profile: any) => {
-            setUserProfile(profile);
-            setIsAuthenticated(true);
-            saveUserProfile(profile);
-            setIsLoginOpen(false);
-            if (isUserAdmin(profile)) {
-              setActiveTab('admin');
-            } else {
-              setActiveTab('home');
-            }
-          }}
-        />
+        <OverlayErrorBoundary viewName="Login Modal" onClose={() => setIsLoginOpen(false)}>
+          <LoginPage
+            onClose={() => setIsLoginOpen(false)}
+            onLoginSuccess={(profile: any) => {
+              setUserProfile(profile);
+              setIsAuthenticated(true);
+              saveUserProfile(profile);
+              setIsLoginOpen(false);
+              if (isUserAdmin(profile)) {
+                setActiveTab('admin');
+              } else {
+                setActiveTab('home');
+              }
+            }}
+          />
+        </OverlayErrorBoundary>
       )}
 
       {isSettingsOpen && (
-        <AppSettingsModal
-          settings={settings}
-          onUpdateSettings={(newSettings: Partial<AppSettings>) => setSettings(prev => ({ ...prev, ...newSettings }))}
-          onClose={() => setIsSettingsOpen(false)}
-        />
+        <OverlayErrorBoundary viewName="App Settings Modal" onClose={() => setIsSettingsOpen(false)}>
+          <AppSettingsModal
+            settings={settings}
+            onUpdateSettings={(newSettings: Partial<AppSettings>) => setSettings(prev => ({ ...prev, ...newSettings }))}
+            onClose={() => setIsSettingsOpen(false)}
+          />
+        </OverlayErrorBoundary>
       )}
 
       {isApiSettingsOpen && (
-        <ApiSettingsModal
-          settings={settings}
-          onUpdateSettings={(newSettings: Partial<AppSettings>) => setSettings(prev => ({ ...prev, ...newSettings }))}
-          onClose={() => setIsApiSettingsOpen(false)}
-        />
+        <OverlayErrorBoundary viewName="API Settings Modal" onClose={() => setIsApiSettingsOpen(false)}>
+          <ApiSettingsModal
+            settings={settings}
+            onUpdateSettings={(newSettings: Partial<AppSettings>) => setSettings(prev => ({ ...prev, ...newSettings }))}
+            onClose={() => setIsApiSettingsOpen(false)}
+          />
+        </OverlayErrorBoundary>
       )}
 
       {isPDFOpen && (
-        <PDFExportModal
-          subjects={combinedSubjects}
-          chapters={combinedChapters}
-          progressStore={progressStore}
-          onClose={() => setIsPDFOpen(false)}
-        />
+        <OverlayErrorBoundary viewName="PDF Export Modal" onClose={() => setIsPDFOpen(false)}>
+          <PDFExportModal
+            subjects={combinedSubjects}
+            chapters={combinedChapters}
+            progressStore={progressStore}
+            onClose={() => setIsPDFOpen(false)}
+          />
+        </OverlayErrorBoundary>
       )}
 
       {isFullExamOpen && (
@@ -1729,168 +1795,192 @@ export default function App() {
 
       {/* Curriculum Admin Modals */}
       {isAddSubjectOpen && (
-        <AddSubjectModal
-          existingSubjectsCount={combinedSubjects.length}
-          existingSubjects={combinedSubjects}
-          onAddSubject={(subject: any) => handleAddSubject(subject)}
-          onClose={() => setIsAddSubjectOpen(false)}
-        />
+        <OverlayErrorBoundary viewName="Add Subject Modal" onClose={() => setIsAddSubjectOpen(false)}>
+          <AddSubjectModal
+            existingSubjectsCount={combinedSubjects.length}
+            existingSubjects={combinedSubjects}
+            onAddSubject={(subject: any) => handleAddSubject(subject)}
+            onClose={() => setIsAddSubjectOpen(false)}
+          />
+        </OverlayErrorBoundary>
       )}
 
       {isAddChapterOpen && (
-        <AddChapterModal
-          chapters={combinedChapters}
-          subjects={combinedSubjects}
-          initialSubjectId={addChapterSubjectId}
-          onAddChapter={(chapter: any) => handleAddChapter(chapter)}
-          onClose={() => setIsAddChapterOpen(false)}
-        />
+        <OverlayErrorBoundary viewName="Add Chapter Modal" onClose={() => setIsAddChapterOpen(false)}>
+          <AddChapterModal
+            chapters={combinedChapters}
+            subjects={combinedSubjects}
+            initialSubjectId={addChapterSubjectId}
+            onAddChapter={(chapter: any) => handleAddChapter(chapter)}
+            onClose={() => setIsAddChapterOpen(false)}
+          />
+        </OverlayErrorBoundary>
       )}
 
       {isAddTopicOpen && (
-        <AddTopicModal
-          subjects={combinedSubjects}
-          chapters={combinedChapters}
-          initialSubjectId={addTopicSubjectId}
-          initialChapterId={addTopicChapterId}
-          onAddTopic={(chapId: string, topic: any) => handleAddTopic(chapId, topic)}
-          onClose={() => setIsAddTopicOpen(false)}
-          onOpenAddChapter={(subId?: string) => {
-            setIsAddTopicOpen(false);
-            setAddChapterSubjectId(subId || undefined);
-            setIsAddChapterOpen(true);
-          }}
-        />
+        <OverlayErrorBoundary viewName="Add Topic Modal" onClose={() => setIsAddTopicOpen(false)}>
+          <AddTopicModal
+            subjects={combinedSubjects}
+            chapters={combinedChapters}
+            initialSubjectId={addTopicSubjectId}
+            initialChapterId={addTopicChapterId}
+            onAddTopic={(chapId: string, topic: any) => handleAddTopic(chapId, topic)}
+            onClose={() => setIsAddTopicOpen(false)}
+            onOpenAddChapter={(subId?: string) => {
+              setIsAddTopicOpen(false);
+              setAddChapterSubjectId(subId || undefined);
+              setIsAddChapterOpen(true);
+            }}
+          />
+        </OverlayErrorBoundary>
       )}
 
       {isManageSyllabusOpen && (
-        <ManageSyllabusModal
-          subjects={combinedSubjects}
-          chapters={combinedChapters}
-          onClose={() => setIsManageSyllabusOpen(false)}
-          onEditSubject={(subject: any) => handleEditSubject(subject)}
-          onRemoveSubject={(id: string) => handleDeleteSubject(id)}
-          onEditChapter={(chapter: any) => handleEditChapter(chapter)}
-          onRemoveChapter={(id: string) => handleDeleteChapter(id)}
-          onEditTopic={(topic: any) => handleEditTopic(topic)}
-          onRemoveTopic={(id: string, chapterId?: string) => handleDeleteTopic(id, chapterId)}
-          onShowAddTopic={(subId?: string, chapId?: string) => {
-            setIsManageSyllabusOpen(false);
-            setAddTopicSubjectId(subId || undefined);
-            setAddTopicChapterId(chapId || undefined);
-            setIsAddTopicOpen(true);
-          }}
-          onShowAddChapter={(subId?: string) => {
-            setIsManageSyllabusOpen(false);
-            setAddChapterSubjectId(subId || undefined);
-            setIsAddChapterOpen(true);
-          }}
-        />
+        <OverlayErrorBoundary viewName="Manage Syllabus Modal" onClose={() => setIsManageSyllabusOpen(false)}>
+          <ManageSyllabusModal
+            subjects={combinedSubjects}
+            chapters={combinedChapters}
+            onClose={() => setIsManageSyllabusOpen(false)}
+            onEditSubject={(subject: any) => handleEditSubject(subject)}
+            onRemoveSubject={(id: string) => handleDeleteSubject(id)}
+            onEditChapter={(chapter: any) => handleEditChapter(chapter)}
+            onRemoveChapter={(id: string) => handleDeleteChapter(id)}
+            onEditTopic={(topic: any) => handleEditTopic(topic)}
+            onRemoveTopic={(id: string, chapterId?: string) => handleDeleteTopic(id, chapterId)}
+            onShowAddTopic={(subId?: string, chapId?: string) => {
+              setIsManageSyllabusOpen(false);
+              setAddTopicSubjectId(subId || undefined);
+              setAddTopicChapterId(chapId || undefined);
+              setIsAddTopicOpen(true);
+            }}
+            onShowAddChapter={(subId?: string) => {
+              setIsManageSyllabusOpen(false);
+              setAddChapterSubjectId(subId || undefined);
+              setIsAddChapterOpen(true);
+            }}
+          />
+        </OverlayErrorBoundary>
       )}
 
       {isAddQuestionsOpen && (
-        <AddQuestionsModal
-          chapters={combinedChapters}
-          subjects={combinedSubjects}
-          initialSubjectId={addQuestionsSubjectId}
-          initialChapterId={addQuestionsChapterId}
-          initialTopicId={addQuestionsTopicId}
-          initialMethod={addQuestionsMethod}
-          onClose={() => setIsAddQuestionsOpen(false)}
-          onImportQuestions={(questions: any, committed?: boolean) => handleImportQuestions(questions, !!committed)}
-        />
+        <OverlayErrorBoundary viewName="Add Questions Modal" onClose={() => setIsAddQuestionsOpen(false)}>
+          <AddQuestionsModal
+            chapters={combinedChapters}
+            subjects={combinedSubjects}
+            initialSubjectId={addQuestionsSubjectId}
+            initialChapterId={addQuestionsChapterId}
+            initialTopicId={addQuestionsTopicId}
+            initialMethod={addQuestionsMethod}
+            onClose={() => setIsAddQuestionsOpen(false)}
+            onImportQuestions={(questions: any, committed?: boolean) => handleImportQuestions(questions, !!committed)}
+          />
+        </OverlayErrorBoundary>
       )}
 
       {isManageQuestionsOpen && (
-        <ManageQuestionsModal
-          chapters={combinedChapters}
-          onClose={() => setIsManageQuestionsOpen(false)}
-          onEditQuestion={(q: any) => handleEditQuestion(q)}
-          onDeleteQuestion={(id: string) => handleDeleteQuestion(id)}
-          onBulkDeleteQuestions={(ids: string[]) => handleBulkDeleteQuestions(ids)}
-          onBulkMoveQuestions={(ids: string[], targetChId: string, targetTopId: string) => handleBulkMoveQuestions(ids, targetChId, targetTopId)}
-          onAddQuestions={(chapId?: string, topId?: string, method?: any) => {
-            setIsManageQuestionsOpen(false);
-            setAddQuestionsChapterId(chapId || undefined);
-            setAddQuestionsTopicId(topId || undefined);
-            setAddQuestionsMethod((method as any) || "paste");
-            setIsAddQuestionsOpen(true);
-          }}
-          onShowHTMLImport={(chapId?: string, topId?: string) => {
-            setIsManageQuestionsOpen(false);
-            setHtmlImportChapterId(chapId);
-            setHtmlImportTopicId(topId);
-            setIsHTMLImportOpen(true);
-          }}
-        />
+        <OverlayErrorBoundary viewName="Manage Questions Modal" onClose={() => setIsManageQuestionsOpen(false)}>
+          <ManageQuestionsModal
+            chapters={combinedChapters}
+            onClose={() => setIsManageQuestionsOpen(false)}
+            onEditQuestion={(q: any) => handleEditQuestion(q)}
+            onDeleteQuestion={(id: string) => handleDeleteQuestion(id)}
+            onBulkDeleteQuestions={(ids: string[]) => handleBulkDeleteQuestions(ids)}
+            onBulkMoveQuestions={(ids: string[], targetChId: string, targetTopId: string) => handleBulkMoveQuestions(ids, targetChId, targetTopId)}
+            onAddQuestions={(chapId?: string, topId?: string, method?: any) => {
+              setIsManageQuestionsOpen(false);
+              setAddQuestionsChapterId(chapId || undefined);
+              setAddQuestionsTopicId(topId || undefined);
+              setAddQuestionsMethod((method as any) || "paste");
+              setIsAddQuestionsOpen(true);
+            }}
+            onShowHTMLImport={(chapId?: string, topId?: string) => {
+              setIsManageQuestionsOpen(false);
+              setHtmlImportChapterId(chapId);
+              setHtmlImportTopicId(topId);
+              setIsHTMLImportOpen(true);
+            }}
+          />
+        </OverlayErrorBoundary>
       )}
 
       {isHTMLImportOpen && (
-        <HTMLImportMCQModal
-          isOpen={isHTMLImportOpen}
-          chapters={combinedChapters}
-          subjects={combinedSubjects}
-          questionsStore={questionsStore}
-          initialChapterId={htmlImportChapterId}
-          initialTopicId={htmlImportTopicId}
-          onClose={() => setIsHTMLImportOpen(false)}
-          onImportQuestions={(questions: any, committed?: boolean) => handleImportQuestions(questions, !!committed)}
-        />
+        <OverlayErrorBoundary viewName="HTML Import Modal" onClose={() => setIsHTMLImportOpen(false)}>
+          <HTMLImportMCQModal
+            isOpen={isHTMLImportOpen}
+            chapters={combinedChapters}
+            subjects={combinedSubjects}
+            questionsStore={questionsStore}
+            initialChapterId={htmlImportChapterId}
+            initialTopicId={htmlImportTopicId}
+            onClose={() => setIsHTMLImportOpen(false)}
+            onImportQuestions={(questions: any, committed?: boolean) => handleImportQuestions(questions, !!committed)}
+          />
+        </OverlayErrorBoundary>
       )}
 
       {isManageCategoriesOpen && (
-        <ManageExamCategoriesModal onClose={() => setIsManageCategoriesOpen(false)} />
+        <OverlayErrorBoundary viewName="Manage Exam Categories Modal" onClose={() => setIsManageCategoriesOpen(false)}>
+          <ManageExamCategoriesModal onClose={() => setIsManageCategoriesOpen(false)} />
+        </OverlayErrorBoundary>
       )}
 
       {isAIImportOpen && (
-        <AIImportModal
-          isOpen={isAIImportOpen}
-          questionsStore={questionsStore}
-          chapters={combinedChapters}
-          subjects={combinedSubjects}
-          onClose={() => setIsAIImportOpen(false)}
-          onImportQuestions={(questions: any, committed?: boolean) => handleImportQuestions(questions, !!committed)}
-        />
+        <OverlayErrorBoundary viewName="AI MCQ Importer Modal" onClose={() => setIsAIImportOpen(false)}>
+          <AIImportModal
+            isOpen={isAIImportOpen}
+            questionsStore={questionsStore}
+            chapters={combinedChapters}
+            subjects={combinedSubjects}
+            onClose={() => setIsAIImportOpen(false)}
+            onImportQuestions={(questions: any, committed?: boolean) => handleImportQuestions(questions, !!committed)}
+          />
+        </OverlayErrorBoundary>
       )}
 
       {isManagePYQVaultOpen && (
-        <ManagePYQVaultModal
-          isOpen={isManagePYQVaultOpen}
-          chapters={combinedChapters}
-          subjects={combinedSubjects}
-          onClose={() => setIsManagePYQVaultOpen(false)}
-        />
+        <OverlayErrorBoundary viewName="Manage PYQ Vault Modal" onClose={() => setIsManagePYQVaultOpen(false)}>
+          <ManagePYQVaultModal
+            isOpen={isManagePYQVaultOpen}
+            chapters={combinedChapters}
+            subjects={combinedSubjects}
+            onClose={() => setIsManagePYQVaultOpen(false)}
+          />
+        </OverlayErrorBoundary>
       )}
 
       {isManageLiveTestsOpen && (
-        <ManageLiveTestsModal 
-          onClose={() => setIsManageLiveTestsOpen(false)} 
-          chapters={combinedChapters}
-          subjects={combinedSubjects}
-        />
+        <OverlayErrorBoundary viewName="Manage Live Tests Modal" onClose={() => setIsManageLiveTestsOpen(false)}>
+          <ManageLiveTestsModal 
+            onClose={() => setIsManageLiveTestsOpen(false)} 
+            chapters={combinedChapters}
+            subjects={combinedSubjects}
+          />
+        </OverlayErrorBoundary>
       )}
 
       {isGlobalSearchOpen && (
-        <GlobalSearchModal
-          isOpen={isGlobalSearchOpen}
-          onClose={() => setIsGlobalSearchOpen(false)}
-          onSelectQuestion={(q: any) => {
-            handleStartSession({
-              title: "लक्षित प्रश्न अभ्यास",
-              subtitle: `${q.examCategory || "General"} • Quick Practice`,
-              questionIds: [q.id],
-              extraQuestions: [q],
-              source: "all-chapters",
-            });
-          }}
-          onSelectTopic={(t: any) => {
-            setSelectedTopicId(t.id);
-            setActiveTab("topics");
-          }}
-          onSelectPaper={() => {
-            setActiveTab("pyq_vault");
-          }}
-        />
+        <OverlayErrorBoundary viewName="Global Search Modal" onClose={() => setIsGlobalSearchOpen(false)}>
+          <GlobalSearchModal
+            isOpen={isGlobalSearchOpen}
+            onClose={() => setIsGlobalSearchOpen(false)}
+            onSelectQuestion={(q: any) => {
+              handleStartSession({
+                title: "लक्षित प्रश्न अभ्यास",
+                subtitle: `${q.examCategory || "General"} • Quick Practice`,
+                questionIds: [q.id],
+                extraQuestions: [q],
+                source: "all-chapters",
+              });
+            }}
+            onSelectTopic={(t: any) => {
+              setSelectedTopicId(t.id);
+              setActiveTab("topics");
+            }}
+            onSelectPaper={() => {
+              setActiveTab("pyq_vault");
+            }}
+          />
+        </OverlayErrorBoundary>
       )}
 
 

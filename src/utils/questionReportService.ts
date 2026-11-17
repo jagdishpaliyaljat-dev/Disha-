@@ -1,6 +1,7 @@
 import { supabase, isSupabaseConfigured } from "../lib/supabase";
 import { triggerAdminToast } from "./adminToast";
 import type { Question } from "../types";
+import { safeGetSessionStorageItem, safeSetSessionStorageItem } from "./safeStorage";
 
 export type QuestionIssueType =
   | "wrong_answer"
@@ -111,7 +112,7 @@ export function saveStoredReports(reports: QuestionReport[]): void {
 export function hasStudentReportedQuestion(questionId: string): boolean {
   if (typeof window === "undefined" || !questionId) return false;
   try {
-    const raw = sessionStorage.getItem(REPORTED_IDS_SESSION_KEY);
+    const raw = safeGetSessionStorageItem(REPORTED_IDS_SESSION_KEY);
     if (raw) {
       const ids: string[] = JSON.parse(raw);
       if (ids.includes(questionId)) return true;
@@ -129,11 +130,11 @@ export function hasStudentReportedQuestion(questionId: string): boolean {
 export function markQuestionAsReported(questionId: string): void {
   if (typeof window === "undefined" || !questionId) return;
   try {
-    const raw = sessionStorage.getItem(REPORTED_IDS_SESSION_KEY);
+    const raw = safeGetSessionStorageItem(REPORTED_IDS_SESSION_KEY);
     const ids: string[] = raw ? JSON.parse(raw) : [];
     if (!ids.includes(questionId)) {
       ids.push(questionId);
-      sessionStorage.setItem(REPORTED_IDS_SESSION_KEY, JSON.stringify(ids));
+      safeSetSessionStorageItem(REPORTED_IDS_SESSION_KEY, JSON.stringify(ids));
     }
   } catch {}
 }

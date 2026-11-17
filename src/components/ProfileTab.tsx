@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
 import { clearIndexedDB } from "../utils/indexedDbCache";
+import { safeClearLocalStorage, safeClearSessionStorage } from "../utils/safeStorage";
 import {
   ProgressStore,
   AppSettings,
@@ -573,8 +574,8 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
               <button 
                 onClick={async () => {
                   triggerHaptic("light");
-                  localStorage.clear();
-                  sessionStorage.clear();
+                  safeClearLocalStorage();
+                  safeClearSessionStorage();
                   await clearIndexedDB().catch(() => {});
                   setShowCacheResetConfirm(false);
                   showToast("System cache purged. Reloading...");

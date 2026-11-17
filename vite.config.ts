@@ -72,7 +72,10 @@ export default defineConfig(({ command }) => {
         },
         workbox: {
           importScripts: ['/sw-push-handler.js'],
-          mode: 'development',
+          mode: command === 'build' ? 'production' : 'development',
+          cleanupOutdatedCaches: true,
+          skipWaiting: true,
+          clientsClaim: true,
           globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
           maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
           navigateFallback: '/index.html',

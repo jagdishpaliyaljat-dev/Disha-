@@ -2,6 +2,12 @@ import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { ArrowRight, BookOpen, BarChart3, Compass, Trophy, CheckCircle2, X } from "lucide-react";
 import { AppLogo } from "./AppLogo";
+import {
+  safeGetSessionStorageItem,
+  safeSetSessionStorageItem,
+  safeGetLocalStorageItem,
+  safeSetLocalStorageItem,
+} from "../utils/safeStorage";
 
 const ONBOARDING_STORAGE_KEY = "disha_onboarding_done_v1";
 
@@ -58,7 +64,7 @@ export const BrandSplashAndOnboarding: React.FC<BrandSplashAndOnboardingProps> =
   const [showSplash, setShowSplash] = useState<boolean>(() => {
     if (typeof window === "undefined") return false;
     try {
-      if (sessionStorage.getItem("disha_splash_seen_v1") === "1") return false;
+      if (safeGetSessionStorageItem("disha_splash_seen_v1") === "1") return false;
       if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return false;
       return true;
     } catch {
@@ -73,7 +79,7 @@ export const BrandSplashAndOnboarding: React.FC<BrandSplashAndOnboardingProps> =
     if (!showSplash) {
       if (allowAutoOnboarding) {
         try {
-          const done = localStorage.getItem(ONBOARDING_STORAGE_KEY);
+          const done = safeGetLocalStorageItem(ONBOARDING_STORAGE_KEY);
           if (!done) {
             // Keep first load uncluttered when splash skipped; mark only after interaction or show gently
           }
@@ -84,12 +90,12 @@ export const BrandSplashAndOnboarding: React.FC<BrandSplashAndOnboardingProps> =
 
     const timer = window.setTimeout(() => {
       try {
-        sessionStorage.setItem("disha_splash_seen_v1", "1");
+        safeSetSessionStorageItem("disha_splash_seen_v1", "1");
       } catch {}
       setShowSplash(false);
       if (allowAutoOnboarding) {
         try {
-          if (!localStorage.getItem(ONBOARDING_STORAGE_KEY)) {
+          if (!safeGetLocalStorageItem(ONBOARDING_STORAGE_KEY)) {
             setShowOnboarding(true);
           }
         } catch {}
@@ -110,14 +116,14 @@ export const BrandSplashAndOnboarding: React.FC<BrandSplashAndOnboardingProps> =
 
   const dismissSplash = () => {
     try {
-      sessionStorage.setItem("disha_splash_seen_v1", "1");
+      safeSetSessionStorageItem("disha_splash_seen_v1", "1");
     } catch {}
     setShowSplash(false);
   };
 
   const completeOnboarding = () => {
     try {
-      localStorage.setItem(ONBOARDING_STORAGE_KEY, "1");
+      safeSetLocalStorageItem(ONBOARDING_STORAGE_KEY, "1");
     } catch {}
     setShowOnboarding(false);
   };

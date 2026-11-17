@@ -20,29 +20,37 @@ const TRANSIENT_KEY_PREFIXES = [
   "quizpro_attempt_",
 ];
 
+// In-memory fallback storage for environments where sessionStorage or localStorage is blocked or restricted (Instagram, Facebook webviews)
+const inMemorySessionMap = new Map<string, string>();
+const inMemoryLocalMap = new Map<string, string>();
+
 /**
  * Safely reads a value from localStorage with optional backward-compatible fallback key.
  * If the legacy key is found and modern key is missing, automatically migrates value forward.
  */
 export function safeGetLocalStorageItem(key: string, legacyKey?: string): string | null {
-  if (typeof window === "undefined" || !window.localStorage) return null;
+  if (typeof window === "undefined") {
+    return inMemoryLocalMap.get(key) ?? (legacyKey ? inMemoryLocalMap.get(legacyKey) ?? null : null);
+  }
   try {
-    const val = localStorage.getItem(key);
-    if (val !== null) return val;
-    if (legacyKey) {
-      const legacyVal = localStorage.getItem(legacyKey);
-      if (legacyVal !== null) {
-        // Forward migrate
-        try {
-          localStorage.setItem(key, legacyVal);
-        } catch (_) {}
-        return legacyVal;
+    const ls = window.localStorage;
+    if (ls) {
+      const val = ls.getItem(key);
+      if (val !== null) return val;
+      if (legacyKey) {
+        const legacyVal = ls.getItem(legacyKey);
+        if (legacyVal !== null) {
+          try {
+            ls.setItem(key, legacyVal);
+          } catch (_) {}
+          return legacyVal;
+        }
       }
     }
-    return null;
   } catch (_) {
-    return null;
+    // Restricted or sandboxed environment
   }
+  return inMemoryLocalMap.get(key) ?? (legacyKey ? inMemoryLocalMap.get(legacyKey) ?? null : null);
 }
 
 /**
@@ -50,19 +58,21 @@ export function safeGetLocalStorageItem(key: string, legacyKey?: string): string
  * to free up space for critical application records.
  */
 export function pruneTransientLocalStorage(): number {
-  if (typeof window === "undefined" || !window.localStorage) return 0;
+  if (typeof window === "undefined") return 0;
   let freedCount = 0;
   try {
+    const ls = window.localStorage;
+    if (!ls) return 0;
     const keysToRemove: string[] = [];
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
+    for (let i = 0; i < ls.length; i++) {
+      const key = ls.key(i);
       if (key && TRANSIENT_KEY_PREFIXES.some((prefix) => key.startsWith(prefix))) {
         keysToRemove.push(key);
       }
     }
     keysToRemove.forEach((k) => {
       try {
-        localStorage.removeItem(k);
+        ls.removeItem(k);
         freedCount++;
       } catch (_) {}
     });
@@ -79,17 +89,20 @@ export function pruneTransientLocalStorage(): number {
  * Safely writes a key-value pair to localStorage.
  * If quota is exceeded, it prunes transient cache entries and retries.
  * If a lightweight fallback is provided (e.g. metadata-only without big arrays), it tries that.
- * Never throws an unhandled QuotaExceededError.
+ * Never throws an unhandled QuotaExceededError or SecurityError.
  */
 export function safeSetLocalStorageItem(
   key: string,
   value: string,
   getLightweightFallback?: () => string
 ): boolean {
-  if (typeof window === "undefined" || !window.localStorage) return false;
+  inMemoryLocalMap.set(key, value);
+  if (typeof window === "undefined") return true;
 
   try {
-    localStorage.setItem(key, value);
+    const ls = window.localStorage;
+    if (!ls) return true;
+    ls.setItem(key, value);
     return true;
   } catch (err: any) {
     const isQuota =
@@ -100,29 +113,130 @@ export function safeSetLocalStorageItem(
       (typeof err?.message === "string" && err.message.toLowerCase().includes("quota"));
 
     if (!isQuota) {
-      console.warn(`[SafeStorage] Failed to write key "${key}":`, err?.message || err);
-      return false;
+      // In-app webview blocked storage or security error; safely saved in inMemoryLocalMap
+      return true;
     }
 
     // Attempt 1: Prune transient items and retry writing original value
     try {
       pruneTransientLocalStorage();
-      localStorage.setItem(key, value);
-      return true;
+      const ls = window.localStorage;
+      if (ls) {
+        ls.setItem(key, value);
+        return true;
+      }
     } catch (_) {}
 
     // Attempt 2: If a lightweight fallback generator was provided, try saving that
     if (getLightweightFallback) {
       try {
         const fallbackValue = getLightweightFallback();
-        localStorage.setItem(key, fallbackValue);
-        console.info(`[SafeStorage] Saved lightweight fallback for "${key}" under storage constraints.`);
-        return true;
+        const ls = window.localStorage;
+        if (ls) {
+          ls.setItem(key, fallbackValue);
+          console.info(`[SafeStorage] Saved lightweight fallback for "${key}" under storage constraints.`);
+          return true;
+        }
       } catch (_) {}
     }
 
-    // Gracefully handle storage exhaustion without throwing uncaught errors
-    console.warn(`[SafeStorage] LocalStorage quota reached. Operating seamlessly with memory cache for "${key}".`);
-    return false;
+    return true;
   }
 }
+
+/**
+ * Safely removes a key from localStorage without throwing.
+ */
+export function safeRemoveLocalStorageItem(key: string): boolean {
+  inMemoryLocalMap.delete(key);
+  if (typeof window === "undefined") return true;
+  try {
+    const ls = window.localStorage;
+    if (ls) {
+      ls.removeItem(key);
+      return true;
+    }
+  } catch (_) {}
+  return true;
+}
+
+/**
+ * Safely reads a value from sessionStorage.
+ * Never throws SecurityError / DOMException in restricted WebViews (Instagram, Facebook, etc.).
+ * Falls back to in-memory map if sessionStorage is unavailable or blocked.
+ */
+export function safeGetSessionStorageItem(key: string): string | null {
+  if (typeof window === "undefined") {
+    return inMemorySessionMap.get(key) ?? null;
+  }
+  try {
+    if (window.sessionStorage) {
+      const val = window.sessionStorage.getItem(key);
+      if (val !== null) return val;
+    }
+  } catch (_) {
+    // Restricted or sandboxed environment
+  }
+  return inMemorySessionMap.get(key) ?? null;
+}
+
+/**
+ * Safely writes a key-value pair to sessionStorage.
+ * Never throws SecurityError / QuotaExceededError in restricted WebViews.
+ * Mirrors to in-memory fallback for high resilience.
+ */
+export function safeSetSessionStorageItem(key: string, value: string): boolean {
+  inMemorySessionMap.set(key, value);
+  if (typeof window === "undefined") return true;
+  try {
+    if (window.sessionStorage) {
+      window.sessionStorage.setItem(key, value);
+      return true;
+    }
+  } catch (_) {
+    // Stored in memory fallback
+  }
+  return true;
+}
+
+/**
+ * Safely removes an item from sessionStorage without throwing.
+ */
+export function safeRemoveSessionStorageItem(key: string): boolean {
+  inMemorySessionMap.delete(key);
+  if (typeof window === "undefined") return true;
+  try {
+    if (window.sessionStorage) {
+      window.sessionStorage.removeItem(key);
+      return true;
+    }
+  } catch (_) {}
+  return true;
+}
+
+/**
+ * Safely clears all items from sessionStorage and in-memory session map.
+ */
+export function safeClearSessionStorage(): void {
+  inMemorySessionMap.clear();
+  if (typeof window === "undefined") return;
+  try {
+    if (window.sessionStorage) {
+      window.sessionStorage.clear();
+    }
+  } catch (_) {}
+}
+
+/**
+ * Safely clears all items from localStorage and in-memory local map.
+ */
+export function safeClearLocalStorage(): void {
+  inMemoryLocalMap.clear();
+  if (typeof window === "undefined") return;
+  try {
+    if (window.localStorage) {
+      window.localStorage.clear();
+    }
+  } catch (_) {}
+}
+

@@ -15,6 +15,7 @@ import {
   saveCachedCurriculum, 
   getCachedCurriculum 
 } from "./indexedDbCache";
+import { safeGetLocalStorageItem, safeSetLocalStorageItem } from "./safeStorage";
 import { resolveCanonicalForeignKeys } from "./dataIntegrityEngine";
 import {
   getSubjectDisplayName,
@@ -268,10 +269,7 @@ export function loadUserQuestionsStore(): UserQuestionsStore {
     return inMemoryQuestionsStore;
   }
   try {
-    if (typeof window === "undefined" || typeof localStorage === "undefined") {
-      return inMemoryQuestionsStore;
-    }
-    const raw = localStorage.getItem(USER_QUESTIONS_KEY);
+    const raw = safeGetLocalStorageItem(USER_QUESTIONS_KEY);
     if (!raw) {
       isMemoryStoreHydrated = true;
       if (!isIdbHydrationPending) {
@@ -326,19 +324,25 @@ export function loadUserQuestionsStore(): UserQuestionsStore {
 
 // Get combined subjects list
 export function getCombinedSubjects(store: UserQuestionsStore = loadUserQuestionsStore()): Subject[] {
-  const deletedSet = new Set(store.deletedSubjectIds || []);
-  const editedMap = store.editedSubjects || {};
-  const customList = store.customSubjects || [];
+  try {
+    const safeStore: Partial<UserQuestionsStore> = store || {};
+    const deletedSet = new Set(safeStore.deletedSubjectIds || []);
+    const editedMap = safeStore.editedSubjects || {};
+    const customList = Array.isArray(safeStore.customSubjects) ? safeStore.customSubjects : [];
 
-  const baseUpdated = DEFAULT_SUBJECTS
-    .filter((s) => !deletedSet.has(s.id))
-    .map((s) => (editedMap[s.id] ? { ...s, ...editedMap[s.id] } : s));
+    const baseUpdated = (DEFAULT_SUBJECTS || [])
+      .filter((s) => s && s.id && !deletedSet.has(s.id))
+      .map((s) => (editedMap[s.id] ? { ...s, ...editedMap[s.id] } : s));
 
-  const customUpdated = customList
-    .filter((s) => !deletedSet.has(s.id) && !isTestOrMockSubject(s))
-    .map((s) => (editedMap[s.id] ? { ...s, ...editedMap[s.id] } : s));
+    const customUpdated = customList
+      .filter((s) => s && s.id && !deletedSet.has(s.id) && !isTestOrMockSubject(s))
+      .map((s) => (editedMap[s.id] ? { ...s, ...editedMap[s.id] } : s));
 
-  return [...baseUpdated, ...customUpdated].filter(s => !isTestOrMockSubject(s));
+    return [...baseUpdated, ...customUpdated].filter(s => s && !isTestOrMockSubject(s));
+  } catch (err) {
+    console.error("[getCombinedSubjects] Fallback triggered due to error:", err);
+    return [];
+  }
 }
 
 // Helper to add subject
@@ -477,59 +481,26 @@ export function saveUserQuestionsStore(store: UserQuestionsStore): void {
 
   try {
     dispatchStoreUpdated(store);
-    if (typeof window === "undefined" || typeof localStorage === "undefined") {
-      return;
-    }
-    try {
-      localStorage.setItem(USER_QUESTIONS_KEY, JSON.stringify(store));
-      recordLocalChange();
-      return;
-    } catch (quotaErr) {
-      // Free up redundant per-topic / per-mcq localStorage cache keys first
-      try {
-        const keysToRemove: string[] = [];
-        for (let i = 0; i < localStorage.length; i++) {
-          const k = localStorage.key(i);
-          if (k && (k.startsWith("disha2020_mcqs_") || k.startsWith("disha2020_mcq_") || k.startsWith("quizpro_mcqs_") || k.startsWith("quizpro_mcq_"))) {
-            keysToRemove.push(k);
+    safeSetLocalStorageItem(
+      USER_QUESTIONS_KEY,
+      JSON.stringify(cleanStore),
+      () => {
+        const leanCache = (cleanStore.cloudCacheQuestions || []).map(q => {
+          const copy: any = { ...q };
+          if (copy.imageUrl && typeof copy.imageUrl === "string" && copy.imageUrl.length > 50 * 1024) {
+            delete copy.imageUrl;
           }
-        }
-        keysToRemove.forEach((k) => localStorage.removeItem(k));
-      } catch {}
-
-      // Preserve all question fields while stripping only oversized (>50KB) inline base64 blobs
-      const leanCache = (store.cloudCacheQuestions || []).map(q => {
-        const copy: any = { ...q };
-        if (copy.imageUrl && typeof copy.imageUrl === "string" && copy.imageUrl.length > 50 * 1024) {
-          delete copy.imageUrl;
-        }
-        if (copy.image && typeof copy.image === "object" && copy.image.dataUrl && copy.image.dataUrl.length > 50 * 1024) {
-          copy.image = { ...copy.image, dataUrl: "" };
-        }
-        return copy as Question;
-      });
-      const storeToPersist = {
-        ...store,
-        cloudCacheQuestions: leanCache,
-      };
-      try {
-        localStorage.setItem(USER_QUESTIONS_KEY, JSON.stringify(storeToPersist));
-        recordLocalChange();
-      } catch (innerErr) {
-        // Save curriculum structure & edits to localStorage while IndexedDB holds the 3,744+ cloudCacheQuestions
-        try {
-          const metadataOnlyStore = {
-            ...store,
-            cloudCacheQuestions: [],
-          };
-          localStorage.setItem(USER_QUESTIONS_KEY, JSON.stringify(metadataOnlyStore));
-          recordLocalChange();
-        } catch {}
-        console.info("[QuestionsStorage] Full question bank persisted in IndexedDB & memory (exceeds 5MB localStorage limit).");
+          if (copy.image && typeof copy.image === "object" && copy.image.dataUrl && copy.image.dataUrl.length > 50 * 1024) {
+            copy.image = { ...copy.image, dataUrl: "" };
+          }
+          return copy as Question;
+        });
+        return JSON.stringify({ ...cleanStore, cloudCacheQuestions: leanCache });
       }
-    }
+    );
+    recordLocalChange();
   } catch (e) {
-    console.warn("Could not save user questions store:", e);
+    console.warn("[QuestionsStorage] Notice while persisting questions store:", e);
   }
 }
 
@@ -579,26 +550,30 @@ let lastLoggedCombinedState = "";
 
 // Merge base CHAPTERS_DATA with user custom additions, edits, categorization moves, and deletions
 export function getCombinedChapters(store: UserQuestionsStore = loadUserQuestionsStore()): Chapter[] {
-  const deletedSet = new Set(store.deletedQuestionIds || []);
-  const editedMap = store.editedQuestions || {};
-  const customList = store.customQuestions || [];
-  
-  const deletedChapterSet = new Set(store.deletedChapterIds || []);
-  const deletedTopicSet = new Set(store.deletedTopicIds || []);
-  const editedChapterMap = store.editedChapters || {};
-  const editedTopicMap = store.editedTopics || {};
-  const customChaptersList = (store.customChapters || []).filter(ch => !deletedChapterSet.has(ch.id) && !isTestOrMockChapter(ch));
-  const customTopicsList = (store.customTopics || []).filter(t => !deletedTopicSet.has(t.id) && !isTestOrMockTopic(t));
+  try {
+    const safeStore: Partial<UserQuestionsStore> = store || {};
+    const deletedSet = new Set(safeStore.deletedQuestionIds || []);
+    const editedMap = safeStore.editedQuestions || {};
+    const customList = Array.isArray(safeStore.customQuestions) ? safeStore.customQuestions : [];
+    
+    const deletedChapterSet = new Set(safeStore.deletedChapterIds || []);
+    const deletedTopicSet = new Set(safeStore.deletedTopicIds || []);
+    const editedChapterMap = safeStore.editedChapters || {};
+    const editedTopicMap = safeStore.editedTopics || {};
+    const customChaptersList = (Array.isArray(safeStore.customChapters) ? safeStore.customChapters : [])
+      .filter(ch => ch && !deletedChapterSet.has(ch.id) && !isTestOrMockChapter(ch));
+    const customTopicsList = (Array.isArray(safeStore.customTopics) ? safeStore.customTopics : [])
+      .filter(t => t && !deletedTopicSet.has(t.id) && !isTestOrMockTopic(t));
 
-  // All base questions
-  const allBaseQuestions: Question[] = CHAPTERS_DATA.flatMap((c) =>
-    c.topics.flatMap((t) => t.questions)
-  );
+    // All base questions
+    const allBaseQuestions: Question[] = (CHAPTERS_DATA || []).flatMap((c) =>
+      (c?.topics || []).flatMap((t) => (Array.isArray(t?.questions) ? t.questions : []))
+    );
 
-  // Apply edits (including topic/chapter moves) to base questions and filter deleted
-  const activeBaseQuestions = allBaseQuestions
-    .filter((q) => !deletedSet.has(q.id) && !isTestOrMockQuestion(q))
-    .map((q) => (editedMap[q.id] ? { ...q, ...editedMap[q.id] } : q));
+    // Apply edits (including topic/chapter moves) to base questions and filter deleted
+    const activeBaseQuestions = allBaseQuestions
+      .filter((q) => q && q.id && !deletedSet.has(q.id) && !isTestOrMockQuestion(q))
+      .map((q) => (editedMap[q.id] ? { ...q, ...editedMap[q.id] } : q));
 
   // Apply edits to custom questions and filter deleted
   const activeCustomQuestions = customList
@@ -866,7 +841,7 @@ export function getCombinedChapters(store: UserQuestionsStore = loadUserQuestion
 
   // Update base chapters with questions and any added custom topics
   const baseUpdatedChapters: Chapter[] = (CHAPTERS_DATA || [])
-    .filter(ch => !deletedChapterSet.has(ch.id))
+    .filter(ch => ch && !deletedChapterSet.has(ch.id))
     .map((ch) => {
       const edited = editedChapterMap[ch.id];
       const baseChapter = edited ? { ...ch, ...edited } : ch;
@@ -874,11 +849,15 @@ export function getCombinedChapters(store: UserQuestionsStore = loadUserQuestion
 
       // Deduplicate topics by ID
       const topicsMap = new Map<string, Topic>();
-      baseChapter.topics.forEach((t: Topic) => topicsMap.set(t.id, t));
-      extraTopics.forEach((t: Topic) => topicsMap.set(t.id, t));
+      (baseChapter.topics || []).forEach((t: Topic) => {
+        if (t && t.id) topicsMap.set(t.id, t);
+      });
+      extraTopics.forEach((t: Topic) => {
+        if (t && t.id) topicsMap.set(t.id, t);
+      });
 
       const allChTopics = Array.from(topicsMap.values())
-        .filter((t: Topic) => !deletedTopicSet.has(t.id))
+        .filter((t: Topic) => t && !deletedTopicSet.has(t.id))
         .map((t: Topic) => {
             const editedTopic = editedTopicMap[t.id];
             return editedTopic ? { ...t, ...editedTopic } : t;
@@ -902,7 +881,7 @@ export function getCombinedChapters(store: UserQuestionsStore = loadUserQuestion
       });
 
       const chapterQuestionCount = updatedTopics.reduce(
-        (sum, t) => sum + (t.questions.length > 0 ? t.questions.length : (t.questionCount || 0)),
+        (sum, t) => sum + (Array.isArray(t?.questions) && t.questions.length > 0 ? t.questions.length : (t?.questionCount || 0)),
         0
       );
 
@@ -914,8 +893,8 @@ export function getCombinedChapters(store: UserQuestionsStore = loadUserQuestion
       };
     });
 
-  const fallbackSubjectId = (store.customSubjects && store.customSubjects.length > 0)
-    ? store.customSubjects[0].id
+  const fallbackSubjectId = (safeStore.customSubjects && safeStore.customSubjects.length > 0)
+    ? safeStore.customSubjects[0].id
     : "economics";
 
   // Update custom chapters with questions
@@ -957,7 +936,7 @@ export function getCombinedChapters(store: UserQuestionsStore = loadUserQuestion
     });
 
     const allChTopics = Array.from(topicsMap.values())
-        .filter((t: Topic) => !deletedTopicSet.has(t.id))
+        .filter((t: Topic) => t && !deletedTopicSet.has(t.id))
         .map((t: Topic) => {
             const editedTopic = editedTopicMap[t.id];
             return editedTopic ? { ...t, ...editedTopic } : t;
@@ -983,7 +962,7 @@ export function getCombinedChapters(store: UserQuestionsStore = loadUserQuestion
     });
 
     const chapterQuestionCount = updatedTopics.reduce(
-      (sum, t) => sum + (t.questions.length > 0 ? t.questions.length : (t.questionCount || 0)),
+      (sum, t) => sum + (Array.isArray(t?.questions) && t.questions.length > 0 ? t.questions.length : (t?.questionCount || 0)),
       0
     );
 
@@ -1029,13 +1008,17 @@ export function getCombinedChapters(store: UserQuestionsStore = loadUserQuestion
       }
 
       if (targetChapter) {
+        if (!Array.isArray(targetChapter.topics)) {
+          targetChapter.topics = [];
+        }
+
         // Resolve known topic details first to prevent renaming custom topics to "General Practice"
         const knownCustomTopic =
           (customTopicsList || []).find(t => t.id === q.topicId) ||
-          (store.customTopics || []).find(t => t.id === q.topicId) ||
+          (safeStore.customTopics || []).find(t => t.id === q.topicId) ||
           allCombined.flatMap(c => c.topics || []).find(t => t.id === q.topicId);
 
-        const knownEdited = q.topicId && store.editedTopics ? store.editedTopics[q.topicId] : undefined;
+        const knownEdited = q.topicId && safeStore.editedTopics ? safeStore.editedTopics[q.topicId] : undefined;
 
         const resolvedTitle =
           knownEdited?.title ||
@@ -1059,29 +1042,35 @@ export function getCombinedChapters(store: UserQuestionsStore = loadUserQuestion
 
         // Find existing topic or create salvage topic
         let targetTopic = targetChapter.topics.find(
-          t => t.id === q.topicId || (qTopTitle && t.title.toLowerCase() === qTopTitle.toLowerCase())
+          t => t && (t.id === q.topicId || (qTopTitle && (t.title || "").toLowerCase() === qTopTitle.toLowerCase()))
         );
 
         if (targetTopic) {
+          if (!Array.isArray(targetTopic.questions)) {
+            targetTopic.questions = [];
+          }
           // If the existing topic was previously defaulted to "General Practice" but has a known custom topic with a real name, restore the real name!
           if (knownCustomTopic && (targetTopic.title.includes("General Practice") || targetTopic.title.includes("सामान्य अभ्यास"))) {
             targetTopic.title = knownCustomTopic.title;
             targetTopic.hindiTitle = knownCustomTopic.hindiTitle || knownCustomTopic.title;
           }
-          if (!targetTopic.questions.some(existingQ => existingQ.id === q.id)) {
+          if (!targetTopic.questions.some(existingQ => existingQ && existingQ.id === q.id)) {
             targetTopic.questions.push(q);
           }
         } else {
           const newTopicId = (q.topicId && q.topicId !== "gen")
             ? q.topicId
             : `salvage_${targetChapter.id}_general`;
-          const existingSalvage = targetChapter.topics.find(t => t.id === newTopicId);
+          const existingSalvage = targetChapter.topics.find(t => t && t.id === newTopicId);
           if (existingSalvage) {
+            if (!Array.isArray(existingSalvage.questions)) {
+              existingSalvage.questions = [];
+            }
             if (knownCustomTopic && (existingSalvage.title.includes("General Practice") || existingSalvage.title.includes("सामान्य अभ्यास"))) {
               existingSalvage.title = knownCustomTopic.title;
               existingSalvage.hindiTitle = knownCustomTopic.hindiTitle || knownCustomTopic.title;
             }
-            if (!existingSalvage.questions.some(existingQ => existingQ.id === q.id)) {
+            if (!existingSalvage.questions.some(existingQ => existingQ && existingQ.id === q.id)) {
               existingSalvage.questions.push(q);
             }
           } else {
@@ -1105,7 +1094,9 @@ export function getCombinedChapters(store: UserQuestionsStore = loadUserQuestion
   
   // Final deduplication by chapter ID (custom wins)
   const finalChaptersMap = new Map<string, Chapter>();
-  allCombinedChapters.forEach(ch => finalChaptersMap.set(ch.id, ch));
+  allCombinedChapters.forEach(ch => {
+    if (ch && ch.id) finalChaptersMap.set(ch.id, ch);
+  });
   const uniqueChapters = Array.from(finalChaptersMap.values());
 
   // Group by subjectId and assign independent 1-based numbering per subject
@@ -1130,6 +1121,10 @@ export function getCombinedChapters(store: UserQuestionsStore = loadUserQuestion
   });
 
   return resultChapters;
+  } catch (err) {
+    console.error("[getCombinedChapters] Fallback triggered due to error:", err);
+    return CHAPTERS_DATA || [];
+  }
 }
 
 // Deduplicate questions by ID (last one wins)
@@ -1146,44 +1141,58 @@ export function deduplicateQuestions(questions: Question[]): Question[] {
 
 // Extract flat array of all combined questions (deduplicated by ID)
 export function getCombinedQuestions(chapters: Chapter[], store?: UserQuestionsStore): Question[] {
-  const effectiveStore = store || loadUserQuestionsStore();
-  const deletedSet = new Set(effectiveStore?.deletedQuestionIds || []);
-  const isCompleteQ = (q: any): boolean =>
-    Boolean(
-      q &&
-      q.id &&
-      !deletedSet.has(q.id) &&
-      (q.text || q.question) &&
-      Array.isArray(q.options) &&
-      q.options.length >= 2
-    );
+  try {
+    const effectiveStore = store || loadUserQuestionsStore();
+    const deletedSet = new Set(effectiveStore?.deletedQuestionIds || []);
+    const isCompleteQ = (q: any): boolean =>
+      Boolean(
+        q &&
+        q.id &&
+        !deletedSet.has(q.id) &&
+        (q.text || q.question) &&
+        Array.isArray(q.options) &&
+        q.options.length >= 2
+      );
 
-  const allRaw = (chapters || []).flatMap((ch) => (ch?.topics || []).flatMap((t) => t.questions || [])).filter(isCompleteQ);
-  
-  if (effectiveStore) {
-    const chapterIds = new Set((chapters || []).map((c) => c.id));
-    const topicIds = new Set((chapters || []).flatMap((c) => (c.topics || []).map((t) => t.id)));
-    const subjectIds = new Set(
-      (chapters || []).map((c) => (c.subjectId || "").toLowerCase().replace(/[-_]/g, "")).filter(Boolean)
-    );
-    const allStoreChaptersCount = (effectiveStore.customChapters || []).length;
-    const isGlobalQuery = chapters.length >= allStoreChaptersCount && chapters.length > 0;
+    const allRaw = (Array.isArray(chapters) ? chapters : [])
+      .flatMap((ch) => (Array.isArray(ch?.topics) ? ch.topics : []).flatMap((t) => (Array.isArray(t?.questions) ? t.questions : [])))
+      .filter(isCompleteQ);
+    
+    if (effectiveStore) {
+      const chapterIds = new Set((Array.isArray(chapters) ? chapters : []).map((c) => c?.id).filter(Boolean));
+      const topicIds = new Set(
+        (Array.isArray(chapters) ? chapters : []).flatMap((c) => (Array.isArray(c?.topics) ? c.topics : []).map((t) => t?.id)).filter(Boolean)
+      );
+      const subjectIds = new Set(
+        (Array.isArray(chapters) ? chapters : []).map((c) => (c?.subjectId || "").toLowerCase().replace(/[-_]/g, "")).filter(Boolean)
+      );
+      const allStoreChaptersCount = (effectiveStore.customChapters || []).length;
+      const isGlobalQuery = chapters.length >= allStoreChaptersCount && chapters.length > 0;
 
-    const storeQuestions = [...(effectiveStore.customQuestions || []), ...(effectiveStore.cloudCacheQuestions || [])].filter(isCompleteQ);
-    const matchingStoreQuestions = storeQuestions.filter((q) => {
-      if (isGlobalQuery) return true;
-      if (q.chapterId && chapterIds.has(q.chapterId)) return true;
-      if (q.topicId && topicIds.has(q.topicId)) return true;
-      const qSubNorm = (q.subjectId || "").toLowerCase().replace(/[-_]/g, "");
-      if (qSubNorm && subjectIds.has(qSubNorm)) return true;
-      return false;
-    });
+      const storeQuestions = [
+        ...(Array.isArray(effectiveStore.customQuestions) ? effectiveStore.customQuestions : []),
+        ...(Array.isArray(effectiveStore.cloudCacheQuestions) ? effectiveStore.cloudCacheQuestions : [])
+      ].filter(isCompleteQ);
 
-    return deduplicateQuestions([...allRaw, ...matchingStoreQuestions])
-      .filter(q => !deletedSet.has(q.id) && !isTestOrMockQuestion(q));
+      const matchingStoreQuestions = storeQuestions.filter((q) => {
+        if (!q) return false;
+        if (isGlobalQuery) return true;
+        if (q.chapterId && chapterIds.has(q.chapterId)) return true;
+        if (q.topicId && topicIds.has(q.topicId)) return true;
+        const qSubNorm = (q.subjectId || "").toLowerCase().replace(/[-_]/g, "");
+        if (qSubNorm && subjectIds.has(qSubNorm)) return true;
+        return false;
+      });
+
+      return deduplicateQuestions([...allRaw, ...matchingStoreQuestions])
+        .filter(q => q && !deletedSet.has(q.id) && !isTestOrMockQuestion(q));
+    }
+
+    return deduplicateQuestions(allRaw).filter(q => q && !deletedSet.has(q.id) && !isTestOrMockQuestion(q));
+  } catch (err) {
+    console.error("[getCombinedQuestions] Fallback triggered due to error:", err);
+    return [];
   }
-
-  return deduplicateQuestions(allRaw).filter(q => !deletedSet.has(q.id) && !isTestOrMockQuestion(q));
 }
 
 // Build helper lookup maps

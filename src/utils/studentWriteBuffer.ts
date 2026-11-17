@@ -31,6 +31,12 @@ import {
 } from "./indexedDbCache";
 import { loadUserProfile } from "./userProfileStorage";
 import { recordCloudSyncSuccess } from "./syncStorage";
+import {
+  safeGetSessionStorageItem,
+  safeSetSessionStorageItem,
+  safeRemoveSessionStorageItem,
+  safeRemoveLocalStorageItem,
+} from "./safeStorage";
 
 export const STUDENT_BUFFER_STORAGE_KEY = "disha2020_student_buffer_v1";
 export const STUDENT_OUTBOX_STORAGE_KEY = "disha2020_student_outbox_v1";
@@ -239,12 +245,10 @@ export function getCurrentWeekId(referenceDate: Date = new Date()): string {
 export function setAdminPreviewSession(active: boolean): void {
   inMemoryAdminPreview = active;
   try {
-    if (typeof sessionStorage !== "undefined") {
-      if (active) {
-        sessionStorage.setItem(ADMIN_PREVIEW_SESSION_KEY, "true");
-      } else {
-        sessionStorage.removeItem(ADMIN_PREVIEW_SESSION_KEY);
-      }
+    if (active) {
+      safeSetSessionStorageItem(ADMIN_PREVIEW_SESSION_KEY, "true");
+    } else {
+      safeRemoveSessionStorageItem(ADMIN_PREVIEW_SESSION_KEY);
     }
   } catch {}
 }
@@ -253,9 +257,7 @@ export function isAdminPreviewSessionActive(session?: Partial<MCQSession> | { is
   if (session?.isAdminPreview) return true;
   if (inMemoryAdminPreview) return true;
   try {
-    if (typeof sessionStorage !== "undefined") {
-      return sessionStorage.getItem(ADMIN_PREVIEW_SESSION_KEY) === "true";
-    }
+    return safeGetSessionStorageItem(ADMIN_PREVIEW_SESSION_KEY) === "true";
   } catch {}
   return false;
 }
@@ -546,13 +548,9 @@ export async function __clearStudentWriteBufferForTests(): Promise<void> {
   activeFlushPromise = null;
   rehydratePromise = null;
   inMemoryAdminPreview = false;
-  if (typeof localStorage !== "undefined") {
-    localStorage.removeItem(STUDENT_BUFFER_STORAGE_KEY);
-    localStorage.removeItem(STUDENT_OUTBOX_STORAGE_KEY);
-  }
-  if (typeof sessionStorage !== "undefined") {
-    sessionStorage.removeItem(ADMIN_PREVIEW_SESSION_KEY);
-  }
+  safeRemoveLocalStorageItem(STUDENT_BUFFER_STORAGE_KEY);
+  safeRemoveLocalStorageItem(STUDENT_OUTBOX_STORAGE_KEY);
+  safeRemoveSessionStorageItem(ADMIN_PREVIEW_SESSION_KEY);
   if (isIndexedDbSupported()) {
     const { idbClearStudentBufferStores } = await import("./indexedDbCache");
     await idbClearStudentBufferStores().catch(() => {});
