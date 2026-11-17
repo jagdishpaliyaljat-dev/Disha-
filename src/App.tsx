@@ -890,9 +890,11 @@ export default function App() {
       const { supabase } = await import('./lib/supabase');
       await supabase.auth.signOut();
     } catch {}
+    const { clearUserProfile } = await import('./utils/userProfileStorage');
+    clearUserProfile();
     setUserProfile(null);
     setIsAuthenticated(false);
-    localStorage.removeItem('economic_survey_user_profile_v1');
+    setActiveTab('home');
   };
 
   // Toast Notifications State
@@ -1369,6 +1371,7 @@ export default function App() {
               onShowManageLiveTests={() => setIsManageLiveTestsOpen(true)}
               onShowManageExamCategories={() => setIsManageCategoriesOpen(true)}
               onBulkDeleteQuestions={(ids: string[]) => handleBulkDeleteQuestions(ids)}
+              onLogout={handleLogout}
             />
           </AdminErrorBoundary>
         )}

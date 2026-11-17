@@ -81,6 +81,17 @@ export function saveUserProfile(profile: UserProfile): void {
   }
 }
 
+export function clearUserProfile(): void {
+  inMemoryProfile = null;
+  try {
+    if (typeof window !== "undefined" && typeof localStorage !== "undefined") {
+      localStorage.removeItem(USER_PROFILE_KEY);
+    }
+  } catch (err) {
+    console.error("Failed to clear user profile", err);
+  }
+}
+
 export function isUserAdmin(profileOrRole?: UserProfile | string | null): boolean {
   const normalize = (s: string) => s.trim().toLowerCase();
 

@@ -11,7 +11,7 @@ import { ConfirmDialog } from "./admin/ConfirmDialog";
 import { deleteSubject, deleteChapter, saveUserQuestionsStore } from "../utils/questionsStorage";
 import { AdminSectionLoader } from "./admin/AdminSkeletonLoaders";
 import type { SyncProgressState } from "./admin/SyncProgressModal";
-import { isUserAdmin } from "../utils/userProfileStorage";
+import { isUserAdmin, clearUserProfile } from "../utils/userProfileStorage";
 import { getTotalDisplayCount, getCombinedSubjects, getCombinedChapters, getCombinedQuestions } from "../utils/questionsStorage";
 import { loadLocalPYQPapers, getDeletedPYQIds } from "../utils/pyqStorage";
 import { loadLocalLiveTests, getDeletedLiveTestIds } from "../utils/liveTestStorage";
@@ -88,6 +88,7 @@ interface AdminTabProps {
   onDeleteSubject?: (subjectId: string) => Promise<void>;
   onDeleteChapter?: (chapterId: string) => Promise<void>;
   onBulkDeleteQuestions?: (questionIds: string[]) => Promise<void> | void;
+  onLogout?: () => void;
 }
 
 export type AdminGroupSection = 
@@ -132,6 +133,20 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
   const [showMeritListModal, setShowMeritListModal] = React.useState(false);
   const [isAdminMenuOpen, setIsAdminMenuOpen] = React.useState(false);
   const adminMenuRef = React.useRef<HTMLDivElement>(null);
+
+  const handleAdminSignOut = async () => {
+    setIsAdminMenuOpen(false);
+    setIsSidebarOpen(false);
+    try {
+      await supabase.auth.signOut();
+    } catch {}
+    clearUserProfile();
+    if (props.onLogout) {
+      props.onLogout();
+    } else if (typeof window !== "undefined") {
+      window.location.href = "/";
+    }
+  };
 
   const [cloudAuthState, setCloudAuthState] = React.useState<{
     checked: boolean;
@@ -892,13 +907,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                     </button>
 
                     <button
-                      onClick={() => {
-                        setIsAdminMenuOpen(false);
-                        supabase.auth.signOut().catch(() => {});
-                        if (typeof window !== "undefined") {
-                          window.location.href = "/";
-                        }
-                      }}
+                      onClick={handleAdminSignOut}
                       className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors text-left cursor-pointer"
                     >
                       <LogOut className="w-4 h-4 text-rose-500" />
@@ -1011,6 +1020,33 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
 
           {/* Sidebar Footer Controls */}
           <div className="p-2 sm:p-3 border-t border-[#E8D9C0]/70 dark:border-[#31374A] space-y-1">
+            <button
+              onClick={() => {
+                setIsSidebarOpen(false);
+                if (typeof window !== "undefined") {
+                  window.location.href = "/";
+                }
+              }}
+              title="Return to Student App"
+              className={`w-full flex items-center rounded-xl text-xs font-semibold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-colors min-h-[40px] cursor-pointer ${
+                isSidebarCollapsed ? "lg:justify-center lg:px-2 px-3 py-2 justify-start gap-3" : "px-3 py-2 gap-3"
+              }`}
+            >
+              <Home className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+              <span className={isSidebarCollapsed ? "lg:hidden" : ""}>Return to Student App</span>
+            </button>
+
+            <button
+              onClick={handleAdminSignOut}
+              title="Sign Out Admin"
+              className={`w-full flex items-center rounded-xl text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors min-h-[40px] cursor-pointer ${
+                isSidebarCollapsed ? "lg:justify-center lg:px-2 px-3 py-2 justify-start gap-3" : "px-3 py-2 gap-3"
+              }`}
+            >
+              <LogOut className="w-4 h-4 text-rose-500 shrink-0" />
+              <span className={isSidebarCollapsed ? "lg:hidden" : ""}>Sign Out</span>
+            </button>
+
             <button
               onClick={() => {
                 setShowQATestRunner(true);
