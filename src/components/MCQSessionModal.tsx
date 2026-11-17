@@ -1644,26 +1644,28 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
         exit={{ opacity: 0, scale: 0.96, y: -20, filter: "blur(8px)" }}
         transition={{ duration: 0.48, ease: [0.16, 1, 0.3, 1] }}
         id="session-summary-screen"
-        className="fixed inset-0 z-[100] bg-[#F8FAFC] dark:bg-[#080C14] flex flex-col w-full"
+        className="fixed inset-0 z-[100] bg-[#FFF9EF] dark:bg-[#120E10] flex flex-col w-full"
       >
         {/* Sticky Header for Result Page */}
-        <header className="sticky top-0 z-[110] bg-white/80 dark:bg-[#080C14]/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 py-3 flex items-center justify-between shrink-0">
+        <header className="sticky top-0 z-[110] bg-[#FFF9EF]/90 dark:bg-[#120E10]/90 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#2D2226] px-4 py-3 flex items-center justify-between shrink-0">
           <button
             onClick={onClose}
-            className="w-10 h-10 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 flex items-center justify-center transition-all active:scale-90 cursor-pointer"
+            className="w-10 h-10 rounded-xl bg-white dark:bg-[#1C1518] border border-[#E8D9C0] dark:border-[#2D2226] text-[#800020] dark:text-[#E5B869] flex items-center justify-center transition-all active:scale-90 shadow-sm cursor-pointer"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div className="flex-1 px-4 text-center min-w-0">
-            <h2 className="text-sm font-black text-slate-900 dark:text-white truncate">
+            <h2 className="text-sm font-black text-[#171923] dark:text-[#FFF9EF] truncate">
               Analysis Report
             </h2>
-            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Performance Summary</p>
+            <p className="text-[10px] font-bold text-[#800020] dark:text-[#C99A45] uppercase tracking-widest">
+              Performance Summary
+            </p>
           </div>
           <div className="w-10" />
         </header>
 
-        <div className="flex-1 overflow-y-auto overscroll-y-contain flex flex-col items-center justify-start p-4 sm:p-8 w-full">
+        <div className="flex-1 overflow-y-auto overscroll-y-contain flex flex-col items-center justify-start p-3 sm:p-6 w-full">
         {/* Framer-Motion Confetti Animation for 100% Accuracy Perfect Score */}
         {showPerfectCelebration && (
           <MotionConfettiCelebration
@@ -1677,78 +1679,89 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
           />
         )}
 
-        {/* Decorative Background for Results */}
+        {/* Decorative Background for Results (DISHA Burgundy & Gold ambient glow) */}
         <div className="fixed inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-[500px] bg-gradient-to-b from-blue-500/10 via-transparent to-transparent dark:from-blue-500/5 rounded-full blur-[100px]" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-[450px] bg-gradient-to-b from-[#800020]/10 via-[#C99A45]/5 to-transparent dark:from-[#800020]/15 dark:via-[#C99A45]/5 rounded-full blur-[120px]" />
         </div>
 
         <div className="w-full max-w-2xl space-y-4 sm:space-y-6 pb-[calc(env(safe-area-inset-bottom,20px)+64px)] relative z-10">
-          {/* Top Results Card: High-Fidelity Summary (Decreased by ~40% for Mobile Ergonomics) */}
+          {/* Top Results Card: High-Fidelity Performance Summary */}
           <motion.div 
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            className="bg-white dark:bg-[#111A2E] border border-slate-200/90 dark:border-slate-800 rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-[0_12px_30px_rgba(0,0,0,0.06)] dark:shadow-none text-center space-y-3.5 sm:space-y-4 overflow-hidden relative"
+            className="bg-white dark:bg-[#1A1417] border border-[#E8D9C0] dark:border-[#2F2227] rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-[0_12px_32px_rgba(128,0,32,0.06)] dark:shadow-none text-center space-y-3.5 sm:space-y-4 overflow-hidden relative"
           >
-            {/* Visual Flair: Dynamic Gradient Border & Background Glow */}
-            <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-blue-600 via-indigo-500 to-emerald-500" />
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-blue-500/10 rounded-full blur-[60px] pointer-events-none" />
+            {/* DISHA Brand Gradient Top Accent Line & Subtle Gold Glow */}
+            <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[#800020] via-[#C99A45] to-[#800020]" />
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-[#C99A45]/10 rounded-full blur-[60px] pointer-events-none" />
             
             <motion.div 
               initial={{ scale: 0, rotate: -15 }}
               animate={{ scale: 1, rotate: 0 }}
               transition={{ type: "spring", damping: 12, delay: 0.2 }}
-              className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white flex items-center justify-center mx-auto shadow-lg shadow-blue-600/25 relative"
+              className="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-[#800020] via-[#660019] to-[#520014] text-[#E5B869] border border-[#C99A45]/40 flex items-center justify-center mx-auto shadow-lg shadow-[#800020]/25 relative"
             >
-              <Award className="w-6 h-6" />
-              <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white dark:border-[#111A2E] flex items-center justify-center">
-                <Check className="w-2.5 h-2.5 text-white" strokeWidth={3.5} />
+              <Trophy className="w-6 h-6 sm:w-7 sm:h-7 text-[#E5B869]" />
+              <div className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-[#C99A45] rounded-full border-2 border-white dark:border-[#1A1417] flex items-center justify-center">
+                <Check className="w-2.5 h-2.5 text-[#520014]" strokeWidth={3.5} />
               </div>
             </motion.div>
 
-            <div className="space-y-0.5 sm:space-y-1 relative z-10">
-              <span className="text-[9px] font-black uppercase tracking-[0.2em] text-blue-600 dark:text-blue-400 font-mono">
-                {session.isSmartTest ? "Mastery Achieved" : isTestMode ? "Examination Finalized" : "Practice Session Complete"}
+            <div className="space-y-1 relative z-10">
+              <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#FAF5ED] dark:bg-[#251A1E] border border-[#E8D9C0] dark:border-[#38262C] text-[9px] font-black uppercase tracking-[0.2em] text-[#800020] dark:text-[#E5B869] font-mono shadow-sm">
+                <Sparkles className="w-3 h-3 text-[#C99A45]" />
+                {session.isSmartTest ? "Mastery Achieved" : isTestMode ? "Examination Finalized" : "Practice Session Completed"}
               </span>
-              <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white leading-tight tracking-tight">
-                {sessionAccuracy >= 80 ? "Outstanding Work!" : sessionAccuracy >= 50 ? "Solid Progress!" : "Keep Pushing!"}
+              <h2 className="text-xl sm:text-2xl font-black text-[#171923] dark:text-[#FFF9EF] leading-tight tracking-tight pt-0.5">
+                {sessionAccuracy >= 80 ? "Outstanding Mastery!" : sessionAccuracy >= 50 ? "Solid Progress!" : "Keep Pushing Forward!"}
               </h2>
-              <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 flex items-center justify-center gap-1.5">
-                <span>{session.title}</span>
+              <div className="text-[11px] font-bold text-[#718096] dark:text-[#9E8E95] flex items-center justify-center gap-1.5 flex-wrap px-2">
+                <span className="text-[#171923] dark:text-[#FAF5ED]">{session.title}</span>
                 {session.subtitle && (
                   <>
-                    <span className="w-1 h-1 rounded-full bg-slate-300" />
+                    <span className="w-1 h-1 rounded-full bg-[#C99A45]" />
                     <span>{session.subtitle}</span>
                   </>
                 )}
-              </p>
+              </div>
             </div>
 
             {/* Main Score & Accuracy Grid */}
-            <div className="grid grid-cols-2 gap-2.5 sm:gap-3.5 items-center pt-0.5 relative z-10">
-              <div className="bg-slate-50/80 dark:bg-slate-900/40 rounded-xl sm:rounded-2xl p-2.5 sm:p-3.5 border border-slate-100 dark:border-slate-800/80 relative group transition-all hover:bg-white dark:hover:bg-slate-900 hover:shadow-md hover:shadow-slate-200/40 dark:hover:shadow-none">
-                <div className="flex flex-col items-center">
-                  <span className="text-[9px] font-black uppercase tracking-wider text-slate-400 mb-1">Score Card</span>
-                  <div className="flex items-baseline gap-1 font-mono">
-                    <span className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
-                      {totalCorrect}
-                    </span>
-                    <span className="text-xs sm:text-sm font-bold text-slate-400 dark:text-slate-500">
-                      / {questions.length}
-                    </span>
-                  </div>
+            <div className="grid grid-cols-2 gap-2.5 sm:gap-3.5 items-stretch pt-0.5 relative z-10">
+              <div className="bg-[#FAF5ED] dark:bg-[#20181B] rounded-xl sm:rounded-2xl p-3 sm:p-3.5 border border-[#E8D9C0] dark:border-[#33252A] flex flex-col items-center justify-center">
+                <span className="text-[9px] font-black uppercase tracking-widest text-[#800020] dark:text-[#E5B869] mb-1">
+                  Score Achieved
+                </span>
+                <div className="flex items-baseline gap-1 font-mono">
+                  <span className="text-2xl sm:text-3xl font-black text-[#171923] dark:text-[#FFF9EF]">
+                    {totalCorrect}
+                  </span>
+                  <span className="text-xs sm:text-sm font-bold text-[#718096] dark:text-[#8C7D83]">
+                    / {questions.length}
+                  </span>
                 </div>
+                <span className="text-[9px] font-bold text-[#718096] dark:text-[#8C7D83] mt-0.5">
+                  {Math.round((totalCorrect / Math.max(1, questions.length)) * 100)}% Marks
+                </span>
               </div>
 
-              <div className="bg-slate-50/80 dark:bg-slate-900/40 rounded-xl sm:rounded-2xl p-2.5 sm:p-3.5 border border-slate-100 dark:border-slate-800/80 relative group transition-all hover:bg-white dark:hover:bg-slate-900 hover:shadow-md hover:shadow-slate-200/40 dark:hover:shadow-none">
-                <div className="flex flex-col items-center">
-                  <span className="text-[9px] font-black uppercase tracking-wider text-slate-400 mb-1">Accuracy</span>
-                  <div className="flex items-baseline gap-0.5 font-mono">
-                    <span className="text-2xl sm:text-3xl font-black text-emerald-600 dark:text-emerald-400">
-                      {sessionAccuracy}
-                    </span>
-                    <span className="text-xs sm:text-sm font-bold text-emerald-600/60 dark:text-emerald-400/60">%</span>
-                  </div>
+              <div className="bg-[#FAF5ED] dark:bg-[#20181B] rounded-xl sm:rounded-2xl p-3 sm:p-3.5 border border-[#E8D9C0] dark:border-[#33252A] flex flex-col items-center justify-center">
+                <span className="text-[9px] font-black uppercase tracking-widest text-[#800020] dark:text-[#E5B869] mb-1">
+                  Accuracy Rate
+                </span>
+                <div className="flex items-baseline gap-0.5 font-mono">
+                  <span className={`text-2xl sm:text-3xl font-black ${
+                    sessionAccuracy >= 75 ? 'text-emerald-700 dark:text-emerald-400' :
+                    sessionAccuracy >= 50 ? 'text-[#800020] dark:text-[#E5B869]' :
+                    'text-rose-700 dark:text-rose-400'
+                  }`}>
+                    {sessionAccuracy}
+                  </span>
+                  <span className="text-xs sm:text-sm font-bold text-[#718096] dark:text-[#8C7D83]">%</span>
                 </div>
+                <span className="text-[9px] font-bold text-emerald-700 dark:text-emerald-400 mt-0.5">
+                  {sessionAccuracy >= 75 ? "Target Benchmark Achieved" : sessionAccuracy >= 50 ? "Average Pace" : "Focus on Revision"}
+                </span>
               </div>
             </div>
 
@@ -1758,24 +1771,22 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                 initial={{ scale: 0.96, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ delay: 0.35 }}
-                className="p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-950/20 dark:to-yellow-950/10 border border-amber-200/60 dark:border-amber-900/40 flex items-center gap-3 text-left shadow-sm relative overflow-hidden"
+                className="p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-gradient-to-r from-[#800020]/10 via-[#C99A45]/20 to-[#800020]/10 border border-[#C99A45]/40 flex items-center gap-3 text-left shadow-sm relative overflow-hidden"
               >
-                <div className="absolute top-0 right-0 w-20 h-20 bg-yellow-400/10 rounded-full blur-xl -mr-6 -mt-6" />
-                
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 text-white flex items-center justify-center shadow-md shadow-amber-500/30 shrink-0 relative z-10">
-                  <Sparkles className="w-5 h-5 fill-white" />
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#800020] to-[#520014] border border-[#C99A45] text-[#E5B869] flex items-center justify-center shrink-0">
+                  <Sparkles className="w-5 h-5 fill-current" />
                 </div>
                 
                 <div className="flex-1 min-w-0 relative z-10">
                   <div className="flex items-center gap-1.5 mb-0.5">
-                    <span className="text-[9px] font-black uppercase tracking-[0.15em] text-amber-700 dark:text-amber-400 font-mono">100% Accuracy</span>
-                    <span className="w-1 h-1 rounded-full bg-amber-300" />
-                    <span className="text-[9px] font-black uppercase tracking-[0.15em] text-amber-700 dark:text-amber-400 font-mono">Perfect Score!</span>
+                    <span className="text-[9px] font-black uppercase tracking-[0.15em] text-[#800020] dark:text-[#E5B869] font-mono">100% Accuracy</span>
+                    <span className="w-1 h-1 rounded-full bg-[#C99A45]" />
+                    <span className="text-[9px] font-black uppercase tracking-[0.15em] text-[#800020] dark:text-[#E5B869] font-mono">Perfect Score!</span>
                   </div>
-                  <div className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-amber-200/50 dark:bg-amber-800/40 text-[8px] font-black text-amber-900 dark:text-amber-200 uppercase tracking-wider mb-1">
+                  <div className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-[#C99A45]/20 border border-[#C99A45]/30 text-[8px] font-black text-[#800020] dark:text-[#E5B869] uppercase tracking-wider mb-1">
                     Flawless
                   </div>
-                  <p className="text-[11px] text-slate-800 dark:text-slate-200 font-bold leading-tight">
+                  <p className="text-[11px] text-[#171923] dark:text-[#FAF5ED] font-bold leading-tight">
                     Outstanding performance! You answered all questions correctly.
                   </p>
                 </div>
@@ -1783,7 +1794,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowPerfectCelebration(true)}
-                  className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-black text-[10px] uppercase tracking-wider active:scale-95 transition-all shadow-sm cursor-pointer relative z-10 flex items-center gap-1.5"
+                  className="px-3 py-1.5 rounded-lg bg-[#800020] hover:bg-[#660019] text-[#FFF9EF] font-black text-[10px] uppercase tracking-wider active:scale-95 transition-all shadow cursor-pointer relative z-10 flex items-center gap-1.5 border border-[#C99A45]/40"
                 >
                   <span>Replay</span>
                   <span>🎉</span>
@@ -1791,49 +1802,51 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
               </motion.div>
             )}
 
-            {/* Quick Stats Grid (2x2 as per screenshot) */}
-            <div className="grid grid-cols-2 gap-2 sm:gap-2.5 pt-0.5 relative z-10">
+            {/* Quick Stats Grid (2x2) */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5 pt-0.5 relative z-10">
               {[
-                { label: "CORRECT", val: totalCorrect, color: "emerald", icon: CheckCircle2 },
-                { label: "INCORRECT", val: totalWrong, color: "rose", icon: XCircle },
-                { label: "SKIPPED", val: totalSkipped, color: "slate", icon: Filter },
-                { label: "AVG / Q", val: `${avgTimePerQuestion}s`, color: "slate", icon: Clock },
-              ].map((m, i) => (
-                <div 
-                  key={i} 
-                  className={`bg-white dark:bg-[#111A2E] border border-slate-200 dark:border-slate-800 rounded-xl sm:rounded-2xl py-2 px-2.5 sm:py-2.5 sm:px-3 flex flex-col items-center justify-center transition-all hover:shadow-sm hover:border-${m.color}-200 dark:hover:border-${m.color}-800 group`}
-                >
-                  <span className={`text-xl sm:text-2xl font-black font-mono transition-colors ${
-                    m.color === 'emerald' ? 'text-emerald-600 dark:text-emerald-400' : 
-                    m.color === 'rose' ? 'text-rose-600 dark:text-rose-400' : 
-                    'text-slate-900 dark:text-white'
-                  }`}>
-                    {m.val}
-                  </span>
-                  <span className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em] transition-colors group-hover:text-slate-600 dark:group-hover:text-slate-300 mt-0.5">
-                    {m.label}
-                  </span>
-                </div>
-              ))}
+                { label: "CORRECT", val: totalCorrect, color: "text-emerald-700 dark:text-emerald-400", bg: "bg-emerald-50/70 dark:bg-emerald-950/20", border: "border-emerald-200 dark:border-emerald-900/40", icon: CheckCircle2 },
+                { label: "INCORRECT", val: totalWrong, color: "text-rose-700 dark:text-rose-400", bg: "bg-rose-50/70 dark:bg-rose-950/20", border: "border-rose-200 dark:border-rose-900/40", icon: XCircle },
+                { label: "SKIPPED", val: totalSkipped, color: "text-stone-700 dark:text-stone-300", bg: "bg-[#FAF5ED] dark:bg-[#1E171A]", border: "border-[#E8D9C0] dark:border-[#33252A]", icon: Filter },
+                { label: "AVG / Q", val: `${avgTimePerQuestion}s`, color: "text-[#800020] dark:text-[#E5B869]", bg: "bg-[#FAF5ED] dark:bg-[#1E171A]", border: "border-[#E8D9C0] dark:border-[#33252A]", icon: Clock },
+              ].map((m, i) => {
+                const Icon = m.icon;
+                return (
+                  <div 
+                    key={i} 
+                    className={`${m.bg} border ${m.border} rounded-xl sm:rounded-2xl py-2 px-2.5 sm:py-2.5 sm:px-3 flex flex-col items-center justify-center transition-all`}
+                  >
+                    <div className="flex items-center gap-1.5 mb-0.5">
+                      <Icon className={`w-3.5 h-3.5 ${m.color}`} />
+                      <span className={`text-xl sm:text-2xl font-black font-mono ${m.color}`}>
+                        {m.val}
+                      </span>
+                    </div>
+                    <span className="text-[9px] font-black text-[#718096] dark:text-[#8C7D83] uppercase tracking-[0.15em]">
+                      {m.label}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
 
-            {/* Primary Action Button (Natural Thumb Zone) */}
+            {/* Action Buttons (Consistent dimensions, DISHA brand colours) */}
             <div className="flex flex-col gap-2 pt-2 relative z-10">
               <motion.button
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={onClose}
-                className="w-full h-11 sm:h-12 bg-[#111827] dark:bg-white text-white dark:text-[#111827] rounded-xl font-black text-xs sm:text-sm shadow-md shadow-slate-900/15 dark:shadow-none flex items-center justify-center gap-2.5 active:scale-95 transition-all cursor-pointer border border-slate-800 dark:border-slate-200"
+                className="w-full h-11 sm:h-12 bg-[#800020] hover:bg-[#660019] text-white rounded-xl font-black text-xs sm:text-sm shadow-md shadow-[#800020]/20 flex items-center justify-center gap-2.5 active:scale-95 transition-all cursor-pointer border border-[#C99A45]/40"
               >
-                <div className="w-7 h-7 rounded-lg bg-white/10 dark:bg-[#111827]/10 flex items-center justify-center">
+                <div className="w-7 h-7 rounded-lg bg-white/15 flex items-center justify-center text-[#E5B869]">
                   <Home className="w-3.5 h-3.5" />
                 </div>
                 <span>Return to Dashboard</span>
               </motion.button>
 
-              <div className="grid grid-cols-2 gap-2">
+              <div className={`grid ${wrongQuestionIds.length > 0 ? "grid-cols-2" : "grid-cols-1"} gap-2`}>
                 <motion.button
-                  whileHover={{ y: -2 }}
+                  whileHover={{ y: -1 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => {
                     const title = `🎯 I scored ${sessionAccuracy}% in "${session.title}" on DISHA 20-20!`;
@@ -1845,15 +1858,15 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                       category: "Quiz Scorecard",
                     });
                   }}
-                  className="py-2.5 px-3 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl font-black text-xs flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer border border-slate-200 dark:border-slate-700"
+                  className="h-11 px-3 bg-[#FAF5ED] dark:bg-[#1E171A] hover:bg-[#F5EBE1] text-[#800020] dark:text-[#E5B869] rounded-xl font-black text-xs flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer border border-[#C99A45]/40"
                 >
-                  <Share2 className="w-3.5 h-3.5" />
-                  <span>SHARE</span>
+                  <Share2 className="w-3.5 h-3.5 text-[#800020] dark:text-[#E5B869]" />
+                  <span>Share Result</span>
                 </motion.button>
 
                 {wrongQuestionIds.length > 0 && (
                   <motion.button
-                    whileHover={{ y: -2 }}
+                    whileHover={{ y: -1 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => {
                       onStartNewSession({
@@ -1864,12 +1877,168 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                         shuffleQuestions: true,
                       });
                     }}
-                    className="py-2.5 px-3 bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 rounded-xl font-black text-xs flex items-center justify-center gap-2 transition-all cursor-pointer border border-rose-100 dark:border-rose-900/50"
+                    className="h-11 px-3 bg-rose-50 dark:bg-rose-950/30 hover:bg-rose-100 dark:hover:bg-rose-900/40 text-rose-700 dark:text-rose-300 rounded-xl font-black text-xs flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer border border-rose-200 dark:border-rose-800"
                   >
                     <RotateCcw className="w-3.5 h-3.5" />
-                    <span>ERRORS</span>
+                    <span>Review Errors ({wrongQuestionIds.length})</span>
                   </motion.button>
                 )}
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Performance Visualization Dashboard */}
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            className="bg-white dark:bg-[#1A1417] border border-[#E8D9C0] dark:border-[#2F2227] rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-sm space-y-4"
+          >
+            {/* Analytics Header */}
+            <div className="flex items-center justify-between border-b border-[#E8D9C0]/70 dark:border-[#2F2227] pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-[#FAF5ED] dark:bg-[#20181B] text-[#800020] dark:text-[#E5B869] border border-[#C99A45]/40 flex items-center justify-center">
+                  <Target className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-xs sm:text-sm font-black text-[#171923] dark:text-[#FFF9EF] uppercase tracking-wider">
+                    Performance Analytics
+                  </h3>
+                  <p className="text-[10px] font-bold text-[#718096] dark:text-[#8C7D83]">
+                    Attempt breakdown & examination readiness
+                  </p>
+                </div>
+              </div>
+              <span className="px-2.5 py-1 rounded-full bg-[#FAF5ED] dark:bg-[#20181B] border border-[#C99A45]/30 text-[9px] font-black text-[#800020] dark:text-[#E5B869] font-mono">
+                {sessionAccuracy}% ACC
+              </span>
+            </div>
+
+            {/* 1. Proportional Attempt Distribution Bar */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-[11px] font-bold">
+                <span className="text-[#171923] dark:text-[#FAF5ED]">Attempt Distribution</span>
+                <span className="text-[#718096] dark:text-[#8C7D83] font-mono">
+                  {totalAttempted}/{questions.length} Attempted ({Math.round((totalAttempted / Math.max(1, questions.length)) * 100)}%)
+                </span>
+              </div>
+              
+              <div className="h-3.5 w-full bg-[#FAF5ED] dark:bg-[#20181B] rounded-full overflow-hidden flex border border-[#E8D9C0]/80 dark:border-[#33252A]">
+                {totalCorrect > 0 && (
+                  <div 
+                    style={{ width: `${(totalCorrect / questions.length) * 100}%` }} 
+                    className="h-full bg-emerald-600 transition-all duration-500" 
+                    title={`Correct: ${totalCorrect}`}
+                  />
+                )}
+                {totalWrong > 0 && (
+                  <div 
+                    style={{ width: `${(totalWrong / questions.length) * 100}%` }} 
+                    className="h-full bg-rose-600 transition-all duration-500" 
+                    title={`Incorrect: ${totalWrong}`}
+                  />
+                )}
+                {totalSkipped > 0 && (
+                  <div 
+                    style={{ width: `${(totalSkipped / questions.length) * 100}%` }} 
+                    className="h-full bg-[#E8D9C0] dark:bg-[#3D2D34] transition-all duration-500" 
+                    title={`Skipped: ${totalSkipped}`}
+                  />
+                )}
+              </div>
+
+              {/* Distribution Legend */}
+              <div className="flex items-center justify-between text-[10px] font-bold pt-0.5 flex-wrap gap-1">
+                <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400">
+                  <span className="w-2 h-2 rounded-full bg-emerald-600" />
+                  <span>Correct: {totalCorrect} ({Math.round((totalCorrect / Math.max(1, questions.length)) * 100)}%)</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-rose-700 dark:text-rose-400">
+                  <span className="w-2 h-2 rounded-full bg-rose-600" />
+                  <span>Wrong: {totalWrong} ({Math.round((totalWrong / Math.max(1, questions.length)) * 100)}%)</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-[#718096] dark:text-[#9E8E95]">
+                  <span className="w-2 h-2 rounded-full bg-[#E8D9C0] dark:bg-[#3D2D34]" />
+                  <span>Skipped: {totalSkipped} ({Math.round((totalSkipped / Math.max(1, questions.length)) * 100)}%)</span>
+                </div>
+              </div>
+            </div>
+
+            {/* 2. Target Benchmark Meter */}
+            <div className="space-y-1.5 pt-1">
+              <div className="flex items-center justify-between text-[11px] font-bold">
+                <div className="flex items-center gap-1.5 text-[#171923] dark:text-[#FAF5ED]">
+                  <Award className="w-3.5 h-3.5 text-[#C99A45]" />
+                  <span>Target Benchmark (75% Accuracy)</span>
+                </div>
+                <span className={`font-mono ${sessionAccuracy >= 75 ? 'text-emerald-700 dark:text-emerald-400' : 'text-[#800020] dark:text-[#E5B869]'}`}>
+                  {sessionAccuracy >= 75 ? `+${sessionAccuracy - 75}% Above Benchmark` : `${75 - sessionAccuracy}% to Target`}
+                </span>
+              </div>
+              <div className="relative h-2 w-full bg-[#FAF5ED] dark:bg-[#20181B] rounded-full overflow-hidden border border-[#E8D9C0]/80 dark:border-[#33252A]">
+                <div className="absolute top-0 bottom-0 left-[75%] w-0.5 bg-[#800020] dark:bg-[#C99A45] z-10" />
+                <div
+                  style={{ width: `${Math.min(100, sessionAccuracy)}%` }}
+                  className={`h-full transition-all duration-500 ${
+                    sessionAccuracy >= 75
+                      ? "bg-emerald-600"
+                      : sessionAccuracy >= 50
+                      ? "bg-[#C99A45]"
+                      : "bg-rose-600"
+                  }`}
+                />
+              </div>
+            </div>
+
+            {/* 3. Time Management Summary */}
+            <div className="grid grid-cols-2 gap-2.5 pt-1">
+              <div className="p-3 rounded-xl bg-[#FAF5ED] dark:bg-[#20181B] border border-[#E8D9C0] dark:border-[#33252A] flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-white dark:bg-[#1A1417] border border-[#E8D9C0] dark:border-[#2F2227] flex items-center justify-center text-[#800020] dark:text-[#E5B869] shrink-0">
+                  <Clock className="w-4 h-4" />
+                </div>
+                <div className="min-w-0">
+                  <span className="text-[9px] font-black uppercase tracking-wider text-[#718096] dark:text-[#8C7D83] block leading-none mb-1">
+                    Total Time
+                  </span>
+                  <span className="text-sm font-black font-mono text-[#171923] dark:text-[#FFF9EF] block leading-none">
+                    {formatTime(elapsedSeconds)}
+                  </span>
+                </div>
+              </div>
+
+              <div className="p-3 rounded-xl bg-[#FAF5ED] dark:bg-[#20181B] border border-[#E8D9C0] dark:border-[#33252A] flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-white dark:bg-[#1A1417] border border-[#E8D9C0] dark:border-[#2F2227] flex items-center justify-center text-[#800020] dark:text-[#E5B869] shrink-0">
+                  <Zap className="w-4 h-4" />
+                </div>
+                <div className="min-w-0">
+                  <span className="text-[9px] font-black uppercase tracking-wider text-[#718096] dark:text-[#8C7D83] block leading-none mb-1">
+                    Avg Pace / Q
+                  </span>
+                  <span className="text-sm font-black font-mono text-[#171923] dark:text-[#FFF9EF] block leading-none">
+                    {avgTimePerQuestion}s
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* 4. Strategic Performance Insights */}
+            <div className="p-3 rounded-xl bg-gradient-to-r from-[#800020]/10 via-[#FAF5ED] to-[#800020]/5 dark:from-[#800020]/20 dark:via-[#1D1619] dark:to-[#800020]/10 border border-[#C99A45]/30 flex items-start gap-2.5">
+              <div className="w-7 h-7 rounded-lg bg-[#800020] text-[#E5B869] flex items-center justify-center shrink-0 mt-0.5">
+                <TrendingUp className="w-3.5 h-3.5" />
+              </div>
+              <div className="space-y-0.5 min-w-0">
+                <span className="text-[9px] font-black uppercase tracking-widest text-[#800020] dark:text-[#E5B869]">
+                  Performance Insight
+                </span>
+                <p className="text-[11px] font-bold text-[#171923] dark:text-[#FAF5ED] leading-snug">
+                  {sessionAccuracy >= 85
+                    ? "🔥 Excellent accuracy and strong conceptual clarity. Keep this precision level across full length tests."
+                    : sessionAccuracy >= 65
+                    ? `🎯 Strong baseline (${sessionAccuracy}%). Reviewing the ${totalWrong} incorrect questions will help eliminate negative marks.`
+                    : totalSkipped > questions.length * 0.35
+                    ? `⚡ High unattempted rate (${totalSkipped} questions). Revisit syllabus topics to increase overall attempt volume.`
+                    : `💡 Prioritize targeted revision: ${totalWrong} questions require concept re-reading. Check the Mastery Keys in the audit below.`}
+                </p>
               </div>
             </div>
           </motion.div>
@@ -1898,39 +2067,43 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.3 }}
-            className="bg-white dark:bg-[#111A2E] border border-slate-200/90 dark:border-slate-800 rounded-[32px] p-6 shadow-sm space-y-6"
+            className="bg-white dark:bg-[#1A1417] border border-[#E8D9C0] dark:border-[#2F2227] rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-sm space-y-5"
           >
-            <div className="space-y-4">
+            <div className="space-y-3">
               <div>
-                <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-[0.15em]">Performance Grid</h3>
-                <p className="text-[10px] font-bold text-slate-400 uppercase mt-1 tracking-wider">Quick jump to question review</p>
+                <h3 className="text-xs sm:text-sm font-black text-[#171923] dark:text-[#FFF9EF] uppercase tracking-[0.15em]">
+                  Performance Grid
+                </h3>
+                <p className="text-[10px] font-bold text-[#718096] dark:text-[#8C7D83] uppercase mt-0.5 tracking-wider">
+                  Quick jump to question review
+                </p>
               </div>
 
-              {/* Zero-Pill Discipline Legend */}
-              <div className="flex items-center gap-5 flex-wrap">
-                <div className="flex items-center gap-2 text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">
-                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
+              {/* Zero-Pill Legend */}
+              <div className="flex items-center gap-4 flex-wrap">
+                <div className="flex items-center gap-1.5 text-[10px] font-black text-emerald-700 dark:text-emerald-400 uppercase tracking-widest">
+                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-600 shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
                   <span>Correct</span>
                 </div>
-                <div className="flex items-center gap-2 text-[10px] font-black text-rose-600 dark:text-rose-400 uppercase tracking-widest">
-                  <div className="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.4)]" />
+                <div className="flex items-center gap-1.5 text-[10px] font-black text-rose-700 dark:text-rose-400 uppercase tracking-widest">
+                  <div className="w-2.5 h-2.5 rounded-full bg-rose-600 shadow-[0_0_8px_rgba(244,63,94,0.4)]" />
                   <span>Wrong</span>
                 </div>
-                <div className="flex items-center gap-2 text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">
-                  <div className="w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-700" />
+                <div className="flex items-center gap-1.5 text-[10px] font-black text-[#718096] dark:text-[#9E8E95] uppercase tracking-widest">
+                  <div className="w-2.5 h-2.5 rounded-full bg-[#E8D9C0] dark:bg-[#3D2D34]" />
                   <span>Skipped</span>
                 </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-6 sm:grid-cols-8 gap-3">
+            <div className="grid grid-cols-6 sm:grid-cols-8 gap-2.5 sm:gap-3">
               {questions.map((q, idx) => {
                 const res = sessionResults[q.id];
-                let btnClass = "bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-400";
+                let btnClass = "bg-[#FAF5ED] dark:bg-[#20181B] border-[#E8D9C0] dark:border-[#33252A] text-[#718096] dark:text-[#8C7D83]";
                 if (res) {
                   btnClass = res.isCorrect 
-                    ? "bg-emerald-500 border-emerald-500 text-white shadow-lg shadow-emerald-500/20" 
-                    : "bg-rose-500 border-rose-500 text-white shadow-lg shadow-rose-500/20";
+                    ? "bg-emerald-600 border-emerald-600 text-white shadow-md shadow-emerald-600/20" 
+                    : "bg-rose-600 border-rose-600 text-white shadow-md shadow-rose-600/20";
                 }
 
                 return (
@@ -1942,7 +2115,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                       const el = document.getElementById(`analytics-q-${q.id}`);
                       if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
                     }}
-                    className={`aspect-square rounded-2xl text-[12px] font-black font-mono border-2 flex items-center justify-center transition-all cursor-pointer ${btnClass}`}
+                    className={`aspect-square rounded-xl sm:rounded-2xl text-[12px] font-black font-mono border-2 flex items-center justify-center transition-all cursor-pointer ${btnClass}`}
                   >
                     {idx + 1}
                   </motion.button>
@@ -1954,32 +2127,35 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
           {/* Detailed Question Solutions Section */}
           <div className="space-y-4" id="each-question-analytics-section">
             <div className="flex items-center justify-between gap-4 px-2">
-              <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">Solution Audit</h3>
-              <div className="h-[1px] flex-1 bg-slate-200 dark:bg-slate-800" />
+              <h3 className="text-xs sm:text-sm font-black text-[#171923] dark:text-[#FFF9EF] uppercase tracking-wider flex items-center gap-2">
+                <FileText className="w-4 h-4 text-[#800020] dark:text-[#E5B869]" />
+                Solution Audit
+              </h3>
+              <div className="h-[1px] flex-1 bg-[#E8D9C0] dark:border-[#2D2226]" />
             </div>
 
-            {/* Segmented Filter Control */}
-            <div className="p-1 bg-slate-100 dark:bg-slate-900 rounded-[18px] flex items-center gap-1">
+            {/* Segmented Filter Control (DISHA 20-20 Burgundy Styling) */}
+            <div className="p-1 bg-[#FAF5ED] dark:bg-[#181114] border border-[#E8D9C0] dark:border-[#2D2226] rounded-2xl flex items-center gap-1">
               {[
-                { id: "all", label: "All", count: questions.length, color: "blue" },
-                { id: "wrong", label: "Wrong", count: totalWrong, color: "rose" },
-                { id: "correct", label: "Correct", count: totalCorrect, color: "emerald" },
-                { id: "skipped", label: "Skipped", count: totalSkipped, color: "slate" },
+                { id: "all", label: "All", count: questions.length },
+                { id: "wrong", label: "Wrong", count: totalWrong },
+                { id: "correct", label: "Correct", count: totalCorrect },
+                { id: "skipped", label: "Skipped", count: totalSkipped },
               ].map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setAnalyticsFilter(tab.id as any)}
-                  className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-[14px] text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer ${
+                  className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer ${
                     analyticsFilter === tab.id
-                      ? "bg-white dark:bg-[#111A2E] text-slate-900 dark:text-white shadow-sm ring-1 ring-black/5"
-                      : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+                      ? "bg-[#800020] text-white shadow-sm"
+                      : "text-[#718096] hover:text-[#171923] dark:text-[#8C7D83] dark:hover:text-[#FFF9EF]"
                   }`}
                 >
                   <span>{tab.label}</span>
                   <span className={`px-1.5 rounded-md text-[10px] font-mono ${
                     analyticsFilter === tab.id 
-                      ? `bg-${tab.color}-100 dark:bg-${tab.color}-900/40 text-${tab.color}-600 dark:text-${tab.color}-400` 
-                      : "bg-slate-200/50 dark:bg-slate-800 text-slate-400"
+                      ? "bg-[#C99A45]/30 text-white" 
+                      : "bg-[#E8D9C0]/50 dark:bg-[#2A2024] text-[#718096] dark:text-[#8C7D83]"
                   }`}>
                     {tab.count}
                   </span>
@@ -1988,7 +2164,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
             </div>
 
             {/* List of Detailed Question Analytics Cards */}
-            <div className="space-y-5">
+            <div className="space-y-4">
               {filteredAnalyticsQuestions.map((q, idx) => {
                 const questionNumber = questions.findIndex((item) => item.id === q.id) + 1;
                 const result = sessionResults[q.id];
@@ -2005,33 +2181,33 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                     whileInView={{ y: 0, opacity: 1 }}
                     viewport={{ once: true, margin: "-100px" }}
                     id={`analytics-q-${q.id}`}
-                    className="bg-white dark:bg-[#111A2E] border border-slate-200/80 dark:border-slate-800 rounded-[32px] overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col"
+                    className="bg-white dark:bg-[#1A1417] border border-[#E8D9C0] dark:border-[#2F2227] rounded-2xl sm:rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col"
                   >
                     {/* Audit Card Header */}
-                    <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800/80 flex items-center justify-between gap-3 bg-slate-50/50 dark:bg-slate-900/30">
+                    <div className="px-4 py-3 sm:px-5 sm:py-3.5 border-b border-[#E8D9C0]/80 dark:border-[#2F2227] flex items-center justify-between gap-3 bg-[#FAF5ED]/50 dark:bg-[#1F181B]/50">
                       <div className="flex items-center gap-2.5">
-                        <span className="w-10 h-10 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-mono font-black text-xs flex items-center justify-center">
+                        <span className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#800020] text-white font-mono font-black text-xs flex items-center justify-center border border-[#C99A45]/30">
                           #{questionNumber}
                         </span>
                         
                         <div className="flex flex-col">
-                          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Question Status</span>
+                          <span className="text-[9px] font-black text-[#718096] dark:text-[#8C7D83] uppercase tracking-widest leading-none mb-1">Question Status</span>
                           {wasAttempted ? (
                             <div className="flex items-center gap-2">
                               <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md flex items-center gap-1.5 ${
-                                isCorrect ? "bg-emerald-500 text-white" : "bg-rose-500 text-white"
+                                isCorrect ? "bg-emerald-600 text-white" : "bg-rose-600 text-white"
                               }`}>
                                 {isCorrect ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
                                 {isCorrect ? "Correct" : "Incorrect"}
                               </span>
                               {questionTimes[q.id] !== undefined && (
-                                <span className="text-[10px] font-black font-mono bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded-md flex items-center gap-1">
+                                <span className="text-[10px] font-black font-mono bg-[#FAF5ED] dark:bg-[#251B1F] border border-[#E8D9C0] dark:border-[#33252A] text-[#800020] dark:text-[#E5B869] px-2 py-0.5 rounded-md flex items-center gap-1">
                                   <Clock size={11} /> {questionTimes[q.id]}s
                                 </span>
                               )}
                             </div>
                           ) : (
-                            <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-slate-400 text-white">Skipped</span>
+                            <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-[#718096] text-white">Skipped</span>
                           )}
                         </div>
                       </div>
@@ -2040,24 +2216,24 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
                         onClick={() => onToggleBookmark(q.id)}
-                        className={`w-10 h-10 rounded-xl border-2 flex items-center justify-center transition-all cursor-pointer ${
+                        className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl border flex items-center justify-center transition-all cursor-pointer ${
                           isQBookmarked
-                            ? "bg-amber-500 border-amber-500 text-white shadow-lg shadow-amber-500/20"
-                            : "bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 text-slate-300"
+                            ? "bg-[#C99A45] border-[#C99A45] text-white shadow-md shadow-[#C99A45]/20"
+                            : "bg-white dark:bg-[#20181B] border-[#E8D9C0] dark:border-[#33252A] text-[#718096]"
                         }`}
                       >
-                        <Bookmark className={`w-5 h-5 ${isQBookmarked ? 'fill-current' : ''}`} />
+                        <Bookmark className={`w-4 h-4 sm:w-5 sm:h-5 ${isQBookmarked ? 'fill-current' : ''}`} />
                       </motion.button>
                     </div>
 
-                    <div className="p-5 sm:p-7 space-y-6">
+                    <div className="p-4 sm:p-6 space-y-5">
                       {/* Question Content */}
-                      <div className="font-hindi text-slate-900 dark:text-slate-100 text-base sm:text-lg font-black leading-relaxed">
-                        <ParsedQuestion text={q.text} fontSizeClass="text-base sm:text-lg" question={q} />
+                      <div className="font-hindi text-[#171923] dark:text-[#FFF9EF] text-sm sm:text-base font-black leading-relaxed">
+                        <ParsedQuestion text={q.text} fontSizeClass="text-sm sm:text-base" question={q} />
                       </div>
 
                       {/* Options Breakdown */}
-                      <div className="space-y-2.5">
+                      <div className="space-y-2">
                         {(() => {
                           const order = shuffledOptionsOrder[q.id];
                           const optList = Array.isArray(q.options) ? q.options : [];
@@ -2076,8 +2252,8 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                               if (!looksLikePairing) return null;
                             }
 
-                            let cardClass = "bg-slate-50/50 dark:bg-slate-900/20 border-slate-100 dark:border-slate-800/80 text-slate-600 dark:text-slate-400";
-                            let badgeClass = "bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400";
+                            let cardClass = "bg-[#FAF5ED]/50 dark:bg-[#1E171A]/50 border-[#E8D9C0] dark:border-[#2F2227] text-[#171923] dark:text-[#E2D9D2]";
+                            let badgeClass = "bg-[#E8D9C0]/50 dark:bg-[#2F2227] text-[#718096] dark:text-[#8C7D83]";
 
                             if (isThisCorrect) {
                               cardClass = "bg-emerald-50 dark:bg-emerald-950/20 border-emerald-500 text-emerald-950 dark:text-emerald-50 ring-2 ring-emerald-500/20";
@@ -2090,16 +2266,16 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                             return (
                               <div
                                 key={originalIdx}
-                                className={`p-4 rounded-2xl border-2 flex items-start gap-3.5 transition-all duration-300 ${cardClass}`}
+                                className={`p-3 sm:p-3.5 rounded-xl sm:rounded-2xl border flex items-start gap-3 transition-all duration-300 ${cardClass}`}
                               >
-                                <span className={`w-8 h-8 rounded-xl flex items-center justify-center font-mono text-xs shrink-0 mt-0.5 ${badgeClass}`}>
+                                <span className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl flex items-center justify-center font-mono text-xs shrink-0 mt-0.5 ${badgeClass}`}>
                                   {optionLabels[displayIdx]}
                                 </span>
-                                <div className="font-hindi flex-1 leading-snug pt-0.5 min-w-0 font-bold">
+                                <div className="font-hindi flex-1 leading-snug pt-0.5 min-w-0 font-bold text-xs sm:text-sm">
                                   <RichText text={optText} />
                                 </div>
-                                {isThisCorrect && <Check size={18} className="text-emerald-500 shrink-0 mt-1.5" strokeWidth={3} />}
-                                {isUserSelection && !isThisCorrect && <X size={18} className="text-rose-500 shrink-0 mt-1.5" strokeWidth={3} />}
+                                {isThisCorrect && <Check size={16} className="text-emerald-600 shrink-0 mt-1" strokeWidth={3} />}
+                                {isUserSelection && !isThisCorrect && <X size={16} className="text-rose-600 shrink-0 mt-1" strokeWidth={3} />}
                               </div>
                             );
                           });
@@ -2108,14 +2284,14 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
 
                       {/* Explanation Block */}
                       {q.explanation && (
-                        <div className="bg-slate-900 dark:bg-slate-800 rounded-[24px] p-5 sm:p-6 shadow-xl shadow-slate-900/10">
-                          <div className="flex items-center gap-2.5 mb-4">
-                            <div className="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center text-white border border-white/10">
-                              <FileText size={18} />
+                        <div className="bg-[#1C1518] dark:bg-[#150F12] border border-[#C99A45]/30 rounded-2xl p-4 sm:p-5 shadow-lg">
+                          <div className="flex items-center gap-2 mb-3">
+                            <div className="w-8 h-8 rounded-xl bg-[#C99A45]/20 text-[#E5B869] border border-[#C99A45]/30 flex items-center justify-center">
+                              <FileText size={16} />
                             </div>
-                            <h4 className="text-xs font-black text-white uppercase tracking-[0.2em]">Mastery Keys</h4>
+                            <h4 className="text-xs font-black text-[#E5B869] uppercase tracking-[0.2em]">Mastery Keys</h4>
                           </div>
-                          <div className="text-[14px] sm:text-[15px] text-slate-100 font-hindi leading-relaxed font-bold">
+                          <div className="text-[13px] sm:text-[14px] text-[#FAF5ED] font-hindi leading-relaxed font-bold">
                             <RichText text={q.explanation} enablePronunciation={true} />
                           </div>
                         </div>
@@ -2123,13 +2299,13 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
 
                       {/* Expert Tip / Fact */}
                       {q.importantFact && (
-                        <div className="bg-amber-500/10 border-2 border-amber-500/20 rounded-[24px] p-5 flex gap-4">
-                          <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0">
-                            <Lightbulb size={20} fill="currentColor" />
+                        <div className="bg-[#FAF5ED] dark:bg-[#1D171A] border border-[#C99A45]/40 rounded-2xl p-4 flex gap-3">
+                          <div className="w-8 h-8 rounded-lg bg-[#C99A45] text-white flex items-center justify-center shrink-0 mt-0.5">
+                            <Lightbulb size={18} fill="currentColor" />
                           </div>
-                          <div className="space-y-1">
-                            <span className="text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest">Expert Tip</span>
-                            <p className="font-hindi text-sm text-slate-800 dark:text-slate-200 leading-relaxed font-black">
+                          <div className="space-y-0.5">
+                            <span className="text-[9px] font-black text-[#800020] dark:text-[#E5B869] uppercase tracking-widest">Expert Tip</span>
+                            <p className="font-hindi text-xs sm:text-sm text-[#171923] dark:text-[#FAF5ED] leading-relaxed font-black">
                               {q.importantFact}
                             </p>
                           </div>
@@ -3906,6 +4082,8 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
   const accuracy = serverSubmission ? Number(serverSubmission.accuracy ?? (totalAttempted > 0 ? Math.round((totalCorrect / totalAttempted) * 100) : 0)) : (totalAttempted > 0 ? Math.round((totalCorrect / totalAttempted) * 100) : 0);
   const isRpscDisqualified = serverSubmission ? Boolean(serverSubmission.isRpscDisqualified) : (totalQuestions > 0 && totalCompletelyBlank > totalQuestions * 0.10);
 
+  const avgTimePerQuestion = totalAttempted > 0 ? (elapsedSeconds / totalAttempted).toFixed(1) : "0";
+
   const formatTime = (totalSecs: number) => {
     const safeSecs = Math.max(0, Math.floor(Number(totalSecs) || 0));
     const hrs = Math.floor(safeSecs / 3600);
@@ -3948,21 +4126,23 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
       exit={{ opacity: 0 }}
       transition={{ duration: 0.5 }}
       id="test-result-screen"
-      className="fixed inset-0 z-[100] bg-[#F8FAFC] dark:bg-[#080C14] flex flex-col w-full"
+      className="fixed inset-0 z-[100] bg-[#FFF9EF] dark:bg-[#120E10] flex flex-col w-full"
     >
-      {/* Sticky Header for Redesigned Result Page */}
-      <header className="sticky top-0 z-[110] bg-white/80 dark:bg-[#080C14]/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 py-3 flex items-center justify-between shrink-0">
+      {/* Sticky Header for Result Page */}
+      <header className="sticky top-0 z-[110] bg-[#FFF9EF]/90 dark:bg-[#120E10]/90 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#2D2226] px-4 py-3 flex items-center justify-between shrink-0">
         <button
           onClick={onClose}
-          className="w-10 h-10 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 flex items-center justify-center transition-all active:scale-90 cursor-pointer"
+          className="w-10 h-10 rounded-xl bg-white dark:bg-[#1C1518] border border-[#E8D9C0] dark:border-[#2D2226] text-[#800020] dark:text-[#E5B869] flex items-center justify-center transition-all active:scale-90 shadow-sm cursor-pointer"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div className="flex-1 px-4 text-center min-w-0">
-          <h2 className="text-sm font-black text-slate-900 dark:text-white truncate">
+          <h2 className="text-sm font-black text-[#171923] dark:text-[#FFF9EF] truncate">
             {session.title}
           </h2>
-          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Scorecard & Analysis</p>
+          <p className="text-[10px] font-bold text-[#800020] dark:text-[#C99A45] uppercase tracking-widest">
+            Scorecard & Analysis
+          </p>
         </div>
         <div className="w-10" />
       </header>
@@ -3978,6 +4158,12 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
           accuracy={100}
         />
       )}
+
+      {/* Decorative Background for Results (DISHA Burgundy & Gold ambient glow) */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-[450px] bg-gradient-to-b from-[#800020]/10 via-[#C99A45]/5 to-transparent dark:from-[#800020]/15 dark:via-[#C99A45]/5 rounded-full blur-[120px]" />
+      </div>
+
       <motion.div 
         variants={{
           hidden: { opacity: 0, y: 20 },
@@ -3994,17 +4180,17 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
         }}
         initial="hidden"
         animate="show"
-        className="w-full max-w-2xl space-y-5 pb-[calc(env(safe-area-inset-bottom,20px)+64px)] relative z-10"
+        className="w-full max-w-2xl space-y-4 sm:space-y-6 pb-[calc(env(safe-area-inset-bottom,20px)+64px)] relative z-10"
       >
         {isLive && (isGradingLiveTest || liveSubmitError) && (
           <div
             className={`rounded-2xl p-3.5 border text-xs font-bold flex items-center gap-2.5 ${
               liveSubmitError
                 ? "bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300"
-                : "bg-blue-50 dark:bg-blue-950/40 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300"
+                : "bg-[#FAF5ED] dark:bg-[#20181B] border-[#C99A45]/40 text-[#800020] dark:text-[#E5B869]"
             }`}
           >
-            <AlertCircle className="w-4 h-4 shrink-0" />
+            <AlertCircle className="w-4 h-4 shrink-0 text-[#800020] dark:text-[#E5B869]" />
             <span>
               {liveSubmitError
                 ? liveSubmitError
@@ -4025,86 +4211,89 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
           </div>
         )}
 
-        {/* Header & Score Card: High-Fidelity Aesthetic (Scaled for Mobile Ergonomics) */}
+        {/* Header & Score Card: High-Fidelity Performance Summary */}
         <motion.div 
           variants={{
             hidden: { opacity: 0, y: 20, scale: 0.95 },
             show: { opacity: 1, y: 0, scale: 1 }
           }}
-          className="bg-white dark:bg-[#111A2E] border border-slate-200/90 dark:border-slate-800 rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-[0_12px_30px_rgba(0,0,0,0.06)] text-center space-y-3.5 sm:space-y-4 relative overflow-hidden"
+          className="bg-white dark:bg-[#1A1417] border border-[#E8D9C0] dark:border-[#2F2227] rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-[0_12px_32px_rgba(128,0,32,0.06)] dark:shadow-none text-center space-y-3.5 sm:space-y-4 relative overflow-hidden"
         >
-          {/* Visual Flair: Dynamic Gradient & Glow */}
-          <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-blue-600 via-indigo-500 to-emerald-500" />
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-blue-500/10 rounded-full blur-[60px] pointer-events-none" />
+          {/* DISHA Top Accent Gradient Line */}
+          <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[#800020] via-[#C99A45] to-[#800020]" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-[#C99A45]/10 rounded-full blur-[60px] pointer-events-none" />
 
           <motion.div 
             variants={{
               hidden: { opacity: 0, scale: 0.8 },
               show: { opacity: 1, scale: 1 }
             }}
-            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.2em] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 font-mono shadow-sm"
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.2em] bg-[#FAF5ED] dark:bg-[#251A1E] text-[#800020] dark:text-[#E5B869] border border-[#E8D9C0] dark:border-[#38262C] font-mono shadow-sm"
           >
-            <CheckCircle2 className="w-3 h-3" />
+            <CheckCircle2 className="w-3.5 h-3.5 text-[#C99A45]" />
             <span>Examination Complete</span>
           </motion.div>
 
           <div className="relative z-10 space-y-0.5">
-            <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+            <h1 className="text-xl sm:text-2xl font-black text-[#171923] dark:text-[#FFF9EF] tracking-tight">
               {session.title}
             </h1>
-            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+            <p className="text-[11px] font-bold text-[#718096] dark:text-[#9E8E95] uppercase tracking-widest">
               {isLive ? "Official Live Mock Results" : "Official Past Paper Results"}
             </p>
           </div>
 
           <div className="grid grid-cols-3 gap-2 sm:gap-2.5 pt-0.5 relative z-10">
-            {[
-              { label: "Marks", value: obtainedMarks, sub: `/ ${maxMarks}`, color: "blue", bg: "blue" },
-              { label: "Score", value: `${scorePercent}%`, color: "indigo", bg: "indigo" },
-              { label: "Accuracy", value: `${accuracy}%`, color: "emerald", bg: "emerald" }
-            ].map((stat, i) => (
-              <motion.div 
-                key={i} 
-                variants={{
-                  hidden: { opacity: 0, y: 15 },
-                  show: { opacity: 1, y: 0 }
-                }}
-                className={`p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-${stat.bg}-50/60 dark:bg-${stat.bg}-950/30 border border-${stat.bg}-200/50 dark:border-${stat.bg}-900/50 shadow-sm`}
-              >
-                <span className={`text-[8px] sm:text-[9px] font-black uppercase tracking-wider text-${stat.color}-600 dark:text-${stat.color}-400 block mb-0.5`}>{stat.label}</span>
-                <span className={`text-lg sm:text-xl font-black text-${stat.color}-900 dark:text-${stat.color}-100 font-mono block`}>
-                  {stat.value}
-                </span>
-                {stat.sub && <span className={`text-[9px] font-bold text-${stat.color}-400 mt-0.5 block`}>{stat.sub}</span>}
-              </motion.div>
-            ))}
+            <div className="p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-[#FAF5ED] dark:bg-[#20181B] border border-[#E8D9C0] dark:border-[#33252A] shadow-sm">
+              <span className="text-[8px] sm:text-[9px] font-black uppercase tracking-wider text-[#800020] dark:text-[#E5B869] block mb-0.5">Marks</span>
+              <span className="text-lg sm:text-xl font-black text-[#171923] dark:text-[#FFF9EF] font-mono block">
+                {obtainedMarks}
+              </span>
+              <span className="text-[9px] font-bold text-[#718096] dark:text-[#8C7D83] mt-0.5 block">/ {maxMarks}</span>
+            </div>
+
+            <div className="p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-[#FAF5ED] dark:bg-[#20181B] border border-[#E8D9C0] dark:border-[#33252A] shadow-sm">
+              <span className="text-[8px] sm:text-[9px] font-black uppercase tracking-wider text-[#C99A45] block mb-0.5">Score</span>
+              <span className="text-lg sm:text-xl font-black text-[#171923] dark:text-[#FFF9EF] font-mono block">
+                {scorePercent}%
+              </span>
+              <span className="text-[9px] font-bold text-[#718096] dark:text-[#8C7D83] mt-0.5 block">Percentile</span>
+            </div>
+
+            <div className="p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/20 border border-emerald-200/60 dark:border-emerald-900/40 shadow-sm">
+              <span className="text-[8px] sm:text-[9px] font-black uppercase tracking-wider text-emerald-700 dark:text-emerald-400 block mb-0.5">Accuracy</span>
+              <span className="text-lg sm:text-xl font-black text-emerald-800 dark:text-emerald-300 font-mono block">
+                {accuracy}%
+              </span>
+              <span className="text-[9px] font-bold text-emerald-700 dark:text-emerald-400 mt-0.5 block">Precision</span>
+            </div>
           </div>
 
           {/* Positive vs Negative Marking Breakdown */}
           <div className="flex flex-wrap items-center justify-center gap-2 text-[10px] sm:text-[11px] font-black font-mono pt-1 pb-0.5 relative z-10">
-            <span className="px-2.5 py-1 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200/80 dark:border-emerald-800/60">
+            <span className="px-2.5 py-1 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200/80 dark:border-emerald-800/60">
               +{Number((totalCorrect * marksPerQ).toFixed(2))} Gained
             </span>
-            <span className="text-slate-300 dark:text-slate-700">•</span>
-            <span className="px-2.5 py-1 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border border-rose-200/80 dark:border-rose-800/60">
+            <span className="text-[#E8D9C0] dark:text-[#33252A]">•</span>
+            <span className="px-2.5 py-1 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 border border-rose-200/80 dark:border-rose-800/60">
               -{Number((totalWrong * negMarksPerQ).toFixed(2))} Wrong (-1/3)
             </span>
             {blankPenalty > 0 && (
               <>
-                <span className="text-slate-300 dark:text-slate-700">•</span>
-                <span className="px-2.5 py-1 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border border-amber-200/80 dark:border-amber-800/60">
+                <span className="text-[#E8D9C0] dark:text-[#33252A]">•</span>
+                <span className="px-2.5 py-1 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800/60">
                   -{blankPenalty} Blank Penalty
                 </span>
               </>
             )}
           </div>
 
-          <div className="grid grid-cols-4 gap-1.5 sm:gap-2 pt-2 border-t border-slate-100 dark:border-slate-800 relative z-10">
+          <div className="grid grid-cols-4 gap-1.5 sm:gap-2 pt-2 border-t border-[#E8D9C0]/80 dark:border-[#2F2227] relative z-10">
             {[
-              { label: "Correct", value: totalCorrect, color: "text-emerald-600 dark:text-emerald-400" },
-              { label: "Incorrect", value: totalWrong, color: "text-rose-600 dark:text-rose-400" },
-              { label: "Option E", value: totalUnattemptedE, color: "text-amber-600 dark:text-amber-400" },
-              { label: "Duration", value: formatTime(elapsedSeconds), color: "text-blue-600 dark:text-blue-400" }
+              { label: "Correct", value: totalCorrect, color: "text-emerald-700 dark:text-emerald-400" },
+              { label: "Incorrect", value: totalWrong, color: "text-rose-700 dark:text-rose-400" },
+              { label: "Option E", value: totalUnattemptedE, color: "text-[#800020] dark:text-[#E5B869]" },
+              { label: "Duration", value: formatTime(elapsedSeconds), color: "text-[#171923] dark:text-[#FFF9EF]" }
             ].map((item, i) => (
               <motion.div 
                 key={i} 
@@ -4114,7 +4303,7 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
                 }}
                 className="text-center"
               >
-                <span className="text-[8px] sm:text-[9px] font-black text-slate-400 block uppercase tracking-wider mb-0.5">{item.label}</span>
+                <span className="text-[8px] sm:text-[9px] font-black text-[#718096] dark:text-[#8C7D83] block uppercase tracking-wider mb-0.5">{item.label}</span>
                 <span className={`text-xs sm:text-sm font-black ${item.color} font-mono`}>{item.value}</span>
               </motion.div>
             ))}
@@ -4126,17 +4315,17 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.25 }}
-              className="mt-2 p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-gradient-to-r from-amber-400/10 via-yellow-400/20 to-amber-400/10 border-2 border-amber-400/30 flex items-center justify-between gap-3 text-left shadow-md shadow-amber-400/5 relative z-10"
+              className="mt-2 p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-gradient-to-r from-[#800020]/10 via-[#C99A45]/20 to-[#800020]/10 border border-[#C99A45]/40 flex items-center justify-between gap-3 text-left shadow-sm relative z-10"
             >
               <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-yellow-400 text-white flex items-center justify-center shadow-md shadow-amber-500/30 shrink-0">
-                  <Sparkles className="w-4 h-4 fill-white" />
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#800020] to-[#520014] border border-[#C99A45] text-[#E5B869] flex items-center justify-center shrink-0">
+                  <Sparkles className="w-4 h-4 fill-current" />
                 </div>
                 <div className="min-w-0">
-                  <span className="text-[9px] font-black uppercase tracking-[0.15em] text-amber-700 dark:text-amber-300 font-mono block mb-0.5">
+                  <span className="text-[9px] font-black uppercase tracking-[0.15em] text-[#800020] dark:text-[#E5B869] font-mono block mb-0.5">
                     100% Perfect Score
                   </span>
-                  <p className="text-[11px] text-slate-800 dark:text-slate-200 font-bold leading-tight truncate">
+                  <p className="text-[11px] text-[#171923] dark:text-[#FAF5ED] font-bold leading-tight truncate">
                     Outstanding performance! You answered all questions correctly.
                   </p>
                 </div>
@@ -4144,7 +4333,7 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
               <button
                 type="button"
                 onClick={() => setShowPerfectCelebration(true)}
-                className="px-3 py-1.5 rounded-lg bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black text-[10px] active:scale-95 transition-all shadow cursor-pointer shrink-0"
+                className="px-3 py-1.5 rounded-lg bg-[#800020] hover:bg-[#660019] text-[#FFF9EF] font-black text-[10px] active:scale-95 transition-all shadow cursor-pointer shrink-0 border border-[#C99A45]/40"
               >
                 🎉 REPLAY
               </button>
@@ -4161,7 +4350,7 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
                   const el = document.getElementById("solutions-audit-section");
                   if (el) el.scrollIntoView({ behavior: "smooth" });
                 }}
-                className="w-full py-2.5 px-3 rounded-xl bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/50 text-rose-600 dark:text-rose-300 border border-rose-200/80 dark:border-rose-800/60 font-black text-xs flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer"
+                className="w-full py-2.5 px-3 rounded-xl bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/50 text-rose-700 dark:text-rose-300 border border-rose-200/80 dark:border-rose-800/60 font-black text-xs flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer"
               >
                 <XCircle className="w-4 h-4" />
                 <span>REVIEW {totalWrong} MISTAKES</span>
@@ -4174,11 +4363,181 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
             <button
               type="button"
               onClick={handleShareResult}
-              className="w-full py-2.5 sm:py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black text-xs sm:text-sm shadow-md shadow-emerald-600/20 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full py-2.5 sm:py-3 px-4 rounded-xl bg-[#FAF5ED] dark:bg-[#1E171A] hover:bg-[#F5EBE1] text-[#800020] dark:text-[#E5B869] border border-[#C99A45]/40 font-black text-xs sm:text-sm active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm"
             >
-              <Share2 className="w-4 h-4" />
-              <span>SHARE SCORECARD ON WHATSAPP</span>
+              <Share2 className="w-4 h-4 text-[#800020] dark:text-[#E5B869]" />
+              <span>SHARE SCORECARD</span>
             </button>
+          </div>
+        </motion.div>
+
+        {/* Performance Visualization Dashboard (Test View) */}
+        <motion.div
+          variants={{
+            hidden: { opacity: 0, y: 20 },
+            show: { opacity: 1, y: 0 }
+          }}
+          className="bg-white dark:bg-[#1A1417] border border-[#E8D9C0] dark:border-[#2F2227] rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-sm space-y-4"
+        >
+          {/* Analytics Header */}
+          <div className="flex items-center justify-between border-b border-[#E8D9C0]/70 dark:border-[#2F2227] pb-3">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-[#FAF5ED] dark:bg-[#20181B] text-[#800020] dark:text-[#E5B869] border border-[#C99A45]/40 flex items-center justify-center">
+                <Target className="w-4 h-4" />
+              </div>
+              <div>
+                <h3 className="text-xs sm:text-sm font-black text-[#171923] dark:text-[#FFF9EF] uppercase tracking-wider">
+                  Test Performance Analytics
+                </h3>
+                <p className="text-[10px] font-bold text-[#718096] dark:text-[#8C7D83]">
+                  Sectional metrics & negative marking impact
+                </p>
+              </div>
+            </div>
+            <span className="px-2.5 py-1 rounded-full bg-[#FAF5ED] dark:bg-[#20181B] border border-[#C99A45]/30 text-[9px] font-black text-[#800020] dark:text-[#E5B869] font-mono">
+              {scorePercent}% MARKS
+            </span>
+          </div>
+
+          {/* 1. Proportional Attempt Distribution Bar */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-[11px] font-bold">
+              <span className="text-[#171923] dark:text-[#FAF5ED]">Attempt Breakdown</span>
+              <span className="text-[#718096] dark:text-[#8C7D83] font-mono">
+                {totalAttempted}/{totalQuestions} Attempted ({Math.round((totalAttempted / Math.max(1, totalQuestions)) * 100)}%)
+              </span>
+            </div>
+            
+            <div className="h-3.5 w-full bg-[#FAF5ED] dark:bg-[#20181B] rounded-full overflow-hidden flex border border-[#E8D9C0]/80 dark:border-[#33252A]">
+              {totalCorrect > 0 && (
+                <div 
+                  style={{ width: `${(totalCorrect / totalQuestions) * 100}%` }} 
+                  className="h-full bg-emerald-600 transition-all duration-500" 
+                  title={`Correct: ${totalCorrect}`}
+                />
+              )}
+              {totalWrong > 0 && (
+                <div 
+                  style={{ width: `${(totalWrong / totalQuestions) * 100}%` }} 
+                  className="h-full bg-rose-600 transition-all duration-500" 
+                  title={`Incorrect: ${totalWrong}`}
+                />
+              )}
+              {totalUnattemptedE > 0 && (
+                <div 
+                  style={{ width: `${(totalUnattemptedE / totalQuestions) * 100}%` }} 
+                  className="h-full bg-[#C99A45] transition-all duration-500" 
+                  title={`Option E: ${totalUnattemptedE}`}
+                />
+              )}
+              {totalCompletelyBlank > 0 && (
+                <div 
+                  style={{ width: `${(totalCompletelyBlank / totalQuestions) * 100}%` }} 
+                  className="h-full bg-stone-400 transition-all duration-500" 
+                  title={`Completely Blank: ${totalCompletelyBlank}`}
+                />
+              )}
+            </div>
+
+            {/* Distribution Legend */}
+            <div className="flex items-center justify-between text-[10px] font-bold pt-0.5 flex-wrap gap-1">
+              <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400">
+                <span className="w-2 h-2 rounded-full bg-emerald-600" />
+                <span>Correct: {totalCorrect}</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-rose-700 dark:text-rose-400">
+                <span className="w-2 h-2 rounded-full bg-rose-600" />
+                <span>Wrong: {totalWrong}</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-[#800020] dark:text-[#E5B869]">
+                <span className="w-2 h-2 rounded-full bg-[#C99A45]" />
+                <span>Option E: {totalUnattemptedE}</span>
+              </div>
+              {totalCompletelyBlank > 0 && (
+                <div className="flex items-center gap-1.5 text-stone-500">
+                  <span className="w-2 h-2 rounded-full bg-stone-400" />
+                  <span>Blank: {totalCompletelyBlank}</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* 2. Qualifying Cutoff Benchmark */}
+          <div className="space-y-1.5 pt-1">
+            <div className="flex items-center justify-between text-[11px] font-bold">
+              <div className="flex items-center gap-1.5 text-[#171923] dark:text-[#FAF5ED]">
+                <Award className="w-3.5 h-3.5 text-[#C99A45]" />
+                <span>Qualifying Cutoff Benchmark (40%)</span>
+              </div>
+              <span className={`font-mono ${scorePercent >= 40 ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'}`}>
+                {scorePercent >= 40 ? `+${scorePercent - 40}% Above Cutoff` : `${40 - scorePercent}% Below Cutoff`}
+              </span>
+            </div>
+            <div className="relative h-2 w-full bg-[#FAF5ED] dark:bg-[#20181B] rounded-full overflow-hidden border border-[#E8D9C0]/80 dark:border-[#33252A]">
+              <div className="absolute top-0 bottom-0 left-[40%] w-0.5 bg-[#800020] dark:bg-[#C99A45] z-10" />
+              <div
+                style={{ width: `${Math.min(100, scorePercent)}%` }}
+                className={`h-full transition-all duration-500 ${
+                  scorePercent >= 60
+                    ? "bg-emerald-600"
+                    : scorePercent >= 40
+                    ? "bg-[#C99A45]"
+                    : "bg-rose-600"
+                }`}
+              />
+            </div>
+          </div>
+
+          {/* 3. Time Management Summary */}
+          <div className="grid grid-cols-2 gap-2.5 pt-1">
+            <div className="p-3 rounded-xl bg-[#FAF5ED] dark:bg-[#20181B] border border-[#E8D9C0] dark:border-[#33252A] flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-white dark:bg-[#1A1417] border border-[#E8D9C0] dark:border-[#2F2227] flex items-center justify-center text-[#800020] dark:text-[#E5B869] shrink-0">
+                <Clock className="w-4 h-4" />
+              </div>
+              <div className="min-w-0">
+                <span className="text-[9px] font-black uppercase tracking-wider text-[#718096] dark:text-[#8C7D83] block leading-none mb-1">
+                  Duration
+                </span>
+                <span className="text-sm font-black font-mono text-[#171923] dark:text-[#FFF9EF] block leading-none">
+                  {formatTime(elapsedSeconds)}
+                </span>
+              </div>
+            </div>
+
+            <div className="p-3 rounded-xl bg-[#FAF5ED] dark:bg-[#20181B] border border-[#E8D9C0] dark:border-[#33252A] flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-white dark:bg-[#1A1417] border border-[#E8D9C0] dark:border-[#2F2227] flex items-center justify-center text-[#800020] dark:text-[#E5B869] shrink-0">
+                <Zap className="w-4 h-4" />
+              </div>
+              <div className="min-w-0">
+                <span className="text-[9px] font-black uppercase tracking-wider text-[#718096] dark:text-[#8C7D83] block leading-none mb-1">
+                  Avg Pace / Q
+                </span>
+                <span className="text-sm font-black font-mono text-[#171923] dark:text-[#FFF9EF] block leading-none">
+                  {avgTimePerQuestion}s
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* 4. Strategic Performance Insights */}
+          <div className="p-3 rounded-xl bg-gradient-to-r from-[#800020]/10 via-[#FAF5ED] to-[#800020]/5 dark:from-[#800020]/20 dark:via-[#1D1619] dark:to-[#800020]/10 border border-[#C99A45]/30 flex items-start gap-2.5">
+            <div className="w-7 h-7 rounded-lg bg-[#800020] text-[#E5B869] flex items-center justify-center shrink-0 mt-0.5">
+              <TrendingUp className="w-3.5 h-3.5" />
+            </div>
+            <div className="space-y-0.5 min-w-0">
+              <span className="text-[9px] font-black uppercase tracking-widest text-[#800020] dark:text-[#E5B869]">
+                Examination Strategy Insight
+              </span>
+              <p className="text-[11px] font-bold text-[#171923] dark:text-[#FAF5ED] leading-snug">
+                {scorePercent >= 70
+                  ? "🔥 Merit Level Performance! You have scored comfortably above competitive exam cutoffs. Focus on speed drills."
+                  : scorePercent >= 40
+                  ? `🎯 Qualified! You secured ${obtainedMarks} marks. Reducing negative marking (-${Number((totalWrong * negMarksPerQ).toFixed(2))}) will elevate your rank significantly.`
+                  : isRpscDisqualified
+                  ? `⚠️ Attention: High blank question count triggered RPSC disqualification threshold. Always bubble Option E for unattempted questions.`
+                  : `💡 Score below 40% threshold. Analyze question-by-question explanations in the audit below to bridge subject gaps.`}
+              </p>
+            </div>
           </div>
         </motion.div>
 
@@ -4216,38 +4575,38 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
             show: { opacity: 1, y: 0 }
           }}
           id="solutions-audit-section"
-          className="bg-white dark:bg-[#111A2E] border border-slate-200/90 dark:border-slate-800 rounded-3xl p-5 space-y-4 shadow-sm"
+          className="bg-white dark:bg-[#1A1417] border border-[#E8D9C0] dark:border-[#2F2227] rounded-2xl sm:rounded-3xl p-4 sm:p-5 space-y-4 shadow-sm"
         >
           <div className="flex items-center justify-between flex-wrap gap-2">
-            <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-2">
-              <FileText className="w-4 h-4 text-blue-500" />
+            <h3 className="text-xs sm:text-sm font-black uppercase tracking-wider text-[#171923] dark:text-[#FFF9EF] flex items-center gap-2">
+              <FileText className="w-4 h-4 text-[#800020] dark:text-[#E5B869]" />
               Solutions & Answer Key
             </h3>
-            <span className="text-[10px] font-mono text-slate-400 font-bold">Showing {filteredQuestions.length} Qs</span>
+            <span className="text-[10px] font-mono text-[#718096] dark:text-[#8C7D83] font-bold">Showing {filteredQuestions.length} Qs</span>
           </div>
 
           {/* Segmented Filter Control */}
-          <div className="p-1 bg-slate-100 dark:bg-slate-900 rounded-[18px] flex items-center gap-1">
+          <div className="p-1 bg-[#FAF5ED] dark:bg-[#181114] border border-[#E8D9C0] dark:border-[#2D2226] rounded-2xl flex items-center gap-1">
             {[
-              { id: "all", label: "All", count: totalQuestions, color: "blue" },
-              { id: "correct", label: "Correct", count: totalCorrect, color: "emerald" },
-              { id: "wrong", label: "Wrong", count: totalWrong, color: "rose" },
-              { id: "skipped", label: "Skipped", count: totalSkipped, color: "slate" },
+              { id: "all", label: "All", count: totalQuestions },
+              { id: "correct", label: "Correct", count: totalCorrect },
+              { id: "wrong", label: "Wrong", count: totalWrong },
+              { id: "skipped", label: "Skipped", count: totalSkipped },
             ].map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setFilter(tab.id as any)}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-[14px] text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer ${
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer ${
                   filter === tab.id
-                    ? "bg-white dark:bg-[#111A2E] text-slate-900 dark:text-white shadow-sm ring-1 ring-black/5"
-                    : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+                    ? "bg-[#800020] text-white shadow-sm"
+                    : "text-[#718096] hover:text-[#171923] dark:text-[#8C7D83] dark:hover:text-[#FFF9EF]"
                 }`}
               >
                 <span>{tab.label}</span>
                 <span className={`px-1.5 rounded-md text-[10px] font-mono ${
                   filter === tab.id 
-                    ? `bg-${tab.color}-100 dark:bg-${tab.color}-900/40 text-${tab.color}-600 dark:text-${tab.color}-400` 
-                    : "bg-slate-200/50 dark:bg-slate-800 text-slate-400"
+                    ? "bg-[#C99A45]/30 text-white" 
+                    : "bg-[#E8D9C0]/50 dark:bg-[#2A2024] text-[#718096] dark:text-[#8C7D83]"
                 }`}>
                   {tab.count}
                 </span>
@@ -4263,7 +4622,7 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
                 transition: { staggerChildren: 0.05 }
               }
             }}
-            className="space-y-5 pt-1"
+            className="space-y-4 pt-1"
           >
             {filteredQuestions.map((q, idx) => {
               const res = sessionResults[q.id];
@@ -4279,28 +4638,28 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
                     hidden: { opacity: 0, x: -10 },
                     show: { opacity: 1, x: 0 }
                   }}
-                  className="bg-white dark:bg-[#111A2E] border border-slate-200/80 dark:border-slate-800 rounded-[32px] overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col"
+                  className="bg-white dark:bg-[#1A1417] border border-[#E8D9C0] dark:border-[#2F2227] rounded-2xl sm:rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col"
                 >
                   {/* Audit Card Header */}
-                  <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800/80 flex items-center justify-between gap-3 bg-slate-50/50 dark:bg-slate-900/30">
+                  <div className="px-4 py-3 sm:px-5 sm:py-3.5 border-b border-[#E8D9C0]/80 dark:border-[#2F2227] flex items-center justify-between gap-3 bg-[#FAF5ED]/50 dark:bg-[#1F181B]/50">
                     <div className="flex items-center gap-2.5">
-                      <span className="w-10 h-10 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-mono font-black text-xs flex items-center justify-center">
+                      <span className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#800020] text-white font-mono font-black text-xs flex items-center justify-center border border-[#C99A45]/30">
                         #{questions.findIndex(item => item.id === q.id) + 1}
                       </span>
                       
                       <div className="flex flex-col">
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Status</span>
+                        <span className="text-[9px] font-black text-[#718096] dark:text-[#8C7D83] uppercase tracking-widest leading-none mb-1">Status</span>
                         {hasAttempted ? (
                           <div className="flex items-center gap-2">
                             <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md flex items-center gap-1.5 ${
-                              isUserCorrect ? "bg-emerald-500 text-white" : "bg-rose-500 text-white"
+                              isUserCorrect ? "bg-emerald-600 text-white" : "bg-rose-600 text-white"
                             }`}>
                               {isUserCorrect ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
                               {isUserCorrect ? "Correct" : "Incorrect"}
                             </span>
                           </div>
                         ) : (
-                          <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-slate-400 text-white">Skipped</span>
+                          <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-[#718096] text-white">Skipped</span>
                         )}
                       </div>
                     </div>
@@ -4309,24 +4668,24 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
                       onClick={() => onToggleBookmark(q.id)}
-                      className={`w-10 h-10 rounded-xl border-2 flex items-center justify-center transition-all cursor-pointer ${
+                      className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl border flex items-center justify-center transition-all cursor-pointer ${
                         isQBookmarked
-                          ? "bg-amber-500 border-amber-500 text-white shadow-lg shadow-amber-500/20"
-                          : "bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 text-slate-300"
+                          ? "bg-[#C99A45] border-[#C99A45] text-white shadow-md shadow-[#C99A45]/20"
+                          : "bg-white dark:bg-[#20181B] border-[#E8D9C0] dark:border-[#33252A] text-[#718096]"
                       }`}
                     >
-                      <Bookmark className={`w-5 h-5 ${isQBookmarked ? 'fill-current' : ''}`} />
+                      <Bookmark className={`w-4 h-4 sm:w-5 sm:h-5 ${isQBookmarked ? 'fill-current' : ''}`} />
                     </motion.button>
                   </div>
 
-                  <div className="p-5 sm:p-7 space-y-6">
+                  <div className="p-4 sm:p-6 space-y-5">
                     {/* Question Content */}
-                    <div className="font-hindi text-slate-900 dark:text-slate-100 text-base sm:text-lg font-black leading-relaxed">
-                      <ParsedQuestion text={q.text} fontSizeClass="text-base sm:text-lg" question={q} />
+                    <div className="font-hindi text-[#171923] dark:text-[#FFF9EF] text-sm sm:text-base font-black leading-relaxed">
+                      <ParsedQuestion text={q.text} fontSizeClass="text-sm sm:text-base" question={q} />
                     </div>
 
                     {/* Options Breakdown */}
-                    <div className="space-y-2.5">
+                    <div className="space-y-2">
                       {(() => {
                         const order = shuffledOptionsOrder[q.id];
                         const optList = Array.isArray(q.options) ? q.options : [];
@@ -4345,8 +4704,8 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
                             if (!looksLikePairing) return null;
                           }
 
-                          let cardClass = "bg-slate-50/50 dark:bg-slate-900/20 border-slate-100 dark:border-slate-800/80 text-slate-600 dark:text-slate-400";
-                          let badgeClass = "bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400";
+                          let cardClass = "bg-[#FAF5ED]/50 dark:bg-[#1E171A]/50 border-[#E8D9C0] dark:border-[#2F2227] text-[#171923] dark:text-[#E2D9D2]";
+                          let badgeClass = "bg-[#E8D9C0]/50 dark:bg-[#2F2227] text-[#718096] dark:text-[#8C7D83]";
 
                           if (isThisCorrect) {
                             cardClass = "bg-emerald-50 dark:bg-emerald-950/20 border-emerald-500 text-emerald-950 dark:text-emerald-50 ring-2 ring-emerald-500/20";
@@ -4359,16 +4718,16 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
                           return (
                             <div
                               key={originalIdx}
-                              className={`p-4 rounded-2xl border-2 flex items-start gap-3.5 transition-all duration-300 ${cardClass}`}
+                              className={`p-3 sm:p-3.5 rounded-xl sm:rounded-2xl border flex items-start gap-3 transition-all duration-300 ${cardClass}`}
                             >
-                              <span className={`w-8 h-8 rounded-xl flex items-center justify-center font-mono text-xs shrink-0 mt-0.5 ${badgeClass}`}>
+                              <span className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl flex items-center justify-center font-mono text-xs shrink-0 mt-0.5 ${badgeClass}`}>
                                 {optionLabels[displayIdx]}
                               </span>
-                              <div className="font-hindi flex-1 leading-snug pt-0.5 min-w-0 font-bold">
+                              <div className="font-hindi flex-1 leading-snug pt-0.5 min-w-0 font-bold text-xs sm:text-sm">
                                 <RichText text={optText} />
                               </div>
-                              {isThisCorrect && <Check size={18} className="text-emerald-500 shrink-0 mt-1.5" strokeWidth={3} />}
-                              {isUserSelection && !isThisCorrect && <X size={18} className="text-rose-500 shrink-0 mt-1.5" strokeWidth={3} />}
+                              {isThisCorrect && <Check size={16} className="text-emerald-600 shrink-0 mt-1" strokeWidth={3} />}
+                              {isUserSelection && !isThisCorrect && <X size={16} className="text-rose-600 shrink-0 mt-1" strokeWidth={3} />}
                             </div>
                           );
                         });
@@ -4377,14 +4736,14 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
 
                     {/* Explanation Block */}
                     {q.explanation && (
-                      <div className="bg-slate-900 dark:bg-slate-800 rounded-[24px] p-5 sm:p-6 shadow-xl shadow-slate-900/10">
-                        <div className="flex items-center gap-2.5 mb-4">
-                          <div className="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center text-white border border-white/10">
-                            <FileText size={18} />
+                      <div className="bg-[#1C1518] dark:bg-[#150F12] border border-[#C99A45]/30 rounded-2xl p-4 sm:p-5 shadow-lg">
+                        <div className="flex items-center gap-2 mb-3">
+                          <div className="w-8 h-8 rounded-xl bg-[#C99A45]/20 text-[#E5B869] border border-[#C99A45]/30 flex items-center justify-center">
+                            <FileText size={16} />
                           </div>
-                          <h4 className="text-xs font-black text-white uppercase tracking-[0.2em]">Solution Insight</h4>
+                          <h4 className="text-xs font-black text-[#E5B869] uppercase tracking-[0.2em]">Solution Insight</h4>
                         </div>
-                        <div className="text-[14px] sm:text-[15px] text-slate-100 font-hindi leading-relaxed font-bold">
+                        <div className="text-[13px] sm:text-[14px] text-[#FAF5ED] font-hindi leading-relaxed font-bold">
                           <RichText text={q.explanation} enablePronunciation={true} />
                         </div>
                       </div>
@@ -4407,7 +4766,7 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
           <button
             id="btn-retake-test"
             onClick={onRestart}
-            className="flex-1 py-3.5 px-4 rounded-2xl bg-white dark:bg-[#111A2E] border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 font-bold text-xs sm:text-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center justify-center gap-2 cursor-pointer"
+            className="flex-1 h-12 px-4 rounded-xl sm:rounded-2xl bg-[#FAF5ED] dark:bg-[#1E171A] border border-[#C99A45]/40 text-[#800020] dark:text-[#E5B869] font-black text-xs sm:text-sm hover:bg-[#F5EBE1] transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 shadow-sm"
           >
             <RotateCcw className="w-4 h-4" />
             <span>Re-take Test</span>
@@ -4416,21 +4775,20 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
           <button
             id="btn-back-to-hub"
             onClick={onClose}
-            className="flex-1 py-3.5 px-4 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-xs sm:text-sm shadow-xl shadow-blue-600/20 hover:from-blue-700 hover:to-indigo-700 transition-all flex items-center justify-center gap-2 cursor-pointer"
+            className="flex-1 h-12 px-4 rounded-xl sm:rounded-2xl bg-[#800020] hover:bg-[#660019] text-white font-black text-xs sm:text-sm shadow-md shadow-[#800020]/20 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 border border-[#C99A45]/40"
           >
-            <Home className="w-4 h-4" />
-            <span>Back to Hub</span>
+            <Home className="w-4 h-4 text-[#E5B869]" />
+            <span>Return to Dashboard</span>
           </button>
-
         </motion.div>
-        </motion.div>
-        {shareData && (
-          <ShareModal
-            isOpen={!!shareData}
-            onClose={() => setShareData(null)}
-            data={shareData}
-          />
-        )}
+      </motion.div>
+      {shareData && (
+        <ShareModal
+          isOpen={!!shareData}
+          onClose={() => setShareData(null)}
+          data={shareData}
+        />
+      )}
       </div>
     </motion.div>
   );
