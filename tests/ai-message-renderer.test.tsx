@@ -94,9 +94,19 @@ describe("formatFriendlyAIError", () => {
       '{"error":{"code":404,"message":"models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.","status":"NOT_FOUND"}}'
     );
     const result = formatFriendlyAIError(rawError);
-    expect(result.message).toContain("पुराने मॉडल (gemini-1.5-flash) को बंद कर दिया है");
-    expect(result.message).toContain("gemini-2.5-flash");
+    expect(result.message).toContain("गूगल ने पुराने मॉडल को बंद कर दिया है");
+    expect(result.message).toContain("gemini-3.5-flash-lite");
     expect(result.message).not.toContain('{"error":{"code":404');
+  });
+
+  it("converts exact user 'no longer available' error into clean Hindi message", () => {
+    const rawError = new Error(
+      "This model models/gemini-2.5-flash is no longer available. Please update your code to use models/gemini-3.5-flash-lite for the latest features and improvements."
+    );
+    const result = formatFriendlyAIError(rawError);
+    expect(result.message).toContain("गूगल ने पुराने मॉडल को बंद कर दिया है");
+    expect(result.message).toContain("gemini-3.5-flash-lite");
+    expect(result.message).not.toContain("This model");
   });
 
   it("identifies API key invalid errors and sets isApiKeyIssue to true", () => {

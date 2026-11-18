@@ -57,10 +57,10 @@ export function getActiveAICredentials(): {
 
   if (activeKey && activeKey.apiKey?.trim()) {
     const provider = activeKey.provider || "gemini";
-    const defaultModel = PROVIDER_RECOMMENDED_MODELS[provider]?.[0]?.id || "gemini-2.5-flash";
+    const defaultModel = PROVIDER_RECOMMENDED_MODELS[provider]?.[0]?.id || "gemini-3.5-flash-lite";
     let chosenModel = activeKey.model || defaultModel;
-    if (provider === "gemini" && (!chosenModel || chosenModel.includes("1.5") || chosenModel.includes("1.0") || chosenModel === "default" || chosenModel === "gemini-flash-latest")) {
-      chosenModel = "gemini-2.5-flash";
+    if (provider === "gemini" && (!chosenModel || chosenModel.includes("1.5") || chosenModel.includes("1.0") || chosenModel.includes("2.5") || chosenModel === "default" || chosenModel === "gemini-flash-latest" || chosenModel === "gemini-2.0-flash")) {
+      chosenModel = "gemini-3.5-flash-lite";
     }
     return {
       configured: true,
@@ -75,7 +75,7 @@ export function getActiveAICredentials(): {
       configured: true,
       provider: "gemini",
       apiKey: settings.geminiApiKey.trim(),
-      model: "gemini-2.5-flash",
+      model: "gemini-3.5-flash-lite",
     };
   }
 
@@ -86,7 +86,7 @@ export function getActiveAICredentials(): {
       configured: true,
       provider: "gemini",
       apiKey: envGemini.trim(),
-      model: "gemini-2.5-flash",
+      model: "gemini-3.5-flash-lite",
     };
   }
 
@@ -107,7 +107,7 @@ export function getActiveAICredentials(): {
     configured: true,
     provider: "cliproxy",
     apiKey: envProxyKey,
-    model: "gemini-2.5-flash",
+    model: "gemini-3.5-flash-lite",
   };
 }
 
@@ -281,11 +281,15 @@ export function formatFriendlyAIError(err: any): { message: string; isApiKeyIssu
     lower.includes("not found") ||
     lower.includes("404") ||
     lower.includes("not supported") ||
+    lower.includes("no longer available") ||
+    lower.includes("update your code") ||
     lower.includes("1.5-flash") ||
-    lower.includes("1.5")
+    lower.includes("1.5") ||
+    lower.includes("2.5-flash") ||
+    lower.includes("2.5")
   ) {
     return {
-      message: "गूगल ने पुराने मॉडल (gemini-1.5-flash) को बंद कर दिया है। दिशा ऐप ने स्वतः नए व तीव्र 'gemini-2.5-flash' मॉडल पर अपडेट कर दिया है। कृपया पुनः प्रश्न पूछें।",
+      message: "गूगल ने पुराने मॉडल को बंद कर दिया है। दिशा ऐप ने स्वतः नवीनतम 'gemini-3.5-flash-lite' मॉडल पर अपडेट कर दिया है। कृपया पुनः प्रश्न पूछें।",
       isApiKeyIssue: false,
     };
   }

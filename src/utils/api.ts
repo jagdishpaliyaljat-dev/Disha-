@@ -40,7 +40,7 @@ export async function apiFetch(url: string, options: RequestInit = {}): Promise<
       id: "legacy",
       provider: "gemini",
       apiKey: settings.geminiApiKey.trim(),
-      model: "gemini-2.5-flash",
+      model: "gemini-3.5-flash-lite",
       enabled: true,
     };
   }
