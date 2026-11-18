@@ -16,6 +16,37 @@ const LEGACY_STORAGE_KEY = "quizpro_contact_messages_v1";
 
 let inMemoryMessages: ContactMessage[] = [];
 
+// Supabase integration (lazy-loaded to avoid circular imports)
+let supabaseClient: any = null;
+let isConfigured = false;
+
+async function getSupabase() {
+  if (supabaseClient !== null) return { client: supabaseClient, configured: isConfigured };
+  try {
+    const mod = await import("../lib/supabase");
+    isConfigured = mod.isSupabaseConfigured();
+    supabaseClient = isConfigured ? mod.supabase : null;
+  } catch {
+    isConfigured = false;
+    supabaseClient = null;
+  }
+  return { client: supabaseClient, configured: isConfigured };
+}
+
+// Map DB row to ContactMessage
+function rowToMessage(row: any): ContactMessage {
+  return {
+    id: row.id,
+    name: row.name,
+    email: row.email,
+    subject: row.subject,
+    message: row.message,
+    createdAt: row.created_at,
+    createdIso: row.created_at,
+    status: row.status || "new",
+  };
+}
+
 export function loadContactMessages(): ContactMessage[] {
   try {
     if (typeof window === "undefined" || typeof localStorage === "undefined") {
@@ -52,6 +83,86 @@ export function saveContactMessages(messages: ContactMessage[]): void {
   }
 }
 
+/**
+ * Fetch contact messages from Supabase (shared) with localStorage fallback.
+ * Admin-only on Supabase side (RLS); falls back to local if not admin or offline.
+ */
+export async function fetchContactMessages(): Promise<ContactMessage[]> {
+  const { client, configured } = await getSupabase();
+  if (configured && client) {
+    try {
+      const { data, error } = await client
+        .from("contact_messages")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (!error && Array.isArray(data)) {
+        const msgs = data.map(rowToMessage);
+        // Cache locally for offline admin access
+        saveContactMessages(msgs);
+        return msgs;
+      }
+    } catch (err) {
+      console.warn("Supabase contact fetch failed, falling back to local:", err);
+    }
+  }
+  return loadContactMessages();
+}
+
+/**
+ * Update message status (admin only on Supabase side).
+ */
+export async function updateContactMessageStatus(
+  id: string,
+  newStatus: ContactMessage["status"]
+): Promise<boolean> {
+  const { client, configured } = await getSupabase();
+  if (configured && client) {
+    try {
+      const { error } = await client
+        .from("contact_messages")
+        .update({ status: newStatus, updated_at: new Date().toISOString() })
+        .eq("id", id);
+      if (!error) {
+        // Update local cache
+        const local = loadContactMessages();
+        const updated = local.map((m) => (m.id === id ? { ...m, status: newStatus } : m));
+        saveContactMessages(updated);
+        return true;
+      }
+    } catch (err) {
+      console.warn("Supabase status update failed:", err);
+    }
+  }
+  // Local fallback
+  const local = loadContactMessages();
+  const updated = local.map((m) => (m.id === id ? { ...m, status: newStatus } : m));
+  saveContactMessages(updated);
+  return true;
+}
+
+/**
+ * Delete a contact message (admin only on Supabase side).
+ */
+export async function deleteContactMessage(id: string): Promise<boolean> {
+  const { client, configured } = await getSupabase();
+  if (configured && client) {
+    try {
+      const { error } = await client.from("contact_messages").delete().eq("id", id);
+      if (!error) {
+        const local = loadContactMessages().filter((m) => m.id !== id);
+        saveContactMessages(local);
+        return true;
+      }
+    } catch (err) {
+      console.warn("Supabase delete failed:", err);
+    }
+  }
+  // Local fallback
+  const local = loadContactMessages().filter((m) => m.id !== id);
+  saveContactMessages(local);
+  return true;
+}
+
 export interface SubmitContactPayload {
   name: string;
   email: string;
@@ -68,9 +179,9 @@ export interface SubmitContactResult {
 const DUPLICATE_WINDOW_MS = 60_000;
 
 /**
- * Persists a contact inquiry into the same local store that the admin inbox
- * reads from. Returns a structured result so the UI can distinguish success
- * from a real failure (storage full, duplicate, invalid payload, ...).
+ * Persists a contact inquiry.
+ * Tries Supabase first (shared storage), falls back to localStorage.
+ * Returns structured result for UI feedback.
  */
 export async function submitContactMessage(
   payload: SubmitContactPayload
@@ -116,6 +227,35 @@ export async function submitContactMessage(
     status: "new",
   };
 
+  // Try Supabase first (shared storage)
+  const { client, configured } = await getSupabase();
+  if (configured && client) {
+    try {
+      const { error } = await client.from("contact_messages").insert({
+        id,
+        name,
+        email,
+        subject,
+        message,
+        status: "new",
+        created_at: new Date(now).toISOString(),
+      });
+      if (!error) {
+        // Also cache locally
+        saveContactMessages([entry, ...existing]);
+        return {
+          success: true,
+          message: "Your message has been received.",
+          id,
+        };
+      }
+      console.warn("Supabase contact insert failed, falling back to local:", error.message);
+    } catch (err) {
+      console.warn("Supabase contact insert error, falling back to local:", err);
+    }
+  }
+
+  // Fallback: localStorage (local-only)
   try {
     saveContactMessages([entry, ...existing]);
   } catch (err) {

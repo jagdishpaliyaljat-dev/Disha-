@@ -18,10 +18,7 @@ import {
   Inbox
 } from "lucide-react";
 
-import { loadContactMessages, saveContactMessages, type ContactMessage } from "../../utils/contactStorage";
-
-// Backwards-compatible aliases kept for any external references.
-const MESSAGES_STORAGE_KEY = "disha2020_contact_messages_v1";
+import { fetchContactMessages, updateContactMessageStatus, deleteContactMessage, type ContactMessage } from "../../utils/contactStorage";
 
 export const AdminMessagesSection: React.FC<{ onBackToAdmin?: () => void }> = ({ onBackToAdmin }) => {
   const [messages, setMessages] = React.useState<ContactMessage[]>([]);
@@ -37,7 +34,7 @@ export const AdminMessagesSection: React.FC<{ onBackToAdmin?: () => void }> = ({
     else setLoading(true);
 
     try {
-      const msgs = loadContactMessages();
+      const msgs = await fetchContactMessages();
       setMessages(msgs);
     } catch (err) {
       console.error("Failed to fetch messages:", err);
@@ -55,11 +52,9 @@ export const AdminMessagesSection: React.FC<{ onBackToAdmin?: () => void }> = ({
     if (!window.confirm("Are you sure you want to delete this message?")) return;
     setIsDeleting(id);
     try {
+      await deleteContactMessage(id);
       const updated = messages.filter(m => m.id !== id);
       setMessages(updated);
-      try {
-        saveContactMessages(updated);
-      } catch {}
       if (selectedMessage?.id === id) setSelectedMessage(null);
     } catch (err) {
       console.error("Failed to delete message:", err);
@@ -71,11 +66,9 @@ export const AdminMessagesSection: React.FC<{ onBackToAdmin?: () => void }> = ({
 
   const handleUpdateStatus = async (id: string, newStatus: ContactMessage["status"]) => {
     try {
+      await updateContactMessageStatus(id, newStatus);
       const updated = messages.map(m => m.id === id ? { ...m, status: newStatus } : m);
       setMessages(updated);
-      try {
-        saveContactMessages(updated);
-      } catch {}
       if (selectedMessage?.id === id) setSelectedMessage({ ...selectedMessage, status: newStatus });
     } catch (err) {
       console.error("Failed to update status:", err);
@@ -313,4 +306,3 @@ export const AdminMessagesSection: React.FC<{ onBackToAdmin?: () => void }> = ({
     </div>
   );
 };
-

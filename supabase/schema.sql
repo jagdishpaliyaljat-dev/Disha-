@@ -70,7 +70,20 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 6. ATTEMPTS TABLE (Student Quiz & Test History)
+-- 6. CONTACT MESSAGES TABLE (Public submissions, admin-only reading)
+CREATE TABLE IF NOT EXISTS public.contact_messages (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL,
+    subject TEXT NOT NULL,
+    message TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'new'
+      CHECK (status IN ('new', 'read', 'replied', 'archived')),
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 7. ATTEMPTS TABLE (Student Quiz & Test History)
 CREATE TABLE IF NOT EXISTS public.attempts (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -83,7 +96,7 @@ CREATE TABLE IF NOT EXISTS public.attempts (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 7. BOOKMARKS TABLE
+-- 8. BOOKMARKS TABLE
 CREATE TABLE IF NOT EXISTS public.bookmarks (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -103,6 +116,8 @@ CREATE INDEX IF NOT EXISTS idx_questions_chapter_id ON public.questions(chapter_
 CREATE INDEX IF NOT EXISTS idx_questions_subject_id ON public.questions(subject_id);
 CREATE INDEX IF NOT EXISTS idx_attempts_user_id ON public.attempts(user_id);
 CREATE INDEX IF NOT EXISTS idx_bookmarks_user_id ON public.bookmarks(user_id);
+CREATE INDEX IF NOT EXISTS idx_contact_messages_created ON public.contact_messages(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_contact_messages_status ON public.contact_messages(status);
 
 -- ----------------------------------------------------------------------------
 -- SECURITY & AUTHORIZATION FUNCTIONS
@@ -156,6 +171,7 @@ ALTER TABLE public.questions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.attempts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.bookmarks ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.contact_messages ENABLE ROW LEVEL SECURITY;
 
 -- 16 Granular Curriculum Policies (4 Tables x 4 Commands)
 -- Subjects
@@ -193,6 +209,19 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.subjects, public.chapters, 
 CREATE POLICY "Profiles are viewable by owner" ON public.profiles FOR SELECT USING (auth.uid() = id OR public.is_admin());
 CREATE POLICY "Profiles updateable by owner" ON public.profiles FOR UPDATE USING (auth.uid() = id) WITH CHECK (auth.uid() = id);
 CREATE POLICY "Profiles insertable by owner" ON public.profiles FOR INSERT WITH CHECK (auth.uid() = id);
+
+-- Contact messages: public submission, admin-only access after submission.
+CREATE POLICY "Anyone can submit contact message" ON public.contact_messages
+  FOR INSERT WITH CHECK (true);
+CREATE POLICY "Admins can view contact messages" ON public.contact_messages
+  FOR SELECT USING (public.is_admin());
+CREATE POLICY "Admins can update contact messages" ON public.contact_messages
+  FOR UPDATE USING (public.is_admin()) WITH CHECK (public.is_admin());
+CREATE POLICY "Admins can delete contact messages" ON public.contact_messages
+  FOR DELETE USING (public.is_admin());
+
+GRANT INSERT ON TABLE public.contact_messages TO anon, authenticated;
+GRANT SELECT, UPDATE, DELETE ON TABLE public.contact_messages TO authenticated;
 
 -- Attempts: Immutable student audit records (INSERT with check, SELECT by owner/admin, NO student UPDATE)
 CREATE POLICY "Users can insert own attempts" ON public.attempts FOR INSERT WITH CHECK (auth.uid() = user_id);
@@ -252,4 +281,3 @@ CREATE POLICY "Admins can delete reports" ON public.question_reports
     FOR DELETE USING (public.is_admin());
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.question_reports TO anon, authenticated, service_role;
-
