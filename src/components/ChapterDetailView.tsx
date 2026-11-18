@@ -139,6 +139,22 @@ export const ChapterDetailView: React.FC<ChapterDetailViewProps> = ({
     }
 
     if (extraQs.length === 0) {
+      try {
+        const { fetchQuestionsByTopic } = await import("../utils/supabaseSyncService");
+        const fromSb = await fetchQuestionsByTopic(topic.id);
+        if (fromSb && fromSb.length > 0) {
+          extraQs = fromSb;
+        }
+      } catch (e) {
+        console.error("Failed to fetch Supabase questions for topic in chapter detail view", e);
+      }
+    }
+
+    if (extraQs.length === 0) {
+      extraQs = allChapterQuestions.filter((q) => q.topicId === topic.id);
+    }
+
+    if (extraQs.length === 0) {
       alert("Local content is currently unavailable. Please connect to the internet during your next 24-hour sync cycle to download this topic's questions.");
       return;
     }

@@ -91,9 +91,9 @@ export async function syncCurriculumAuthoritative(options?: { force?: boolean })
       const qSubs = supabase.from("subjects").select("id, name, hindi_name, description, icon, color, order_index").order("order_index", { ascending: true });
       const qChaps = supabase.from("chapters").select("id, subject_id, name, hindi_name, order_index").order("order_index", { ascending: true });
       const qTops = supabase.from("topics").select("id, chapter_id, subject_id, name, hindi_name, order_index").order("order_index", { ascending: true });
-      // Bounded initial question seed (avoids pulling massive multi-megabyte payloads on app open)
+      // Bounded initial question seed (supports full question bank ingestion)
       const qQuestionsBuilder = supabase.from("questions").select("id, question, options, correct_answer, explanation, subject_id, chapter_id, topic_id, exam, year, level, created_at");
-      const qQuestions = typeof (qQuestionsBuilder as any)?.limit === 'function' ? (qQuestionsBuilder as any).limit(500) : qQuestionsBuilder;
+      const qQuestions = typeof (qQuestionsBuilder as any)?.limit === 'function' ? (qQuestionsBuilder as any).limit(5000) : qQuestionsBuilder;
 
       const [subsRes, chapsRes, topsRes, questionsRes] = await Promise.all([
         typeof (qSubs as any).range === "function" ? (qSubs as any).range(0, 9999) : qSubs,
@@ -309,6 +309,122 @@ export async function syncCurriculumAuthoritative(options?: { force?: boolean })
   });
 
   return activeCurriculumSyncPromise;
+}
+
+/**
+ * Atomically retrieves complete authoritative curriculum (subjects, chapters, topics, questions)
+ * ensuring synchronous alignment across Supabase, IndexedDB, and the app questions store.
+ */
+export async function fetchFullAuthoritativeCurriculum(options?: { force?: boolean }): Promise<{
+  subjects: Subject[];
+  chapters: Chapter[];
+  topics: Topic[];
+  questions: Question[];
+}> {
+  await openLocalDatabase();
+
+  if (isSupabaseConfigured()) {
+    try {
+      await syncCurriculumAuthoritative(options);
+    } catch (syncErr) {
+      console.warn("[supabaseSyncService] Curriculum sync note:", syncErr);
+    }
+  }
+
+  const [subs, chaps, tops, rawMcqs] = await Promise.all([
+    idbGetAll<Subject>(STORES.SUBJECTS).catch(() => []),
+    idbGetAll<Chapter>(STORES.CHAPTERS).catch(() => []),
+    idbGetAll<Topic>(STORES.TOPICS).catch(() => []),
+    idbGetAll<Question>(STORES.MCQS).catch(() => []),
+  ]);
+
+  const normalizedQuestions: Question[] = (rawMcqs || []).map((q: any) => ({
+    ...q,
+    text: q.text || q.question || "",
+    options: Array.isArray(q.options) ? q.options : [],
+    correctIndex: typeof q.correctIndex === "number" ? q.correctIndex : (typeof q.correct_answer === "number" ? q.correct_answer : 0),
+    explanation: q.explanation || "",
+    subjectId: q.subjectId || q.subject_id,
+    chapterId: q.chapterId || q.chapter_id,
+    topicId: q.topicId || q.topic_id,
+    difficulty: q.difficulty || q.level || "medium",
+  }));
+
+  // Direct network fallback if IndexedDB is blocked or private mode
+  if ((!subs || subs.length === 0) && isSupabaseConfigured()) {
+    try {
+      const [sRes, cRes, tRes, qRes] = await Promise.all([
+        supabase.from("subjects").select("*").order("order_index", { ascending: true }),
+        supabase.from("chapters").select("*").order("order_index", { ascending: true }),
+        supabase.from("topics").select("*").order("order_index", { ascending: true }),
+        supabase.from("questions").select("*").limit(5000),
+      ]);
+      if (sRes.data && sRes.data.length > 0) {
+        const directSubs: Subject[] = (sRes.data || []).map(s => ({
+          id: s.id,
+          name: s.name,
+          hindiName: s.hindi_name,
+          description: s.description || "",
+          icon: s.icon || "book",
+          color: s.color || "#8B1E3F",
+          order: s.order_index || 0,
+          questionCount: 0,
+          isUserAdded: false,
+        }));
+        const directChaps: Chapter[] = (cRes.data || []).map(c => ({
+          id: c.id,
+          subjectId: c.subject_id,
+          title: c.name,
+          hindiTitle: c.hindi_name || c.name,
+          number: c.order_index || 0,
+          questionCount: 0,
+          topics: [],
+          isUserAdded: false,
+        }));
+        const directTops: Topic[] = (tRes.data || []).map(t => ({
+          id: t.id,
+          chapterId: t.chapter_id,
+          subjectId: t.subject_id,
+          title: t.name,
+          hindiTitle: t.hindi_name || t.name,
+          number: t.order_index || 0,
+          questionCount: 0,
+          questions: [],
+          isUserAdded: false,
+        }));
+        const directQs: Question[] = (qRes.data || []).map(q => ({
+          id: q.id,
+          text: q.question,
+          options: Array.isArray(q.options) ? q.options : [],
+          correctIndex: q.correct_answer ?? 0,
+          explanation: q.explanation || "",
+          subjectId: q.subject_id,
+          chapterId: q.chapter_id,
+          topicId: q.topic_id,
+          exam: q.exam,
+          year: q.year,
+          difficulty: q.level || "medium",
+          isUserAdded: false,
+          updatedAt: q.created_at,
+        }));
+        return {
+          subjects: directSubs,
+          chapters: directChaps,
+          topics: directTops,
+          questions: directQs,
+        };
+      }
+    } catch (e) {
+      console.warn("[supabaseSyncService] Direct fetch fallback error:", e);
+    }
+  }
+
+  return {
+    subjects: (subs || []).sort((a, b) => (a.order || 0) - (b.order || 0)),
+    chapters: (chaps || []).sort((a, b) => (a.number || 0) - (b.number || 0)),
+    topics: (tops || []).sort((a, b) => (a.number || 0) - (b.number || 0)),
+    questions: normalizedQuestions,
+  };
 }
 
 export async function fetchSubjects(options?: { forceRefresh?: boolean }): Promise<Subject[]> {

@@ -539,6 +539,18 @@ const TopicDetailView: React.FC<TopicDetailViewProps> = ({
       }
 
       if (validQuestions.length === 0) {
+        try {
+          const { fetchQuestionsByTopic } = await import("../utils/supabaseSyncService");
+          const sbQs = await fetchQuestionsByTopic(topic.id);
+          if (sbQs && sbQs.length > 0) {
+            validQuestions = sbQs.filter(isCompleteQ);
+          }
+        } catch (sbErr) {
+          console.warn("[TopicsTab] Supabase topic fetch notice:", sbErr);
+        }
+      }
+
+      if (validQuestions.length === 0) {
         alert("No questions available for this topic yet.");
         return;
       }

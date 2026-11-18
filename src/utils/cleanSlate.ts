@@ -77,16 +77,8 @@ const DUMMY_KEYWORDS = [
 
 // Specific test subject IDs or placeholder names to purge completely
 const EXACT_MATCH_DUMMY_NAMES = new Set([
-  "X",
-  "x",
-  "Y",
-  "y",
-  "Z",
-  "z",
-  "R",
   "Testing",
   "Ig Oyy",
-  "5",
   "Test",
   "Demo",
   "Dummy",
@@ -164,7 +156,6 @@ export function isTestOrMockText(text?: string | null): boolean {
   const trimmed = text.trim();
   if (!trimmed) return false;
   
-  if (trimmed.length === 1 && /^[A-Za-z0-9]$/.test(trimmed)) return true;
   if (EXACT_MATCH_DUMMY_NAMES.has(trimmed)) return true;
   if (trimmed.startsWith("TEST_") || trimmed.startsWith("test_") || trimmed.startsWith("mock_")) return true;
   
@@ -177,8 +168,19 @@ export function isTestOrMockText(text?: string | null): boolean {
  */
 export function isTestOrMockSubject(subject?: Partial<Subject> | null): boolean {
   if (!subject) return true;
-  // If explicitly flagged as a genuine user-created subject or custom ID, NEVER reject
-  if ((subject as any).isUserAdded === true || String(subject.id || "").startsWith("subj-")) return false;
+  // If explicitly flagged as a genuine user-created subject or valid ID prefix, NEVER reject
+  const idStr = String(subject.id || "");
+  if (
+    (subject as any).isUserAdded === true ||
+    idStr.startsWith("subj-") ||
+    idStr.startsWith("sub_") ||
+    idStr.startsWith("subj_")
+  ) {
+    if (subject.id === "subj_general_hindi" || subject.id === "subj_raj_polity") return true;
+    if ((subject as any).isTest === true || (subject as any).is_test === true || (subject as any).isMock === true) return true;
+    if (isTestOrMockId(subject.id)) return true;
+    return false;
+  }
   if ((subject as any).isTest === true || (subject as any).is_test === true || (subject as any).isMock === true) return true;
   if (isTestOrMockId(subject.id)) return true;
   if (subject.id === "subj_general_hindi" || subject.id === "subj_raj_polity") return true;
@@ -191,8 +193,18 @@ export function isTestOrMockSubject(subject?: Partial<Subject> | null): boolean 
  */
 export function isTestOrMockChapter(chapter?: Partial<Chapter> | null): boolean {
   if (!chapter) return true;
-  // If explicitly flagged as a genuine user-created chapter or custom ID, NEVER reject
-  if ((chapter as any).isUserAdded === true || String(chapter.id || "").startsWith("custom-ch-")) return false;
+  // If explicitly flagged as a genuine user-created chapter or valid ID prefix, NEVER reject
+  const idStr = String(chapter.id || "");
+  if (
+    (chapter as any).isUserAdded === true ||
+    idStr.startsWith("custom-ch-") ||
+    idStr.startsWith("chap_") ||
+    idStr.startsWith("ch_")
+  ) {
+    if ((chapter as any).isTest === true || (chapter as any).is_test === true || (chapter as any).isMock === true) return true;
+    if (isTestOrMockId(chapter.id) || isTestOrMockId(chapter.subjectId)) return true;
+    return false;
+  }
   if ((chapter as any).isTest === true || (chapter as any).is_test === true || (chapter as any).isMock === true) return true;
   if (isTestOrMockId(chapter.id) || isTestOrMockId(chapter.subjectId)) return true;
   if (isTestOrMockText(chapter.title) || isTestOrMockText(chapter.hindiTitle)) return true;
@@ -204,8 +216,18 @@ export function isTestOrMockChapter(chapter?: Partial<Chapter> | null): boolean 
  */
 export function isTestOrMockTopic(topic?: Partial<Topic> | null): boolean {
   if (!topic) return true;
-  // If explicitly flagged as a genuine user-created topic or custom ID, NEVER reject
-  if ((topic as any).isUserAdded === true || String(topic.id || "").startsWith("custom-topic-")) return false;
+  // If explicitly flagged as a genuine user-created topic or valid ID prefix, NEVER reject
+  const idStr = String(topic.id || "");
+  if (
+    (topic as any).isUserAdded === true ||
+    idStr.startsWith("custom-topic-") ||
+    idStr.startsWith("topic_") ||
+    idStr.startsWith("top_")
+  ) {
+    if ((topic as any).isTest === true || (topic as any).is_test === true || (topic as any).isMock === true) return true;
+    if (isTestOrMockId(topic.id) || isTestOrMockId(topic.chapterId) || isTestOrMockId(topic.subjectId)) return true;
+    return false;
+  }
   if ((topic as any).isTest === true || (topic as any).is_test === true || (topic as any).isMock === true) return true;
   if (isTestOrMockId(topic.id) || isTestOrMockId(topic.chapterId) || isTestOrMockId(topic.subjectId)) return true;
   if (isTestOrMockText(topic.title) || isTestOrMockText(topic.hindiTitle)) return true;

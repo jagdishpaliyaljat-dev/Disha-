@@ -803,79 +803,83 @@ export default function App() {
     let isSubscribed = true;
     let syncThrottleTimeout: any = null;
 
-    const syncFromSupabase = (force: boolean = false) => {
-      import('./utils/supabaseSyncService').then(({ fetchSubjects, fetchChapters, fetchTopics }) => {
-        Promise.all([
-          fetchSubjects(force ? { forceRefresh: true } : undefined),
-          fetchChapters(undefined, force ? { forceRefresh: true } : undefined),
-          fetchTopics(undefined, force ? { forceRefresh: true } : undefined),
-          import('./utils/localDatabaseEngine').then(({ getAllLocalMCQs }) => getAllLocalMCQs()).catch(() => [])
-        ]).then(([subs, chaps, tops, mcqs]) => {
-          if (!isSubscribed) return;
-          if (subs && subs.length > 0) {
-            setQuestionsStore((prev) => {
-              // 1. Non-destructive merge: preserve local user-added subjects not yet on server
-              const existingUserSubs = (prev.customSubjects || []).filter(
-                (s) => (s.isUserAdded || String(s.id).startsWith("subj-")) && !subs.some((sub) => sub.id === s.id)
-              );
-              const mergedSubs = [...subs, ...existingUserSubs];
+    const syncFromSupabase = async (force: boolean = false) => {
+      try {
+        const { fetchFullAuthoritativeCurriculum } = await import('./utils/supabaseSyncService');
+        const { subjects: subs, chapters: chaps, topics: tops, questions: mcqs } = await fetchFullAuthoritativeCurriculum({ force });
+        if (!isSubscribed) return;
+        if (subs && subs.length > 0) {
+          setQuestionsStore((prev) => {
+            // 1. Non-destructive merge: preserve local user-added subjects not yet on server
+            const existingUserSubs = (prev.customSubjects || []).filter(
+              (s) => (s.isUserAdded || String(s.id).startsWith("subj-")) && !subs.some((sub) => sub.id === s.id)
+            );
+            const mergedSubs = [...subs, ...existingUserSubs];
 
-              // 2. Non-destructive merge for chapters
-              const existingUserChaps = (prev.customChapters || []).filter(
-                (c) => (c.isUserAdded || String(c.id).startsWith("custom-ch-")) && !chaps.some((ch) => ch.id === c.id)
-              );
-              const mergedChaps = [...(chaps && chaps.length > 0 ? chaps : prev.customChapters || []), ...existingUserChaps];
+            // 2. Non-destructive merge for chapters
+            const existingUserChaps = (prev.customChapters || []).filter(
+              (c) => (c.isUserAdded || String(c.id).startsWith("custom-ch-")) && !chaps.some((ch) => ch.id === c.id)
+            );
+            const mergedChaps = [...(chaps && chaps.length > 0 ? chaps : prev.customChapters || []), ...existingUserChaps];
 
-              // 3. Non-destructive merge for topics
-              const existingUserTops = (prev.customTopics || []).filter(
-                (t) => (t.isUserAdded || String(t.id).startsWith("custom-topic-")) && !tops.some((top) => top.id === t.id)
-              );
-              const mergedTops = [...(tops && tops.length > 0 ? tops : prev.customTopics || []), ...existingUserTops];
+            // 3. Non-destructive merge for topics
+            const existingUserTops = (prev.customTopics || []).filter(
+              (t) => (t.isUserAdded || String(t.id).startsWith("custom-topic-")) && !tops.some((top) => top.id === t.id)
+            );
+            const mergedTops = [...(tops && tops.length > 0 ? tops : prev.customTopics || []), ...existingUserTops];
 
-              // 4. Filter out any question IDs deleted locally
-              const deletedSet = new Set(prev.deletedQuestionIds || []);
-              const mergedMcqs = (mcqs && mcqs.length > 0 ? mcqs : prev.cloudCacheQuestions || []).filter(
-                (q) => q && q.id && !deletedSet.has(q.id)
-              );
-
-              // 5. Shallow comparison to avoid redundant re-renders and loops
-              const subsEqual = mergedSubs.length === (prev.customSubjects || []).length;
-              const chapsEqual = mergedChaps.length === (prev.customChapters || []).length;
-              const topsEqual = mergedTops.length === (prev.customTopics || []).length;
-              const mcqsEqual = mergedMcqs.length === (prev.cloudCacheQuestions || []).length;
-
-              if (subsEqual && chapsEqual && topsEqual && mcqsEqual) {
-                return prev; // No state change -> prevents re-render cascade
-              }
-
-              const next = {
-                ...prev,
-                customSubjects: mergedSubs,
-                customChapters: mergedChaps,
-                customTopics: mergedTops,
-                cloudCacheQuestions: mergedMcqs,
-              };
-              saveUserQuestionsStore(next);
-              return next;
+            // 4. Server questions take authoritative place in cloudCacheQuestions, respecting local deletions
+            const deletedSet = new Set(prev.deletedQuestionIds || []);
+            const serverMcqsMap = new Map<string, Question>();
+            (mcqs || []).forEach(q => {
+              if (q && q.id && !deletedSet.has(q.id)) serverMcqsMap.set(q.id, q);
             });
-          }
-        }).catch(() => {});
-      }).catch(() => {});
+            (prev.cloudCacheQuestions || []).forEach(q => {
+              if (q && q.id && !deletedSet.has(q.id) && !serverMcqsMap.has(q.id)) {
+                serverMcqsMap.set(q.id, q);
+              }
+            });
+            const mergedMcqs = Array.from(serverMcqsMap.values());
+
+            // 5. Shallow comparison to avoid redundant re-renders and loops
+            const subsEqual = mergedSubs.length === (prev.customSubjects || []).length;
+            const chapsEqual = mergedChaps.length === (prev.customChapters || []).length;
+            const topsEqual = mergedTops.length === (prev.customTopics || []).length;
+            const mcqsEqual = mergedMcqs.length === (prev.cloudCacheQuestions || []).length;
+
+            if (subsEqual && chapsEqual && topsEqual && mcqsEqual) {
+              return prev; // No state change -> prevents re-render cascade
+            }
+
+            const next = {
+              ...prev,
+              customSubjects: mergedSubs,
+              customChapters: mergedChaps,
+              customTopics: mergedTops,
+              cloudCacheQuestions: mergedMcqs,
+            };
+            saveUserQuestionsStore(next);
+            return next;
+          });
+        }
+      } catch (syncErr) {
+        console.warn("[App] Background Supabase sync notice:", syncErr);
+      }
     };
 
-    // Initial startup fetch (without force, uses cached IDB first, throttled server check)
-    syncFromSupabase(false);
+    // Initial startup fetch (with authoritative server check)
+    syncFromSupabase(true);
 
-    // Guarded external event handler (throttled to at most once per 30 seconds, NEVER loops)
-    let lastHandledSync = Date.now();
+    // Guarded external event handler (throttled to at most once per 10 seconds, NEVER loops)
+    let lastHandledSync = 0;
     const handleCurriculumSynced = () => {
       const now = Date.now();
-      if (now - lastHandledSync < 30000) return; // Strict 30s cooldown
+      if (now - lastHandledSync < 10000) return; // 10s cooldown
       lastHandledSync = now;
       clearTimeout(syncThrottleTimeout);
       syncThrottleTimeout = setTimeout(() => {
         if (isSubscribed) syncFromSupabase(false);
-      }, 2000);
+      }, 1000);
     };
 
     window.addEventListener("disha2020_curriculum_synced", handleCurriculumSynced);

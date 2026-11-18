@@ -171,22 +171,19 @@ export async function hydrateUserQuestionsStoreFromIndexedDB(): Promise<UserQues
     }
 
     // Hydrate directly from Supabase if configured
-    if ((inMemoryQuestionsStore.customSubjects?.length || 0) === 0) {
+    if ((inMemoryQuestionsStore.customSubjects?.length || 0) === 0 || (inMemoryQuestionsStore.cloudCacheQuestions?.length || 0) === 0) {
       try {
         const { isSupabaseConfigured } = await import("../lib/supabase");
         if (isSupabaseConfigured()) {
-          const { fetchSubjects, fetchChapters, fetchTopics } = await import("./supabaseSyncService");
-          const [sbSubjects, sbChapters, sbTopics] = await Promise.all([
-            fetchSubjects(),
-            fetchChapters(),
-            fetchTopics()
-          ]);
+          const { fetchFullAuthoritativeCurriculum } = await import("./supabaseSyncService");
+          const { subjects: sbSubjects, chapters: sbChapters, topics: sbTopics, questions: sbQuestions } = await fetchFullAuthoritativeCurriculum({ force: true });
           if (sbSubjects && sbSubjects.length > 0) {
             inMemoryQuestionsStore = {
               ...inMemoryQuestionsStore,
-              customSubjects: sbSubjects,
-              customChapters: sbChapters,
-              customTopics: sbTopics
+              customSubjects: sbSubjects.length > 0 ? sbSubjects : (inMemoryQuestionsStore.customSubjects || []),
+              customChapters: sbChapters.length > 0 ? sbChapters : (inMemoryQuestionsStore.customChapters || []),
+              customTopics: sbTopics.length > 0 ? sbTopics : (inMemoryQuestionsStore.customTopics || []),
+              cloudCacheQuestions: sbQuestions.length > 0 ? sbQuestions : (inMemoryQuestionsStore.cloudCacheQuestions || []),
             };
             isMemoryStoreHydrated = true;
             dispatchStoreUpdated(inMemoryQuestionsStore);
