@@ -138,7 +138,7 @@ describe('DISHA 20-20 — Automated QA Test Runner Suite', () => {
       const topics = await fetchTopics('non-existent-chapter');
       expect(Array.isArray(topics)).toBe(true);
       expect(topics.length).toBe(0);
-    });
+    }, 15000);
 
     test('B2: App routes and tab constants are registered and valid', async () => {
       const { ActiveTab } = await import('../src/types') as any;

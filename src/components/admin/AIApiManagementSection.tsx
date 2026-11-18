@@ -65,6 +65,12 @@ const PROVIDER_METADATA: Record<AIProvider, {
     icon: Zap,
     tagline: "300+ Tokens/sec Inference",
   },
+  openrouter: {
+    name: "OpenRouter",
+    badgeClass: "bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800",
+    icon: Globe,
+    tagline: "DeepSeek, Llama & Universal Gateway",
+  },
 };
 
 export const AIApiManagementSection: React.FC = () => {

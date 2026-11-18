@@ -52,6 +52,15 @@ export const PROVIDER_METADATA: Record<AIProvider, {
     keyPlaceholder: "gsk_...",
     color: "text-orange-600 dark:text-orange-400",
     bgBadge: "bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20"
+  },
+  openrouter: {
+    name: "OpenRouter",
+    tagline: "Universal Gateway for DeepSeek R1, Llama 3.3, Claude & GPT-4o",
+    defaultModel: "deepseek/deepseek-chat",
+    docsUrl: "https://openrouter.ai/keys",
+    keyPlaceholder: "sk-or-v1-...",
+    color: "text-indigo-600 dark:text-indigo-400",
+    bgBadge: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20"
   }
 };
 
@@ -78,5 +87,13 @@ export const DEFAULT_PROVIDER_MODELS: Record<AIProvider, ProviderModelInfo[]> = 
     { id: "llama-3.1-8b-instant", name: "llama-3.1-8b-instant", displayName: "Llama 3.1 8B Instant (500+ tokens/sec)", badge: "Ultra Fast" },
     { id: "mixtral-8x7b-32768", name: "mixtral-8x7b-32768", displayName: "Mixtral 8x7B (High Throughput)", badge: "Fast" },
     { id: "gemma2-9b-it", name: "gemma2-9b-it", displayName: "Gemma 2 9B IT", badge: "Compact" },
+  ],
+  openrouter: [
+    { id: "deepseek/deepseek-chat", name: "deepseek/deepseek-chat", displayName: "DeepSeek V3 (Fast & Ultra Low Cost)", badge: "Recommended" },
+    { id: "deepseek/deepseek-r1", name: "deepseek/deepseek-r1", displayName: "DeepSeek R1 (Advanced Reasoning)", badge: "Reasoning" },
+    { id: "meta-llama/llama-3.3-70b-instruct", name: "meta-llama/llama-3.3-70b-instruct", displayName: "Llama 3.3 70B Instruct", badge: "Fast" },
+    { id: "anthropic/claude-3.5-sonnet", name: "anthropic/claude-3.5-sonnet", displayName: "Claude 3.5 Sonnet (OpenRouter)", badge: "Flagship" },
+    { id: "google/gemini-2.0-flash-001", name: "google/gemini-2.0-flash-001", displayName: "Gemini 2.0 Flash (OpenRouter)", badge: "Fast" },
+    { id: "qwen/qwen-2.5-72b-instruct", name: "qwen/qwen-2.5-72b-instruct", displayName: "Qwen 2.5 72B Instruct", badge: "Smart" }
   ]
 };

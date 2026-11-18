@@ -389,54 +389,108 @@ export const ExamPaperAnalyzerModal: React.FC<ExamPaperAnalyzerModalProps> = ({
 
   return (
     <div className="fixed inset-x-0 top-0 bottom-[60px] z-40 overflow-y-auto bg-[#FFF9EF] dark:bg-[#171923] flex flex-col pb-32">
-      {/* Top Navigation Bar */}
-      <header className="sticky top-0 z-30 bg-[#FFF9EF]/95 dark:bg-[#1F2330]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] px-4 py-3 flex items-center justify-between shadow-2xs">
-        <div className="flex items-center gap-2.5">
-          <button
-            onClick={() => {
-              if (currentStep === "report") setCurrentStep("upload");
-              else if (currentStep === "review_extracted") setCurrentStep("upload");
-              else onClose();
-            }}
-            className="p-2 rounded-xl bg-white dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] text-[#800020] dark:text-[#FFF9EF] hover:border-[#C99A45] transition-colors cursor-pointer"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
+      {/* Top Navigation Bar with Step Progression */}
+      <header className="sticky top-0 z-30 bg-[#FFF9EF]/95 dark:bg-[#1F2330]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] px-3.5 sm:px-5 py-2.5 shadow-2xs">
+        <div className="max-w-4xl mx-auto flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <button
+              onClick={() => {
+                if (currentStep === "report") setCurrentStep("upload");
+                else if (currentStep === "review_extracted") setCurrentStep("upload");
+                else onClose();
+              }}
+              className="p-2 rounded-xl bg-white dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] text-[#800020] dark:text-[#FFF9EF] hover:border-[#C99A45] transition-colors cursor-pointer shadow-2xs"
+              title="Go Back"
+            >
+              <ArrowLeft className="w-4.5 h-4.5" />
+            </button>
 
-          <div>
-            <div className="flex items-center gap-1.5 flex-wrap">
-              <Sparkles className="w-4 h-4 text-[#F47B20]" />
-              <h1 className="text-sm font-black text-[#171923] dark:text-[#FFF9EF] leading-tight">
-                AI Exam Paper Analyzer
-              </h1>
-              <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-[#800020] text-[#FFF9EF]">
-                DISHA 20-20
-              </span>
+            <div>
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <Sparkles className="w-4 h-4 text-[#C99A45]" />
+                <h1 className="text-sm font-black text-[#171923] dark:text-[#FFF9EF] leading-tight">
+                  AI Exam Paper Analyzer
+                </h1>
+                <span className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-[#800020] text-[#FFF9EF] border border-[#C99A45]/30">
+                  DISHA 20-20
+                </span>
+              </div>
+              <p className="text-[10px] font-medium text-[#6E6254] dark:text-[#A39887]">
+                {currentStep === "upload" && "Upload or capture exam paper to cross-match syllabus questions"}
+                {currentStep === "review_extracted" && "Review extracted questions before database matching"}
+                {currentStep === "report" && "Verified coverage & question similarity analysis"}
+              </p>
             </div>
-            <p className="text-[10px] font-medium text-[#6E6254] dark:text-[#A39887]">
-              {currentStep === "upload" && "Upload or scan examination paper for AI analysis"}
-              {currentStep === "review_extracted" && "Review extracted questions before matching"}
-              {currentStep === "report" && "Verified coverage & question match report"}
-            </p>
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => setShowHistoryModal(true)}
+              className="px-2.5 py-1.5 rounded-xl bg-white dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] hover:border-[#800020] text-[#800020] dark:text-[#FFF9EF] text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
+              title="Analysis History"
+            >
+              <History className="w-3.5 h-3.5 text-[#C99A45]" />
+              <span className="hidden sm:inline">History</span>
+            </button>
+
+            <button
+              onClick={onClose}
+              className="p-1.5 rounded-xl hover:bg-[#F7EFE2] dark:hover:bg-[#252A3A] text-[#6E6254] hover:text-[#800020] dark:hover:text-white transition-colors cursor-pointer"
+              title="Close"
+            >
+              <X className="w-5 h-5" />
+            </button>
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5">
-          <button
-            onClick={() => setShowHistoryModal(true)}
-            className="px-2.5 py-1.5 rounded-xl bg-white dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] hover:border-[#800020] dark:hover:border-[#F47B20] text-[#800020] dark:text-[#FFF9EF] text-xs font-bold flex items-center gap-1 transition-colors cursor-pointer"
-            title="Analysis History"
+        {/* 3-Step Breadcrumbs Bar */}
+        <div className="max-w-4xl mx-auto mt-2 pt-2 border-t border-[#E8D9C0]/50 dark:border-[#31374A]/50 flex items-center justify-between gap-1 text-[11px]">
+          <div
+            className={`flex-1 flex items-center justify-center gap-1.5 py-1 px-2 rounded-lg transition-all ${
+              currentStep === "upload"
+                ? "bg-[#800020]/10 dark:bg-[#800020]/30 text-[#800020] dark:text-amber-300 font-black border border-[#800020]/20"
+                : "text-[#8C7A68] dark:text-[#A39887] font-medium"
+            }`}
           >
-            <History className="w-3.5 h-3.5 text-[#F47B20]" />
-            <span className="hidden sm:inline">History</span>
-          </button>
+            <span className="w-4 h-4 rounded-full bg-[#800020] text-white text-[9px] font-black flex items-center justify-center">
+              1
+            </span>
+            <span>Upload & Scan</span>
+          </div>
 
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-xl hover:bg-[#F7EFE2] dark:hover:bg-[#252A3A] text-[#6E6254] hover:text-[#800020] dark:hover:text-white transition-colors cursor-pointer"
+          <span className="text-[#C99A45]/60 text-xs">➔</span>
+
+          <div
+            className={`flex-1 flex items-center justify-center gap-1.5 py-1 px-2 rounded-lg transition-all ${
+              currentStep === "review_extracted"
+                ? "bg-[#800020]/10 dark:bg-[#800020]/30 text-[#800020] dark:text-amber-300 font-black border border-[#800020]/20"
+                : "text-[#8C7A68] dark:text-[#A39887] font-medium"
+            }`}
           >
-            <X className="w-5 h-5" />
-          </button>
+            <span className={`w-4 h-4 rounded-full text-white text-[9px] font-black flex items-center justify-center ${
+              currentStep === "report" ? "bg-emerald-600" : currentStep === "review_extracted" ? "bg-[#800020]" : "bg-stone-400"
+            }`}>
+              2
+            </span>
+            <span>Review OCR</span>
+          </div>
+
+          <span className="text-[#C99A45]/60 text-xs">➔</span>
+
+          <div
+            className={`flex-1 flex items-center justify-center gap-1.5 py-1 px-2 rounded-lg transition-all ${
+              currentStep === "report"
+                ? "bg-[#800020]/10 dark:bg-[#800020]/30 text-[#800020] dark:text-amber-300 font-black border border-[#800020]/20"
+                : "text-[#8C7A68] dark:text-[#A39887] font-medium"
+            }`}
+          >
+            <span className={`w-4 h-4 rounded-full text-white text-[9px] font-black flex items-center justify-center ${
+              currentStep === "report" ? "bg-[#800020]" : "bg-stone-400"
+            }`}>
+              3
+            </span>
+            <span>Match Report</span>
+          </div>
         </div>
       </header>
 

@@ -12,3 +12,5 @@ backups/
 backups/*.json
 backups/*.zip
 opencode-antigravity-auth
+*.apk
+apk-build/

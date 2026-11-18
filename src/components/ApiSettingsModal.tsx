@@ -19,7 +19,8 @@ import {
   Check,
   Activity,
   Layers,
-  ChevronRight
+  ChevronRight,
+  Globe
 } from "lucide-react";
 import { AppSettings, UserPersonalAIKey, AIProvider } from "../types";
 import { loadSettingsFromStorage, saveSettingsToStorage } from "../utils/storage";
@@ -76,6 +77,15 @@ const PROVIDER_META: Record<AIProvider, {
     docsUrl: "https://console.anthropic.com/settings/keys",
     badgeClass: "bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300 border-amber-200 dark:border-amber-800",
     icon: Bot
+  },
+  openrouter: {
+    name: "OpenRouter",
+    tagline: "DeepSeek, Llama & Universal Gateway",
+    defaultModel: "deepseek/deepseek-chat",
+    keyPlaceholder: "sk-or-v1-...",
+    docsUrl: "https://openrouter.ai/keys",
+    badgeClass: "bg-indigo-100 text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800",
+    icon: Globe
   }
 };
 
@@ -442,8 +452,8 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
                   {/* Provider Selector Tabs */}
                   <div className="space-y-1">
                     <label className="text-[10px] font-bold text-[#52576A] dark:text-[#CBD2E1] uppercase">Provider</label>
-                    <div className="grid grid-cols-4 gap-1.5">
-                      {(["gemini", "groq", "openai", "claude"] as AIProvider[]).map((prov) => {
+                    <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5">
+                      {(["gemini", "groq", "openai", "claude", "openrouter"] as AIProvider[]).map((prov) => {
                         const isSel = newProvider === prov;
                         const Meta = PROVIDER_META[prov];
                         const Icon = Meta.icon;

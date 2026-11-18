@@ -860,7 +860,7 @@ export interface LeaderboardEntry {
   updatedAt: string;
 }
 
-export type AIProvider = "gemini" | "openai" | "claude" | "groq";
+export type AIProvider = "gemini" | "openai" | "claude" | "groq" | "openrouter";
 
 export type AIKeyHealthStatus = 
   | "available" 

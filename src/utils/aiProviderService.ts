@@ -121,6 +121,44 @@ export const PROVIDER_RECOMMENDED_MODELS: Record<AIProvider, AIModelDefinition[]
       description: "Compact efficient model on Groq LPUs",
     },
   ],
+  openrouter: [
+    {
+      id: "deepseek/deepseek-chat",
+      name: "deepseek/deepseek-chat",
+      displayName: "DeepSeek V3 (Recommended - Affordable & Fast)",
+      provider: "openrouter",
+      description: "Exceptional cost-efficiency and intelligence via OpenRouter",
+      recommended: true,
+    },
+    {
+      id: "deepseek/deepseek-r1",
+      name: "deepseek/deepseek-r1",
+      displayName: "DeepSeek R1 (Reasoning Master)",
+      provider: "openrouter",
+      description: "State-of-the-art chain-of-thought reasoning for difficult STEM/Exam questions",
+    },
+    {
+      id: "meta-llama/llama-3.3-70b-instruct",
+      name: "meta-llama/llama-3.3-70b-instruct",
+      displayName: "Llama 3.3 70B Instruct",
+      provider: "openrouter",
+      description: "Fast open weights model with strong bilingual capabilities",
+    },
+    {
+      id: "anthropic/claude-3.5-sonnet",
+      name: "anthropic/claude-3.5-sonnet",
+      displayName: "Claude 3.5 Sonnet",
+      provider: "openrouter",
+      description: "Nuanced Devanagari Hindi translation and MCQ generation",
+    },
+    {
+      id: "google/gemini-2.0-flash-001",
+      name: "google/gemini-2.0-flash-001",
+      displayName: "Gemini 2.0 Flash",
+      provider: "openrouter",
+      description: "Low-latency multimodal model via OpenRouter API",
+    },
+  ],
 };
 
 export interface TestKeyParams {
@@ -516,6 +554,69 @@ export async function testAIKeyConnection({
         };
       }
 
+      case "openrouter": {
+        let activeModel = (!selectedModel || selectedModel === "default")
+          ? "deepseek/deepseek-chat"
+          : selectedModel;
+
+        const runOpenRouterFetch = async (modelToUse: string) => {
+          return fetchWithAbort(
+            "https://openrouter.ai/api/v1/chat/completions",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${cleanKey}`,
+                "HTTP-Referer": "https://disha-2020.vercel.app",
+                "X-Title": "DISHA 20-20",
+              },
+              body: JSON.stringify({
+                model: modelToUse,
+                messages: [{ role: "user", content: "Respond with 'OK' only." }],
+                max_tokens: 10,
+                temperature: 0,
+              }),
+            },
+            CONNECTIVITY_TIMEOUT
+          );
+        };
+
+        let response: Response | null = null;
+        try {
+          response = await runOpenRouterFetch(activeModel);
+        } catch (_) {
+          response = null;
+        }
+
+        const latencyMs = Date.now() - startTime;
+        const quota = response ? extractQuotaHeaders(response.headers) : undefined;
+        if (!response || !response.ok) {
+          const errData = response ? await response.json().catch(() => ({})) : {};
+          const errMsg = errData?.error?.message || (response ? `HTTP ${response.status}: ${response.statusText}` : "Request timed out after 7s");
+          return {
+            success: false,
+            provider: "openrouter",
+            model: activeModel,
+            latencyMs,
+            message: `OpenRouter verification failed: ${errMsg}`,
+            error: errMsg,
+            quota
+          };
+        }
+
+        const data = await response.json();
+        const text = data?.choices?.[0]?.message?.content || "OK";
+        return {
+          success: true,
+          provider: "openrouter",
+          model: activeModel,
+          latencyMs,
+          message: `OpenRouter verified! Model ${activeModel} responded in ${latencyMs}ms.`,
+          response: text.trim(),
+          quota
+        };
+      }
+
       default:
         return {
           success: false,
@@ -710,6 +811,42 @@ export async function executeAICompletion({
           if (!response.ok) {
             const errData = await response.json().catch(() => ({}));
             throw new Error(errData?.error?.message || `Groq error status ${response.status}`);
+          }
+
+          const data = await response.json();
+          return data?.choices?.[0]?.message?.content || "";
+        }
+
+        case "openrouter": {
+          const messages: any[] = [];
+          if (systemPrompt) messages.push({ role: "system", content: systemPrompt });
+          messages.push({ role: "user", content: prompt });
+
+          const body: any = {
+            model: currentModel || "deepseek/deepseek-chat",
+            messages,
+            temperature,
+          };
+          if (jsonMode) body.response_format = { type: "json_object" };
+
+          const response = await withTimeout(
+            fetch("https://openrouter.ai/api/v1/chat/completions", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${currentKey}`,
+                "HTTP-Referer": "https://disha-2020.vercel.app",
+                "X-Title": "DISHA 20-20",
+              },
+              body: JSON.stringify(body),
+            }),
+            DEFAULT_TIMEOUT,
+            "OpenRouter request timed out after 60s."
+          );
+
+          if (!response.ok) {
+            const errData = await response.json().catch(() => ({}));
+            throw new Error(errData?.error?.message || `OpenRouter error status ${response.status}`);
           }
 
           const data = await response.json();

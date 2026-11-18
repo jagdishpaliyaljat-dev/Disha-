@@ -16,7 +16,8 @@ import {
   Cpu,
   Bot,
   ExternalLink,
-  Layers
+  Layers,
+  Globe
 } from "lucide-react";
 
 interface ApiSettingsModalProps {
@@ -69,6 +70,15 @@ const PROVIDER_INFO: Record<AIProvider, {
     docsUrl: "https://console.groq.com/keys",
     docsLabel: "Get Groq API Key",
     badgeColor: "bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border-rose-200 dark:border-rose-800",
+  },
+  openrouter: {
+    title: "OpenRouter (Universal Gateway)",
+    subtitle: "DeepSeek R1, V3, Llama 3.3, Claude & GPT-4o • Single Unified API",
+    keyPlaceholder: "sk-or-v1-...",
+    defaultName: "OpenRouter Universal Key",
+    docsUrl: "https://openrouter.ai/keys",
+    docsLabel: "Get OpenRouter API Key",
+    badgeColor: "bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800",
   },
 };
 
@@ -397,8 +407,8 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({ onClose, onS
             <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
               Inference Provider
             </label>
-            <div className="grid grid-cols-2 gap-2">
-              {(["gemini", "openai", "claude", "groq"] as AIProvider[]).map((prov) => {
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {(["gemini", "openai", "claude", "groq", "openrouter"] as AIProvider[]).map((prov) => {
                 const info = PROVIDER_INFO[prov];
                 const isSelected = selectedProvider === prov;
                 return (
@@ -418,6 +428,7 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({ onClose, onS
                       {prov === "openai" && <Cpu className="w-4 h-4" />}
                       {prov === "claude" && <Bot className="w-4 h-4" />}
                       {prov === "groq" && <Zap className="w-4 h-4" />}
+                      {prov === "openrouter" && <Globe className="w-4 h-4" />}
                     </div>
                     <span className="text-xs font-bold truncate">{info.title.split(' ')[0]}</span>
                   </button>
