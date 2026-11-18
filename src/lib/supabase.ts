@@ -64,6 +64,22 @@ const createSafeClient = (): SupabaseClient => {
           return chainable;
         };
       }
+      if (prop === 'channel') {
+        return () => {
+          const mockChannel: any = {
+            on: () => mockChannel,
+            subscribe: (cb?: any) => {
+              if (cb) setTimeout(() => cb('SUBSCRIBED'), 0);
+              return mockChannel;
+            },
+            unsubscribe: () => Promise.resolve('ok'),
+            send: () => Promise.resolve('ok'),
+            track: () => Promise.resolve('ok'),
+            untrack: () => Promise.resolve('ok'),
+          };
+          return mockChannel;
+        };
+      }
       return () => emptyPromise();
     },
   };

@@ -49,6 +49,7 @@ import {
   Compass,
   Target,
   Map,
+  Swords,
 } from "lucide-react";
 import { BannerSlides } from "./BannerSlides";
 import { AppLogo } from "./AppLogo";
@@ -86,6 +87,7 @@ interface HomeTabProps {
   onOpenExamAnalyzer?: () => void;
   onOpenApiSettings?: () => void;
   onOpenRajasthanMap?: () => void;
+  onOpenLiveBattle?: () => void;
   onToggleDarkMode?: () => void;
   onLogout?: () => void;
 }
@@ -110,6 +112,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
   onNavigateTab,
   onOpenApiSettings,
   onOpenRajasthanMap,
+  onOpenLiveBattle,
   onToggleDarkMode,
   onLogout,
 }) => {
@@ -515,6 +518,50 @@ export const HomeTab: React.FC<HomeTabProps> = ({
           </motion.div>
         </section>
 
+        {/* 3.7 REALTIME 1v1 & MULTI-FRIEND LIVE QUIZ BATTLE */}
+        <section>
+          <motion.div
+            whileTap={{ scale: 0.99 }}
+            onClick={() => onOpenLiveBattle?.()}
+            className="w-full bg-gradient-to-r from-[#800020] via-[#5a0016] to-[#C99A45] hover:brightness-105 border border-[#C99A45]/50 rounded-xl sm:rounded-2xl p-3 sm:p-4 text-white shadow-md flex items-center justify-between text-left transition-all cursor-pointer group relative overflow-hidden"
+          >
+            {/* Background Glow */}
+            <div className="absolute top-0 right-0 w-44 h-44 bg-gradient-to-bl from-amber-400/25 to-transparent rounded-full blur-xl pointer-events-none" />
+
+            <div className="flex items-center gap-3 min-w-0 flex-1 relative z-10">
+              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-white/15 border border-white/25 text-amber-300 flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform">
+                <Swords className="w-5 h-5 sm:w-6 sm:h-6 text-amber-300" />
+              </div>
+
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
+                  <span className="text-xs sm:text-sm font-black tracking-tight text-white flex items-center gap-1">
+                    <span>1v1 व ग्रुप लाइव क्विज़ मुकाबला</span>
+                  </span>
+                  <span className="px-1.5 py-0.2 rounded-md bg-amber-400 text-stone-900 text-[9px] font-black uppercase tracking-wider">
+                    ⚡ Realtime
+                  </span>
+                  <span className="px-1.5 py-0.2 rounded-md bg-white/20 text-white text-[9px] font-black uppercase tracking-wider">
+                    🏆 लाइव रैंक
+                  </span>
+                </div>
+                <p className="text-[10.5px] sm:text-xs text-amber-100 font-medium truncate">
+                  मित्रों को WhatsApp से आमंत्रित करें • 6-अंकों का कोड • AI बॉट मुकाबला
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1 shrink-0 pl-2 relative z-10">
+              <span className="hidden sm:inline-block text-xs font-black text-amber-200">
+                मुकाबला खेलें
+              </span>
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-white/15 flex items-center justify-center group-hover:translate-x-1 transition-transform">
+                <ChevronRight className="w-4 h-4 text-white" />
+              </div>
+            </div>
+          </motion.div>
+        </section>
+
         {/* 4. AI ENGINE SETUP CARD */}
         <section>
           <motion.button
@@ -657,6 +704,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                   {[
                     { label: "Dashboard", icon: Home, tab: "home" },
                     { label: "राजस्थान 50 ज़िला नक्शा व क्विज़", icon: Map, action: () => onOpenRajasthanMap?.() },
+                    { label: "⚔️ 1v1 लाइव क्विज़ मुकाबला", icon: Swords, action: () => onOpenLiveBattle?.() },
                     { label: "Subjects & Syllabus", icon: BookOpen, tab: "topics" },
                     { label: "Weekly Standings", icon: Trophy, action: () => setShowLeaderboard(true) },
                     { label: "Live Mock Tests", icon: Zap, tab: "live_tests" },

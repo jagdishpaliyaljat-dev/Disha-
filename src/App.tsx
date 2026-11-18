@@ -173,6 +173,7 @@ const TestSeriesPage = safeLazy<typeof import('./components/TestSeriesPage').Tes
 const HTMLImportMCQModal = safeLazy<typeof import('./components/admin/HTMLImportMCQModal').HTMLImportMCQModal>(() => import('./components/admin/HTMLImportMCQModal'), 'HTMLImportMCQModal');
 const GlobalSearchModal = safeLazy<typeof import('./components/GlobalSearchModal').GlobalSearchModal>(() => import('./components/GlobalSearchModal'), 'GlobalSearchModal');
 const RajasthanMapModal = safeLazy<typeof import('./components/rajasthan-map/RajasthanMapModal').RajasthanMapModal>(() => import('./components/rajasthan-map/RajasthanMapModal'), 'RajasthanMapModal');
+const LiveBattleModal = safeLazy<typeof import('./components/battle/LiveBattleModal').LiveBattleModal>(() => import('./components/battle/LiveBattleModal'), 'LiveBattleModal');
 
 export default function App() {
   const initialNavState = React.useMemo(() => {
@@ -423,6 +424,8 @@ export default function App() {
   const [isCustomTestOpen, setIsCustomTestOpen] = React.useState(false);
   const [isExamAnalyzerOpen, setIsExamAnalyzerOpen] = React.useState(false);
   const [isRajasthanMapOpen, setIsRajasthanMapOpen] = React.useState(false);
+  const [isLiveBattleOpen, setIsLiveBattleOpen] = React.useState(false);
+  const [battleInitialRoomCode, setBattleInitialRoomCode] = React.useState<string>("");
   const [isAITutorOpen, setIsAITutorOpen] = React.useState(false);
   const [aiTutorContextQuestion, setAiTutorContextQuestion] = React.useState<Question | null>(null);
   const [viewCount, setViewCount] = React.useState<number>(1240);
@@ -493,6 +496,21 @@ export default function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  // Detect URL query parameter for Live Quiz Battle (e.g. ?battle=849201 via WhatsApp invite)
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const battleCode = params.get('battle');
+      if (battleCode) {
+        setBattleInitialRoomCode(battleCode.toUpperCase().trim());
+        setIsLiveBattleOpen(true);
+      }
+    } catch {
+      // Ignore URL parsing errors
+    }
+  }, []);
+
   // In-app session close that cleans up URL and selected topic state
   const handleCloseSession = React.useCallback(() => {
     setActiveSession(null);
@@ -548,6 +566,7 @@ export default function App() {
       if (isCustomTestOpen) { setIsCustomTestOpen(false); return; }
       if (isExamAnalyzerOpen) { setIsExamAnalyzerOpen(false); return; }
       if (isRajasthanMapOpen) { setIsRajasthanMapOpen(false); return; }
+      if (isLiveBattleOpen) { setIsLiveBattleOpen(false); return; }
       if (isAddSubjectOpen) { setIsAddSubjectOpen(false); return; }
       if (isAddChapterOpen) { setIsAddChapterOpen(false); return; }
       if (isAddTopicOpen) { setIsAddTopicOpen(false); return; }
@@ -583,7 +602,7 @@ export default function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, [
     activeSession, isLoginOpen, isSettingsOpen, isApiSettingsOpen, isPDFOpen, isFullExamOpen,
-    isCustomTestOpen, isExamAnalyzerOpen, isRajasthanMapOpen, isAddSubjectOpen, isAddChapterOpen,
+    isCustomTestOpen, isExamAnalyzerOpen, isRajasthanMapOpen, isLiveBattleOpen, isAddSubjectOpen, isAddChapterOpen,
     isAddTopicOpen, isAddQuestionsOpen, isManageSyllabusOpen, isManageQuestionsOpen,
     isManageCategoriesOpen, isManagePYQVaultOpen, isManageLiveTestsOpen,
     isAIImportOpen, isHTMLImportOpen
@@ -1417,6 +1436,10 @@ export default function App() {
             onOpenExamAnalyzer={() => setIsExamAnalyzerOpen(true)}
             onOpenApiSettings={() => setIsApiSettingsOpen(true)}
             onOpenRajasthanMap={() => setIsRajasthanMapOpen(true)}
+            onOpenLiveBattle={() => {
+              setBattleInitialRoomCode('');
+              setIsLiveBattleOpen(true);
+            }}
             onToggleDarkMode={() => setSettings(prev => ({ ...prev, darkMode: !prev.darkMode }))}
             onLogout={handleLogout}
           />
@@ -1826,6 +1849,19 @@ export default function App() {
           <RajasthanMapModal
             isOpen={isRajasthanMapOpen}
             onClose={() => setIsRajasthanMapOpen(false)}
+          />
+        </OverlayErrorBoundary>
+      )}
+
+      {isLiveBattleOpen && (
+        <OverlayErrorBoundary
+          viewName="Live Quiz Battle"
+          onClose={() => setIsLiveBattleOpen(false)}
+        >
+          <LiveBattleModal
+            isOpen={isLiveBattleOpen}
+            initialRoomCode={battleInitialRoomCode}
+            onClose={() => setIsLiveBattleOpen(false)}
           />
         </OverlayErrorBoundary>
       )}

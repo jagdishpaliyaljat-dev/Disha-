@@ -117,6 +117,33 @@ export function playClickSound(enabled: boolean = true): void {
 }
 
 /**
+ * Play a subtle high tick for countdown clocks
+ */
+export function playTickSound(enabled: boolean = true): void {
+  if (!enabled) return;
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  try {
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(880, now);
+    gain.gain.setValueAtTime(0.03, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.04);
+  } catch {
+    // Ignore
+  }
+}
+
+/**
  * Play a triumphant victory fanfare for 100% accuracy / perfect scores
  */
 export function playVictoryFanfare(enabled: boolean = true): void {

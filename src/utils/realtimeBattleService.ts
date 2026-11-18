@@ -1,0 +1,573 @@
+import { supabase, isSupabaseConfigured } from "../lib/supabase";
+import { loadUserQuestionsStore } from "./questionsStorage";
+import type {
+  BattleCategory,
+  BattlePlayer,
+  BattleQuestion,
+  BattleRoomConfig,
+  BattleEventMessage,
+  FloatingEmoji,
+} from "../components/battle/types";
+
+// High-Yield Authentic Rajasthan GK Battle Questions Pool (Fallback & Default)
+export const FALLBACK_BATTLE_QUESTIONS: BattleQuestion[] = [
+  // History
+  {
+    id: "hist_1",
+    text: "तराइन का प्रथम युद्ध (1191 ई.) में पृथ्वीराज चौहान तृतीय ने किसे पराजित किया था?",
+    options: ["मुहम्मद गोरी", "कुतुबुद्दीन ऐबक", "महमूद गजनवी", "इल्तुतमिश"],
+    correctIndex: 0,
+    explanation: "तराइन के प्रथम युद्ध (1191) में पृथ्वीराज चौहान ने मुहम्मद गोरी को बुरी तरह परास्त किया था।",
+    category: "history",
+    difficulty: "easy",
+  },
+  {
+    id: "hist_2",
+    text: "राजस्थान में 1857 की क्रांति का प्रारंभ सर्वप्रथम किस छावनी से हुआ था?",
+    options: ["एरिनपुरा", "नसीराबाद", "नीमच", "देवली"],
+    correctIndex: 1,
+    explanation: "28 मई 1857 को नसीराबाद छावनी की 15वीं बंगाल नेटिव इन्फैंट्री के सैनिकों ने विद्रोह शुरू किया था।",
+    category: "history",
+    difficulty: "easy",
+  },
+  {
+    id: "hist_3",
+    text: "खानवा का ऐतिहासिक युद्ध (1527 ई.) बाबर और किस राजपूत शासक के मध्य हुआ था?",
+    options: ["महाराणा कुंभा", "महाराणा सांगा", "महाराणा प्रताप", "राव मालदेव"],
+    correctIndex: 1,
+    explanation: "17 मार्च 1527 को खानवा (भरतपुर) में बाबर और महाराणा सांगा के मध्य भीषण युद्ध हुआ था।",
+    category: "history",
+    difficulty: "easy",
+  },
+  {
+    id: "hist_4",
+    text: "बिजोलिया किसान आंदोलन के प्रणेता व प्रमुख सूत्रधार कौन थे?",
+    options: ["विजय सिंह पथिक", "माणिक्य लाल वर्मा", "केसरी सिंह बारहठ", "गोकुल भाई भट्ट"],
+    correctIndex: 0,
+    explanation: "विजय सिंह पथिक (भूप सिंह) ने बिजोलिया किसान आंदोलन को राष्ट्रीय स्तर पर संगठित और नेतृत्व प्रदान किया।",
+    category: "history",
+    difficulty: "medium",
+  },
+  {
+    id: "hist_5",
+    text: "कालीबंगा सभ्यता राजस्थान के किस जिले में घग्घर नदी के किनारे स्थित है?",
+    options: ["हनुमानगढ़", "गंगानगर", "बीकानेर", "अनूपगढ़"],
+    correctIndex: 0,
+    explanation: "कालीबंगा हनुमानगढ़ जिले में प्राचीन सरस्वती (घग्घर) नदी के तट पर स्थित हड़प्पाकालीन स्थल है।",
+    category: "history",
+    difficulty: "easy",
+  },
+  {
+    id: "hist_6",
+    text: "मत्स्य संघ का राजस्थान में विलय किस चरण में किया गया था?",
+    options: ["प्रथम चरण", "तृतीय चरण", "पंचम चरण", "सप्तम चरण"],
+    correctIndex: 2,
+    explanation: "15 मई 1949 को डॉ. शंकरराव देव समिति की सिफारिश पर मत्स्य संघ को वृहत् राजस्थान में मिलाया गया (पंचम चरण)।",
+    category: "history",
+    difficulty: "medium",
+  },
+  {
+    id: "hist_7",
+    text: "हल्दीघाटी का प्रसिद्ध युद्ध (1576 ई.) में महाराणा प्रताप के सेनापति हकीम खां सूरी का मकबरा कहां है?",
+    options: ["खमनौर", "रक्ततलाई", "गोगुंदा", "चावंड"],
+    correctIndex: 0,
+    explanation: "महाराणा प्रताप के हरावल सेनापति हकीम खां सूरी का मकबरा खमनौर (राजसमंद) में स्थित है।",
+    category: "history",
+    difficulty: "hard",
+  },
+
+  // Geography
+  {
+    id: "geo_1",
+    text: "अरावली पर्वतमाला की सर्वोच्च चोटी 'गुरुशिखर' (1722 मी.) किस जिले में स्थित है?",
+    options: ["सिरोही", "उदयपुर", "राजसमंद", "पाली"],
+    correctIndex: 0,
+    explanation: "माउंट आबू, सिरोही में स्थित गुरुशिखर अरावली व राजस्थान की सबसे ऊंची पर्वत चोटी है।",
+    category: "geography",
+    difficulty: "easy",
+  },
+  {
+    id: "geo_2",
+    text: "राजस्थान का कल्पवृक्ष एवं राज्य वृक्ष किसे कहा जाता है?",
+    options: ["रोहिड़ा", "खेजड़ी", "बबूल", "धोकड़ा"],
+    correctIndex: 1,
+    explanation: "खेजड़ी (प्रोसोपिस सिनेरेरिया) को 1983 में राजस्थान का राज्य वृक्ष घोषित किया गया था।",
+    category: "geography",
+    difficulty: "easy",
+  },
+  {
+    id: "geo_3",
+    text: "कर्क रेखा (23°30' N) राजस्थान के किन दो दक्षिणी जिलों से होकर गुजरती है?",
+    options: ["बांसवाड़ा व डूंगरपुर", "उदयपुर व सिरोही", "झालावाड़ व बारां", "प्रतापगढ़ व चित्तौड़गढ़"],
+    correctIndex: 0,
+    explanation: "कर्क रेखा बांसवाड़ा के कुशलगढ़ से बीचोंबीच तथा डूंगरपुर की दक्षिणी सीमा को छूती हुई निकलती है।",
+    category: "geography",
+    difficulty: "easy",
+  },
+  {
+    id: "geo_4",
+    text: "राजस्थान में देश के कुल नमक उत्पादन का लगभग कितना प्रतिशत सांभर झील से प्राप्त होता है?",
+    options: ["8.7%", "15.2%", "4.5%", "12.8%"],
+    correctIndex: 0,
+    explanation: "सांभर झील भारत की सबसे बड़ी अंतःस्थलीय खारे पानी की झील है, जहां देश का लगभग 8.7% नमक बनता है।",
+    category: "geography",
+    difficulty: "medium",
+  },
+  {
+    id: "geo_5",
+    text: "राजस्थान की एकमात्र बारहमासी व सर्वाधिक जल सतही प्रवाह वाली नदी कौनसी है?",
+    options: ["चम्बल", "बनास", "लूणी", "माही"],
+    correctIndex: 0,
+    explanation: "चम्बल नदी (चर्मण्वती) राजस्थान की एकमात्र नित्यवाही बारहमासी नदी है जो मध्य प्रदेश के जानापाव से निकलती है।",
+    category: "geography",
+    difficulty: "easy",
+  },
+  {
+    id: "geo_6",
+    text: "राजस्थान के किस जिले में सर्वाधिक वन क्षेत्र (क्षेत्रफल की दृष्टि से) पाया जाता है?",
+    options: ["उदयपुर", "अलवर", "प्रतापगढ़", "करौली"],
+    correctIndex: 0,
+    explanation: "भारतीय वन सर्वेक्षण रिपोर्ट के अनुसार उदयपुर जिले में राजस्थान का सर्वाधिक वन क्षेत्रफल है।",
+    category: "geography",
+    difficulty: "medium",
+  },
+
+  // Culture & Art
+  {
+    id: "cult_1",
+    text: "विश्वप्रसिद्ध 'थेवा कला' (कांच पर सोने की नक्काशी) का संबंध किस जिले से है?",
+    options: ["प्रतापगढ़", "बाड़मेर", "बीकानेर", "जयपुर"],
+    correctIndex: 0,
+    explanation: "थेवा कला बेल्जियम कांच पर सोने की बारीक कारीगरी है जो प्रतापगढ़ के सोनी परिवार का पेटेंट है।",
+    category: "culture",
+    difficulty: "easy",
+  },
+  {
+    id: "cult_2",
+    text: "यूनेस्को की अमूर्त सांस्कृतिक धरोहर सूची में शामिल 'कालबेलिया नृत्य' की प्रसिद्ध नृत्यांगना कौन हैं?",
+    options: ["गुलाबो सपेरा", "अल्ला जिलाई बाई", "गवरी देवी", "मांगी बाई"],
+    correctIndex: 0,
+    explanation: "पद्मश्री गुलाबो सपेरा ने राजस्थान के कालबेलिया नृत्य को अंतर्राष्ट्रीय ख्याति दिलाई है।",
+    category: "culture",
+    difficulty: "easy",
+  },
+  {
+    id: "cult_3",
+    text: "विश्व की दूसरी सबसे लंबी (36 किमी) सुदृढ़ प्राचीर दीवार किस दुर्ग की है?",
+    options: ["चित्तौड़गढ़ दुर्ग", "कुंभलगढ़ दुर्ग", "मेहरानगढ़ दुर्ग", "रणथंभौर दुर्ग"],
+    correctIndex: 1,
+    explanation: "महाराणा कुंभा द्वारा निर्मित कुंभलगढ़ दुर्ग की 36 किमी लंबी दीवार को 'भारत की महान दीवार' कहा जाता है।",
+    category: "culture",
+    difficulty: "easy",
+  },
+  {
+    id: "cult_4",
+    text: "भारतीय डाक विभाग द्वारा 1973 में किस प्रसिद्ध चित्रशैली की 'बणी-ठणी' पर डाक टिकट जारी किया गया?",
+    options: ["किशनगढ़ शैली", "मेवाड़ शैली", "बूंदी शैली", "नाथद्वारा शैली"],
+    correctIndex: 0,
+    explanation: "निहालचंद द्वारा चित्रित बणी-ठणी को एरिक डिक्सन ने 'भारत की मोनालिसा' कहा था।",
+    category: "culture",
+    difficulty: "easy",
+  },
+  {
+    id: "cult_5",
+    text: "पर्यावरण संरक्षण हेतु 29 नियमों का प्रतिपादन करने वाले लोक संत कौन थे?",
+    options: ["संत जाम्भोजी", "संत दादू दयाल", "संत जसनाथ जी", "संत पीपा जी"],
+    correctIndex: 0,
+    explanation: "संत जाम्भोजी ने 1485 ई. में समराथल (बीकानेर) में बिश्नोई संप्रदाय की स्थापना कर 29 नियम दिए।",
+    category: "culture",
+    difficulty: "easy",
+  },
+  {
+    id: "cult_6",
+    text: "ऊंट की खाल पर स्वर्ण मीनाकारी कला को क्या कहा जाता है?",
+    options: ["उस्ता कला", "मथेरण कला", "अजरक प्रिंट", "दाबू प्रिंट"],
+    correctIndex: 0,
+    explanation: "बीकानेर की उस्ता कला ऊंट की खाल पर सोने के बारीक कार्य हेतु प्रसिद्ध है (हिसामुद्दीन उस्ता)।",
+    category: "culture",
+    difficulty: "medium",
+  },
+
+  // Polity
+  {
+    id: "pol_1",
+    text: "राजस्थान में पंचायती राज व्यवस्था का शुभारंभ 2 अक्टूबर 1959 को किस जिले से हुआ था?",
+    options: ["नागौर", "सीकर", "जयपुर", "अजमेर"],
+    correctIndex: 0,
+    explanation: "पं. जवाहरलाल नेहरू ने नागौर के बगदरी गांव में देश की पहली त्रिस्तरीय पंचायती राज व्यवस्था का उद्घाटन किया था।",
+    category: "polity",
+    difficulty: "easy",
+  },
+  {
+    id: "pol_2",
+    text: "राजस्थान राज्य विधानसभा में कुल कितनी निर्वाचित सीटें हैं?",
+    options: ["200", "250", "160", "180"],
+    correctIndex: 0,
+    explanation: "वर्तमान में राजस्थान विधानसभा में कुल 200 सीटें निर्धारित हैं।",
+    category: "polity",
+    difficulty: "easy",
+  },
+  {
+    id: "pol_3",
+    text: "राजस्थान से लोकसभा व राज्यसभा के लिए निर्वाचित कुल सांसद संख्या कितनी है?",
+    options: ["35 (25+10)", "30 (20+10)", "40 (25+15)", "25 (15+10)"],
+    correctIndex: 0,
+    explanation: "राजस्थान से 25 लोकसभा सदस्य तथा 10 राज्यसभा सदस्य कुल मिलाकर 35 सांसद संसद में प्रतिनिधित्व करते हैं।",
+    category: "polity",
+    difficulty: "easy",
+  },
+  {
+    id: "pol_4",
+    text: "राजस्थान के प्रथम राज्यपाल कौन थे?",
+    options: ["सरदार गुरुमुख निहाल सिंह", "डॉ. संपूर्णानंद", "हुकुम सिंह", "महाराज मानसिंह द्वितीय"],
+    correctIndex: 0,
+    explanation: "1 नवंबर 1956 को राज्य पुनर्गठन के बाद सरदार गुरुमुख निहाल सिंह राजस्थान के प्रथम राज्यपाल बने।",
+    category: "polity",
+    difficulty: "medium",
+  },
+  {
+    id: "pol_5",
+    text: "राजस्थान राज्य मानवाधिकार आयोग के अध्यक्ष के रूप में केवल किसे नियुक्त किया जा सकता है?",
+    options: [
+      "उच्च न्यायालय का पूर्व मुख्य न्यायाधीश या न्यायाधीश",
+      "सर्वोच्च न्यायालय का मुख्य न्यायाधीश मात्र",
+      "राज्य का मुख्य सचिव",
+      "राज्यपाल द्वारा नामित कोई भी नागरिक",
+    ],
+    correctIndex: 0,
+    explanation: "संशोधित मानवाधिकार संरक्षण अधिनियम के तहत उच्च न्यायालय के सेवानिवृत्त मुख्य न्यायाधीश या न्यायाधीश अध्यक्ष बन सकते हैं।",
+    category: "polity",
+    difficulty: "hard",
+  },
+
+  // Economy & Schemes
+  {
+    id: "econ_1",
+    text: "राजस्थान में देश का प्रथम सौर ऊर्जा पार्क (सोलर पार्क) 'भड़ला' किस जिले में स्थित है?",
+    options: ["जोधपुर", "जैसलमेर", "बीकानेर", "बाड़मेर"],
+    correctIndex: 0,
+    explanation: "भड़ला (फलोदी/जोधपुर) विश्व के सबसे बड़े सोलर पार्कों में से एक है जिसकी क्षमता 2245 मेगावाट है।",
+    category: "economy",
+    difficulty: "easy",
+  },
+  {
+    id: "econ_2",
+    text: "राजस्थान की प्रथम पेट्रोलियम रिफाइनरी सह पेट्रोकेमिकल कॉम्प्लेक्स कहां स्थापित की जा रही है?",
+    options: ["पचपदरा (बालोतरा)", "गुड़ामालानी (बाड़मेर)", "नागाणा", "बायतु"],
+    correctIndex: 0,
+    explanation: "एचपीसीएल राजस्थान रिफाइनरी लिमिटेड (HRRL) पचपदरा, बालोतरा जिले में 9 MMTPA क्षमता वाली रिफाइनरी लगा रही है।",
+    category: "economy",
+    difficulty: "easy",
+  },
+  {
+    id: "econ_3",
+    text: "राजस्थान में जरूरतमंदों को मात्र ₹8 में पौष्टिक व शुद्ध भोजन उपलब्ध कराने वाली योजना कौनसी है?",
+    options: ["इंदिरा रसोई / अन्नपूर्णा रसोई योजना", "मुख्यमंत्री अन्न जल योजना", "दीनदयाल रसोई योजना", "सांझा चूल्हा योजना"],
+    correctIndex: 0,
+    explanation: "'कोई भी भूखा न सोए' के संकल्प के साथ संचालित रसोई योजना में ₹8 में सम्मानपूर्वक भोजन मिलता है।",
+    category: "economy",
+    difficulty: "easy",
+  },
+  {
+    id: "econ_4",
+    text: "खनिज उत्पादन मूल्य की दृष्टि से राजस्थान का भारत में कौनसा स्थान है?",
+    options: ["दूसरा", "पहला", "तीसरा", "पांचवा"],
+    correctIndex: 0,
+    explanation: "खनिजों के उत्पादन मूल्य में राजस्थान उड़ीसा के बाद देश में दूसरे स्थान पर है और 'खनिजों का अजायबघर' कहलाता है।",
+    category: "economy",
+    difficulty: "medium",
+  },
+];
+
+// Helper: Shuffle Array (Fisher-Yates)
+function shuffleArray<T>(array: T[]): T[] {
+  const result = [...array];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+
+// Generate a random 6-character room code (e.g., "739201" or "841923")
+export function generateRoomCode(): string {
+  const chars = "123456789ABCDEFGHJKLMNPQRSTUVWXYZ";
+  let result = "";
+  for (let i = 0; i < 6; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
+
+// Default Player Avatars
+export const PLAYER_AVATARS = [
+  "🦁", "🐯", "🦅", "🐎", "🦚", "🐫", "⚔️", "🏹", "🛡️", "🔥", "👑", "⚡"
+];
+
+// Curated Bot Opponents for instant solo test & practice
+export const BOT_OPPONENTS: Omit<BattlePlayer, "id">[] = [
+  {
+    name: "विक्रम (AI प्रतिद्वंद्वी)",
+    avatar: "🤖",
+    isHost: false,
+    isReady: true,
+    isBot: true,
+    score: 0,
+    streak: 0,
+    correctCount: 0,
+    wrongCount: 0,
+    avgResponseTimeMs: 4200,
+  },
+  {
+    name: "मेधावी साथी: अंकिता",
+    avatar: "👩‍🎓",
+    isHost: false,
+    isReady: true,
+    isBot: true,
+    score: 0,
+    streak: 0,
+    correctCount: 0,
+    wrongCount: 0,
+    avgResponseTimeMs: 3800,
+  },
+  {
+    name: "रणधीर सिंह (RAS अभ्यर्थी)",
+    avatar: "🦁",
+    isHost: false,
+    isReady: true,
+    isBot: true,
+    score: 0,
+    streak: 0,
+    correctCount: 0,
+    wrongCount: 0,
+    avgResponseTimeMs: 5100,
+  },
+];
+
+// Get Battle Questions based on Category and Question Count
+export function getBattleQuestions(category: BattleCategory = "all", count: number = 10): BattleQuestion[] {
+  // First, check if custom questions exist in user store
+  let pool: BattleQuestion[] = [];
+  try {
+    const store = loadUserQuestionsStore();
+    if (store && Array.isArray(store.customQuestions) && store.customQuestions.length > 0) {
+      const customMapped: BattleQuestion[] = store.customQuestions
+        .filter((q) => q && q.text && Array.isArray(q.options) && q.options.length >= 2)
+        .map((q) => ({
+          id: q.id,
+          text: q.text,
+          options: q.options,
+          correctIndex: typeof q.correctIndex === "number" ? q.correctIndex : 0,
+          explanation: q.explanation || "",
+          category: q.subjectId || "general",
+          difficulty: q.difficulty || "medium",
+        }));
+      pool.push(...customMapped);
+    }
+  } catch {
+    // Ignore store hydration error
+  }
+
+  // Filter fallback questions by category if specific
+  let filteredFallback = FALLBACK_BATTLE_QUESTIONS;
+  if (category !== "all") {
+    const matched = FALLBACK_BATTLE_QUESTIONS.filter((q) => q.category === category);
+    if (matched.length > 0) {
+      filteredFallback = matched;
+    }
+  }
+
+  pool.push(...filteredFallback);
+
+  // If pool has fewer items than count, duplicate fallbacks with randomized order
+  if (pool.length < count) {
+    pool = [...pool, ...FALLBACK_BATTLE_QUESTIONS];
+  }
+
+  const shuffled = shuffleArray(pool);
+  return shuffled.slice(0, Math.min(count, shuffled.length));
+}
+
+/**
+ * Speed-Based Scoring Engine:
+ * - Base: 100 points
+ * - Speed bonus: up to 50 points based on remaining time percentage
+ * - Streak bonus: +20 points for 2-streak, +40 points for 3+ streak
+ */
+export function calculateRoundScore(
+  isCorrect: boolean,
+  timeTakenMs: number,
+  maxTimeSec: number,
+  currentStreak: number
+): { points: number; newStreak: number } {
+  if (!isCorrect) {
+    return { points: 0, newStreak: 0 };
+  }
+
+  const maxTimeMs = maxTimeSec * 1000;
+  const clampedTime = Math.max(500, Math.min(timeTakenMs, maxTimeMs));
+  const remainingFraction = Math.max(0, (maxTimeMs - clampedTime) / maxTimeMs);
+
+  const basePoints = 100;
+  const speedBonus = Math.round(remainingFraction * 50);
+  const streakBonus = currentStreak >= 3 ? 40 : currentStreak >= 2 ? 20 : 0;
+
+  const totalPoints = basePoints + speedBonus + streakBonus;
+  return {
+    points: totalPoints,
+    newStreak: currentStreak + 1,
+  };
+}
+
+/**
+ * Generate WhatsApp Share URL & Text for 1v1 Room
+ */
+export function getBattleShareInfo(roomCode: string): { url: string; text: string; whatsappUrl: string } {
+  const origin = typeof window !== "undefined" && window.location.origin
+    ? window.location.origin
+    : "https://disha-app.web.app";
+  
+  const battleUrl = `${origin}/?battle=${roomCode}`;
+  const text = `⚔️ *दिशा 20-20 लाइव क्विज़ मुकाबला!*\n\nआओ देखें कौन बनता है राजस्थान GK का विजेता! 🏆\nरूम कोड: *${roomCode}*\n\n👉 मुकाबला खेलने के लिए नीचे दिए लिंक पर क्लिक करें:\n${battleUrl}`;
+  const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+
+  return {
+    url: battleUrl,
+    text,
+    whatsappUrl,
+  };
+}
+
+/**
+ * Realtime Channel Manager for Live Quiz Battle
+ */
+export class RealtimeBattleManager {
+  private channel: any = null;
+  private roomCode: string = "";
+  private myPlayer: BattlePlayer;
+  private onEventCallback: (event: BattleEventMessage) => void;
+  private onPresenceCallback?: (players: BattlePlayer[]) => void;
+  private isConnected: boolean = false;
+
+  constructor(
+    roomCode: string,
+    myPlayer: BattlePlayer,
+    onEvent: (event: BattleEventMessage) => void,
+    onPresence?: (players: BattlePlayer[]) => void
+  ) {
+    this.roomCode = roomCode.toUpperCase().trim();
+    this.myPlayer = myPlayer;
+    this.onEventCallback = onEvent;
+    this.onPresenceCallback = onPresence;
+  }
+
+  public connect(): void {
+    const channelName = `battle_room_${this.roomCode}`;
+    this.channel = supabase.channel(channelName, {
+      config: {
+        broadcast: { self: false },
+        presence: { key: this.myPlayer.id },
+      },
+    });
+
+    // Listen to broadcast events
+    this.channel.on("broadcast", { event: "battle_event" }, (payload: any) => {
+      if (payload && payload.payload) {
+        this.onEventCallback(payload.payload as BattleEventMessage);
+      }
+    });
+
+    // Listen to presence sync if presence callback is provided
+    if (this.onPresenceCallback) {
+      this.channel.on("presence", { event: "sync" }, () => {
+        try {
+          const state = this.channel.presenceState();
+          const presentPlayers: BattlePlayer[] = [];
+          Object.values(state).forEach((presences: any) => {
+            if (Array.isArray(presences)) {
+              presences.forEach((p) => {
+                if (p && p.player) {
+                  presentPlayers.push(p.player);
+                }
+              });
+            }
+          });
+          if (presentPlayers.length > 0 && this.onPresenceCallback) {
+            this.onPresenceCallback(presentPlayers);
+          }
+        } catch {
+          // Ignore presence sync parsing error
+        }
+      });
+    }
+
+    // Subscribe and track self
+    this.channel.subscribe(async (status: string) => {
+      if (status === "SUBSCRIBED") {
+        this.isConnected = true;
+        try {
+          await this.channel.track({
+            player: this.myPlayer,
+            onlineAt: new Date().toISOString(),
+          });
+        } catch {
+          // Track fallback
+        }
+      }
+    });
+  }
+
+  // Broadcast an event to all room participants
+  public async broadcastEvent(
+    type: BattleEventMessage["type"],
+    payload: any = {}
+  ): Promise<void> {
+    const eventMessage: BattleEventMessage = {
+      type,
+      senderId: this.myPlayer.id,
+      senderName: this.myPlayer.name,
+      timestamp: Date.now(),
+      payload,
+    };
+
+    if (this.channel && this.isConnected) {
+      try {
+        await this.channel.send({
+          type: "broadcast",
+          event: "battle_event",
+          payload: eventMessage,
+        });
+      } catch (err) {
+        console.warn("Failed to broadcast battle event:", err);
+      }
+    }
+  }
+
+  // Update self player state in presence
+  public async updatePresence(updatedPlayer: BattlePlayer): Promise<void> {
+    this.myPlayer = updatedPlayer;
+    if (this.channel && this.isConnected) {
+      try {
+        await this.channel.track({
+          player: this.myPlayer,
+          updatedAt: new Date().toISOString(),
+        });
+      } catch {
+        // Track error
+      }
+    }
+  }
+
+  // Leave room and unsubscribe
+  public disconnect(): void {
+    if (this.channel) {
+      try {
+        this.channel.unsubscribe();
+      } catch {
+        // Ignore unsubscribe error
+      }
+      this.channel = null;
+      this.isConnected = false;
+    }
+  }
+}
