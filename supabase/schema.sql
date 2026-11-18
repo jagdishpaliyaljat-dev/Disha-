@@ -135,7 +135,10 @@ SET search_path = ''
 AS $$
   SELECT COALESCE(
     (auth.jwt() -> 'app_metadata' ->> 'role' = 'admin') OR
-    (LOWER(auth.jwt() ->> 'email') IN ('jagdishpaliyaljat@gmail.com', 'zdpaliyal@gmail.com', 'kamleshchoudhary96022@gmail.com', 'disha2020prep@gmail.com')),
+    (
+      (auth.jwt() ->> 'email_confirmed_at' IS NOT NULL OR auth.jwt() -> 'app_metadata' ->> 'email_verified' = 'true' OR auth.jwt() ->> 'email_verified' = 'true') AND
+      LOWER(auth.jwt() ->> 'email') IN ('jagdishpaliyaljat@gmail.com', 'zdpaliyal@gmail.com', 'kamleshchoudhary96022@gmail.com', 'disha2020prep@gmail.com')
+    ),
     false
   );
 $$;
@@ -205,11 +208,14 @@ REVOKE TRUNCATE, TRIGGER, REFERENCES ON TABLE public.subjects, public.chapters, 
 REVOKE ALL ON ALL SEQUENCES IN SCHEMA public FROM PUBLIC, anon;
 GRANT SELECT ON TABLE public.subjects, public.chapters, public.topics, public.questions TO anon;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.subjects, public.chapters, public.topics, public.questions TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.profiles, public.attempts, public.bookmarks TO authenticated;
 
 -- User Profiles: Isolated by owner, role-guarded
 CREATE POLICY "Profiles are viewable by owner" ON public.profiles FOR SELECT USING (auth.uid() = id OR public.is_admin());
 CREATE POLICY "Profiles updateable by owner" ON public.profiles FOR UPDATE USING (auth.uid() = id) WITH CHECK (auth.uid() = id);
+CREATE POLICY "Admins can update profiles" ON public.profiles FOR UPDATE USING (public.is_admin()) WITH CHECK (public.is_admin());
 CREATE POLICY "Profiles insertable by owner" ON public.profiles FOR INSERT WITH CHECK (auth.uid() = id);
+CREATE POLICY "Admins can delete profiles" ON public.profiles FOR DELETE USING (public.is_admin());
 
 -- Contact messages: public submission, admin-only access after submission.
 CREATE POLICY "Anyone can submit contact message" ON public.contact_messages
@@ -229,9 +235,10 @@ CREATE POLICY "Users can insert own attempts" ON public.attempts FOR INSERT WITH
 CREATE POLICY "Users can view own attempts" ON public.attempts FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "Admins can view all attempts" ON public.attempts FOR SELECT USING (public.is_admin());
 
--- Bookmarks: User isolated
+-- Bookmarks: User isolated with safe upsert support
 CREATE POLICY "Users can view own bookmarks" ON public.bookmarks FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "Users can insert own bookmarks" ON public.bookmarks FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own bookmarks" ON public.bookmarks FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "Users can delete own bookmarks" ON public.bookmarks FOR DELETE USING (auth.uid() = user_id);
 
 -- Additional Scalability Indexes for 100,000+ MCQs
@@ -272,13 +279,52 @@ CREATE POLICY "Anyone or authenticated can submit report" ON public.question_rep
     FOR INSERT WITH CHECK (true);
 
 -- Admins can view, update and delete reports
-CREATE POLICY "Admins can view all reports" ON public.question_reports 
+CREATE POLICY "Admins can view all reports" ON public.question_reports
     FOR SELECT USING (public.is_admin());
 
-CREATE POLICY "Admins can update reports" ON public.question_reports 
+CREATE POLICY "Students can view own reports" ON public.question_reports
+    FOR SELECT USING (auth.uid() = student_uid);
+
+CREATE POLICY "Admins can update reports" ON public.question_reports
     FOR UPDATE USING (public.is_admin()) WITH CHECK (public.is_admin());
 
-CREATE POLICY "Admins can delete reports" ON public.question_reports 
+CREATE POLICY "Admins can delete reports" ON public.question_reports
     FOR DELETE USING (public.is_admin());
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.question_reports TO anon, authenticated, service_role;
+
+-- ----------------------------------------------------------------------------
+-- 9. STORAGE BUCKETS (BANNERS & MATERIALS)
+-- ----------------------------------------------------------------------------
+INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+VALUES (
+    'banners',
+    'banners',
+    true,
+    2097152,
+    ARRAY['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml']
+)
+ON CONFLICT (id) DO UPDATE SET
+    public = true,
+    file_size_limit = 2097152,
+    allowed_mime_types = ARRAY['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml'];
+
+INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+VALUES (
+    'materials',
+    'materials',
+    false,
+    10485760,
+    ARRAY['application/pdf', 'image/png', 'image/jpeg']
+)
+ON CONFLICT (id) DO UPDATE SET
+    public = false,
+    file_size_limit = 10485760,
+    allowed_mime_types = ARRAY['application/pdf', 'image/png', 'image/jpeg'];
+
+-- Storage RLS Policies
+CREATE POLICY "Public Read Banners" ON storage.objects FOR SELECT USING (bucket_id = 'banners');
+CREATE POLICY "Admin All Banners" ON storage.objects FOR ALL USING (bucket_id = 'banners' AND public.is_admin());
+CREATE POLICY "Authenticated Read Materials" ON storage.objects FOR SELECT USING (bucket_id = 'materials' AND auth.role() = 'authenticated');
+CREATE POLICY "Admin All Materials" ON storage.objects FOR ALL USING (bucket_id = 'materials' AND public.is_admin());
+

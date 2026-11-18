@@ -115,10 +115,10 @@ export const AdminDiagnosticsSection: React.FC<AdminDiagnosticsSectionProps> = (
 
       if (isSupabaseConfigured()) {
         const [subRes, chRes, topRes, qRes] = await Promise.all([
-          supabase.from("subjects").select("*"),
-          supabase.from("chapters").select("*"),
-          supabase.from("topics").select("*"),
-          supabase.from("questions").select("*"),
+          supabase.from("subjects").select("id, name, hindi_name"),
+          supabase.from("chapters").select("id, name, hindi_name, subject_id"),
+          supabase.from("topics").select("id, name, hindi_name, chapter_id, subject_id"),
+          supabase.from("questions").select("id, subject_id, chapter_id, topic_id"),
         ]);
 
         subjectsList = subRes.data || [];

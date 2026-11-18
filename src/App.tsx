@@ -77,6 +77,7 @@ import {
   safeRemoveSessionStorageItem,
   safeGetLocalStorageItem,
   safeSetLocalStorageItem,
+  safeRemoveLocalStorageItem,
 } from './utils/safeStorage';
 
 // Helper for resilient dynamic imports with clean React 19 reconciler compatibility, retry with backoff, and chunk auto-recovery
@@ -951,6 +952,11 @@ export default function App() {
     const { clearUserProfile } = await import('./utils/userProfileStorage');
     clearUserProfile();
     safeRemoveSessionStorageItem("disha_admin_view_mode");
+    safeRemoveLocalStorageItem("disha_user_progress_v2");
+    safeRemoveLocalStorageItem("disha2020_progress");
+    safeRemoveLocalStorageItem("disha2020_user_bookmarks_v1");
+    safeRemoveLocalStorageItem("disha2020_student_reported_qids_v1");
+    updateProgress(() => ({}));
     setUserProfile(null);
     setIsAuthenticated(false);
     setActiveTab('home');

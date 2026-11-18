@@ -350,25 +350,33 @@ export async function fetchUserActivityData(user: UserProfile): Promise<{
   let attemptsCount = 0;
   const historyItems: any[] = [];
 
+  let totalScoreSum = 0;
   try {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("attempts")
-      .select("*")
-      .eq("user_id", user.id);
+      .select("id,topic_id,subject_id,score,total_questions,time_spent_seconds,created_at")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(100);
 
-    if (data) {
+    if (!error && data) {
       attemptsCount = data.length;
       data.forEach((row: any) => {
+        const totalQ = Math.max(1, row.total_questions || 1);
+        const sc = typeof row.score === "number" ? Math.max(0, row.score) : 0;
+        totalScoreSum += sc;
+        const accuracy = Math.min(100, Math.round((sc / totalQ) * 100));
+
         historyItems.push({
           id: row.id,
           type: "practice",
           title: "Quiz Practice",
-          score: row.is_correct ? 1 : 0,
-          totalQuestions: 1,
-          correct: row.is_correct ? 1 : 0,
-          wrong: row.is_correct ? 0 : 1,
-          accuracy: row.is_correct ? 100 : 0,
-          timeSpentSeconds: row.time_spent || 0,
+          score: sc,
+          totalQuestions: totalQ,
+          correct: sc,
+          wrong: Math.max(0, totalQ - sc),
+          accuracy,
+          timeSpentSeconds: row.time_spent_seconds || 0,
           date: row.created_at || new Date().toISOString(),
         });
       });
@@ -377,11 +385,13 @@ export async function fetchUserActivityData(user: UserProfile): Promise<{
     console.warn("Could not fetch user attempts history from Supabase:", err);
   }
 
+  const avgScore = attemptsCount > 0 ? Math.round(totalScoreSum / attemptsCount) : 0;
+
   return {
     totalTestsAttempted: attemptsCount,
     totalLiveTests: 0,
     totalPYQs: 0,
-    averageScore: attemptsCount > 0 ? 100 : 0,
+    averageScore: avgScore,
     lastActiveDate: user.lastLoginAt || user.createdAt,
     accountCreatedAt: user.createdAt,
     status: user.status || "active",

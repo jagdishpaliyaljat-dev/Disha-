@@ -263,13 +263,16 @@ class SyncCoordinatorClass {
     await updateSyncEventsStatus(eventIds, "in_flight");
 
     let opCount = 0;
+    const confirmedEventIds: string[] = [];
+    const confirmedEvents: SyncQueueEvent[] = [];
+
     try {
       const { supabase, isSupabaseConfigured } = await import("../lib/supabase");
       if (isSupabaseConfigured()) {
         for (const evt of pendingEvents) {
           try {
             if (evt.eventType === "attempt") {
-              await supabase.from("attempts").insert({
+              const { error: attErr } = await supabase.from("attempts").insert({
                 user_id: userId,
                 topic_id: evt.payload?.topicId || null,
                 subject_id: evt.payload?.subjectId || null,
@@ -278,27 +281,50 @@ class SyncCoordinatorClass {
                 answers: evt.payload?.answers || {},
                 time_spent_seconds: evt.payload?.timeSpentSeconds || 0,
               });
-              opCount++;
+              if (!attErr) {
+                opCount++;
+                confirmedEventIds.push(evt.eventId);
+                confirmedEvents.push(evt);
+              } else {
+                console.warn(`[SyncCoordinator] Attempt insert error for ${evt.eventId}:`, attErr.message);
+              }
             } else if (evt.eventType === "bookmark") {
+              let bErr: any = null;
               if (evt.operation === "delete" || evt.payload?.bookmarked === false) {
-                await supabase
+                const { error } = await supabase
                   .from("bookmarks")
                   .delete()
                   .match({ user_id: userId, question_id: evt.entityId });
+                bErr = error;
               } else {
-                await supabase.from("bookmarks").upsert({
+                const { error } = await supabase.from("bookmarks").upsert({
                   user_id: userId,
                   question_id: evt.entityId
                 }, { onConflict: "user_id,question_id" });
+                bErr = error;
               }
-              opCount++;
+              if (!bErr) {
+                opCount++;
+                confirmedEventIds.push(evt.eventId);
+                confirmedEvents.push(evt);
+              } else {
+                console.warn(`[SyncCoordinator] Bookmark sync error for ${evt.eventId}:`, bErr.message);
+              }
             } else if (evt.eventType === "curriculum_topic") {
               if (evt.operation === "delete") {
                 const { error: delErr } = await supabase.from("topics").delete().eq("id", evt.entityId);
-                if (!delErr) opCount++;
+                if (!delErr) {
+                  opCount++;
+                  confirmedEventIds.push(evt.eventId);
+                  confirmedEvents.push(evt);
+                }
               } else if (evt.payload) {
                 const { error: topErr } = await supabase.from("topics").upsert(evt.payload, { onConflict: "id" });
-                if (!topErr) opCount++;
+                if (!topErr) {
+                  opCount++;
+                  confirmedEventIds.push(evt.eventId);
+                  confirmedEvents.push(evt);
+                }
               }
             }
           } catch (e: any) {
@@ -311,8 +337,17 @@ class SyncCoordinatorClass {
     }
 
     // Mark confirmed uploaded events as synced in queue and in local domain stores
-    await updateSyncEventsStatus(eventIds, "synced");
-    await markLocalEntitiesSynced(pendingEvents);
+    if (confirmedEventIds.length > 0) {
+      await updateSyncEventsStatus(confirmedEventIds, "synced");
+      await markLocalEntitiesSynced(confirmedEvents);
+    }
+
+    // Revert failed events so they can be retried on next sync
+    const failedEventIds = eventIds.filter(id => !confirmedEventIds.includes(id));
+    if (failedEventIds.length > 0) {
+      await updateSyncEventsStatus(failedEventIds, "failed");
+    }
+
     return opCount;
   }
 

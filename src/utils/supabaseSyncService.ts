@@ -1321,14 +1321,15 @@ export async function recordStudentAttempt(attempt: {
     };
 
     // Idempotent write: If client supplied an attempt ID (e.g. test session ID), upsert safely
-    if (attempt.id) {
-      row.id = attempt.id;
-      await supabase.from("attempts").upsert(row, { onConflict: "id" });
-    } else {
-      await supabase.from("attempts").insert(row);
+    const { error } = attempt.id
+      ? await supabase.from("attempts").upsert(row, { onConflict: "id" })
+      : await supabase.from("attempts").insert(row);
+
+    if (error) {
+      console.warn("[Supabase] Attempt sync error:", error.message);
     }
   } catch (e: any) {
-    console.warn("[Supabase] Attempt sync error:", e.message);
+    console.warn("[Supabase] Attempt sync exception:", e.message);
   }
 }
 
@@ -1954,7 +1955,7 @@ export async function validateAndSubmitTestAttempt(
       const { data: { session } } = await supabase.auth.getSession();
       const uid = session?.user?.id;
       if (uid && uid !== "student_default" && !uid.startsWith("guest_")) {
-        await supabase.from("attempts").insert({
+        const { error: insErr } = await supabase.from("attempts").insert({
           user_id: uid,
           topic_id: params.topicId || null,
           subject_id: params.subjectId || null,
@@ -1963,9 +1964,12 @@ export async function validateAndSubmitTestAttempt(
           answers: params.answers,
           time_spent_seconds: params.timeSpentSeconds || 0,
         });
+        if (insErr) {
+          console.warn("[Supabase] Failed to write verified attempt:", insErr.message);
+        }
       }
     } catch (e: any) {
-      console.warn("[Supabase] Failed to write verified attempt:", e.message);
+      console.warn("[Supabase] Exception writing verified attempt:", e.message);
     }
   }
 

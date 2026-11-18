@@ -215,7 +215,7 @@ export async function submitQuestionReport(input: SubmitReportInput): Promise<{
     // 5. Attempt graceful cloud sync to Supabase if configured (without blocking)
     if (isSupabaseConfigured()) {
       try {
-        await supabase.from("question_reports").insert([
+        const { error: repErr } = await supabase.from("question_reports").insert([
           {
             id: report.id,
             question_id: report.questionId,
@@ -232,6 +232,9 @@ export async function submitQuestionReport(input: SubmitReportInput): Promise<{
             created_at: report.reportedAt,
           },
         ]);
+        if (repErr) {
+          console.info("[QuestionReportService] Cloud report staging notice:", repErr.message);
+        }
       } catch (cloudErr) {
         // Table may not exist yet or user is offline — local report is already saved and completely safe
         console.info("[QuestionReportService] Cloud report staging fallback active:", cloudErr);
@@ -286,7 +289,7 @@ export async function updateReportStatus(
 
     if (isSupabaseConfigured()) {
       try {
-        await supabase
+        const { error: updErr } = await supabase
           .from("question_reports")
           .update({
             status,
@@ -294,7 +297,13 @@ export async function updateReportStatus(
             updated_at: new Date().toISOString(),
           })
           .eq("id", reportId);
-      } catch {}
+
+        if (updErr) {
+          console.warn("[QuestionReportService] Cloud report update error:", updErr.message);
+        }
+      } catch (cloudErr) {
+        console.warn("[QuestionReportService] Cloud update exception:", cloudErr);
+      }
     }
 
     return true;
@@ -323,8 +332,13 @@ export async function deleteReport(reportId: string): Promise<boolean> {
 
     if (isSupabaseConfigured()) {
       try {
-        await supabase.from("question_reports").delete().eq("id", reportId);
-      } catch {}
+        const { error: delErr } = await supabase.from("question_reports").delete().eq("id", reportId);
+        if (delErr) {
+          console.warn("[QuestionReportService] Cloud report delete error:", delErr.message);
+        }
+      } catch (cloudErr) {
+        console.warn("[QuestionReportService] Cloud delete exception:", cloudErr);
+      }
     }
 
     return true;

@@ -143,21 +143,45 @@ export class UserActivityQueue {
       // Take batch up to maxBatchSize
       const batchToFlush = pendingEvents.slice(0, this.maxBatchSize);
 
+      const acknowledgedIds: string[] = [];
+
       for (const ev of batchToFlush) {
         try {
-          if (ev.eventType === "attempt" && ev.payload?.questionId) {
-            await supabase.from("attempts").insert({
+          if (ev.eventType === "attempt" && (ev.payload?.questionId || ev.payload?.topicId)) {
+            const attemptRow: any = {
               user_id: ev.userId,
-              question_id: ev.payload.questionId,
-              selected_option: ev.payload.selectedOption,
-              is_correct: ev.payload.isCorrect,
-              time_spent: ev.payload.timeSpentSeconds || 0,
-            });
-          } else if (ev.eventType === "bookmark" && ev.entityId) {
-            if (ev.operation === "delete") {
-              await supabase.from("bookmarks").delete().match({ user_id: ev.userId, question_id: ev.entityId });
+              topic_id: ev.payload.topicId || null,
+              subject_id: ev.payload.subjectId || null,
+              score: typeof ev.payload.score === "number" ? Math.round(ev.payload.score) : (ev.payload.isCorrect ? 1 : 0),
+              total_questions: ev.payload.totalQuestions || 1,
+              answers: ev.payload.answers || (ev.payload.questionId ? {
+                [ev.payload.questionId]: {
+                  selectedOption: ev.payload.selectedOption,
+                  isCorrect: ev.payload.isCorrect
+                }
+              } : {}),
+              time_spent_seconds: ev.payload.timeSpentSeconds || ev.payload.timeSpent || 0,
+            };
+
+            const { error: attErr } = await supabase.from("attempts").insert(attemptRow);
+            if (!attErr) {
+              acknowledgedIds.push(ev.eventId);
             } else {
-              await supabase.from("bookmarks").upsert({ user_id: ev.userId, question_id: ev.entityId }, { onConflict: "user_id,question_id" });
+              console.warn("[UserActivityQueue] Attempt sync rejected by Supabase:", attErr.message);
+            }
+          } else if (ev.eventType === "bookmark" && ev.entityId) {
+            let bErr: any = null;
+            if (ev.operation === "delete") {
+              const { error } = await supabase.from("bookmarks").delete().match({ user_id: ev.userId, question_id: ev.entityId });
+              bErr = error;
+            } else {
+              const { error } = await supabase.from("bookmarks").upsert({ user_id: ev.userId, question_id: ev.entityId }, { onConflict: "user_id,question_id" });
+              bErr = error;
+            }
+            if (!bErr) {
+              acknowledgedIds.push(ev.eventId);
+            } else {
+              console.warn("[UserActivityQueue] Bookmark sync rejected by Supabase:", bErr.message);
             }
           }
         } catch (syncErr) {
@@ -165,19 +189,21 @@ export class UserActivityQueue {
         }
       }
 
-      // Remove acknowledged events from queue
-      await executeTx(SNAPSHOT_STORES.PENDING_SYNC_QUEUE, "readwrite", async (stores) => {
-        const store = stores[SNAPSHOT_STORES.PENDING_SYNC_QUEUE];
-        for (const ev of batchToFlush) {
-          store.delete(ev.eventId);
-        }
-      });
+      // Remove only successfully acknowledged events from queue
+      if (acknowledgedIds.length > 0) {
+        await executeTx(SNAPSHOT_STORES.PENDING_SYNC_QUEUE, "readwrite", async (stores) => {
+          const store = stores[SNAPSHOT_STORES.PENDING_SYNC_QUEUE];
+          for (const evId of acknowledgedIds) {
+            store.delete(evId);
+          }
+        });
+      }
 
-      const remaining = pendingEvents.length - batchToFlush.length;
+      const remaining = pendingEvents.length - acknowledgedIds.length;
       return {
-        flushedCount: batchToFlush.length,
+        flushedCount: acknowledgedIds.length,
         remainingCount: remaining,
-        success: true
+        success: acknowledgedIds.length > 0 || batchToFlush.length === 0
       };
     } catch (err: any) {
       console.warn(`[UserActivityQueue] Batch flush failed: ${err.message}`);

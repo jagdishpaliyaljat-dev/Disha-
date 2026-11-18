@@ -200,8 +200,13 @@ export async function fetchShareContentFromCloud(
     }
 
     if (type === "question") {
-      const { data } = await supabase.from("questions").select("id,question,options,correct_answer,explanation,subject_id,chapter_id,topic_id,exam,year,level,table_data,source,exam_year,category").eq("id", id).maybeSingle();
-      if (data) {
+      const { data, error } = await supabase
+        .from("questions")
+        .select("id,question,options,correct_answer,explanation,subject_id,chapter_id,topic_id,exam,year,level")
+        .eq("id", id)
+        .maybeSingle();
+
+      if (!error && data) {
         return {
           id: data.id,
           topicId: data.topic_id,
@@ -211,12 +216,9 @@ export async function fetchShareContentFromCloud(
           options: data.options || [],
           correctAnswer: data.correct_answer,
           explanation: data.explanation || "",
-          table: data.table_data ? normalizeTable(data.table_data) : undefined,
-          source: data.source,
-          // The share payload is intentionally loose; downstream code reads
-          // either the `question`/`correctAnswer` or `text`/`correctIndex` shape.
-          examYear: data.exam_year,
-          category: data.category,
+          level: data.level,
+          exam: data.exam,
+          year: data.year,
         } as unknown as Question;
       }
     }
