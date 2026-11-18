@@ -1,9 +1,21 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { RAJASTHAN_DIVISIONS } from "../data/divisionsData";
 import { RAJASTHAN_50_DISTRICTS } from "../data/districtsData";
-import { DISTRICT_SVG_NODES, DistrictSvgNode } from "./districtCoordinates";
+import {
+  DISTRICT_SVG_PATHS,
+  DISTRICT_CENTROIDS,
+  RAJASTHAN_STATE_OUTLINE_PATH,
+} from "../data/districtPaths";
 import { DivisionId } from "../types";
-import { ZoomIn, ZoomOut, RotateCcw, Navigation, CheckCircle2, XCircle, Compass } from "lucide-react";
+import {
+  ZoomIn,
+  ZoomOut,
+  RotateCcw,
+  Navigation,
+  CheckCircle2,
+  XCircle,
+  Mountain,
+} from "lucide-react";
 import { triggerHaptic, playClickSound } from "../../../utils/audioFeedback";
 
 interface RajasthanSvgMapProps {
@@ -35,6 +47,7 @@ export const RajasthanSvgMap: React.FC<RajasthanSvgMapProps> = ({
   const [panOffset, setPanOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [hoveredDistrictId, setHoveredDistrictId] = useState<string | null>(null);
+  const [showAravalli, setShowAravalli] = useState<boolean>(true);
 
   // Drag & Touch Tracking Refs
   const dragStartRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
@@ -45,11 +58,11 @@ export const RajasthanSvgMap: React.FC<RajasthanSvgMapProps> = ({
 
   // Auto-center on selected district if provided
   useEffect(() => {
-    if (selectedDistrictId && DISTRICT_SVG_NODES[selectedDistrictId]) {
-      const node = DISTRICT_SVG_NODES[selectedDistrictId];
-      // Center SVG node (880x860 canvas center is 440, 430)
-      const targetX = (440 - node.cx) * (zoomLevel > 1.2 ? 0.7 : 0.4);
-      const targetY = (430 - node.cy) * (zoomLevel > 1.2 ? 0.7 : 0.4);
+    if (selectedDistrictId && DISTRICT_CENTROIDS[selectedDistrictId]) {
+      const [cx, cy] = DISTRICT_CENTROIDS[selectedDistrictId];
+      // Center SVG in 960x960 canvas (center is 480, 480)
+      const targetX = (480 - cx) * (zoomLevel > 1.2 ? 0.7 : 0.4);
+      const targetY = (480 - cy) * (zoomLevel > 1.2 ? 0.7 : 0.4);
       setPanOffset({ x: targetX, y: targetY });
     }
   }, [selectedDistrictId]);
@@ -58,13 +71,13 @@ export const RajasthanSvgMap: React.FC<RajasthanSvgMapProps> = ({
   const handleZoomIn = () => {
     triggerHaptic("light");
     playClickSound();
-    setZoomLevel((prev) => Math.min(Number((prev + 0.3).toFixed(2)), 3.0));
+    setZoomLevel((prev) => Math.min(Number((prev + 0.3).toFixed(2)), 3.2));
   };
 
   const handleZoomOut = () => {
     triggerHaptic("light");
     playClickSound();
-    setZoomLevel((prev) => Math.max(Number((prev - 0.3).toFixed(2)), 0.8));
+    setZoomLevel((prev) => Math.max(Number((prev - 0.3).toFixed(2)), 0.75));
   };
 
   const handleResetZoom = () => {
@@ -102,7 +115,7 @@ export const RajasthanSvgMap: React.FC<RajasthanSvgMapProps> = ({
   const handleWheel = (e: React.WheelEvent) => {
     e.preventDefault();
     const delta = e.deltaY < 0 ? 0.15 : -0.15;
-    setZoomLevel((prev) => Math.min(Math.max(Number((prev + delta).toFixed(2)), 0.8), 3.0));
+    setZoomLevel((prev) => Math.min(Math.max(Number((prev + delta).toFixed(2)), 0.75), 3.2));
   };
 
   // ================= TOUCH EVENTS (Mobile) =================
@@ -148,7 +161,7 @@ export const RajasthanSvgMap: React.FC<RajasthanSvgMapProps> = ({
         hasMovedRef.current = true;
         setZoomLevel((prev) => {
           const next = prev * ratio;
-          return Math.min(Math.max(Number(next.toFixed(2)), 0.8), 3.0);
+          return Math.min(Math.max(Number(next.toFixed(2)), 0.75), 3.2);
         });
         lastTouchDistRef.current = currentDist;
       }
@@ -176,12 +189,12 @@ export const RajasthanSvgMap: React.FC<RajasthanSvgMapProps> = ({
     onDistrictHover?.(districtId);
   };
 
-  const nodes = Object.values(DISTRICT_SVG_NODES);
+  const districtsList = useMemo(() => Object.values(RAJASTHAN_50_DISTRICTS), []);
 
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-full min-h-[340px] flex-1 bg-gradient-to-b from-[#FFF9EF]/90 via-[#FFFDF9] to-[#F7EFE1] dark:from-[#111318] dark:via-[#171923] dark:to-[#0F1117] overflow-hidden select-none touch-none flex flex-col justify-center items-center"
+      className="relative w-full h-full min-h-[360px] flex-1 bg-gradient-to-b from-[#FFF9EF]/90 via-[#FFFDF9] to-[#F7EFE1] dark:from-[#0E1017] dark:via-[#141622] dark:to-[#0B0D13] overflow-hidden select-none touch-none flex flex-col justify-center items-center"
       onWheel={handleWheel}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
@@ -231,204 +244,316 @@ export const RajasthanSvgMap: React.FC<RajasthanSvgMapProps> = ({
         </button>
       </div>
 
-      {/* ================= COMPASS INDICATOR (Top Left) ================= */}
-      <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5 bg-white/90 dark:bg-[#1E222D]/90 backdrop-blur-md px-2.5 py-1 rounded-full border border-[#C99A45]/30 shadow-xs pointer-events-none">
-        <Navigation className="w-3.5 h-3.5 text-[#800020] dark:text-[#F47B20]" />
-        <span className="text-[10px] sm:text-xs font-black text-[#800020] dark:text-[#F47B20]">N (उत्तर)</span>
+      {/* ================= COMPASS & TOP BADGE (Top Left) ================= */}
+      <div className="absolute top-3 left-3 z-10 flex items-center gap-2 pointer-events-none">
+        <div className="flex items-center gap-1.5 bg-white/95 dark:bg-[#1E222D]/95 backdrop-blur-md px-2.5 py-1 rounded-full border border-[#C99A45]/30 shadow-xs">
+          <Navigation className="w-3.5 h-3.5 text-[#800020] dark:text-[#F47B20]" />
+          <span className="text-[10px] sm:text-xs font-black text-[#800020] dark:text-[#F47B20]">N (उत्तर)</span>
+        </div>
+
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            setShowAravalli(!showAravalli);
+          }}
+          className={`pointer-events-auto flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold border transition ${
+            showAravalli
+              ? "bg-[#C99A45]/20 border-[#C99A45] text-[#800020] dark:text-[#F47B20]"
+              : "bg-white/80 dark:bg-[#1E222D]/80 border-stone-300 dark:border-stone-700 text-stone-500"
+          }`}
+          title="अरावली पर्वतमाला देखें/छिपाएं"
+        >
+          <Mountain className="w-3 h-3" />
+          <span className="hidden xs:inline">अरावली</span>
+        </button>
+      </div>
+
+      {/* ================= MAP TITLE & STATS PILL (Top Right) ================= */}
+      <div className="absolute top-3 right-3 z-10 hidden sm:flex items-center gap-2 pointer-events-none">
+        <div className="bg-white/90 dark:bg-[#1E222D]/90 backdrop-blur-md px-3 py-1 rounded-full border border-[#C99A45]/30 shadow-xs text-[10px] font-black text-[#52576A] dark:text-stone-300">
+          <span className="text-[#800020] dark:text-[#F47B20] font-black">50 ज़िले</span> • 10 संभाग
+        </div>
       </div>
 
       {/* ================= MOBILE BOTTOM-LEFT DISTRICT PREVIEW PILL ================= */}
       {hoveredDistrictId && !isQuizMode && (
-        <div className="absolute bottom-4 left-3 z-20 max-w-[200px] sm:max-w-xs bg-[#171923]/95 text-white backdrop-blur-md px-3 py-1.5 rounded-xl shadow-lg border border-[#C99A45]/40 pointer-events-none animate-in fade-in duration-150">
+        <div className="absolute bottom-4 left-3 z-20 max-w-[210px] sm:max-w-xs bg-[#171923]/95 text-white backdrop-blur-md px-3 py-2 rounded-xl shadow-xl border border-[#C99A45]/40 pointer-events-none animate-in fade-in duration-150">
           <div className="flex items-center gap-1.5">
             <span className="font-black text-xs sm:text-sm text-[#F47B20] truncate">
               {RAJASTHAN_50_DISTRICTS[hoveredDistrictId]?.nameHindi || hoveredDistrictId}
             </span>
             {RAJASTHAN_50_DISTRICTS[hoveredDistrictId]?.isNewDistrict && (
               <span className="px-1.5 py-0.2 text-[8px] font-black bg-amber-500 text-stone-900 rounded-sm">
-                नया
+                नया ज़िला
               </span>
             )}
           </div>
           <div className="text-[10px] text-stone-300 truncate">
-            {RAJASTHAN_DIVISIONS[RAJASTHAN_50_DISTRICTS[hoveredDistrictId]?.divisionId]?.nameHindi}
+            संभाग: {RAJASTHAN_DIVISIONS[RAJASTHAN_50_DISTRICTS[hoveredDistrictId]?.divisionId]?.nameHindi || "—"}
           </div>
         </div>
       )}
 
-      {/* ================= SVG VECTOR CANVAS ================= */}
-      <div
-        className="w-full h-full flex items-center justify-center cursor-grab active:cursor-grabbing overflow-hidden"
-      >
+      {/* ================= HIGH-QUALITY REAL GIS VECTOR MAP CANVAS ================= */}
+      <div className="w-full h-full flex items-center justify-center cursor-grab active:cursor-grabbing overflow-hidden">
         <svg
-          viewBox="0 0 880 860"
+          viewBox="0 0 960 960"
           className="w-full h-full max-w-full max-h-full block transition-transform duration-75 ease-out"
           style={{
             transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoomLevel})`,
             transformOrigin: "center center",
           }}
         >
-          {/* Subtle Rajasthan Outer Rhomboid Contour Guide */}
-          <polygon
-            points="330,60 760,320 620,720 390,830 180,630 80,410"
-            fill="none"
-            stroke="currentColor"
-            strokeDasharray="6 6"
-            className="text-[#C99A45]/20 dark:text-[#C99A45]/15 pointer-events-none"
-            strokeWidth="2"
+          <defs>
+            {/* Selected District Saffron Glow */}
+            <filter id="map-selected-glow" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="0" stdDeviation="5" floodColor="#F47B20" floodOpacity="0.8" />
+            </filter>
+            {/* Hover Shadow */}
+            <filter id="map-hover-shadow" x="-10%" y="-10%" width="120%" height="120%">
+              <feDropShadow dx="0" dy="2" stdDeviation="4" floodColor="#000000" floodOpacity="0.25" />
+            </filter>
+            {/* State Outer Shadow */}
+            <filter id="state-silhouette-shadow" x="-5%" y="-5%" width="110%" height="110%">
+              <feDropShadow dx="0" dy="4" stdDeviation="8" floodColor="#800020" floodOpacity="0.18" />
+            </filter>
+          </defs>
+
+          {/* 1. Underlying Real State Mass Foundation */}
+          <path
+            d={RAJASTHAN_STATE_OUTLINE_PATH}
+            filter="url(#state-silhouette-shadow)"
+            className="fill-[#F8F3EA] dark:fill-[#12141C] stroke-[#C99A45]/30"
+            strokeWidth="8"
+            strokeLinejoin="round"
           />
 
-          {/* District Nodes & Interactive Touch Hit-Boxes */}
-          {nodes.map((node) => {
-            const district = RAJASTHAN_50_DISTRICTS[node.id];
-            const division = district ? RAJASTHAN_DIVISIONS[district.divisionId] : null;
-            const isSelected = selectedDistrictId === node.id;
-            const isHovered = hoveredDistrictId === node.id;
-            const isDivisionFiltered = activeDivisionFilter && district?.divisionId !== activeDivisionFilter;
-            const isSearchMatch = searchHighlightedIds.includes(node.id);
-            const isQuizFeedbackTarget = quizFeedback?.selectedDistrictId === node.id;
-            const isTargetInQuiz = quizTargetDistrictId === node.id;
+          {/* 2. Authentic Geographic Polygonal Districts Layer (All 50 Districts) */}
+          <g id="rajasthan-districts-polygons">
+            {districtsList.map((district) => {
+              const pathD = DISTRICT_SVG_PATHS[district.id];
+              if (!pathD) return null;
 
-            const baseColor = division?.color || "#800020";
+              const division = RAJASTHAN_DIVISIONS[district.divisionId];
+              const isSelected = selectedDistrictId === district.id;
+              const isHovered = hoveredDistrictId === district.id;
+              const isDivisionFiltered =
+                activeDivisionFilter && district.divisionId !== activeDivisionFilter;
+              const isSearchMatch = searchHighlightedIds.includes(district.id);
+              const isQuizFeedbackTarget = quizFeedback?.selectedDistrictId === district.id;
 
-            return (
-              <g
-                key={node.id}
-                onClick={(e) => handleDistrictClick(node.id, e)}
-                onMouseEnter={() => handleSetHover(node.id)}
-                onMouseLeave={() => handleSetHover(null)}
-                className="cursor-pointer transition-all duration-150"
-                style={{
-                  opacity: isDivisionFiltered ? 0.22 : 1,
-                  transform: isHovered || isSelected ? `scale(1.05)` : "scale(1)",
-                  transformOrigin: `${node.cx}px ${node.cy}px`,
-                }}
+              const baseColor = division?.color || "#800020";
+
+              // Color resolution
+              let fillColor = `${baseColor}44`;
+              let strokeColor = "#4B5563";
+              let strokeWidth = 1.3;
+
+              if (isQuizFeedbackTarget) {
+                fillColor = quizFeedback?.isCorrect ? "#16A34A" : "#DC2626";
+                strokeColor = quizFeedback?.isCorrect ? "#22C55E" : "#EF4444";
+                strokeWidth = 3;
+              } else if (isSelected) {
+                fillColor = baseColor;
+                strokeColor = "#F47B20";
+                strokeWidth = 3.5;
+              } else if (isHovered) {
+                fillColor = `${baseColor}CC`;
+                strokeColor = "#C99A45";
+                strokeWidth = 2.5;
+              } else if (isSearchMatch) {
+                fillColor = `${baseColor}88`;
+                strokeColor = "#F47B20";
+                strokeWidth = 2.8;
+              }
+
+              return (
+                <path
+                  key={district.id}
+                  id={`district-path-${district.id}`}
+                  d={pathD}
+                  onClick={(e) => handleDistrictClick(district.id, e)}
+                  onMouseEnter={() => handleSetHover(district.id)}
+                  onMouseLeave={() => handleSetHover(null)}
+                  fill={fillColor}
+                  stroke={strokeColor}
+                  strokeWidth={strokeWidth}
+                  strokeLinejoin="round"
+                  strokeLinecap="round"
+                  vectorEffect="non-scaling-stroke"
+                  filter={isSelected ? "url(#map-selected-glow)" : isHovered ? "url(#map-hover-shadow)" : undefined}
+                  className="cursor-pointer transition-all duration-150 active:opacity-80"
+                  style={{
+                    opacity: isDivisionFiltered ? 0.2 : 1,
+                  }}
+                />
+              );
+            })}
+          </g>
+
+          {/* 3. Aravalli Mountain Range Diagonal Spine Overlay */}
+          {showAravalli && (
+            <g id="aravalli-range-overlay" className="pointer-events-none opacity-40 dark:opacity-30">
+              <path
+                d="M 290 710 Q 420 620 520 480 T 690 320"
+                fill="none"
+                stroke="#8B5A2B"
+                strokeWidth="18"
+                strokeLinecap="round"
+                strokeDasharray="4 8"
+              />
+              <path
+                d="M 290 710 Q 420 620 520 480 T 690 320"
+                fill="none"
+                stroke="#C99A45"
+                strokeWidth="2.5"
+                strokeDasharray="8 6"
+              />
+              <text
+                x="475"
+                y="525"
+                transform="rotate(-38, 475, 525)"
+                textAnchor="middle"
+                fill="#8B5A2B"
+                className="dark:fill-[#E0B872] font-black text-[12px] tracking-widest uppercase select-none"
               >
-                {/* 1. Generous Invisible Touch-Target Circle for Thumb Accessibility on Mobile */}
-                <circle
-                  cx={node.cx}
-                  cy={node.cy}
-                  r={Math.max(node.rx + 16, 32)}
-                  fill="transparent"
-                  className="cursor-pointer"
-                />
+                ▲ ▲ अरावली पर्वतमाला (Aravalli Range) ▲ ▲
+              </text>
+            </g>
+          )}
 
-                {/* 2. Search Match Halo Glow */}
-                {isSearchMatch && (
-                  <ellipse
-                    cx={node.cx}
-                    cy={node.cy}
-                    rx={node.rx + 12}
-                    ry={node.ry + 10}
-                    fill="none"
-                    stroke="#F47B20"
-                    strokeWidth="4"
-                    className="animate-ping opacity-60 pointer-events-none"
-                  />
-                )}
+          {/* 4. High-Precision Survey of India Outer Border Outline */}
+          <path
+            d={RAJASTHAN_STATE_OUTLINE_PATH}
+            fill="none"
+            stroke="#800020"
+            strokeWidth="3.2"
+            strokeLinejoin="round"
+            strokeLinecap="round"
+            className="pointer-events-none opacity-80 dark:stroke-[#E2B755] dark:opacity-85"
+            vectorEffect="non-scaling-stroke"
+          />
 
-                {/* 3. Selected District Outer Halo */}
-                {isSelected && !isQuizMode && (
-                  <ellipse
-                    cx={node.cx}
-                    cy={node.cy}
-                    rx={node.rx + 6}
-                    ry={node.ry + 6}
-                    fill="none"
-                    stroke="#F47B20"
-                    strokeWidth="3.5"
-                    className="animate-pulse pointer-events-none"
-                  />
-                )}
+          {/* 5. Geographic Centroid Labels & Interactive Thumb Hitboxes */}
+          <g id="rajasthan-district-labels">
+            {districtsList.map((district) => {
+              const centroid = DISTRICT_CENTROIDS[district.id];
+              if (!centroid) return null;
+              const [cx, cy] = centroid;
 
-                {/* 4. District Elliptical Body */}
-                <ellipse
-                  cx={node.cx}
-                  cy={node.cy}
-                  rx={node.rx}
-                  ry={node.ry}
-                  fill={
-                    isQuizFeedbackTarget
-                      ? quizFeedback?.isCorrect
-                        ? "#16A34A"
-                        : "#DC2626"
-                      : isSelected
-                      ? baseColor
-                      : isHovered
-                      ? `${baseColor}CC`
-                      : `${baseColor}30`
-                  }
-                  stroke={
-                    isQuizFeedbackTarget
-                      ? quizFeedback?.isCorrect
-                        ? "#22C55E"
-                        : "#EF4444"
-                      : isSelected
-                      ? "#C99A45"
-                      : isHovered
-                      ? baseColor
-                      : `${baseColor}99`
-                  }
-                  strokeWidth={isSelected ? 3 : isHovered ? 2.5 : 1.5}
-                  className="transition-colors duration-200"
-                />
+              const isSelected = selectedDistrictId === district.id;
+              const isHovered = hoveredDistrictId === district.id;
+              const isDivisionFiltered =
+                activeDivisionFilter && district.divisionId !== activeDivisionFilter;
+              const isQuizFeedbackTarget = quizFeedback?.selectedDistrictId === district.id;
+              const isSearchMatch = searchHighlightedIds.includes(district.id);
 
-                {/* 5. Mobile-Readable Label Container Pill */}
-                <rect
-                  x={node.cx - (node.nameHindi.length * 4.4 + 6)}
-                  y={node.cy - 10}
-                  width={node.nameHindi.length * 8.8 + 12}
-                  height={20}
-                  rx={6}
-                  fill={isSelected ? "#800020" : isHovered ? "#171923" : "rgba(255,255,255,0.92)"}
-                  className="dark:fill-[#171923]/90 shadow-sm pointer-events-none"
-                  stroke={isSelected ? "#C99A45" : "#E2E8F0"}
-                  strokeWidth="0.8"
-                />
+              const name = district.nameHindi;
+              const badgeWidth = Math.max(name.length * 8.6 + 12, 34);
+              const badgeHeight = 18;
 
-                {/* 6. District Name Text (Hindi) */}
-                <text
-                  x={node.cx}
-                  y={node.cy + 4.5}
-                  textAnchor="middle"
-                  fill={isSelected ? "#FFF9EF" : isHovered ? "#F47B20" : "#171923"}
-                  className="dark:fill-[#FFF9EF] font-black text-[11px] pointer-events-none tracking-tight"
+              return (
+                <g
+                  key={`label-${district.id}`}
+                  onClick={(e) => handleDistrictClick(district.id, e)}
+                  onMouseEnter={() => handleSetHover(district.id)}
+                  onMouseLeave={() => handleSetHover(null)}
+                  className="cursor-pointer select-none"
+                  style={{
+                    opacity: isDivisionFiltered ? 0.25 : 1,
+                  }}
                 >
-                  {node.nameHindi}
-                </text>
+                  {/* Large Invisible Thumb Accessibility Touch Hitbox */}
+                  <circle cx={cx} cy={cy} r={34} fill="transparent" className="cursor-pointer" />
 
-                {/* 7. Star Badge for 2023 Formed Districts */}
-                {district?.isNewDistrict && (
-                  <circle
-                    cx={node.cx + node.rx - 4}
-                    cy={node.cy - node.ry + 4}
-                    r={5}
-                    fill="#F47B20"
-                    stroke="#FFF"
-                    strokeWidth="1.2"
-                    className="pointer-events-none"
+                  {/* Pulsing Halo for Search Match */}
+                  {isSearchMatch && (
+                    <circle
+                      cx={cx}
+                      cy={cy}
+                      r={24}
+                      fill="none"
+                      stroke="#F47B20"
+                      strokeWidth="3"
+                      className="animate-ping opacity-70 pointer-events-none"
+                    />
+                  )}
+
+                  {/* District Label Pill Background */}
+                  <rect
+                    x={cx - badgeWidth / 2}
+                    y={cy - badgeHeight / 2}
+                    width={badgeWidth}
+                    height={badgeHeight}
+                    rx={5}
+                    fill={
+                      isSelected
+                        ? "#800020"
+                        : isHovered
+                        ? "#171923"
+                        : "rgba(255, 255, 255, 0.94)"
+                    }
+                    className="dark:fill-[#171923]/95 shadow-sm pointer-events-none"
+                    stroke={
+                      isSelected
+                        ? "#F47B20"
+                        : isHovered
+                        ? "#C99A45"
+                        : "#CBD5E1"
+                    }
+                    strokeWidth={isSelected ? 1.5 : 0.8}
                   />
-                )}
 
-                {/* 8. Quiz Feedback Visual SVG Icon */}
-                {isQuizFeedbackTarget && (
-                  <g transform={`translate(${node.cx - 12}, ${node.cy - 12})`} className="pointer-events-none">
-                    <circle cx="12" cy="12" r="11" fill={quizFeedback?.isCorrect ? "#16A34A" : "#DC2626"} />
-                    <text
-                      x="12"
-                      y="16"
-                      textAnchor="middle"
-                      fill="#FFF"
-                      fontSize="14"
-                      fontWeight="bold"
-                    >
-                      {quizFeedback?.isCorrect ? "✓" : "✗"}
-                    </text>
-                  </g>
-                )}
-              </g>
-            );
-          })}
+                  {/* District Name Text (Hindi) */}
+                  <text
+                    x={cx}
+                    y={cy + 4.2}
+                    textAnchor="middle"
+                    fill={isSelected ? "#FFF9EF" : isHovered ? "#F47B20" : "#1E293B"}
+                    className="dark:fill-[#FFF9EF] font-black text-[10.5px] pointer-events-none tracking-tight select-none"
+                  >
+                    {name}
+                  </text>
+
+                  {/* Star Badge for 2023 Formed Districts */}
+                  {district.isNewDistrict && (
+                    <circle
+                      cx={cx + badgeWidth / 2 - 2}
+                      cy={cy - badgeHeight / 2 + 2}
+                      r={4}
+                      fill="#F47B20"
+                      stroke="#FFF"
+                      strokeWidth="1"
+                      className="pointer-events-none"
+                    />
+                  )}
+
+                  {/* Quiz Feedback Check/Cross Icon */}
+                  {isQuizFeedbackTarget && (
+                    <g transform={`translate(${cx - 12}, ${cy - 12})`} className="pointer-events-none">
+                      <circle
+                        cx="12"
+                        cy="12"
+                        r="11"
+                        fill={quizFeedback?.isCorrect ? "#16A34A" : "#DC2626"}
+                      />
+                      <text
+                        x="12"
+                        y="16.5"
+                        textAnchor="middle"
+                        fill="#FFF"
+                        fontSize="14"
+                        fontWeight="bold"
+                      >
+                        {quizFeedback?.isCorrect ? "✓" : "✗"}
+                      </text>
+                    </g>
+                  )}
+                </g>
+              );
+            })}
+          </g>
         </svg>
       </div>
     </div>
