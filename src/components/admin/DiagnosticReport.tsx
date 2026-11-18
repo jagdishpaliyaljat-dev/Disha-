@@ -31,7 +31,7 @@ export interface CollectionCountReport {
 }
 
 export const DiagnosticReport: React.FC<DiagnosticReportProps> = ({ userProfile }) => {
-  const isAdmin = isUserAdmin(userProfile) || userProfile?.role === "admin";
+  const isAdmin = isUserAdmin(userProfile);
 
   const [loading, setLoading] = React.useState<boolean>(false);
   const [reports, setReports] = React.useState<CollectionCountReport[]>([]);

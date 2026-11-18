@@ -478,14 +478,16 @@ export default function App() {
       const url = new URL(window.location.href);
       if (url.searchParams.has('session')) {
         url.searchParams.delete('session');
-        const cleanSearch = url.searchParams.toString();
-        const cleanUrl = url.pathname + (cleanSearch ? `?${cleanSearch}` : '');
-        window.history.replaceState(
-          { ...window.history.state, hasSession: false, dishaTestActive: false, quizProTestActive: false },
-          '',
-          cleanUrl
-        );
       }
+      const cleanSearch = url.searchParams.toString();
+      // Strip trailing topic slug so back navigation returns cleanly to chapter
+      const cleanPath = url.pathname.replace(/\/topic_[^/?#]+|\/custom-topic-[^/?#]+/, '');
+      const cleanUrl = cleanPath + (cleanSearch ? `?${cleanSearch}` : '');
+      window.history.replaceState(
+        { ...window.history.state, hasSession: false, topicId: null, dishaTestActive: false, quizProTestActive: false },
+        '',
+        cleanUrl
+      );
     }
   }, []);
 
@@ -499,6 +501,7 @@ export default function App() {
       const path = window.location.pathname;
       const searchParams = new URLSearchParams(window.location.search);
       const hasSessionParam = searchParams.get('session') === '1';
+      const wasSessionActive = Boolean(activeSession);
 
       // 1. If URL no longer has session=1, clear activeSession immediately
       if (!hasSessionParam && activeSession) {
@@ -538,11 +541,17 @@ export default function App() {
       setSelectedArticleSlug(parsed.articleSlug);
       setSelectedSubjectId(parsed.subjectId);
       setSelectedChapterId(parsed.chapterId);
-      setSelectedTopicId(parsed.topicId);
+      // If user backed out of an active session, do not re-open the topic modal
+      if (!wasSessionActive) {
+        setSelectedTopicId(parsed.topicId);
+      } else {
+        setSelectedTopicId(null);
+      }
       setSelectedCoachingId(parsed.coachingId);
       setSelectedExamId(parsed.examId);
       setSelectedSeriesId(parsed.seriesId);
     };
+
 
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
@@ -1736,13 +1745,15 @@ export default function App() {
             selectedTopicId={selectedTopicId}
             onSelectTopic={(topId: string | null) => setSelectedTopicId(topId)}
             onBack={() => {
-              // Hierarchical back: return to subject view
+              // Hierarchical back: return to subject view cleanly
+              setSelectedTopicId(null);
               if (selectedChapterId) {
                 setSelectedChapterId(null);
               } else if (typeof window !== 'undefined' && window.history.length > 1) {
                 window.history.back();
               }
             }}
+
             onStartSession={handleStartSession}
             onAddTopic={(chapId: string, topic: any) => handleAddTopic(chapId, topic)}
             onEditTopic={(topic: any) => handleEditTopic(topic)}

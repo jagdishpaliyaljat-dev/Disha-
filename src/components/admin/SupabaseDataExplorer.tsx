@@ -55,7 +55,7 @@ export const SupabaseDataExplorer: React.FC<SupabaseDataExplorerProps> = ({
   userProfile,
   onNavigateBack,
 }) => {
-  const isAdmin = isUserAdmin(userProfile) || userProfile?.role === "admin";
+  const isAdmin = isUserAdmin(userProfile);
   const [selectedTable, setSelectedTable] = React.useState<string>("subjects");
   const [records, setRecords] = React.useState<any[]>([]);
   const [totalCount, setTotalCount] = React.useState<number | null>(null);

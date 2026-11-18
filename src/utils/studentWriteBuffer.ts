@@ -49,7 +49,8 @@ export const LEGACY_STUDENT_OUTBOX_STORAGE_KEY = "quizpro_student_outbox_v1";
 export const LEGACY_ADMIN_PREVIEW_SESSION_KEY = "quizpro_admin_preview_mode_v1";
 
 export const BATCH_FLUSH_QUESTION_THRESHOLD = 10;
-export const SAFE_BATCH_CHUNK_SIZE = 400; // Strict margin below Firestore's 500-op WriteBatch limit
+export const SAFE_BATCH_CHUNK_SIZE = 400; // Safe batch chunk size for Supabase PostgreSQL bulk upserts
+
 
 export type StudentSyncMode = "guest" | "admin_preview" | "student";
 

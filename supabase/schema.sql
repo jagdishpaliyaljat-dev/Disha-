@@ -135,10 +135,11 @@ SET search_path = ''
 AS $$
   SELECT COALESCE(
     (auth.jwt() -> 'app_metadata' ->> 'role' = 'admin') OR
-    (LOWER(auth.jwt() ->> 'email') IN ('jagdishpaliyaljat@gmail.com', 'zdpaliyal@gmail.com')),
+    (LOWER(auth.jwt() ->> 'email') IN ('jagdishpaliyaljat@gmail.com', 'zdpaliyal@gmail.com', 'kamleshchoudhary96022@gmail.com', 'disha2020prep@gmail.com')),
     false
   );
 $$;
+
 
 REVOKE ALL ON FUNCTION public.is_admin() FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.is_admin() TO anon, authenticated, service_role;

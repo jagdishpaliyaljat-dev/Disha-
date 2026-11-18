@@ -1189,7 +1189,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
 
       if (session.isPYQ || session.pyqDetails || (session.source as any) === "pyq" || session.testType === "pyq") {
         const marksPerQ = session.marksPerQuestion || 1;
-        const negMarksPerQ = session.negativeMarking ?? 0.33;
+        const negMarksPerQ = session.negativeMarking ?? Number((marksPerQ / 3).toFixed(2));
         const rawScore = totalCorrect * marksPerQ - totalWrong * negMarksPerQ;
         const finalScore = Math.max(0, Number(rawScore.toFixed(2)));
         const paperId = session.pyqDetails?.id || session.testId || session.title;
@@ -1224,6 +1224,11 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
         await recordPYQAttempt(attempt);
       }
       // Save unified Smart Test Result and Study Session Log locally
+      const smartMarksPerQ = session.marksPerQuestion || (isLiveTestSession ? 2 : 1);
+      const smartNegMarksPerQ = session.negativeMarking ?? (isLiveTestSession ? 0.66 : Number((smartMarksPerQ / 3).toFixed(2)));
+      const rawSmartScore = totalCorrect * smartMarksPerQ - totalWrong * smartNegMarksPerQ;
+      const finalSmartScore = Math.max(0, Number(rawSmartScore.toFixed(2)));
+
       const smartRecord: any = {
         testId: session.testId || `test_${Date.now()}`,
         title: session.title,
@@ -1236,10 +1241,11 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
         accuracy: sessionAccuracy,
         timeSpentSeconds: elapsedSeconds,
         completedAt: new Date().toISOString(),
-        score: Math.max(0, totalCorrect * (session.marksPerQuestion || 1) - totalWrong * (session.negativeMarking ?? 0.33)),
-        maxScore: questions.length * (session.marksPerQuestion || 1),
+        score: finalSmartScore,
+        maxScore: Number((questions.length * smartMarksPerQ).toFixed(2)),
       };
       saveSmartTestRecord(smartRecord);
+
 
       import("../utils/localDatabaseEngine").then(({ recordLocalStudySession }) => {
         const uid = userProfile?.id || "guest";

@@ -200,9 +200,16 @@ export async function hydrateUserQuestionsStoreFromIndexedDB(): Promise<UserQues
     // Direct Snapshot v1 fallback if still incomplete (< 500 questions)
     if (restoredCount < 500 && typeof window !== "undefined" && typeof fetch !== "undefined") {
       try {
-        const snapResp = await fetch("/api/snapshots/v1/content.json");
+        const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
+        const timeoutId = controller ? setTimeout(() => controller.abort(), 1500) : null;
+        const snapResp = await fetch("/api/snapshots/v1/content.json", {
+          signal: controller ? controller.signal : undefined,
+        });
+        if (timeoutId) clearTimeout(timeoutId);
         if (snapResp.ok) {
           const snap = await snapResp.json();
+
+
           if (Array.isArray(snap.mcqs) && snap.mcqs.length >= 500) {
             const current = inMemoryQuestionsStore;
             const deletedSet = new Set(current.deletedQuestionIds || []);
@@ -1028,7 +1035,8 @@ export function getCombinedChapters(store: UserQuestionsStore = loadUserQuestion
           (q as any).topic ||
           (q.topicId && q.topicId !== "gen" && q.topicId !== "chapter_general"
             ? (knownCustomTopic?.title || (q.topicId.startsWith("custom-topic-") ? "Custom Topic" : `Topic ${q.topicId}`))
-            : "General Practice (सामान्य अभ्यास)");
+            : (knownCustomTopic?.title || (targetChapter.title ? `${targetChapter.title} Practice` : "Topic Practice")));
+
 
         const resolvedHindiTitle =
           knownEdited?.hindiTitle ||

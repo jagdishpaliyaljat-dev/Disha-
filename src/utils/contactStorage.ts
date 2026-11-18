@@ -215,12 +215,13 @@ const NETWORK_TIMEOUT_MS = 8_000;
  * Bounds a network call so offline/slow networks never block the UI.
  * Resolves to null when the timeout wins.
  */
-function withTimeout<T>(promise: PromiseLike<T>, ms: number): Promise<T | null> {
+function withTimeout<T = any>(promise: PromiseLike<T>, ms: number): Promise<T | null> {
   return Promise.race([
     Promise.resolve(promise),
     new Promise<null>((resolve) => setTimeout(() => resolve(null), ms)),
   ]);
 }
+
 
 /**
  * Persists a contact inquiry.

@@ -85,7 +85,7 @@ export const AdminDiagnosticsSection: React.FC<AdminDiagnosticsSectionProps> = (
   subjects: propSubjects = [],
   chapters: propChapters = []
 }) => {
-  const isAdmin = isUserAdmin(userProfile) || userProfile?.role === "admin";
+  const isAdmin = isUserAdmin(userProfile);
 
   const [scanning, setScanning] = React.useState<boolean>(false);
   const [report, setReport] = React.useState<FullDiagnosticScanResult | null>(() => {

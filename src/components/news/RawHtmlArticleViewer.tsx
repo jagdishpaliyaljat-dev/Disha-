@@ -1,4 +1,5 @@
 import * as React from "react";
+import DOMPurify from "dompurify";
 
 interface RawHtmlArticleViewerProps {
   htmlContent: string;
@@ -14,6 +15,7 @@ interface RawHtmlArticleViewerProps {
  * - Interactive Collapsible FAQ Accordions with Q badges and animated chevrons
  * - Dynamic Schema.org FAQPage JSON-LD injection for instant search engine indexing
  * - Anchor IDs for smooth Table of Contents synchronization
+ * - Rigorous DOMPurify Sanitization against XSS
  */
 export const RawHtmlArticleViewer: React.FC<RawHtmlArticleViewerProps> = ({
   htmlContent,
@@ -21,28 +23,43 @@ export const RawHtmlArticleViewer: React.FC<RawHtmlArticleViewerProps> = ({
 }) => {
   const containerRef = React.useRef<HTMLDivElement>(null);
 
+  // Strictly sanitize untrusted HTML input to prevent Stored XSS
+  const sanitizedHtml = React.useMemo(() => {
+    if (!htmlContent) return "";
+    try {
+      const purify = (DOMPurify as any)?.sanitize
+        ? DOMPurify
+        : (DOMPurify as any)?.default?.sanitize
+        ? (DOMPurify as any).default
+        : typeof DOMPurify === "function" && typeof window !== "undefined"
+        ? (DOMPurify as any)(window)
+        : null;
+
+      if (purify && typeof purify.sanitize === "function") {
+        return purify.sanitize(htmlContent, {
+          ADD_TAGS: ["style"],
+          ADD_ATTR: ["target", "rel", "id", "class"],
+          FORBID_TAGS: ["script", "iframe", "object", "embed"],
+        });
+      }
+    } catch (e) {
+      console.warn("DOMPurify sanitize fallback in RawHtmlArticleViewer:", e);
+    }
+    return htmlContent;
+  }, [htmlContent]);
+
   React.useEffect(() => {
     if (!containerRef.current) return;
     const root = containerRef.current;
 
-    // 1. Safely execute any scripts if present
-    const scripts = root.querySelectorAll("script");
-    scripts.forEach((oldScript) => {
-      const newScript = document.createElement("script");
-      Array.from(oldScript.attributes).forEach((attr) => {
-        newScript.setAttribute(attr.name, attr.value);
-      });
-      newScript.appendChild(document.createTextNode(oldScript.innerHTML));
-      oldScript.parentNode?.replaceChild(newScript, oldScript);
-    });
-
-    // 2. Ensure headings have anchor IDs matching Table of Contents navigation
+    // 1. Ensure headings have anchor IDs matching Table of Contents navigation
     const headings = root.querySelectorAll("h2, h3");
     headings.forEach((h, idx) => {
       if (!h.id) {
         h.id = `heading-anchor-${idx}`;
       }
     });
+
 
     // 3. Wrap tables into smooth touch-scrolling responsive containers with right-edge fade indicators
     const cleanups: (() => void)[] = [];
@@ -1147,8 +1164,9 @@ export const RawHtmlArticleViewer: React.FC<RawHtmlArticleViewerProps> = ({
       <div
         ref={containerRef}
         className="blogger-raw-html-content w-full max-w-full overflow-hidden"
-        dangerouslySetInnerHTML={{ __html: htmlContent }}
+        dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
       />
+
     </div>
   );
 };

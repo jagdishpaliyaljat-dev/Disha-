@@ -40,7 +40,7 @@ const STORAGE_AUDIT_KEY = "disha2020_supabase_audit_logs_v1";
 const LEGACY_STORAGE_AUDIT_KEY = "quizpro_supabase_audit_logs_v1";
 
 export const SupabaseAuditConsole: React.FC<SupabaseAuditConsoleProps> = ({ userProfile }) => {
-  const isAdmin = isUserAdmin(userProfile) || userProfile?.role === "admin";
+  const isAdmin = isUserAdmin(userProfile);
   const [logs, setLogs] = React.useState<AuditRecord[]>(() => {
     if (typeof localStorage !== "undefined") {
       try {
