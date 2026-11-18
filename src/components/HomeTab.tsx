@@ -47,6 +47,7 @@ import {
   Sun,
   Plus,
   Compass,
+  Target,
 } from "lucide-react";
 import { BannerSlides } from "./BannerSlides";
 import { AppLogo } from "./AppLogo";
@@ -320,7 +321,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                 onClick={() => onNavigateTab?.("analytics")}
                 className="w-full min-h-[32px] sm:min-h-[36px] text-center text-[11px] sm:text-xs font-extrabold text-[#800020] dark:text-[#F47B20] hover:opacity-80 flex items-center justify-center gap-1 active:scale-95 transition-all cursor-pointer"
               >
-                <span>View Full Analytics & Reports</span>
+                <span>🎯 छात्र AI रिपोर्ट कार्ड व कमजोरी रडार देखें</span>
                 <ChevronRight className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -425,6 +426,47 @@ export const HomeTab: React.FC<HomeTabProps> = ({
             </motion.button>
           </section>
         </div>
+
+        {/* 3.5 AI WEAKNESS RADAR & STUDENT REPORT CARD CALLOUT */}
+        <section>
+          <motion.div
+            whileTap={{ scale: 0.99 }}
+            onClick={() => onNavigateTab?.("analytics")}
+            className="w-full bg-gradient-to-r from-[#800020] via-[#5E0017] to-[#171923] hover:brightness-105 border border-amber-400/30 rounded-xl sm:rounded-2xl p-3 sm:p-4 text-white shadow-md flex items-center justify-between text-left transition-all cursor-pointer group relative overflow-hidden"
+          >
+            {/* Background Glow */}
+            <div className="absolute top-0 right-0 w-44 h-44 bg-gradient-to-bl from-[#F47B20]/25 to-transparent rounded-full blur-xl pointer-events-none" />
+
+            <div className="flex items-center gap-3 min-w-0 flex-1 relative z-10">
+              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-white/15 border border-white/20 text-[#F47B20] flex items-center justify-center shrink-0 shadow-xs">
+                <Target className="w-5 h-5 sm:w-6 sm:h-6 text-[#F47B20]" />
+              </div>
+
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5 mb-0.5">
+                  <span className="text-xs sm:text-sm font-black tracking-tight text-white flex items-center gap-1">
+                    <span>छात्र AI रिपोर्ट कार्ड व कमजोरी रडार</span>
+                  </span>
+                  <span className="px-1.5 py-0.2 rounded-md bg-[#F47B20] text-white text-[9px] font-black uppercase tracking-wider">
+                    AI Radar
+                  </span>
+                </div>
+                <p className="text-[10.5px] sm:text-xs text-white/80 font-medium truncate">
+                  जानें परीक्षा में कहाँ कट रहे हैं अंक, नेगेटिव मार्किंग नुकसान और दें 1-क्लिक बूस्टर टेस्ट
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1 shrink-0 pl-2 relative z-10">
+              <span className="hidden sm:inline-block text-xs font-black text-amber-300">
+                रिपोर्ट देखें
+              </span>
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-white/10 flex items-center justify-center group-hover:translate-x-1 transition-transform">
+                <ChevronRight className="w-4 h-4 text-white" />
+              </div>
+            </div>
+          </motion.div>
+        </section>
 
         {/* 4. AI ENGINE SETUP CARD */}
         <section>

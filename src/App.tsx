@@ -1580,6 +1580,7 @@ export default function App() {
             subjects={combinedSubjects}
             chapters={combinedChapters}
             questions={combinedQuestions}
+            userProfile={userProfile}
             onStartSession={handleStartSession}
             onNavigateTab={(tab: ActiveTab) => setActiveTab(tab)}
           />

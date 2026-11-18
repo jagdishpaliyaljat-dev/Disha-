@@ -71,7 +71,7 @@ export function getActiveAICredentials(): {
       configured: true,
       provider: "gemini",
       apiKey: settings.geminiApiKey.trim(),
-      model: "gemini-3.8-flash",
+      model: "gemini-2.5-flash",
     };
   }
 
@@ -82,7 +82,7 @@ export function getActiveAICredentials(): {
       configured: true,
       provider: "gemini",
       apiKey: envGemini.trim(),
-      model: "gemini-3.8-flash",
+      model: "gemini-2.5-flash",
     };
   }
 
@@ -100,7 +100,7 @@ export function getActiveAICredentials(): {
     configured: false,
     provider: "gemini",
     apiKey: "",
-    model: "gemini-3.8-flash",
+    model: "gemini-2.5-flash",
   };
 }
 

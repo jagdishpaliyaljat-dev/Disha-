@@ -38,6 +38,9 @@ import { isDueToday, getTodayDateString } from "../utils/revision";
 import ShareModal, { ShareData } from "./ShareModal";
 import { triggerHaptic, playClickSound } from "../utils/audioFeedback";
 import { AIWeaknessHeatmap } from "./AIWeaknessHeatmap";
+import { StudentAIReportCard } from "./StudentAIReportCard";
+import { loadUserProfile } from "../utils/userProfileStorage";
+import { UserProfile } from "../types";
 
 interface AnalyticsTabProps {
   progressStore: ProgressStore;
@@ -46,6 +49,7 @@ interface AnalyticsTabProps {
   chapters: Chapter[];
   questions: Question[];
   studyHistory?: DailyStudyHistory;
+  userProfile?: UserProfile | null;
   onStartSession?: (session: MCQSession) => void;
   onNavigateTab: (tab: ActiveTab) => void;
 }
@@ -57,12 +61,16 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
   chapters,
   questions,
   studyHistory,
+  userProfile,
   onStartSession,
   onNavigateTab,
 }) => {
   const todayStr = settings.todayDate || getTodayDateString();
   const [shareData, setShareData] = useState<ShareData | null>(null);
   const [subjectFilter, setSubjectFilter] = useState<"all" | "weak" | "strong">("all");
+  const [viewMode, setViewMode] = useState<"report_card" | "detailed_analytics">("report_card");
+
+  const currentUserProfile = userProfile || loadUserProfile();
 
   // 7-day study analytics data
   const last7DaysData = useMemo(() => {
@@ -358,10 +366,75 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
       </header>
 
       <main className="p-4 sm:p-5 max-w-4xl mx-auto w-full space-y-4 sm:space-y-5">
-        {/* 2. HERO EXAM READINESS SCORECARD */}
-        <section className="bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-3xl p-5 shadow-2xs relative overflow-hidden">
-          {/* Subtle Accent Glow */}
-          <div className="absolute top-0 right-0 w-44 h-44 bg-gradient-to-bl from-[#800020]/10 via-[#F47B20]/5 to-transparent rounded-full blur-2xl pointer-events-none" />
+        {/* VIEW MODE TOGGLE SWITCHER */}
+        <div className="flex items-center gap-1.5 p-1 bg-[#F7EFE2] dark:bg-[#252A3A] rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] max-w-md mx-auto w-full">
+          <button
+            type="button"
+            onClick={() => {
+              triggerHaptic("light");
+              setViewMode("report_card");
+            }}
+            className={`flex-1 py-2 px-3 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+              viewMode === "report_card"
+                ? "bg-[#800020] text-white shadow-xs"
+                : "text-[#52576A] dark:text-[#CBD2E1] hover:text-[#171923]"
+            }`}
+          >
+            <Award className="w-3.5 h-3.5" />
+            <span>छात्र AI रिपोर्ट कार्ड</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              triggerHaptic("light");
+              setViewMode("detailed_analytics");
+            }}
+            className={`flex-1 py-2 px-3 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+              viewMode === "detailed_analytics"
+                ? "bg-[#800020] text-white shadow-xs"
+                : "text-[#52576A] dark:text-[#CBD2E1] hover:text-[#171923]"
+            }`}
+          >
+            <BarChart3 className="w-3.5 h-3.5" />
+            <span>विस्तृत ग्राफिक्स व विषय</span>
+          </button>
+        </div>
+
+        {viewMode === "report_card" ? (
+          <div className="space-y-4">
+            <StudentAIReportCard
+              questions={questions}
+              chapters={chapters}
+              subjects={subjects}
+              progressStore={progressStore}
+              settings={settings}
+              studyHistory={studyHistory}
+              userProfile={currentUserProfile}
+              onStartSession={onStartSession}
+              onNavigateTab={onNavigateTab}
+            />
+
+            <div className="pt-2 text-center">
+              <button
+                type="button"
+                onClick={() => {
+                  triggerHaptic("light");
+                  setViewMode("detailed_analytics");
+                }}
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] text-xs font-extrabold text-[#800020] dark:text-[#F47B20] hover:bg-[#F7EFE2] active:scale-95 transition-all cursor-pointer shadow-2xs"
+              >
+                <BarChart3 className="w-4 h-4" />
+                <span>विस्तृत विषयवार विश्लेषण व मेमोरी स्टेजेस देखें</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-4 sm:space-y-5">
+            {/* 2. HERO EXAM READINESS SCORECARD */}
+            <section className="bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-3xl p-5 shadow-2xs relative overflow-hidden">
+              {/* Subtle Accent Glow */}
+              <div className="absolute top-0 right-0 w-44 h-44 bg-gradient-to-bl from-[#800020]/10 via-[#F47B20]/5 to-transparent rounded-full blur-2xl pointer-events-none" />
 
           <div className="flex items-start justify-between gap-4 relative z-10">
             <div>
@@ -783,7 +856,9 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>
-      </main>
+      </div>
+    )}
+  </main>
 
       {/* Share Modal */}
       {shareData && (

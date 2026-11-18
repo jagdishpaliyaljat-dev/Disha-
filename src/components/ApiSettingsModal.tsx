@@ -45,7 +45,7 @@ const PROVIDER_META: Record<AIProvider, {
   gemini: {
     name: "Google Gemini",
     tagline: "Multimodal & High-Speed Reasoning",
-    defaultModel: "gemini-3.8-flash",
+    defaultModel: "gemini-2.5-flash",
     keyPlaceholder: "AIzaSy...",
     docsUrl: "https://aistudio.google.com/app/apikey",
     badgeClass: "bg-purple-100 text-purple-700 dark:bg-purple-950/50 dark:text-purple-300 border-purple-200 dark:border-purple-800",
@@ -105,7 +105,7 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
           name: "My Personal Gemini Key",
           provider: "gemini",
           apiKey: currentSettings.geminiApiKey.trim(),
-          model: "gemini-3.8-flash",
+          model: "gemini-2.5-flash",
           enabled: true,
           createdAt: new Date().toISOString()
         }]

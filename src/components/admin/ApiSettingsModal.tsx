@@ -92,7 +92,7 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({ onClose, onS
     enabled: initialConfig?.enabled ?? true, 
     name: initialConfig?.name || PROVIDER_INFO.gemini.defaultName, 
     apiKey: initialConfig?.apiKey || "", 
-    model: initialConfig?.model || PROVIDER_RECOMMENDED_MODELS[initialConfig?.provider || "gemini"]?.[0]?.id || "gemini-3.8-flash",
+    model: initialConfig?.model || PROVIDER_RECOMMENDED_MODELS[initialConfig?.provider || "gemini"]?.[0]?.id || "gemini-2.5-flash",
     priority: initialConfig?.priority ?? 1,
   });
 

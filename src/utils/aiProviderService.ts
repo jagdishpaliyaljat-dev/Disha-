@@ -13,26 +13,33 @@ export interface AIModelDefinition {
 export const PROVIDER_RECOMMENDED_MODELS: Record<AIProvider, AIModelDefinition[]> = {
   gemini: [
     {
-      id: "gemini-3.8-flash",
-      name: "gemini-3.8-flash",
-      displayName: "Gemini 3.8 Flash (Recommended - Flagship)",
+      id: "gemini-2.5-flash",
+      name: "gemini-2.5-flash",
+      displayName: "Gemini 2.5 Flash (Recommended - Ultra Fast)",
       provider: "gemini",
       description: "Primary general-purpose model for summarization, Q&A, and fast reasoning",
       recommended: true,
     },
     {
-      id: "gemini-3.1-flash-lite",
-      name: "gemini-3.1-flash-lite",
-      displayName: "Gemini 3.1 Flash Lite (Ultra Fast)",
+      id: "gemini-2.5-flash-lite",
+      name: "gemini-2.5-flash-lite",
+      displayName: "Gemini 2.5 Flash Lite (High Speed)",
       provider: "gemini",
       description: "Ultra-fast, lightweight multimodal reasoning for high-throughput tasks",
     },
     {
-      id: "gemini-flash-latest",
-      name: "gemini-flash-latest",
-      displayName: "Gemini Flash Latest",
+      id: "gemini-2.0-flash",
+      name: "gemini-2.0-flash",
+      displayName: "Gemini 2.0 Flash",
       provider: "gemini",
-      description: "Always points to the latest Gemini Flash release",
+      description: "High speed multimodal model",
+    },
+    {
+      id: "gemini-1.5-flash",
+      name: "gemini-1.5-flash",
+      displayName: "Gemini 1.5 Flash (Stable Fallback)",
+      provider: "gemini",
+      description: "Always points to stable Gemini Flash release",
     },
     {
       id: "gemini-2.5-pro",
@@ -270,7 +277,7 @@ export async function testAIKeyConnection({
   try {
     switch (provider) {
       case "gemini": {
-        const initialCandidate = (!selectedModel || selectedModel === "default" || selectedModel === "gemini-2.5-flash" || selectedModel === "gemini-1.5-flash") ? "gemini-3.8-flash" : selectedModel;
+        const initialCandidate = (!selectedModel || selectedModel === "default") ? "gemini-2.5-flash" : selectedModel;
         
         const runTestFetch = async (modelName: string, timeoutMs: number = CONNECTIVITY_TIMEOUT) => {
           return fetchWithAbort(
@@ -287,7 +294,7 @@ export async function testAIKeyConnection({
           );
         };
 
-        const candidatesToTry = Array.from(new Set([initialCandidate, "gemini-3.8-flash", "gemini-3.1-flash-lite", "gemini-flash-latest", "gemini-2.5-pro"]));
+        const candidatesToTry = Array.from(new Set([initialCandidate, "gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-2.0-flash", "gemini-1.5-flash"]));
 
         let response: Response | null = null;
         let activeModel = initialCandidate;
@@ -673,7 +680,7 @@ export async function executeAICompletion({
     let currentKey = apiKey.trim();
   let currentModel = model?.trim() || PROVIDER_RECOMMENDED_MODELS[provider]?.[0]?.id || "default";
   
-  const DEFAULT_TIMEOUT = 60000;
+  const DEFAULT_TIMEOUT = 25000;
 
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
@@ -692,8 +699,8 @@ export async function executeAICompletion({
           if (systemPrompt) config.systemInstruction = systemPrompt;
           if (jsonMode) config.responseMimeType = "application/json";
 
-          const targetModel = (currentModel && currentModel !== "default" && currentModel !== "gemini-2.5-flash" && currentModel !== "gemini-1.5-flash") ? currentModel : "gemini-3.8-flash";
-          const modelsToTry = Array.from(new Set([targetModel, "gemini-3.8-flash", "gemini-3.1-flash-lite", "gemini-flash-latest", "gemini-2.5-pro"]));
+          const targetModel = (!currentModel || currentModel === "default") ? "gemini-2.5-flash" : currentModel;
+          const modelsToTry = Array.from(new Set([targetModel, "gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-2.0-flash", "gemini-1.5-flash"]));
 
           let lastErr: any = null;
           for (const mName of modelsToTry) {
