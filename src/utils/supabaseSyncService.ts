@@ -1426,7 +1426,9 @@ export async function recordStudentAttempt(attempt: {
     }
     if (!uid || uid === "student_default" || String(uid).startsWith("guest_")) return;
 
+    const isValidUUID = Boolean(attempt.id && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(attempt.id));
     const row: any = {
+      ...(isValidUUID ? { id: attempt.id } : {}),
       user_id: uid,
       topic_id: attempt.topicId || null,
       subject_id: attempt.subjectId || null,
@@ -1436,8 +1438,8 @@ export async function recordStudentAttempt(attempt: {
       time_spent_seconds: attempt.timeSpentSeconds
     };
 
-    // Idempotent write: If client supplied an attempt ID (e.g. test session ID), upsert safely
-    const { error } = attempt.id
+    // Idempotent write: If client supplied a valid UUID, upsert safely
+    const { error } = isValidUUID
       ? await supabase.from("attempts").upsert(row, { onConflict: "id" })
       : await supabase.from("attempts").insert(row);
 

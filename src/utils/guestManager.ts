@@ -106,12 +106,19 @@ export async function migrateGuestDataToCloudOnAuth(userId: string): Promise<{
     try {
       const rows = localAttempts.slice(0, 50).map((att: any) => ({
         user_id: userId,
-        question_id: att.questionId ?? att.question_id ?? null,
-        selected_option: att.selectedOption ?? att.selected_option ?? null,
-        is_correct: att.isCorrect ?? att.is_correct ?? false,
-        time_spent: att.timeSpentSeconds || 0,
+        topic_id: att.topicId ?? att.topic_id ?? null,
+        subject_id: att.subjectId ?? att.subject_id ?? null,
+        score: typeof att.score === "number" ? att.score : (att.isCorrect ? 1 : 0),
+        total_questions: att.totalQuestions ?? 1,
+        answers: att.answers ?? (att.questionId ? {
+          [att.questionId]: {
+            selectedOption: att.selectedOption,
+            isCorrect: att.isCorrect
+          }
+        } : {}),
+        time_spent_seconds: att.timeSpentSeconds || att.time_spent || 0,
         created_at: att.timestamp || att.attemptedAt || new Date().toISOString(),
-      })).filter((row) => Boolean(row.question_id));
+      }));
 
       const { error } = await supabase.from("attempts").insert(rows);
       if (!error) {
