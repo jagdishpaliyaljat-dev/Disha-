@@ -134,3 +134,4 @@ export const RAJASTHAN_DIVISIONS: Record<DivisionId, DivisionInfo> = {
 };
 
 export const DIVISIONS_LIST = Object.values(RAJASTHAN_DIVISIONS);
+export const RAJASTHAN_DIVISIONS_LIST = DIVISIONS_LIST;
