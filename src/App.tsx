@@ -638,11 +638,23 @@ export default function App() {
       })
       .catch(() => {});
 
+    const handleOnline = () => {
+      rehydrateStudentWriteBuffer()
+        .then(async () => {
+          if (hasPendingStudentWrites()) {
+            await flushStudentWriteBuffer({ trigger: 'online_resume', userProfile });
+          }
+        })
+        .catch(() => {});
+    };
+
     document.addEventListener('visibilitychange', handleVisibilityChange);
     window.addEventListener('pagehide', flushStateOnBackground);
+    window.addEventListener('online', handleOnline);
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('pagehide', flushStateOnBackground);
+      window.removeEventListener('online', handleOnline);
     };
   }, [progressStore, settings, updateProgress, userProfile]);
 

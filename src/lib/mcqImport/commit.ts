@@ -8,7 +8,7 @@ import {
   mergeQuestionsIntoStore,
   bulkDeleteQuestions,
 } from "../../utils/questionsStorage";
-import { openLocalDatabase, idbPut, idbDelete, STORES } from "../../utils/localDatabaseEngine";
+import { openLocalDatabase, idbPut, idbPutBatch, idbDelete, STORES } from "../../utils/localDatabaseEngine";
 
 const IMPORTED_HASH_REGISTRY_KEY = "disha2020_imported_q_hashes_v1";
 const LEGACY_IMPORTED_HASH_REGISTRY_KEY = "quizpro_imported_q_hashes_v1";
@@ -168,9 +168,7 @@ export const commitQuestions = async (
   try {
     mergeQuestionsIntoStore(questions);
     await openLocalDatabase();
-    for (const q of questions) {
-      await idbPut(STORES.MCQS, q);
-    }
+    await idbPutBatch(STORES.MCQS, questions);
   } catch (localErr) {
     console.warn("[MCQ Import] Local cache update warning:", localErr);
   }
@@ -186,6 +184,15 @@ export const commitQuestions = async (
       count: questions.length,
       committedAt: new Date().toISOString(),
     };
+
+    // Prune to latest 20 batches to prevent localStorage QuotaExceededError
+    const batchKeys = Object.keys(batches);
+    if (batchKeys.length > 20) {
+      const keysToDelete = batchKeys.slice(0, batchKeys.length - 20);
+      for (const k of keysToDelete) {
+        delete batches[k];
+      }
+    }
     localStorage.setItem(IMPORT_BATCHES_STORAGE_KEY, JSON.stringify(batches));
   } catch {}
 

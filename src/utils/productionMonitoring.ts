@@ -80,6 +80,10 @@ const STORAGE_KEY = "disha_production_monitoring_v1";
 // Sensitive data scrubbing patterns
 const SECRET_PATTERNS = [
   /AIza[0-9A-Za-z-_]{35}/g,                     // Google API keys
+  /sk-proj-[a-zA-Z0-9_\-]{20,}/g,               // OpenAI Project keys
+  /sk-[a-zA-Z0-9_\-]{32,}/g,                    // OpenAI standard keys
+  /sk-ant-[a-zA-Z0-9_\-]{20,}/g,                // Anthropic Claude keys
+  /gsk_[a-zA-Z0-9_\-]{20,}/g,                   // Groq API keys
   /bearer\s+[a-zA-Z0-9_\-\.]+/gi,               // Bearer tokens
   /password["':\s]+["']?([^"',\s]+)["']?/gi,     // Passwords
   /secret["':\s]+["']?([^"',\s]+)["']?/gi,       // Secrets
@@ -90,6 +94,10 @@ function sanitizeMessage(input: string): string {
   if (!input || typeof input !== "string") return "";
   let sanitized = input;
   sanitized = sanitized.replace(/AIza[0-9A-Za-z-_]{35}/g, "[REDACTED_API_KEY]");
+  sanitized = sanitized.replace(/sk-proj-[a-zA-Z0-9_\-]{20,}/g, "[REDACTED_OPENAI_KEY]");
+  sanitized = sanitized.replace(/sk-[a-zA-Z0-9_\-]{32,}/g, "[REDACTED_OPENAI_KEY]");
+  sanitized = sanitized.replace(/sk-ant-[a-zA-Z0-9_\-]{20,}/g, "[REDACTED_CLAUDE_KEY]");
+  sanitized = sanitized.replace(/gsk_[a-zA-Z0-9_\-]{20,}/g, "[REDACTED_GROQ_KEY]");
   sanitized = sanitized.replace(/bearer\s+[a-zA-Z0-9_\-\.]+/gi, "Bearer [REDACTED_TOKEN]");
   sanitized = sanitized.replace(/(password|secret|pass|credential)["':\s]+["']?([^"',\s]+)["']?/gi, "$1: [REDACTED]");
   // Anonymize user emails to protect student privacy in production logs

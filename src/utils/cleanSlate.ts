@@ -120,11 +120,7 @@ export function isTestOrMockId(id?: string | null): boolean {
     trimmed.startsWith("reg_test_") ||
     trimmed.startsWith("reg_") ||
     trimmed.startsWith("usr-q-custom-topic-1794149994193-jxf0o-") ||
-    trimmed.startsWith("usr-q-gen-") ||
-    trimmed.startsWith("cet_q") ||
-    trimmed.startsWith("pyq_eoro_") ||
-    trimmed.startsWith("pyq_ras23_") ||
-    trimmed.startsWith("ras_q")
+    trimmed.startsWith("usr-q-gen-")
   ) {
     return true;
   }

@@ -139,7 +139,7 @@ export default defineConfig(({ command }) => {
               },
             },
             {
-              urlPattern: /^https:\/\/(?:storage\.googleapis\.com|[^/]+\.supabase\.co)\/.*/i,
+              urlPattern: /^https:\/\/(?:storage\.googleapis\.com|[^/]+\.supabase\.co\/storage\/v1\/object\/public)\/.*/i,
               handler: 'CacheFirst',
               options: {
                 cacheName: 'static-quiz-media-cache',

@@ -136,6 +136,10 @@ export const ToastNotificationContainer: React.FC<ToastNotificationProps> = ({
     if (!toasts || toasts.length === 0) return;
     toasts.forEach((t) => {
       if (!seenIdsRef.current.has(t.id)) {
+        if (seenIdsRef.current.size > 200) {
+          const oldest = Array.from(seenIdsRef.current).slice(0, 100);
+          oldest.forEach((id) => seenIdsRef.current.delete(id));
+        }
         seenIdsRef.current.add(t.id);
         const duration = t.duration || (t.type === "error" ? 4000 : 2000);
         enqueueToast({ ...t, duration });

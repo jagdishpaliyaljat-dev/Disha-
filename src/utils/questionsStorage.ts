@@ -198,7 +198,7 @@ export async function hydrateUserQuestionsStoreFromIndexedDB(): Promise<UserQues
     }
 
     // Direct Snapshot v1 fallback if still incomplete (< 500 questions)
-    if (restoredCount < 500 && typeof fetch !== "undefined") {
+    if (restoredCount < 500 && typeof window !== "undefined" && typeof fetch !== "undefined") {
       try {
         const snapResp = await fetch("/api/snapshots/v1/content.json");
         if (snapResp.ok) {
