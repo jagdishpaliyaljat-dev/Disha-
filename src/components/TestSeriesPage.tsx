@@ -1,25 +1,35 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { 
-  Coaching, 
-  CoachingExam, 
-  CoachingTestSeries, 
-  LiveTest, 
-  LiveTestSubmission, 
+import {
+  Coaching,
+  CoachingExam,
+  CoachingTestSeries,
+  LiveTest,
+  LiveTestSubmission,
   MCQSession,
   ActiveTab,
-  UserProfile
+  UserProfile,
 } from "../types";
-import { 
-  subscribeToCoachings, 
-  subscribeToCoachingExams, 
-  subscribeToCoachingTestSeries 
+import {
+  subscribeToCoachings,
+  subscribeToCoachingExams,
+  subscribeToCoachingTestSeries,
 } from "../utils/coachingHierarchyStorage";
-import { 
-  subscribeToLiveTests, 
-  fetchLiveTestSubmissions 
+import {
+  subscribeToLiveTests,
+  fetchLiveTestSubmissions,
 } from "../utils/liveTestStorage";
 import { triggerHaptic, playClickSound } from "../utils/audioFeedback";
-import { ArrowLeft, Play, RefreshCw } from "lucide-react";
+import {
+  ArrowLeft,
+  Play,
+  RefreshCw,
+  Building2,
+  Layers,
+  ChevronRight,
+  ShieldCheck,
+  Award,
+  BookOpen,
+} from "lucide-react";
 
 interface TestSeriesPageProps {
   coachingId: string | null;
@@ -46,12 +56,12 @@ export const TestSeriesPage: React.FC<TestSeriesPageProps> = ({
   const [exams, setExams] = useState<CoachingExam[]>([]);
   const [seriesList, setSeriesList] = useState<CoachingTestSeries[]>([]);
   const [liveTests, setLiveTests] = useState<LiveTest[]>([]);
+  const [submissions, setSubmissions] = useState<LiveTestSubmission[]>([]);
   const [fetchingTestId, setFetchingTestId] = useState<string | null>(null);
 
   // Subscriptions
   useEffect(() => {
     const unsubCoachings = subscribeToCoachings((data) => {
-      // Sort by order ascending
       const sorted = [...data]
         .filter((c) => c.isActive)
         .sort((a, b) => (a.order || 0) - (b.order || 0));
@@ -60,6 +70,10 @@ export const TestSeriesPage: React.FC<TestSeriesPageProps> = ({
 
     const unsubLiveTests = subscribeToLiveTests((testsData) => {
       setLiveTests(testsData.filter((t) => t.status !== "draft"));
+    });
+
+    fetchLiveTestSubmissions().then((subs) => {
+      setSubmissions(subs);
     });
 
     return () => {
@@ -126,7 +140,22 @@ export const TestSeriesPage: React.FC<TestSeriesPageProps> = ({
       .sort((a, b) => (a.order || 0) - (b.order || 0));
   }, [seriesList, coachingId, examId]);
 
-  // Start Existing Test
+  // Tests matching active series
+  const seriesTests = useMemo(() => {
+    if (!activeSeries) return [];
+    return liveTests.filter((t) => {
+      if (activeSeries.testIds && activeSeries.testIds.length > 0) {
+        return activeSeries.testIds.includes(t.id);
+      }
+      return (
+        t.examCategory?.toLowerCase() === activeExam?.examName.toLowerCase() ||
+        t.title?.toLowerCase().includes(activeExam?.examName || "") ||
+        true
+      );
+    });
+  }, [liveTests, activeSeries, activeExam]);
+
+  // Start Live Test session
   const handleStartLiveTest = async (test: LiveTest) => {
     if (fetchingTestId) return;
     triggerHaptic("light");
@@ -153,8 +182,8 @@ export const TestSeriesPage: React.FC<TestSeriesPageProps> = ({
 
       if (rawQuestions.length === 0) {
         const candidateIds = [
-          ...(Array.isArray(test.questions) ? test.questions.map((q: any) => typeof q === "string" ? q : q?.id) : []),
-          ...(Array.isArray((test as any).questionIds) ? (test as any).questionIds : [])
+          ...(Array.isArray(test.questions) ? test.questions.map((q: any) => (typeof q === "string" ? q : q?.id)) : []),
+          ...(Array.isArray((test as any).questionIds) ? (test as any).questionIds : []),
         ].filter(Boolean);
 
         if (candidateIds.length > 0) {
@@ -190,9 +219,9 @@ export const TestSeriesPage: React.FC<TestSeriesPageProps> = ({
 
       const extraQs = rawQuestions.map((q, idx) => ({
         ...q,
-        id: q.id || `series_${test.id}_q_${idx}`
+        id: q.id || `series_${test.id}_q_${idx}`,
       }));
-      const questionIds = extraQs.map(q => q.id);
+      const questionIds = extraQs.map((q) => q.id);
 
       onStartSession({
         title: test.title,
@@ -217,7 +246,11 @@ export const TestSeriesPage: React.FC<TestSeriesPageProps> = ({
     }
   };
 
-  // Dedicated Route Navigation Helpers
+  const getTestSubmission = (testId: string) => {
+    return submissions.find((s) => s.testId === testId);
+  };
+
+  // Route Navigation Helpers
   const handleGoPage1 = () => {
     triggerHaptic("light");
     onNavigate(null, null, null);
@@ -233,133 +266,202 @@ export const TestSeriesPage: React.FC<TestSeriesPageProps> = ({
     onNavigate(coachingId, examId, null);
   };
 
-  // Active tests matching the selected series
-  const seriesTests = useMemo(() => {
-    if (!activeSeries) return [];
-    return liveTests.filter((t) => {
-      if (activeSeries.testIds && activeSeries.testIds.length > 0) {
-        return activeSeries.testIds.includes(t.id);
-      }
-      return (
-        t.examCategory?.toLowerCase() === activeExam?.examName.toLowerCase() ||
-        t.title?.toLowerCase().includes(activeExam?.examName || "") ||
-        true
-      );
-    });
-  }, [liveTests, activeSeries, activeExam]);
-
-  // Page 3 Test Click -> If single test, start test; if seriesTests open test launcher
-  const handleTestSeriesClick = (series: CoachingTestSeries) => {
-    triggerHaptic("light");
-    playClickSound();
-    onNavigate(coachingId, examId, series.id);
-  };
-
   return (
     <div
-      className="flex flex-col w-full min-h-screen bg-[#FFF9EF] dark:bg-[#171923] text-[#171923] dark:text-[#FFF9EF] select-none pb-24"
-      id="test-series-minimal-view"
+      className="flex flex-col w-full min-h-screen bg-[#FFF9EF] dark:bg-[#171923] text-[#171923] dark:text-[#FFF9EF] select-none pb-28"
+      id="test-series-portal-view"
     >
+      {/* ── LEVEL 4: TESTS VIEW ────────────────────────────────────────── */}
       {coachingId && examId && seriesId ? (
-        <div className="w-full max-w-3xl mx-auto">
-          <header className="px-4 py-3 border-b border-[#E8D9C0] dark:border-[#31374A] flex items-center gap-3 sticky top-0 bg-white/95 dark:bg-[#1F2330]/95 backdrop-blur-xs z-10">
-            <button
-              onClick={handleGoPage3}
-              className="w-9 h-9 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] flex items-center justify-center text-[#171923] dark:text-[#FFF9EF] cursor-pointer"
-              aria-label="Back to Test Series list"
-            >
-              <ArrowLeft size={18} />
-            </button>
-            <h1 className="text-base font-bold text-[#171923] dark:text-[#FFF9EF] truncate font-hindi">
-              {activeSeries?.seriesName || "Tests"}
-            </h1>
+        <div className="w-full max-w-4xl mx-auto p-3.5 sm:p-4 space-y-4">
+          <header className="px-4 py-3 rounded-2xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-between gap-3 shadow-xs">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <button
+                onClick={handleGoPage3}
+                className="w-8 h-8 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] hover:bg-[#E8D9C0] dark:hover:bg-[#31374A] flex items-center justify-center text-[#171923] dark:text-[#FFF9EF] border border-[#E8D9C0] dark:border-[#31374A] transition-all cursor-pointer shrink-0 active:scale-95"
+                aria-label="Back to Test Series list"
+              >
+                <ArrowLeft size={16} />
+              </button>
+              <div className="min-w-0">
+                <span className="text-[10px] font-bold text-stone-500 dark:text-stone-400 block truncate">
+                  {activeCoaching?.name} • {activeExam?.examName}
+                </span>
+                <h1 className="text-sm sm:text-base font-black text-[#171923] dark:text-[#FFF9EF] truncate font-hindi">
+                  {activeSeries?.seriesName || "Tests"}
+                </h1>
+              </div>
+            </div>
+            <span className="px-2.5 py-1 rounded-lg bg-[#800020]/10 dark:bg-[#C99A45]/15 text-[#800020] dark:text-[#C99A45] text-[10px] font-black shrink-0 border border-[#800020]/20 dark:border-[#C99A45]/30">
+              {seriesTests.length} Tests
+            </span>
           </header>
 
-          <main className="divide-y divide-[#E8D9C0] dark:divide-[#31374A] bg-white dark:bg-[#1F2330] sm:mt-4 sm:rounded-2xl sm:border sm:border-[#E8D9C0] dark:sm:border-[#31374A] overflow-hidden">
+          <main className="space-y-3">
             {seriesTests.length === 0 ? (
-              <div className="p-6 text-center text-sm text-slate-500">
-                No tests available
+              <div className="p-10 text-center bg-white dark:bg-[#1F2330] rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] text-stone-500 dark:text-stone-400">
+                <BookOpen size={28} className="mx-auto mb-2 text-stone-400 opacity-70" />
+                <p className="font-bold">इस टेस्ट सीरीज में अभी कोई टेस्ट उपलब्ध नहीं है।</p>
               </div>
             ) : (
-              seriesTests.map((test, index) => (
-                <button
-                  key={test.id}
-                  onClick={() => handleStartLiveTest(test)}
-                  className="w-full px-4 py-3.5 flex items-center gap-3.5 text-left hover:bg-[#F7EFE2]/60 dark:hover:bg-[#252A3A] transition-colors cursor-pointer"
-                >
-                  <span className="w-6 text-sm font-bold text-[#800020] dark:text-[#F47B20] tabular-nums shrink-0 text-left">
-                    {index + 1}.
-                  </span>
-                  <span className="text-sm font-semibold text-[#171923] dark:text-[#FFF9EF] flex-1 truncate font-hindi">
-                    {test.title}
-                  </span>
-                  {fetchingTestId === test.id ? (
-                    <RefreshCw size={15} className="animate-spin text-[#800020] dark:text-[#F47B20] shrink-0" />
-                  ) : (
-                    <Play size={14} fill="currentColor" className="text-[#800020] dark:text-[#F47B20] shrink-0" />
-                  )}
-                </button>
-              ))
+              seriesTests.map((test, index) => {
+                const sub = getTestSubmission(test.id);
+                const qCount = test.questionCount || (test.questions ? test.questions.length : 25);
+                const duration = test.durationMinutes || 120;
+                const marks = test.totalMarks || 200;
+                const negMark = test.negativeMarking ? `-${test.negativeMarking}` : "-0.33";
+
+                return (
+                  <div
+                    key={test.id}
+                    className="p-4 rounded-2xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] hover:border-[#800020]/50 dark:hover:border-[#C99A45]/50 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs"
+                  >
+                    <div className="min-w-0 flex-1 space-y-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="w-5 h-5 rounded-md bg-[#800020]/10 dark:bg-[#C99A45]/15 text-[#800020] dark:text-[#C99A45] font-black text-xs flex items-center justify-center shrink-0">
+                          {index + 1}
+                        </span>
+                        <span className="px-2 py-0.5 rounded-md bg-[#C99A45]/15 text-[#800020] dark:text-[#C99A45] text-[9.5px] font-black flex items-center gap-1 border border-[#C99A45]/30">
+                          <ShieldCheck size={11} className="text-[#C99A45]" />
+                          Option E नियम
+                        </span>
+                        {sub && (
+                          <span className="px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 text-[9.5px] font-black border border-emerald-300 dark:border-emerald-800">
+                            सम्पन्न: {sub.score}/{sub.totalMarks} ({sub.accuracy.toFixed(0)}%)
+                          </span>
+                        )}
+                      </div>
+                      <h3 className="text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] font-hindi leading-snug">
+                        {test.title}
+                      </h3>
+                      <div className="flex items-center gap-3 text-[11px] font-bold text-stone-500 dark:text-stone-400 font-mono tabular-nums">
+                        <span>{qCount} प्रश्न</span>
+                        <span>•</span>
+                        <span>{duration} मिनट</span>
+                        <span>•</span>
+                        <span>{marks} अंक</span>
+                        <span>•</span>
+                        <span className="text-[#991B1B] dark:text-[#F47B20]">Neg: {negMark}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        onClick={() => handleStartLiveTest(test)}
+                        className="w-full sm:w-auto px-4 py-2 rounded-xl bg-gradient-to-r from-[#800020] via-[#5E0017] to-[#800020] hover:brightness-110 active:scale-95 text-[#FFF9EF] text-xs font-black flex items-center justify-center gap-2 border border-[#C99A45]/40 shadow-sm transition-all cursor-pointer"
+                      >
+                        {fetchingTestId === test.id ? (
+                          <RefreshCw size={13} className="animate-spin text-[#C99A45]" />
+                        ) : (
+                          <Play size={13} fill="currentColor" className="text-[#C99A45]" />
+                        )}
+                        <span>{sub ? "पुनः अभ्यास करें" : "टेस्ट शुरू करें"}</span>
+                      </button>
+                    </div>
+                  </div>
+                );
+              })
             )}
           </main>
         </div>
       ) : coachingId && examId ? (
-        <div className="w-full max-w-3xl mx-auto">
-          <header className="px-4 py-3 border-b border-[#E8D9C0] dark:border-[#31374A] flex items-center gap-3 sticky top-0 bg-white/95 dark:bg-[#1F2330]/95 backdrop-blur-xs z-10">
-            <button
-              onClick={handleGoPage2}
-              className="w-9 h-9 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] flex items-center justify-center text-[#171923] dark:text-[#FFF9EF] cursor-pointer"
-              aria-label="Back to Exam list"
-            >
-              <ArrowLeft size={18} />
-            </button>
-            <h1 className="text-base font-bold text-[#171923] dark:text-[#FFF9EF] truncate font-hindi">
-              {activeExam?.examName || "Test Series"}
-            </h1>
+        /* ── LEVEL 3: TEST SERIES PACKAGES ─────────────────────────────── */
+        <div className="w-full max-w-4xl mx-auto p-3.5 sm:p-4 space-y-4">
+          <header className="px-4 py-3 rounded-2xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-between gap-3 shadow-xs">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <button
+                onClick={handleGoPage2}
+                className="w-8 h-8 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] hover:bg-[#E8D9C0] dark:hover:bg-[#31374A] flex items-center justify-center text-[#171923] dark:text-[#FFF9EF] border border-[#E8D9C0] dark:border-[#31374A] transition-all cursor-pointer shrink-0 active:scale-95"
+                aria-label="Back to Exam list"
+              >
+                <ArrowLeft size={16} />
+              </button>
+              <div className="min-w-0">
+                <span className="text-[10px] font-bold text-stone-500 dark:text-stone-400 block truncate">
+                  {activeCoaching?.name}
+                </span>
+                <h1 className="text-sm sm:text-base font-black text-[#171923] dark:text-[#FFF9EF] truncate font-hindi">
+                  {activeExam?.examName || "Test Series"}
+                </h1>
+              </div>
+            </div>
+            <span className="px-2.5 py-1 rounded-lg bg-[#800020]/10 dark:bg-[#C99A45]/15 text-[#800020] dark:text-[#C99A45] text-[10px] font-black shrink-0 border border-[#800020]/20 dark:border-[#C99A45]/30">
+              {orderedSeriesList.length} सीरीज़
+            </span>
           </header>
 
-          <main className="divide-y divide-[#E8D9C0] dark:divide-[#31374A] bg-white dark:bg-[#1F2330] sm:mt-4 sm:rounded-2xl sm:border sm:border-[#E8D9C0] dark:sm:border-[#31374A] overflow-hidden">
+          <main className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {orderedSeriesList.length === 0 ? (
-              <div className="p-6 text-center text-sm text-slate-500">
-                No test series available
+              <div className="col-span-full p-8 text-center text-sm text-stone-500 dark:text-stone-400 bg-white dark:bg-[#1F2330] rounded-2xl border border-[#E8D9C0] dark:border-[#31374A]">
+                <Layers size={28} className="mx-auto mb-2 text-stone-400 opacity-70" />
+                <p className="font-bold">इस परीक्षा के लिए अभी कोई टेस्ट सीरीज उपलब्ध नहीं है।</p>
               </div>
             ) : (
               orderedSeriesList.map((series, index) => (
                 <button
                   key={series.id}
-                  onClick={() => handleTestSeriesClick(series)}
-                  className="w-full px-4 py-3.5 flex items-center gap-3.5 text-left hover:bg-[#F7EFE2]/60 dark:hover:bg-[#252A3A] transition-colors cursor-pointer"
+                  onClick={() => {
+                    triggerHaptic("light");
+                    playClickSound();
+                    onNavigate(coachingId, examId, series.id);
+                  }}
+                  className="p-4 rounded-2xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] hover:border-[#800020]/50 dark:hover:border-[#C99A45]/50 transition-all text-left flex items-center justify-between gap-3 cursor-pointer group shadow-xs active:scale-[0.99]"
                 >
-                  <span className="w-6 text-sm font-bold text-[#800020] dark:text-[#F47B20] tabular-nums shrink-0 text-left">
-                    {index + 1}.
-                  </span>
-                  <span className="text-sm font-semibold text-[#171923] dark:text-[#FFF9EF] flex-1 truncate font-hindi">
-                    {series.seriesName}
-                  </span>
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-10 h-10 rounded-xl bg-[#800020]/10 dark:bg-[#C99A45]/15 text-[#800020] dark:text-[#C99A45] flex items-center justify-center shrink-0 border border-[#800020]/20 dark:border-[#C99A45]/30 group-hover:scale-105 transition-transform">
+                      <Layers size={18} />
+                    </div>
+                    <div className="min-w-0">
+                      <span className="text-[10px] font-bold text-stone-400 dark:text-stone-500 uppercase tracking-wider block">
+                        सीरीज़ पैकेज #{index + 1}
+                      </span>
+                      <h3 className="text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] truncate font-hindi group-hover:text-[#800020] dark:group-hover:text-[#C99A45] transition-colors">
+                        {series.seriesName}
+                      </h3>
+                      <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5 line-clamp-1">
+                        {series.description || "संपूर्ण सिलेबस व विषयवार मॉक टेस्ट्स"}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="w-8 h-8 rounded-lg bg-[#F7EFE2] dark:bg-[#252A3A] flex items-center justify-center text-stone-600 dark:text-stone-300 group-hover:bg-[#800020] group-hover:text-[#FFF9EF] transition-all shrink-0">
+                    <ChevronRight size={16} />
+                  </div>
                 </button>
               ))
             )}
           </main>
         </div>
       ) : coachingId ? (
-        <div className="w-full max-w-3xl mx-auto">
-          <header className="px-4 py-3 border-b border-[#E8D9C0] dark:border-[#31374A] flex items-center gap-3 sticky top-0 bg-white/95 dark:bg-[#1F2330]/95 backdrop-blur-xs z-10">
-            <button
-              onClick={handleGoPage1}
-              className="w-9 h-9 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] flex items-center justify-center text-[#171923] dark:text-[#FFF9EF] cursor-pointer"
-              aria-label="Back to Coaching list"
-            >
-              <ArrowLeft size={18} />
-            </button>
-            <h1 className="text-base font-bold text-[#171923] dark:text-[#FFF9EF] truncate font-hindi">
-              {activeCoaching?.name || "Exams"}
-            </h1>
+        /* ── LEVEL 2: EXAMS DIRECTORY ──────────────────────────────────── */
+        <div className="w-full max-w-4xl mx-auto p-3.5 sm:p-4 space-y-4">
+          <header className="px-4 py-3 rounded-2xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-between gap-3 shadow-xs">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <button
+                onClick={handleGoPage1}
+                className="w-8 h-8 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] hover:bg-[#E8D9C0] dark:hover:bg-[#31374A] flex items-center justify-center text-[#171923] dark:text-[#FFF9EF] border border-[#E8D9C0] dark:border-[#31374A] transition-all cursor-pointer shrink-0 active:scale-95"
+                aria-label="Back to Coaching list"
+              >
+                <ArrowLeft size={16} />
+              </button>
+              <div className="min-w-0">
+                <span className="text-[10px] font-bold text-stone-500 dark:text-stone-400 block truncate">
+                  कोचिंग संस्थान
+                </span>
+                <h1 className="text-sm sm:text-base font-black text-[#171923] dark:text-[#FFF9EF] truncate font-hindi">
+                  {activeCoaching?.name || "Exams"}
+                </h1>
+              </div>
+            </div>
+            <span className="px-2.5 py-1 rounded-lg bg-[#800020]/10 dark:bg-[#C99A45]/15 text-[#800020] dark:text-[#C99A45] text-[10px] font-black shrink-0 border border-[#800020]/20 dark:border-[#C99A45]/30">
+              {orderedExams.length} Exams
+            </span>
           </header>
 
-          <main className="divide-y divide-[#E8D9C0] dark:divide-[#31374A] bg-white dark:bg-[#1F2330] sm:mt-4 sm:rounded-2xl sm:border sm:border-[#E8D9C0] dark:sm:border-[#31374A] overflow-hidden">
+          <main className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {orderedExams.length === 0 ? (
-              <div className="p-6 text-center text-sm text-slate-500">
-                No exams available
+              <div className="col-span-full p-8 text-center text-sm text-stone-500 dark:text-stone-400 bg-white dark:bg-[#1F2330] rounded-2xl border border-[#E8D9C0] dark:border-[#31374A]">
+                <Award size={28} className="mx-auto mb-2 text-stone-400 opacity-70" />
+                <p className="font-bold">इस संस्थान के लिए अभी कोई परीक्षा उपलब्ध नहीं है।</p>
               </div>
             ) : (
               orderedExams.map((exam, index) => (
@@ -370,43 +472,68 @@ export const TestSeriesPage: React.FC<TestSeriesPageProps> = ({
                     playClickSound();
                     onNavigate(coachingId, exam.id, null);
                   }}
-                  className="w-full px-4 py-3.5 flex items-center gap-3.5 text-left hover:bg-[#F7EFE2]/60 dark:hover:bg-[#252A3A] transition-colors cursor-pointer"
+                  className="p-4 rounded-2xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] hover:border-[#800020]/50 dark:hover:border-[#C99A45]/50 transition-all text-left flex items-center justify-between gap-3 cursor-pointer group shadow-xs active:scale-[0.99]"
                 >
-                  <span className="w-6 text-sm font-bold text-[#800020] dark:text-[#F47B20] tabular-nums shrink-0 text-left">
-                    {index + 1}.
-                  </span>
-                  <span className="text-sm font-semibold text-[#171923] dark:text-[#FFF9EF] flex-1 truncate font-hindi">
-                    {exam.examName}
-                  </span>
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-10 h-10 rounded-xl bg-[#F47B20]/15 text-[#F47B20] flex items-center justify-center shrink-0 border border-[#F47B20]/30 group-hover:scale-105 transition-transform">
+                      <Award size={18} />
+                    </div>
+                    <div className="min-w-0">
+                      <span className="text-[10px] font-bold text-stone-400 dark:text-stone-500 uppercase tracking-wider block">
+                        परीक्षा #{index + 1}
+                      </span>
+                      <h3 className="text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] truncate font-hindi group-hover:text-[#800020] dark:group-hover:text-[#C99A45] transition-colors">
+                        {exam.examName}
+                      </h3>
+                      <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">
+                        RPSC / RSMSSB परीक्षा पैटर्न
+                      </p>
+                    </div>
+                  </div>
+                  <div className="w-8 h-8 rounded-lg bg-[#F7EFE2] dark:bg-[#252A3A] flex items-center justify-center text-stone-600 dark:text-stone-300 group-hover:bg-[#800020] group-hover:text-[#FFF9EF] transition-all shrink-0">
+                    <ChevronRight size={16} />
+                  </div>
                 </button>
               ))
             )}
           </main>
         </div>
       ) : (
-        <div className="w-full max-w-3xl mx-auto">
-          <header className="px-4 py-3 border-b border-[#E8D9C0] dark:border-[#31374A] flex items-center gap-3 sticky top-0 bg-white/95 dark:bg-[#1F2330]/95 backdrop-blur-xs z-10">
-            {onNavigateTab && (
-              <button
-                onClick={() => {
-                  triggerHaptic("light");
-                  onNavigateTab("home");
-                }}
-                className="w-9 h-9 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] flex items-center justify-center text-[#171923] dark:text-[#FFF9EF] cursor-pointer"
-                aria-label="Back to Home"
-              >
-                <ArrowLeft size={18} />
-              </button>
-            )}
-            <h1 className="text-base font-bold text-[#171923] dark:text-[#FFF9EF] truncate">
-              Test Series
-            </h1>
+        /* ── LEVEL 1: COACHING INSTITUTES DIRECTORY ────────────────────── */
+        <div className="w-full max-w-4xl mx-auto p-3.5 sm:p-4 space-y-4">
+          <header className="px-4 py-3 rounded-2xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-between gap-3 shadow-xs">
+            <div className="flex items-center gap-2.5 min-w-0">
+              {onNavigateTab && (
+                <button
+                  onClick={() => {
+                    triggerHaptic("light");
+                    onNavigateTab("home");
+                  }}
+                  className="w-8 h-8 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] hover:bg-[#E8D9C0] dark:hover:bg-[#31374A] flex items-center justify-center text-[#171923] dark:text-[#FFF9EF] border border-[#E8D9C0] dark:border-[#31374A] transition-all cursor-pointer shrink-0 active:scale-95"
+                  aria-label="Back to Home"
+                >
+                  <ArrowLeft size={16} />
+                </button>
+              )}
+              <div>
+                <h1 className="text-sm sm:text-base font-black text-[#171923] dark:text-[#FFF9EF] leading-tight">
+                  प्रतिष्ठित कोचिंग टेस्ट सीरीज
+                </h1>
+                <p className="text-[10px] font-bold text-stone-500 dark:text-stone-400 mt-0.5">
+                  राजस्थान के शीर्ष संस्थानों द्वारा निर्मित प्रामाणिक परीक्षा टेस्ट्स
+                </p>
+              </div>
+            </div>
+            <span className="px-2.5 py-1 rounded-lg bg-[#800020]/10 dark:bg-[#C99A45]/15 text-[#800020] dark:text-[#C99A45] text-[10px] font-black shrink-0 border border-[#800020]/20 dark:border-[#C99A45]/30">
+              {orderedCoachings.length} संस्थान
+            </span>
           </header>
 
-          <main className="divide-y divide-[#E8D9C0] dark:divide-[#31374A] bg-white dark:bg-[#1F2330] sm:mt-4 sm:rounded-2xl sm:border sm:border-[#E8D9C0] dark:sm:border-[#31374A] overflow-hidden">
+          <main className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {orderedCoachings.length === 0 ? (
-              <div className="p-6 text-center text-sm text-slate-500">
-                No coaching institutes available
+              <div className="col-span-full p-8 text-center text-sm text-stone-500 dark:text-stone-400 bg-white dark:bg-[#1F2330] rounded-2xl border border-[#E8D9C0] dark:border-[#31374A]">
+                <Building2 size={28} className="mx-auto mb-2 text-stone-400 opacity-70" />
+                <p className="font-bold">अभी कोई कोचिंग संस्थान उपलब्ध नहीं है।</p>
               </div>
             ) : (
               orderedCoachings.map((coaching, index) => (
@@ -417,14 +544,29 @@ export const TestSeriesPage: React.FC<TestSeriesPageProps> = ({
                     playClickSound();
                     onNavigate(coaching.id, null, null);
                   }}
-                  className="w-full px-4 py-3.5 flex items-center gap-3.5 text-left hover:bg-[#F7EFE2]/60 dark:hover:bg-[#252A3A] transition-colors cursor-pointer"
+                  className="p-4 rounded-2xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] hover:border-[#800020]/50 dark:hover:border-[#C99A45]/50 transition-all text-left flex items-center justify-between gap-3 cursor-pointer group shadow-xs active:scale-[0.99]"
                 >
-                  <span className="w-6 text-sm font-bold text-[#800020] dark:text-[#F47B20] tabular-nums shrink-0 text-left">
-                    {index + 1}.
-                  </span>
-                  <span className="text-sm font-semibold text-[#171923] dark:text-[#FFF9EF] flex-1 truncate font-hindi">
-                    {coaching.name}
-                  </span>
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-11 h-11 rounded-2xl bg-[#800020] text-[#FFF9EF] flex items-center justify-center shrink-0 border border-[#C99A45]/40 shadow-xs group-hover:scale-105 transition-transform">
+                      <span className="text-base font-black text-[#C99A45]">
+                        {coaching.name.charAt(0)}
+                      </span>
+                    </div>
+                    <div className="min-w-0">
+                      <span className="text-[9.5px] font-black text-[#C99A45] uppercase tracking-wider block">
+                        संस्थान #{index + 1}
+                      </span>
+                      <h3 className="text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] truncate font-hindi group-hover:text-[#800020] dark:group-hover:text-[#C99A45] transition-colors">
+                        {coaching.name}
+                      </h3>
+                      <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5 line-clamp-1">
+                        {coaching.description || "सत्यापित परीक्षा टेस्ट सीरीज व मॉक पेपर्स"}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="w-8 h-8 rounded-lg bg-[#F7EFE2] dark:bg-[#252A3A] flex items-center justify-center text-stone-600 dark:text-stone-300 group-hover:bg-[#800020] group-hover:text-[#FFF9EF] transition-all shrink-0">
+                    <ChevronRight size={16} />
+                  </div>
                 </button>
               ))
             )}

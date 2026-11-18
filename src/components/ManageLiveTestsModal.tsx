@@ -273,31 +273,33 @@ export const ManageLiveTestsModal: React.FC<ManageLiveTestsModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[200] bg-slate-900/70 backdrop-blur-xs flex flex-col justify-end sm:justify-center p-0 sm:p-4 overflow-hidden">
-      <div className="bg-white dark:bg-[#111A2E] border-t sm:border border-slate-200 dark:border-slate-800 rounded-t-[32px] sm:rounded-3xl w-full max-w-3xl max-h-[92dvh] sm:max-h-[90vh] flex flex-col shadow-2xl overflow-hidden mb-0">
+    <div className="fixed inset-0 z-[200] bg-[#171923]/70 backdrop-blur-xs flex flex-col justify-end sm:justify-center p-0 sm:p-4 overflow-hidden">
+      <div className="bg-[#FFF9EF] dark:bg-[#171923] border-t sm:border border-[#E8D9C0] dark:border-[#31374A] rounded-t-[32px] sm:rounded-3xl w-full max-w-3xl max-h-[92dvh] sm:max-h-[90vh] flex flex-col shadow-2xl overflow-hidden mb-0">
         
         {/* Header */}
-        <div className="p-4 bg-slate-900 text-white flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-2">
-            <Radio className="w-5 h-5 text-red-500 animate-pulse" />
+        <div className="p-4 bg-gradient-to-r from-[#800020] via-[#5E0017] to-[#171923] text-[#FFF9EF] border-b border-[#C99A45]/30 flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-[#800020] border border-[#C99A45]/40 flex items-center justify-center text-[#C99A45] shadow-xs">
+              <Radio className="w-5 h-5 animate-pulse text-[#F47B20]" />
+            </div>
             <div>
-              <h2 className="text-base font-black font-display">Manage Live Tests (Admin Panel)</h2>
-              <p className="text-[11px] text-slate-400 font-bold">Control active, scheduled & past live tests</p>
+              <h2 className="text-base font-black font-display text-[#FFF9EF]">Live Tests Admin Studio</h2>
+              <p className="text-[11px] text-[#C99A45] font-bold">Control active, scheduled &amp; past live exams</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
             {!isCreating && (
               <button
                 onClick={handleOpenCreate}
-                className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-black flex items-center gap-1 shadow-xs transition-all cursor-pointer"
+                className="px-3 py-1.5 bg-[#800020] hover:bg-[#5E0017] text-[#FFF9EF] border border-[#C99A45]/40 rounded-xl text-xs font-black flex items-center gap-1 shadow-xs transition-all cursor-pointer"
               >
-                <Plus className="w-3.5 h-3.5" />
+                <Plus className="w-3.5 h-3.5 text-[#C99A45]" />
                 <span className="hidden xs:inline">+ Add Live Test</span>
               </button>
             )}
             <button
               onClick={onClose}
-              className="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center cursor-pointer"
+              className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-[#FFF9EF] flex items-center justify-center cursor-pointer transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
@@ -323,13 +325,13 @@ export const ManageLiveTestsModal: React.FC<ManageLiveTestsModalProps> = ({
           {isCreating ? (
             /* CREATE / EDIT FORM */
             <div className="space-y-4">
-              <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
-                <h3 className="text-sm font-black text-slate-900 dark:text-white">
+              <div className="flex items-center justify-between pb-2 border-b border-[#E8D9C0] dark:border-[#31374A]">
+                <h3 className="text-sm font-black text-slate-900 dark:text-[#FFF9EF]">
                   {editingTest ? "Edit Live Test" : "Create New Live Test"}
                 </h3>
                 <button
                   onClick={() => setIsCreating(false)}
-                  className="text-xs font-bold text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 cursor-pointer"
+                  className="text-xs font-bold text-slate-500 hover:text-[#800020] dark:hover:text-[#C99A45] cursor-pointer transition-colors"
                 >
                   Cancel
                 </button>
@@ -337,7 +339,7 @@ export const ManageLiveTestsModal: React.FC<ManageLiveTestsModalProps> = ({
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="sm:col-span-2">
-                  <label className="text-xs font-extrabold text-slate-700 dark:text-slate-300 block mb-1">
+                  <label className="text-xs font-extrabold text-slate-700 dark:text-[#E8D9C0] block mb-1">
                     Live Test Title *
                   </label>
                   <input
@@ -345,18 +347,18 @@ export const ManageLiveTestsModal: React.FC<ManageLiveTestsModalProps> = ({
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="e.g. RAS Pre Official Live Mock Test 2024"
-                    className="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-red-500"
+                    className="w-full p-2.5 rounded-xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] text-sm font-bold text-slate-900 dark:text-[#FFF9EF] focus:outline-none focus:ring-2 focus:ring-[#800020] dark:focus:ring-[#C99A45]"
                   />
                 </div>
 
                 <div>
-                  <label className="text-xs font-extrabold text-slate-700 dark:text-slate-300 block mb-1">
+                  <label className="text-xs font-extrabold text-slate-700 dark:text-[#E8D9C0] block mb-1">
                     Exam Category
                   </label>
                   <select
                     value={examCategory}
                     onChange={(e) => setExamCategory(e.target.value)}
-                    className="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-900 dark:text-white cursor-pointer"
+                    className="w-full p-2.5 rounded-xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] text-xs font-bold text-slate-900 dark:text-[#FFF9EF] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#800020] dark:focus:ring-[#C99A45]"
                   >
                     {categories.length > 0 ? (
                       categories.map((cat) => (
@@ -377,13 +379,13 @@ export const ManageLiveTestsModal: React.FC<ManageLiveTestsModalProps> = ({
                 </div>
 
                 <div>
-                  <label className="text-xs font-extrabold text-slate-700 dark:text-slate-300 block mb-1">
+                  <label className="text-xs font-extrabold text-slate-700 dark:text-[#E8D9C0] block mb-1">
                     Live Status
                   </label>
                   <select
                     value={status}
                     onChange={(e) => setStatus(e.target.value as any)}
-                    className="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-900 dark:text-white cursor-pointer"
+                    className="w-full p-2.5 rounded-xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] text-xs font-bold text-slate-900 dark:text-[#FFF9EF] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#800020] dark:focus:ring-[#C99A45]"
                   >
                     <option value="live">● Live Now (Active for students)</option>
                     <option value="upcoming">Upcoming (Scheduled)</option>
@@ -393,31 +395,31 @@ export const ManageLiveTestsModal: React.FC<ManageLiveTestsModalProps> = ({
                 </div>
 
                 <div>
-                  <label className="text-xs font-extrabold text-slate-700 dark:text-slate-300 block mb-1">
+                  <label className="text-xs font-extrabold text-slate-700 dark:text-[#E8D9C0] block mb-1">
                     Duration (Minutes)
                   </label>
                   <input
                     type="number"
                     value={durationMinutes}
                     onChange={(e) => setDurationMinutes(Number(e.target.value))}
-                    className="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-900 dark:text-white"
+                    className="w-full p-2.5 rounded-xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] text-xs font-bold text-slate-900 dark:text-[#FFF9EF] focus:outline-none focus:ring-2 focus:ring-[#800020] dark:focus:ring-[#C99A45]"
                   />
                 </div>
 
                 <div>
-                  <label className="text-xs font-extrabold text-slate-700 dark:text-slate-300 block mb-1">
+                  <label className="text-xs font-extrabold text-slate-700 dark:text-[#E8D9C0] block mb-1">
                     Total Marks
                   </label>
                   <input
                     type="number"
                     value={totalMarks}
                     onChange={(e) => setTotalMarks(Number(e.target.value))}
-                    className="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-900 dark:text-white"
+                    className="w-full p-2.5 rounded-xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] text-xs font-bold text-slate-900 dark:text-[#FFF9EF] focus:outline-none focus:ring-2 focus:ring-[#800020] dark:focus:ring-[#C99A45]"
                   />
                 </div>
 
                 <div>
-                  <label className="text-xs font-extrabold text-slate-700 dark:text-slate-300 block mb-1">
+                  <label className="text-xs font-extrabold text-slate-700 dark:text-[#E8D9C0] block mb-1">
                     Marks per Question
                   </label>
                   <input
@@ -425,12 +427,12 @@ export const ManageLiveTestsModal: React.FC<ManageLiveTestsModalProps> = ({
                     step="0.1"
                     value={marksPerQuestion}
                     onChange={(e) => setMarksPerQuestion(Number(e.target.value))}
-                    className="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-900 dark:text-white"
+                    className="w-full p-2.5 rounded-xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] text-xs font-bold text-slate-900 dark:text-[#FFF9EF] focus:outline-none focus:ring-2 focus:ring-[#800020] dark:focus:ring-[#C99A45]"
                   />
                 </div>
 
                 <div>
-                  <label className="text-xs font-extrabold text-slate-700 dark:text-slate-300 block mb-1">
+                  <label className="text-xs font-extrabold text-slate-700 dark:text-[#E8D9C0] block mb-1">
                     Negative Marking Rule (e.g. 0.33, 0.66, 0)
                   </label>
                   <input
@@ -438,34 +440,34 @@ export const ManageLiveTestsModal: React.FC<ManageLiveTestsModalProps> = ({
                     step="0.01"
                     value={negativeMarking}
                     onChange={(e) => setNegativeMarking(Number(e.target.value))}
-                    className="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-900 dark:text-white"
+                    className="w-full p-2.5 rounded-xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] text-xs font-bold text-slate-900 dark:text-[#FFF9EF] focus:outline-none focus:ring-2 focus:ring-[#800020] dark:focus:ring-[#C99A45]"
                   />
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="text-xs font-extrabold text-slate-700 dark:text-slate-300 block mb-1">
+                  <label className="text-xs font-extrabold text-slate-700 dark:text-[#E8D9C0] block mb-1">
                     Instructions & Description
                   </label>
                   <textarea
                     rows={2}
                     value={instructions}
                     onChange={(e) => setInstructions(e.target.value)}
-                    className="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs text-slate-900 dark:text-white"
+                    className="w-full p-2.5 rounded-xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] text-xs text-slate-900 dark:text-[#FFF9EF] focus:outline-none focus:ring-2 focus:ring-[#800020] dark:focus:ring-[#C99A45]"
                   />
                 </div>
               </div>
 
               {/* Questions Selection Bar */}
-              <div className="p-3 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-2">
+              <div className="p-3 bg-[#FFF9EF] dark:bg-[#171923] rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-black text-slate-800 dark:text-slate-200">
+                  <span className="text-xs font-black text-slate-800 dark:text-[#FFF9EF]">
                     Selected Questions ({selectedQuestions.length})
                   </span>
                   <div className="flex items-center gap-2 flex-wrap">
                     <button
                       type="button"
                       onClick={() => setShowHTMLImportModal(true)}
-                      className="px-3 py-1.5 bg-gradient-to-r from-orange-500 to-amber-600 hover:opacity-90 text-white rounded-xl text-xs font-bold cursor-pointer flex items-center gap-1.5 shadow-sm"
+                      className="px-3 py-1.5 bg-gradient-to-r from-[#F47B20] to-[#E06A14] hover:opacity-95 text-white rounded-xl text-xs font-bold cursor-pointer flex items-center gap-1.5 shadow-xs active:scale-95 transition-all"
                     >
                       <FileCode className="w-3.5 h-3.5 text-amber-200" />
                       <span>HTML Import MCQ</span>
@@ -473,9 +475,9 @@ export const ManageLiveTestsModal: React.FC<ManageLiveTestsModalProps> = ({
                     <button
                       type="button"
                       onClick={() => setShowAIImportModal(true)}
-                      className="px-3 py-1.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:opacity-90 text-white rounded-xl text-xs font-bold cursor-pointer flex items-center gap-1.5 shadow-sm"
+                      className="px-3 py-1.5 bg-gradient-to-r from-[#800020] to-[#5E0017] hover:opacity-95 text-[#FFF9EF] border border-[#C99A45]/30 rounded-xl text-xs font-bold cursor-pointer flex items-center gap-1.5 shadow-xs active:scale-95 transition-all"
                     >
-                      <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                      <Sparkles className="w-3.5 h-3.5 text-[#C99A45]" />
                       <span>AI / Smart MCQ Import</span>
                     </button>
                     <button
@@ -484,7 +486,7 @@ export const ManageLiveTestsModal: React.FC<ManageLiveTestsModalProps> = ({
                         setImportMethod("manual");
                         setShowBulkImport(true);
                       }}
-                      className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold cursor-pointer flex items-center gap-1.5"
+                      className="px-3 py-1.5 bg-[#1F2330] hover:bg-[#252A3A] text-[#FFF9EF] border border-[#31374A] rounded-xl text-xs font-bold cursor-pointer flex items-center gap-1.5 active:scale-95 transition-all"
                     >
                       <Plus className="w-3.5 h-3.5" />
                       <span>Add Single MCQ</span>
@@ -495,7 +497,7 @@ export const ManageLiveTestsModal: React.FC<ManageLiveTestsModalProps> = ({
                         setImportMethod("paste");
                         setShowBulkImport(true);
                       }}
-                      className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold cursor-pointer flex items-center gap-1.5"
+                      className="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold cursor-pointer flex items-center gap-1.5 active:scale-95 transition-all"
                     >
                       <Zap className="w-3.5 h-3.5" />
                       <span>Bulk MCQ Import</span>
@@ -503,7 +505,7 @@ export const ManageLiveTestsModal: React.FC<ManageLiveTestsModalProps> = ({
                     <button
                       type="button"
                       onClick={() => setShowQuestionPicker(true)}
-                      className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold cursor-pointer flex items-center gap-1"
+                      className="px-3 py-1.5 bg-[#C99A45] hover:bg-[#B88934] text-slate-950 font-black rounded-xl text-xs cursor-pointer flex items-center gap-1 active:scale-95 transition-all shadow-xs"
                     >
                       <Plus className="w-3.5 h-3.5" />
                       <span>Select From Bank</span>
@@ -512,16 +514,16 @@ export const ManageLiveTestsModal: React.FC<ManageLiveTestsModalProps> = ({
                 </div>
 
                 {selectedQuestions.length > 0 ? (
-                  <div className="max-h-40 overflow-y-auto space-y-1 pr-1">
+                  <div className="max-h-40 overflow-y-auto space-y-1.5 pr-1">
                     {selectedQuestions.map((q, idx) => (
                       <div
                         key={`${q.id}-${idx}`}
-                        className="p-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center justify-between gap-2"
+                        className="p-2.5 rounded-xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] text-xs font-bold text-slate-800 dark:text-[#FFF9EF] flex items-center justify-between gap-2 shadow-2xs"
                       >
                         <span className="truncate">Q{idx + 1}. {q.text}</span>
                         <button
                           onClick={() => setSelectedQuestions(selectedQuestions.filter((sq) => sq.id !== q.id))}
-                          className="text-rose-500 hover:text-rose-700 cursor-pointer"
+                          className="text-rose-500 hover:text-rose-700 cursor-pointer p-1"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -529,20 +531,20 @@ export const ManageLiveTestsModal: React.FC<ManageLiveTestsModalProps> = ({
                     ))}
                   </div>
                 ) : (
-                  <p className="text-xs text-slate-400">No questions selected yet.</p>
+                  <p className="text-xs text-slate-400 font-medium">No questions selected yet.</p>
                 )}
               </div>
 
               <div className="pt-2 flex items-center gap-2">
                 <button
                   onClick={handleSave}
-                  className="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-black shadow-xs cursor-pointer"
+                  className="flex-1 py-3 bg-gradient-to-r from-[#800020] via-[#5E0017] to-[#800020] hover:opacity-95 text-white rounded-xl text-xs font-black shadow-md border border-[#C99A45]/30 cursor-pointer active:scale-98 transition-all"
                 >
                   Save Live Test
                 </button>
                 <button
                   onClick={() => setIsCreating(false)}
-                  className="px-4 py-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold cursor-pointer"
+                  className="px-5 py-3 bg-[#F7EFE2] dark:bg-[#1F2330] text-slate-700 dark:text-[#E8D9C0] border border-[#E8D9C0] dark:border-[#31374A] rounded-xl text-xs font-bold cursor-pointer hover:bg-[#E8D9C0] dark:hover:bg-[#252A3A] transition-colors"
                 >
                   Cancel
                 </button>
@@ -552,21 +554,21 @@ export const ManageLiveTestsModal: React.FC<ManageLiveTestsModalProps> = ({
             /* LIST OF LIVE TESTS */
             <div className="space-y-3">
               <div className="flex items-center justify-between flex-wrap gap-2">
-                <span className="text-xs font-black text-slate-500 uppercase tracking-wider">
+                <span className="text-xs font-black text-slate-500 dark:text-[#E8D9C0] uppercase tracking-wider">
                   Live Tests ({tests.length})
                 </span>
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
                     onClick={() => setShowHTMLImportModal(true)}
-                    className="px-3 py-2 bg-gradient-to-r from-orange-500 to-amber-600 hover:opacity-90 text-white rounded-xl text-xs font-black flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
+                    className="px-3 py-2 bg-gradient-to-r from-[#F47B20] to-[#E06A14] hover:opacity-95 text-white rounded-xl text-xs font-black flex items-center gap-1.5 shadow-xs transition-all cursor-pointer active:scale-95"
                   >
                     <FileCode className="w-3.5 h-3.5 text-amber-200" />
                     <span>HTML Import MCQ</span>
                   </button>
                   <button
                     onClick={handleOpenCreate}
-                    className="px-3.5 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-black flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
+                    className="px-3.5 py-2 bg-gradient-to-r from-[#800020] via-[#5E0017] to-[#800020] hover:opacity-95 text-white border border-[#C99A45]/30 rounded-xl text-xs font-black flex items-center gap-1.5 shadow-sm transition-all cursor-pointer active:scale-95"
                   >
                     <Plus className="w-4 h-4" />
                     <span>Create Live Test</span>
@@ -576,7 +578,7 @@ export const ManageLiveTestsModal: React.FC<ManageLiveTestsModalProps> = ({
 
               {isLoading ? (
                 <div className="p-8 text-center text-xs font-bold text-slate-500 flex flex-col items-center gap-2">
-                  <RefreshCw className="w-5 h-5 text-red-500 animate-spin" />
+                  <RefreshCw className="w-5 h-5 text-[#800020] dark:text-[#C99A45] animate-spin" />
                   <span>Loading live tests...</span>
                 </div>
               ) : loadError ? (
@@ -591,7 +593,7 @@ export const ManageLiveTestsModal: React.FC<ManageLiveTestsModalProps> = ({
                   </button>
                 </div>
               ) : tests.length === 0 ? (
-                <div className="p-8 text-center bg-slate-50 dark:bg-slate-900 rounded-2xl text-xs font-bold text-slate-500">
+                <div className="p-8 text-center bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] rounded-2xl text-xs font-bold text-slate-500 dark:text-slate-400">
                   No live tests created yet. Click &ldquo;Create Live Test&rdquo; above.
                 </div>
               ) : (
@@ -599,22 +601,22 @@ export const ManageLiveTestsModal: React.FC<ManageLiveTestsModalProps> = ({
                   {tests.map((test) => (
                     <div
                       key={test.id}
-                      className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 space-y-2.5 shadow-2xs"
+                      className="bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-2xl p-4 space-y-2.5 shadow-2xs hover:border-[#C99A45]/50 transition-all"
                     >
                       <div className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
                           <span
                             className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase ${
                               test.status === "live"
-                                ? "bg-red-600 text-white animate-pulse"
+                                ? "bg-gradient-to-r from-red-600 to-rose-600 text-white animate-pulse"
                                 : test.status === "upcoming"
-                                ? "bg-amber-500 text-white"
-                                : "bg-slate-200 text-slate-700"
+                                ? "bg-[#F47B20] text-white"
+                                : "bg-[#F7EFE2] dark:bg-[#252A3A] text-slate-700 dark:text-[#E8D9C0]"
                             }`}
                           >
                             {test.status}
                           </span>
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300">
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FFF9EF] dark:bg-[#171923] text-[#800020] dark:text-[#C99A45] border border-[#C99A45]/30">
                             {test.examCategory}
                           </span>
                         </div>
@@ -622,7 +624,7 @@ export const ManageLiveTestsModal: React.FC<ManageLiveTestsModalProps> = ({
                         <div className="flex items-center gap-1">
                           <button
                             onClick={() => handleViewSubmissions(test)}
-                            className="px-2.5 py-1 bg-amber-500 text-slate-950 rounded-lg text-xs font-black hover:bg-amber-400 cursor-pointer flex items-center gap-1"
+                            className="px-2.5 py-1 bg-gradient-to-r from-[#C99A45] to-[#B88934] text-slate-950 rounded-lg text-xs font-black hover:opacity-90 cursor-pointer flex items-center gap-1 shadow-2xs"
                             title="View student ranks & scores"
                           >
                             <Trophy className="w-3.5 h-3.5" />
@@ -630,14 +632,14 @@ export const ManageLiveTestsModal: React.FC<ManageLiveTestsModalProps> = ({
                           </button>
                           <button
                             onClick={() => handleOpenEdit(test)}
-                            className="p-1.5 rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:text-blue-600 cursor-pointer"
+                            className="p-1.5 rounded-lg bg-[#F7EFE2] dark:bg-[#252A3A] text-slate-700 dark:text-[#FFF9EF] hover:text-[#800020] dark:hover:text-[#C99A45] cursor-pointer transition-colors"
                           >
                             <Edit2 className="w-3.5 h-3.5" />
                           </button>
                           <button
                             onClick={() => handleDelete(test.id)}
                             disabled={deletingTestId === test.id}
-                            className={`p-1.5 rounded-lg bg-slate-200 dark:bg-slate-800 text-rose-500 hover:text-rose-700 cursor-pointer ${
+                            className={`p-1.5 rounded-lg bg-[#F7EFE2] dark:bg-[#252A3A] text-rose-500 hover:text-rose-700 cursor-pointer transition-colors ${
                               deletingTestId === test.id ? "opacity-60 cursor-not-allowed" : ""
                             }`}
                           >
@@ -650,11 +652,11 @@ export const ManageLiveTestsModal: React.FC<ManageLiveTestsModalProps> = ({
                         </div>
                       </div>
 
-                      <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">
+                      <h3 className="text-sm font-extrabold text-slate-900 dark:text-[#FFF9EF]">
                         {test.title}
                       </h3>
 
-                      <div className="text-[11px] font-bold text-slate-500 flex items-center gap-3">
+                      <div className="text-[11px] font-bold text-slate-500 dark:text-[#E8D9C0]/70 flex items-center gap-3">
                         <span>{test.questionCount} Questions</span>
                         <span>{test.durationMinutes} Mins</span>
                         <span>{test.totalMarks} Marks</span>
@@ -671,15 +673,15 @@ export const ManageLiveTestsModal: React.FC<ManageLiveTestsModalProps> = ({
 
       {/* QUESTION PICKER MODAL */}
       {showQuestionPicker && (
-        <div className="fixed inset-0 z-[220] bg-slate-900/80 flex items-center justify-center p-3">
-          <div className="bg-white dark:bg-[#111A2E] rounded-2xl w-full max-w-xl max-h-[80vh] flex flex-col p-4 space-y-3">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
-              <h3 className="text-sm font-black text-slate-900 dark:text-white">
+        <div className="fixed inset-0 z-[220] bg-black/75 backdrop-blur-xs flex items-center justify-center p-3 animate-fade-in">
+          <div className="bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#C99A45]/30 rounded-3xl w-full max-w-xl max-h-[82vh] flex flex-col p-5 space-y-3.5 shadow-2xl">
+            <div className="flex items-center justify-between pb-3 border-b border-[#E8D9C0] dark:border-[#31374A]">
+              <h3 className="text-sm font-black text-slate-900 dark:text-[#FFF9EF]">
                 Pick Questions for Live Test
               </h3>
               <button
                 onClick={() => setShowQuestionPicker(false)}
-                className="text-xs font-bold text-slate-500 cursor-pointer"
+                className="text-xs font-bold text-slate-500 hover:text-[#800020] dark:hover:text-[#C99A45] cursor-pointer transition-colors"
               >
                 Done
               </button>
@@ -690,7 +692,7 @@ export const ManageLiveTestsModal: React.FC<ManageLiveTestsModalProps> = ({
               value={pickerSearch}
               onChange={(e) => setPickerSearch(e.target.value)}
               placeholder="Search question text..."
-              className="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-bold"
+              className="w-full p-2.5 rounded-xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] text-xs font-bold text-slate-900 dark:text-[#FFF9EF] focus:outline-none focus:ring-2 focus:ring-[#800020] dark:focus:ring-[#C99A45]"
             />
 
             <div className="flex-1 overflow-y-auto space-y-1.5 pr-1">
@@ -701,17 +703,17 @@ export const ManageLiveTestsModal: React.FC<ManageLiveTestsModalProps> = ({
                   <div
                     key={`${q.id}-${idx}`}
                     onClick={() => toggleSelectQuestionInPicker(q)}
-                    className={`p-2.5 rounded-xl border text-xs cursor-pointer flex items-start gap-2 ${
+                    className={`p-2.5 rounded-xl border text-xs cursor-pointer flex items-start gap-2.5 transition-all ${
                       isSelected
-                        ? "bg-blue-50 dark:bg-blue-950/60 border-blue-500 text-blue-900 dark:text-blue-100 font-bold"
-                        : "bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200"
+                        ? "bg-white dark:bg-[#800020]/25 border-[#800020] dark:border-[#C99A45] text-slate-900 dark:text-[#FFF9EF] font-bold shadow-2xs"
+                        : "bg-white/70 dark:bg-[#1F2330] border-[#E8D9C0] dark:border-[#31374A] text-slate-800 dark:text-[#E8D9C0]"
                     }`}
                   >
                     <input
                       type="checkbox"
                       checked={isSelected}
                       readOnly
-                      className="mt-0.5 rounded text-blue-600"
+                      className="mt-0.5 rounded text-[#800020] focus:ring-[#800020]"
                     />
                     <span className="flex-1 leading-snug">{q.text}</span>
                   </div>
@@ -721,7 +723,7 @@ export const ManageLiveTestsModal: React.FC<ManageLiveTestsModalProps> = ({
 
             <button
               onClick={() => setShowQuestionPicker(false)}
-              className="w-full py-2.5 bg-blue-600 text-white rounded-xl text-xs font-bold cursor-pointer"
+              className="w-full py-3 bg-gradient-to-r from-[#800020] via-[#5E0017] to-[#800020] hover:opacity-95 text-white rounded-xl text-xs font-black shadow-md border border-[#C99A45]/30 cursor-pointer active:scale-98 transition-all"
             >
               Add Selected Questions ({selectedQuestions.length})
             </button>
@@ -731,18 +733,18 @@ export const ManageLiveTestsModal: React.FC<ManageLiveTestsModalProps> = ({
 
       {/* SUBMISSIONS MODAL */}
       {viewingSubmissionsTest && (
-        <div className="fixed inset-0 z-[220] bg-slate-900/80 flex items-center justify-center p-3">
-          <div className="bg-white dark:bg-[#111A2E] rounded-2xl w-full max-w-xl max-h-[85vh] flex flex-col p-4 space-y-3">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
+        <div className="fixed inset-0 z-[220] bg-black/75 backdrop-blur-xs flex items-center justify-center p-3 animate-fade-in">
+          <div className="bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#C99A45]/30 rounded-3xl w-full max-w-xl max-h-[85vh] flex flex-col p-5 space-y-3.5 shadow-2xl">
+            <div className="flex items-center justify-between pb-3 border-b border-[#E8D9C0] dark:border-[#31374A]">
               <div>
-                <h3 className="text-sm font-black text-slate-900 dark:text-white">
+                <h3 className="text-sm font-black text-slate-900 dark:text-[#FFF9EF]">
                   Live Test Results & Leaderboard
                 </h3>
-                <p className="text-[11px] text-slate-400 font-bold">{viewingSubmissionsTest.title}</p>
+                <p className="text-[11px] text-[#C99A45] font-bold">{viewingSubmissionsTest.title}</p>
               </div>
               <button
                 onClick={() => setViewingSubmissionsTest(null)}
-                className="text-xs font-bold text-slate-500 cursor-pointer"
+                className="text-xs font-bold text-slate-500 hover:text-[#800020] dark:hover:text-[#C99A45] cursor-pointer transition-colors"
               >
                 Close
               </button>
@@ -757,15 +759,15 @@ export const ManageLiveTestsModal: React.FC<ManageLiveTestsModalProps> = ({
                 testSubmissions.map((sub, idx) => (
                   <div
                     key={sub.submissionId}
-                    className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs flex items-center justify-between"
+                    className="p-3 rounded-2xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] text-xs flex items-center justify-between shadow-2xs"
                   >
                     <div>
-                      <span className="font-mono font-black text-amber-500 mr-2">#{idx + 1}</span>
-                      <span className="font-bold text-slate-900 dark:text-white">{sub.userName || "Student"}</span>
+                      <span className="font-mono font-black text-[#C99A45] mr-2">#{idx + 1}</span>
+                      <span className="font-bold text-slate-900 dark:text-[#FFF9EF]">{sub.userName || "Student"}</span>
                     </div>
 
                     <div className="text-right">
-                      <span className="font-black text-emerald-600 block">{sub.score} / {sub.totalMarks} Marks</span>
+                      <span className="font-black text-emerald-600 dark:text-emerald-400 block">{sub.score} / {sub.totalMarks} Marks</span>
                       <span className="text-[10px] text-slate-400">{sub.accuracy.toFixed(0)}% Acc</span>
                     </div>
                   </div>
