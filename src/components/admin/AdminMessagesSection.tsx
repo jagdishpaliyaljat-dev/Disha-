@@ -52,7 +52,11 @@ export const AdminMessagesSection: React.FC<{ onBackToAdmin?: () => void }> = ({
     if (!window.confirm("Are you sure you want to delete this message?")) return;
     setIsDeleting(id);
     try {
-      await deleteContactMessage(id);
+      const ok = await deleteContactMessage(id);
+      if (!ok) {
+        alert("Message could not be deleted. Please check your permissions and try again.");
+        return;
+      }
       const updated = messages.filter(m => m.id !== id);
       setMessages(updated);
       if (selectedMessage?.id === id) setSelectedMessage(null);
@@ -66,7 +70,11 @@ export const AdminMessagesSection: React.FC<{ onBackToAdmin?: () => void }> = ({
 
   const handleUpdateStatus = async (id: string, newStatus: ContactMessage["status"]) => {
     try {
-      await updateContactMessageStatus(id, newStatus);
+      const ok = await updateContactMessageStatus(id, newStatus);
+      if (!ok) {
+        alert("Message status could not be updated. Please check your permissions and try again.");
+        return;
+      }
       const updated = messages.map(m => m.id === id ? { ...m, status: newStatus } : m);
       setMessages(updated);
       if (selectedMessage?.id === id) setSelectedMessage({ ...selectedMessage, status: newStatus });

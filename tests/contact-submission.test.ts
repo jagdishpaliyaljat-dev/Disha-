@@ -1,9 +1,19 @@
 // @vitest-environment jsdom
 import { describe, expect, it, beforeEach, vi } from "vitest";
+
+// Keep unit tests hermetic: never talk to the real Supabase project.
+vi.mock("../src/lib/supabase", () => ({
+  isSupabaseConfigured: () => false,
+  supabase: null,
+}));
+
 import {
   loadContactMessages,
   saveContactMessages,
   submitContactMessage,
+  fetchContactMessages,
+  updateContactMessageStatus,
+  deleteContactMessage,
 } from "../src/utils/contactStorage";
 
 describe("Contact form submission pipeline", () => {
@@ -102,5 +112,81 @@ describe("Contact form submission pipeline", () => {
     const loaded = loadContactMessages();
     expect(loaded).toHaveLength(1);
     expect(loaded[0]).toMatchObject({ id: "m1", name: "N", email: "e@x.com" });
+  });
+
+  it("CT-07 status update applies to the targeted message only", async () => {
+    saveContactMessages([
+      {
+        id: "a",
+        name: "A",
+        email: "a@x.com",
+        subject: "S",
+        message: "first message body",
+        createdAt: new Date().toISOString(),
+        status: "new",
+      },
+      {
+        id: "b",
+        name: "B",
+        email: "b@x.com",
+        subject: "S",
+        message: "second message body",
+        createdAt: new Date().toISOString(),
+        status: "new",
+      },
+    ]);
+
+    const ok = await updateContactMessageStatus("b", "read");
+    expect(ok).toBe(true);
+    const stored = loadContactMessages();
+    expect(stored.find((m) => m.id === "a")?.status).toBe("new");
+    expect(stored.find((m) => m.id === "b")?.status).toBe("read");
+  });
+
+  it("CT-08 delete removes only the targeted message", async () => {
+    saveContactMessages([
+      {
+        id: "keep",
+        name: "K",
+        email: "k@x.com",
+        subject: "S",
+        message: "keep this message",
+        createdAt: new Date().toISOString(),
+        status: "new",
+      },
+      {
+        id: "drop",
+        name: "D",
+        email: "d@x.com",
+        subject: "S",
+        message: "drop this message",
+        createdAt: new Date().toISOString(),
+        status: "new",
+      },
+    ]);
+
+    const ok = await deleteContactMessage("drop");
+    expect(ok).toBe(true);
+    const stored = loadContactMessages();
+    expect(stored).toHaveLength(1);
+    expect(stored[0].id).toBe("keep");
+  });
+
+  it("CT-09 fetch falls back to cached messages when Supabase is unavailable", async () => {
+    saveContactMessages([
+      {
+        id: "cached",
+        name: "C",
+        email: "c@x.com",
+        subject: "S",
+        message: "cached fallback message",
+        createdAt: new Date().toISOString(),
+        status: "new",
+      },
+    ]);
+
+    const msgs = await fetchContactMessages();
+    expect(msgs).toHaveLength(1);
+    expect(msgs[0].id).toBe("cached");
   });
 });

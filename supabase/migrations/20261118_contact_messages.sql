@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS public.contact_messages (
     email TEXT NOT NULL,
     subject TEXT NOT NULL,
     message TEXT NOT NULL,
-    status TEXT DEFAULT 'new' CHECK (status IN ('new','read','replied','archived')),
+    status TEXT NOT NULL DEFAULT 'new' CHECK (status IN ('new','read','replied','archived')),
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -24,21 +24,26 @@ GRANT INSERT ON TABLE public.contact_messages TO anon, authenticated;
 GRANT SELECT, UPDATE, DELETE ON TABLE public.contact_messages TO authenticated;
 
 -- Anyone (anon or authenticated) can submit a contact message.
+-- Policies are dropped first so this migration stays re-runnable.
+DROP POLICY IF EXISTS "Anyone can submit contact message" ON public.contact_messages;
 CREATE POLICY "Anyone can submit contact message"
   ON public.contact_messages FOR INSERT
   WITH CHECK (true);
 
 -- Only admins can read contact messages.
+DROP POLICY IF EXISTS "Admins can view all contact messages" ON public.contact_messages;
 CREATE POLICY "Admins can view all contact messages"
   ON public.contact_messages FOR SELECT
   USING (public.is_admin());
 
 -- Only admins can update contact messages (status changes).
+DROP POLICY IF EXISTS "Admins can update contact messages" ON public.contact_messages;
 CREATE POLICY "Admins can update contact messages"
   ON public.contact_messages FOR UPDATE
   USING (public.is_admin()) WITH CHECK (public.is_admin());
 
 -- Only admins can delete contact messages.
+DROP POLICY IF EXISTS "Admins can delete contact messages" ON public.contact_messages;
 CREATE POLICY "Admins can delete contact messages"
   ON public.contact_messages FOR DELETE
   USING (public.is_admin());

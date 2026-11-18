@@ -91,15 +91,21 @@ export async function fetchContactMessages(): Promise<ContactMessage[]> {
   const { client, configured } = await getSupabase();
   if (configured && client) {
     try {
-      const { data, error } = await client
-        .from("contact_messages")
-        .select("*")
-        .order("created_at", { ascending: false });
-      if (!error && Array.isArray(data)) {
-        const msgs = data.map(rowToMessage);
+      const result = await withTimeout(
+        client
+          .from("contact_messages")
+          .select("*")
+          .order("created_at", { ascending: false }),
+        NETWORK_TIMEOUT_MS
+      );
+      if (result && !result.error && Array.isArray(result.data)) {
+        const msgs = result.data.map(rowToMessage);
         // Cache locally for offline admin access
         saveContactMessages(msgs);
         return msgs;
+      }
+      if (!result) {
+        console.warn("Supabase contact fetch timed out; using local cache.");
       }
     } catch (err) {
       console.warn("Supabase contact fetch failed, falling back to local:", err);
@@ -118,16 +124,28 @@ export async function updateContactMessageStatus(
   const { client, configured } = await getSupabase();
   if (configured && client) {
     try {
-      const { error } = await client
-        .from("contact_messages")
-        .update({ status: newStatus, updated_at: new Date().toISOString() })
-        .eq("id", id);
-      if (!error) {
+      const result = await withTimeout(
+        client
+          .from("contact_messages")
+          .update({ status: newStatus, updated_at: new Date().toISOString() })
+          .eq("id", id)
+          .select("id"),
+        NETWORK_TIMEOUT_MS
+      );
+      if (result && !result.error && Array.isArray(result.data) && result.data.length > 0) {
         // Update local cache
         const local = loadContactMessages();
         const updated = local.map((m) => (m.id === id ? { ...m, status: newStatus } : m));
         saveContactMessages(updated);
         return true;
+      }
+      if (result && !result.error) {
+        // RLS filtered the row (0 rows affected): do not report success.
+        console.warn("Contact status update affected no rows (not permitted or missing).");
+        return false;
+      }
+      if (!result) {
+        console.warn("Contact status update timed out; using local cache.");
       }
     } catch (err) {
       console.warn("Supabase status update failed:", err);
@@ -147,11 +165,25 @@ export async function deleteContactMessage(id: string): Promise<boolean> {
   const { client, configured } = await getSupabase();
   if (configured && client) {
     try {
-      const { error } = await client.from("contact_messages").delete().eq("id", id);
-      if (!error) {
+      const result = await withTimeout(
+        client
+          .from("contact_messages")
+          .delete()
+          .eq("id", id)
+          .select("id"),
+        NETWORK_TIMEOUT_MS
+      );
+      if (result && !result.error && Array.isArray(result.data) && result.data.length > 0) {
         const local = loadContactMessages().filter((m) => m.id !== id);
         saveContactMessages(local);
         return true;
+      }
+      if (result && !result.error) {
+        console.warn("Contact delete affected no rows (not permitted or missing).");
+        return false;
+      }
+      if (!result) {
+        console.warn("Contact delete timed out; using local cache.");
       }
     } catch (err) {
       console.warn("Supabase delete failed:", err);
@@ -177,6 +209,18 @@ export interface SubmitContactResult {
 }
 
 const DUPLICATE_WINDOW_MS = 60_000;
+const NETWORK_TIMEOUT_MS = 8_000;
+
+/**
+ * Bounds a network call so offline/slow networks never block the UI.
+ * Resolves to null when the timeout wins.
+ */
+function withTimeout<T>(promise: PromiseLike<T>, ms: number): Promise<T | null> {
+  return Promise.race([
+    Promise.resolve(promise),
+    new Promise<null>((resolve) => setTimeout(() => resolve(null), ms)),
+  ]);
+}
 
 /**
  * Persists a contact inquiry.
@@ -227,35 +271,8 @@ export async function submitContactMessage(
     status: "new",
   };
 
-  // Try Supabase first (shared storage)
-  const { client, configured } = await getSupabase();
-  if (configured && client) {
-    try {
-      const { error } = await client.from("contact_messages").insert({
-        id,
-        name,
-        email,
-        subject,
-        message,
-        status: "new",
-        created_at: new Date(now).toISOString(),
-      });
-      if (!error) {
-        // Also cache locally
-        saveContactMessages([entry, ...existing]);
-        return {
-          success: true,
-          message: "Your message has been received.",
-          id,
-        };
-      }
-      console.warn("Supabase contact insert failed, falling back to local:", error.message);
-    } catch (err) {
-      console.warn("Supabase contact insert error, falling back to local:", err);
-    }
-  }
-
-  // Fallback: localStorage (local-only)
+  // Persist locally first: the user's message must never be lost because the
+  // network is slow or Supabase is unreachable.
   try {
     saveContactMessages([entry, ...existing]);
   } catch (err) {
@@ -264,6 +281,32 @@ export async function submitContactMessage(
       success: false,
       message: "We couldn't save your message right now. Please check your connection and try again.",
     };
+  }
+
+  // Best-effort shared sync; failure is non-fatal because the local copy exists.
+  const { client, configured } = await getSupabase();
+  if (configured && client) {
+    try {
+      const result = await withTimeout(
+        client.from("contact_messages").insert({
+          id,
+          name,
+          email,
+          subject,
+          message,
+          status: "new",
+          created_at: new Date(now).toISOString(),
+        }),
+        NETWORK_TIMEOUT_MS
+      );
+      if (!result) {
+        console.warn("Supabase contact insert timed out; kept local copy.");
+      } else if (result.error) {
+        console.warn("Supabase contact insert failed; kept local copy:", result.error.message);
+      }
+    } catch (err) {
+      console.warn("Supabase contact insert error; kept local copy:", err);
+    }
   }
 
   return {
