@@ -889,8 +889,14 @@ export async function enqueueSyncEvent(
 }
 
 export async function getPendingSyncEvents(limitCount = 500): Promise<SyncQueueEvent[]> {
-  const pending = await idbGetByIndex<SyncQueueEvent>(STORES.SYNC_QUEUE, "by_syncStatus", "pending");
-  return pending.sort((a, b) => a.clientTimestamp - b.clientTimestamp).slice(0, limitCount);
+  const [pending, failed] = await Promise.all([
+    idbGetByIndex<SyncQueueEvent>(STORES.SYNC_QUEUE, "by_syncStatus", "pending").catch(() => []),
+    idbGetByIndex<SyncQueueEvent>(STORES.SYNC_QUEUE, "by_syncStatus", "failed").catch(() => []),
+  ]);
+  // Retry failed events up to 5 times
+  const retryableFailed = failed.filter(e => (e.retryCount || 0) < 5);
+  const combined = [...pending, ...retryableFailed];
+  return combined.sort((a, b) => a.clientTimestamp - b.clientTimestamp).slice(0, limitCount);
 }
 
 export async function updateSyncEventsStatus(
