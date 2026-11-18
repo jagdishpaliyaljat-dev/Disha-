@@ -24,6 +24,12 @@ export async function registerUserToDirectory(profile: UserProfile): Promise<voi
   const now = new Date().toISOString();
   const isAdminUID = ADMIN_UIDS.includes(profile.id) || ADMIN_EMAILS.includes((profile.email || "").trim().toLowerCase());
 
+  // Keep in-memory cache up to date immediately
+  const currentDir = getLocalUsersDirectory();
+  if (!currentDir.some(u => u.id === profile.id)) {
+    setLocalUsersDirectory([profile, ...currentDir]);
+  }
+
   try {
     const { error } = await supabase.from("profiles").upsert(
       {
@@ -167,8 +173,20 @@ export function mapRowToUserProfile(row: any): UserProfile {
  * classic "load more returns page 1 again" bug.
  */
 export async function fetchRegisteredUsers(lastDoc?: any, pageSize = 50): Promise<{ users: UserProfile[]; lastVisible: any; hasMore: boolean }> {
-  const profile = loadUserProfile();
-  if (!isUserAdmin(profile)) {
+  let profile = loadUserProfile();
+  let isAdmin = isUserAdmin(profile);
+
+  if (!isAdmin) {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const email = (session?.user?.email || "").trim().toLowerCase();
+      if (email && (ADMIN_EMAILS.includes(email) || ADMIN_UIDS.includes(session?.user?.id || ""))) {
+        isAdmin = true;
+      }
+    } catch {}
+  }
+
+  if (!isAdmin) {
     return { users: getLocalUsersDirectory(), lastVisible: null, hasMore: false };
   }
 
@@ -180,7 +198,7 @@ export async function fetchRegisteredUsers(lastDoc?: any, pageSize = 50): Promis
   try {
     const { data, error } = await supabase
       .from("profiles")
-      .select("id,email,display_name,photo_url,role,created_at,updated_at")
+      .select("id,email,display_name,photo_url,role,status,blocked,target_exam,daily_goal_questions,streak_days,created_at,updated_at")
       .order("created_at", { ascending: false })
       .range(offset, offset + safePageSize);
 
@@ -278,6 +296,19 @@ export async function updateUserAccountStatus(
   }
 
   const isBlocked = newStatus === "blocked";
+
+  try {
+    const { error } = await supabase
+      .from("profiles")
+      .update({ status: newStatus, blocked: isBlocked, updated_at: new Date().toISOString() })
+      .eq("id", userId);
+    if (error) {
+      console.warn("Failed to persist status to Supabase:", error.message);
+    }
+  } catch (e) {
+    console.warn("Status update network error:", e);
+  }
+
   let localUsers = getLocalUsersDirectory();
   localUsers = localUsers.map(u => u.id === userId ? { ...u, status: newStatus, blocked: isBlocked } : u);
   setLocalUsersDirectory(localUsers);

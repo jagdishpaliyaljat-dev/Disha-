@@ -1593,8 +1593,9 @@ export async function syncUserProfileToSupabase(profile: any): Promise<boolean> 
       id: uid,
       email: profile.email || session.user.email || null,
       display_name: profile.name || profile.displayName || session.user.user_metadata?.full_name || "Student",
-      photo_url: profile.photoURL || session.user.user_metadata?.avatar_url || null,
+      photo_url: profile.photoURL || session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture || null,
       role: assignedRole,
+      status: profile.status || "active",
       updated_at: new Date().toISOString()
     }, { onConflict: "id" });
 

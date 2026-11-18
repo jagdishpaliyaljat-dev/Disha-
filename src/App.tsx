@@ -723,7 +723,7 @@ export default function App() {
             id: u.id,
             name: u.user_metadata?.full_name || u.user_metadata?.name || u.email?.split("@")[0] || "Student",
             email: u.email || "",
-            photoURL: u.user_metadata?.avatar_url || "",
+            photoURL: u.user_metadata?.avatar_url || u.user_metadata?.picture || "",
             role: isAdminUser ? "admin" : "student",
             status: "active",
             createdAt: u.created_at || new Date().toISOString(),
@@ -731,6 +731,19 @@ export default function App() {
           setUserProfile(profile);
           setIsAuthenticated(true);
           saveProfile(profile);
+
+          // Direct immediate sync to Supabase database & user directory on login
+          try {
+            const [{ syncUserProfileToSupabase }, { registerUserToDirectory }] = await Promise.all([
+              import('./utils/supabaseSyncService'),
+              import('./utils/userManagementStorage'),
+            ]);
+            syncUserProfileToSupabase(profile).catch(() => {});
+            registerUserToDirectory(profile).catch(() => {});
+          } catch (syncErr) {
+            console.warn("Immediate profile sync note:", syncErr);
+          }
+
           // Only force admin view on (re)login when the admin hasn't explicitly
           // chosen to browse the student app. This keeps "Return to Student App"
           // from being overridden by the session restore redirect.
