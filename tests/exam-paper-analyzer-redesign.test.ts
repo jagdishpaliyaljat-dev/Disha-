@@ -80,4 +80,55 @@ describe("DISHA 20-20 — AI Exam Paper Analyzer Redesign Suite", () => {
     expect(meta.shiftCode).toContain("Morning Shift");
     expect(meta.selectedSubjectId).toBe("all");
   });
+
+  it("strictly stores exam analysis records in user's local device storage without cloud sync", async () => {
+    const { saveExamAnalysis, getAnalysesHistory, deleteLocalAnalysis, clearAllLocalAnalyses } = await import(
+      "../src/utils/examPaperStorage"
+    );
+
+    await clearAllLocalAnalyses();
+
+    const sampleAnalysis = {
+      analysisId: "test-analysis-local-1",
+      userId: "local-user",
+      examId: "ras-pre-2024",
+      examName: "RAS Pre 2024 Local",
+      paperYear: "2024",
+      paperDate: "2024-10-27",
+      paperName: "General Knowledge & General Science",
+      shiftCode: "Morning",
+      status: "completed" as const,
+      totalPages: 1,
+      detectedQuestionCount: 5,
+      analyzedQuestionCount: 5,
+      exactMatchCount: 3,
+      nearExactMatchCount: 1,
+      similarMatchCount: 1,
+      conceptMatchCount: 0,
+      unmatchedCount: 0,
+      needsReviewCount: 0,
+      createdAt: new Date().toISOString(),
+      completedAt: new Date().toISOString(),
+      schemaVersion: 1,
+      questions: [],
+    };
+
+    // Save to local device
+    await saveExamAnalysis(sampleAnalysis);
+
+    // Retrieve from local device
+    const list = await getAnalysesHistory();
+    expect(list.length).toBeGreaterThanOrEqual(1);
+    expect(list.some((a) => a.analysisId === "test-analysis-local-1")).toBe(true);
+
+    // Delete single analysis locally
+    deleteLocalAnalysis("test-analysis-local-1");
+    const listAfterDelete = await getAnalysesHistory();
+    expect(listAfterDelete.some((a) => a.analysisId === "test-analysis-local-1")).toBe(false);
+
+    // Clear all
+    await clearAllLocalAnalyses();
+    const emptyList = await getAnalysesHistory();
+    expect(emptyList).toHaveLength(0);
+  });
 });

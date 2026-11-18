@@ -11,12 +11,14 @@ import {
   Sparkles,
   Calendar,
   Layers,
+  ShieldCheck,
 } from "lucide-react";
 
 interface AnalysesHistoryModalProps {
   analyses: ExamPaperAnalysis[];
   onSelectAnalysis: (analysis: ExamPaperAnalysis) => void;
   onDeleteAnalysis: (analysisId: string) => void;
+  onClearAll?: () => void;
   onClose: () => void;
 }
 
@@ -24,6 +26,7 @@ export const AnalysesHistoryModal: React.FC<AnalysesHistoryModalProps> = ({
   analyses,
   onSelectAnalysis,
   onDeleteAnalysis,
+  onClearAll,
   onClose,
 }) => {
   return (
@@ -55,6 +58,29 @@ export const AnalysesHistoryModal: React.FC<AnalysesHistoryModalProps> = ({
             >
               <X className="w-5 h-5" />
             </button>
+          </div>
+
+          {/* Local Device Privacy Banner */}
+          <div className="px-4 py-2 bg-emerald-50 dark:bg-emerald-950/40 border-b border-emerald-200/60 dark:border-emerald-900/40 flex items-center justify-between gap-2 text-xs">
+            <div className="flex items-center gap-1.5 text-emerald-800 dark:text-emerald-300">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+              <span className="text-[10.5px] font-semibold">
+                Stored strictly on your local device (IndexedDB/LocalStorage) • Zero cloud sync
+              </span>
+            </div>
+            {analyses.length > 0 && onClearAll && (
+              <button
+                type="button"
+                onClick={() => {
+                  if (window.confirm("Are you sure you want to delete all local exam analyses from this device?")) {
+                    onClearAll();
+                  }
+                }}
+                className="text-[10px] font-bold text-rose-600 hover:text-rose-800 dark:text-rose-400 hover:underline shrink-0 cursor-pointer"
+              >
+                Clear All
+              </button>
+            )}
           </div>
 
           {/* List */}

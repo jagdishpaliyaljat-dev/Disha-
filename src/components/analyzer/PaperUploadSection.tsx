@@ -22,6 +22,7 @@ import {
   X,
   History,
   FileUp,
+  ShieldCheck,
 } from "lucide-react";
 
 export interface UploadedFileItem {
@@ -360,7 +361,21 @@ export const PaperUploadSection: React.FC<PaperUploadSectionProps> = ({
         </button>
       </div>
 
-      {/* 2. Modern Segmented Tab Controller */}
+      {/* 2. Privacy Guarantee Badge: 100% On-Device Local Storage */}
+      <div className="flex items-center justify-between px-3 py-1.5 rounded-xl bg-emerald-50/90 dark:bg-emerald-950/30 border border-emerald-200/80 dark:border-emerald-900/40 text-[11px] text-emerald-800 dark:text-emerald-300 shadow-2xs">
+        <div className="flex items-center gap-1.5 min-w-0">
+          <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+          <span className="font-bold shrink-0">100% On-Device Privacy:</span>
+          <span className="text-[10.5px] text-emerald-700 dark:text-emerald-400 truncate">
+            Scanned exam papers & analyses are stored strictly on your local device only.
+          </span>
+        </div>
+        <span className="hidden sm:inline-block text-[9px] font-black uppercase px-2 py-0.5 rounded-md bg-emerald-700 text-white tracking-wider shrink-0">
+          Local Device Only
+        </span>
+      </div>
+
+      {/* 3. Modern Segmented Tab Controller */}
       <div className="bg-[#F4EBE0]/80 dark:bg-[#1A1D27] p-1 rounded-2xl border border-[#E4D6BF] dark:border-[#2D3344] flex items-center gap-1 shadow-inner overflow-x-auto no-scrollbar">
         {tabsConfig.map((tab) => {
           const Icon = tab.icon;

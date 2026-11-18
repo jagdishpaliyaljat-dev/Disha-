@@ -19,6 +19,7 @@ import {
   saveExamAnalysis,
   getAnalysesHistory,
   deleteLocalAnalysis,
+  clearAllLocalAnalyses,
   updateQuestionMatchReview,
 } from "../../utils/examPaperStorage";
 import {
@@ -387,6 +388,14 @@ export const ExamPaperAnalyzerModal: React.FC<ExamPaperAnalyzerModalProps> = ({
     }
   };
 
+  // Clear all analyses strictly from local device
+  const handleClearAllAnalyses = async () => {
+    await clearAllLocalAnalyses();
+    setSavedAnalyses([]);
+    setActiveAnalysis(null);
+    setCurrentStep("upload");
+  };
+
   return (
     <div className="fixed inset-x-0 top-0 bottom-[60px] z-40 overflow-y-auto bg-[#FFF9EF] dark:bg-[#171923] flex flex-col pb-32">
       {/* Top Navigation Bar with Step Progression */}
@@ -589,6 +598,7 @@ export const ExamPaperAnalyzerModal: React.FC<ExamPaperAnalyzerModalProps> = ({
             setCurrentStep("report");
           }}
           onDeleteAnalysis={handleDeleteAnalysis}
+          onClearAll={handleClearAllAnalyses}
           onClose={() => setShowHistoryModal(false)}
         />
       )}
