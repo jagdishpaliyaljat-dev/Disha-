@@ -28,6 +28,7 @@ import {
   getActiveAICredentials 
 } from "../utils/aiTutorService";
 import { RichText } from "./RichText";
+import { AIMessageRenderer } from "./AIMessageRenderer";
 
 interface DishaAITutorModalProps {
   isOpen: boolean;
@@ -359,9 +360,7 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
                 >
                   {msg.role === "assistant" ? (
                     <div className="space-y-2">
-                      <div className="prose dark:prose-invert prose-xs max-w-none text-slate-800 dark:text-slate-200">
-                        <RichText content={msg.content} />
-                      </div>
+                      <AIMessageRenderer content={msg.content} />
 
                       {/* Action Button inside Assistant Bubble if needed */}
                       {msg.suggestedAction && (

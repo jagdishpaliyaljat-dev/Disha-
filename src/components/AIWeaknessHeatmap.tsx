@@ -223,19 +223,19 @@ export const AIWeaknessHeatmap: React.FC<AIWeaknessHeatmapProps> = ({
     switch (level) {
       case "critical":
         return (
-          <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-100 dark:bg-rose-950/80 text-rose-700 dark:text-rose-300 border border-rose-300 dark:border-rose-800">
+          <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-[#991B1B]/15 dark:bg-[#991B1B]/30 text-[#991B1B] dark:text-[#F47B20] border border-[#991B1B]/30">
             गंभीर ({accuracy}%)
           </span>
         );
       case "warning":
         return (
-          <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
+          <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-[#C99A45]/15 dark:bg-[#C99A45]/30 text-[#800020] dark:text-[#C99A45] border border-[#C99A45]/30">
             सुधार योग्य ({accuracy}%)
           </span>
         );
       case "moderate":
         return (
-          <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 border border-blue-300 dark:border-blue-800">
+          <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-[#F47B20]/15 dark:bg-[#F47B20]/30 text-[#F47B20] border border-[#F47B20]/30">
             मध्यम ({accuracy}%)
           </span>
         );
@@ -247,7 +247,7 @@ export const AIWeaknessHeatmap: React.FC<AIWeaknessHeatmapProps> = ({
         );
       default:
         return (
-          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-500">
+          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#F7EFE2] dark:bg-[#252A3A] text-stone-500 border border-[#E8D9C0]/50 dark:border-[#31374A]/60">
             अप्रत्यक्ष
           </span>
         );
@@ -257,20 +257,20 @@ export const AIWeaknessHeatmap: React.FC<AIWeaknessHeatmapProps> = ({
   return (
     <div className="w-full space-y-4">
       {/* 1. AI Diagnostic Overview Card */}
-      <div className="p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-[#800020]/10 via-[#FFF9EF] to-amber-500/10 dark:from-[#800020]/30 dark:via-[#1F2330] dark:to-amber-500/20 border border-[#800020]/20 dark:border-[#800020]/40 shadow-sm">
+      <div className="p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-[#800020]/10 via-[#FFF9EF] to-[#F47B20]/10 dark:from-[#800020]/30 dark:via-[#1F2330] dark:to-[#F47B20]/20 border border-[#800020]/25 dark:border-[#800020]/40 shadow-sm">
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#800020] text-white flex items-center justify-center shrink-0 shadow-md shadow-[#800020]/30">
-              <Brain className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-2xl bg-[#800020] text-[#FFF9EF] flex items-center justify-center shrink-0 shadow-md shadow-[#800020]/30 border border-[#C99A45]/40">
+              <Brain className="w-5 h-5 text-[#C99A45]" />
             </div>
             <div>
-              <h3 className="text-sm sm:text-base font-extrabold text-[#171923] dark:text-white flex items-center gap-2">
+              <h3 className="text-sm sm:text-base font-extrabold text-[#171923] dark:text-[#FFF9EF] flex items-center gap-2">
                 AI कमजोरी हीटमैप एवं विषय विश्लेषण
-                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-[#800020] text-white">
+                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-[#800020] text-[#FFF9EF] border border-[#C99A45]/30">
                   Live
                 </span>
               </h3>
-              <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">
+              <p className="text-xs text-stone-600 dark:text-stone-300 mt-0.5">
                 आपकी अध्ययन सटीकता और गलत प्रश्नों के आधार पर डायग्नोस्टिक रिपोर्ट
               </p>
             </div>
@@ -279,36 +279,36 @@ export const AIWeaknessHeatmap: React.FC<AIWeaknessHeatmapProps> = ({
           {criticalItems.length > 0 && onStartSession && (
             <button
               onClick={handleStartBoosterDrill}
-              className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#800020] hover:bg-[#66001a] text-white text-xs font-bold shadow-md shadow-[#800020]/20 transition-all active:scale-95 cursor-pointer shrink-0"
+              className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#800020] hover:bg-[#5E0017] text-[#FFF9EF] text-xs font-bold shadow-md shadow-[#800020]/25 transition-all active:scale-95 cursor-pointer shrink-0 border border-[#C99A45]/40"
             >
-              <Flame className="w-4 h-4 text-amber-300" />
+              <Flame className="w-4 h-4 text-[#C99A45]" />
               <span>कमजोरी बूस्टर टेस्ट (20 Qs)</span>
             </button>
           )}
         </div>
 
         {/* Diagnostic Stats Bar */}
-        <div className="grid grid-cols-3 gap-2.5 mt-4 pt-3 border-t border-[#800020]/15 dark:border-slate-800">
-          <div className="p-2.5 rounded-xl bg-white/80 dark:bg-[#252A3A]/80 border border-slate-200/60 dark:border-slate-700/60 text-center">
-            <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 block uppercase">
+        <div className="grid grid-cols-3 gap-2.5 mt-4 pt-3 border-t border-[#800020]/15 dark:border-[#31374A]">
+          <div className="p-2.5 rounded-xl bg-white dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] text-center">
+            <span className="text-[10px] font-bold text-stone-500 dark:text-stone-400 block uppercase">
               गंभीर कमजोर विषय
             </span>
-            <span className="text-base sm:text-lg font-black text-rose-600 dark:text-rose-400">
+            <span className="text-base sm:text-lg font-black text-[#991B1B] dark:text-[#F47B20]">
               {diagnostics.filter((d) => d.level === "critical").length}
             </span>
           </div>
 
-          <div className="p-2.5 rounded-xl bg-white/80 dark:bg-[#252A3A]/80 border border-slate-200/60 dark:border-slate-700/60 text-center">
-            <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 block uppercase">
+          <div className="p-2.5 rounded-xl bg-white dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] text-center">
+            <span className="text-[10px] font-bold text-stone-500 dark:text-stone-400 block uppercase">
               सुधार योग्य विषय
             </span>
-            <span className="text-base sm:text-lg font-black text-amber-600 dark:text-amber-400">
+            <span className="text-base sm:text-lg font-black text-[#C99A45]">
               {diagnostics.filter((d) => d.level === "warning").length}
             </span>
           </div>
 
-          <div className="p-2.5 rounded-xl bg-white/80 dark:bg-[#252A3A]/80 border border-slate-200/60 dark:border-slate-700/60 text-center">
-            <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 block uppercase">
+          <div className="p-2.5 rounded-xl bg-white dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] text-center">
+            <span className="text-[10px] font-bold text-stone-500 dark:text-stone-400 block uppercase">
               मजबूत विषय
             </span>
             <span className="text-base sm:text-lg font-black text-emerald-600 dark:text-emerald-400">
@@ -322,9 +322,9 @@ export const AIWeaknessHeatmap: React.FC<AIWeaknessHeatmapProps> = ({
           <div className="mt-3 sm:hidden">
             <button
               onClick={handleStartBoosterDrill}
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[#800020] text-white text-xs font-bold shadow-md shadow-[#800020]/20 active:scale-95"
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[#800020] text-[#FFF9EF] text-xs font-bold shadow-md shadow-[#800020]/25 active:scale-95 border border-[#C99A45]/40"
             >
-              <Flame className="w-4 h-4 text-amber-300" />
+              <Flame className="w-4 h-4 text-[#C99A45]" />
               <span>कमजोरी सुधार बूस्टर टेस्ट शुरू करें</span>
             </button>
           </div>
@@ -344,8 +344,8 @@ export const AIWeaknessHeatmap: React.FC<AIWeaknessHeatmapProps> = ({
             onClick={() => setFilterMode(f.id as any)}
             className={`px-3 py-1.5 rounded-xl font-bold transition-all shrink-0 cursor-pointer ${
               filterMode === f.id
-                ? "bg-[#800020] text-white shadow-sm"
-                : "bg-white dark:bg-[#1F2330] text-slate-600 dark:text-slate-300 border border-slate-200/80 dark:border-slate-800 hover:bg-slate-50"
+                ? "bg-[#800020] text-[#FFF9EF] shadow-sm shadow-[#800020]/20 border border-[#800020]"
+                : "bg-white dark:bg-[#1F2330] text-[#5E0017] dark:text-[#E8D9C0] border border-[#E8D9C0] dark:border-[#31374A] hover:bg-[#F7EFE2] dark:hover:bg-[#252A3A]"
             }`}
           >
             {f.label}
@@ -356,7 +356,7 @@ export const AIWeaknessHeatmap: React.FC<AIWeaknessHeatmapProps> = ({
       {/* 3. Heatmap Matrix Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
         {filteredItems.length === 0 ? (
-          <div className="col-span-full py-8 text-center bg-white dark:bg-[#1F2330] rounded-2xl border border-slate-200/60 dark:border-slate-800 text-slate-400">
+          <div className="col-span-full py-8 text-center bg-white dark:bg-[#1F2330] rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] text-stone-400">
             <CheckCircle2 className="w-8 h-8 mx-auto mb-2 text-emerald-500 opacity-80" />
             <p className="text-xs font-bold">इस श्रेणी में कोई विषय नहीं है।</p>
           </div>
@@ -366,19 +366,19 @@ export const AIWeaknessHeatmap: React.FC<AIWeaknessHeatmapProps> = ({
               key={item.id}
               className={`p-3.5 rounded-2xl bg-white dark:bg-[#1F2330] border transition-all flex flex-col justify-between ${
                 item.level === "critical"
-                  ? "border-rose-300 dark:border-rose-900/60 shadow-[0_2px_10px_-2px_rgba(244,63,94,0.1)]"
+                  ? "border-[#991B1B]/40 dark:border-[#991B1B]/60 shadow-[0_2px_10px_-2px_rgba(153,27,27,0.15)] border-l-4 border-l-[#991B1B]"
                   : item.level === "warning"
-                  ? "border-amber-300 dark:border-amber-900/60 shadow-[0_2px_10px_-2px_rgba(245,158,11,0.1)]"
-                  : "border-slate-200/70 dark:border-slate-800"
+                  ? "border-[#C99A45]/40 dark:border-[#C99A45]/60 shadow-[0_2px_10px_-2px_rgba(201,154,69,0.15)] border-l-4 border-l-[#C99A45]"
+                  : "border-[#E8D9C0] dark:border-[#31374A] border-l-4 border-l-emerald-500"
               }`}
             >
               <div>
                 <div className="flex items-start justify-between gap-2 mb-1.5">
                   <div className="min-w-0 flex-1">
-                    <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 truncate block">
+                    <span className="text-[10px] font-bold text-stone-400 dark:text-stone-500 truncate block">
                       {item.subjectName} • {item.chapterName}
                     </span>
-                    <h4 className="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white line-clamp-1">
+                    <h4 className="text-xs sm:text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] line-clamp-1">
                       {item.name}
                     </h4>
                   </div>
@@ -387,22 +387,22 @@ export const AIWeaknessHeatmap: React.FC<AIWeaknessHeatmapProps> = ({
 
                 {/* Accuracy Progress Bar */}
                 <div className="mt-2">
-                  <div className="flex justify-between text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1">
+                  <div className="flex justify-between text-[11px] font-semibold text-stone-500 dark:text-stone-400 mb-1">
                     <span>सटीकता: {item.accuracy}%</span>
                     <span>
                       {item.correct} सही / {item.wrong} गलत ({item.attempted}/{item.totalQuestions} अभ्यास)
                     </span>
                   </div>
-                  <div className="w-full h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                  <div className="w-full h-2 rounded-full bg-[#F7EFE2] dark:bg-[#252A3A] overflow-hidden border border-[#E8D9C0]/50 dark:border-[#31374A]/50">
                     <div
                       className={`h-full rounded-full transition-all duration-500 ${
                         item.level === "critical"
-                          ? "bg-rose-500"
+                          ? "bg-[#991B1B]"
                           : item.level === "warning"
-                          ? "bg-amber-500"
+                          ? "bg-[#C99A45]"
                           : item.level === "mastered"
                           ? "bg-emerald-500"
-                          : "bg-blue-500"
+                          : "bg-[#F47B20]"
                       }`}
                       style={{ width: `${Math.max(item.accuracy, item.attempted > 0 ? 5 : 0)}%` }}
                     />
@@ -412,15 +412,15 @@ export const AIWeaknessHeatmap: React.FC<AIWeaknessHeatmapProps> = ({
 
               {/* Action Drill Button */}
               {onStartSession && (
-                <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                  <span className="text-[10px] text-slate-400">
+                <div className="mt-3 pt-2.5 border-t border-[#E8D9C0]/60 dark:border-[#31374A]/80 flex items-center justify-between">
+                  <span className="text-[10px] text-stone-400">
                     {item.weakQuestions.length > 0
                       ? `⚠️ ${item.weakQuestions.length} गलत प्रश्न उपलब्ध`
                       : "नया अभ्यास उपलब्ध"}
                   </span>
                   <button
                     onClick={() => handleStartDrill(item)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-[#800020] hover:text-white dark:bg-slate-800 dark:hover:bg-[#800020] text-slate-700 dark:text-slate-200 text-xs font-bold transition-all cursor-pointer active:scale-95"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#F7EFE2] hover:bg-[#800020] hover:text-[#FFF9EF] dark:bg-[#252A3A] dark:hover:bg-[#800020] dark:hover:text-[#FFF9EF] text-[#800020] dark:text-[#F47B20] text-xs font-bold transition-all cursor-pointer active:scale-95 border border-[#E8D9C0] dark:border-[#31374A]"
                   >
                     <Crosshair className="w-3.5 h-3.5" />
                     <span>लक्षित अभ्यास</span>

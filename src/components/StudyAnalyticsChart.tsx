@@ -121,47 +121,47 @@ export const StudyAnalyticsChart: React.FC<StudyAnalyticsChartProps> = ({
   return (
     <div
       id="study-analytics-section"
-      className="bg-white dark:bg-[#111A2E] border border-slate-200/80 dark:border-slate-800 rounded-3xl p-4 sm:p-5 shadow-xs transition-all"
+      className="bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-3xl p-4 sm:p-5 shadow-xs transition-all"
     >
       {/* Header: Title, Subtitle, and View Mode Toggle */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-blue-600 dark:bg-blue-400" />
-            <h3 className="text-sm font-bold text-slate-900 dark:text-white tracking-tight">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#800020] dark:bg-[#F47B20]" />
+            <h3 className="text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] tracking-tight">
               Study Analytics
             </h3>
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#800020] dark:text-[#F47B20] bg-[#F7EFE2] dark:bg-[#252A3A] px-2 py-0.5 rounded-full border border-[#E8D9C0] dark:border-[#31374A]">
               Last 7 Days
             </span>
           </div>
-          <p className="text-[11px] text-slate-400 mt-0.5 ml-4.5">
+          <p className="text-[11px] text-[#52576A] dark:text-[#CBD2E1] mt-0.5 ml-4.5 font-medium">
             Questions answered correctly vs. wrongly
           </p>
         </div>
 
         {/* Display Mode Toggle & Legend */}
         <div className="flex items-center justify-between sm:justify-end gap-2.5 ml-4 sm:ml-0">
-          <div className="flex items-center gap-2 text-[11px] font-medium text-slate-600 dark:text-slate-300">
+          <div className="flex items-center gap-2 text-[11px] font-bold text-[#52576A] dark:text-[#CBD2E1]">
             <span className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-sm bg-emerald-500 shadow-xs" />
+              <span className="w-2.5 h-2.5 rounded-xs bg-emerald-500 shadow-xs" />
               Correct
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-sm bg-rose-500 shadow-xs" />
+              <span className="w-2.5 h-2.5 rounded-xs bg-[#800020] dark:bg-[#F47B20] shadow-xs" />
               Wrong
             </span>
           </div>
 
-          <div className="flex items-center bg-slate-100 dark:bg-slate-800/80 p-0.5 rounded-lg border border-slate-200/60 dark:border-slate-700/60">
+          <div className="flex items-center bg-[#F7EFE2] dark:bg-[#252A3A] p-0.5 rounded-xl border border-[#E8D9C0] dark:border-[#31374A]">
             <button
               id="btn-chart-mode-grouped"
               onClick={() => setChartMode("grouped")}
               title="Side-by-side view"
-              className={`px-2 py-1 rounded-md text-[10px] font-bold flex items-center gap-1 transition-all ${
+              className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold flex items-center gap-1 transition-all cursor-pointer ${
                 chartMode === "grouped"
-                  ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs"
-                  : "text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+                  ? "bg-[#800020] text-white shadow-xs"
+                  : "text-[#52576A] dark:text-[#CBD2E1] hover:text-[#171923]"
               }`}
             >
               <BarChart2 className="w-3 h-3" />
@@ -171,10 +171,10 @@ export const StudyAnalyticsChart: React.FC<StudyAnalyticsChartProps> = ({
               id="btn-chart-mode-stacked"
               onClick={() => setChartMode("stacked")}
               title="Stacked view"
-              className={`px-2 py-1 rounded-md text-[10px] font-bold flex items-center gap-1 transition-all ${
+              className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold flex items-center gap-1 transition-all cursor-pointer ${
                 chartMode === "stacked"
-                  ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs"
-                  : "text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+                  ? "bg-[#800020] text-white shadow-xs"
+                  : "text-[#52576A] dark:text-[#CBD2E1] hover:text-[#171923]"
               }`}
             >
               <Layers className="w-3 h-3" />
@@ -186,36 +186,36 @@ export const StudyAnalyticsChart: React.FC<StudyAnalyticsChartProps> = ({
 
       {/* 3 Summary Badges */}
       <div className="grid grid-cols-3 gap-2 mb-4">
-        <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800/80 rounded-2xl p-2.5 text-center">
-          <span className="text-[10px] text-slate-400 block font-medium">
+        <div className="bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] rounded-2xl p-2.5 text-center">
+          <span className="text-[10px] text-[#787D91] dark:text-[#929AB0] block font-bold uppercase tracking-wider">
             7-Day Total
           </span>
-          <span className="text-base font-black text-slate-900 dark:text-white font-mono leading-tight">
+          <span className="text-base font-black text-[#171923] dark:text-[#FFF9EF] font-mono leading-tight tabular-nums">
             {metrics.totalQuestions}
           </span>
-          <span className="text-[9px] text-slate-400 block mt-0.5">Questions</span>
+          <span className="text-[9px] text-[#787D91] dark:text-[#929AB0] block mt-0.5 font-medium">Questions</span>
         </div>
 
-        <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800/80 rounded-2xl p-2.5 text-center">
-          <span className="text-[10px] text-slate-400 block font-medium">
+        <div className="bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] rounded-2xl p-2.5 text-center">
+          <span className="text-[10px] text-[#787D91] dark:text-[#929AB0] block font-bold uppercase tracking-wider">
             7-Day Accuracy
           </span>
-          <span className="text-base font-black text-emerald-600 dark:text-emerald-400 font-mono leading-tight">
+          <span className="text-base font-black text-emerald-600 dark:text-emerald-400 font-mono leading-tight tabular-nums">
             {metrics.avgAccuracy}%
           </span>
-          <span className="text-[9px] text-emerald-600/80 dark:text-emerald-400/80 block mt-0.5">
+          <span className="text-[9px] text-emerald-600/80 dark:text-emerald-400/80 block mt-0.5 font-medium tabular-nums">
             {metrics.totalCorrect} right / {metrics.totalWrong} wrong
           </span>
         </div>
 
-        <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800/80 rounded-2xl p-2.5 text-center">
-          <span className="text-[10px] text-slate-400 block font-medium">
+        <div className="bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] rounded-2xl p-2.5 text-center">
+          <span className="text-[10px] text-[#787D91] dark:text-[#929AB0] block font-bold uppercase tracking-wider">
             Best Activity
           </span>
-          <span className="text-base font-black text-blue-600 dark:text-blue-400 font-mono leading-tight">
+          <span className="text-base font-black text-[#800020] dark:text-[#F47B20] font-mono leading-tight tabular-nums">
             {metrics.peakDay ? metrics.peakDay.dayLabel : "—"}
           </span>
-          <span className="text-[9px] text-slate-400 block mt-0.5">
+          <span className="text-[9px] text-[#787D91] dark:text-[#929AB0] block mt-0.5 font-medium">
             {metrics.peakDay ? `${metrics.peakDay.total} Qs` : "0 Qs"}
           </span>
         </div>
@@ -238,7 +238,7 @@ export const StudyAnalyticsChart: React.FC<StudyAnalyticsChartProps> = ({
             {yTicks.map((tick) => {
               const y = yScale(tick);
               return (
-                <g key={tick} className="text-slate-400 dark:text-slate-600">
+                <g key={tick} className="text-[#787D91] dark:text-[#929AB0]">
                   <line
                     x1={0}
                     x2={innerWidth}
@@ -268,7 +268,7 @@ export const StudyAnalyticsChart: React.FC<StudyAnalyticsChartProps> = ({
               x2={innerWidth}
               y1={innerHeight}
               y2={innerHeight}
-              stroke={isDarkMode ? "#334155" : "#cbd5e1"}
+              stroke={isDarkMode ? "#31374A" : "#E8D9C0"}
               strokeWidth={1.5}
             />
 
@@ -298,8 +298,8 @@ export const StudyAnalyticsChart: React.FC<StudyAnalyticsChartProps> = ({
                     fill={
                       isHovered
                         ? isDarkMode
-                          ? "rgba(59, 130, 246, 0.12)"
-                          : "rgba(59, 130, 246, 0.06)"
+                          ? "rgba(244, 123, 32, 0.12)"
+                          : "rgba(128, 0, 32, 0.06)"
                         : "transparent"
                     }
                     rx={8}
@@ -343,7 +343,7 @@ export const StudyAnalyticsChart: React.FC<StudyAnalyticsChartProps> = ({
                         );
                       })()}
 
-                      {/* Wrong Bar (Rose) */}
+                      {/* Wrong Bar (Royal Crimson / Maroon) */}
                       {(() => {
                         const subX = xSubScale("wrong") || 0;
                         const barW = xSubScale.bandwidth();
@@ -356,7 +356,7 @@ export const StudyAnalyticsChart: React.FC<StudyAnalyticsChartProps> = ({
                               y={barY}
                               width={barW}
                               height={Math.max(barH, 0)}
-                              fill={isHovered ? "#e11d48" : "#f43f5e"}
+                              fill={isHovered ? "#991B1B" : "#800020"}
                               rx={Math.min(barW / 3, 4)}
                               className="transition-all duration-200"
                             />
@@ -368,7 +368,7 @@ export const StudyAnalyticsChart: React.FC<StudyAnalyticsChartProps> = ({
                                 textAnchor="middle"
                                 fontSize={9}
                                 fontWeight={isHovered ? 700 : 600}
-                                fill={isDarkMode ? "#fb7185" : "#e11d48"}
+                                fill={isDarkMode ? "#F47B20" : "#800020"}
                                 className="font-mono"
                               >
                                 {dayData.wrong}
@@ -409,7 +409,7 @@ export const StudyAnalyticsChart: React.FC<StudyAnalyticsChartProps> = ({
                               y={startY}
                               width={barW}
                               height={Math.max(wrongH, 0)}
-                              fill={isHovered ? "#e11d48" : "#f43f5e"}
+                              fill={isHovered ? "#991B1B" : "#800020"}
                               rx={4}
                               className="transition-all duration-200"
                             />
@@ -423,7 +423,7 @@ export const StudyAnalyticsChart: React.FC<StudyAnalyticsChartProps> = ({
                               textAnchor="middle"
                               fontSize={9}
                               fontWeight={isHovered ? 700 : 600}
-                              fill={isDarkMode ? "#f8fafc" : "#0f172a"}
+                              fill={isDarkMode ? "#FFF9EF" : "#171923"}
                               className="font-mono"
                             >
                               {dayData.total}
@@ -440,7 +440,7 @@ export const StudyAnalyticsChart: React.FC<StudyAnalyticsChartProps> = ({
                       cx={bandWidth / 2}
                       cy={innerHeight - 2}
                       r={2}
-                      fill={isDarkMode ? "#475569" : "#cbd5e1"}
+                      fill={isDarkMode ? "#31374A" : "#E8D9C0"}
                     />
                   )}
 
@@ -455,10 +455,10 @@ export const StudyAnalyticsChart: React.FC<StudyAnalyticsChartProps> = ({
                     }
                     fill={
                       dayData.dayLabel === "Today"
-                        ? "#3b82f6"
+                        ? (isDarkMode ? "#F47B20" : "#800020")
                         : isDarkMode
-                        ? "#94a3b8"
-                        : "#64748b"
+                        ? "#C99A45"
+                        : "#5E0017"
                     }
                   >
                     {dayData.dayLabel}
@@ -470,7 +470,7 @@ export const StudyAnalyticsChart: React.FC<StudyAnalyticsChartProps> = ({
                     y={innerHeight + 28}
                     textAnchor="middle"
                     fontSize={9}
-                    fill={isDarkMode ? "#64748b" : "#94a3b8"}
+                    fill={isDarkMode ? "#E8D9C0" : "#718096"}
                   >
                     {dayData.fullDateLabel.split(" ")[1]}
                   </text>
@@ -484,17 +484,17 @@ export const StudyAnalyticsChart: React.FC<StudyAnalyticsChartProps> = ({
         {activeRecord && (
           <div
             id="chart-tooltip"
-            className="mt-2 bg-slate-900 dark:bg-slate-800 text-white rounded-2xl p-3 shadow-lg border border-slate-700/60 animate-in fade-in zoom-in-95 duration-150 flex flex-wrap items-center justify-between gap-2"
+            className="mt-2 bg-[#171923] text-[#FFF9EF] rounded-2xl p-3 shadow-xl border border-[#C99A45]/30 animate-in fade-in zoom-in-95 duration-150 flex flex-wrap items-center justify-between gap-2"
           >
             <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-blue-400" />
+              <Calendar className="w-4 h-4 text-[#F47B20]" />
               <div>
                 <span className="text-xs font-bold block">
                   {activeRecord.dayLabel === "Today"
                     ? `Today (${activeRecord.fullDateLabel})`
                     : `${activeRecord.dayLabel}, ${activeRecord.fullDateLabel}`}
                 </span>
-                <span className="text-[10px] text-slate-400">
+                <span className="text-[10px] text-[#E8D9C0]/75">
                   {activeRecord.total === 0
                     ? "No questions answered on this day"
                     : `${activeRecord.total} questions answered • ${activeRecord.accuracy}% accuracy`}
@@ -507,7 +507,7 @@ export const StudyAnalyticsChart: React.FC<StudyAnalyticsChartProps> = ({
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 {activeRecord.correct}
               </span>
-              <span className="flex items-center gap-1 text-xs font-bold text-rose-400 font-mono">
+              <span className="flex items-center gap-1 text-xs font-bold text-[#F47B20] font-mono">
                 <XCircle className="w-3.5 h-3.5" />
                 {activeRecord.wrong}
               </span>
@@ -517,12 +517,12 @@ export const StudyAnalyticsChart: React.FC<StudyAnalyticsChartProps> = ({
       </div>
 
       {/* Quick Footnote */}
-      <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
+      <div className="mt-3 pt-3 border-t border-[#E8D9C0]/60 dark:border-[#31374A]/80 flex items-center justify-between text-[11px] text-stone-500 dark:text-stone-400">
         <span className="flex items-center gap-1.5">
-          <TrendingUp className="w-3.5 h-3.5 text-blue-500" />
+          <TrendingUp className="w-3.5 h-3.5 text-[#800020] dark:text-[#F47B20]" />
           <span>Updates in real-time as you practice MCQs</span>
         </span>
-        <span className="font-mono text-[10px] text-slate-400">
+        <span className="font-mono text-[10px] text-[#800020] dark:text-[#C99A45] font-semibold">
           Target: &gt;80% Accuracy
         </span>
       </div>

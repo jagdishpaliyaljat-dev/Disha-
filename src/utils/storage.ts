@@ -120,6 +120,15 @@ export function loadSettingsFromStorage(): AppSettings {
       parsed.todayDate = today;
       parsed.todayAnsweredCount = 0;
     }
+    // Auto-heal legacy non-existent models from older sessions to prevent 404 latency
+    if (Array.isArray(parsed.personalAiKeys)) {
+      parsed.personalAiKeys = parsed.personalAiKeys.map((k: any) => {
+        if (k && k.model && (k.model.includes("gemini-3") || k.model.includes("3.8") || k.model.includes("3.1"))) {
+          return { ...k, model: "gemini-2.5-flash" };
+        }
+        return k;
+      });
+    }
     return { ...DEFAULT_SETTINGS, ...parsed };
   } catch (e) {
     console.error("Failed to load settings from localStorage", e);

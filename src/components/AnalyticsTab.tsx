@@ -286,7 +286,7 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
   }, [stats, streakDays]);
 
   const leitnerStagesInfo = [
-    { stage: 0, interval: "1-3 Days", label: "Learning", color: "bg-rose-500", text: "text-rose-500" },
+    { stage: 0, interval: "1-3 Days", label: "Learning", color: "bg-[#991B1B]", text: "text-[#991B1B]" },
     { stage: 1, interval: "7 Days", label: "Reviewing", color: "bg-[#F47B20]", text: "text-[#F47B20]" },
     { stage: 2, interval: "21 Days", label: "Reinforcing", color: "bg-[#C99A45]", text: "text-[#C99A45]" },
     { stage: 3, interval: "45 Days", label: "Retaining", color: "bg-[#800020]", text: "text-[#800020]" },
@@ -563,10 +563,10 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
                 playClickSound();
                 onNavigateTab("wrong");
               }}
-              className="bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] hover:border-rose-400 dark:hover:border-rose-700/80 p-3.5 rounded-2xl flex items-center justify-between text-left transition-all active:scale-[0.98] cursor-pointer group shadow-2xs"
+              className="bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] hover:border-[#991B1B] dark:hover:border-[#F47B20] p-3.5 rounded-2xl flex items-center justify-between text-left transition-all active:scale-[0.98] cursor-pointer group shadow-2xs"
             >
               <div className="flex items-center gap-3 min-w-0">
-                <div className="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-[#991B1B]/10 dark:bg-[#991B1B]/20 text-[#991B1B] dark:text-[#F47B20] flex items-center justify-center shrink-0">
                   <RotateCcw className="w-5 h-5 group-hover:-rotate-45 transition-transform" />
                 </div>
                 <div className="min-w-0">
@@ -574,7 +574,7 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
                     <h4 className="text-xs font-black text-[#171923] dark:text-[#FFF9EF] truncate">
                       Review Mistakes
                     </h4>
-                    <span className="px-1.5 py-0.2 rounded-md bg-rose-100 dark:bg-rose-900/50 text-rose-600 dark:text-rose-300 font-mono text-[9px] font-black tabular-nums">
+                    <span className="px-1.5 py-0.2 rounded-md bg-[#991B1B]/15 text-[#991B1B] dark:text-[#F47B20] font-mono text-[9px] font-black tabular-nums border border-[#991B1B]/20">
                       {stats.wrongQuestions.length}
                     </span>
                   </div>

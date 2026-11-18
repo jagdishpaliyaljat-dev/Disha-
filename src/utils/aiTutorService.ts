@@ -58,11 +58,15 @@ export function getActiveAICredentials(): {
   if (activeKey && activeKey.apiKey?.trim()) {
     const provider = activeKey.provider || "gemini";
     const defaultModel = PROVIDER_RECOMMENDED_MODELS[provider]?.[0]?.id || "default";
+    let chosenModel = activeKey.model || defaultModel;
+    if (provider === "gemini" && (chosenModel.includes("gemini-3") || chosenModel.includes("3.8") || chosenModel.includes("3.1"))) {
+      chosenModel = "gemini-2.5-flash";
+    }
     return {
       configured: true,
       provider,
       apiKey: activeKey.apiKey.trim(),
-      model: activeKey.model || defaultModel,
+      model: chosenModel,
     };
   }
 

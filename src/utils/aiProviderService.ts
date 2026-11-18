@@ -680,7 +680,7 @@ export async function executeAICompletion({
     let currentKey = apiKey.trim();
   let currentModel = model?.trim() || PROVIDER_RECOMMENDED_MODELS[provider]?.[0]?.id || "default";
   
-  const DEFAULT_TIMEOUT = 25000;
+  const DEFAULT_TIMEOUT = 15000;
 
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
@@ -699,7 +699,10 @@ export async function executeAICompletion({
           if (systemPrompt) config.systemInstruction = systemPrompt;
           if (jsonMode) config.responseMimeType = "application/json";
 
-          const targetModel = (!currentModel || currentModel === "default") ? "gemini-2.5-flash" : currentModel;
+          const rawTarget = (!currentModel || currentModel === "default") ? "gemini-2.5-flash" : currentModel;
+          const targetModel = (rawTarget.includes("gemini-3") || rawTarget.includes("3.8") || rawTarget.includes("3.1"))
+            ? "gemini-2.5-flash"
+            : rawTarget;
           const modelsToTry = Array.from(new Set([targetModel, "gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-2.0-flash", "gemini-1.5-flash"]));
 
           let lastErr: any = null;

@@ -120,29 +120,29 @@ export const StudentAIReportCard: React.FC<StudentAIReportCardProps> = ({
 
     let grade = "D";
     let gradeLabel = "प्रारंभिक स्तर (Needs Foundation)";
-    let gradeColor = "text-rose-600 dark:text-rose-400";
-    let gradeBadgeBg = "bg-rose-100 dark:bg-rose-950/80 text-rose-700 dark:text-rose-300 border-rose-300 dark:border-rose-800";
+    let gradeColor = "text-[#991B1B] dark:text-[#F87171]";
+    let gradeBadgeBg = "bg-[#991B1B]/10 dark:bg-[#991B1B]/20 text-[#991B1B] dark:text-[#F87171] border-[#991B1B]/30";
 
     if (readinessScore >= 80) {
       grade = "A+";
       gradeLabel = "रैंकर्स लीग (Exam Ready)";
       gradeColor = "text-emerald-600 dark:text-emerald-400";
-      gradeBadgeBg = "bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800";
+      gradeBadgeBg = "bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border-emerald-400 dark:border-emerald-700";
     } else if (readinessScore >= 65) {
       grade = "A";
       gradeLabel = "सशक्त स्थिति (Strong Aspirant)";
-      gradeColor = "text-blue-600 dark:text-blue-400";
-      gradeBadgeBg = "bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-800";
+      gradeColor = "text-[#800020] dark:text-[#F47B20]";
+      gradeBadgeBg = "bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] border-[#800020]/30 dark:border-[#F47B20]/40";
     } else if (readinessScore >= 50) {
       grade = "B";
       gradeLabel = "संतोषजनक (Needs Polish)";
-      gradeColor = "text-amber-600 dark:text-amber-400";
-      gradeBadgeBg = "bg-amber-100 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-800";
+      gradeColor = "text-[#C99A45] dark:text-[#E5BC6B]";
+      gradeBadgeBg = "bg-[#C99A45]/15 dark:bg-[#C99A45]/20 text-[#946B1E] dark:text-[#E5BC6B] border-[#C99A45]/40";
     } else if (readinessScore >= 35) {
       grade = "C";
       gradeLabel = "कमजोर (High Negative Risk)";
-      gradeColor = "text-orange-600 dark:text-orange-400";
-      gradeBadgeBg = "bg-orange-100 dark:bg-orange-950/80 text-orange-700 dark:text-orange-300 border-orange-300 dark:border-orange-800";
+      gradeColor = "text-[#EA580C] dark:text-[#FB923C]";
+      gradeBadgeBg = "bg-[#EA580C]/10 dark:bg-[#EA580C]/20 text-[#EA580C] dark:text-[#FB923C] border-[#EA580C]/30";
     }
 
     return {
@@ -589,10 +589,10 @@ https://disha2020.in
                   baseStats.readinessScore >= 80
                     ? "bg-emerald-500"
                     : baseStats.readinessScore >= 65
-                    ? "bg-blue-500"
+                    ? "bg-[#800020] dark:bg-[#F47B20]"
                     : baseStats.readinessScore >= 50
-                    ? "bg-amber-500"
-                    : "bg-rose-500"
+                    ? "bg-[#C99A45]"
+                    : "bg-[#991B1B]"
                 }`}
                 style={{ width: `${Math.max(5, baseStats.readinessScore)}%` }}
               />
@@ -628,23 +628,23 @@ https://disha2020.in
         </div>
 
         {/* Negative Marking & Mistake Bleed Card */}
-        <div className="md:col-span-6 bg-gradient-to-br from-rose-50 to-amber-50/50 dark:from-rose-950/20 dark:to-amber-950/10 rounded-3xl p-5 border border-rose-200 dark:border-rose-900/50 shadow-xs flex flex-col justify-between">
+        <div className="md:col-span-6 bg-gradient-to-br from-[#800020]/10 via-[#FFF9EF] to-[#F47B20]/10 dark:from-[#800020]/25 dark:via-[#1F2330] dark:to-[#F47B20]/15 rounded-3xl p-5 border border-[#800020]/25 dark:border-[#800020]/40 shadow-xs flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-2">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-wider bg-rose-100 dark:bg-rose-900/50 text-rose-700 dark:text-rose-300">
-                <AlertTriangle className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-wider bg-[#991B1B]/15 dark:bg-[#991B1B]/30 text-[#991B1B] dark:text-[#FCA5A5] border border-[#991B1B]/20">
+                <AlertTriangle className="w-3.5 h-3.5 text-[#991B1B] dark:text-[#FCA5A5]" />
                 <span>नेगेटिव मार्किंग व तुक्केबाजी की मार</span>
               </span>
-              <span className="text-[10px] font-black text-rose-600 dark:text-rose-400">
+              <span className="text-[10px] font-black text-[#991B1B] dark:text-[#F87171]">
                 1/3rd Negative Penalty
               </span>
             </div>
 
             <div className="flex items-baseline gap-2 mb-1.5">
-              <span className="text-3xl sm:text-4xl font-black text-rose-600 dark:text-rose-400 font-mono tabular-nums tracking-tight">
+              <span className="text-3xl sm:text-4xl font-black text-[#991B1B] dark:text-[#F87171] font-mono tabular-nums tracking-tight">
                 -{baseStats.negativeMarksLost}
               </span>
-              <span className="text-sm font-extrabold text-rose-700 dark:text-rose-300">
+              <span className="text-sm font-extrabold text-[#991B1B] dark:text-[#F87171]">
                 अंक कटे
               </span>
               <span className="text-xs font-bold text-[#52576A] dark:text-[#CBD2E1] ml-auto">
@@ -652,14 +652,14 @@ https://disha2020.in
               </span>
             </div>
 
-            <div className="bg-white/90 dark:bg-[#1F2330]/90 p-3 rounded-2xl border border-rose-200/80 dark:border-rose-900/40 text-[11px] leading-relaxed text-[#171923] dark:text-[#FFF9EF] font-medium space-y-1">
-              <p className="font-bold text-rose-700 dark:text-rose-400">
+            <div className="bg-white/95 dark:bg-[#1F2330]/95 p-3 rounded-2xl border border-[#800020]/15 dark:border-[#800020]/30 text-[11px] leading-relaxed text-[#171923] dark:text-[#FFF9EF] font-medium space-y-1">
+              <p className="font-bold text-[#991B1B] dark:text-[#F87171]">
                 ⚠️ कठोर वास्तविकता (Harsh Truth):
               </p>
               <p>
                 {baseStats.negativeMarksLost > 0 ? (
                   <>
-                    गलत उत्तरों के कारण आपके <strong className="text-rose-600 font-black">{baseStats.negativeMarksLost} अंक</strong> कट गए. यदि आप इन प्रश्नों को छोड़ देते तो आपकी मेरिट सूची में <strong className="text-emerald-600 font-black">सैकड़ों अभ्यर्थियों से ऊपर</strong> रैंक होती!
+                    गलत उत्तरों के कारण आपके <strong className="text-[#991B1B] dark:text-[#F87171] font-black">{baseStats.negativeMarksLost} अंक</strong> कट गए. यदि आप इन प्रश्नों को छोड़ देते तो आपकी मेरिट सूची में <strong className="text-emerald-600 font-black">सैकड़ों अभ्यर्थियों से ऊपर</strong> रैंक होती!
                   </>
                 ) : (
                   <>
@@ -670,14 +670,14 @@ https://disha2020.in
             </div>
           </div>
 
-          <div className="pt-3 mt-3 border-t border-rose-200/60 dark:border-rose-900/40 flex items-center justify-between text-[11px]">
+          <div className="pt-3 mt-3 border-t border-[#800020]/15 dark:border-[#800020]/30 flex items-center justify-between text-[11px]">
             <span className="text-[#52576A] dark:text-[#CBD2E1]">
               गलत प्रश्नों का तुरंत सुधार करें:
             </span>
             <button
               type="button"
               onClick={() => onNavigateTab?.("wrong")}
-              className="text-xs font-extrabold text-rose-700 dark:text-rose-400 hover:underline flex items-center gap-1 cursor-pointer"
+              className="text-xs font-extrabold text-[#800020] dark:text-[#F47B20] hover:underline flex items-center gap-1 cursor-pointer"
             >
               <span>गलत प्रश्न देखें ({baseStats.totalWrong})</span>
               <ChevronRight className="w-3.5 h-3.5" />
@@ -712,11 +712,11 @@ https://disha2020.in
             const Icon = remark.icon;
             const bgClass =
               remark.type === "alert"
-                ? "bg-rose-50/80 dark:bg-rose-950/20 border-rose-200 dark:border-rose-900/50"
+                ? "bg-[#991B1B]/5 dark:bg-[#991B1B]/15 border-[#991B1B]/25 dark:border-[#991B1B]/40"
                 : remark.type === "warning"
-                ? "bg-amber-50/80 dark:bg-amber-950/20 border-amber-200 dark:border-amber-900/50"
+                ? "bg-[#C99A45]/10 dark:bg-[#C99A45]/15 border-[#C99A45]/30 dark:border-[#C99A45]/40"
                 : remark.type === "success"
-                ? "bg-emerald-50/80 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-900/50"
+                ? "bg-emerald-500/10 dark:bg-emerald-950/20 border-emerald-500/30 dark:border-emerald-800"
                 : "bg-[#FFF9EF] dark:bg-[#171923] border-[#E8D9C0] dark:border-[#31374A]";
 
             return (
@@ -725,7 +725,7 @@ https://disha2020.in
                 className={`p-3.5 sm:p-4 rounded-2xl border transition-all ${bgClass}`}
               >
                 <div className="flex items-start gap-2.5">
-                  <div className="p-1.5 rounded-lg bg-white dark:bg-[#1F2330] shadow-xs shrink-0 mt-0.5">
+                  <div className="p-1.5 rounded-lg bg-white dark:bg-[#1F2330] shadow-xs shrink-0 mt-0.5 border border-[#E8D9C0]/60 dark:border-[#31374A]">
                     <Icon className="w-4 h-4 text-[#800020] dark:text-[#F47B20]" />
                   </div>
                   <div>
@@ -748,7 +748,7 @@ https://disha2020.in
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <h3 className="text-xs sm:text-sm font-black uppercase tracking-wider text-[#171923] dark:text-[#FFF9EF] flex items-center gap-2">
-              <Target className="w-4 h-4 text-rose-600 dark:text-rose-400" />
+              <Target className="w-4 h-4 text-[#800020] dark:text-[#F47B20]" />
               <span>कमजोरियों का AI रडार (Flaw & Vulnerability Radar)</span>
             </h3>
             <p className="text-[10px] font-bold text-[#787D91] dark:text-[#929AB0] uppercase tracking-widest mt-0.5">
@@ -762,7 +762,7 @@ https://disha2020.in
               onClick={() => setActiveFilter("critical")}
               className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold transition-all cursor-pointer ${
                 activeFilter === "critical"
-                  ? "bg-rose-600 text-white shadow-xs"
+                  ? "bg-[#991B1B] text-white shadow-xs border border-[#991B1B]/40"
                   : "text-[#52576A] dark:text-[#CBD2E1] hover:text-[#171923]"
               }`}
             >
@@ -772,7 +772,7 @@ https://disha2020.in
               onClick={() => setActiveFilter("warning")}
               className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold transition-all cursor-pointer ${
                 activeFilter === "warning"
-                  ? "bg-amber-600 text-white shadow-xs"
+                  ? "bg-[#C99A45] text-white shadow-xs border border-[#C99A45]/40"
                   : "text-[#52576A] dark:text-[#CBD2E1] hover:text-[#171923]"
               }`}
             >
@@ -782,7 +782,7 @@ https://disha2020.in
               onClick={() => setActiveFilter("mastered")}
               className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold transition-all cursor-pointer ${
                 activeFilter === "mastered"
-                  ? "bg-emerald-600 text-white shadow-xs"
+                  ? "bg-emerald-600 text-white shadow-xs border border-emerald-600/40"
                   : "text-[#52576A] dark:text-[#CBD2E1] hover:text-[#171923]"
               }`}
             >
@@ -792,7 +792,7 @@ https://disha2020.in
               onClick={() => setActiveFilter("all")}
               className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold transition-all cursor-pointer ${
                 activeFilter === "all"
-                  ? "bg-[#800020] text-white shadow-xs"
+                  ? "bg-[#800020] text-white shadow-xs border border-[#C99A45]/30"
                   : "text-[#52576A] dark:text-[#CBD2E1] hover:text-[#171923]"
               }`}
             >
@@ -823,12 +823,12 @@ https://disha2020.in
               return (
                 <div
                   key={item.id}
-                  className={`p-3.5 sm:p-4 rounded-2xl border transition-all ${
+                  className={`p-3.5 sm:p-4 rounded-2xl transition-all ${
                     isCrit
-                      ? "bg-rose-50/50 dark:bg-rose-950/15 border-rose-200 dark:border-rose-900/60 hover:border-rose-400"
+                      ? "bg-white dark:bg-[#1F2330] border-l-4 border-l-[#991B1B] border-t border-r border-b border-[#E8D9C0] dark:border-[#31374A] shadow-2xs hover:border-[#991B1B]/60"
                       : isWarn
-                      ? "bg-amber-50/50 dark:bg-amber-950/15 border-amber-200 dark:border-amber-900/60 hover:border-amber-400"
-                      : "bg-[#FFF9EF] dark:bg-[#171923] border-[#E8D9C0] dark:border-[#31374A] hover:border-emerald-400"
+                      ? "bg-white dark:bg-[#1F2330] border-l-4 border-l-[#C99A45] border-t border-r border-b border-[#E8D9C0] dark:border-[#31374A] shadow-2xs hover:border-[#C99A45]/60"
+                      : "bg-white dark:bg-[#1F2330] border-l-4 border-l-emerald-500 border-t border-r border-b border-[#E8D9C0] dark:border-[#31374A] shadow-2xs hover:border-emerald-500/60"
                   }`}
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -837,10 +837,10 @@ https://disha2020.in
                         <span
                           className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase border ${
                             isCrit
-                              ? "bg-rose-100 dark:bg-rose-900/60 text-rose-700 dark:text-rose-300 border-rose-300"
+                              ? "bg-[#991B1B]/10 dark:bg-[#991B1B]/20 text-[#991B1B] dark:text-[#FCA5A5] border-[#991B1B]/30"
                               : isWarn
-                              ? "bg-amber-100 dark:bg-amber-900/60 text-amber-700 dark:text-amber-300 border-amber-300"
-                              : "bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 border-emerald-300"
+                              ? "bg-[#C99A45]/15 dark:bg-[#C99A45]/20 text-[#946B1E] dark:text-[#E5BC6B] border-[#C99A45]/30"
+                              : "bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border-emerald-300"
                           }`}
                         >
                           {isCrit ? "🔴 गंभीर कमजोरी" : isWarn ? "🟡 सुधार योग्य" : "🟢 मजबूत पकड़"}
@@ -855,7 +855,7 @@ https://disha2020.in
                       </h4>
 
                       <p className="text-[11px] text-[#52576A] dark:text-[#CBD2E1] font-medium mt-0.5 flex items-center gap-1.5">
-                        <span className="font-bold text-rose-600 dark:text-rose-400">
+                        <span className={`font-bold ${isCrit ? "text-[#991B1B] dark:text-[#F87171]" : isWarn ? "text-[#C99A45]" : "text-emerald-600"}`}>
                           AI निदान:
                         </span>
                         <span>{item.weakReason}</span>
@@ -869,9 +869,9 @@ https://disha2020.in
                           <span
                             className={`text-base font-black tabular-nums ${
                               isCrit
-                                ? "text-rose-600 dark:text-rose-400"
+                                ? "text-[#991B1B] dark:text-[#F87171]"
                                 : isWarn
-                                ? "text-amber-600 dark:text-amber-400"
+                                ? "text-[#C99A45] dark:text-[#E5BC6B]"
                                 : "text-emerald-600 dark:text-emerald-400"
                             }`}
                           >
@@ -891,8 +891,8 @@ https://disha2020.in
                         onClick={() => handleStartTopicDrill(item)}
                         className={`h-8 px-3 rounded-xl text-xs font-black flex items-center gap-1 active:scale-95 transition-all cursor-pointer ${
                           isCrit
-                            ? "bg-rose-600 hover:bg-rose-700 text-white shadow-xs"
-                            : "bg-[#800020] hover:bg-[#5E0017] text-white shadow-xs"
+                            ? "bg-[#991B1B] hover:bg-[#7F1D1D] text-white shadow-xs border border-[#991B1B]/30"
+                            : "bg-[#800020] hover:bg-[#5E0017] text-white shadow-xs border border-[#C99A45]/30"
                         }`}
                       >
                         <Zap className="w-3.5 h-3.5" />
@@ -905,7 +905,7 @@ https://disha2020.in
                   <div className="w-full h-1.5 rounded-full bg-[#E8D9C0]/60 dark:bg-[#31374A] overflow-hidden mt-2.5">
                     <div
                       className={`h-full rounded-full ${
-                        isCrit ? "bg-rose-500" : isWarn ? "bg-amber-500" : "bg-emerald-500"
+                        isCrit ? "bg-[#991B1B]" : isWarn ? "bg-[#C99A45]" : "bg-emerald-500"
                       }`}
                       style={{ width: `${Math.max(4, item.accuracy)}%` }}
                     />
@@ -1029,11 +1029,11 @@ https://disha2020.in
             <span className="text-[10px] font-black uppercase tracking-wider text-[#787D91] dark:text-[#929AB0]">
               कमजोर टॉपिक्स संख्या
             </span>
-            <AlertTriangle className="w-4 h-4 text-rose-500" />
+            <AlertTriangle className="w-4 h-4 text-[#991B1B] dark:text-[#F87171]" />
           </div>
           <div>
             <div className="flex items-baseline gap-1 font-mono">
-              <span className="text-2xl font-black text-rose-600 dark:text-rose-400 tabular-nums">
+              <span className="text-2xl font-black text-[#991B1B] dark:text-[#F87171] tabular-nums">
                 {criticalWeakList.length}
               </span>
               <span className="text-xs font-bold text-[#787D91]">अध्यायों में सुधार बाकी</span>
@@ -1045,7 +1045,7 @@ https://disha2020.in
           <button
             type="button"
             onClick={() => setActiveFilter("critical")}
-            className="text-[11px] font-black text-rose-600 dark:text-rose-400 mt-3 pt-2 border-t border-[#E8D9C0]/80 dark:border-[#31374A] flex items-center justify-between hover:underline cursor-pointer"
+            className="text-[11px] font-black text-[#991B1B] dark:text-[#F87171] mt-3 pt-2 border-t border-[#E8D9C0]/80 dark:border-[#31374A] flex items-center justify-between hover:underline cursor-pointer"
           >
             <span>कमजोरियां फ़िल्टर करें</span>
             <ChevronRight className="w-3.5 h-3.5" />
