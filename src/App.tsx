@@ -29,6 +29,7 @@ import {
   Bell 
 } from 'lucide-react';
 import { BottomNav } from './components/BottomNav';
+import { DishaAITutorModal, FloatingAIAssistant } from './components/DishaAITutorModal';
 import { OfflineIndicator } from './components/OfflineIndicator';
 import { ToastNotificationContainer, ToastMessage } from './components/ToastNotification';
 import { PWAUpdateToast } from './components/PWAUpdateToast';
@@ -420,7 +421,27 @@ export default function App() {
   const [isFullExamOpen, setIsFullExamOpen] = React.useState(false);
   const [isCustomTestOpen, setIsCustomTestOpen] = React.useState(false);
   const [isExamAnalyzerOpen, setIsExamAnalyzerOpen] = React.useState(false);
+  const [isAITutorOpen, setIsAITutorOpen] = React.useState(false);
+  const [aiTutorContextQuestion, setAiTutorContextQuestion] = React.useState<Question | null>(null);
   const [viewCount, setViewCount] = React.useState<number>(1240);
+
+  // Global listener for AI Tutor opening from anywhere (questions, review, FAB)
+  React.useEffect(() => {
+    const handleOpenAITutor = (e: any) => {
+      if (e?.detail?.question) {
+        setAiTutorContextQuestion(e.detail.question);
+      }
+      setIsAITutorOpen(true);
+    };
+
+    window.addEventListener("disha2020_open_ai_tutor", handleOpenAITutor);
+    window.addEventListener("quizpro_open_ai_tutor", handleOpenAITutor);
+
+    return () => {
+      window.removeEventListener("disha2020_open_ai_tutor", handleOpenAITutor);
+      window.removeEventListener("quizpro_open_ai_tutor", handleOpenAITutor);
+    };
+  }, []);
 
   // Global event listener to sync tier upgrades
   React.useEffect(() => {
@@ -516,6 +537,7 @@ export default function App() {
       }
 
       // 3. Close open modal overlays first to prevent unwanted page navigation
+      if (isAITutorOpen) { setIsAITutorOpen(false); setAiTutorContextQuestion(null); return; }
       if (isLoginOpen) { setIsLoginOpen(false); return; }
       if (isSettingsOpen) { setIsSettingsOpen(false); return; }
       if (isApiSettingsOpen) { setIsApiSettingsOpen(false); return; }
@@ -1668,6 +1690,36 @@ export default function App() {
             isAdmin={isAdmin}
           />
         </OverlayErrorBoundary>
+      )}
+
+      {/* Floating AI Assistant (Student view only; hidden in Admin and active test sessions) */}
+      {activeTab !== 'admin' && (
+        <FloatingAIAssistant
+          onOpen={() => {
+            setAiTutorContextQuestion(null);
+            setIsAITutorOpen(true);
+          }}
+          isHidden={Boolean(activeSession || isFullExamOpen || isCustomTestOpen)}
+        />
+      )}
+
+      {/* Disha AI Tutor Drawer / Modal */}
+      {isAITutorOpen && (
+        <DishaAITutorModal
+          isOpen={isAITutorOpen}
+          onClose={() => {
+            setIsAITutorOpen(false);
+            setAiTutorContextQuestion(null);
+          }}
+          contextQuestion={aiTutorContextQuestion}
+          onClearContextQuestion={() => setAiTutorContextQuestion(null)}
+          onOpenApiSettings={() => setIsApiSettingsOpen(true)}
+          onNavigateTab={(tab) => {
+            if (isKnownTab(tab)) {
+              setActiveTab(tab as ActiveTab);
+            }
+          }}
+        />
       )}
 
       {/* Modals & Overlays */}

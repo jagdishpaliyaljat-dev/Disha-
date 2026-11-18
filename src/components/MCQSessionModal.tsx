@@ -2828,7 +2828,21 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                   <div className="text-[15px] sm:text-[16px] text-slate-100 font-hindi leading-relaxed font-bold">
                     <RichText text={currentQuestion.explanation} enablePronunciation={true} />
                   </div>
-                  <div className="pt-3.5 mt-3.5 border-t border-white/10 flex items-center justify-between">
+                  <div className="pt-3.5 mt-3.5 border-t border-white/10 flex items-center justify-between flex-wrap gap-2.5">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (currentQuestion) {
+                          playClickSound();
+                          window.dispatchEvent(new CustomEvent("disha2020_open_ai_tutor", { detail: { question: currentQuestion } }));
+                        }
+                      }}
+                      className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 hover:from-indigo-600 hover:to-purple-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-indigo-500/20 active:scale-95 transition-all cursor-pointer"
+                    >
+                      <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-spin" style={{ animationDuration: '3s' }} />
+                      <span>✨ AI से समझें (Explain with AI)</span>
+                    </button>
+
                     <button
                       type="button"
                       onClick={() => {
@@ -4799,7 +4813,19 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
                         <div className="text-[13px] sm:text-[14px] text-[#FAF5ED] font-hindi leading-relaxed font-bold">
                           <RichText text={q.explanation} enablePronunciation={true} />
                         </div>
-                        <div className="pt-3 mt-3 border-t border-white/10 flex items-center justify-between">
+                        <div className="pt-3 mt-3 border-t border-white/10 flex items-center justify-between flex-wrap gap-2.5">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              playClickSound();
+                              window.dispatchEvent(new CustomEvent("disha2020_open_ai_tutor", { detail: { question: q } }));
+                            }}
+                            className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 hover:from-indigo-600 hover:to-purple-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-indigo-500/20 active:scale-95 transition-all cursor-pointer"
+                          >
+                            <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-spin" style={{ animationDuration: '3s' }} />
+                            <span>✨ AI से समझें (Explain with AI)</span>
+                          </button>
+
                           <button
                             type="button"
                             onClick={() => {
