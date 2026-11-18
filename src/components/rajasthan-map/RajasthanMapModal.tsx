@@ -1,5 +1,17 @@
 import React, { useState, useMemo } from "react";
-import { X, Search, Map, HelpCircle, Layers, Sparkles, Filter, Check, Flame, Trophy, Volume2, Info } from "lucide-react";
+import {
+  X,
+  Search,
+  Map,
+  Layers,
+  Sparkles,
+  Filter,
+  Flame,
+  ListFilter,
+  Check,
+  ChevronRight,
+  ChevronLeft,
+} from "lucide-react";
 import { DivisionId, DistrictInfo } from "./types";
 import { RAJASTHAN_DIVISIONS, RAJASTHAN_DIVISIONS_LIST } from "./data/divisionsData";
 import { RAJASTHAN_50_DISTRICTS, RAJASTHAN_DISTRICTS_LIST, searchDistrictsByQuery } from "./data/districtsData";
@@ -25,9 +37,9 @@ export const RajasthanMapModal: React.FC<RajasthanMapModalProps> = ({
   const [selectedDistrictId, setSelectedDistrictId] = useState<string | null>(initialDistrictId);
   const [activeDivisionFilter, setActiveDivisionFilter] = useState<DivisionId | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState<boolean>(false);
+  const [showDistrictListSheet, setShowDistrictListSheet] = useState<boolean>(false);
 
-  // Quiz Mode internal communications
+  // Quiz Mode state
   const [quizTargetDistrictId, setQuizTargetDistrictId] = useState<string | null>(null);
   const [selectedDistrictFromMap, setSelectedDistrictFromMap] = useState<string | null>(null);
   const [quizFeedback, setQuizFeedback] = useState<{
@@ -35,11 +47,20 @@ export const RajasthanMapModal: React.FC<RajasthanMapModalProps> = ({
     isCorrect: boolean;
   } | null>(null);
 
-  // Search Results
+  // Filtered and Searched districts
   const searchResults = useMemo(() => {
-    if (!searchQuery.trim()) return [];
-    return searchDistrictsByQuery(searchQuery);
-  }, [searchQuery]);
+    if (!searchQuery.trim()) {
+      if (activeDivisionFilter) {
+        return RAJASTHAN_DISTRICTS_LIST.filter((d) => d.divisionId === activeDivisionFilter);
+      }
+      return RAJASTHAN_DISTRICTS_LIST;
+    }
+    const queried = searchDistrictsByQuery(searchQuery);
+    if (activeDivisionFilter) {
+      return queried.filter((d) => d.divisionId === activeDivisionFilter);
+    }
+    return queried;
+  }, [searchQuery, activeDivisionFilter]);
 
   const searchHighlightedIds = useMemo(() => {
     if (!searchQuery.trim()) return [];
@@ -54,13 +75,12 @@ export const RajasthanMapModal: React.FC<RajasthanMapModalProps> = ({
 
   const handleSelectDistrict = (districtId: string) => {
     if (activeMode === "quiz") {
-      // In quiz mode, dispatch selection to quiz engine
       setSelectedDistrictFromMap(districtId);
     } else {
-      // In explorer mode, open district detail sheet
       triggerHaptic("selection");
       playClickSound();
       setSelectedDistrictId(districtId);
+      setShowDistrictListSheet(false);
     }
   };
 
@@ -71,6 +91,7 @@ export const RajasthanMapModal: React.FC<RajasthanMapModalProps> = ({
     setSelectedDistrictId(null);
     setSelectedDistrictFromMap(null);
     setQuizFeedback(null);
+    setShowDistrictListSheet(false);
   };
 
   const handleClearFilters = () => {
@@ -84,64 +105,14 @@ export const RajasthanMapModal: React.FC<RajasthanMapModalProps> = ({
       role="dialog"
       aria-modal="true"
       aria-labelledby="rajasthan-map-title"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-0 sm:p-3 overflow-hidden animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-xs p-0 sm:p-3 overflow-hidden animate-in fade-in duration-150"
     >
-      <div className="relative w-full h-full sm:max-w-6xl sm:h-[94vh] bg-[#FFF9EF] dark:bg-[#12141C] text-[#171923] dark:text-[#FFF9EF] sm:rounded-2xl border-0 sm:border border-[#E8D9C0] dark:border-[#31374A] shadow-2xl flex flex-col overflow-hidden">
+      <div className="relative w-full h-[100dvh] sm:max-w-6xl sm:h-[94vh] bg-[#FFF9EF] dark:bg-[#12141C] text-[#171923] dark:text-[#FFF9EF] rounded-none sm:rounded-2xl border-0 sm:border border-[#E8D9C0] dark:border-[#31374A] shadow-2xl flex flex-col overflow-hidden">
         
-        {/* ================= HEADER TOOLBAR ================= */}
-        <header className="shrink-0 bg-white dark:bg-[#181B26] border-b border-[#E8D9C0] dark:border-[#2D3345] px-3 sm:px-5 py-2.5 sm:py-3.5 flex flex-wrap items-center justify-between gap-2 shadow-xs">
-          {/* Title & Brand */}
-          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-[#800020] to-[#F47B20] text-white flex items-center justify-center shadow-xs shrink-0">
-              <Map className="w-5 h-5" />
-            </div>
-            <div className="min-w-0">
-              <div className="flex items-center gap-1.5 flex-wrap">
-                <h2
-                  id="rajasthan-map-title"
-                  className="text-sm sm:text-base font-black text-[#800020] dark:text-[#F47B20] tracking-tight truncate"
-                >
-                  राजस्थान 50 ज़िला दर्शन व मैप क्विज़
-                </h2>
-                <span className="px-1.5 py-0.5 rounded-full bg-[#F47B20]/15 text-[#C85A0A] dark:text-[#F47B20] text-[9px] font-black uppercase tracking-wider">
-                  नवीनतम 2026
-                </span>
-              </div>
-              <p className="text-[10px] sm:text-xs text-[#52576A] dark:text-[#929AB0] font-medium truncate">
-                10 संभाग • 50 ज़िले • रामलुभाया कमेटी पुनर्गठन • RPSC व RSMSSB स्पेशल
-              </p>
-            </div>
-          </div>
-
-          {/* Mode Switcher & Close */}
-          <div className="flex items-center gap-2 ml-auto">
-            <div className="inline-flex rounded-xl bg-[#FFF9EF] dark:bg-[#12141C] p-1 border border-[#E8D9C0] dark:border-[#31374A] shadow-xs">
-              <button
-                type="button"
-                onClick={() => handleSwitchMode("explorer")}
-                className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer ${
-                  activeMode === "explorer"
-                    ? "bg-[#800020] text-white shadow-xs"
-                    : "text-[#52576A] dark:text-[#929AB0] hover:text-[#171923] dark:hover:text-white"
-                }`}
-              >
-                <Layers className="w-3.5 h-3.5" />
-                <span>🗺️ ज़िला दर्शन</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleSwitchMode("quiz")}
-                className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer ${
-                  activeMode === "quiz"
-                    ? "bg-[#F47B20] text-white shadow-xs"
-                    : "text-[#52576A] dark:text-[#929AB0] hover:text-[#171923] dark:hover:text-white"
-                }`}
-              >
-                <Flame className="w-3.5 h-3.5" />
-                <span>🎯 मैप क्विज़</span>
-              </button>
-            </div>
-
+        {/* ================= COMPACT MOBILE-FIRST HEADER ================= */}
+        <header className="shrink-0 bg-white dark:bg-[#181B26] border-b border-[#E8D9C0] dark:border-[#2D3345] px-2.5 sm:px-5 py-2 sm:py-3 flex items-center justify-between gap-2 shadow-xs z-30">
+          {/* Left: Back/Close + Title */}
+          <div className="flex items-center gap-2 min-w-0">
             <button
               type="button"
               onClick={() => {
@@ -149,70 +120,139 @@ export const RajasthanMapModal: React.FC<RajasthanMapModalProps> = ({
                 playClickSound();
                 onClose();
               }}
-              aria-label="Close Rajasthan Map"
-              className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-[#52576A] dark:text-[#929AB0] flex items-center justify-center transition-all cursor-pointer"
+              aria-label="Back / Close"
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#800020]/10 dark:bg-[#800020]/30 hover:bg-[#800020]/20 text-[#800020] dark:text-[#F47B20] flex items-center justify-center transition active:scale-90 cursor-pointer shrink-0"
             >
-              <X className="w-4 h-4 sm:w-5 sm:h-5" />
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <h2
+                  id="rajasthan-map-title"
+                  className="text-xs sm:text-base font-black text-[#800020] dark:text-[#F47B20] tracking-tight truncate leading-tight"
+                >
+                  राजस्थान 50 ज़िला दर्शन
+                </h2>
+                <span className="hidden xs:inline-block px-1.5 py-0.2 rounded-full bg-[#F47B20]/15 text-[#C85A0A] dark:text-[#F47B20] text-[9px] font-black uppercase">
+                  2026
+                </span>
+              </div>
+              <p className="text-[10px] text-[#52576A] dark:text-[#929AB0] font-medium truncate hidden sm:block">
+                50 ज़िले • 10 संभाग • रामलुभाया पुनर्गठन
+              </p>
+            </div>
+          </div>
+
+          {/* Right: Mode Switcher & Close */}
+          <div className="flex items-center gap-1.5 shrink-0">
+            {/* Mode Segmented Control */}
+            <div className="inline-flex rounded-xl bg-[#FFF9EF] dark:bg-[#12141C] p-0.5 border border-[#E8D9C0] dark:border-[#31374A] shadow-xs">
+              <button
+                type="button"
+                onClick={() => handleSwitchMode("explorer")}
+                className={`px-2 sm:px-3 py-1 rounded-lg text-[11px] sm:text-xs font-black transition-all flex items-center gap-1 cursor-pointer ${
+                  activeMode === "explorer"
+                    ? "bg-[#800020] text-white shadow-xs"
+                    : "text-[#52576A] dark:text-[#929AB0] hover:text-[#171923]"
+                }`}
+              >
+                <Layers className="w-3 h-3" />
+                <span>🗺️ दर्शन</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSwitchMode("quiz")}
+                className={`px-2 sm:px-3 py-1 rounded-lg text-[11px] sm:text-xs font-black transition-all flex items-center gap-1 cursor-pointer ${
+                  activeMode === "quiz"
+                    ? "bg-[#F47B20] text-white shadow-xs"
+                    : "text-[#52576A] dark:text-[#929AB0] hover:text-[#171923]"
+                }`}
+              >
+                <Flame className="w-3 h-3" />
+                <span>🎯 क्विज़</span>
+              </button>
+            </div>
+
+            {/* Close Button (Desktop) */}
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Close"
+              className="hidden sm:flex w-8 h-8 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 text-[#52576A] dark:text-[#929AB0] items-center justify-center transition active:scale-95 cursor-pointer"
+            >
+              <X className="w-4 h-4" />
             </button>
           </div>
         </header>
 
-        {/* ================= SECONDARY TOOLBAR: SEARCH & DIVISION FILTERS ================= */}
+        {/* ================= SECONDARY TOOLBAR: SEARCH & DIVISION PILLS ================= */}
         {activeMode === "explorer" && (
-          <div className="shrink-0 bg-white/90 dark:bg-[#181B26]/90 backdrop-blur-xs border-b border-[#E8D9C0] dark:border-[#2D3345] px-3 sm:px-5 py-2 flex flex-col gap-2">
-            <div className="flex items-center gap-2">
-              {/* Search input */}
-              <div className="relative flex-1">
-                <Search className="w-4 h-4 text-[#800020] dark:text-[#F47B20] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <div className="shrink-0 bg-white/95 dark:bg-[#181B26]/95 border-b border-[#E8D9C0] dark:border-[#2D3345] px-2.5 sm:px-5 py-2 flex flex-col gap-1.5 z-20">
+            {/* Search Input Row + District Quick List Button */}
+            <div className="flex items-center gap-1.5">
+              <div className="relative flex-1 min-w-0">
+                <Search className="w-3.5 h-3.5 text-[#800020] dark:text-[#F47B20] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="ज़िला, खनिज (जिप्सम, तांबा, लिग्नाइट), दुर्ग या नदी खोजें..."
-                  className="w-full pl-9 pr-8 py-1.5 text-xs sm:text-sm rounded-xl bg-[#FFF9EF] dark:bg-[#12141C] border border-[#E8D9C0] dark:border-[#31374A] focus:outline-hidden focus:border-[#800020] dark:focus:border-[#F47B20] text-[#171923] dark:text-[#FFF9EF] placeholder-[#929AB0]"
+                  placeholder="ज़िला, खनिज (जिप्सम, तांबा, लिग्नाइट) या दुर्ग खोजें..."
+                  className="w-full pl-8 pr-7 py-1.5 text-xs rounded-xl bg-[#FFF9EF] dark:bg-[#12141C] border border-[#E8D9C0] dark:border-[#31374A] focus:outline-hidden focus:border-[#800020] dark:focus:border-[#F47B20] text-[#171923] dark:text-[#FFF9EF] placeholder-[#929AB0]"
                 />
                 {searchQuery && (
                   <button
                     type="button"
                     onClick={() => setSearchQuery("")}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-0.5"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
                 )}
               </div>
 
+              {/* Mobile District List Button */}
+              <button
+                type="button"
+                onClick={() => {
+                  triggerHaptic("light");
+                  setShowDistrictListSheet(true);
+                }}
+                title="सभी 50 ज़िलों की सूची"
+                className="px-2.5 py-1.5 rounded-xl bg-[#800020]/10 dark:bg-[#F47B20]/15 hover:bg-[#800020]/20 text-[#800020] dark:text-[#F47B20] border border-[#800020]/25 dark:border-[#F47B20]/25 text-xs font-black flex items-center gap-1 shrink-0 active:scale-95 transition cursor-pointer"
+              >
+                <ListFilter className="w-3.5 h-3.5" />
+                <span className="hidden xs:inline">ज़िला सूची</span>
+                <span className="text-[10px] opacity-75 font-mono">({searchResults.length})</span>
+              </button>
+
               {/* Reset filter button */}
               {(activeDivisionFilter || searchQuery) && (
                 <button
                   type="button"
                   onClick={handleClearFilters}
-                  className="text-[11px] font-bold text-[#800020] dark:text-[#F47B20] hover:underline px-2 py-1 shrink-0"
+                  className="text-[10px] sm:text-xs font-black text-[#800020] dark:text-[#F47B20] hover:underline px-1 py-1 shrink-0"
                 >
-                  फिल्टर हटाएं
+                  हटाएं
                 </button>
               )}
             </div>
 
-            {/* Division Filter Pills Scrollable */}
-            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5 text-xs">
-              <span className="text-[10px] font-extrabold uppercase text-[#52576A] dark:text-[#929AB0] shrink-0 mr-1 flex items-center gap-1">
-                <Filter className="w-3 h-3" /> संभाग:
-              </span>
-              
+            {/* Division Filter Pills Horizontal Touch-Scroll */}
+            <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 text-xs touch-pan-x">
               <button
                 type="button"
                 onClick={() => {
                   triggerHaptic("light");
                   setActiveDivisionFilter(null);
                 }}
-                className={`px-2.5 py-1 rounded-lg text-xs font-black transition-all shrink-0 cursor-pointer ${
+                className={`px-2 py-0.5 rounded-lg text-[11px] font-black transition-all shrink-0 cursor-pointer ${
                   activeDivisionFilter === null
                     ? "bg-[#800020] text-white shadow-xs"
                     : "bg-[#FFF9EF] dark:bg-[#12141C] border border-[#E8D9C0] dark:border-[#31374A] text-[#52576A] dark:text-[#929AB0]"
                 }`}
               >
-                सभी 50 ज़िले
+                सभी 50
               </button>
 
               {RAJASTHAN_DIVISIONS_LIST.map((div) => {
@@ -225,45 +265,36 @@ export const RajasthanMapModal: React.FC<RajasthanMapModalProps> = ({
                       triggerHaptic("light");
                       setActiveDivisionFilter(isActive ? null : div.id);
                     }}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-black transition-all shrink-0 flex items-center gap-1.5 cursor-pointer border ${
+                    className={`px-2 py-0.5 rounded-lg text-[11px] font-black transition-all shrink-0 flex items-center gap-1 cursor-pointer border ${
                       isActive
                         ? "bg-[#800020] text-white border-[#800020] shadow-xs"
-                        : "bg-white dark:bg-[#1F2330] border-[#E8D9C0] dark:border-[#31374A] text-[#171923] dark:text-[#FFF9EF] hover:border-[#800020]"
+                        : "bg-white dark:bg-[#1F2330] border-[#E8D9C0] dark:border-[#31374A] text-[#171923] dark:text-[#FFF9EF]"
                     }`}
                   >
                     <span
-                      className="w-2 h-2 rounded-full shrink-0"
+                      className="w-1.5 h-1.5 rounded-full shrink-0"
                       style={{ backgroundColor: div.color }}
                     />
-                    <span>{div.nameHindi}</span>
+                    <span>{div.nameHindi.replace(" संभाग", "")}</span>
                     {div.isNew && (
-                      <span className="px-1 py-0.2 rounded-sm bg-[#F47B20] text-white text-[8px] font-black uppercase">
+                      <span className="px-1 py-0.1 rounded-xs bg-[#F47B20] text-white text-[7px] font-black uppercase">
                         नया
                       </span>
                     )}
-                    <span className="text-[10px] opacity-75 font-mono">({div.districtIds.length})</span>
                   </button>
                 );
               })}
             </div>
-
-            {/* Search Match Info */}
-            {searchQuery && (
-              <div className="flex items-center justify-between text-[11px] font-bold text-[#800020] dark:text-[#F47B20] px-1">
-                <span>🔍 "{searchQuery}" से जुड़े ज़िले: {searchResults.length}</span>
-                <span className="text-gray-500 font-normal">नक्शे पर नीले रंग में हाइलाइट किए गए हैं</span>
-              </div>
-            )}
           </div>
         )}
 
-        {/* ================= MAIN CONTENT AREA ================= */}
+        {/* ================= MAIN INTERACTIVE MAP & QUIZ CONTAINER ================= */}
         <div className="flex-1 min-h-0 relative flex flex-col overflow-hidden">
-          {/* QUIZ ENGINE OVERLAY (when in quiz mode) */}
           {activeMode === "quiz" ? (
+            /* QUIZ MODE */
             <div className="h-full flex flex-col overflow-hidden">
-              {/* Quiz Header & Prompt Runner */}
-              <div className="shrink-0 p-2 sm:p-4 bg-white/95 dark:bg-[#181B26]/95 border-b border-[#E8D9C0] dark:border-[#31374A] shadow-xs">
+              {/* Compact Quiz Bar on Top */}
+              <div className="shrink-0 p-2 sm:p-3 bg-white/95 dark:bg-[#181B26]/95 border-b border-[#E8D9C0] dark:border-[#31374A] z-10 shadow-xs">
                 <MapQuizRunner
                   onSelectTargetForMap={(districtId) => setQuizTargetDistrictId(districtId)}
                   onQuizFeedback={(fb) => setQuizFeedback(fb)}
@@ -272,7 +303,7 @@ export const RajasthanMapModal: React.FC<RajasthanMapModalProps> = ({
                 />
               </div>
 
-              {/* Map Display in Quiz Mode */}
+              {/* Map Canvas taking remaining space */}
               <div className="flex-1 min-h-0 relative bg-[#FFF9EF] dark:bg-[#12141C]">
                 <RajasthanSvgMap
                   selectedDistrictId={null}
@@ -288,16 +319,16 @@ export const RajasthanMapModal: React.FC<RajasthanMapModalProps> = ({
           ) : (
             /* EXPLORER MODE */
             <div className="h-full flex flex-col relative overflow-hidden">
-              {/* Tip Banner */}
-              <div className="shrink-0 px-3 py-1.5 bg-[#800020]/5 dark:bg-[#800020]/20 border-b border-[#800020]/15 flex items-center justify-between text-[11px] text-[#800020] dark:text-[#F47B20] font-medium">
-                <div className="flex items-center gap-1.5 truncate">
-                  <Sparkles className="w-3.5 h-3.5 shrink-0 text-[#F47B20]" />
+              {/* Quick tip pill */}
+              <div className="shrink-0 px-2.5 py-1 bg-[#800020]/5 dark:bg-[#800020]/20 border-b border-[#800020]/10 flex items-center justify-between text-[10px] text-[#800020] dark:text-[#F47B20] font-medium z-10">
+                <div className="flex items-center gap-1 truncate">
+                  <Sparkles className="w-3 h-3 shrink-0 text-[#F47B20]" />
                   <span className="truncate">
-                    नक्शे पर किसी भी ज़िले पर टैप करें - उसका पूरा इतिहास, 2023 के नए बदलाव, खनिज व PYQs देखें!
+                    नक्शे पर किसी भी ज़िले पर टैप करें — इतिहास, 2023 बदलाव व PYQs देखें!
                   </span>
                 </div>
-                <span className="hidden sm:inline-block font-bold shrink-0 pl-2">
-                  जूम: + / - या माउस व्हील
+                <span className="hidden xs:inline-block shrink-0 pl-1 font-bold">
+                  पिंच या बटन से ज़ूम करें
                 </span>
               </div>
 
@@ -312,40 +343,87 @@ export const RajasthanMapModal: React.FC<RajasthanMapModalProps> = ({
                 />
               </div>
 
-              {/* District Detail Sheet Modal/Drawer */}
+              {/* District Detail Sheet Modal */}
               {selectedDistrictData && (
                 <DistrictDetailSheet
                   district={selectedDistrictData}
                   onClose={() => setSelectedDistrictId(null)}
-                  onStartDistrictPractice={() => {
-                    handleSwitchMode("quiz");
-                  }}
+                  onStartDistrictPractice={() => handleSwitchMode("quiz")}
                 />
               )}
             </div>
           )}
         </div>
 
-        {/* ================= FOOTER SUMMARY BAR ================= */}
-        <footer className="shrink-0 bg-white dark:bg-[#181B26] border-t border-[#E8D9C0] dark:border-[#2D3345] px-3 sm:px-5 py-2 flex items-center justify-between text-[11px] text-[#52576A] dark:text-[#929AB0]">
-          <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
-            <span className="font-bold text-[#800020] dark:text-[#F47B20]">
-              50 कुल ज़िले
-            </span>
-            <span className="hidden sm:inline">•</span>
-            <span>10 संभाग (3 नए: सीकर, पाली, बांसवाड़ा)</span>
-            <span className="hidden sm:inline">•</span>
-            <span className="text-emerald-700 dark:text-emerald-400 font-semibold">
-              17 नए ज़िले (2023)
-            </span>
-          </div>
+        {/* ================= MOBILE QUICK DISTRICT LIST DRAWER ================= */}
+        {showDistrictListSheet && (
+          <div
+            className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-xs animate-in fade-in"
+            onClick={() => setShowDistrictListSheet(false)}
+          >
+            <div
+              className="w-full sm:max-w-md max-h-[78vh] bg-[#FFF9EF] dark:bg-[#181B26] rounded-t-3xl border-t border-[#C99A45]/40 shadow-2xl flex flex-col overflow-hidden text-[#171923] dark:text-[#FFF9EF]"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Drawer Handle & Header */}
+              <div className="p-3 bg-gradient-to-r from-[#800020] to-[#5E0017] text-white shrink-0">
+                <div className="w-12 h-1 bg-white/40 rounded-full mx-auto mb-2" />
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-black text-sm">राजस्थान 50 ज़िला सूची</h3>
+                    <p className="text-[10px] text-[#FFF9EF]/80">
+                      ज़िले पर टैप करके तुरंत नक्शे पर देखें व पढ़ें
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowDistrictListSheet(false)}
+                    className="p-1 rounded-full bg-white/10 hover:bg-white/20 text-white"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
 
-          <div className="flex items-center gap-2">
-            <span className="hidden md:inline text-[10px] text-gray-500">
-              दिशा 20-20 स्मार्ट विज़ुअलाइज़र
-            </span>
+              {/* Districts List Items */}
+              <div className="flex-1 overflow-y-auto p-2.5 space-y-1.5 overscroll-contain no-scrollbar">
+                {searchResults.map((d) => {
+                  const div = RAJASTHAN_DIVISIONS[d.divisionId];
+                  return (
+                    <button
+                      key={d.id}
+                      type="button"
+                      onClick={() => handleSelectDistrict(d.id)}
+                      className="w-full p-2.5 rounded-xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] hover:border-[#800020] flex items-center justify-between text-left transition active:scale-98 cursor-pointer shadow-2xs"
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span
+                          className="w-2.5 h-2.5 rounded-full shrink-0"
+                          style={{ backgroundColor: div?.color || "#800020" }}
+                        />
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-bold text-xs truncate">{d.nameHindi}</span>
+                            {d.isNewDistrict && (
+                              <span className="px-1.5 py-0.1 text-[8px] font-black bg-[#F47B20] text-white rounded-xs">
+                                2023 नया
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[10px] text-[#52576A] dark:text-[#929AB0] truncate">
+                            {div?.nameHindi} • {d.tagline}
+                          </p>
+                        </div>
+                      </div>
+
+                      <ChevronRight className="w-4 h-4 text-[#C99A45] shrink-0 ml-1" />
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           </div>
-        </footer>
+        )}
 
       </div>
     </div>

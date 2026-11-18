@@ -14,6 +14,8 @@ import {
   Volume2,
   ChevronRight,
   BookOpen,
+  ArrowRight,
+  Flame,
 } from "lucide-react";
 import { triggerHaptic, playClickSound } from "../../../utils/audioFeedback";
 
@@ -63,81 +65,109 @@ export const DistrictDetailSheet: React.FC<DistrictDetailSheetProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="relative w-full sm:max-w-2xl max-h-[88vh] sm:max-h-[82vh] flex flex-col bg-[#FFF9EF] dark:bg-[#171923] rounded-t-3xl sm:rounded-3xl border-t-2 sm:border-2 border-[#C99A45]/40 shadow-2xl overflow-hidden text-[#171923] dark:text-[#FFF9EF]">
-        {/* Top Header Banner */}
-        <div className="relative p-5 sm:p-6 bg-gradient-to-r from-[#800020] via-[#5E0017] to-[#800020] text-white">
+    <div
+      role="dialog"
+      aria-modal="true"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/65 backdrop-blur-xs animate-in fade-in duration-200"
+      onClick={onClose}
+    >
+      <div
+        className="relative w-full sm:max-w-2xl max-h-[90vh] sm:max-h-[84vh] flex flex-col bg-[#FFF9EF] dark:bg-[#151822] rounded-t-3xl sm:rounded-3xl border-t-2 sm:border-2 border-[#C99A45]/40 shadow-2xl overflow-hidden text-[#171923] dark:text-[#FFF9EF]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* ================= PULL-DOWN HANDLE & BANNER ================= */}
+        <div className="relative p-4 sm:p-5 bg-gradient-to-r from-[#800020] via-[#5E0017] to-[#800020] text-white shrink-0">
+          {/* Mobile Sheet Drag Indicator */}
+          <div className="w-12 h-1.5 bg-white/40 rounded-full mx-auto -mt-1 mb-2.5 sm:hidden" />
+
+          {/* Close Button */}
           <button
+            type="button"
             onClick={() => {
               triggerHaptic("light");
+              playClickSound();
+              if (isSpeaking && typeof window !== "undefined") {
+                window.speechSynthesis.cancel();
+              }
               onClose();
             }}
-            className="absolute top-4 right-4 p-2 rounded-full bg-black/20 hover:bg-black/40 text-white transition active:scale-95"
+            aria-label="Close district sheet"
+            className="absolute top-3.5 right-3.5 w-9 h-9 rounded-full bg-black/25 hover:bg-black/40 text-white flex items-center justify-center transition active:scale-90 cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
 
-          <div className="flex flex-wrap items-center gap-2 mb-2">
+          {/* Badges */}
+          <div className="flex flex-wrap items-center gap-1.5 mb-1.5 pr-10">
             <span
-              className="px-3 py-1 rounded-full text-xs font-bold shadow-sm"
+              className="px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-black shadow-xs"
               style={{ backgroundColor: division?.color || "#F47B20", color: "#FFF" }}
             >
               {division?.nameHindi || "संभाग"}
             </span>
             {district.isNewDistrict && (
-              <span className="px-3 py-1 rounded-full text-xs font-black bg-[#F47B20] text-white shadow-sm flex items-center gap-1">
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-black bg-[#F47B20] text-white shadow-xs flex items-center gap-1">
                 <Sparkles className="w-3 h-3 fill-current" />
                 2023 नया ज़िला
               </span>
             )}
           </div>
 
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <h2 className="text-2xl sm:text-3xl font-black tracking-tight">{district.nameHindi}</h2>
-              <p className="text-xs sm:text-sm font-medium text-[#FFF9EF]/80 mt-0.5">{district.nameEnglish}</p>
+          {/* Title & Audio Read-Aloud */}
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <h2 className="text-xl sm:text-2xl font-black tracking-tight truncate">
+                {district.nameHindi}
+              </h2>
+              <p className="text-[11px] sm:text-xs font-medium text-[#FFF9EF]/80">
+                {district.nameEnglish} • मुख्यालय: {district.headquarter}
+              </p>
             </div>
+
             <button
+              type="button"
               onClick={handleSpeakHighlights}
-              title="ऑडियो सुनें"
-              className={`p-3 rounded-2xl border transition active:scale-95 flex items-center gap-1.5 text-xs font-bold ${
+              title="हिंदी में परीक्षा बिंदु सुनें"
+              className={`px-3 py-1.5 rounded-xl border transition active:scale-95 flex items-center gap-1.5 text-xs font-black shrink-0 cursor-pointer ${
                 isSpeaking
-                  ? "bg-[#F47B20] text-white border-white animate-pulse"
-                  : "bg-white/10 hover:bg-white/20 text-white border-white/30"
+                  ? "bg-[#F47B20] text-white border-white animate-pulse shadow-md"
+                  : "bg-white/15 hover:bg-white/25 text-white border-white/30"
               }`}
             >
               <Volume2 className="w-4 h-4" />
-              <span>{isSpeaking ? "सुन रहे हैं..." : "ऑडियो"}</span>
+              <span>{isSpeaking ? "रोकें" : "ऑडियो"}</span>
             </button>
           </div>
 
-          <p className="text-xs sm:text-sm text-[#F7EFE1] mt-2 font-medium italic border-t border-white/20 pt-2">
+          <p className="text-[11px] sm:text-xs text-[#F7EFE1] mt-2 font-medium italic border-t border-white/20 pt-1.5 truncate">
             "{district.tagline}"
           </p>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="flex border-b border-[#C99A45]/30 bg-white/70 dark:bg-[#1E222D]/70 overflow-x-auto scrollbar-none px-3 pt-2 gap-1.5">
+        {/* ================= TOUCH SCROLLABLE TABS ================= */}
+        <div className="flex border-b border-[#E8D9C0] dark:border-[#2D3345] bg-white dark:bg-[#181B26] overflow-x-auto no-scrollbar px-3 pt-2 gap-1 shrink-0">
           {[
             { id: "overview", label: "अवलोकन", icon: Landmark },
             { id: "new_changes", label: "2023 बदलाव", icon: Sparkles },
-            { id: "culture", label: "इतिहास-संस्कृति", icon: BookOpen },
-            { id: "geography", label: "भूगोल-खनिज", icon: Compass },
-            { id: "pyqs", label: `PYQ प्रश्न (${district.pyqQuestions?.length || 0})`, icon: HelpCircle },
+            { id: "culture", label: "दुर्ग व संस्कृति", icon: BookOpen },
+            { id: "geography", label: "भूगोल व खनिज", icon: Compass },
+            { id: "pyqs", label: `PYQs (${district.pyqQuestions?.length || 0})`, icon: HelpCircle },
           ].map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
             return (
               <button
                 key={tab.id}
+                type="button"
                 onClick={() => {
                   triggerHaptic("light");
+                  playClickSound();
                   setActiveTab(tab.id as any);
                 }}
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-t-xl text-xs font-bold whitespace-nowrap transition-all border-b-2 ${
+                className={`flex items-center gap-1 px-3 py-2 rounded-t-xl text-xs font-black whitespace-nowrap transition-all border-b-2 cursor-pointer ${
                   isActive
                     ? "border-[#800020] text-[#800020] dark:border-[#F47B20] dark:text-[#F47B20] bg-[#800020]/10 dark:bg-[#F47B20]/10"
-                    : "border-transparent text-stone-600 dark:text-stone-400 hover:text-[#800020]"
+                    : "border-transparent text-[#52576A] dark:text-[#929AB0] hover:text-[#171923] dark:hover:text-white"
                 }`}
               >
                 <Icon className="w-3.5 h-3.5" />
@@ -147,121 +177,123 @@ export const DistrictDetailSheet: React.FC<DistrictDetailSheetProps> = ({
           })}
         </div>
 
-        {/* Scrollable Content Body */}
-        <div className="p-5 sm:p-6 overflow-y-auto flex-1 space-y-4">
+        {/* ================= TAB CONTENT SCROLLABLE BODY ================= */}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 no-scrollbar overscroll-contain">
           {/* TAB 1: OVERVIEW */}
           {activeTab === "overview" && (
             <div className="space-y-4 animate-in fade-in duration-150">
-              {/* Snapshot Cards Grid */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="p-3.5 rounded-2xl bg-white dark:bg-[#1E222D] border border-[#C99A45]/30 shadow-sm">
-                  <div className="flex items-center gap-1.5 text-xs text-stone-500 dark:text-stone-400 font-bold mb-1">
-                    <MapPin className="w-3.5 h-3.5 text-[#800020] dark:text-[#F47B20]" />
-                    मुख्यालय
-                  </div>
-                  <div className="font-extrabold text-sm">{district.headquarter}</div>
+              {/* Formation / Reorganization Callout */}
+              <div className="p-3.5 rounded-2xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] shadow-xs">
+                <div className="flex items-center gap-2 text-xs font-bold text-[#800020] dark:text-[#F47B20] mb-1">
+                  <Calendar className="w-4 h-4" />
+                  <span>गठन / पुनर्गठन विवरण</span>
                 </div>
-
-                <div className="p-3.5 rounded-2xl bg-white dark:bg-[#1E222D] border border-[#C99A45]/30 shadow-sm">
-                  <div className="flex items-center gap-1.5 text-xs text-stone-500 dark:text-stone-400 font-bold mb-1">
-                    <Calendar className="w-3.5 h-3.5 text-[#800020] dark:text-[#F47B20]" />
-                    गठन / स्थापना
-                  </div>
-                  <div className="font-extrabold text-xs leading-snug">{district.formationInfo}</div>
-                </div>
+                <p className="text-xs sm:text-sm font-semibold">{district.formationInfo}</p>
+                {district.parentDistricts?.length > 0 && (
+                  <p className="text-[11px] text-[#52576A] dark:text-[#929AB0] mt-1">
+                    मूल ज़िला (Parent): {district.parentDistricts.join(", ")}
+                  </p>
+                )}
               </div>
 
-              {/* High-Yield Exam Facts */}
-              <div className="p-4 rounded-2xl bg-gradient-to-br from-[#800020]/5 via-[#C99A45]/10 to-transparent border border-[#C99A45]/40">
-                <h4 className="text-xs font-black uppercase tracking-wider text-[#800020] dark:text-[#F47B20] flex items-center gap-1.5 mb-2.5">
-                  <Sparkles className="w-4 h-4" />
-                  RPSC व REET परीक्षा के मुख्य तथ्य (High-Yield Facts)
+              {/* High Yield Facts for Exams */}
+              <div className="space-y-2">
+                <h4 className="text-xs font-black text-[#800020] dark:text-[#F47B20] uppercase tracking-wider flex items-center gap-1.5">
+                  <Layers className="w-4 h-4" />
+                  <span>परीक्षा उपयोगी उच्च-प्राथमिकता बिंदु (High-Yield Facts)</span>
                 </h4>
-                <ul className="space-y-2">
+                <div className="space-y-2">
                   {district.examHighYieldFacts.map((fact, idx) => (
-                    <li key={idx} className="flex items-start gap-2 text-xs sm:text-sm font-medium leading-relaxed">
-                      <span className="w-5 h-5 rounded-full bg-[#800020] text-white text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">
-                        {idx + 1}
-                      </span>
-                      <span>{fact}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          )}
-
-          {/* TAB 2: NEW CHANGES 2023 */}
-          {activeTab === "new_changes" && (
-            <div className="space-y-4 animate-in fade-in duration-150">
-              <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-900 dark:text-amber-200 font-medium">
-                ⚡ <strong>अगस्त 2023 पुनर्गठन:</strong> इस ज़िले में कौन-कौन से ऐतिहासिक स्थल, नदियाँ और स्मारक शामिल हुए:
-              </div>
-
-              {district.newChangesIn2023 && district.newChangesIn2023.length > 0 ? (
-                <div className="space-y-2.5">
-                  {district.newChangesIn2023.map((change, idx) => (
                     <div
                       key={idx}
-                      className="p-3.5 rounded-2xl bg-white dark:bg-[#1E222D] border border-[#C99A45]/30 flex items-start gap-3 shadow-sm"
+                      className="p-3 rounded-xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] text-xs sm:text-sm font-medium flex items-start gap-2.5 shadow-xs"
                     >
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
-                      <p className="text-xs sm:text-sm font-semibold leading-relaxed">{change}</p>
+                      <span className="w-5 h-5 rounded-full bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] flex items-center justify-center text-[10px] font-black shrink-0 mt-0.5">
+                        {idx + 1}
+                      </span>
+                      <p className="leading-relaxed">{fact}</p>
                     </div>
                   ))}
                 </div>
-              ) : (
-                <div className="text-center py-6 text-xs text-stone-500">
-                  इस ज़िले की मूल सीमाएं और प्रमुख धरोहरें पूर्ववत हैं।
-                </div>
-              )}
+              </div>
             </div>
           )}
 
-          {/* TAB 3: CULTURE & HERITAGE */}
+          {/* TAB 2: 2023 NEW CHANGES */}
+          {activeTab === "new_changes" && (
+            <div className="space-y-3 animate-in fade-in duration-150">
+              <div className="p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/40 text-amber-900 dark:text-amber-200 text-xs sm:text-sm">
+                <span className="font-black flex items-center gap-1 mb-1">
+                  <Sparkles className="w-4 h-4 text-amber-600" />
+                  रामलुभाया कमेटी रिपोर्ट के अनुसार 2023 पुनर्गठन बदलाव:
+                </span>
+                <p className="text-[11px] opacity-90">
+                  नवीनतम भूगोल में ये तथ्य सीधे परीक्षा प्रश्नों में पूछे जा रहे हैं।
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                {district.newChangesIn2023.map((change, idx) => (
+                  <div
+                    key={idx}
+                    className="p-3.5 rounded-xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] text-xs sm:text-sm font-medium flex items-start gap-2.5 shadow-xs"
+                  >
+                    <CheckCircle2 className="w-4 h-4 text-[#F47B20] shrink-0 mt-0.5" />
+                    <p className="leading-relaxed">{change}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* TAB 3: CULTURE & FORTS */}
           {activeTab === "culture" && (
-            <div className="space-y-3.5 animate-in fade-in duration-150">
+            <div className="space-y-4 animate-in fade-in duration-150">
               {district.culture.forts && district.culture.forts.length > 0 && (
-                <div className="p-3.5 rounded-2xl bg-white dark:bg-[#1E222D] border border-[#C99A45]/30">
-                  <h5 className="text-xs font-black text-[#800020] dark:text-[#F47B20] mb-1.5 flex items-center gap-1.5">
-                    🏰 प्रमुख दुर्ग व किले
-                  </h5>
-                  <p className="text-xs sm:text-sm font-medium text-stone-700 dark:text-stone-300">
-                    {district.culture.forts.join(" • ")}
-                  </p>
+                <div className="p-3.5 rounded-2xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] shadow-xs">
+                  <h4 className="text-xs font-black text-[#800020] dark:text-[#F47B20] mb-2 flex items-center gap-1.5">
+                    <Landmark className="w-4 h-4" />
+                    <span>प्रमुख दुर्ग व ऐतिहासिक धरोहर</span>
+                  </h4>
+                  <div className="flex flex-wrap gap-1.5">
+                    {district.culture.forts.map((fort, i) => (
+                      <span key={i} className="px-2.5 py-1 rounded-lg bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] text-xs font-bold">
+                        🏰 {fort}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               )}
 
               {district.culture.temples && district.culture.temples.length > 0 && (
-                <div className="p-3.5 rounded-2xl bg-white dark:bg-[#1E222D] border border-[#C99A45]/30">
-                  <h5 className="text-xs font-black text-[#800020] dark:text-[#F47B20] mb-1.5 flex items-center gap-1.5">
-                    🛕 प्रमुख मंदिर व धाम
-                  </h5>
-                  <p className="text-xs sm:text-sm font-medium text-stone-700 dark:text-stone-300">
-                    {district.culture.temples.join(" • ")}
-                  </p>
-                </div>
-              )}
-
-              {district.culture.fairs && district.culture.fairs.length > 0 && (
-                <div className="p-3.5 rounded-2xl bg-white dark:bg-[#1E222D] border border-[#C99A45]/30">
-                  <h5 className="text-xs font-black text-[#800020] dark:text-[#F47B20] mb-1.5 flex items-center gap-1.5">
-                    🎪 प्रमुख मेले व उत्सव
-                  </h5>
-                  <p className="text-xs sm:text-sm font-medium text-stone-700 dark:text-stone-300">
-                    {district.culture.fairs.join(" • ")}
-                  </p>
+                <div className="p-3.5 rounded-2xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] shadow-xs">
+                  <h4 className="text-xs font-black text-[#800020] dark:text-[#F47B20] mb-2 flex items-center gap-1.5">
+                    <Landmark className="w-4 h-4" />
+                    <span>प्रमुख मंदिर व लोक-तीर्थ</span>
+                  </h4>
+                  <div className="flex flex-wrap gap-1.5">
+                    {district.culture.temples.map((temple, i) => (
+                      <span key={i} className="px-2.5 py-1 rounded-lg bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] text-xs font-bold">
+                        🛕 {temple}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               )}
 
               {district.culture.artAndCraft && district.culture.artAndCraft.length > 0 && (
-                <div className="p-3.5 rounded-2xl bg-white dark:bg-[#1E222D] border border-[#C99A45]/30">
-                  <h5 className="text-xs font-black text-[#800020] dark:text-[#F47B20] mb-1.5 flex items-center gap-1.5">
-                    🎨 कला, हस्तशिल्प व लोकनाट्य
-                  </h5>
-                  <p className="text-xs sm:text-sm font-medium text-stone-700 dark:text-stone-300">
-                    {district.culture.artAndCraft.join(" • ")}
-                  </p>
+                <div className="p-3.5 rounded-2xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] shadow-xs">
+                  <h4 className="text-xs font-black text-[#800020] dark:text-[#F47B20] mb-2 flex items-center gap-1.5">
+                    <Sparkles className="w-4 h-4" />
+                    <span>हस्तकला, उत्सव व संस्कृति</span>
+                  </h4>
+                  <div className="flex flex-wrap gap-1.5">
+                    {district.culture.artAndCraft.map((craft, i) => (
+                      <span key={i} className="px-2.5 py-1 rounded-lg bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] text-xs font-bold">
+                        🎨 {craft}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
@@ -269,134 +301,148 @@ export const DistrictDetailSheet: React.FC<DistrictDetailSheetProps> = ({
 
           {/* TAB 4: GEOGRAPHY & MINERALS */}
           {activeTab === "geography" && (
-            <div className="space-y-3.5 animate-in fade-in duration-150">
-              <div className="p-3.5 rounded-2xl bg-white dark:bg-[#1E222D] border border-[#C99A45]/30">
-                <h5 className="text-xs font-black text-[#800020] dark:text-[#F47B20] mb-1">⛰️ भू-आकृति व उच्चावच</h5>
-                <p className="text-xs sm:text-sm font-medium">{district.geography.terrain}</p>
+            <div className="space-y-4 animate-in fade-in duration-150">
+              <div className="p-3.5 rounded-2xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] shadow-xs">
+                <span className="text-[10px] font-bold text-[#52576A] dark:text-[#929AB0] block uppercase">भौगोलिक स्वरूप (Terrain)</span>
+                <p className="text-xs sm:text-sm font-semibold mt-0.5">{district.geography.terrain}</p>
               </div>
 
-              {district.geography.rivers && district.geography.rivers.length > 0 && (
-                <div className="p-3.5 rounded-2xl bg-white dark:bg-[#1E222D] border border-[#C99A45]/30">
-                  <h5 className="text-xs font-black text-[#800020] dark:text-[#F47B20] mb-1">🌊 नदियाँ व अपवाह तंत्र</h5>
-                  <p className="text-xs sm:text-sm font-medium">{district.geography.rivers.join(", ")}</p>
-                </div>
-              )}
-
-              {district.geography.lakes && district.geography.lakes.length > 0 && (
-                <div className="p-3.5 rounded-2xl bg-white dark:bg-[#1E222D] border border-[#C99A45]/30">
-                  <h5 className="text-xs font-black text-[#800020] dark:text-[#F47B20] mb-1">💧 प्रमुख झीलें व बांध</h5>
-                  <p className="text-xs sm:text-sm font-medium">{district.geography.lakes.join(", ")}</p>
-                </div>
-              )}
-
               {district.geography.minerals && district.geography.minerals.length > 0 && (
-                <div className="p-3.5 rounded-2xl bg-white dark:bg-[#1E222D] border border-[#C99A45]/30">
-                  <h5 className="text-xs font-black text-[#800020] dark:text-[#F47B20] mb-1">⛏️ खनिज संपदा</h5>
-                  <p className="text-xs sm:text-sm font-medium">{district.geography.minerals.join(", ")}</p>
+                <div className="p-3.5 rounded-2xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] shadow-xs">
+                  <h4 className="text-xs font-black text-[#800020] dark:text-[#F47B20] mb-2 flex items-center gap-1.5">
+                    <Compass className="w-4 h-4" />
+                    <span>प्रमुख खनिज संपदा (Minerals)</span>
+                  </h4>
+                  <div className="flex flex-wrap gap-1.5">
+                    {district.geography.minerals.map((m, i) => (
+                      <span key={i} className="px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/30 text-amber-800 dark:text-amber-200 border border-amber-200 dark:border-amber-800 text-xs font-bold">
+                        💎 {m}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {district.geography.rivers && district.geography.rivers.length > 0 && (
+                <div className="p-3.5 rounded-2xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] shadow-xs">
+                  <h4 className="text-xs font-black text-[#800020] dark:text-[#F47B20] mb-2 flex items-center gap-1.5">
+                    <Compass className="w-4 h-4" />
+                    <span>नदियाँ व जल प्रवाह (Drainage)</span>
+                  </h4>
+                  <div className="flex flex-wrap gap-1.5">
+                    {district.geography.rivers.map((r, i) => (
+                      <span key={i} className="px-2.5 py-1 rounded-lg bg-blue-50 dark:bg-blue-950/30 text-blue-800 dark:text-blue-200 border border-blue-200 dark:border-blue-800 text-xs font-bold">
+                        🌊 {r}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
           )}
 
-          {/* TAB 5: PYQ PRACTICE */}
+          {/* TAB 5: PREVIOUS YEAR QUESTIONS (PYQs) */}
           {activeTab === "pyqs" && (
             <div className="space-y-4 animate-in fade-in duration-150">
-              {district.pyqQuestions && district.pyqQuestions.length > 0 ? (
-                district.pyqQuestions.map((q, qIdx) => {
-                  const selectedOpt = selectedPyqAnswers[q.id];
-                  const hasAnswered = selectedOpt !== undefined;
+              <div className="text-[11px] font-bold text-[#800020] dark:text-[#F47B20]">
+                {district.nameHindi} से पूछे गए वास्तविक RPSC व RSMSSB पूर्व परीक्षा प्रश्न:
+              </div>
 
-                  return (
-                    <div
-                      key={q.id}
-                      className="p-4 rounded-2xl bg-white dark:bg-[#1E222D] border border-[#C99A45]/30 shadow-sm space-y-3"
-                    >
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="text-[11px] font-bold text-[#800020] dark:text-[#F47B20] bg-[#800020]/10 dark:bg-[#F47B20]/10 px-2.5 py-0.5 rounded-full">
-                          प्रश्न {qIdx + 1}
-                        </span>
-                        <span className="text-[10px] font-bold text-stone-500 bg-stone-100 dark:bg-stone-800 px-2 py-0.5 rounded-full">
-                          {q.examTag}
-                        </span>
-                      </div>
+              {district.pyqQuestions.map((pyq, idx) => {
+                const selectedOpt = selectedPyqAnswers[pyq.id];
+                const isAnswered = selectedOpt !== undefined;
 
-                      <h5 className="font-bold text-xs sm:text-sm leading-relaxed">{q.question}</h5>
-
-                      {/* Options */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        {q.options.map((opt, oIdx) => {
-                          const isSelected = selectedOpt === oIdx;
-                          const isCorrect = q.correctIndex === oIdx;
-
-                          let btnStyle = "border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800/60";
-                          if (hasAnswered) {
-                            if (isCorrect) {
-                              btnStyle = "border-emerald-500 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-200 font-bold";
-                            } else if (isSelected) {
-                              btnStyle = "border-red-500 bg-red-50 dark:bg-red-950/40 text-red-800 dark:text-red-200 font-bold";
-                            }
-                          } else if (isSelected) {
-                            btnStyle = "border-[#800020] bg-[#800020]/10 font-bold";
-                          }
-
-                          return (
-                            <button
-                              key={oIdx}
-                              onClick={() => handleSelectPyqOption(q.id, oIdx)}
-                              className={`p-2.5 rounded-xl border text-left text-xs transition flex items-center gap-2 ${btnStyle}`}
-                            >
-                              <span className="w-5 h-5 rounded-full border border-current flex items-center justify-center text-[10px] font-bold shrink-0">
-                                {String.fromCharCode(65 + oIdx)}
-                              </span>
-                              <span className="leading-tight">{opt}</span>
-                            </button>
-                          );
-                        })}
-                      </div>
-
-                      {/* Explanation */}
-                      {hasAnswered && (
-                        <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs leading-relaxed text-stone-800 dark:text-stone-200 animate-in fade-in">
-                          <strong>व्याख्या:</strong> {q.explanation}
-                        </div>
-                      )}
+                return (
+                  <div
+                    key={pyq.id}
+                    className="p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] shadow-xs space-y-3"
+                  >
+                    <div className="flex items-center justify-between text-[10px] font-bold">
+                      <span className="px-2 py-0.5 rounded-md bg-[#800020]/10 dark:bg-[#800020]/30 text-[#800020] dark:text-[#F47B20]">
+                        प्रश्न {idx + 1}
+                      </span>
+                      <span className="px-2 py-0.5 rounded-md bg-stone-100 dark:bg-stone-800 text-[#52576A] dark:text-[#929AB0]">
+                        {pyq.examTag}
+                      </span>
                     </div>
-                  );
-                })
-              ) : (
-                <div className="text-center py-6 text-xs text-stone-500">
-                  इस ज़िले के प्रश्न जल्द ही जोड़े जाएंगे।
-                </div>
-              )}
+
+                    <p className="text-xs sm:text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] leading-snug">
+                      {pyq.question}
+                    </p>
+
+                    {/* Options list */}
+                    <div className="space-y-1.5">
+                      {pyq.options.map((opt, optIdx) => {
+                        const isThisSelected = selectedOpt === optIdx;
+                        const isCorrectOption = optIdx === pyq.correctIndex;
+
+                        let btnStyle = "bg-[#FFF9EF] dark:bg-[#171923] border-[#E8D9C0] dark:border-[#31374A] text-[#171923] dark:text-[#FFF9EF]";
+
+                        if (isAnswered) {
+                          if (isCorrectOption) {
+                            btnStyle = "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-500 text-emerald-800 dark:text-emerald-200 font-black";
+                          } else if (isThisSelected) {
+                            btnStyle = "bg-rose-50 dark:bg-rose-950/40 border-rose-500 text-rose-800 dark:text-rose-200";
+                          }
+                        }
+
+                        return (
+                          <button
+                            key={optIdx}
+                            type="button"
+                            disabled={isAnswered}
+                            onClick={() => handleSelectPyqOption(pyq.id, optIdx)}
+                            className={`w-full min-h-[42px] text-left px-3 py-2 rounded-xl border text-xs flex items-center gap-2 transition active:scale-98 cursor-pointer ${btnStyle}`}
+                          >
+                            <span className="w-5 h-5 rounded-full bg-stone-200 dark:bg-stone-700 flex items-center justify-center text-[10px] font-black shrink-0">
+                              {String.fromCharCode(65 + optIdx)}
+                            </span>
+                            <span className="flex-1 leading-snug">{opt}</span>
+                            {isAnswered && isCorrectOption && (
+                              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 ml-auto" />
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* Explanation */}
+                    {isAnswered && (
+                      <div className="p-3 rounded-xl bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/40 text-[11px] text-amber-900 dark:text-amber-200 leading-relaxed animate-in fade-in">
+                        <span className="font-black">व्याख्या: </span>
+                        <span>{pyq.explanation}</span>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
 
-        {/* Bottom Actions Footer */}
-        <div className="p-4 bg-white/90 dark:bg-[#1E222D]/90 border-t border-[#C99A45]/30 flex items-center justify-between gap-3">
+        {/* ================= STICKY FOOTER ACTIONS (Safe Area) ================= */}
+        <div className="p-3 sm:p-4 bg-white dark:bg-[#181B26] border-t border-[#E8D9C0] dark:border-[#2D3345] flex items-center justify-between gap-2 shrink-0 pb-safe">
           <button
+            type="button"
             onClick={() => {
-              triggerHaptic("light");
+              triggerHaptic("medium");
               onClose();
+              onStartDistrictPractice?.(district.id);
             }}
-            className="px-5 py-2.5 rounded-xl text-xs font-bold border border-stone-300 dark:border-stone-700 hover:bg-stone-100 dark:hover:bg-stone-800 transition"
+            className="flex-1 min-h-[44px] py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#800020] to-[#F47B20] text-white font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md hover:brightness-110 active:scale-95 transition cursor-pointer"
+          >
+            <Flame className="w-4 h-4" />
+            <span>🎯 इस ज़िले का क्विज़ खेलें</span>
+            <ArrowRight className="w-4 h-4 ml-auto" />
+          </button>
+
+          <button
+            type="button"
+            onClick={onClose}
+            className="min-h-[44px] px-4 py-2.5 rounded-xl border border-[#E8D9C0] dark:border-[#31374A] hover:bg-stone-100 dark:hover:bg-stone-800 text-xs font-bold transition cursor-pointer"
           >
             बंद करें
           </button>
-
-          {onStartDistrictPractice && (
-            <button
-              onClick={() => {
-                triggerHaptic("medium");
-                playClickSound();
-                onStartDistrictPractice(district.id);
-              }}
-              className="flex-1 max-w-xs px-5 py-2.5 rounded-xl text-xs font-black bg-gradient-to-r from-[#800020] to-[#F47B20] text-white shadow-lg hover:brightness-110 active:scale-95 transition flex items-center justify-center gap-1.5"
-            >
-              <span>इस ज़िले का टेस्ट दें</span>
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          )}
         </div>
       </div>
     </div>
