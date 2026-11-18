@@ -5,6 +5,8 @@ import {
   getBattleQuestions,
   calculateRoundScore,
   getBattleShareInfo,
+  getUserCustomQuestionsList,
+  getAvailableChaptersList,
   RealtimeBattleManager,
 } from "../src/utils/realtimeBattleService";
 import type { BattlePlayer } from "../src/components/battle/types";
@@ -40,32 +42,58 @@ describe("Realtime Battle Service Tests", () => {
     });
   });
 
-  it("should calculate speed-based round score correctly", () => {
-    // Correct fast answer (e.g. 1 sec out of 15 sec)
-    const fastResult = calculateRoundScore(true, 1000, 15, 0);
-    expect(fastResult.points).toBeGreaterThanOrEqual(140); // 100 base + speed bonus
-    expect(fastResult.newStreak).toBe(1);
+  it("should support custom question selection options and manual pick", () => {
+    // Curated options object
+    const sampleOpt = getBattleQuestions({
+      category: "history",
+      count: 4,
+      questionSource: "curated",
+    });
+    expect(sampleOpt).toHaveLength(4);
+    sampleOpt.forEach((q) => {
+      expect(q.category).toBe("history");
+    });
 
-    // Correct slow answer (e.g. 14.5 sec out of 15 sec)
-    const slowResult = calculateRoundScore(true, 14500, 15, 0);
-    expect(slowResult.points).toBeLessThan(fastResult.points);
-    expect(slowResult.points).toBeGreaterThanOrEqual(100); // at least base 100
+    // Manual pick of specific question IDs
+    const manualPicked = getBattleQuestions({
+      questionSource: "manual_pick",
+      selectedQuestionIds: ["hist_1", "geo_1", "cult_1"],
+      count: 3,
+    });
+    expect(manualPicked).toHaveLength(3);
+    expect(manualPicked.map((q) => q.id)).toEqual(
+      expect.arrayContaining(["hist_1", "geo_1", "cult_1"])
+    );
+  });
 
-    // Streak bonus
-    const streakResult = calculateRoundScore(true, 1000, 15, 2);
+  it("should calculate speed-based round score correctly for 10-second timer", () => {
+    // 10s default test: 1 sec fast answer
+    const fast10s = calculateRoundScore(true, 1000, 10, 0);
+    expect(fast10s.points).toBeGreaterThanOrEqual(140); // 100 base + ~45 speed bonus
+    expect(fast10s.newStreak).toBe(1);
+
+    // 10s test: 9.5 sec slow answer
+    const slow10s = calculateRoundScore(true, 9500, 10, 0);
+    expect(slow10s.points).toBeLessThan(fast10s.points);
+    expect(slow10s.points).toBeGreaterThanOrEqual(100);
+
+    // Streak bonus in 10s timer
+    const streakResult = calculateRoundScore(true, 1000, 10, 2);
     expect(streakResult.newStreak).toBe(3);
-    expect(streakResult.points).toBeGreaterThan(fastResult.points); // +40 for streak >= 3
+    expect(streakResult.points).toBeGreaterThan(fast10s.points); // +40 for streak >= 3
 
-    // Wrong answer
-    const wrongResult = calculateRoundScore(false, 2000, 15, 5);
+    // Wrong answer gives 0 and resets streak
+    const wrongResult = calculateRoundScore(false, 2000, 10, 5);
     expect(wrongResult.points).toBe(0);
     expect(wrongResult.newStreak).toBe(0);
   });
 
-  it("should generate proper WhatsApp and web share links", () => {
-    const info = getBattleShareInfo("849201");
+  it("should generate proper WhatsApp and web share links with 10s timer & unlimited friends notice", () => {
+    const info = getBattleShareInfo("849201", 10);
     expect(info.url).toContain("battle=849201");
     expect(info.text).toContain("849201");
+    expect(info.text).toContain("10 सेकंड");
+    expect(info.text).toContain("सभी दोस्त");
     expect(info.whatsappUrl).toContain("https://api.whatsapp.com/send?text=");
   });
 

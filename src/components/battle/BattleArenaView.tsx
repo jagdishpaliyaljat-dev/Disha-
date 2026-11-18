@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Timer,
   Flame,
@@ -7,8 +7,11 @@ import {
   HelpCircle,
   Sparkles,
   Trophy,
+  Users,
+  X,
 } from "lucide-react";
 import type { BattlePlayer, BattleQuestion } from "./types";
+import { triggerHaptic, playClickSound } from "../../utils/audioFeedback";
 
 interface BattleArenaViewProps {
   question: BattleQuestion;
@@ -42,10 +45,12 @@ export const BattleArenaView: React.FC<BattleArenaViewProps> = ({
   onSelectOption,
   onSendEmoji,
 }) => {
+  const [showAllRanks, setShowAllRanks] = useState(false);
   const myPlayer = players.find((p) => p.id === myPlayerId);
 
   // Sorted players by score for live ranking
   const sortedPlayers = [...players].sort((a, b) => b.score - a.score);
+  const myRank = sortedPlayers.findIndex((p) => p.id === myPlayerId) + 1;
 
   // Timer calculation
   const timeFraction = Math.max(0, Math.min(1, timeRemainingSec / maxTimeSec));
@@ -54,14 +59,14 @@ export const BattleArenaView: React.FC<BattleArenaViewProps> = ({
   const strokeDashoffset = circumference - timeFraction * circumference;
 
   let timerColor = "#10B981"; // Emerald
-  if (timeRemainingSec <= 4) {
+  if (timeRemainingSec <= 3) {
     timerColor = "#EF4444"; // Red
-  } else if (timeRemainingSec <= 8) {
+  } else if (timeRemainingSec <= 6) {
     timerColor = "#F59E0B"; // Amber
   }
 
   return (
-    <div className="flex flex-col h-full bg-[#FFF9EF] text-stone-900 select-none overflow-hidden">
+    <div className="flex flex-col h-full bg-[#FFF9EF] text-stone-900 select-none overflow-hidden relative">
       {/* Top HUD: Progress & Live Scoreboard */}
       <div className="bg-[#800020] text-white px-4 pt-3 pb-2 shadow-md">
         <div className="flex items-center justify-between mb-2">
@@ -76,15 +81,23 @@ export const BattleArenaView: React.FC<BattleArenaViewProps> = ({
             )}
           </div>
 
-          <div className="flex items-center gap-1.5 text-xs font-bold text-amber-300">
+          <button
+            onClick={() => {
+              triggerHaptic("light");
+              playClickSound();
+              setShowAllRanks(true);
+            }}
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/15 hover:bg-white/25 active:scale-95 transition text-xs font-bold text-amber-300 border border-amber-300/30"
+          >
             <Trophy className="w-3.5 h-3.5" />
-            <span>लाइव स्कोर</span>
-          </div>
+            <span>मेरी रैंक: #{myRank}</span>
+            <span className="text-white/70">({players.length})</span>
+          </button>
         </div>
 
         {/* Live Mini Leaderboard Strip */}
         <div className="flex items-center gap-2 overflow-x-auto py-1 scrollbar-none">
-          {sortedPlayers.map((player, idx) => {
+          {sortedPlayers.slice(0, 8).map((player, idx) => {
             const isMe = player.id === myPlayerId;
             return (
               <div
@@ -114,6 +127,15 @@ export const BattleArenaView: React.FC<BattleArenaViewProps> = ({
               </div>
             );
           })}
+
+          {sortedPlayers.length > 8 && (
+            <button
+              onClick={() => setShowAllRanks(true)}
+              className="text-xs font-bold text-amber-300 px-2 py-1 rounded-lg bg-white/10 hover:bg-white/20 whitespace-nowrap"
+            >
+              +{sortedPlayers.length - 8} और
+            </button>
+          )}
         </div>
 
         {/* Progress Bar */}
@@ -131,7 +153,7 @@ export const BattleArenaView: React.FC<BattleArenaViewProps> = ({
       <div className="flex-1 overflow-y-auto px-4 py-3 flex flex-col justify-between">
         {/* Timer & Question Box */}
         <div>
-          {/* Circular Countdown Timer */}
+          {/* Circular Countdown Timer (10 Seconds Fast Reflex) */}
           <div className="flex justify-center my-1">
             <div className="relative w-16 h-16 flex items-center justify-center">
               <svg className="w-full h-full transform -rotate-90">
@@ -159,7 +181,9 @@ export const BattleArenaView: React.FC<BattleArenaViewProps> = ({
               <div className="absolute inset-0 flex flex-col items-center justify-center">
                 <span
                   className={`text-xl font-extrabold font-mono transition-transform ${
-                    timeRemainingSec <= 3 ? "scale-110 text-red-600 animate-pulse" : "text-stone-800"
+                    timeRemainingSec <= 3
+                      ? "scale-125 text-red-600 animate-pulse font-black"
+                      : "text-stone-800"
                   }`}
                 >
                   {timeRemainingSec}
@@ -283,6 +307,75 @@ export const BattleArenaView: React.FC<BattleArenaViewProps> = ({
               <span>{question.explanation}</span>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Slide-over Modal for All Players' Live Ranking */}
+      {showAllRanks && (
+        <div className="absolute inset-0 z-40 bg-black/60 backdrop-blur-xs flex flex-col justify-end">
+          <div className="bg-white rounded-t-3xl max-h-[75%] flex flex-col overflow-hidden shadow-2xl border-t border-stone-200">
+            <div className="p-4 bg-[#800020] text-white flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Trophy className="w-5 h-5 text-amber-300" />
+                <h3 className="text-sm font-bold">
+                  लाइव लीडरबोर्ड ({sortedPlayers.length} खिलाड़ी)
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowAllRanks(false)}
+                className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 active:scale-95"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="p-3 overflow-y-auto space-y-2 flex-1">
+              {sortedPlayers.map((p, idx) => {
+                const isMe = p.id === myPlayerId;
+                return (
+                  <div
+                    key={p.id}
+                    className={`flex items-center justify-between p-2.5 rounded-xl border ${
+                      isMe
+                        ? "bg-amber-50 border-amber-300 font-bold"
+                        : "bg-stone-50 border-stone-200"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <span className="w-6 text-center text-xs font-bold text-stone-500">
+                        #{idx + 1}
+                      </span>
+                      <span className="text-xl">{p.avatar}</span>
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs font-bold text-stone-800">
+                            {p.name}
+                          </span>
+                          {isMe && (
+                            <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-[#800020] text-white">
+                              आप
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="text-right flex items-center gap-2">
+                      {p.streak >= 2 && (
+                        <span className="text-[10px] text-orange-500 font-bold flex items-center gap-0.5">
+                          <Flame className="w-3 h-3 fill-current" />
+                          {p.streak}
+                        </span>
+                      )}
+                      <span className="text-sm font-black text-[#800020]">
+                        {p.score} अंक
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
       )}
     </div>

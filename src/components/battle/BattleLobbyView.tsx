@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   Users,
   Copy,
@@ -12,14 +12,24 @@ import {
   Flame,
   Clock,
   BookOpen,
+  Edit3,
+  Search,
+  Globe,
+  Sliders,
 } from "lucide-react";
 import type {
   BattlePlayer,
   BattleRoomConfig,
   BattleCategory,
+  QuestionSourceType,
 } from "./types";
-import { getBattleShareInfo } from "../../utils/realtimeBattleService";
+import {
+  getBattleShareInfo,
+  getUserCustomQuestionsList,
+  getAvailableChaptersList,
+} from "../../utils/realtimeBattleService";
 import { triggerHaptic, playClickSound } from "../../utils/audioFeedback";
+import { CustomQuestionPickerModal } from "./CustomQuestionPickerModal";
 
 interface BattleLobbyViewProps {
   roomConfig: BattleRoomConfig;
@@ -58,8 +68,14 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
   onLeaveRoom,
 }) => {
   const [copied, setCopied] = useState(false);
+  const [playerSearch, setPlayerSearch] = useState("");
+  const [isQuestionPickerOpen, setIsQuestionPickerOpen] = useState(false);
+
   const myPlayer = players.find((p) => p.id === myPlayerId);
-  const shareInfo = getBattleShareInfo(roomConfig.roomCode);
+  const shareInfo = getBattleShareInfo(roomConfig.roomCode, roomConfig.timePerQuestionSec || 10);
+
+  const customQuestions = useMemo(() => getUserCustomQuestionsList(), []);
+  const availableChapters = useMemo(() => getAvailableChaptersList(), []);
 
   const handleCopyCode = async () => {
     try {
@@ -79,10 +95,18 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
     window.open(shareInfo.whatsappUrl, "_blank", "noopener,noreferrer");
   };
 
-  const canStart =
-    isHost &&
-    players.length >= 2 &&
-    players.every((p) => p.isHost || p.isReady || p.isBot);
+  // Host can start whenever at least 2 players are present (or with bot)
+  const canStart = isHost && players.length >= 2;
+
+  // Filter players list if search is used
+  const filteredPlayers = useMemo(() => {
+    if (!playerSearch.trim()) return players;
+    return players.filter((p) =>
+      p.name.toLowerCase().includes(playerSearch.toLowerCase())
+    );
+  }, [players, playerSearch]);
+
+  const readyCount = players.filter((p) => p.isHost || p.isReady || p.isBot).length;
 
   return (
     <div className="flex flex-col h-full bg-[#FFF9EF] text-stone-900 select-none">
@@ -103,18 +127,21 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
           </h2>
         </div>
 
-        <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/15 text-xs font-semibold">
-          <span>{players.length} खिलाड़ी</span>
+        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/15 text-xs font-semibold">
+          <Globe className="w-3.5 h-3.5 text-amber-300" />
+          <span>{players.length} जुड़े हैं</span>
         </div>
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
-        {/* Room Code & WhatsApp Share Card */}
+        {/* Room Code & WhatsApp Share Card (Unlimited Users Invitation) */}
         <div className="bg-white rounded-2xl p-4 shadow-sm border border-amber-200/70 text-center relative overflow-hidden">
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 via-[#800020] to-amber-400" />
-          <p className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-1">
-            कमरा कोड (Room Code)
-          </p>
+          
+          <div className="flex items-center justify-center gap-1.5 text-xs font-extrabold text-[#800020] uppercase tracking-wider mb-1">
+            <Globe className="w-3.5 h-3.5" />
+            <span>असीमित मित्र जुड़ सकते हैं (Open Link)</span>
+          </div>
 
           <div className="flex items-center justify-center gap-3 my-2">
             <span className="text-3xl font-extrabold tracking-widest font-mono text-[#800020] bg-amber-50 px-4 py-1.5 rounded-xl border border-amber-200 shadow-inner">
@@ -134,7 +161,7 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
           </div>
 
           <p className="text-xs text-stone-600 mb-3">
-            यह 6-अंकों का कोड अपने दोस्तों के साथ साझा करें।
+            यह लिंक या 6-अंकों का कोड जिसके पास भी होगा, वो सभी तुरंत शामिल हो सकते हैं।
           </p>
 
           <button
@@ -142,117 +169,17 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
             className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold text-sm shadow-sm active:scale-95 transition"
           >
             <Share2 className="w-4 h-4" />
-            <span>व्हाट्सएप पर दोस्तों को आमंत्रित करें</span>
+            <span>व्हाट्सएप ग्रुप या मित्रों को लिंक भेजें</span>
           </button>
         </div>
 
-        {/* Players List Card */}
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-stone-200">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-bold text-stone-800 flex items-center gap-1.5">
-              <span>खिलाड़ी सूची</span>
-              <span className="text-xs font-normal text-stone-500">
-                ({players.length})
-              </span>
-            </h3>
-
-            {isHost && players.length === 1 && (
-              <button
-                onClick={onAddBot}
-                className="flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg bg-amber-500 text-white hover:bg-amber-600 active:scale-95 transition shadow-xs"
-              >
-                <Bot className="w-3.5 h-3.5" />
-                <span>+ बॉट जोड़ें</span>
-              </button>
-            )}
-          </div>
-
-          <div className="space-y-2.5">
-            {players.map((player) => {
-              const isMe = player.id === myPlayerId;
-              return (
-                <div
-                  key={player.id}
-                  className={`flex items-center justify-between p-3 rounded-xl border transition ${
-                    isMe
-                      ? "bg-amber-50/70 border-amber-300"
-                      : "bg-stone-50 border-stone-200/80"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="relative text-2xl w-10 h-10 rounded-full bg-white shadow-xs border border-stone-200 flex items-center justify-center">
-                      <span>{player.avatar}</span>
-                      {player.isHost && (
-                        <div
-                          className="absolute -top-1.5 -right-1.5 bg-amber-400 text-stone-900 rounded-full p-0.5 shadow"
-                          title="होस्ट (आयोजक)"
-                        >
-                          <Crown className="w-3.5 h-3.5" />
-                        </div>
-                      )}
-                    </div>
-
-                    <div>
-                      <div className="flex items-center gap-1.5">
-                        <span className="font-bold text-sm text-stone-800">
-                          {player.name}
-                        </span>
-                        {isMe && (
-                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#800020] text-white">
-                            आप
-                          </span>
-                        )}
-                        {player.isBot && (
-                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-800">
-                            AI
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-xs text-stone-500">
-                        {player.isHost
-                          ? "कक्ष आयोजक (Host)"
-                          : player.isReady || player.isBot
-                          ? "खेलने को तैयार"
-                          : "प्रतीक्षा में..."}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div>
-                    {player.isHost ? (
-                      <span className="text-xs font-bold text-amber-700 bg-amber-100 px-2.5 py-1 rounded-full">
-                        होस्ट 👑
-                      </span>
-                    ) : player.isReady || player.isBot ? (
-                      <span className="flex items-center gap-1 text-xs font-bold text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-full">
-                        <Check className="w-3.5 h-3.5" />
-                        <span>तैयार</span>
-                      </span>
-                    ) : (
-                      <span className="text-xs font-medium text-stone-600 bg-stone-200 px-2.5 py-1 rounded-full">
-                        प्रतीक्षारत
-                      </span>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {players.length === 1 && (
-            <div className="mt-3 p-3 bg-amber-50 rounded-xl border border-amber-200/80 text-center">
-              <p className="text-xs text-amber-900 font-medium">
-                💡 साथी खिलाड़ी की प्रतीक्षा है। आप अभी ऊपर दिए बटन से <b>AI बॉट</b> जोड़कर तुरंत अभ्यास भी कर सकते हैं!
-              </p>
-            </div>
-          )}
-        </div>
-
         {/* Room Settings (Host Editable, Non-host Readonly) */}
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-stone-200 space-y-3">
-          <h3 className="text-sm font-bold text-stone-800 flex items-center gap-1.5">
-            <BookOpen className="w-4 h-4 text-[#800020]" />
-            <span>मुकाबला सेटिंग्स</span>
+        <div className="bg-white rounded-2xl p-4 shadow-sm border border-stone-200 space-y-3.5">
+          <h3 className="text-sm font-bold text-stone-800 flex items-center justify-between">
+            <div className="flex items-center gap-1.5">
+              <Sliders className="w-4 h-4 text-[#800020]" />
+              <span>मुकाबला सेटिंग्स</span>
+            </div>
             {!isHost && (
               <span className="text-xs font-normal text-stone-500">
                 (होस्ट द्वारा निर्धारित)
@@ -260,37 +187,206 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
             )}
           </h3>
 
-          {/* Category */}
+          {/* 1. Question Source Selector (Curated vs Custom vs Chapter vs Manual) */}
           <div>
-            <label className="block text-xs font-semibold text-stone-600 mb-1.5">
-              विषय श्रेणी
+            <label className="block text-xs font-bold text-stone-700 mb-1.5">
+              प्रश्न चयन का प्रकार (Question Source)
             </label>
             {isHost ? (
-              <select
-                value={roomConfig.category}
-                onChange={(e) =>
-                  onUpdateConfig({ category: e.target.value as BattleCategory })
-                }
-                className="w-full text-sm font-medium bg-stone-50 border border-stone-300 rounded-xl px-3 py-2 text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#800020]"
-              >
-                {Object.entries(CATEGORY_LABELS).map(([catKey, { label, icon }]) => (
-                  <option key={catKey} value={catKey}>
-                    {icon} {label}
-                  </option>
-                ))}
-              </select>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => onUpdateConfig({ questionSource: "curated" })}
+                  className={`p-2.5 rounded-xl text-left border transition text-xs ${
+                    roomConfig.questionSource === "curated"
+                      ? "bg-amber-50 border-[#800020] text-[#800020] font-bold shadow-xs"
+                      : "bg-stone-50 border-stone-200 text-stone-700 hover:bg-stone-100"
+                  }`}
+                >
+                  <span className="block font-bold">🎯 राजस्थान GK बैंक</span>
+                  <span className="text-[10px] text-stone-500">तैयार उच्च-स्तरीय प्रश्न</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => onUpdateConfig({ questionSource: "custom_bank" })}
+                  className={`p-2.5 rounded-xl text-left border transition text-xs ${
+                    roomConfig.questionSource === "custom_bank"
+                      ? "bg-amber-50 border-[#800020] text-[#800020] font-bold shadow-xs"
+                      : "bg-stone-50 border-stone-200 text-stone-700 hover:bg-stone-100"
+                  }`}
+                >
+                  <span className="block font-bold">📝 मेरे कस्टम प्रश्न</span>
+                  <span className="text-[10px] text-stone-500">
+                    {customQuestions.length > 0
+                      ? `${customQuestions.length} प्रश्न उपलब्ध`
+                      : "कस्टम प्रश्न जोड़ें"}
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => onUpdateConfig({ questionSource: "chapter" })}
+                  className={`p-2.5 rounded-xl text-left border transition text-xs ${
+                    roomConfig.questionSource === "chapter"
+                      ? "bg-amber-50 border-[#800020] text-[#800020] font-bold shadow-xs"
+                      : "bg-stone-50 border-stone-200 text-stone-700 hover:bg-stone-100"
+                  }`}
+                >
+                  <span className="block font-bold">📚 अध्याय अनुसार</span>
+                  <span className="text-[10px] text-stone-500">विशिष्ट अध्याय के प्रश्न</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    onUpdateConfig({ questionSource: "manual_pick" });
+                    setIsQuestionPickerOpen(true);
+                  }}
+                  className={`p-2.5 rounded-xl text-left border transition text-xs ${
+                    roomConfig.questionSource === "manual_pick"
+                      ? "bg-amber-50 border-[#800020] text-[#800020] font-bold shadow-xs"
+                      : "bg-stone-50 border-stone-200 text-stone-700 hover:bg-stone-100"
+                  }`}
+                >
+                  <span className="block font-bold flex items-center justify-between">
+                    <span>✏️ प्रश्न स्वयं चुनें</span>
+                    <Edit3 className="w-3 h-3 text-[#800020]" />
+                  </span>
+                  <span className="text-[10px] text-stone-500">
+                    {roomConfig.selectedQuestionIds?.length || 0} प्रश्न चुने गए
+                  </span>
+                </button>
+              </div>
             ) : (
-              <div className="text-sm font-semibold text-stone-800 bg-stone-50 px-3 py-2 rounded-xl border border-stone-200 flex items-center gap-2">
-                <span>{CATEGORY_LABELS[roomConfig.category]?.icon}</span>
-                <span>{CATEGORY_LABELS[roomConfig.category]?.label}</span>
+              <div className="text-xs font-bold text-stone-800 bg-stone-50 p-2.5 rounded-xl border border-stone-200">
+                {roomConfig.questionSource === "custom_bank"
+                  ? "📝 मेरे कस्टम प्रश्न बैंक से"
+                  : roomConfig.questionSource === "chapter"
+                  ? `📚 अध्याय: ${roomConfig.selectedChapterTitle || "निर्धारित अध्याय"}`
+                  : roomConfig.questionSource === "manual_pick"
+                  ? `✏️ होस्ट द्वारा चुने गए ${roomConfig.selectedQuestionIds?.length || 0} विशिष्ट प्रश्न`
+                  : "🎯 राजस्थान GK बैंक (तैयार प्रश्न)"}
               </div>
             )}
           </div>
 
-          {/* Question Count & Time Per Question */}
-          <div className="grid grid-cols-2 gap-3 pt-1">
+          {/* Sub-option: Chapter selector if source is "chapter" */}
+          {roomConfig.questionSource === "chapter" && isHost && (
+            <div className="bg-amber-50/70 p-3 rounded-xl border border-amber-200/80">
+              <label className="block text-xs font-bold text-amber-950 mb-1">
+                अध्याय चुनें (Select Chapter)
+              </label>
+              {availableChapters.length > 0 ? (
+                <select
+                  value={roomConfig.selectedChapterId || ""}
+                  onChange={(e) => {
+                    const ch = availableChapters.find((c) => c.id === e.target.value);
+                    onUpdateConfig({
+                      selectedChapterId: e.target.value,
+                      selectedChapterTitle: ch?.title || "",
+                    });
+                  }}
+                  className="w-full text-xs font-semibold bg-white border border-amber-300 rounded-lg p-2 text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#800020]"
+                >
+                  <option value="">-- अध्याय चुनें --</option>
+                  {availableChapters.map((ch) => (
+                    <option key={ch.id} value={ch.id}>
+                      {ch.title} ({ch.count} प्रश्न)
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <p className="text-xs text-amber-800">
+                  वर्तमान में कोई कस्टम अध्याय नहीं मिला।
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* Sub-option: Manual Pick Button if source is "manual_pick" */}
+          {roomConfig.questionSource === "manual_pick" && isHost && (
+            <div className="bg-amber-50/70 p-3 rounded-xl border border-amber-200/80 flex items-center justify-between">
+              <div>
+                <p className="text-xs font-bold text-stone-800">
+                  {roomConfig.selectedQuestionIds?.length || 0} प्रश्न चुने गए हैं
+                </p>
+                <p className="text-[11px] text-stone-600">
+                  बदलने हेतु बटन दबाएं
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsQuestionPickerOpen(true)}
+                className="px-3 py-1.5 rounded-lg bg-[#800020] text-white text-xs font-bold shadow-xs active:scale-95 transition"
+              >
+                प्रश्न सूची खोलें
+              </button>
+            </div>
+          )}
+
+          {/* Category Selector (if Curated) */}
+          {roomConfig.questionSource === "curated" && (
             <div>
               <label className="block text-xs font-semibold text-stone-600 mb-1">
+                विषय श्रेणी (Category)
+              </label>
+              {isHost ? (
+                <select
+                  value={roomConfig.category}
+                  onChange={(e) =>
+                    onUpdateConfig({ category: e.target.value as BattleCategory })
+                  }
+                  className="w-full text-sm font-medium bg-stone-50 border border-stone-300 rounded-xl px-3 py-2 text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#800020]"
+                >
+                  {Object.entries(CATEGORY_LABELS).map(([catKey, { label, icon }]) => (
+                    <option key={catKey} value={catKey}>
+                      {icon} {label}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <div className="text-sm font-semibold text-stone-800 bg-stone-50 px-3 py-2 rounded-xl border border-stone-200 flex items-center gap-2">
+                  <span>{CATEGORY_LABELS[roomConfig.category]?.icon}</span>
+                  <span>{CATEGORY_LABELS[roomConfig.category]?.label}</span>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Time Per Question (Default 10s) & Question Count */}
+          <div className="grid grid-cols-2 gap-3 pt-1">
+            <div>
+              <label className="block text-xs font-bold text-stone-700 mb-1 flex items-center gap-1">
+                <Clock className="w-3.5 h-3.5 text-[#800020]" />
+                <span>प्रति प्रश्न समय</span>
+              </label>
+              {isHost ? (
+                <div className="flex gap-1.5">
+                  {[10, 15, 20].map((sec) => (
+                    <button
+                      key={sec}
+                      type="button"
+                      onClick={() => onUpdateConfig({ timePerQuestionSec: sec })}
+                      className={`flex-1 py-1.5 text-xs font-bold rounded-lg border transition ${
+                        (roomConfig.timePerQuestionSec || 10) === sec
+                          ? "bg-[#800020] text-white border-[#800020] shadow-xs"
+                          : "bg-stone-50 text-stone-700 border-stone-200 hover:bg-stone-100"
+                      }`}
+                    >
+                      {sec}s {sec === 10 && "⚡"}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-sm font-bold text-stone-800 bg-stone-50 px-3 py-1.5 rounded-lg border border-stone-200">
+                  {roomConfig.timePerQuestionSec || 10} सेकंड
+                </div>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-stone-700 mb-1">
                 कुल प्रश्न
               </label>
               {isHost ? (
@@ -302,7 +398,7 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
                       onClick={() => onUpdateConfig({ questionCount: cnt })}
                       className={`flex-1 py-1.5 text-xs font-bold rounded-lg border transition ${
                         roomConfig.questionCount === cnt
-                          ? "bg-[#800020] text-white border-[#800020]"
+                          ? "bg-[#800020] text-white border-[#800020] shadow-xs"
                           : "bg-stone-50 text-stone-700 border-stone-200 hover:bg-stone-100"
                       }`}
                     >
@@ -316,43 +412,123 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
                 </div>
               )}
             </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-stone-600 mb-1 flex items-center gap-1">
-                <Clock className="w-3.5 h-3.5 text-stone-500" />
-                <span>प्रति प्रश्न समय</span>
-              </label>
-              {isHost ? (
-                <div className="flex gap-1.5">
-                  {[10, 15, 20].map((sec) => (
-                    <button
-                      key={sec}
-                      type="button"
-                      onClick={() => onUpdateConfig({ timePerQuestionSec: sec })}
-                      className={`flex-1 py-1.5 text-xs font-bold rounded-lg border transition ${
-                        roomConfig.timePerQuestionSec === sec
-                          ? "bg-[#800020] text-white border-[#800020]"
-                          : "bg-stone-50 text-stone-700 border-stone-200 hover:bg-stone-100"
-                      }`}
-                    >
-                      {sec}s
-                    </button>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-sm font-bold text-stone-800 bg-stone-50 px-3 py-1.5 rounded-lg border border-stone-200">
-                  {roomConfig.timePerQuestionSec} सेकंड
-                </div>
-              )}
-            </div>
           </div>
+        </div>
+
+        {/* Players List Card (Optimized for 2 to 100+ players) */}
+        <div className="bg-white rounded-2xl p-4 shadow-sm border border-stone-200">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-sm font-bold text-stone-800 flex items-center gap-1.5">
+              <span>खिलाड़ी सूची</span>
+              <span className="text-xs font-bold text-[#800020] bg-amber-100 px-2 py-0.5 rounded-full">
+                {players.length} जुड़े
+              </span>
+            </h3>
+
+            {isHost && (
+              <button
+                onClick={onAddBot}
+                className="flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg bg-amber-500 text-white hover:bg-amber-600 active:scale-95 transition shadow-xs"
+              >
+                <Bot className="w-3.5 h-3.5" />
+                <span>+ बॉट जोड़ें</span>
+              </button>
+            )}
+          </div>
+
+          {/* Search bar if many users joined */}
+          {players.length > 5 && (
+            <div className="relative mb-2.5">
+              <Search className="absolute left-2.5 top-1/2 transform -translate-y-1/2 w-3.5 h-3.5 text-stone-400" />
+              <input
+                type="text"
+                value={playerSearch}
+                onChange={(e) => setPlayerSearch(e.target.value)}
+                placeholder="खिलाड़ी खोजें..."
+                className="w-full pl-8 pr-3 py-1.5 text-xs bg-stone-50 border border-stone-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#800020]"
+              />
+            </div>
+          )}
+
+          <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
+            {filteredPlayers.map((player) => {
+              const isMe = player.id === myPlayerId;
+              return (
+                <div
+                  key={player.id}
+                  className={`flex items-center justify-between p-2.5 rounded-xl border transition ${
+                    isMe
+                      ? "bg-amber-50/70 border-amber-300"
+                      : "bg-stone-50 border-stone-200/80"
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <div className="relative text-2xl w-9 h-9 rounded-full bg-white shadow-xs border border-stone-200 flex items-center justify-center shrink-0">
+                      <span>{player.avatar}</span>
+                      {player.isHost && (
+                        <div
+                          className="absolute -top-1 -right-1 bg-amber-400 text-stone-900 rounded-full p-0.5 shadow"
+                          title="होस्ट"
+                        >
+                          <Crown className="w-3 h-3" />
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-bold text-xs sm:text-sm text-stone-800 truncate">
+                          {player.name}
+                        </span>
+                        {isMe && (
+                          <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-[#800020] text-white">
+                            आप
+                          </span>
+                        )}
+                        {player.isBot && (
+                          <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-blue-100 text-blue-800">
+                            AI
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    {player.isHost ? (
+                      <span className="text-[11px] font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">
+                        होस्ट 👑
+                      </span>
+                    ) : player.isReady || player.isBot ? (
+                      <span className="flex items-center gap-0.5 text-[11px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
+                        <Check className="w-3 h-3" />
+                        <span>तैयार</span>
+                      </span>
+                    ) : (
+                      <span className="text-[11px] font-medium text-stone-500 bg-stone-200 px-2 py-0.5 rounded-full">
+                        प्रतीक्षारत
+                      </span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {players.length === 1 && (
+            <div className="mt-2.5 p-2.5 bg-amber-50 rounded-xl border border-amber-200/80 text-center">
+              <p className="text-xs text-amber-900 font-medium">
+                💡 साथी खिलाड़ी लिंक के जरिए कभी भी जुड़ सकते हैं। आप अभी ऊपर <b>+ बॉट जोड़ें</b> दबाकर तुरंत खेल सकते हैं!
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Floating Emoji Reactions Bar */}
         <div className="bg-white rounded-2xl p-3 shadow-sm border border-stone-200 flex items-center justify-between">
           <span className="text-xs font-bold text-stone-500 flex items-center gap-1">
             <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-            <span>प्रतिक्रियाएं:</span>
+            <span>रिएक्शन भेजें:</span>
           </span>
           <div className="flex items-center gap-1.5">
             {QUICK_EMOJIS.map((emoji) => (
@@ -385,13 +561,15 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
               }`}
             >
               <Play className="w-5 h-5 fill-current" />
-              <span>मुकाबला शुरू करें (Start Battle)</span>
+              <span>मुकाबला शुरू करें ({players.length} खिलाड़ी)</span>
             </button>
-            {!canStart && (
+            {!canStart ? (
               <p className="text-center text-xs text-stone-500 mt-2">
-                {players.length < 2
-                  ? "मुकाबला शुरू करने के लिए कम से कम 1 साथी या AI बॉट जोड़ें।"
-                  : "सभी खिलाड़ियों के तैयार होने की प्रतीक्षा करें।"}
+                मुकाबला शुरू करने के लिए कम से कम 1 साथी जुड़ने दें या + बॉट जोड़ें।
+              </p>
+            ) : (
+              <p className="text-center text-[11px] text-stone-500 mt-1.5">
+                ⚡ समय: {roomConfig.timePerQuestionSec || 10} सेकंड प्रति प्रश्न • {readyCount}/{players.length} तैयार हैं
               </p>
             )}
           </div>
@@ -418,6 +596,19 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
           </button>
         )}
       </div>
+
+      {/* Custom Questions Selection Modal */}
+      {isQuestionPickerOpen && (
+        <CustomQuestionPickerModal
+          isOpen={isQuestionPickerOpen}
+          selectedIds={roomConfig.selectedQuestionIds || []}
+          targetCount={roomConfig.questionCount || 10}
+          onSave={(ids) => {
+            onUpdateConfig({ selectedQuestionIds: ids });
+          }}
+          onClose={() => setIsQuestionPickerOpen(false)}
+        />
+      )}
     </div>
   );
 };

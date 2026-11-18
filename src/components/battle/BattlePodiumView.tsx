@@ -80,9 +80,9 @@ export const BattlePodiumView: React.FC<BattlePodiumViewProps> = ({
 
     const text = `🏆 *दिशा 20-20 लाइव क्विज़ मुकाबला परिणाम*\n\n` +
       `विजेता: ${winner.avatar} ${winner.name} (${winner.score} अंक)\n` +
-      `मेरी रैंक: #${myRank} ${myPlayer?.avatar} (${myPlayer?.score} अंक)\n` +
-      `सटीकता: ${myPlayer?.correctCount || 0}/${totalQuestions} प्रश्न सही\n\n` +
-      `क्या आप मुझे हरा सकते हैं? अभी दिशा 20-20 ऐप में खेलें! ⚔️`;
+      `मेरी रैंक: #${myRank} / ${rankedPlayers.length} खिलाड़ी ${myPlayer?.avatar} (${myPlayer?.score} अंक)\n` +
+      `सटीकता: ${myPlayer?.correctCount || 0}/${totalQuestions} प्रश्न सही (10s प्रति प्रश्न ⚡)\n\n` +
+      `क्या आप मुझे हरा सकते हैं? अभी दिशा 20-20 ऐप में लाइव मुकाबला खेलें! ⚔️`;
 
     const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
     window.open(whatsappUrl, "_blank", "noopener,noreferrer");

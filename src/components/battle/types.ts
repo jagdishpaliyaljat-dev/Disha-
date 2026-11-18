@@ -37,12 +37,23 @@ export interface BattlePlayer {
   } | null;
 }
 
+export type QuestionSourceType = 
+  | "curated"      // Rajasthan GK Bank (Pre-built)
+  | "custom_bank"  // User's custom added questions
+  | "chapter"      // Specific chapter questions
+  | "manual_pick"; // Hand-picked questions by host
+
 export interface BattleRoomConfig {
   roomCode: string;
   hostId: string;
   questionCount: number;
-  timePerQuestionSec: number;
+  timePerQuestionSec: number; // default 10s
   category: BattleCategory;
+  questionSource: QuestionSourceType;
+  selectedChapterId?: string;
+  selectedChapterTitle?: string;
+  selectedQuestionIds?: string[];
+  allowUnlimitedUsers?: boolean;
   createdAt: number;
 }
 
@@ -84,6 +95,7 @@ export type BattleEventType =
   | "NEXT_QUESTION"
   | "REACTION"
   | "REMATCH"
+  | "ROOM_STATE_SYNC"
   | "PLAYER_LEAVE";
 
 export interface BattleEventMessage {

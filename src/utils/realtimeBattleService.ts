@@ -2,6 +2,7 @@ import { supabase, isSupabaseConfigured } from "../lib/supabase";
 import { loadUserQuestionsStore } from "./questionsStorage";
 import type {
   BattleCategory,
+  QuestionSourceType,
   BattlePlayer,
   BattleQuestion,
   BattleRoomConfig,
@@ -344,14 +345,12 @@ export const BOT_OPPONENTS: Omit<BattlePlayer, "id">[] = [
   },
 ];
 
-// Get Battle Questions based on Category and Question Count
-export function getBattleQuestions(category: BattleCategory = "all", count: number = 10): BattleQuestion[] {
-  // First, check if custom questions exist in user store
-  let pool: BattleQuestion[] = [];
+// Helper to get user's custom questions formatted as BattleQuestion
+export function getUserCustomQuestionsList(): BattleQuestion[] {
   try {
     const store = loadUserQuestionsStore();
     if (store && Array.isArray(store.customQuestions) && store.customQuestions.length > 0) {
-      const customMapped: BattleQuestion[] = store.customQuestions
+      return store.customQuestions
         .filter((q) => q && q.text && Array.isArray(q.options) && q.options.length >= 2)
         .map((q) => ({
           id: q.id,
@@ -359,16 +358,119 @@ export function getBattleQuestions(category: BattleCategory = "all", count: numb
           options: q.options,
           correctIndex: typeof q.correctIndex === "number" ? q.correctIndex : 0,
           explanation: q.explanation || "",
-          category: q.subjectId || "general",
+          category: q.subjectId || "custom",
           difficulty: q.difficulty || "medium",
         }));
-      pool.push(...customMapped);
     }
   } catch {
-    // Ignore store hydration error
+    // Ignore hydration error
+  }
+  return [];
+}
+
+// Helper to get available chapters list for question selection
+export function getAvailableChaptersList(): { id: string; title: string; count: number }[] {
+  try {
+    const store = loadUserQuestionsStore();
+    const chapters: { id: string; title: string; count: number }[] = [];
+    if (store && Array.isArray(store.customChapters)) {
+      store.customChapters.forEach((ch) => {
+        if (ch && ch.id) {
+          const count = store.customQuestions?.filter((q) => q.chapterId === ch.id)?.length || 0;
+          chapters.push({
+            id: ch.id,
+            title: ch.hindiTitle || ch.title || `अध्याय ${ch.number || ""}`,
+            count,
+          });
+        }
+      });
+    }
+    return chapters;
+  } catch {
+    return [];
+  }
+}
+
+export interface GetBattleQuestionsOptions {
+  category?: BattleCategory;
+  count?: number;
+  questionSource?: QuestionSourceType;
+  selectedChapterId?: string;
+  selectedQuestionIds?: string[];
+}
+
+// Get Battle Questions based on Category, Source, Chapter, or specific selection
+export function getBattleQuestions(
+  optionsOrCategory: BattleCategory | GetBattleQuestionsOptions = "all",
+  legacyCount: number = 10
+): BattleQuestion[] {
+  let category: BattleCategory = "all";
+  let count: number = 10;
+  let source: QuestionSourceType = "curated";
+  let selectedChapterId: string | undefined;
+  let selectedQuestionIds: string[] | undefined;
+
+  if (typeof optionsOrCategory === "string") {
+    category = optionsOrCategory;
+    count = legacyCount;
+  } else if (optionsOrCategory && typeof optionsOrCategory === "object") {
+    category = optionsOrCategory.category || "all";
+    count = optionsOrCategory.count || 10;
+    source = optionsOrCategory.questionSource || "curated";
+    selectedChapterId = optionsOrCategory.selectedChapterId;
+    selectedQuestionIds = optionsOrCategory.selectedQuestionIds;
   }
 
-  // Filter fallback questions by category if specific
+  // Mode 1: Hand-picked questions by host
+  if (source === "manual_pick" && Array.isArray(selectedQuestionIds) && selectedQuestionIds.length > 0) {
+    const allCustom = getUserCustomQuestionsList();
+    const allFallback = FALLBACK_BATTLE_QUESTIONS;
+    const combined = [...allCustom, ...allFallback];
+    const picked = combined.filter((q) => selectedQuestionIds!.includes(q.id));
+    if (picked.length > 0) {
+      return picked.slice(0, count);
+    }
+  }
+
+  // Mode 2: Specific chapter questions
+  if (source === "chapter" && selectedChapterId) {
+    try {
+      const store = loadUserQuestionsStore();
+      const chapterQuestions = (store?.customQuestions || [])
+        .filter((q) => q.chapterId === selectedChapterId && q.text && Array.isArray(q.options) && q.options.length >= 2)
+        .map((q) => ({
+          id: q.id,
+          text: q.text,
+          options: q.options,
+          correctIndex: typeof q.correctIndex === "number" ? q.correctIndex : 0,
+          explanation: q.explanation || "",
+          category: q.subjectId || "custom",
+          difficulty: q.difficulty || "medium",
+        }));
+      if (chapterQuestions.length > 0) {
+        return shuffleArray(chapterQuestions).slice(0, count);
+      }
+    } catch {
+      // Fallback
+    }
+  }
+
+  // Mode 3: Custom Question Bank
+  if (source === "custom_bank") {
+    const customList = getUserCustomQuestionsList();
+    if (customList.length > 0) {
+      const shuffledCustom = shuffleArray(customList);
+      if (shuffledCustom.length >= count) {
+        return shuffledCustom.slice(0, count);
+      }
+      // If fewer custom questions than count, supplement with fallback questions
+      const needed = count - shuffledCustom.length;
+      const fallbackSubset = shuffleArray(FALLBACK_BATTLE_QUESTIONS).slice(0, needed);
+      return [...shuffledCustom, ...fallbackSubset];
+    }
+  }
+
+  // Mode 4: Default Curated Rajasthan GK Bank
   let filteredFallback = FALLBACK_BATTLE_QUESTIONS;
   if (category !== "all") {
     const matched = FALLBACK_BATTLE_QUESTIONS.filter((q) => q.category === category);
@@ -377,9 +479,7 @@ export function getBattleQuestions(category: BattleCategory = "all", count: numb
     }
   }
 
-  pool.push(...filteredFallback);
-
-  // If pool has fewer items than count, duplicate fallbacks with randomized order
+  let pool: BattleQuestion[] = [...filteredFallback];
   if (pool.length < count) {
     pool = [...pool, ...FALLBACK_BATTLE_QUESTIONS];
   }
@@ -397,8 +497,8 @@ export function getBattleQuestions(category: BattleCategory = "all", count: numb
 export function calculateRoundScore(
   isCorrect: boolean,
   timeTakenMs: number,
-  maxTimeSec: number,
-  currentStreak: number
+  maxTimeSec: number = 10,
+  currentStreak: number = 0
 ): { points: number; newStreak: number } {
   if (!isCorrect) {
     return { points: 0, newStreak: 0 };
@@ -420,15 +520,16 @@ export function calculateRoundScore(
 }
 
 /**
- * Generate WhatsApp Share URL & Text for 1v1 Room
+ * Generate WhatsApp Share URL & Text for 1v1 and Multi-Friend Room
+ * Allows unlimited participants to join via link!
  */
-export function getBattleShareInfo(roomCode: string): { url: string; text: string; whatsappUrl: string } {
+export function getBattleShareInfo(roomCode: string, timePerQuestionSec: number = 10): { url: string; text: string; whatsappUrl: string } {
   const origin = typeof window !== "undefined" && window.location.origin
     ? window.location.origin
     : "https://disha-app.web.app";
   
   const battleUrl = `${origin}/?battle=${roomCode}`;
-  const text = `⚔️ *दिशा 20-20 लाइव क्विज़ मुकाबला!*\n\nआओ देखें कौन बनता है राजस्थान GK का विजेता! 🏆\nरूम कोड: *${roomCode}*\n\n👉 मुकाबला खेलने के लिए नीचे दिए लिंक पर क्लिक करें:\n${battleUrl}`;
+  const text = `⚔️ *दिशा 20-20 लाइव क्विज़ मुकाबला!*\n\nआओ देखें कौन बनता है राजस्थान GK का विजेता! 🏆\n(जिसके पास लिंक है, वो सभी दोस्त तुरंत जुड़ सकते हैं 👥)\n\n🔑 कमरा कोड: *${roomCode}*\n⏱️ समय: *${timePerQuestionSec} सेकंड प्रति प्रश्न*\n\n👉 मुकाबला खेलने के लिए नीचे दिए लिंक पर क्लिक करें:\n${battleUrl}`;
   const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
 
   return {

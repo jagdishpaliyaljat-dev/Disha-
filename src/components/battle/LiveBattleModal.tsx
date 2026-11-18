@@ -9,13 +9,16 @@ import {
   Zap,
   Bot,
   AlertCircle,
+  Clock,
 } from "lucide-react";
+import { CustomQuestionPickerModal } from "./CustomQuestionPickerModal";
 import type {
   BattlePlayer,
   BattleQuestion,
   BattleRoomConfig,
   BattlePhase,
   BattleCategory,
+  QuestionSourceType,
   FloatingEmoji,
   BattleEventMessage,
 } from "./types";
@@ -25,6 +28,8 @@ import {
   BOT_OPPONENTS,
   getBattleQuestions,
   calculateRoundScore,
+  getUserCustomQuestionsList,
+  getAvailableChaptersList,
   RealtimeBattleManager,
 } from "../../utils/realtimeBattleService";
 import { loadUserProfile } from "../../utils/userProfileStorage";
@@ -75,7 +80,12 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
   const [inputRoomCode, setInputRoomCode] = useState<string>(initialRoomCode);
   const [selectedCategory, setSelectedCategory] = useState<BattleCategory>("all");
   const [questionCount, setQuestionCount] = useState<number>(10);
-  const [timePerQuestionSec, setTimePerQuestionSec] = useState<number>(15);
+  const [timePerQuestionSec, setTimePerQuestionSec] = useState<number>(10);
+  const [questionSource, setQuestionSource] = useState<QuestionSourceType>("curated");
+  const [selectedChapterId, setSelectedChapterId] = useState<string>("");
+  const [selectedChapterTitle, setSelectedChapterTitle] = useState<string>("");
+  const [selectedQuestionIds, setSelectedQuestionIds] = useState<string[]>([]);
+  const [isQuestionPickerOpen, setIsQuestionPickerOpen] = useState(false);
 
   // Active Game State
   const [phase, setPhase] = useState<BattlePhase>("initial");
@@ -83,14 +93,16 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
     roomCode: "",
     hostId: "",
     questionCount: 10,
-    timePerQuestionSec: 15,
+    timePerQuestionSec: 10,
     category: "all",
+    questionSource: "curated",
+    allowUnlimitedUsers: true,
     createdAt: Date.now(),
   });
   const [players, setPlayers] = useState<BattlePlayer[]>([]);
   const [questions, setQuestions] = useState<BattleQuestion[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
-  const [timeRemainingSec, setTimeRemainingSec] = useState<number>(15);
+  const [timeRemainingSec, setTimeRemainingSec] = useState<number>(10);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [hasLockedAnswer, setHasLockedAnswer] = useState<boolean>(false);
   const [isRevealing, setIsRevealing] = useState<boolean>(false);
@@ -118,6 +130,27 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
             setPlayers((prev) => {
               if (prev.some((p) => p.id === newPlayer.id)) return prev;
               return [...prev, newPlayer];
+            });
+            // If I am the host, broadcast ROOM_STATE_SYNC so new players who join via link receive settings
+            if (managerRef.current) {
+              managerRef.current.broadcastEvent("ROOM_STATE_SYNC", {
+                config: roomConfig,
+                players: [...players, newPlayer],
+              });
+            }
+          }
+          break;
+        }
+
+        case "ROOM_STATE_SYNC": {
+          const { config: syncedConfig, players: syncedPlayers } = event.payload;
+          if (syncedConfig) setRoomConfig(syncedConfig);
+          if (Array.isArray(syncedPlayers)) {
+            setPlayers((prev) => {
+              const map = new Map<string, BattlePlayer>();
+              syncedPlayers.forEach((p) => map.set(p.id, p));
+              prev.forEach((p) => map.set(p.id, { ...(map.get(p.id) || {}), ...p }));
+              return Array.from(map.values());
             });
           }
           break;
@@ -266,8 +299,13 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
       roomCode: code,
       hostId: myPlayerId,
       questionCount,
-      timePerQuestionSec,
+      timePerQuestionSec: timePerQuestionSec || 10,
       category: selectedCategory,
+      questionSource,
+      selectedChapterId,
+      selectedChapterTitle,
+      selectedQuestionIds,
+      allowUnlimitedUsers: true,
       createdAt: Date.now(),
     };
 
@@ -328,8 +366,10 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
       roomCode: code,
       hostId: "",
       questionCount: 10,
-      timePerQuestionSec: 15,
+      timePerQuestionSec: 10,
       category: "all",
+      questionSource: "curated",
+      allowUnlimitedUsers: true,
       createdAt: Date.now(),
     };
 
@@ -398,10 +438,13 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
     triggerHaptic("medium");
     playClickSound();
 
-    const sampledQuestions = getBattleQuestions(
-      roomConfig.category,
-      roomConfig.questionCount
-    );
+    const sampledQuestions = getBattleQuestions({
+      category: roomConfig.category,
+      count: roomConfig.questionCount,
+      questionSource: roomConfig.questionSource,
+      selectedChapterId: roomConfig.selectedChapterId,
+      selectedQuestionIds: roomConfig.selectedQuestionIds,
+    });
 
     setQuestions(sampledQuestions);
 
@@ -633,10 +676,13 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
     triggerHaptic("medium");
     playClickSound();
 
-    const newQuestions = getBattleQuestions(
-      roomConfig.category,
-      roomConfig.questionCount
-    );
+    const newQuestions = getBattleQuestions({
+      category: roomConfig.category,
+      count: roomConfig.questionCount,
+      questionSource: roomConfig.questionSource,
+      selectedChapterId: roomConfig.selectedChapterId,
+      selectedQuestionIds: roomConfig.selectedQuestionIds,
+    });
 
     setQuestions(newQuestions);
     setCurrentQuestionIndex(0);
@@ -804,26 +850,96 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
 
               {activeTab === "create" ? (
                 <div className="space-y-3.5">
-                  {/* Category Selector */}
+                  {/* Question Source Selector */}
                   <div>
                     <label className="block text-xs font-bold text-stone-700 mb-1.5">
-                      विषय श्रेणी
+                      प्रश्न चयन का प्रकार (Question Source)
                     </label>
-                    <select
-                      value={selectedCategory}
-                      onChange={(e) =>
-                        setSelectedCategory(e.target.value as BattleCategory)
-                      }
-                      className="w-full text-sm font-semibold bg-white border border-stone-300 rounded-xl px-3 py-2.5 text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#800020]"
-                    >
-                      <option value="all">🎯 सभी विषय (मिश्रित GK)</option>
-                      <option value="history">🏰 राजस्थान इतिहास</option>
-                      <option value="geography">🗺️ राजस्थान भूगोल</option>
-                      <option value="culture">🎭 कला एवं संस्कृति</option>
-                      <option value="polity">🏛️ राजव्यवस्था व प्रशासन</option>
-                      <option value="economy">📊 अर्थव्यवस्था व योजनाएं</option>
-                    </select>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setQuestionSource("curated")}
+                        className={`p-2 rounded-xl text-left border transition text-xs ${
+                          questionSource === "curated"
+                            ? "bg-amber-50 border-[#800020] text-[#800020] font-bold shadow-xs"
+                            : "bg-white border-stone-200 text-stone-700 hover:bg-stone-50"
+                        }`}
+                      >
+                        <span className="block font-bold">🎯 राजस्थान GK बैंक</span>
+                        <span className="text-[10px] text-stone-500">तैयार प्रश्न</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setQuestionSource("custom_bank")}
+                        className={`p-2 rounded-xl text-left border transition text-xs ${
+                          questionSource === "custom_bank"
+                            ? "bg-amber-50 border-[#800020] text-[#800020] font-bold shadow-xs"
+                            : "bg-white border-stone-200 text-stone-700 hover:bg-stone-50"
+                        }`}
+                      >
+                        <span className="block font-bold">📝 मेरे कस्टम प्रश्न</span>
+                        <span className="text-[10px] text-stone-500">ऐप में जोड़े प्रश्न</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setQuestionSource("chapter")}
+                        className={`p-2 rounded-xl text-left border transition text-xs ${
+                          questionSource === "chapter"
+                            ? "bg-amber-50 border-[#800020] text-[#800020] font-bold shadow-xs"
+                            : "bg-white border-stone-200 text-stone-700 hover:bg-stone-50"
+                        }`}
+                      >
+                        <span className="block font-bold">📚 अध्याय अनुसार</span>
+                        <span className="text-[10px] text-stone-500">चयनित अध्याय</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setQuestionSource("manual_pick");
+                          setIsQuestionPickerOpen(true);
+                        }}
+                        className={`p-2 rounded-xl text-left border transition text-xs ${
+                          questionSource === "manual_pick"
+                            ? "bg-amber-50 border-[#800020] text-[#800020] font-bold shadow-xs"
+                            : "bg-white border-stone-200 text-stone-700 hover:bg-stone-50"
+                        }`}
+                      >
+                        <span className="block font-bold flex items-center justify-between">
+                          <span>✏️ खुद चुनें</span>
+                          <span className="text-[10px] text-[#800020]">
+                            {selectedQuestionIds.length > 0 ? `${selectedQuestionIds.length} चुने` : "चुनें"}
+                          </span>
+                        </span>
+                        <span className="text-[10px] text-stone-500">हाथ से चुने प्रश्न</span>
+                      </button>
+                    </div>
                   </div>
+
+                  {/* Category Selector if curated */}
+                  {questionSource === "curated" && (
+                    <div>
+                      <label className="block text-xs font-bold text-stone-700 mb-1.5">
+                        विषय श्रेणी
+                      </label>
+                      <select
+                        value={selectedCategory}
+                        onChange={(e) =>
+                          setSelectedCategory(e.target.value as BattleCategory)
+                        }
+                        className="w-full text-sm font-semibold bg-white border border-stone-300 rounded-xl px-3 py-2 text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#800020]"
+                      >
+                        <option value="all">🎯 सभी विषय (मिश्रित GK)</option>
+                        <option value="history">🏰 राजस्थान इतिहास</option>
+                        <option value="geography">🗺️ राजस्थान भूगोल</option>
+                        <option value="culture">🎭 कला एवं संस्कृति</option>
+                        <option value="polity">🏛️ राजव्यवस्था व प्रशासन</option>
+                        <option value="economy">📊 अर्थव्यवस्था व योजनाएं</option>
+                      </select>
+                    </div>
+                  )}
 
                   {/* Question Count & Time */}
                   <div className="grid grid-cols-2 gap-3">
@@ -850,8 +966,9 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold text-stone-700 mb-1">
-                        प्रति प्रश्न समय
+                      <label className="block text-xs font-bold text-stone-700 mb-1 flex items-center gap-1">
+                        <Clock className="w-3.5 h-3.5 text-[#800020]" />
+                        <span>प्रति प्रश्न समय</span>
                       </label>
                       <div className="flex gap-1.5">
                         {[10, 15, 20].map((sec) => (
@@ -861,11 +978,11 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                             onClick={() => setTimePerQuestionSec(sec)}
                             className={`flex-1 py-2 text-xs font-bold rounded-xl border transition ${
                               timePerQuestionSec === sec
-                                ? "bg-[#800020] text-white border-[#800020]"
+                                ? "bg-[#800020] text-white border-[#800020] shadow-xs"
                                 : "bg-white text-stone-700 border-stone-300"
                             }`}
                           >
-                            {sec}s
+                            {sec}s {sec === 10 && "⚡"}
                           </button>
                         ))}
                       </div>
@@ -1008,6 +1125,19 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
               </div>
             </div>
           </div>
+        )}
+
+        {/* Custom Questions Selection Modal for Host */}
+        {isQuestionPickerOpen && (
+          <CustomQuestionPickerModal
+            isOpen={isQuestionPickerOpen}
+            selectedIds={selectedQuestionIds}
+            targetCount={questionCount}
+            onSave={(ids) => {
+              setSelectedQuestionIds(ids);
+            }}
+            onClose={() => setIsQuestionPickerOpen(false)}
+          />
         )}
       </div>
     </div>
