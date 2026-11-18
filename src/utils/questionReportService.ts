@@ -165,6 +165,22 @@ export async function submitQuestionReport(input: SubmitReportInput): Promise<{
   error?: string;
 }> {
   try {
+    if (!input.questionId || !input.questionText || !input.studentComment?.trim()) {
+      return {
+        success: false,
+        report: {} as QuestionReport,
+        error: "प्रश्न और टिप्पणी प्रदान करना आवश्यक है।",
+      };
+    }
+
+    if (input.studentComment.trim().length > 3000) {
+      return {
+        success: false,
+        report: {} as QuestionReport,
+        error: "आपत्ति विवरण 3,000 अक्षरों से अधिक लंबा नहीं हो सकता।",
+      };
+    }
+
     const nowIso = new Date().toISOString();
     const id = "rep_" + Date.now() + "_" + Math.random().toString(36).substring(2, 7);
 
@@ -347,3 +363,42 @@ export async function deleteReport(reportId: string): Promise<boolean> {
     return false;
   }
 }
+
+/**
+ * Fetch reports submitted by a specific student.
+ * Pulls from Supabase if configured, falling back to local storage.
+ */
+export async function fetchStudentReports(studentUid?: string): Promise<QuestionReport[]> {
+  if (isSupabaseConfigured() && studentUid) {
+    try {
+      const { data, error } = await supabase
+        .from("question_reports")
+        .select("*")
+        .eq("student_uid", studentUid)
+        .order("created_at", { ascending: false });
+      if (!error && Array.isArray(data)) {
+        return data.map((row: any) => ({
+          id: row.id,
+          questionId: row.question_id,
+          questionText: row.question_text,
+          subjectName: row.subject_name,
+          chapterName: row.chapter_name,
+          topicName: row.topic_name,
+          studentName: row.student_name,
+          studentEmail: row.student_email,
+          studentUid: row.student_uid,
+          issueType: row.issue_type,
+          studentComment: row.student_comment,
+          status: row.status,
+          adminNotes: row.admin_notes,
+          reportedAt: row.created_at,
+          resolvedAt: row.resolved_at,
+        }));
+      }
+    } catch (e) {
+      console.warn("[QuestionReportService] Cloud fetch reports warning:", e);
+    }
+  }
+  return getStoredReports();
+}
+

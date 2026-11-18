@@ -278,3 +278,44 @@ FROM auth.users u
 LEFT JOIN public.profiles p ON u.id = p.id
 WHERE p.id IS NULL
 ON CONFLICT (id) DO NOTHING;
+
+-- ----------------------------------------------------------------------------
+-- 10. STORAGE BUCKETS (BANNERS & MATERIALS) WITH SIZE & MIME LIMITS
+-- ----------------------------------------------------------------------------
+INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+VALUES (
+    'banners',
+    'banners',
+    true,
+    2097152, -- 2MB max
+    ARRAY['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml']
+)
+ON CONFLICT (id) DO UPDATE SET
+    public = true,
+    file_size_limit = 2097152,
+    allowed_mime_types = ARRAY['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml'];
+
+INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+VALUES (
+    'materials',
+    'materials',
+    false,
+    10485760, -- 10MB max
+    ARRAY['application/pdf', 'image/png', 'image/jpeg']
+)
+ON CONFLICT (id) DO UPDATE SET
+    public = false,
+    file_size_limit = 10485760,
+    allowed_mime_types = ARRAY['application/pdf', 'image/png', 'image/jpeg'];
+
+-- Storage RLS Policies
+DROP POLICY IF EXISTS "Public Read Banners" ON storage.objects;
+DROP POLICY IF EXISTS "Admin All Banners" ON storage.objects;
+DROP POLICY IF EXISTS "Authenticated Read Materials" ON storage.objects;
+DROP POLICY IF EXISTS "Admin All Materials" ON storage.objects;
+
+CREATE POLICY "Public Read Banners" ON storage.objects FOR SELECT USING (bucket_id = 'banners');
+CREATE POLICY "Admin All Banners" ON storage.objects FOR ALL USING (bucket_id = 'banners' AND public.is_admin());
+CREATE POLICY "Authenticated Read Materials" ON storage.objects FOR SELECT USING (bucket_id = 'materials' AND auth.role() = 'authenticated');
+CREATE POLICY "Admin All Materials" ON storage.objects FOR ALL USING (bucket_id = 'materials' AND public.is_admin());
+

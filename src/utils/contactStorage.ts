@@ -200,6 +200,7 @@ export interface SubmitContactPayload {
   email: string;
   subject: string;
   message: string;
+  honeypot?: string;
 }
 
 export interface SubmitContactResult {
@@ -231,6 +232,11 @@ function withTimeout<T = any>(promise: PromiseLike<T>, ms: number): Promise<T | 
 export async function submitContactMessage(
   payload: SubmitContactPayload
 ): Promise<SubmitContactResult> {
+  // Silent drop bot spam if honeypot trap field is populated
+  if (payload?.honeypot && payload.honeypot.trim().length > 0) {
+    return { success: true, message: "Your message has been received.", id: `msg_trap_${Date.now()}` };
+  }
+
   const name = (payload?.name || "").trim();
   const email = (payload?.email || "").trim();
   const subject = (payload?.subject || "").trim();
@@ -241,6 +247,9 @@ export async function submitContactMessage(
   }
   if (message.length < 10) {
     return { success: false, message: "Message must be at least 10 characters long." };
+  }
+  if (message.length > 5000) {
+    return { success: false, message: "Message is too long (maximum 5,000 characters)." };
   }
 
   const existing = loadContactMessages();
