@@ -20,7 +20,6 @@ import {
   Send,
   Check,
   X,
-  BookOpen,
   Edit2,
   AlertCircle,
   LogOut,
@@ -34,13 +33,7 @@ import {
   Target,
   CheckCircle2,
   Award,
-  Bookmark,
-  Flame,
   Zap,
-  BarChart3,
-  Trophy,
-  GraduationCap,
-  Layers,
   Crown,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
@@ -135,46 +128,13 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
     return progressValues.filter((p) => p.status !== "unattempted").length;
   }, [questions, progressStore, progressValues]);
 
-  const correctCount = useMemo(() => {
-    if (questions.length > 0) {
-      return questions.filter((q) => progressStore[q.id]?.status === "correct").length;
-    }
-    return progressValues.filter((p) => p.status === "correct").length;
-  }, [questions, progressStore, progressValues]);
-
-  const wrongCount = useMemo(() => {
-    return progressValues.filter((p) => p.status === "wrong").length;
-  }, [progressValues]);
-
-  const bookmarkedCount = useMemo(() => {
-    return progressValues.filter((p) => p.bookmarked || p.isBookmarked).length;
-  }, [progressValues]);
-
-  const masteredCount = useMemo(() => {
-    return progressValues.filter((p) => (p.stage !== undefined && p.stage >= 4) || (p.box && p.box >= 4) || (p.status as string) === "mastered").length;
-  }, [progressValues]);
-
-  const accuracy = attemptedCount > 0 ? Math.round((correctCount / attemptedCount) * 100) : 0;
-
-  // Daily Goal Calculations
-  const todayStr = useMemo(() => new Date().toISOString().slice(0, 10), []);
-  const todaySolvedCount = useMemo(() => {
-    return progressValues.filter((p) => {
-      const dt = p.lastAttemptedAt || p.lastAnsweredAt;
-      return Boolean(dt && dt.startsWith(todayStr));
-    }).length;
-  }, [progressValues, todayStr]);
-
   const dailyGoal = activeProfile?.dailyGoalQuestions || settings.dailyGoal || 30;
-  const dailyGoalPercent = Math.min(100, Math.round((todaySolvedCount / dailyGoal) * 100));
 
   // Level & XP System (Gamification)
   const currentLevel = Math.max(1, Math.floor(attemptedCount / 25) + 1);
   const questionsInCurrentLevel = attemptedCount % 25;
   const remainingForNextLevel = 25 - questionsInCurrentLevel;
   const levelProgressPercent = Math.min(100, Math.round((questionsInCurrentLevel / 25) * 100));
-
-  const streakDays = activeProfile?.streakDays || 1;
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -405,7 +365,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
       </header>
 
       {/* ─────────────────────────────────────────────────────────────
-          2. MAIN PROFILE BODY & METRICS DASHBOARD
+          2. MAIN PROFILE BODY & SETTINGS
       ───────────────────────────────────────────────────────────── */}
       <motion.main
         variants={containerVariants}
@@ -413,254 +373,8 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
         animate="show"
         className="px-3.5 sm:px-6 pt-5 space-y-5 max-w-4xl mx-auto w-full"
       >
-        {/* Daily Goal & Streak Card */}
-        <motion.div
-          variants={itemVariants}
-          className="bg-white dark:bg-[#1F2330] rounded-3xl p-4 sm:p-5 border border-[#E8D9C0] dark:border-[#31374A] shadow-xs space-y-3 relative overflow-hidden"
-        >
-          <div className="flex items-center justify-between flex-wrap gap-2">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-[#800020]/10 dark:bg-[#C99A45]/15 text-[#800020] dark:text-[#C99A45] flex items-center justify-center shrink-0">
-                <Target size={16} />
-              </div>
-              <div>
-                <h4 className="text-xs font-black text-[#171923] dark:text-[#FFF9EF] uppercase tracking-wider">
-                  आज का दैनिक अभ्यास लक्ष्य (Daily Goal)
-                </h4>
-                <p className="text-[11px] font-bold text-slate-500 dark:text-[#E8D9C0]/70">
-                  {todaySolvedCount} / {dailyGoal} MCQs हल किए ({dailyGoalPercent}%)
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-gradient-to-r from-amber-500/15 to-orange-500/15 border border-amber-500/30 text-amber-600 dark:text-amber-400 text-xs font-black">
-              <Flame size={14} className="fill-amber-500 text-amber-500" />
-              <span>{streakDays} दिन निरंतरता (Streak)</span>
-            </div>
-          </div>
-
-          <div className="w-full h-3 rounded-full bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] overflow-hidden p-0.5">
-            <div
-              className={`h-full rounded-full transition-all duration-700 ${
-                dailyGoalPercent >= 100
-                  ? "bg-gradient-to-r from-emerald-500 to-teal-500"
-                  : "bg-gradient-to-r from-[#800020] via-[#F47B20] to-[#C99A45]"
-              }`}
-              style={{ width: `${dailyGoalPercent}%` }}
-            />
-          </div>
-
-          {dailyGoalPercent >= 100 ? (
-            <p className="text-[11px] font-black text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-              <CheckCircle2 size={13} />
-              <span>शानदार! आज का दैनिक लक्ष्य पूर्ण हो चुका है। निरंतरता बनाए रखें!</span>
-            </p>
-          ) : (
-            <p className="text-[11px] font-bold text-slate-500 dark:text-[#E8D9C0]/60">
-              दैनिक लक्ष्य पूरा करने के लिए केवल {Math.max(0, dailyGoal - todaySolvedCount)} प्रश्न शेष हैं।
-            </p>
-          )}
-        </motion.div>
-
-        {/* 6-Metric Performance Grid */}
-        <motion.section variants={itemVariants} className="space-y-2.5">
-          <div className="flex items-center justify-between px-1">
-            <h3 className="text-xs font-black text-slate-600 dark:text-[#E8D9C0] uppercase tracking-wider flex items-center gap-1.5">
-              <BarChart3 size={14} className="text-[#800020] dark:text-[#C99A45]" />
-              <span>अभ्यास स्कोरकार्ड एवं संपूर्ण प्रदर्शन</span>
-            </h3>
-            <span className="text-[10px] font-bold text-[#800020] dark:text-[#C99A45]">
-              Real-time Analytics
-            </span>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3">
-            {/* 1. Attempted */}
-            <div className="bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-2xl p-3.5 space-y-1 shadow-2xs hover:border-[#800020] dark:hover:border-[#C99A45] transition-all">
-              <div className="flex items-center justify-between text-[#800020] dark:text-[#F47B20]">
-                <span className="text-[11px] font-black uppercase tracking-wider">कुल हल</span>
-                <Target size={16} />
-              </div>
-              <div className="text-2xl font-black text-[#171923] dark:text-[#FFF9EF] font-mono tabular-nums">
-                {attemptedCount}
-              </div>
-              <div className="text-[10px] font-bold text-slate-500 dark:text-[#CBD2E1]">प्रश्नों का अभ्यास किया</div>
-            </div>
-
-            {/* 2. Correct */}
-            <div className="bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-2xl p-3.5 space-y-1 shadow-2xs hover:border-emerald-500 transition-all">
-              <div className="flex items-center justify-between text-emerald-600 dark:text-emerald-400">
-                <span className="text-[11px] font-black uppercase tracking-wider">सही उत्तर</span>
-                <CheckCircle2 size={16} />
-              </div>
-              <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400 font-mono tabular-nums">
-                {correctCount}
-              </div>
-              <div className="text-[10px] font-bold text-slate-500 dark:text-[#CBD2E1]">सटीक सही उत्तर</div>
-            </div>
-
-            {/* 3. Accuracy */}
-            <div className="bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-2xl p-3.5 space-y-1 shadow-2xs hover:border-[#C99A45] transition-all">
-              <div className="flex items-center justify-between text-[#C99A45]">
-                <span className="text-[11px] font-black uppercase tracking-wider">सटीकता (Acc)</span>
-                <Award size={16} />
-              </div>
-              <div className="text-2xl font-black text-[#171923] dark:text-[#FFF9EF] font-mono tabular-nums">
-                {accuracy}%
-              </div>
-              <div className="text-[10px] font-bold text-slate-500 dark:text-[#CBD2E1]">औसत शुद्धता दर</div>
-            </div>
-
-            {/* 4. Wrong / Needs Revision */}
-            <div
-              onClick={() => onNavigateTab?.("wrong")}
-              className="bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-2xl p-3.5 space-y-1 shadow-2xs hover:border-rose-500 transition-all cursor-pointer group"
-            >
-              <div className="flex items-center justify-between text-rose-600 dark:text-rose-400">
-                <span className="text-[11px] font-black uppercase tracking-wider">गलत प्रश्न</span>
-                <RotateCcw size={16} className="group-hover:-rotate-45 transition-transform" />
-              </div>
-              <div className="text-2xl font-black text-rose-600 dark:text-rose-400 font-mono tabular-nums">
-                {wrongCount}
-              </div>
-              <div className="text-[10px] font-bold text-slate-500 dark:text-[#CBD2E1]">रिवीजन की आवश्यकता</div>
-            </div>
-
-            {/* 5. Mastered Questions */}
-            <div className="bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-2xl p-3.5 space-y-1 shadow-2xs hover:border-teal-500 transition-all">
-              <div className="flex items-center justify-between text-teal-600 dark:text-teal-400">
-                <span className="text-[11px] font-black uppercase tracking-wider">मास्टर्ड</span>
-                <Sparkles size={16} />
-              </div>
-              <div className="text-2xl font-black text-teal-600 dark:text-teal-400 font-mono tabular-nums">
-                {masteredCount}
-              </div>
-              <div className="text-[10px] font-bold text-slate-500 dark:text-[#CBD2E1]">कंठस्थ प्रश्न (Leitner 4+)</div>
-            </div>
-
-            {/* 6. Bookmarks */}
-            <div
-              onClick={() => onNavigateTab?.("wrong")}
-              className="bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-2xl p-3.5 space-y-1 shadow-2xs hover:border-[#F47B20] transition-all cursor-pointer group"
-            >
-              <div className="flex items-center justify-between text-[#F47B20]">
-                <span className="text-[11px] font-black uppercase tracking-wider">बुकमार्क</span>
-                <Bookmark size={16} className="group-hover:scale-110 transition-transform" />
-              </div>
-              <div className="text-2xl font-black text-[#171923] dark:text-[#FFF9EF] font-mono tabular-nums">
-                {bookmarkedCount}
-              </div>
-              <div className="text-[10px] font-bold text-slate-500 dark:text-[#CBD2E1]">सुरक्षित किए गए प्रश्न</div>
-            </div>
-          </div>
-        </motion.section>
-
         {/* ─────────────────────────────────────────────────────────────
-            3. ASPIRANT QUICK LAUNCHER (त्वरित हब)
-        ───────────────────────────────────────────────────────────── */}
-        <motion.section variants={itemVariants} className="space-y-2.5">
-          <h3 className="text-xs font-black text-slate-600 dark:text-[#E8D9C0] uppercase tracking-wider px-1">
-            अभ्यर्थी त्वरित हब (Quick Hub)
-          </h3>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {/* AI Weakness Radar Tile */}
-            <div
-              onClick={() => onNavigateTab?.("analytics")}
-              className="bg-gradient-to-r from-[#800020] via-[#5E0017] to-[#800020] rounded-3xl p-4 text-white border border-[#C99A45]/40 shadow-md hover:shadow-lg transition-all cursor-pointer group relative overflow-hidden"
-            >
-              <div className="absolute top-0 right-0 w-32 h-32 bg-[#C99A45]/20 rounded-full blur-2xl pointer-events-none" />
-              <div className="flex items-start justify-between relative z-10">
-                <div className="space-y-1 max-w-[80%]">
-                  <span className="px-2 py-0.5 rounded-full bg-[#C99A45] text-slate-950 text-[9px] font-black uppercase tracking-wider inline-flex items-center gap-1">
-                    <Sparkles size={10} /> Smart AI
-                  </span>
-                  <h4 className="text-sm font-black text-white group-hover:text-[#FFF9EF]">
-                    छात्र की कमजोरियों का AI रडार
-                  </h4>
-                  <p className="text-[11px] font-medium text-white/80 leading-snug">
-                    कमजोर विषयों की पहचान करें एवं कस्टमाइज़्ड बूस्टर टेस्ट दें।
-                  </p>
-                </div>
-                <div className="w-10 h-10 rounded-2xl bg-white/15 border border-white/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                  <BarChart3 size={20} className="text-[#C99A45]" />
-                </div>
-              </div>
-            </div>
-
-            {/* Rajasthan Live Tests & Leaderboard Tile */}
-            <div
-              onClick={() => onNavigateTab?.("live_tests")}
-              className="bg-white dark:bg-[#1F2330] rounded-3xl p-4 border border-[#E8D9C0] dark:border-[#31374A] shadow-xs hover:border-[#800020] dark:hover:border-[#C99A45] transition-all cursor-pointer group"
-            >
-              <div className="flex items-start justify-between">
-                <div className="space-y-1 max-w-[80%]">
-                  <span className="px-2 py-0.5 rounded-full bg-[#F47B20]/15 text-[#F47B20] text-[9px] font-black uppercase tracking-wider inline-flex items-center gap-1">
-                    <Trophy size={10} /> State Merit
-                  </span>
-                  <h4 className="text-sm font-black text-[#171923] dark:text-[#FFF9EF] group-hover:text-[#800020] dark:group-hover:text-[#C99A45] transition-colors">
-                    ऑल-राजस्थान लाइव टेस्ट व मेरिट
-                  </h4>
-                  <p className="text-[11px] font-bold text-slate-500 dark:text-[#CBD2E1] leading-snug">
-                    राज्य स्तरीय लाइव मॉक टेस्ट दें और टॉपर्स पोडियम में अपनी रैंक देखें।
-                  </p>
-                </div>
-                <div className="w-10 h-10 rounded-2xl bg-[#FFF9EF] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform text-[#C99A45]">
-                  <Trophy size={20} />
-                </div>
-              </div>
-            </div>
-
-            {/* Wrong Questions & Spaced Revision Tile */}
-            <div
-              onClick={() => onNavigateTab?.("wrong")}
-              className="bg-white dark:bg-[#1F2330] rounded-3xl p-4 border border-[#E8D9C0] dark:border-[#31374A] shadow-xs hover:border-[#800020] dark:hover:border-[#C99A45] transition-all cursor-pointer group"
-            >
-              <div className="flex items-start justify-between">
-                <div className="space-y-1 max-w-[80%]">
-                  <span className="px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-600 dark:text-rose-400 text-[9px] font-black uppercase tracking-wider inline-flex items-center gap-1">
-                    <RotateCcw size={10} /> Spaced Revision
-                  </span>
-                  <h4 className="text-sm font-black text-[#171923] dark:text-[#FFF9EF] group-hover:text-[#800020] dark:group-hover:text-[#C99A45] transition-colors">
-                    गलत प्रश्न रिवीजन बैंक ({wrongCount})
-                  </h4>
-                  <p className="text-[11px] font-bold text-slate-500 dark:text-[#CBD2E1] leading-snug">
-                    गलतियों को कंठस्थ ज्ञान में बदलें और परीक्षा में निगेटिव मार्किंग से बचें।
-                  </p>
-                </div>
-                <div className="w-10 h-10 rounded-2xl bg-[#FFF9EF] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform text-rose-500">
-                  <RotateCcw size={20} />
-                </div>
-              </div>
-            </div>
-
-            {/* Rajasthan PYQ Vault Tile */}
-            <div
-              onClick={() => onNavigateTab?.("pyq_vault")}
-              className="bg-white dark:bg-[#1F2330] rounded-3xl p-4 border border-[#E8D9C0] dark:border-[#31374A] shadow-xs hover:border-[#800020] dark:hover:border-[#C99A45] transition-all cursor-pointer group"
-            >
-              <div className="flex items-start justify-between">
-                <div className="space-y-1 max-w-[80%]">
-                  <span className="px-2 py-0.5 rounded-full bg-[#C99A45]/20 text-[#800020] dark:text-[#C99A45] text-[9px] font-black uppercase tracking-wider inline-flex items-center gap-1">
-                    <BookOpen size={10} /> PYQ Papers
-                  </span>
-                  <h4 className="text-sm font-black text-[#171923] dark:text-[#FFF9EF] group-hover:text-[#800020] dark:group-hover:text-[#C99A45] transition-colors">
-                    राजस्थान PYQ वॉल्ट (विगत 25 वर्ष)
-                  </h4>
-                  <p className="text-[11px] font-bold text-slate-500 dark:text-[#CBD2E1] leading-snug">
-                    RPSC एवं RSMSSB के पिछले वर्षों के पेपर्स व्याख्या सहित हल करें।
-                  </p>
-                </div>
-                <div className="w-10 h-10 rounded-2xl bg-[#FFF9EF] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform text-[#800020] dark:text-[#C99A45]">
-                  <Layers size={20} />
-                </div>
-              </div>
-            </div>
-          </div>
-        </motion.section>
-
-        {/* ─────────────────────────────────────────────────────────────
-            4. ASPIRANT TOOLKIT & PREFERENCES
+            A. ASPIRANT TOOLKIT & PREFERENCES
         ───────────────────────────────────────────────────────────── */}
         <motion.section variants={itemVariants} className="space-y-2.5">
           <h3 className="text-xs font-black text-slate-600 dark:text-[#E8D9C0] uppercase tracking-wider px-1">
