@@ -172,6 +172,7 @@ const ManageLiveTestsModal = safeLazy<typeof import('./components/ManageLiveTest
 const TestSeriesPage = safeLazy<typeof import('./components/TestSeriesPage').TestSeriesPage>(() => import('./components/TestSeriesPage'), 'TestSeriesPage');
 const HTMLImportMCQModal = safeLazy<typeof import('./components/admin/HTMLImportMCQModal').HTMLImportMCQModal>(() => import('./components/admin/HTMLImportMCQModal'), 'HTMLImportMCQModal');
 const GlobalSearchModal = safeLazy<typeof import('./components/GlobalSearchModal').GlobalSearchModal>(() => import('./components/GlobalSearchModal'), 'GlobalSearchModal');
+const RajasthanMapModal = safeLazy<typeof import('./components/rajasthan-map/RajasthanMapModal').RajasthanMapModal>(() => import('./components/rajasthan-map/RajasthanMapModal'), 'RajasthanMapModal');
 
 export default function App() {
   const initialNavState = React.useMemo(() => {
@@ -421,6 +422,7 @@ export default function App() {
   const [isFullExamOpen, setIsFullExamOpen] = React.useState(false);
   const [isCustomTestOpen, setIsCustomTestOpen] = React.useState(false);
   const [isExamAnalyzerOpen, setIsExamAnalyzerOpen] = React.useState(false);
+  const [isRajasthanMapOpen, setIsRajasthanMapOpen] = React.useState(false);
   const [isAITutorOpen, setIsAITutorOpen] = React.useState(false);
   const [aiTutorContextQuestion, setAiTutorContextQuestion] = React.useState<Question | null>(null);
   const [viewCount, setViewCount] = React.useState<number>(1240);
@@ -545,6 +547,7 @@ export default function App() {
       if (isFullExamOpen) { setIsFullExamOpen(false); return; }
       if (isCustomTestOpen) { setIsCustomTestOpen(false); return; }
       if (isExamAnalyzerOpen) { setIsExamAnalyzerOpen(false); return; }
+      if (isRajasthanMapOpen) { setIsRajasthanMapOpen(false); return; }
       if (isAddSubjectOpen) { setIsAddSubjectOpen(false); return; }
       if (isAddChapterOpen) { setIsAddChapterOpen(false); return; }
       if (isAddTopicOpen) { setIsAddTopicOpen(false); return; }
@@ -580,7 +583,7 @@ export default function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, [
     activeSession, isLoginOpen, isSettingsOpen, isApiSettingsOpen, isPDFOpen, isFullExamOpen,
-    isCustomTestOpen, isExamAnalyzerOpen, isAddSubjectOpen, isAddChapterOpen,
+    isCustomTestOpen, isExamAnalyzerOpen, isRajasthanMapOpen, isAddSubjectOpen, isAddChapterOpen,
     isAddTopicOpen, isAddQuestionsOpen, isManageSyllabusOpen, isManageQuestionsOpen,
     isManageCategoriesOpen, isManagePYQVaultOpen, isManageLiveTestsOpen,
     isAIImportOpen, isHTMLImportOpen
@@ -1413,6 +1416,7 @@ export default function App() {
             onOpenFullExam={() => setIsFullExamOpen(true)}
             onOpenExamAnalyzer={() => setIsExamAnalyzerOpen(true)}
             onOpenApiSettings={() => setIsApiSettingsOpen(true)}
+            onOpenRajasthanMap={() => setIsRajasthanMapOpen(true)}
             onToggleDarkMode={() => setSettings(prev => ({ ...prev, darkMode: !prev.darkMode }))}
             onLogout={handleLogout}
           />
@@ -1810,6 +1814,18 @@ export default function App() {
             perfStore={{}}
             onClose={() => setIsCustomTestOpen(false)}
             onStartTest={handleStartSession}
+          />
+        </OverlayErrorBoundary>
+      )}
+
+      {isRajasthanMapOpen && (
+        <OverlayErrorBoundary
+          viewName="Rajasthan 50 Districts Map"
+          onClose={() => setIsRajasthanMapOpen(false)}
+        >
+          <RajasthanMapModal
+            isOpen={isRajasthanMapOpen}
+            onClose={() => setIsRajasthanMapOpen(false)}
           />
         </OverlayErrorBoundary>
       )}
