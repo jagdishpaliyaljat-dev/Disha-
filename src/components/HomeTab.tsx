@@ -48,6 +48,7 @@ import {
   Plus,
   Compass,
   Target,
+  Map,
 } from "lucide-react";
 import { BannerSlides } from "./BannerSlides";
 import { AppLogo } from "./AppLogo";
@@ -84,6 +85,7 @@ interface HomeTabProps {
   onOpenFullExam?: () => void;
   onOpenExamAnalyzer?: () => void;
   onOpenApiSettings?: () => void;
+  onOpenRajasthanMap?: () => void;
   onToggleDarkMode?: () => void;
   onLogout?: () => void;
 }
@@ -107,6 +109,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
   onShowAddSubject,
   onNavigateTab,
   onOpenApiSettings,
+  onOpenRajasthanMap,
   onToggleDarkMode,
   onLogout,
 }) => {
@@ -468,6 +471,50 @@ export const HomeTab: React.FC<HomeTabProps> = ({
           </motion.div>
         </section>
 
+        {/* 3.6 RAJASTHAN 50 DISTRICTS ATLAS & MAP QUIZ */}
+        <section>
+          <motion.div
+            whileTap={{ scale: 0.99 }}
+            onClick={() => onOpenRajasthanMap?.()}
+            className="w-full bg-gradient-to-r from-[#171923] via-[#800020] to-[#F47B20] hover:brightness-105 border border-[#C99A45]/40 rounded-xl sm:rounded-2xl p-3 sm:p-4 text-white shadow-md flex items-center justify-between text-left transition-all cursor-pointer group relative overflow-hidden"
+          >
+            {/* Background Glow */}
+            <div className="absolute top-0 right-0 w-44 h-44 bg-gradient-to-bl from-[#F47B20]/30 to-transparent rounded-full blur-xl pointer-events-none" />
+
+            <div className="flex items-center gap-3 min-w-0 flex-1 relative z-10">
+              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-white/15 border border-white/20 text-[#FFF9EF] flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform">
+                <Map className="w-5 h-5 sm:w-6 sm:h-6 text-[#FFF9EF]" />
+              </div>
+
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
+                  <span className="text-xs sm:text-sm font-black tracking-tight text-white flex items-center gap-1">
+                    <span>राजस्थान नया नक्शा (50 ज़िले व 10 संभाग)</span>
+                  </span>
+                  <span className="px-1.5 py-0.2 rounded-md bg-[#FFF9EF] text-[#800020] text-[9px] font-black uppercase tracking-wider">
+                    नया भूगोल 2026
+                  </span>
+                  <span className="px-1.5 py-0.2 rounded-md bg-[#F47B20] text-white text-[9px] font-black uppercase tracking-wider">
+                    🎯 मैप क्विज़
+                  </span>
+                </div>
+                <p className="text-[10.5px] sm:text-xs text-white/90 font-medium truncate">
+                  50 ज़िला दर्शन • 2023 पुनर्गठन बदलाव • दुर्ग, खनिज, नदियाँ व नक्शा क्विज़
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1 shrink-0 pl-2 relative z-10">
+              <span className="hidden sm:inline-block text-xs font-black text-amber-200">
+                नक्शा खोलें
+              </span>
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-white/15 flex items-center justify-center group-hover:translate-x-1 transition-transform">
+                <ChevronRight className="w-4 h-4 text-white" />
+              </div>
+            </div>
+          </motion.div>
+        </section>
+
         {/* 4. AI ENGINE SETUP CARD */}
         <section>
           <motion.button
@@ -609,6 +656,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                   </h4>
                   {[
                     { label: "Dashboard", icon: Home, tab: "home" },
+                    { label: "राजस्थान 50 ज़िला नक्शा व क्विज़", icon: Map, action: () => onOpenRajasthanMap?.() },
                     { label: "Subjects & Syllabus", icon: BookOpen, tab: "topics" },
                     { label: "Weekly Standings", icon: Trophy, action: () => setShowLeaderboard(true) },
                     { label: "Live Mock Tests", icon: Zap, tab: "live_tests" },

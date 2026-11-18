@@ -154,7 +154,7 @@ export function playVictoryFanfare(enabled: boolean = true): void {
  * Trigger subtle haptic vibration on mobile devices
  */
 export function triggerHaptic(
-  type: "light" | "success" | "warning" = "light",
+  type: "light" | "medium" | "success" | "warning" | "error" = "light",
   enabled: boolean = true
 ): void {
   if (!enabled || typeof navigator === "undefined" || !("vibrate" in navigator)) {
@@ -163,9 +163,11 @@ export function triggerHaptic(
   try {
     if (type === "light") {
       navigator.vibrate(10);
+    } else if (type === "medium") {
+      navigator.vibrate(20);
     } else if (type === "success") {
       navigator.vibrate([15, 30, 15]);
-    } else if (type === "warning") {
+    } else if (type === "warning" || type === "error") {
       navigator.vibrate([25, 40, 25]);
     }
   } catch {

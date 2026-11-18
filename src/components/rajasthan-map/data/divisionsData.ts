@@ -1,0 +1,136 @@
+import { DivisionId, DivisionInfo } from "../types";
+
+export const RAJASTHAN_DIVISIONS: Record<DivisionId, DivisionInfo> = {
+  jaipur: {
+    id: "jaipur",
+    nameHindi: "जयपुर संभाग",
+    nameEnglish: "Jaipur Division",
+    headquarter: "जयपुर",
+    color: "#E11D48", // Rose Red
+    textColor: "text-rose-700 dark:text-rose-300",
+    borderColor: "border-rose-400 dark:border-rose-600",
+    bgLight: "bg-rose-50 dark:bg-rose-950/30",
+    districtIds: ["jaipur", "jaipur_rural", "dudu", "kotputli_behror", "dausa", "khairthal_tijara", "alwar"],
+    description: "7 ज़िले: राजधानी क्षेत्र, सबसे अधिक जनसंख्या घनत्व, बैराठ सभ्यता व आमेर विरासत",
+    isNew: false,
+  },
+  jodhpur: {
+    id: "jodhpur",
+    nameHindi: "जोधपुर संभाग",
+    nameEnglish: "Jodhpur Division",
+    headquarter: "जोधपुर",
+    color: "#D97706", // Amber Gold
+    textColor: "text-amber-700 dark:text-amber-300",
+    borderColor: "border-amber-400 dark:border-amber-600",
+    bgLight: "bg-amber-50 dark:bg-amber-950/30",
+    districtIds: ["jodhpur", "jodhpur_rural", "phalodi", "jaisalmer", "barmer", "balotra"],
+    description: "6 ज़िले: मरुस्थलीय संभाग, क्षेत्रफल में सबसे बड़ा, थार मरुस्थल, खनिज तेल व पवन ऊर्जा",
+    isNew: false,
+  },
+  ajmer: {
+    id: "ajmer",
+    nameHindi: "अजमेर संभाग",
+    nameEnglish: "Ajmer Division",
+    headquarter: "अजमेर",
+    color: "#800020", // Royal Maroon
+    textColor: "text-red-800 dark:text-red-300",
+    borderColor: "border-red-400 dark:border-red-700",
+    bgLight: "bg-red-50 dark:bg-red-950/30",
+    districtIds: ["ajmer", "beawar", "kekri", "tonk", "nagaur", "didwana_kuchaman", "shahpura"],
+    description: "7 ज़िले: राजस्थान का हृदय स्थल, ख्वाजा मोईनुद्दीन चिश्ती दरगाह, पुष्कर तीर्थ, संगमरमर व नमक",
+    isNew: false,
+  },
+  udaipur: {
+    id: "udaipur",
+    nameHindi: "उदयपुर संभाग",
+    nameEnglish: "Udaipur Division",
+    headquarter: "उदयपुर",
+    color: "#059669", // Emerald Green
+    textColor: "text-emerald-700 dark:text-emerald-300",
+    borderColor: "border-emerald-400 dark:border-emerald-600",
+    bgLight: "bg-emerald-50 dark:bg-emerald-950/30",
+    districtIds: ["udaipur", "chittorgarh", "rajsamand", "bhilwara", "salumbar"],
+    description: "5 ज़िले: मेवाड़ गौरव, झीलों की नगरी, अरावली की सघन वन संपदा व सीसा-जस्ता खनिज",
+    isNew: false,
+  },
+  bikaner: {
+    id: "bikaner",
+    nameHindi: "बीकानेर संभाग",
+    nameEnglish: "Bikaner Division",
+    headquarter: "बीकानेर",
+    color: "#CA8A04", // Sand Yellow
+    textColor: "text-yellow-700 dark:text-yellow-300",
+    borderColor: "border-yellow-400 dark:border-yellow-600",
+    bgLight: "bg-yellow-50 dark:bg-yellow-950/30",
+    districtIds: ["bikaner", "sri_ganganagar", "hanumangarh", "anupgarh"],
+    description: "4 ज़िले: उत्तरी नहरी सिंचित क्षेत्र, राजस्थान का अन्न का कटोरा, करणी माता व घग्घर नदी",
+    isNew: false,
+  },
+  kota: {
+    id: "kota",
+    nameHindi: "कोटा संभाग",
+    nameEnglish: "Kota Division",
+    headquarter: "कोटा",
+    color: "#2563EB", // Royal Blue
+    textColor: "text-blue-700 dark:text-blue-300",
+    borderColor: "border-blue-400 dark:border-blue-600",
+    bgLight: "bg-blue-50 dark:bg-blue-950/30",
+    districtIds: ["kota", "bundi", "baran", "jhalawar"],
+    description: "4 ज़िले: हाड़ौती अंचल, सर्वाधिक वर्षा व नदियों वाला संभाग, चंबल नदी व मुकंदरा हिल्स",
+    isNew: false,
+  },
+  bharatpur: {
+    id: "bharatpur",
+    nameHindi: "भरतपुर संभाग",
+    nameEnglish: "Bharatpur Division",
+    headquarter: "भरतपुर",
+    color: "#7C3AED", // Royal Violet
+    textColor: "text-violet-700 dark:text-violet-300",
+    borderColor: "border-violet-400 dark:border-violet-600",
+    bgLight: "bg-violet-50 dark:bg-violet-950/30",
+    districtIds: ["bharatpur", "dholpur", "karauli", "deeg", "sawai_madhopur", "gangapur_city"],
+    description: "6 ज़िले: ब्रज संस्कृति, रणथंभौर राष्ट्रीय उद्यान, केवलादेव घना पक्षी विहार व जलमहलों की नगरी",
+    isNew: false,
+  },
+  sikar: {
+    id: "sikar",
+    nameHindi: "सीकर संभाग",
+    nameEnglish: "Sikar Division",
+    headquarter: "सीकर",
+    color: "#0D9488", // Teal Cyan
+    textColor: "text-teal-700 dark:text-teal-300",
+    borderColor: "border-teal-400 dark:border-teal-600",
+    bgLight: "bg-teal-50 dark:bg-teal-950/30",
+    districtIds: ["sikar", "jhunjhunu", "churu", "neem_ka_thana"],
+    description: "4 ज़िले (नया संभाग): शेखावाटी अंचल, हवेलियों के भित्तिचित्र, गणेश्वर ताम्र सभ्यता व शिक्षा नगरी",
+    isNew: true,
+  },
+  pali: {
+    id: "pali",
+    nameHindi: "पाली संभाग",
+    nameEnglish: "Pali Division",
+    headquarter: "पाली",
+    color: "#C026D3", // Fuchsia
+    textColor: "text-fuchsia-700 dark:text-fuchsia-300",
+    borderColor: "border-fuchsia-400 dark:border-fuchsia-600",
+    bgLight: "bg-fuchsia-50 dark:bg-fuchsia-950/30",
+    districtIds: ["pali", "jalore", "sanchor", "sirohi"],
+    description: "4 ज़िले (नया संभाग): गोडवाड़ अंचल, गुरु शिखर (माउंट आबू), नर्मदा नहर परियोजना व रणकपुर जैन मंदिर",
+    isNew: true,
+  },
+  banswara: {
+    id: "banswara",
+    nameHindi: "बांसवाड़ा संभाग",
+    nameEnglish: "Banswara Division",
+    headquarter: "बांसवाड़ा",
+    color: "#EA580C", // Vibrant Saffron / Orange
+    textColor: "text-orange-700 dark:text-orange-300",
+    borderColor: "border-orange-400 dark:border-orange-600",
+    bgLight: "bg-orange-50 dark:bg-orange-950/30",
+    districtIds: ["banswara", "dungarpur", "pratapgarh"],
+    description: "3 ज़िले (नया संभाग): वागड़ अंचल, सौ द्वीपों का शहर, माही बजाज सागर बांध, बेणेश्वर धाम व कर्क रेखा",
+    isNew: true,
+  },
+};
+
+export const DIVISIONS_LIST = Object.values(RAJASTHAN_DIVISIONS);
