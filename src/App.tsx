@@ -174,6 +174,7 @@ const HTMLImportMCQModal = safeLazy<typeof import('./components/admin/HTMLImport
 const GlobalSearchModal = safeLazy<typeof import('./components/GlobalSearchModal').GlobalSearchModal>(() => import('./components/GlobalSearchModal'), 'GlobalSearchModal');
 const RajasthanMapModal = safeLazy<typeof import('./components/rajasthan-map/RajasthanMapModal').RajasthanMapModal>(() => import('./components/rajasthan-map/RajasthanMapModal'), 'RajasthanMapModal');
 const LiveBattleModal = safeLazy<typeof import('./components/battle/LiveBattleModal').LiveBattleModal>(() => import('./components/battle/LiveBattleModal'), 'LiveBattleModal');
+const DistrictWarModal = safeLazy<typeof import('./components/district-war/DistrictWarModal').DistrictWarModal>(() => import('./components/district-war/DistrictWarModal'), 'DistrictWarModal');
 
 export default function App() {
   const initialNavState = React.useMemo(() => {
@@ -425,6 +426,7 @@ export default function App() {
   const [isExamAnalyzerOpen, setIsExamAnalyzerOpen] = React.useState(false);
   const [isRajasthanMapOpen, setIsRajasthanMapOpen] = React.useState(false);
   const [isLiveBattleOpen, setIsLiveBattleOpen] = React.useState(false);
+  const [isDistrictWarOpen, setIsDistrictWarOpen] = React.useState(false);
   const [battleInitialRoomCode, setBattleInitialRoomCode] = React.useState<string>("");
   const [isAITutorOpen, setIsAITutorOpen] = React.useState(false);
   const [aiTutorContextQuestion, setAiTutorContextQuestion] = React.useState<Question | null>(null);
@@ -567,6 +569,7 @@ export default function App() {
       if (isExamAnalyzerOpen) { setIsExamAnalyzerOpen(false); return; }
       if (isRajasthanMapOpen) { setIsRajasthanMapOpen(false); return; }
       if (isLiveBattleOpen) { setIsLiveBattleOpen(false); return; }
+      if (isDistrictWarOpen) { setIsDistrictWarOpen(false); return; }
       if (isAddSubjectOpen) { setIsAddSubjectOpen(false); return; }
       if (isAddChapterOpen) { setIsAddChapterOpen(false); return; }
       if (isAddTopicOpen) { setIsAddTopicOpen(false); return; }
@@ -602,7 +605,7 @@ export default function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, [
     activeSession, isLoginOpen, isSettingsOpen, isApiSettingsOpen, isPDFOpen, isFullExamOpen,
-    isCustomTestOpen, isExamAnalyzerOpen, isRajasthanMapOpen, isLiveBattleOpen, isAddSubjectOpen, isAddChapterOpen,
+    isCustomTestOpen, isExamAnalyzerOpen, isRajasthanMapOpen, isLiveBattleOpen, isDistrictWarOpen, isAddSubjectOpen, isAddChapterOpen,
     isAddTopicOpen, isAddQuestionsOpen, isManageSyllabusOpen, isManageQuestionsOpen,
     isManageCategoriesOpen, isManagePYQVaultOpen, isManageLiveTestsOpen,
     isAIImportOpen, isHTMLImportOpen
@@ -1440,6 +1443,7 @@ export default function App() {
               setBattleInitialRoomCode('');
               setIsLiveBattleOpen(true);
             }}
+            onOpenDistrictWar={() => setIsDistrictWarOpen(true)}
             onToggleDarkMode={() => setSettings(prev => ({ ...prev, darkMode: !prev.darkMode }))}
             onLogout={handleLogout}
           />
@@ -1862,6 +1866,22 @@ export default function App() {
             isOpen={isLiveBattleOpen}
             initialRoomCode={battleInitialRoomCode}
             onClose={() => setIsLiveBattleOpen(false)}
+          />
+        </OverlayErrorBoundary>
+      )}
+
+      {isDistrictWarOpen && (
+        <OverlayErrorBoundary
+          viewName="District War Leaderboard"
+          onClose={() => setIsDistrictWarOpen(false)}
+        >
+          <DistrictWarModal
+            isOpen={isDistrictWarOpen}
+            onClose={() => setIsDistrictWarOpen(false)}
+            onOpenMap={() => {
+              setIsDistrictWarOpen(false);
+              setIsRajasthanMapOpen(true);
+            }}
           />
         </OverlayErrorBoundary>
       )}

@@ -11,6 +11,8 @@ import {
   Check,
   ChevronRight,
   ChevronLeft,
+  Swords,
+  Crown,
 } from "lucide-react";
 import { DivisionId, DistrictInfo } from "./types";
 import { RAJASTHAN_DIVISIONS, RAJASTHAN_DIVISIONS_LIST } from "./data/divisionsData";
@@ -18,12 +20,13 @@ import { RAJASTHAN_50_DISTRICTS, RAJASTHAN_DISTRICTS_LIST, searchDistrictsByQuer
 import { RajasthanSvgMap } from "./map/RajasthanSvgMap";
 import { DistrictDetailSheet } from "./components/DistrictDetailSheet";
 import { MapQuizRunner } from "./components/MapQuizRunner";
+import { DistrictWarModal } from "../district-war/DistrictWarModal";
 import { triggerHaptic, playClickSound } from "../../utils/audioFeedback";
 
 interface RajasthanMapModalProps {
   isOpen: boolean;
   onClose: () => void;
-  initialMode?: "explorer" | "quiz";
+  initialMode?: "explorer" | "quiz" | "war";
   initialDistrictId?: string | null;
 }
 
@@ -33,11 +36,12 @@ export const RajasthanMapModal: React.FC<RajasthanMapModalProps> = ({
   initialMode = "explorer",
   initialDistrictId = null,
 }) => {
-  const [activeMode, setActiveMode] = useState<"explorer" | "quiz">(initialMode);
+  const [activeMode, setActiveMode] = useState<"explorer" | "quiz" | "war">(initialMode);
   const [selectedDistrictId, setSelectedDistrictId] = useState<string | null>(initialDistrictId);
   const [activeDivisionFilter, setActiveDivisionFilter] = useState<DivisionId | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [showDistrictListSheet, setShowDistrictListSheet] = useState<boolean>(false);
+  const [showDistrictWarModal, setShowDistrictWarModal] = useState<boolean>(false);
 
   // Quiz Mode state
   const [quizTargetDistrictId, setQuizTargetDistrictId] = useState<string | null>(null);
@@ -77,14 +81,14 @@ export const RajasthanMapModal: React.FC<RajasthanMapModalProps> = ({
     if (activeMode === "quiz") {
       setSelectedDistrictFromMap(districtId);
     } else {
-      triggerHaptic("selection");
+      triggerHaptic("light");
       playClickSound();
       setSelectedDistrictId(districtId);
       setShowDistrictListSheet(false);
     }
   };
 
-  const handleSwitchMode = (mode: "explorer" | "quiz") => {
+  const handleSwitchMode = (mode: "explorer" | "quiz" | "war") => {
     triggerHaptic("medium");
     playClickSound();
     setActiveMode(mode);
@@ -172,6 +176,18 @@ export const RajasthanMapModal: React.FC<RajasthanMapModalProps> = ({
                 <Flame className="w-3 h-3" />
                 <span>🎯 क्विज़</span>
               </button>
+              <button
+                type="button"
+                onClick={() => handleSwitchMode("war")}
+                className={`px-2 sm:px-3 py-1 rounded-lg text-[11px] sm:text-xs font-black transition-all flex items-center gap-1 cursor-pointer ${
+                  activeMode === "war"
+                    ? "bg-gradient-to-r from-[#800020] to-[#F47B20] text-white shadow-xs"
+                    : "text-[#52576A] dark:text-[#929AB0] hover:text-[#171923]"
+                }`}
+              >
+                <Swords className="w-3 h-3" />
+                <span>⚔️ वॉर</span>
+              </button>
             </div>
 
             {/* Close Button (Desktop) */}
@@ -185,6 +201,25 @@ export const RajasthanMapModal: React.FC<RajasthanMapModalProps> = ({
             </button>
           </div>
         </header>
+
+        {/* ================= WAR MODE TOP BANNER ================= */}
+        {activeMode === "war" && (
+          <div className="shrink-0 bg-gradient-to-r from-[#800020] via-[#5C0318] to-[#D97706] text-white px-3 sm:px-5 py-2 flex items-center justify-between gap-2 shadow-xs z-20">
+            <div className="flex items-center gap-2 truncate">
+              <Crown className="w-4 h-4 text-amber-300 shrink-0 animate-bounce" />
+              <span className="text-xs sm:text-sm font-black truncate">
+                ज़िला महासंग्राम लाइव स्थिति • नक्शे पर राज्य रैंक व ताज देखें
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowDistrictWarModal(true)}
+              className="px-2.5 py-1 rounded-lg bg-white/20 hover:bg-white/30 text-white font-black text-[10px] sm:text-xs shrink-0 cursor-pointer active:scale-95 transition flex items-center gap-1"
+            >
+              <span>लीडरबोर्ड 🏆</span>
+            </button>
+          </div>
+        )}
 
         {/* ================= SECONDARY TOOLBAR: SEARCH & DIVISION PILLS ================= */}
         {activeMode === "explorer" && (
@@ -340,6 +375,7 @@ export const RajasthanMapModal: React.FC<RajasthanMapModalProps> = ({
                   activeDivisionFilter={activeDivisionFilter}
                   searchHighlightedIds={searchHighlightedIds}
                   isQuizMode={false}
+                  isWarMode={activeMode === "war"}
                 />
               </div>
 
@@ -425,6 +461,13 @@ export const RajasthanMapModal: React.FC<RajasthanMapModalProps> = ({
           </div>
         )}
 
+        {/* District War Leaderboard Modal */}
+        {showDistrictWarModal && (
+          <DistrictWarModal
+            isOpen={showDistrictWarModal}
+            onClose={() => setShowDistrictWarModal(false)}
+          />
+        )}
       </div>
     </div>
   );

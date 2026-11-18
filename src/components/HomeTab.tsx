@@ -59,6 +59,7 @@ import { subscribeToActiveBanners, getLocalBanners } from "../utils/bannerStorag
 const CreateTestModal = React.lazy(() => import("./CreateTestModal"));
 const ShareModal = React.lazy(() => import("./ShareModal"));
 const WeeklyLeaderboard = React.lazy(() => import("./WeeklyLeaderboard"));
+import { DistrictWarHomeWidget } from "./district-war/DistrictWarHomeWidget";
 
 interface HomeTabProps {
   progressStore: ProgressStore;
@@ -88,6 +89,7 @@ interface HomeTabProps {
   onOpenApiSettings?: () => void;
   onOpenRajasthanMap?: () => void;
   onOpenLiveBattle?: () => void;
+  onOpenDistrictWar?: () => void;
   onToggleDarkMode?: () => void;
   onLogout?: () => void;
 }
@@ -113,6 +115,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
   onOpenApiSettings,
   onOpenRajasthanMap,
   onOpenLiveBattle,
+  onOpenDistrictWar,
   onToggleDarkMode,
   onLogout,
 }) => {
@@ -562,6 +565,11 @@ export const HomeTab: React.FC<HomeTabProps> = ({
           </motion.div>
         </section>
 
+        {/* 3.8 RAJASTHAN 50 DISTRICT WAR LEADERBOARD */}
+        <section>
+          <DistrictWarHomeWidget onOpenWar={() => onOpenDistrictWar?.()} />
+        </section>
+
         {/* 4. AI ENGINE SETUP CARD */}
         <section>
           <motion.button
@@ -703,6 +711,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                   </h4>
                   {[
                     { label: "Dashboard", icon: Home, tab: "home" },
+                    { label: "⚔️ राजस्थान 50 ज़िला महासंग्राम", icon: Swords, action: () => onOpenDistrictWar?.() },
                     { label: "राजस्थान 50 ज़िला नक्शा व क्विज़", icon: Map, action: () => onOpenRajasthanMap?.() },
                     { label: "⚔️ 1v1 लाइव क्विज़ मुकाबला", icon: Swords, action: () => onOpenLiveBattle?.() },
                     { label: "Subjects & Syllabus", icon: BookOpen, tab: "topics" },

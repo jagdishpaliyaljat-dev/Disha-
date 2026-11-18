@@ -202,4 +202,4 @@ export function triggerHaptic(
   }
 }
 
-
+export const playSuccessSound = playCorrectSound;

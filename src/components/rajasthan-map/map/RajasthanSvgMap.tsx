@@ -15,8 +15,10 @@ import {
   CheckCircle2,
   XCircle,
   Mountain,
+  Crown,
 } from "lucide-react";
 import { triggerHaptic, playClickSound } from "../../../utils/audioFeedback";
+import { districtWarService } from "../../district-war/districtWarService";
 
 interface RajasthanSvgMapProps {
   selectedDistrictId?: string | null;
@@ -26,6 +28,7 @@ interface RajasthanSvgMapProps {
   // Quiz Mode Props
   quizTargetDistrictId?: string | null;
   isQuizMode?: boolean;
+  isWarMode?: boolean;
   quizFeedback?: {
     selectedDistrictId: string;
     isCorrect: boolean;
@@ -40,6 +43,7 @@ export const RajasthanSvgMap: React.FC<RajasthanSvgMapProps> = ({
   searchHighlightedIds = [],
   quizTargetDistrictId,
   isQuizMode = false,
+  isWarMode = false,
   quizFeedback = null,
   onDistrictHover,
 }) => {
@@ -448,9 +452,10 @@ export const RajasthanSvgMap: React.FC<RajasthanSvgMapProps> = ({
                 activeDivisionFilter && district.divisionId !== activeDivisionFilter;
               const isQuizFeedbackTarget = quizFeedback?.selectedDistrictId === district.id;
               const isSearchMatch = searchHighlightedIds.includes(district.id);
+              const rank = isWarMode ? districtWarService.getDistrictRank(district.id, "total") : null;
+              const displayText = isWarMode ? `#${rank} ${district.nameHindi}` : district.nameHindi;
 
-              const name = district.nameHindi;
-              const badgeWidth = Math.max(name.length * 8.6 + 12, 34);
+              const badgeWidth = Math.max(displayText.length * 8.2 + 12, 34);
               const badgeHeight = 18;
 
               return (
@@ -480,6 +485,13 @@ export const RajasthanSvgMap: React.FC<RajasthanSvgMapProps> = ({
                     />
                   )}
 
+                  {/* Golden Crown on #1 District in War Mode */}
+                  {isWarMode && rank === 1 && (
+                    <g transform={`translate(${cx - 8}, ${cy - 24})`} className="pointer-events-none">
+                      <text x="0" y="0" fontSize="15" className="animate-bounce">👑</text>
+                    </g>
+                  )}
+
                   {/* District Label Pill Background */}
                   <rect
                     x={cx - badgeWidth / 2}
@@ -492,6 +504,8 @@ export const RajasthanSvgMap: React.FC<RajasthanSvgMapProps> = ({
                         ? "#800020"
                         : isHovered
                         ? "#171923"
+                        : isWarMode && rank === 1
+                        ? "#FEF3C7"
                         : "rgba(255, 255, 255, 0.94)"
                     }
                     className="dark:fill-[#171923]/95 shadow-sm pointer-events-none"
@@ -500,9 +514,11 @@ export const RajasthanSvgMap: React.FC<RajasthanSvgMapProps> = ({
                         ? "#F47B20"
                         : isHovered
                         ? "#C99A45"
+                        : isWarMode && rank && rank <= 3
+                        ? "#F47B20"
                         : "#CBD5E1"
                     }
-                    strokeWidth={isSelected ? 1.5 : 0.8}
+                    strokeWidth={isSelected || (isWarMode && rank === 1) ? 1.5 : 0.8}
                   />
 
                   {/* District Name Text (Hindi) */}
@@ -510,10 +526,18 @@ export const RajasthanSvgMap: React.FC<RajasthanSvgMapProps> = ({
                     x={cx}
                     y={cy + 4.2}
                     textAnchor="middle"
-                    fill={isSelected ? "#FFF9EF" : isHovered ? "#F47B20" : "#1E293B"}
-                    className="dark:fill-[#FFF9EF] font-black text-[10.5px] pointer-events-none tracking-tight select-none"
+                    fill={
+                      isSelected
+                        ? "#FFF9EF"
+                        : isHovered
+                        ? "#F47B20"
+                        : isWarMode && rank === 1
+                        ? "#92400E"
+                        : "#1E293B"
+                    }
+                    className="dark:fill-[#FFF9EF] font-black text-[10px] pointer-events-none tracking-tight select-none"
                   >
-                    {name}
+                    {displayText}
                   </text>
 
                   {/* Star Badge for 2023 Formed Districts */}

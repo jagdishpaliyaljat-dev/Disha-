@@ -17,6 +17,7 @@ import {
   Award,
 } from "lucide-react";
 import { triggerHaptic, playClickSound } from "../../../utils/audioFeedback";
+import { districtWarService } from "../../district-war/districtWarService";
 
 interface MapQuizRunnerProps {
   onSelectTargetForMap: (districtId: string) => void;
@@ -122,6 +123,7 @@ export const MapQuizRunner: React.FC<MapQuizRunnerProps> = ({
       });
       setStrongDistricts((prev) => Array.from(new Set([...prev, currentQ.targetDistrictName])));
       onQuizFeedback({ selectedDistrictId: selectedDistrictFromMap, isCorrect: true });
+      districtWarService.addDistrictWarPoints(20, `नक्शा क्विज़: ${currentQ.targetDistrictName} सही पहचाना`);
     } else {
       triggerHaptic("error");
       setStreak(0);
