@@ -10,6 +10,12 @@ import {
   Bot,
   AlertCircle,
   Clock,
+  ClipboardPaste,
+  User,
+  Copy,
+  Check,
+  Crown,
+  BookOpen,
 } from "lucide-react";
 import { CustomQuestionPickerModal } from "./CustomQuestionPickerModal";
 import type {
@@ -393,6 +399,25 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
     setPhase("lobby");
   };
 
+  // Quick Paste Code from Clipboard
+  const handlePasteCode = async () => {
+    try {
+      if (navigator?.clipboard?.readText) {
+        const text = await navigator.clipboard.readText();
+        if (text) {
+          const match = text.match(/[A-Za-z0-9]{4,6}/);
+          if (match) {
+            setInputRoomCode(match[0].toUpperCase());
+            triggerHaptic("light");
+            playClickSound();
+          }
+        }
+      }
+    } catch {
+      // Clipboard read blocked
+    }
+  };
+
   // Add simulated AI Bot Opponent (for immediate solo testing)
   const handleAddBot = () => {
     triggerHaptic("light");
@@ -754,145 +779,198 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
         {/* Phase: Initial Screen (Create or Join) */}
         {phase === "initial" && (
           <div className="flex flex-col h-full overflow-y-auto">
-            {/* Header */}
-            <div className="bg-gradient-to-r from-[#800020] to-[#5c0017] text-white p-5 text-center relative shadow-md">
+            {/* Royal Header */}
+            <div className="bg-gradient-to-b from-[#5E0017] via-[#800020] to-[#6A001A] text-white p-5 sm:p-6 text-center relative shadow-lg overflow-hidden">
+              {/* Subtle Ambient Radial Glow */}
+              <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-48 h-48 bg-amber-400/20 rounded-full blur-2xl pointer-events-none" />
+
               <button
                 onClick={onClose}
-                className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 transition"
+                className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 transition border border-white/10"
+                title="बंद करें"
               >
                 <X className="w-5 h-5" />
               </button>
 
-              <div className="inline-flex p-3 rounded-2xl bg-amber-400 text-stone-900 shadow-md mb-2">
+              <div className="relative inline-flex items-center justify-center p-3.5 rounded-2xl bg-gradient-to-br from-amber-400 via-amber-300 to-amber-500 text-stone-950 shadow-[0_4px_20px_rgba(245,158,11,0.4)] mb-2.5 ring-2 ring-amber-200/50">
                 <Swords className="w-7 h-7" />
               </div>
 
-              <h2 className="text-xl font-extrabold tracking-wide">
-                1v1 व ग्रुप क्विज़ मुकाबला
+              <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-amber-400/20 text-amber-200 text-[11px] font-bold border border-amber-300/30 mb-1.5">
+                <Sparkles className="w-3 h-3 text-amber-300" />
+                <span>लाइव मल्टीप्लेयर मुकाबला</span>
+              </div>
+
+              <h2 className="text-xl sm:text-2xl font-extrabold tracking-wide drop-shadow-sm">
+                राजस्थान GK रणभूमि
               </h2>
-              <p className="text-xs text-amber-200 mt-1">
-                दोस्तों को लाइव चुनौती दें और राजस्थान GK में रैंक पाएं!
+              <p className="text-xs text-amber-100/90 max-w-xs mx-auto mt-1">
+                मित्रों के साथ 1v1 या ग्रुप में खेलें • 10s में तेज उत्तर देकर शीर्ष रैंक पाएं!
               </p>
             </div>
 
-            {/* Profile Avatar & Name Section */}
-            <div className="p-4 bg-white border-b border-stone-200">
+            {/* Profile Avatar & Name Card */}
+            <div className="p-4 bg-white/95 border-b border-amber-900/10 shadow-xs">
               <div className="flex items-center gap-3">
-                <div className="relative text-3xl p-2 rounded-2xl bg-amber-50 border border-amber-200">
-                  <span>{selectedAvatar}</span>
+                <div className="relative w-13 h-13 rounded-2xl bg-gradient-to-tr from-amber-400 to-amber-200 p-0.5 shadow-md flex items-center justify-center shrink-0 ring-2 ring-amber-300/60">
+                  <span className="text-3xl">{selectedAvatar}</span>
                 </div>
                 <div className="flex-1">
-                  <label className="block text-[11px] font-bold text-stone-500 uppercase">
-                    आपका नाम (Your Name)
-                  </label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-[11px] font-bold text-stone-600 flex items-center gap-1 uppercase tracking-wider">
+                      <User className="w-3 h-3 text-[#800020]" />
+                      <span>आपका नाम</span>
+                    </label>
+                    <span className="text-[10px] text-stone-400 font-mono">
+                      {playerName.length}/20
+                    </span>
+                  </div>
                   <input
                     type="text"
                     value={playerName}
                     onChange={(e) => setPlayerName(e.target.value)}
                     maxLength={20}
-                    placeholder="अपना नाम दर्ज करें"
-                    className="w-full text-sm font-bold text-stone-800 bg-stone-50 border border-stone-300 rounded-xl px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#800020]"
+                    placeholder="अपना नाम दर्ज करें..."
+                    className="w-full text-sm font-bold text-stone-800 bg-[#FFFDF9] border border-amber-300/70 rounded-xl px-3.5 py-2 focus:outline-none focus:ring-2 focus:ring-[#800020] focus:border-transparent transition shadow-inner"
                   />
                 </div>
               </div>
 
               {/* Avatar Selector Strip */}
-              <div className="flex items-center gap-2 overflow-x-auto pt-3 pb-1 scrollbar-none">
-                {PLAYER_AVATARS.map((av) => (
-                  <button
-                    key={av}
-                    onClick={() => {
-                      triggerHaptic("light");
-                      setSelectedAvatar(av);
-                    }}
-                    className={`w-9 h-9 flex-shrink-0 flex items-center justify-center text-lg rounded-xl transition ${
-                      selectedAvatar === av
-                        ? "bg-[#800020] shadow-md scale-110"
-                        : "bg-stone-100 hover:bg-stone-200"
-                    }`}
-                  >
-                    {av}
-                  </button>
-                ))}
+              <div className="mt-3">
+                <div className="text-[10px] font-bold text-stone-500 uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                  <span>अवतार चुनें:</span>
+                </div>
+                <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+                  {PLAYER_AVATARS.map((av) => {
+                    const isSelected = selectedAvatar === av;
+                    return (
+                      <button
+                        key={av}
+                        onClick={() => {
+                          triggerHaptic("light");
+                          setSelectedAvatar(av);
+                        }}
+                        className={`w-10 h-10 flex-shrink-0 flex items-center justify-center text-xl rounded-xl transition-all ${
+                          isSelected
+                            ? "bg-gradient-to-br from-[#800020] to-[#5c0017] text-white shadow-md scale-110 ring-2 ring-amber-400"
+                            : "bg-stone-100 hover:bg-amber-50 active:scale-95 border border-stone-200"
+                        }`}
+                      >
+                        {av}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
 
-            {/* Mode Switch Tabs */}
+            {/* Mode Switch Segmented Control */}
             <div className="p-4 flex-1 space-y-4">
-              <div className="flex bg-stone-200 p-1 rounded-2xl">
+              <div className="flex bg-stone-200/80 p-1.5 rounded-2xl border border-stone-300/60 shadow-inner">
                 <button
                   onClick={() => {
                     triggerHaptic("light");
                     setActiveTab("create");
                   }}
-                  className={`flex-1 py-2 rounded-xl text-xs font-bold transition ${
+                  className={`flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 transition-all ${
                     activeTab === "create"
-                      ? "bg-white text-[#800020] shadow-sm"
+                      ? "bg-gradient-to-r from-[#800020] to-[#6A001A] text-white shadow-md"
                       : "text-stone-600 hover:text-stone-900"
                   }`}
                 >
-                  ⚔️ नया कमरा बनाएं (Host)
+                  <Swords className="w-4 h-4 text-amber-300" />
+                  <span>नया कमरा बनाएं (Host)</span>
                 </button>
                 <button
                   onClick={() => {
                     triggerHaptic("light");
                     setActiveTab("join");
                   }}
-                  className={`flex-1 py-2 rounded-xl text-xs font-bold transition ${
+                  className={`flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 transition-all ${
                     activeTab === "join"
-                      ? "bg-white text-[#800020] shadow-sm"
+                      ? "bg-gradient-to-r from-[#800020] to-[#6A001A] text-white shadow-md"
                       : "text-stone-600 hover:text-stone-900"
                   }`}
                 >
-                  🔑 कोड से जुड़ें (Join)
+                  <Users className="w-4 h-4 text-amber-300" />
+                  <span>कोड से जुड़ें (Join)</span>
                 </button>
               </div>
 
               {activeTab === "create" ? (
-                <div className="space-y-3.5">
-                  {/* Question Source Selector */}
+                <div className="space-y-4">
+                  {/* Question Source Selector (4 Premium Cards) */}
                   <div>
-                    <label className="block text-xs font-bold text-stone-700 mb-1.5">
-                      प्रश्न चयन का प्रकार (Question Source)
+                    <label className="block text-xs font-bold text-stone-700 mb-2 flex items-center justify-between">
+                      <span>प्रश्न चयन का प्रकार (Question Source)</span>
+                      <span className="text-[10px] text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full font-bold">
+                        {questionSource === "curated" && "🎯 अनुशंसित"}
+                        {questionSource === "custom_bank" && "📝 स्व-निर्मित"}
+                        {questionSource === "chapter" && "📚 अध्याय-वार"}
+                        {questionSource === "manual_pick" && "✏️ हाथ से चुना"}
+                      </span>
                     </label>
-                    <div className="grid grid-cols-2 gap-2">
+
+                    <div className="grid grid-cols-2 gap-2.5">
                       <button
                         type="button"
                         onClick={() => setQuestionSource("curated")}
-                        className={`p-2 rounded-xl text-left border transition text-xs ${
+                        className={`p-3 rounded-2xl text-left border-2 transition-all active:scale-98 ${
                           questionSource === "curated"
-                            ? "bg-amber-50 border-[#800020] text-[#800020] font-bold shadow-xs"
-                            : "bg-white border-stone-200 text-stone-700 hover:bg-stone-50"
+                            ? "bg-amber-50/80 border-[#800020] shadow-sm ring-1 ring-[#800020]/20"
+                            : "bg-white border-stone-200/80 text-stone-700 hover:bg-stone-50"
                         }`}
                       >
-                        <span className="block font-bold">🎯 राजस्थान GK बैंक</span>
-                        <span className="text-[10px] text-stone-500">तैयार प्रश्न</span>
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-lg">🎯</span>
+                          <span className="text-xs font-extrabold text-stone-900">
+                            राजस्थान GK बैंक
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-stone-500">
+                          40+ प्रामाणिक परीक्षा स्तरीय प्रश्न
+                        </p>
                       </button>
 
                       <button
                         type="button"
                         onClick={() => setQuestionSource("custom_bank")}
-                        className={`p-2 rounded-xl text-left border transition text-xs ${
+                        className={`p-3 rounded-2xl text-left border-2 transition-all active:scale-98 ${
                           questionSource === "custom_bank"
-                            ? "bg-amber-50 border-[#800020] text-[#800020] font-bold shadow-xs"
-                            : "bg-white border-stone-200 text-stone-700 hover:bg-stone-50"
+                            ? "bg-amber-50/80 border-[#800020] shadow-sm ring-1 ring-[#800020]/20"
+                            : "bg-white border-stone-200/80 text-stone-700 hover:bg-stone-50"
                         }`}
                       >
-                        <span className="block font-bold">📝 मेरे कस्टम प्रश्न</span>
-                        <span className="text-[10px] text-stone-500">ऐप में जोड़े प्रश्न</span>
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-lg">📝</span>
+                          <span className="text-xs font-extrabold text-stone-900">
+                            कस्टम प्रश्न
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-stone-500">
+                          ऐप में आपके जोड़े गए प्रश्न
+                        </p>
                       </button>
 
                       <button
                         type="button"
                         onClick={() => setQuestionSource("chapter")}
-                        className={`p-2 rounded-xl text-left border transition text-xs ${
+                        className={`p-3 rounded-2xl text-left border-2 transition-all active:scale-98 ${
                           questionSource === "chapter"
-                            ? "bg-amber-50 border-[#800020] text-[#800020] font-bold shadow-xs"
-                            : "bg-white border-stone-200 text-stone-700 hover:bg-stone-50"
+                            ? "bg-amber-50/80 border-[#800020] shadow-sm ring-1 ring-[#800020]/20"
+                            : "bg-white border-stone-200/80 text-stone-700 hover:bg-stone-50"
                         }`}
                       >
-                        <span className="block font-bold">📚 अध्याय अनुसार</span>
-                        <span className="text-[10px] text-stone-500">चयनित अध्याय</span>
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-lg">📚</span>
+                          <span className="text-xs font-extrabold text-stone-900">
+                            अध्याय अनुसार
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-stone-500">
+                          विशिष्ट विषय/अध्याय के प्रश्न
+                        </p>
                       </button>
 
                       <button
@@ -901,35 +979,44 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                           setQuestionSource("manual_pick");
                           setIsQuestionPickerOpen(true);
                         }}
-                        className={`p-2 rounded-xl text-left border transition text-xs ${
+                        className={`p-3 rounded-2xl text-left border-2 transition-all active:scale-98 ${
                           questionSource === "manual_pick"
-                            ? "bg-amber-50 border-[#800020] text-[#800020] font-bold shadow-xs"
-                            : "bg-white border-stone-200 text-stone-700 hover:bg-stone-50"
+                            ? "bg-amber-50/80 border-[#800020] shadow-sm ring-1 ring-[#800020]/20"
+                            : "bg-white border-stone-200/80 text-stone-700 hover:bg-stone-50"
                         }`}
                       >
-                        <span className="block font-bold flex items-center justify-between">
-                          <span>✏️ खुद चुनें</span>
-                          <span className="text-[10px] text-[#800020]">
-                            {selectedQuestionIds.length > 0 ? `${selectedQuestionIds.length} चुने` : "चुनें"}
+                        <div className="flex items-center justify-between mb-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg">✏️</span>
+                            <span className="text-xs font-extrabold text-stone-900">
+                              खुद चुनें
+                            </span>
+                          </div>
+                          <span className="text-[10px] font-bold text-[#800020] bg-amber-100 px-1.5 py-0.5 rounded-full">
+                            {selectedQuestionIds.length > 0
+                              ? `${selectedQuestionIds.length} चुने`
+                              : "चुनें"}
                           </span>
-                        </span>
-                        <span className="text-[10px] text-stone-500">हाथ से चुने प्रश्न</span>
+                        </div>
+                        <p className="text-[10px] text-stone-500">
+                          हाथ से एक-एक प्रश्न चुनें
+                        </p>
                       </button>
                     </div>
                   </div>
 
                   {/* Category Selector if curated */}
                   {questionSource === "curated" && (
-                    <div>
+                    <div className="bg-white p-3 rounded-2xl border border-stone-200 shadow-xs">
                       <label className="block text-xs font-bold text-stone-700 mb-1.5">
-                        विषय श्रेणी
+                        विषय श्रेणी (Category)
                       </label>
                       <select
                         value={selectedCategory}
                         onChange={(e) =>
                           setSelectedCategory(e.target.value as BattleCategory)
                         }
-                        className="w-full text-sm font-semibold bg-white border border-stone-300 rounded-xl px-3 py-2 text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#800020]"
+                        className="w-full text-sm font-semibold bg-stone-50 border border-stone-300 rounded-xl px-3 py-2.5 text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#800020]"
                       >
                         <option value="all">🎯 सभी विषय (मिश्रित GK)</option>
                         <option value="history">🏰 राजस्थान इतिहास</option>
@@ -941,10 +1028,10 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                     </div>
                   )}
 
-                  {/* Question Count & Time */}
+                  {/* Question Count & Time Options */}
                   <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-xs font-bold text-stone-700 mb-1">
+                    <div className="bg-white p-3 rounded-2xl border border-stone-200 shadow-xs">
+                      <label className="block text-xs font-bold text-stone-700 mb-1.5">
                         कुल प्रश्न
                       </label>
                       <div className="flex gap-1.5">
@@ -952,11 +1039,14 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                           <button
                             key={cnt}
                             type="button"
-                            onClick={() => setQuestionCount(cnt)}
-                            className={`flex-1 py-2 text-xs font-bold rounded-xl border transition ${
+                            onClick={() => {
+                              triggerHaptic("light");
+                              setQuestionCount(cnt);
+                            }}
+                            className={`flex-1 py-2 text-xs font-bold rounded-xl border-2 transition ${
                               questionCount === cnt
-                                ? "bg-[#800020] text-white border-[#800020]"
-                                : "bg-white text-stone-700 border-stone-300"
+                                ? "bg-[#800020] text-white border-[#800020] shadow-sm"
+                                : "bg-stone-50 text-stone-700 border-stone-200 hover:bg-stone-100"
                             }`}
                           >
                             {cnt}
@@ -965,8 +1055,8 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                       </div>
                     </div>
 
-                    <div>
-                      <label className="block text-xs font-bold text-stone-700 mb-1 flex items-center gap-1">
+                    <div className="bg-white p-3 rounded-2xl border border-stone-200 shadow-xs">
+                      <label className="block text-xs font-bold text-stone-700 mb-1.5 flex items-center gap-1">
                         <Clock className="w-3.5 h-3.5 text-[#800020]" />
                         <span>प्रति प्रश्न समय</span>
                       </label>
@@ -975,11 +1065,14 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                           <button
                             key={sec}
                             type="button"
-                            onClick={() => setTimePerQuestionSec(sec)}
-                            className={`flex-1 py-2 text-xs font-bold rounded-xl border transition ${
+                            onClick={() => {
+                              triggerHaptic("light");
+                              setTimePerQuestionSec(sec);
+                            }}
+                            className={`flex-1 py-2 text-xs font-bold rounded-xl border-2 transition ${
                               timePerQuestionSec === sec
-                                ? "bg-[#800020] text-white border-[#800020] shadow-xs"
-                                : "bg-white text-stone-700 border-stone-300"
+                                ? "bg-[#800020] text-white border-[#800020] shadow-sm"
+                                : "bg-stone-50 text-stone-700 border-stone-200 hover:bg-stone-100"
                             }`}
                           >
                             {sec}s {sec === 10 && "⚡"}
@@ -989,9 +1082,10 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                     </div>
                   </div>
 
+                  {/* Create Room CTA Button */}
                   <button
                     onClick={handleCreateRoom}
-                    className="w-full mt-4 flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl bg-gradient-to-r from-[#800020] to-[#990026] text-white font-bold text-base shadow-lg hover:brightness-110 active:scale-98 transition"
+                    className="w-full mt-2 flex items-center justify-center gap-2 py-4 px-6 rounded-2xl bg-gradient-to-r from-[#800020] via-[#A00028] to-[#800020] text-white font-extrabold text-base shadow-lg shadow-[#800020]/30 hover:brightness-110 active:scale-98 transition border border-amber-400/40"
                   >
                     <span>कमरा बनाएं और कोड पाएं</span>
                     <ArrowRight className="w-5 h-5" />
@@ -999,32 +1093,51 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                 </div>
               ) : (
                 <div className="space-y-4">
-                  <div>
-                    <label className="block text-xs font-bold text-stone-700 mb-1.5">
-                      कमरा कोड दर्ज करें (6-अंकों का कोड)
+                  {/* Join Room Code Input Card */}
+                  <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-xs space-y-3">
+                    <label className="block text-xs font-bold text-stone-700 text-center">
+                      6-अंकों का कमरा कोड दर्ज करें (Enter Room Code)
                     </label>
-                    <input
-                      type="text"
-                      value={inputRoomCode}
-                      onChange={(e) =>
-                        setInputRoomCode(e.target.value.toUpperCase())
-                      }
-                      placeholder="उदा. 849201"
-                      maxLength={6}
-                      className="w-full text-center text-2xl font-mono font-extrabold tracking-widest text-[#800020] bg-white border-2 border-amber-300 rounded-2xl p-3 focus:outline-none focus:ring-2 focus:ring-[#800020]"
-                    />
+
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={inputRoomCode}
+                        onChange={(e) =>
+                          setInputRoomCode(e.target.value.toUpperCase())
+                        }
+                        placeholder="उदा. 849201"
+                        maxLength={6}
+                        className="w-full text-center text-3xl font-mono font-extrabold tracking-widest text-[#800020] bg-amber-50/50 border-2 border-amber-300 rounded-2xl py-3.5 px-4 focus:outline-none focus:ring-2 focus:ring-[#800020] shadow-inner"
+                      />
+
+                      <button
+                        type="button"
+                        onClick={handlePasteCode}
+                        className="mt-2.5 w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-stone-100 hover:bg-amber-100 text-stone-700 text-xs font-bold transition border border-stone-200 active:scale-95"
+                      >
+                        <ClipboardPaste className="w-4 h-4 text-[#800020]" />
+                        <span>क्लिपबोर्ड से पेस्ट करें (Paste Code)</span>
+                      </button>
+                    </div>
+
+                    <div className="p-3 bg-amber-50 rounded-xl border border-amber-200/70 text-center">
+                      <p className="text-xs text-amber-900 font-medium">
+                        💡 <b>टिप:</b> मित्र द्वारा WhatsApp पर भेजे गए लिंक पर टैप करके भी आप सीधे कमरे में शामिल हो सकते हैं!
+                      </p>
+                    </div>
                   </div>
 
                   <button
                     onClick={handleJoinRoom}
                     disabled={!inputRoomCode || inputRoomCode.length < 4}
-                    className={`w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl font-bold text-base shadow-lg active:scale-98 transition ${
+                    className={`w-full flex items-center justify-center gap-2 py-4 px-6 rounded-2xl font-extrabold text-base shadow-lg active:scale-98 transition ${
                       inputRoomCode && inputRoomCode.length >= 4
-                        ? "bg-[#800020] text-white hover:bg-[#68001a]"
-                        : "bg-stone-300 text-stone-500 cursor-not-allowed"
+                        ? "bg-gradient-to-r from-[#800020] to-[#6A001A] text-white hover:brightness-110 shadow-[#800020]/30 border border-amber-400/40"
+                        : "bg-stone-200 text-stone-400 cursor-not-allowed"
                     }`}
                   >
-                    <span>कमरे में शामिल हों (Join)</span>
+                    <span>कमरे में शामिल हों (Join Battle)</span>
                     <ArrowRight className="w-5 h-5" />
                   </button>
                 </div>
@@ -1049,22 +1162,27 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
           />
         )}
 
-        {/* Phase: 3-2-1 Countdown */}
+        {/* Phase: 3-2-1 Countdown (Stadium Experience) */}
         {phase === "countdown" && (
-          <div className="flex-1 flex flex-col items-center justify-center bg-gradient-to-b from-[#800020] to-[#4a0012] text-white p-6 text-center select-none">
-            <div className="mb-4 text-amber-300 flex items-center gap-2 text-sm font-bold uppercase tracking-wider">
-              <Zap className="w-4 h-4 fill-current" />
-              <span>मुकाबला शुरू हो रहा है!</span>
+          <div className="flex-1 flex flex-col items-center justify-center bg-gradient-to-b from-[#5E0017] via-[#800020] to-[#3A000E] text-white p-6 text-center select-none relative overflow-hidden">
+            <div className="absolute top-0 left-0 right-0 h-40 bg-radial from-amber-400/20 to-transparent pointer-events-none" />
+
+            <div className="mb-4 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/20 text-amber-300 text-xs font-bold uppercase tracking-wider border border-amber-300/30">
+              <Zap className="w-4 h-4 fill-current animate-bounce" />
+              <span>रणभूमि तैयार हो रही है!</span>
             </div>
 
-            <div className="w-32 h-32 rounded-full border-4 border-amber-400/80 flex items-center justify-center shadow-2xl bg-black/20 my-4 transform animate-pulse">
-              <span className="text-7xl font-black font-mono text-amber-300 drop-shadow-md">
+            <div className="relative w-36 h-36 rounded-full border-4 border-amber-400 flex items-center justify-center shadow-[0_0_50px_rgba(245,158,11,0.5)] bg-black/40 my-6 transform animate-pulse">
+              <span className="text-8xl font-black font-mono text-amber-300 drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">
                 {countdownNum}
               </span>
             </div>
 
-            <p className="text-base font-bold text-stone-200 mt-2">
-              तैयार हो जाएं! पहला प्रश्न आ रहा है...
+            <h3 className="text-xl font-extrabold text-white">
+              तैयार हो जाएं!
+            </h3>
+            <p className="text-xs text-amber-200/90 mt-1 max-w-xs">
+              ⚡ प्रति प्रश्न 10 सेकंड समय • तेज और सही उत्तर पर अधिक अंक मिलेंगे!
             </p>
           </div>
         )}

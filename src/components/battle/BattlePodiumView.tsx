@@ -93,72 +93,76 @@ export const BattlePodiumView: React.FC<BattlePodiumViewProps> = ({
   const third = rankedPlayers[2];
 
   return (
-    <div className="flex flex-col h-full bg-[#FFF9EF] text-stone-900 select-none overflow-y-auto">
+    <div className="flex flex-col h-full bg-[#FFFDF9] text-stone-900 select-none overflow-y-auto">
       {/* Header Banner */}
-      <div className="bg-gradient-to-b from-[#800020] to-[#5a0016] text-white pt-6 pb-4 px-4 text-center shadow-lg relative">
-        <div className="inline-flex items-center justify-center p-3 rounded-full bg-amber-400 text-stone-900 shadow-md mb-2">
+      <div className="bg-gradient-to-b from-[#5E0017] via-[#800020] to-[#500013] text-white pt-6 pb-5 px-4 text-center shadow-lg relative overflow-hidden">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-amber-400/20 rounded-full blur-2xl pointer-events-none" />
+
+        <div className="relative inline-flex items-center justify-center p-3.5 rounded-2xl bg-gradient-to-br from-amber-400 via-amber-300 to-amber-500 text-stone-950 shadow-[0_4px_20px_rgba(245,158,11,0.5)] mb-2 ring-2 ring-amber-200/50">
           <Trophy className="w-8 h-8" />
         </div>
-        <h2 className="text-xl font-extrabold tracking-wide">
+        <h2 className="text-xl sm:text-2xl font-extrabold tracking-wide drop-shadow-xs">
           मुकाबला संपन्न!
         </h2>
-        <p className="text-xs text-amber-200 mt-1">
+        <p className="text-xs text-amber-200/95 mt-1 max-w-xs mx-auto font-medium">
           {isMeWinner
-            ? "🎉 बधाई हो! आप इस मुकाबले के विजेता बने हैं!"
-            : `🏆 विजेता: ${winner?.name || "खिलाड़ी"}`}
+            ? "👑 अद्भुत विजय! आप इस मुकाबले के विजेता बने हैं!"
+            : `🏆 विजेता: ${winner?.name || "खिलाड़ी"} (${winner?.score || 0} अंक)`}
         </p>
       </div>
 
-      <div className="p-4 space-y-5 flex-1">
-        {/* Podium Display */}
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-stone-200">
-          <div className="flex items-end justify-center gap-2 pt-8 pb-2">
+      <div className="p-4 space-y-4 flex-1">
+        {/* 3D Royal Podium Display */}
+        <div className="bg-white rounded-3xl p-4 sm:p-5 shadow-sm border border-amber-900/10">
+          <div className="flex items-end justify-center gap-2 pt-8 pb-1">
             {/* 2nd Place */}
             {second && (
               <div className="flex flex-col items-center flex-1 max-w-[100px]">
                 <div className="relative mb-1">
-                  <span className="text-2xl">{second.avatar}</span>
-                  <span className="absolute -top-2 -right-2 bg-stone-300 text-stone-800 text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center border border-white">
+                  <span className="text-3xl">{second.avatar}</span>
+                  <span className="absolute -top-2 -right-2 bg-stone-300 text-stone-800 text-[10px] font-extrabold rounded-full w-5 h-5 flex items-center justify-center border-2 border-white shadow">
                     2
                   </span>
                 </div>
-                <span className="text-xs font-bold text-stone-800 truncate w-full text-center">
+                <span className="text-xs font-extrabold text-stone-800 truncate w-full text-center">
                   {second.name}
                 </span>
-                <span className="text-xs font-semibold text-stone-500">
-                  {second.score}
+                <span className="text-[11px] font-bold text-stone-500">
+                  {second.score} अंक
                 </span>
-                <div className="w-full bg-stone-200 h-20 rounded-t-xl mt-2 flex items-center justify-center border border-stone-300 shadow-inner">
-                  <span className="text-base font-extrabold text-stone-600">
-                    🥈
+                <div className="w-full bg-gradient-to-t from-stone-400 to-stone-200 h-20 rounded-t-2xl mt-2 flex flex-col items-center justify-center border-t-2 border-white shadow-inner">
+                  <span className="text-xl">🥈</span>
+                  <span className="text-[9px] font-extrabold text-stone-700 uppercase tracking-wider">
+                    द्वितीय
                   </span>
                 </div>
               </div>
             )}
 
-            {/* 1st Place (Center, Tallest) */}
+            {/* 1st Place (Center, Champion) */}
             {first && (
-              <div className="flex flex-col items-center flex-1 max-w-[120px]">
+              <div className="flex flex-col items-center flex-1 max-w-[125px]">
                 <div className="relative mb-1">
-                  <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 text-amber-500 animate-bounce">
-                    <Crown className="w-6 h-6 fill-amber-400" />
+                  <div className="absolute -top-7 left-1/2 -translate-x-1/2 text-amber-500 animate-bounce">
+                    <Crown className="w-7 h-7 fill-amber-400 drop-shadow" />
                   </div>
-                  <span className="text-4xl p-2 rounded-full bg-amber-100 border-2 border-amber-400 inline-block shadow-md">
+                  <span className="text-4xl p-2 rounded-2xl bg-amber-100 border-2 border-amber-400 inline-block shadow-md ring-2 ring-amber-300/50">
                     {first.avatar}
                   </span>
-                  <span className="absolute -bottom-1 -right-1 bg-amber-400 text-stone-900 text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center border-2 border-white shadow">
+                  <span className="absolute -bottom-1 -right-1 bg-amber-400 text-stone-900 text-xs font-black rounded-full w-6 h-6 flex items-center justify-center border-2 border-white shadow">
                     1
                   </span>
                 </div>
-                <span className="text-sm font-extrabold text-stone-900 truncate w-full text-center mt-1">
+                <span className="text-xs sm:text-sm font-black text-stone-900 truncate w-full text-center mt-1">
                   {first.name}
                 </span>
-                <span className="text-xs font-bold text-[#800020]">
+                <span className="text-xs font-black text-[#800020]">
                   {first.score} अंक
                 </span>
-                <div className="w-full bg-gradient-to-t from-amber-400 to-amber-300 h-28 rounded-t-xl mt-2 flex items-center justify-center border border-amber-400 shadow-md">
-                  <span className="text-2xl font-black text-amber-900">
-                    👑 🥇
+                <div className="w-full bg-gradient-to-t from-amber-500 via-amber-400 to-amber-300 h-28 rounded-t-2xl mt-2 flex flex-col items-center justify-center border-t-2 border-amber-200 shadow-md">
+                  <span className="text-2xl drop-shadow">👑 🥇</span>
+                  <span className="text-[10px] font-black text-amber-950 uppercase tracking-wider">
+                    प्रथम विजेता
                   </span>
                 </div>
               </div>
@@ -168,20 +172,21 @@ export const BattlePodiumView: React.FC<BattlePodiumViewProps> = ({
             {third && (
               <div className="flex flex-col items-center flex-1 max-w-[100px]">
                 <div className="relative mb-1">
-                  <span className="text-2xl">{third.avatar}</span>
-                  <span className="absolute -top-2 -right-2 bg-amber-700 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center border border-white">
+                  <span className="text-3xl">{third.avatar}</span>
+                  <span className="absolute -top-2 -right-2 bg-amber-700 text-white text-[10px] font-extrabold rounded-full w-5 h-5 flex items-center justify-center border-2 border-white shadow">
                     3
                   </span>
                 </div>
-                <span className="text-xs font-bold text-stone-800 truncate w-full text-center">
+                <span className="text-xs font-extrabold text-stone-800 truncate w-full text-center">
                   {third.name}
                 </span>
-                <span className="text-xs font-semibold text-stone-500">
-                  {third.score}
+                <span className="text-[11px] font-bold text-stone-500">
+                  {third.score} अंक
                 </span>
-                <div className="w-full bg-amber-100 h-14 rounded-t-xl mt-2 flex items-center justify-center border border-amber-200 shadow-inner">
-                  <span className="text-base font-extrabold text-amber-800">
-                    🥉
+                <div className="w-full bg-gradient-to-t from-amber-800 to-amber-600 h-16 rounded-t-2xl mt-2 flex flex-col items-center justify-center border-t-2 border-amber-400 shadow-inner">
+                  <span className="text-xl">🥉</span>
+                  <span className="text-[9px] font-extrabold text-amber-100 uppercase tracking-wider">
+                    तृतीय
                   </span>
                 </div>
               </div>
@@ -189,10 +194,59 @@ export const BattlePodiumView: React.FC<BattlePodiumViewProps> = ({
           </div>
         </div>
 
+        {/* User's Match Performance Highlights */}
+        {(() => {
+          const myPlayer = rankedPlayers.find((p) => p.id === myPlayerId);
+          const myRank = rankedPlayers.findIndex((p) => p.id === myPlayerId) + 1;
+          const accuracy = Math.round(
+            ((myPlayer?.correctCount || 0) / totalQuestions) * 100
+          );
+
+          return (
+            <div className="bg-gradient-to-r from-amber-50 via-white to-amber-50 rounded-3xl p-4 border-2 border-amber-300/80 shadow-xs">
+              <h3 className="text-xs font-bold text-stone-600 uppercase tracking-wider mb-2.5 flex items-center justify-between">
+                <span>आपका प्रदर्शन कार्ड</span>
+                <span className="text-xs font-extrabold text-[#800020] bg-amber-200/80 px-2 py-0.5 rounded-full">
+                  रैंक #{myRank} / {rankedPlayers.length}
+                </span>
+              </h3>
+
+              <div className="grid grid-cols-3 gap-2 text-center">
+                <div className="bg-white p-2.5 rounded-2xl border border-stone-200 shadow-xs">
+                  <span className="block text-base sm:text-lg font-black text-[#800020]">
+                    {myPlayer?.score || 0}
+                  </span>
+                  <span className="text-[10px] text-stone-500 font-bold uppercase">
+                    कुल अंक
+                  </span>
+                </div>
+
+                <div className="bg-white p-2.5 rounded-2xl border border-stone-200 shadow-xs">
+                  <span className="block text-base sm:text-lg font-black text-emerald-700">
+                    {myPlayer?.correctCount || 0}/{totalQuestions}
+                  </span>
+                  <span className="text-[10px] text-stone-500 font-bold uppercase">
+                    सही ({accuracy}%)
+                  </span>
+                </div>
+
+                <div className="bg-white p-2.5 rounded-2xl border border-stone-200 shadow-xs">
+                  <span className="block text-base sm:text-lg font-black text-orange-600">
+                    🔥 {myPlayer?.streak || 0}
+                  </span>
+                  <span className="text-[10px] text-stone-500 font-bold uppercase">
+                    मैक्स स्ट्रीक
+                  </span>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
+
         {/* Detailed Leaderboard Table */}
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-stone-200">
+        <div className="bg-white rounded-3xl p-4 shadow-sm border border-stone-200">
           <h3 className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-3">
-            विस्तृत स्कोरकार्ड
+            पूर्ण स्कोरकार्ड ({rankedPlayers.length} खिलाड़ी)
           </h3>
 
           <div className="space-y-2">
@@ -205,24 +259,24 @@ export const BattlePodiumView: React.FC<BattlePodiumViewProps> = ({
               return (
                 <div
                   key={player.id}
-                  className={`flex items-center justify-between p-3 rounded-xl border transition ${
+                  className={`flex items-center justify-between p-3 rounded-2xl border transition ${
                     isMe
-                      ? "bg-amber-50/80 border-amber-300 shadow-xs"
+                      ? "bg-amber-50/80 border-amber-300 ring-1 ring-amber-400/50 shadow-xs"
                       : "bg-stone-50 border-stone-200"
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <span className="w-6 text-center font-bold text-stone-500 text-sm">
-                      #{idx + 1}
+                    <span className="w-6 text-center font-black text-stone-500 text-sm">
+                      {idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : `#${idx + 1}`}
                     </span>
                     <span className="text-2xl">{player.avatar}</span>
                     <div>
                       <div className="flex items-center gap-1.5">
-                        <span className="font-bold text-sm text-stone-800">
+                        <span className="font-extrabold text-sm text-stone-800">
                           {player.name}
                         </span>
                         {isMe && (
-                          <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-[#800020] text-white">
+                          <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-[#800020] text-white">
                             आप
                           </span>
                         )}
@@ -243,10 +297,10 @@ export const BattlePodiumView: React.FC<BattlePodiumViewProps> = ({
                   </div>
 
                   <div className="text-right">
-                    <span className="text-base font-extrabold text-[#800020]">
+                    <span className="text-base font-black text-[#800020]">
                       {player.score}
                     </span>
-                    <span className="block text-[10px] text-stone-500 font-medium">
+                    <span className="block text-[10px] text-stone-500 font-bold uppercase">
                       अंक
                     </span>
                   </div>
@@ -260,7 +314,7 @@ export const BattlePodiumView: React.FC<BattlePodiumViewProps> = ({
         <div className="space-y-2.5 pt-2">
           <button
             onClick={onRematch}
-            className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl bg-[#800020] hover:bg-[#68001a] text-white font-bold text-sm shadow-md active:scale-98 transition"
+            className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl bg-gradient-to-r from-[#800020] via-[#A00028] to-[#800020] text-white font-extrabold text-sm shadow-md active:scale-98 transition border border-amber-400/40 hover:brightness-110"
           >
             <RotateCcw className="w-4 h-4" />
             <span>पुनः मुकाबला खेलें (Rematch)</span>
@@ -268,7 +322,7 @@ export const BattlePodiumView: React.FC<BattlePodiumViewProps> = ({
 
           <button
             onClick={handleShareResult}
-            className="w-full flex items-center justify-center gap-2 py-3 px-6 rounded-2xl bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold text-sm shadow-sm active:scale-98 transition"
+            className="w-full flex items-center justify-center gap-2 py-3 px-6 rounded-2xl bg-gradient-to-r from-[#25D366] to-[#1da851] text-white font-extrabold text-sm shadow-sm active:scale-98 transition border border-emerald-400/40 hover:brightness-105"
           >
             <Share2 className="w-4 h-4" />
             <span>परिणाम WhatsApp पर साझा करें</span>

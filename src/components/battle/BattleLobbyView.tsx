@@ -16,6 +16,8 @@ import {
   Search,
   Globe,
   Sliders,
+  Swords,
+  Zap,
 } from "lucide-react";
 import type {
   BattlePlayer,
@@ -109,48 +111,54 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
   const readyCount = players.filter((p) => p.isHost || p.isReady || p.isBot).length;
 
   return (
-    <div className="flex flex-col h-full bg-[#FFF9EF] text-stone-900 select-none">
-      {/* Top Header */}
-      <div className="flex items-center justify-between px-4 py-3 bg-[#800020] text-white shadow-md">
+    <div className="flex flex-col h-full bg-[#FFFDF9] text-stone-900 select-none overflow-hidden">
+      {/* Top Royal Header */}
+      <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-[#5E0017] via-[#800020] to-[#5E0017] text-white shadow-md border-b border-amber-400/20">
         <button
           onClick={onLeaveRoom}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 active:scale-95 transition text-sm font-medium"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 transition text-xs font-bold border border-white/10"
         >
-          <ArrowLeft className="w-4 h-4" />
-          <span>छोड़ें</span>
+          <ArrowLeft className="w-4 h-4 text-amber-300" />
+          <span>कमरा छोड़ें</span>
         </button>
 
         <div className="flex items-center gap-2">
-          <Users className="w-5 h-5 text-amber-300" />
-          <h2 className="text-base font-bold tracking-wide">
-            लाइव मुकाबला लॉबी
+          <div className="p-1 rounded-lg bg-amber-400/20 text-amber-300">
+            <Swords className="w-4 h-4" />
+          </div>
+          <h2 className="text-sm sm:text-base font-extrabold tracking-wide">
+            रणभूमि लॉबी
           </h2>
         </div>
 
-        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/15 text-xs font-semibold">
-          <Globe className="w-3.5 h-3.5 text-amber-300" />
-          <span>{players.length} जुड़े हैं</span>
+        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs font-bold">
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping inline-block" />
+          <span>{players.length} लाइव</span>
         </div>
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
-        {/* Room Code & WhatsApp Share Card (Unlimited Users Invitation) */}
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-amber-200/70 text-center relative overflow-hidden">
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 via-[#800020] to-amber-400" />
-          
-          <div className="flex items-center justify-center gap-1.5 text-xs font-extrabold text-[#800020] uppercase tracking-wider mb-1">
-            <Globe className="w-3.5 h-3.5" />
+        {/* Room Code & WhatsApp Share Card (Royal Battle Pass Card) */}
+        <div className="relative bg-gradient-to-b from-amber-50/90 via-white to-amber-50/60 rounded-3xl p-4 sm:p-5 shadow-sm border-2 border-amber-300/80 overflow-hidden text-center">
+          {/* Top Gold Ribbon Sheen */}
+          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-amber-300 via-amber-500 to-amber-300" />
+
+          <div className="flex items-center justify-center gap-1.5 text-xs font-extrabold text-[#800020] uppercase tracking-wider mb-2">
+            <Globe className="w-3.5 h-3.5 text-amber-600" />
             <span>असीमित मित्र जुड़ सकते हैं (Open Link)</span>
           </div>
 
           <div className="flex items-center justify-center gap-3 my-2">
-            <span className="text-3xl font-extrabold tracking-widest font-mono text-[#800020] bg-amber-50 px-4 py-1.5 rounded-xl border border-amber-200 shadow-inner">
-              {roomConfig.roomCode}
-            </span>
+            <div className="relative px-5 py-2 rounded-2xl bg-white border-2 border-amber-400 shadow-md">
+              <span className="text-3xl sm:text-4xl font-extrabold tracking-widest font-mono text-[#800020] drop-shadow-xs">
+                {roomConfig.roomCode}
+              </span>
+            </div>
+
             <button
               onClick={handleCopyCode}
               title="कोड कॉपी करें"
-              className="p-2.5 rounded-xl bg-stone-100 hover:bg-amber-100 text-stone-700 active:scale-90 transition border border-stone-200"
+              className="p-3 rounded-2xl bg-amber-100 hover:bg-amber-200 text-[#800020] active:scale-90 transition border border-amber-300 shadow-xs flex items-center justify-center"
             >
               {copied ? (
                 <Check className="w-5 h-5 text-emerald-600" />
@@ -160,13 +168,19 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
             </button>
           </div>
 
-          <p className="text-xs text-stone-600 mb-3">
-            यह लिंक या 6-अंकों का कोड जिसके पास भी होगा, वो सभी तुरंत शामिल हो सकते हैं।
-          </p>
+          {copied ? (
+            <p className="text-center text-xs font-bold text-emerald-700 animate-in fade-in my-1">
+              कमरा कोड क्लिपबोर्ड पर कॉपी हो गया! ✓
+            </p>
+          ) : (
+            <p className="text-xs text-stone-600 my-1">
+              यह कोड या लिंक जिसके पास भी है, वो सीधे आपके मुकाबले में जुड़ सकता है।
+            </p>
+          )}
 
           <button
             onClick={handleWhatsAppShare}
-            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold text-sm shadow-sm active:scale-95 transition"
+            className="w-full mt-2.5 flex items-center justify-center gap-2 py-3 px-4 rounded-2xl bg-gradient-to-r from-[#25D366] to-[#1da851] text-white font-extrabold text-sm shadow-md shadow-emerald-500/20 active:scale-98 transition border border-emerald-400/40 hover:brightness-105"
           >
             <Share2 className="w-4 h-4" />
             <span>व्हाट्सएप ग्रुप या मित्रों को लिंक भेजें</span>
@@ -174,20 +188,20 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
         </div>
 
         {/* Room Settings (Host Editable, Non-host Readonly) */}
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-stone-200 space-y-3.5">
-          <h3 className="text-sm font-bold text-stone-800 flex items-center justify-between">
-            <div className="flex items-center gap-1.5">
-              <Sliders className="w-4 h-4 text-[#800020]" />
-              <span>मुकाबला सेटिंग्स</span>
-            </div>
+        <div className="bg-white rounded-3xl p-4 shadow-sm border border-stone-200/90 space-y-3.5">
+          <div className="flex items-center justify-between border-b border-stone-100 pb-2.5">
+            <h3 className="text-xs font-bold text-stone-800 flex items-center gap-1.5 uppercase tracking-wider">
+              <Sliders className="w-3.5 h-3.5 text-[#800020]" />
+              <span>मुकाबला नियम व सेटिंग्स</span>
+            </h3>
             {!isHost && (
-              <span className="text-xs font-normal text-stone-500">
-                (होस्ट द्वारा निर्धारित)
+              <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200/60">
+                होस्ट द्वारा निर्धारित
               </span>
             )}
-          </h3>
+          </div>
 
-          {/* 1. Question Source Selector (Curated vs Custom vs Chapter vs Manual) */}
+          {/* Question Source */}
           <div>
             <label className="block text-xs font-bold text-stone-700 mb-1.5">
               प्रश्न चयन का प्रकार (Question Source)
@@ -204,7 +218,7 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
                   }`}
                 >
                   <span className="block font-bold">🎯 राजस्थान GK बैंक</span>
-                  <span className="text-[10px] text-stone-500">तैयार उच्च-स्तरीय प्रश्न</span>
+                  <span className="text-[10px] text-stone-500">40+ प्रामाणिक प्रश्न</span>
                 </button>
 
                 <button
@@ -220,7 +234,7 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
                   <span className="text-[10px] text-stone-500">
                     {customQuestions.length > 0
                       ? `${customQuestions.length} प्रश्न उपलब्ध`
-                      : "कस्टम प्रश्न जोड़ें"}
+                      : "कस्टम प्रश्न"}
                   </span>
                 </button>
 
@@ -234,7 +248,7 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
                   }`}
                 >
                   <span className="block font-bold">📚 अध्याय अनुसार</span>
-                  <span className="text-[10px] text-stone-500">विशिष्ट अध्याय के प्रश्न</span>
+                  <span className="text-[10px] text-stone-500">विशिष्ट अध्याय</span>
                 </button>
 
                 <button
@@ -250,30 +264,30 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
                   }`}
                 >
                   <span className="block font-bold flex items-center justify-between">
-                    <span>✏️ प्रश्न स्वयं चुनें</span>
+                    <span>✏️ हाथ से चुनें</span>
                     <Edit3 className="w-3 h-3 text-[#800020]" />
                   </span>
                   <span className="text-[10px] text-stone-500">
-                    {roomConfig.selectedQuestionIds?.length || 0} प्रश्न चुने गए
+                    {roomConfig.selectedQuestionIds?.length || 0} प्रश्न चुने
                   </span>
                 </button>
               </div>
             ) : (
-              <div className="text-xs font-bold text-stone-800 bg-stone-50 p-2.5 rounded-xl border border-stone-200">
+              <div className="text-xs font-bold text-stone-800 bg-amber-50/50 p-2.5 rounded-xl border border-amber-200/80">
                 {roomConfig.questionSource === "custom_bank"
                   ? "📝 मेरे कस्टम प्रश्न बैंक से"
                   : roomConfig.questionSource === "chapter"
                   ? `📚 अध्याय: ${roomConfig.selectedChapterTitle || "निर्धारित अध्याय"}`
                   : roomConfig.questionSource === "manual_pick"
                   ? `✏️ होस्ट द्वारा चुने गए ${roomConfig.selectedQuestionIds?.length || 0} विशिष्ट प्रश्न`
-                  : "🎯 राजस्थान GK बैंक (तैयार प्रश्न)"}
+                  : "🎯 राजस्थान GK बैंक (प्रामाणिक प्रश्न)"}
               </div>
             )}
           </div>
 
           {/* Sub-option: Chapter selector if source is "chapter" */}
           {roomConfig.questionSource === "chapter" && isHost && (
-            <div className="bg-amber-50/70 p-3 rounded-xl border border-amber-200/80">
+            <div className="bg-amber-50/70 p-3 rounded-2xl border border-amber-200/80">
               <label className="block text-xs font-bold text-amber-950 mb-1">
                 अध्याय चुनें (Select Chapter)
               </label>
@@ -287,7 +301,7 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
                       selectedChapterTitle: ch?.title || "",
                     });
                   }}
-                  className="w-full text-xs font-semibold bg-white border border-amber-300 rounded-lg p-2 text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#800020]"
+                  className="w-full text-xs font-semibold bg-white border border-amber-300 rounded-xl p-2.5 text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#800020]"
                 >
                   <option value="">-- अध्याय चुनें --</option>
                   {availableChapters.map((ch) => (
@@ -306,7 +320,7 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
 
           {/* Sub-option: Manual Pick Button if source is "manual_pick" */}
           {roomConfig.questionSource === "manual_pick" && isHost && (
-            <div className="bg-amber-50/70 p-3 rounded-xl border border-amber-200/80 flex items-center justify-between">
+            <div className="bg-amber-50/70 p-3 rounded-2xl border border-amber-200/80 flex items-center justify-between">
               <div>
                 <p className="text-xs font-bold text-stone-800">
                   {roomConfig.selectedQuestionIds?.length || 0} प्रश्न चुने गए हैं
@@ -318,7 +332,7 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
               <button
                 type="button"
                 onClick={() => setIsQuestionPickerOpen(true)}
-                className="px-3 py-1.5 rounded-lg bg-[#800020] text-white text-xs font-bold shadow-xs active:scale-95 transition"
+                className="px-3 py-1.5 rounded-xl bg-[#800020] text-white text-xs font-bold shadow-xs active:scale-95 transition"
               >
                 प्रश्न सूची खोलें
               </button>
@@ -337,7 +351,7 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
                   onChange={(e) =>
                     onUpdateConfig({ category: e.target.value as BattleCategory })
                   }
-                  className="w-full text-sm font-medium bg-stone-50 border border-stone-300 rounded-xl px-3 py-2 text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#800020]"
+                  className="w-full text-sm font-semibold bg-stone-50 border border-stone-300 rounded-xl px-3 py-2 text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#800020]"
                 >
                   {Object.entries(CATEGORY_LABELS).map(([catKey, { label, icon }]) => (
                     <option key={catKey} value={catKey}>
@@ -356,13 +370,13 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
 
           {/* Time Per Question (Default 10s) & Question Count */}
           <div className="grid grid-cols-2 gap-3 pt-1">
-            <div>
-              <label className="block text-xs font-bold text-stone-700 mb-1 flex items-center gap-1">
-                <Clock className="w-3.5 h-3.5 text-[#800020]" />
+            <div className="bg-stone-50 p-2.5 rounded-2xl border border-stone-200/70">
+              <label className="block text-[11px] font-bold text-stone-600 mb-1 flex items-center gap-1 uppercase tracking-wider">
+                <Clock className="w-3 h-3 text-[#800020]" />
                 <span>प्रति प्रश्न समय</span>
               </label>
               {isHost ? (
-                <div className="flex gap-1.5">
+                <div className="flex gap-1">
                   {[10, 15, 20].map((sec) => (
                     <button
                       key={sec}
@@ -371,7 +385,7 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
                       className={`flex-1 py-1.5 text-xs font-bold rounded-lg border transition ${
                         (roomConfig.timePerQuestionSec || 10) === sec
                           ? "bg-[#800020] text-white border-[#800020] shadow-xs"
-                          : "bg-stone-50 text-stone-700 border-stone-200 hover:bg-stone-100"
+                          : "bg-white text-stone-700 border-stone-200 hover:bg-stone-100"
                       }`}
                     >
                       {sec}s {sec === 10 && "⚡"}
@@ -379,18 +393,18 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
                   ))}
                 </div>
               ) : (
-                <div className="text-sm font-bold text-stone-800 bg-stone-50 px-3 py-1.5 rounded-lg border border-stone-200">
-                  {roomConfig.timePerQuestionSec || 10} सेकंड
+                <div className="text-xs font-bold text-stone-800 bg-white px-2.5 py-1.5 rounded-lg border border-stone-200">
+                  {roomConfig.timePerQuestionSec || 10} सेकंड (स्पीड मोड)
                 </div>
               )}
             </div>
 
-            <div>
-              <label className="block text-xs font-bold text-stone-700 mb-1">
+            <div className="bg-stone-50 p-2.5 rounded-2xl border border-stone-200/70">
+              <label className="block text-[11px] font-bold text-stone-600 mb-1 uppercase tracking-wider">
                 कुल प्रश्न
               </label>
               {isHost ? (
-                <div className="flex gap-1.5">
+                <div className="flex gap-1">
                   {[5, 10, 15].map((cnt) => (
                     <button
                       key={cnt}
@@ -399,7 +413,7 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
                       className={`flex-1 py-1.5 text-xs font-bold rounded-lg border transition ${
                         roomConfig.questionCount === cnt
                           ? "bg-[#800020] text-white border-[#800020] shadow-xs"
-                          : "bg-stone-50 text-stone-700 border-stone-200 hover:bg-stone-100"
+                          : "bg-white text-stone-700 border-stone-200 hover:bg-stone-100"
                       }`}
                     >
                       {cnt}
@@ -407,7 +421,7 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
                   ))}
                 </div>
               ) : (
-                <div className="text-sm font-bold text-stone-800 bg-stone-50 px-3 py-1.5 rounded-lg border border-stone-200">
+                <div className="text-xs font-bold text-stone-800 bg-white px-2.5 py-1.5 rounded-lg border border-stone-200">
                   {roomConfig.questionCount} प्रश्न
                 </div>
               )}
@@ -416,11 +430,11 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
         </div>
 
         {/* Players List Card (Optimized for 2 to 100+ players) */}
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-stone-200">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-bold text-stone-800 flex items-center gap-1.5">
+        <div className="bg-white rounded-3xl p-4 shadow-sm border border-stone-200/90">
+          <div className="flex items-center justify-between mb-2.5">
+            <h3 className="text-xs font-bold text-stone-800 flex items-center gap-1.5 uppercase tracking-wider">
               <span>खिलाड़ी सूची</span>
-              <span className="text-xs font-bold text-[#800020] bg-amber-100 px-2 py-0.5 rounded-full">
+              <span className="text-[10px] font-bold text-[#800020] bg-amber-100 px-2 py-0.5 rounded-full">
                 {players.length} जुड़े
               </span>
             </h3>
@@ -428,10 +442,10 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
             {isHost && (
               <button
                 onClick={onAddBot}
-                className="flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg bg-amber-500 text-white hover:bg-amber-600 active:scale-95 transition shadow-xs"
+                className="flex items-center gap-1 text-xs font-bold px-3 py-1 rounded-xl bg-amber-500 hover:bg-amber-600 text-stone-950 active:scale-95 transition shadow-xs border border-amber-300"
               >
                 <Bot className="w-3.5 h-3.5" />
-                <span>+ बॉट जोड़ें</span>
+                <span>+ AI बॉट जोड़ें</span>
               </button>
             )}
           </div>
@@ -445,7 +459,7 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
                 value={playerSearch}
                 onChange={(e) => setPlayerSearch(e.target.value)}
                 placeholder="खिलाड़ी खोजें..."
-                className="w-full pl-8 pr-3 py-1.5 text-xs bg-stone-50 border border-stone-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#800020]"
+                className="w-full pl-8 pr-3 py-1.5 text-xs bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-[#800020]"
               />
             </div>
           )}
@@ -456,18 +470,18 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
               return (
                 <div
                   key={player.id}
-                  className={`flex items-center justify-between p-2.5 rounded-xl border transition ${
+                  className={`flex items-center justify-between p-2.5 rounded-2xl border transition ${
                     isMe
-                      ? "bg-amber-50/70 border-amber-300"
+                      ? "bg-amber-50/70 border-amber-300 ring-1 ring-amber-400/40"
                       : "bg-stone-50 border-stone-200/80"
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
-                    <div className="relative text-2xl w-9 h-9 rounded-full bg-white shadow-xs border border-stone-200 flex items-center justify-center shrink-0">
+                    <div className="relative text-2xl w-10 h-10 rounded-2xl bg-white shadow-xs border border-stone-200 flex items-center justify-center shrink-0">
                       <span>{player.avatar}</span>
                       {player.isHost && (
                         <div
-                          className="absolute -top-1 -right-1 bg-amber-400 text-stone-900 rounded-full p-0.5 shadow"
+                          className="absolute -top-1.5 -right-1.5 bg-amber-400 text-stone-900 rounded-full p-0.5 shadow"
                           title="होस्ट"
                         >
                           <Crown className="w-3 h-3" />
@@ -477,16 +491,16 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
 
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5">
-                        <span className="font-bold text-xs sm:text-sm text-stone-800 truncate">
+                        <span className="font-extrabold text-xs sm:text-sm text-stone-800 truncate">
                           {player.name}
                         </span>
                         {isMe && (
-                          <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-[#800020] text-white">
+                          <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-[#800020] text-white">
                             आप
                           </span>
                         )}
                         {player.isBot && (
-                          <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-blue-100 text-blue-800">
+                          <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-blue-100 text-blue-800 border border-blue-200">
                             AI
                           </span>
                         )}
@@ -496,16 +510,16 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
 
                   <div>
                     {player.isHost ? (
-                      <span className="text-[11px] font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">
+                      <span className="text-[11px] font-bold text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-full border border-amber-200">
                         होस्ट 👑
                       </span>
                     ) : player.isReady || player.isBot ? (
-                      <span className="flex items-center gap-0.5 text-[11px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
-                        <Check className="w-3 h-3" />
+                      <span className="flex items-center gap-1 text-[11px] font-bold text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                        <Check className="w-3 h-3 text-emerald-700" />
                         <span>तैयार</span>
                       </span>
                     ) : (
-                      <span className="text-[11px] font-medium text-stone-500 bg-stone-200 px-2 py-0.5 rounded-full">
+                      <span className="text-[11px] font-medium text-stone-500 bg-stone-200 px-2.5 py-0.5 rounded-full">
                         प्रतीक्षारत
                       </span>
                     )}
@@ -516,19 +530,19 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
           </div>
 
           {players.length === 1 && (
-            <div className="mt-2.5 p-2.5 bg-amber-50 rounded-xl border border-amber-200/80 text-center">
+            <div className="mt-3 p-3 bg-amber-50 rounded-2xl border border-amber-200/80 text-center">
               <p className="text-xs text-amber-900 font-medium">
-                💡 साथी खिलाड़ी लिंक के जरिए कभी भी जुड़ सकते हैं। आप अभी ऊपर <b>+ बॉट जोड़ें</b> दबाकर तुरंत खेल सकते हैं!
+                💡 साथी खिलाड़ी लिंक के जरिए कभी भी जुड़ सकते हैं। आप अभी ऊपर <b>+ AI बॉट जोड़ें</b> दबाकर तुरंत अभ्यास खेल सकते हैं!
               </p>
             </div>
           )}
         </div>
 
         {/* Floating Emoji Reactions Bar */}
-        <div className="bg-white rounded-2xl p-3 shadow-sm border border-stone-200 flex items-center justify-between">
+        <div className="bg-white rounded-2xl p-2.5 shadow-sm border border-stone-200/80 flex items-center justify-between">
           <span className="text-xs font-bold text-stone-500 flex items-center gap-1">
             <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-            <span>रिएक्शन भेजें:</span>
+            <span>रिएक्शन:</span>
           </span>
           <div className="flex items-center gap-1.5">
             {QUICK_EMOJIS.map((emoji) => (
@@ -538,7 +552,7 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
                   triggerHaptic("light");
                   onSendEmoji(emoji);
                 }}
-                className="w-8 h-8 flex items-center justify-center text-lg rounded-full bg-stone-100 hover:bg-amber-100 active:scale-125 transition"
+                className="w-8 h-8 flex items-center justify-center text-lg rounded-xl bg-stone-100 hover:bg-amber-100 active:scale-125 transition"
               >
                 {emoji}
               </button>
@@ -547,16 +561,16 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
         </div>
       </div>
 
-      {/* Action Footer */}
-      <div className="p-4 bg-white border-t border-stone-200 shadow-lg">
+      {/* Sticky Action Footer */}
+      <div className="p-4 bg-white border-t border-stone-200 shadow-xl">
         {isHost ? (
           <div>
             <button
               onClick={onStartGame}
               disabled={!canStart}
-              className={`w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl font-bold text-base shadow-md active:scale-98 transition ${
+              className={`w-full flex items-center justify-center gap-2 py-4 px-6 rounded-2xl font-extrabold text-base shadow-lg active:scale-98 transition ${
                 canStart
-                  ? "bg-gradient-to-r from-[#800020] to-[#a31535] text-white hover:brightness-110"
+                  ? "bg-gradient-to-r from-[#800020] via-[#A00028] to-[#800020] text-white hover:brightness-110 shadow-[#800020]/30 border border-amber-400/40"
                   : "bg-stone-200 text-stone-400 cursor-not-allowed"
               }`}
             >
@@ -565,7 +579,7 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
             </button>
             {!canStart ? (
               <p className="text-center text-xs text-stone-500 mt-2">
-                मुकाबला शुरू करने के लिए कम से कम 1 साथी जुड़ने दें या + बॉट जोड़ें।
+                मुकाबला शुरू करने के लिए कम से कम 1 साथी जुड़ने दें या ऊपर + बॉट जोड़ें।
               </p>
             ) : (
               <p className="text-center text-[11px] text-stone-500 mt-1.5">
@@ -576,10 +590,10 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
         ) : (
           <button
             onClick={onToggleReady}
-            className={`w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl font-bold text-base shadow-md active:scale-98 transition ${
+            className={`w-full flex items-center justify-center gap-2 py-4 px-6 rounded-2xl font-extrabold text-base shadow-lg active:scale-98 transition ${
               myPlayer?.isReady
-                ? "bg-emerald-600 hover:bg-emerald-700 text-white"
-                : "bg-gradient-to-r from-amber-500 to-amber-600 hover:brightness-105 text-white"
+                ? "bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/30"
+                : "bg-gradient-to-r from-amber-500 to-amber-600 hover:brightness-105 text-white shadow-amber-500/30"
             }`}
           >
             {myPlayer?.isReady ? (
