@@ -10,25 +10,20 @@ import {
   X, 
   RotateCcw, 
   Settings2, 
-  ChevronDown, 
-  HelpCircle, 
-  CheckCircle2, 
   ArrowRight, 
-  BookOpen, 
   Key, 
   Loader2, 
-  Compass,
-  AlertCircle
 } from "lucide-react";
 import { Question } from "../types";
 import { 
   ChatMessage, 
   askDishaAITutor, 
   explainQuestionWithAI, 
-  getActiveAICredentials 
+  getActiveAICredentials,
+  formatFriendlyAIError 
 } from "../utils/aiTutorService";
-import { RichText } from "./RichText";
 import { AIMessageRenderer } from "./AIMessageRenderer";
+import { triggerHaptic } from "../utils/audioFeedback";
 
 interface DishaAITutorModalProps {
   isOpen: boolean;
@@ -40,11 +35,11 @@ interface DishaAITutorModalProps {
 }
 
 const QUICK_SUGGESTIONS = [
-  { label: "📅 30 दिन का स्टडी प्लान बनाओ", prompt: "मेरी प्रतियोगी परीक्षा 30 दिनों में है। कृपया मेरे लिए एक आदर्श दैनिक समय-सारणी (Daily Study Plan) तैयार करें।" },
-  { label: "🔍 राजस्थान के प्रमुख दुर्ग याद रखने की ट्रिक", prompt: "राजस्थान के यूनेस्को विश्व धरोहर में शामिल 6 प्रमुख दुर्गों को याद रखने की आसान ट्रिक बताओ।" },
-  { label: "📝 PYQ पेपर्स कैसे हल करें?", prompt: "प्रतियोगी परीक्षा में पिछले वर्षों के प्रश्न-पत्र (PYQs) हल करते समय किन बातों का ध्यान रखना चाहिए?", tab: "pyq" },
-  { label: "🎯 1857 की क्रांति के मुख्य केंद्र", prompt: "1857 की क्रांति के समय राजस्थान में कौन-सी 6 सैनिक छावनियां थीं और उनका क्या महत्व था?" },
-  { label: "⚡ नकारात्मक अंकन (Negative Marking) से कैसे बचें?", prompt: "परीक्षा में नेगेटिव मार्किंग से बचने और तुक्का न लगाने की वैज्ञानिक रणनीति क्या है?" }
+  { label: "📅 30 दिन का आदर्श स्टडी प्लान", prompt: "मेरी राजस्थान प्रतियोगी परीक्षा 30 दिनों में है। कृपया मेरे लिए एक आदर्श दैनिक समय-सारणी (Daily Study Plan) तैयार करें।" },
+  { label: "🔍 यूनेस्को राजस्थान के 6 दुर्ग याद रखने की ट्रिक", prompt: "राजस्थान के यूनेस्को विश्व धरोहर में शामिल 6 प्रमुख पहाड़ी दुर्गों (चीकू, गाजर, आम) को याद रखने की आसान ट्रिक और विवरण बताएं।" },
+  { label: "⚡ नेगेटिव मार्किंग (Negative Marking) से कैसे बचें?", prompt: "RPSC और RSMSSB परीक्षाओं में 1/3 नेगेटिव मार्किंग से बचने और तुक्का न लगाने की वैज्ञानिक रणनीति क्या है?" },
+  { label: "🎯 RPSC 5वां विकल्प (Option E) क्या है?", prompt: "RPSC के नए 5वें विकल्प (Option E) नियम और 10% खाली छोड़ने पर अयोग्य घोषित होने के नियम को विस्तार से समझाएं।" },
+  { label: "📝 1857 की क्रांति के 6 सैनिक छावनियां", prompt: "1857 की क्रांति के समय राजस्थान में कौन-सी 6 सैनिक छावनियां थीं और किसमें विद्रोह नहीं हुआ था?" }
 ];
 
 export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
@@ -96,15 +91,13 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
           setMessages((prev) => [...prev, aiMsg]);
         })
         .catch((err) => {
-          const isNoKey = err?.message === "NO_API_KEY";
+          const { message, isApiKeyIssue } = formatFriendlyAIError(err);
           const errorMsg: ChatMessage = {
             id: `ai_err_${Date.now()}`,
             role: "assistant",
-            content: isNoKey
-              ? "नमस्ते! इस प्रश्न की AI व्याख्या के लिए कृपया अपनी Google Gemini या OpenRouter API Key जोड़ें। यह 100% फ्री है और 1 मिनट में सेट हो जाती है।"
-              : `माफ़ कीजिए, व्याख्या प्राप्त करने में समस्या आई: ${err?.message || "नेटवर्क त्रुटि"}। कृपया पुनः प्रयास करें।`,
+            content: message,
             timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            suggestedAction: isNoKey ? { label: "⚙️ API Key जोड़ें", action: "open_settings" } : undefined,
+            suggestedAction: isApiKeyIssue ? { label: "⚙️ API Key जांचें / जोड़ें", action: "open_settings" } : undefined,
           };
           setMessages((prev) => [...prev, errorMsg]);
         })
@@ -145,6 +138,7 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
   }, []);
 
   const toggleSpeechRecognition = () => {
+    triggerHaptic("light");
     if (!recognitionRef.current) {
       alert("आपके ब्राउज़र में वॉइस इनपुट समर्थित नहीं है।");
       return;
@@ -164,6 +158,7 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
 
   // Text-to-Speech playback in Hindi
   const handleToggleSpeak = (msgId: string, text: string) => {
+    triggerHaptic("light");
     if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
 
     if (speakingId === msgId) {
@@ -188,6 +183,7 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
     const query = (textToSend || inputText).trim();
     if (!query || isLoading) return;
 
+    triggerHaptic("light");
     setInputText("");
     if (speakingId) {
       window.speechSynthesis.cancel();
@@ -216,15 +212,13 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
       };
       setMessages((prev) => [...prev, aiMsg]);
     } catch (err: any) {
-      const isNoKey = err?.message === "NO_API_KEY";
+      const { message, isApiKeyIssue } = formatFriendlyAIError(err);
       const errorMsg: ChatMessage = {
         id: `ai_err_${Date.now()}`,
         role: "assistant",
-        content: isNoKey
-          ? "नमस्ते! दिशा AI साथी से बात करने के लिए कृपया अपनी Google Gemini या OpenRouter API Key जोड़ें। यह 100% फ्री है और 1 मिनट में सेट हो जाती है।"
-          : `माफ़ कीजिए, उत्तर प्राप्त करने में समस्या आई: ${err?.message || "नेटवर्क त्रुटि"}। कृपया पुनः प्रयास करें।`,
+        content: message,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        suggestedAction: isNoKey ? { label: "⚙️ API Key जोड़ें", action: "open_settings" } : undefined,
+        suggestedAction: isApiKeyIssue ? { label: "⚙️ API Key जांचें / जोड़ें", action: "open_settings" } : undefined,
       };
       setMessages((prev) => [...prev, errorMsg]);
     } finally {
@@ -233,6 +227,7 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
   };
 
   const handleResetChat = () => {
+    triggerHaptic("light");
     if (speakingId) {
       window.speechSynthesis.cancel();
       setSpeakingId(null);
@@ -244,28 +239,30 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:justify-end sm:p-6 bg-black/40 backdrop-blur-xs animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:justify-end sm:p-6 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
       <div 
-        className="w-full sm:w-[460px] h-[90vh] sm:h-[680px] max-h-[92vh] bg-white dark:bg-slate-900 rounded-t-3xl sm:rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden animate-in slide-in-from-bottom-6 sm:slide-in-from-right-6 duration-300"
+        className="w-full sm:w-[480px] h-[92vh] sm:h-[700px] max-h-[94vh] bg-[#FFF9EF] dark:bg-[#171923] rounded-t-3xl sm:rounded-3xl shadow-2xl border border-[#E8D9C0] dark:border-[#C99A45]/30 flex flex-col overflow-hidden animate-in slide-in-from-bottom-6 sm:slide-in-from-right-6 duration-300"
       >
         {/* Header */}
-        <div className="px-4 py-3.5 bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-700 text-white flex items-center justify-between shadow-xs shrink-0">
+        <div className="px-4 py-3.5 bg-gradient-to-r from-[#800020] via-[#5E0017] to-[#800020] text-white flex items-center justify-between shadow-xs shrink-0 border-b border-[#C99A45]/30 relative overflow-hidden">
+          <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-[#C99A45] via-[#F47B20] to-[#C99A45]" />
+          
           <div className="flex items-center gap-3">
             <div className="relative">
-              <div className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white shadow-xs">
-                <Bot className="w-5 h-5 text-indigo-100" />
+              <div className="w-10 h-10 rounded-2xl bg-white/10 backdrop-blur-md border border-[#C99A45]/40 flex items-center justify-center text-white shadow-xs">
+                <Bot className="w-5 h-5 text-[#C99A45]" />
               </div>
-              <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-400 border-2 border-indigo-700 rounded-full animate-pulse" />
+              <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-400 border-2 border-[#800020] rounded-full animate-pulse" />
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <h3 className="font-bold text-sm tracking-tight text-white flex items-center gap-1">
+                <h3 className="font-black text-sm tracking-tight text-white flex items-center gap-1">
                   <span>दिशा AI साथी</span>
-                  <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                  <Sparkles className="w-3.5 h-3.5 text-[#C99A45]" />
                 </h3>
               </div>
-              <p className="text-[11px] text-indigo-100/90 font-medium">
-                24×7 प्रतियोगी परीक्षा डिजिटल गुरुजी
+              <p className="text-[11px] text-[#E8D9C0] font-bold">
+                24×7 राजस्थान प्रतियोगी परीक्षा डिजिटल गुरुजी
               </p>
             </div>
           </div>
@@ -274,21 +271,27 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
             <button
               onClick={handleResetChat}
               title="चैट रीसेट करें"
-              className="p-1.5 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+              className="p-1.5 rounded-xl text-white/80 hover:text-white hover:bg-white/15 transition-colors cursor-pointer"
             >
               <RotateCcw className="w-4 h-4" />
             </button>
             <button
-              onClick={onOpenApiSettings}
+              onClick={() => {
+                triggerHaptic("light");
+                onOpenApiSettings();
+              }}
               title="AI सेटिंग्स व मॉडल्स"
-              className="p-1.5 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+              className="p-1.5 rounded-xl text-white/80 hover:text-white hover:bg-white/15 transition-colors cursor-pointer"
             >
               <Settings2 className="w-4 h-4" />
             </button>
             <button
-              onClick={onClose}
+              onClick={() => {
+                triggerHaptic("light");
+                onClose();
+              }}
               title="बंद करें"
-              className="p-1.5 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+              className="p-1.5 rounded-xl text-white/80 hover:text-white hover:bg-white/15 transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -297,14 +300,17 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
 
         {/* API Key Notice Bar if not configured */}
         {!credentials.configured && (
-          <div className="px-3.5 py-2 bg-amber-50 dark:bg-amber-950/40 border-b border-amber-200 dark:border-amber-800/50 flex items-center justify-between gap-2 shrink-0">
-            <div className="flex items-center gap-1.5 text-xs text-amber-800 dark:text-amber-200">
-              <Key className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-              <span className="text-[11px] font-medium">नि:शुल्क Gemini / OpenRouter API Key जोड़ें</span>
+          <div className="px-3.5 py-2 bg-[#FFF9EF] dark:bg-[#1F2330] border-b border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-between gap-2 shrink-0">
+            <div className="flex items-center gap-1.5 text-xs text-[#800020] dark:text-[#C99A45]">
+              <Key className="w-3.5 h-3.5 text-[#F47B20] shrink-0" />
+              <span className="text-[11px] font-bold">नि:शुल्क Gemini / OpenRouter API Key जोड़ें</span>
             </div>
             <button
-              onClick={onOpenApiSettings}
-              className="px-2 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded text-[10px] font-bold uppercase tracking-wider shrink-0 transition-colors"
+              onClick={() => {
+                triggerHaptic("light");
+                onOpenApiSettings();
+              }}
+              className="px-2.5 py-1 bg-gradient-to-r from-[#C99A45] to-[#B88934] text-slate-950 rounded-lg text-[10px] font-black uppercase tracking-wider shrink-0 transition-opacity hover:opacity-90 cursor-pointer shadow-2xs"
             >
               सेट करें
             </button>
@@ -312,34 +318,34 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
         )}
 
         {/* Chat Message Area */}
-        <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-slate-50/50 dark:bg-slate-950/30">
+        <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-white/70 dark:bg-[#171923]/95">
           {messages.length === 0 ? (
-            <div className="py-6 space-y-6 animate-in fade-in duration-300">
+            <div className="py-4 space-y-5 animate-in fade-in duration-300">
               {/* Welcome Card */}
-              <div className="p-4 rounded-2xl bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/20 border border-indigo-100 dark:border-indigo-900/50 space-y-2.5">
-                <div className="flex items-center gap-2 text-indigo-700 dark:text-indigo-400 font-bold text-xs">
-                  <Sparkles className="w-4 h-4" />
+              <div className="p-4 rounded-3xl bg-gradient-to-br from-[#FFF9EF] to-[#F7EFE2] dark:from-[#1F2330] dark:to-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] shadow-2xs space-y-2">
+                <div className="flex items-center gap-2 text-[#800020] dark:text-[#C99A45] font-black text-xs">
+                  <Sparkles className="w-4 h-4 text-[#F47B20]" />
                   <span>नमस्ते अभ्यर्थी! आपका स्वागत है</span>
                 </div>
-                <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                  मैं आपका <strong>दिशा AI मार्गदर्शक</strong> हूँ। मुझसे किसी भी विषय का सवाल, इतिहास/भूगोल के तथ्य, परीक्षा रणनीति या याद रखने की शॉर्ट ट्रिक पूछें!
+                <p className="text-xs text-slate-700 dark:text-[#CBD2E1] leading-relaxed font-medium">
+                  मैं आपका <strong>दिशा AI डिजिटल गुरुजी</strong> हूँ। मुझसे किसी भी परीक्षा (RAS, SI, CET, REET, Patwar), राजस्थान सामान्य ज्ञान, इतिहास, भूगोल, याद रखने की शॉर्ट ट्रिक या परीक्षा रणनीति के बारे में पूछें!
                 </p>
               </div>
 
               {/* Quick Suggestion Chips */}
               <div className="space-y-2">
-                <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block px-1">
-                  💡 त्वरित सवाल (Quick Questions):
+                <span className="text-[11px] font-black text-slate-500 dark:text-[#E8D9C0] uppercase tracking-wider block px-1">
+                  💡 त्वरित सवाल (Quick Suggestions):
                 </span>
-                <div className="flex flex-col gap-1.5">
+                <div className="flex flex-col gap-2">
                   {QUICK_SUGGESTIONS.map((item, idx) => (
                     <button
                       key={idx}
                       onClick={() => handleSendMessage(item.prompt)}
-                      className="text-left px-3.5 py-2.5 bg-white dark:bg-slate-800 hover:bg-indigo-50/70 dark:hover:bg-indigo-950/40 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 hover:border-indigo-200 dark:hover:border-indigo-800 transition-all flex items-center justify-between group shadow-2xs"
+                      className="text-left px-3.5 py-2.5 bg-white dark:bg-[#1F2330] hover:bg-[#FFF9EF] dark:hover:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] rounded-2xl text-xs font-bold text-slate-800 dark:text-[#FFF9EF] hover:border-[#800020] dark:hover:border-[#C99A45] transition-all flex items-center justify-between group shadow-2xs cursor-pointer"
                     >
-                      <span>{item.label}</span>
-                      <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 group-hover:translate-x-0.5 transition-all" />
+                      <span className="pr-2">{item.label}</span>
+                      <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#800020] dark:group-hover:text-[#C99A45] group-hover:translate-x-0.5 transition-all shrink-0" />
                     </button>
                   ))}
                 </div>
@@ -352,21 +358,22 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
                 className={`flex flex-col ${msg.role === "user" ? "items-end" : "items-start"}`}
               >
                 <div
-                  className={`max-w-[88%] rounded-2xl p-3.5 text-xs sm:text-sm leading-relaxed shadow-xs ${
+                  className={`max-w-[88%] rounded-3xl p-4 text-xs sm:text-sm leading-relaxed shadow-xs ${
                     msg.role === "user"
-                      ? "bg-gradient-to-r from-indigo-600 to-indigo-700 text-white rounded-br-xs"
-                      : "bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 rounded-bl-xs"
+                      ? "bg-gradient-to-r from-[#800020] via-[#5E0017] to-[#800020] text-white rounded-br-xs border border-[#C99A45]/30"
+                      : "bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] text-slate-900 dark:text-[#FFF9EF] rounded-bl-xs shadow-2xs"
                   }`}
                 >
                   {msg.role === "assistant" ? (
-                    <div className="space-y-2">
+                    <div className="space-y-2.5">
                       <AIMessageRenderer content={msg.content} />
 
                       {/* Action Button inside Assistant Bubble if needed */}
                       {msg.suggestedAction && (
-                        <div className="pt-2 border-t border-slate-100 dark:border-slate-700 mt-2">
+                        <div className="pt-2 border-t border-[#E8D9C0] dark:border-[#31374A] mt-2">
                           <button
                             onClick={() => {
+                              triggerHaptic("light");
                               if (msg.suggestedAction?.action === "open_settings") {
                                 onOpenApiSettings();
                               } else if (msg.suggestedAction?.tab && onNavigateTab) {
@@ -374,31 +381,31 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
                                 onClose();
                               }
                             }}
-                            className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-xs flex items-center gap-1.5 transition-all"
+                            className="px-3 py-1.5 bg-gradient-to-r from-[#800020] to-[#5E0017] text-white font-bold rounded-xl text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-xs border border-[#C99A45]/30"
                           >
                             <span>{msg.suggestedAction.label}</span>
-                            <ArrowRight className="w-3 h-3" />
+                            <ArrowRight className="w-3 h-3 text-[#C99A45]" />
                           </button>
                         </div>
                       )}
 
                       {/* Audio Read-Aloud Button */}
-                      <div className="flex items-center justify-between pt-1 border-t border-slate-100 dark:border-slate-700/60 text-[10px] text-slate-400">
+                      <div className="flex items-center justify-between pt-1.5 border-t border-[#E8D9C0]/60 dark:border-[#31374A]/60 text-[10px] text-slate-400">
                         <span>{msg.timestamp}</span>
                         <button
                           onClick={() => handleToggleSpeak(msg.id, msg.content)}
-                          className={`flex items-center gap-1 px-2 py-0.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors ${
-                            speakingId === msg.id ? "text-indigo-600 dark:text-indigo-400 font-bold" : ""
+                          className={`flex items-center gap-1 px-2.5 py-1 rounded-lg hover:bg-[#FFF9EF] dark:hover:bg-[#252A3A] transition-colors cursor-pointer ${
+                            speakingId === msg.id ? "text-[#800020] dark:text-[#C99A45] font-black" : "text-slate-500 dark:text-[#E8D9C0]"
                           }`}
                         >
                           {speakingId === msg.id ? (
                             <>
-                              <VolumeX className="w-3 h-3" />
+                              <VolumeX className="w-3.5 h-3.5" />
                               <span>रोकें</span>
                             </>
                           ) : (
                             <>
-                              <Volume2 className="w-3 h-3" />
+                              <Volume2 className="w-3.5 h-3.5" />
                               <span>🔊 सुनें</span>
                             </>
                           )}
@@ -408,7 +415,7 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
                   ) : (
                     <div>
                       <p className="whitespace-pre-wrap">{msg.content}</p>
-                      <span className="text-[10px] text-indigo-200 block text-right mt-1">
+                      <span className="text-[10px] text-[#E8D9C0] block text-right mt-1">
                         {msg.timestamp}
                       </span>
                     </div>
@@ -419,16 +426,18 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
           )}
 
           {isLoading && (
-            <div className="flex items-start gap-2 animate-in fade-in">
-              <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-950 border border-indigo-200 dark:border-indigo-800 flex items-center justify-center shrink-0">
-                <Bot className="w-4 h-4 text-indigo-600 dark:text-indigo-400 animate-pulse" />
+            <div className="flex items-start gap-2.5 animate-in fade-in">
+              <div className="w-8 h-8 rounded-xl bg-[#800020]/10 dark:bg-[#C99A45]/15 border border-[#800020]/20 dark:border-[#C99A45]/30 flex items-center justify-center shrink-0">
+                <Bot className="w-4 h-4 text-[#800020] dark:text-[#C99A45] animate-pulse" />
               </div>
-              <div className="p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl rounded-bl-xs shadow-xs space-y-1">
-                <div className="flex items-center gap-2 text-xs font-semibold text-indigo-600 dark:text-indigo-400">
+              <div className="p-3.5 bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-2xl rounded-bl-xs shadow-xs space-y-1">
+                <div className="flex items-center gap-2 text-xs font-black text-[#800020] dark:text-[#C99A45]">
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
                   <span>उत्तर तैयार किया जा रहा है...</span>
                 </div>
-                <p className="text-[11px] text-slate-400">अवधारणा और परीक्षा उपयोगी तथ्यों का विश्लेषण जारी है</p>
+                <p className="text-[11px] text-slate-500 dark:text-[#CBD2E1]">
+                  अवधारणा और परीक्षा उपयोगी तथ्यों का विश्लेषण जारी है
+                </p>
               </div>
             </div>
           )}
@@ -437,7 +446,7 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
         </div>
 
         {/* Bottom Input Box */}
-        <div className="p-3 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 shrink-0">
+        <div className="p-3 bg-white dark:bg-[#1F2330] border-t border-[#E8D9C0] dark:border-[#31374A] shrink-0">
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -449,10 +458,10 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
               type="button"
               onClick={toggleSpeechRecognition}
               title={isListening ? "माइक बंद करें" : "बोलकर पूछें (Voice Input)"}
-              className={`p-2.5 rounded-xl border transition-all ${
+              className={`p-2.5 rounded-xl border transition-all cursor-pointer ${
                 isListening
-                  ? "bg-rose-500 text-white border-rose-600 animate-pulse"
-                  : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700"
+                  ? "bg-rose-600 text-white border-rose-700 animate-pulse"
+                  : "bg-[#FFF9EF] dark:bg-[#252A3A] text-slate-700 dark:text-[#FFF9EF] border-[#E8D9C0] dark:border-[#31374A] hover:bg-[#F7EFE2] dark:hover:bg-[#31374A]"
               }`}
             >
               {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
@@ -464,15 +473,15 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
               onChange={(e) => setInputText(e.target.value)}
               placeholder={isListening ? "बोलिए, सुन रहा हूँ..." : "पूछें अपना सवाल या डाउट..."}
               disabled={isLoading}
-              className="flex-1 px-3.5 py-2.5 bg-slate-100 dark:bg-slate-800 border-none rounded-xl text-xs sm:text-sm font-medium text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500/30 focus:bg-white dark:focus:bg-slate-850 transition-all outline-hidden"
+              className="flex-1 px-4 py-2.5 bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] rounded-xl text-xs sm:text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#800020] dark:focus:ring-[#C99A45] transition-all"
             />
 
             <button
               type="submit"
               disabled={!inputText.trim() || isLoading}
-              className="p-2.5 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white rounded-xl shadow-xs disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-95 shrink-0"
+              className="p-2.5 bg-gradient-to-r from-[#800020] via-[#5E0017] to-[#800020] hover:opacity-95 text-white rounded-xl shadow-xs disabled:opacity-40 disabled:cursor-not-allowed border border-[#C99A45]/30 transition-all active:scale-95 shrink-0 cursor-pointer"
             >
-              <Send className="w-4 h-4" />
+              <Send className="w-4 h-4 text-[#C99A45]" />
             </button>
           </form>
         </div>
@@ -495,20 +504,23 @@ export const FloatingAIAssistant: React.FC<FloatingAIAssistantProps> = ({ onOpen
   return (
     <div className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-40 group animate-in zoom-in-75 duration-300">
       <button
-        onClick={onOpen}
-        title="दिशा AI साथी — कोई भी सवाल पूछें"
-        className="relative flex items-center gap-2.5 px-3.5 py-2.5 sm:px-4 sm:py-3 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-500 hover:via-purple-500 hover:to-pink-500 text-white font-bold rounded-full shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 transition-all duration-300 active:scale-95 cursor-pointer border border-white/20"
+        onClick={() => {
+          triggerHaptic("light");
+          onOpen();
+        }}
+        title="दिशा AI साथी — कोई भी सवाल या डाउट पूछें"
+        className="relative flex items-center gap-2 px-3.5 py-2.5 sm:px-4 sm:py-3 bg-gradient-to-r from-[#800020] via-[#5E0017] to-[#800020] hover:opacity-95 text-white font-black rounded-full shadow-lg shadow-[#800020]/30 hover:shadow-[#800020]/50 transition-all duration-300 active:scale-95 cursor-pointer border border-[#C99A45]/50 group"
       >
         <span className="relative flex items-center justify-center">
-          <Bot className="w-5 h-5 text-white" />
-          <Sparkles className="w-3 h-3 text-amber-300 absolute -top-1.5 -right-1.5 animate-spin" style={{ animationDuration: '4s' }} />
+          <Bot className="w-5 h-5 text-white group-hover:scale-110 transition-transform" />
+          <Sparkles className="w-3 h-3 text-[#C99A45] absolute -top-1.5 -right-1.5 animate-spin" style={{ animationDuration: '4s' }} />
         </span>
-        <span className="text-xs tracking-tight font-extrabold pr-0.5">
+        <span className="text-xs tracking-tight font-black pr-0.5 text-[#FFF9EF]">
           दिशा AI
         </span>
         <span className="absolute -top-1 -right-1 flex h-3 w-3">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-pink-400 opacity-75" />
-          <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-400 border border-white" />
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#C99A45] opacity-75" />
+          <span className="relative inline-flex rounded-full h-3 w-3 bg-[#C99A45] border-2 border-[#800020]" />
         </span>
       </button>
     </div>

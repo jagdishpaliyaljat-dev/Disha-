@@ -13,33 +13,33 @@ export interface AIModelDefinition {
 export const PROVIDER_RECOMMENDED_MODELS: Record<AIProvider, AIModelDefinition[]> = {
   gemini: [
     {
-      id: "gemini-2.5-flash",
-      name: "gemini-2.5-flash",
-      displayName: "Gemini 2.5 Flash (Recommended - Ultra Fast)",
+      id: "gemini-flash-latest",
+      name: "gemini-flash-latest",
+      displayName: "Gemini Flash Latest (Official Auto-Updating Flash)",
       provider: "gemini",
-      description: "Primary general-purpose model for summarization, Q&A, and fast reasoning",
+      description: "Always routes to the fastest, most reliable Gemini Flash model on Google's network",
       recommended: true,
     },
     {
-      id: "gemini-2.5-flash-lite",
-      name: "gemini-2.5-flash-lite",
-      displayName: "Gemini 2.5 Flash Lite (High Speed)",
+      id: "gemini-3.8-flash",
+      name: "gemini-3.8-flash",
+      displayName: "Gemini 3.8 Flash (High Speed Flagship)",
       provider: "gemini",
-      description: "Ultra-fast, lightweight multimodal reasoning for high-throughput tasks",
+      description: "Latest 3.8 Flash generation for smart Q&A, exam hints and reasoning",
     },
     {
-      id: "gemini-2.0-flash",
-      name: "gemini-2.0-flash",
-      displayName: "Gemini 2.0 Flash",
+      id: "gemini-3.1-flash-lite",
+      name: "gemini-3.1-flash-lite",
+      displayName: "Gemini 3.1 Flash Lite (Ultra Fast)",
       provider: "gemini",
-      description: "High speed multimodal model",
+      description: "Lightweight, ultra-fast model for instant explanations and rapid chat",
     },
     {
-      id: "gemini-1.5-flash",
-      name: "gemini-1.5-flash",
-      displayName: "Gemini 1.5 Flash (Stable Fallback)",
+      id: "gemini-2.5-flash",
+      name: "gemini-2.5-flash",
+      displayName: "Gemini 2.5 Flash",
       provider: "gemini",
-      description: "Always points to stable Gemini Flash release",
+      description: "Stable, high-quality multimodal reasoning model",
     },
     {
       id: "gemini-2.5-pro",
@@ -277,7 +277,9 @@ export async function testAIKeyConnection({
   try {
     switch (provider) {
       case "gemini": {
-        const initialCandidate = (!selectedModel || selectedModel === "default") ? "gemini-2.5-flash" : selectedModel;
+        const initialCandidate = (!selectedModel || selectedModel === "default" || selectedModel.includes("1.5"))
+          ? "gemini-flash-latest"
+          : selectedModel;
         
         const runTestFetch = async (modelName: string, timeoutMs: number = CONNECTIVITY_TIMEOUT) => {
           return fetchWithAbort(
@@ -294,7 +296,14 @@ export async function testAIKeyConnection({
           );
         };
 
-        const candidatesToTry = Array.from(new Set([initialCandidate, "gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-2.0-flash", "gemini-1.5-flash"]));
+        const candidatesToTry = Array.from(new Set([
+          initialCandidate,
+          "gemini-flash-latest",
+          "gemini-3.8-flash",
+          "gemini-3.1-flash-lite",
+          "gemini-2.5-flash",
+          "gemini-2.5-flash-lite"
+        ])).filter(m => m && !m.includes("1.5"));
 
         let response: Response | null = null;
         let activeModel = initialCandidate;
@@ -699,11 +708,18 @@ export async function executeAICompletion({
           if (systemPrompt) config.systemInstruction = systemPrompt;
           if (jsonMode) config.responseMimeType = "application/json";
 
-          const rawTarget = (!currentModel || currentModel === "default") ? "gemini-2.5-flash" : currentModel;
-          const targetModel = (rawTarget.includes("gemini-3") || rawTarget.includes("3.8") || rawTarget.includes("3.1"))
-            ? "gemini-2.5-flash"
-            : rawTarget;
-          const modelsToTry = Array.from(new Set([targetModel, "gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-2.0-flash", "gemini-1.5-flash"]));
+          const rawTarget = (!currentModel || currentModel === "default" || currentModel.includes("1.5"))
+            ? "gemini-flash-latest"
+            : currentModel;
+
+          const modelsToTry = Array.from(new Set([
+            rawTarget,
+            "gemini-flash-latest",
+            "gemini-3.8-flash",
+            "gemini-3.1-flash-lite",
+            "gemini-2.5-flash",
+            "gemini-2.5-flash-lite"
+          ])).filter(m => m && !m.includes("1.5"));
 
           let lastErr: any = null;
           for (const mName of modelsToTry) {
@@ -722,6 +738,17 @@ export async function executeAICompletion({
               }
             } catch (modelErr: any) {
               lastErr = modelErr;
+              const errStr = String(modelErr?.message || modelErr || "");
+              // Fail fast on bad API key or exhausted quota without masking error with 404
+              if (
+                errStr.includes("API_KEY_INVALID") ||
+                errStr.includes("API key not valid") ||
+                errStr.includes("PERMISSION_DENIED") ||
+                errStr.includes("RESOURCE_EXHAUSTED") ||
+                errStr.includes("429")
+              ) {
+                throw modelErr;
+              }
             }
           }
           throw lastErr || new Error("Gemini AI execution failed across all fallbacks.");

@@ -57,10 +57,10 @@ export function getActiveAICredentials(): {
 
   if (activeKey && activeKey.apiKey?.trim()) {
     const provider = activeKey.provider || "gemini";
-    const defaultModel = PROVIDER_RECOMMENDED_MODELS[provider]?.[0]?.id || "default";
+    const defaultModel = PROVIDER_RECOMMENDED_MODELS[provider]?.[0]?.id || "gemini-flash-latest";
     let chosenModel = activeKey.model || defaultModel;
-    if (provider === "gemini" && (chosenModel.includes("gemini-3") || chosenModel.includes("3.8") || chosenModel.includes("3.1"))) {
-      chosenModel = "gemini-2.5-flash";
+    if (provider === "gemini" && (chosenModel.includes("1.5") || chosenModel.includes("1.0") || chosenModel === "default")) {
+      chosenModel = "gemini-flash-latest";
     }
     return {
       configured: true,
@@ -75,7 +75,7 @@ export function getActiveAICredentials(): {
       configured: true,
       provider: "gemini",
       apiKey: settings.geminiApiKey.trim(),
-      model: "gemini-2.5-flash",
+      model: "gemini-flash-latest",
     };
   }
 
@@ -86,7 +86,7 @@ export function getActiveAICredentials(): {
       configured: true,
       provider: "gemini",
       apiKey: envGemini.trim(),
-      model: "gemini-2.5-flash",
+      model: "gemini-flash-latest",
     };
   }
 
@@ -104,7 +104,7 @@ export function getActiveAICredentials(): {
     configured: false,
     provider: "gemini",
     apiKey: "",
-    model: "gemini-2.5-flash",
+    model: "gemini-flash-latest",
   };
 }
 
@@ -205,3 +205,87 @@ ${question.explanation ? `मौजूदा व्याख्या: ${questio
 
   return response;
 }
+
+/**
+ * Parses technical API errors into human-readable Hindi explanations
+ * and detects whether the user needs to inspect or update their API key.
+ */
+export function formatFriendlyAIError(err: any): { message: string; isApiKeyIssue: boolean } {
+  const rawMsg = err?.message || String(err || "");
+  
+  if (rawMsg === "NO_API_KEY") {
+    return {
+      message: "नमस्ते! दिशा AI साथी से बात करने के लिए कृपया अपनी Google Gemini या OpenRouter API Key जोड़ें। यह 100% नि:शुल्क है और 1 मिनट में सेट हो जाती है।",
+      isApiKeyIssue: true,
+    };
+  }
+
+  let parsedMessage = rawMsg;
+  try {
+    if (rawMsg.includes("{") && rawMsg.includes("}")) {
+      const jsonStart = rawMsg.indexOf("{");
+      const jsonEnd = rawMsg.lastIndexOf("}");
+      const parsed = JSON.parse(rawMsg.slice(jsonStart, jsonEnd + 1));
+      if (parsed?.error?.message) {
+        parsedMessage = parsed.error.message;
+      }
+    }
+  } catch {}
+
+  const lower = parsedMessage.toLowerCase();
+
+  if (
+    lower.includes("api_key_invalid") ||
+    lower.includes("api key not valid") ||
+    lower.includes("permission_denied") ||
+    lower.includes("unauthorized") ||
+    lower.includes("401") ||
+    lower.includes("403")
+  ) {
+    return {
+      message: "दर्ज की गई API Key अमान्य (Invalid) है या उसमें इस सेवा की अनुमति नहीं है। कृपया Settings में जाकर अपनी सही Google Gemini या OpenRouter Key दर्ज करें।",
+      isApiKeyIssue: true,
+    };
+  }
+
+  if (
+    lower.includes("resource_exhausted") ||
+    lower.includes("quota") ||
+    lower.includes("rate limit") ||
+    lower.includes("429")
+  ) {
+    return {
+      message: "आपकी API Key की दैनिक मुफ़्त सीमा (Rate Limit / Quota) पूरी हो चुकी है। कृपया कुछ समय बाद पुनः प्रयास करें या Settings में दूसरी API Key जोड़ें।",
+      isApiKeyIssue: true,
+    };
+  }
+
+  if (
+    lower.includes("timed out") ||
+    lower.includes("timeout") ||
+    lower.includes("network") ||
+    lower.includes("failed to fetch")
+  ) {
+    return {
+      message: "नेटवर्क या सर्वर से जुड़ने में अधिक समय लगा। कृपया अपना इंटरनेट कनेक्शन जांचें और पुनः प्रयास करें।",
+      isApiKeyIssue: false,
+    };
+  }
+
+  if (
+    lower.includes("not found") ||
+    lower.includes("404") ||
+    lower.includes("not supported")
+  ) {
+    return {
+      message: "पुराना मॉडल संस्करण अनुपलब्ध था। सिस्टम ने स्वतः अद्यतन 'gemini-flash-latest' मॉडल पर स्विच कर दिया है। कृपया पुनः प्रयास करें।",
+      isApiKeyIssue: false,
+    };
+  }
+
+  return {
+    message: `उत्तर प्राप्त करने में समस्या आई: ${parsedMessage.slice(0, 160)}। कृपया पुनः प्रयास करें।`,
+    isApiKeyIssue: false,
+  };
+}
+
