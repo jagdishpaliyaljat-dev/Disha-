@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { clearIndexedDB } from "../utils/indexedDbCache";
 import { safeClearLocalStorage, safeClearSessionStorage } from "../utils/safeStorage";
 import {
@@ -8,7 +8,7 @@ import {
   ActiveTab,
   UserProfile,
 } from "../types";
-import { loadUserProfile, DEFAULT_USER_PROFILE } from "../utils/userProfileStorage";
+import { loadUserProfile, DEFAULT_USER_PROFILE, saveUserProfile } from "../utils/userProfileStorage";
 import { triggerHaptic } from "../utils/audioFeedback";
 import {
   User,
@@ -34,6 +34,14 @@ import {
   Target,
   CheckCircle2,
   Award,
+  Bookmark,
+  Flame,
+  Zap,
+  BarChart3,
+  Trophy,
+  GraduationCap,
+  Layers,
+  Crown,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import ShareModal, { ShareData } from "./ShareModal";
@@ -55,11 +63,22 @@ interface ProfileTabProps {
   onLogout?: () => void;
 }
 
+const POPULAR_TARGET_EXAMS = [
+  "RPSC RAS (प्रारंभिक एवं मुख्य)",
+  "RPSC Sub Inspector (SI)",
+  "RSMSSB CET (Graduate / 12th)",
+  "REET (Level 1 & 2)",
+  "Rajasthan Patwar",
+  "RPSC 1st & 2nd Grade Teacher",
+  "RPSC Assistant Professor",
+  "Rajasthan Police Constable",
+];
+
 export const ProfileTab: React.FC<ProfileTabProps> = ({
   user,
   isAuthenticated = false,
   onOpenLogin,
-  progressStore,
+  progressStore = {},
   settings,
   questions = [],
   onUpdateSettings,
@@ -68,20 +87,19 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
   onNavigateTab,
   onLogout,
 }) => {
-  const [showResetConfirm, ReactUseStateReset] = React.useState(false);
-  const setShowResetConfirm = ReactUseStateReset;
-  const [resetConfirmText, setResetConfirmText] = React.useState("");
-  const [showCacheResetConfirm, setShowCacheResetConfirm] = React.useState(false);
-  const [showSettingsModal, setShowSettingsModal] = React.useState(false);
-  const [showApiSettingsModal, setShowApiSettingsModal] = React.useState(false);
-  const [showAboutModal, setShowAboutModal] = React.useState(false);
-  const [showEditProfileModal, setShowEditProfileModal] = React.useState(false);
-  const [toastMessage, setToastMessage] = React.useState<string | null>(null);
-  const [shareData, setShareData] = React.useState<ShareData | null>(null);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [resetConfirmText, setResetConfirmText] = useState("");
+  const [showCacheResetConfirm, setShowCacheResetConfirm] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [showApiSettingsModal, setShowApiSettingsModal] = useState(false);
+  const [showAboutModal, setShowAboutModal] = useState(false);
+  const [showEditProfileModal, setShowEditProfileModal] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [shareData, setShareData] = useState<ShareData | null>(null);
 
-  const [activeProfile, setActiveProfile] = React.useState<UserProfile>(user || DEFAULT_USER_PROFILE);
-  
-  React.useEffect(() => {
+  const [activeProfile, setActiveProfile] = useState<UserProfile>(user || DEFAULT_USER_PROFILE);
+
+  useEffect(() => {
     if (user) {
       setActiveProfile(user);
     } else {
@@ -90,33 +108,81 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
     }
   }, [user]);
 
-  const [editName, setEditName] = React.useState("");
-  const [editTargetExam, setEditTargetExam] = React.useState("");
+  const [editName, setEditName] = useState("");
+  const [editTargetExam, setEditTargetExam] = useState("");
+  const [editDailyGoal, setEditDailyGoal] = useState<number>(30);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (activeProfile) {
       setEditName(activeProfile.name || "");
-      setEditTargetExam(activeProfile.targetExam || "");
+      setEditTargetExam(activeProfile.targetExam || "RPSC RAS Pre");
+      setEditDailyGoal(activeProfile.dailyGoalQuestions || settings.dailyGoal || 30);
     }
-  }, [activeProfile]);
+  }, [activeProfile, settings.dailyGoal]);
 
-  const userName = activeProfile?.name || "Scholar";
+  const userName = activeProfile?.name || (!isAuthenticated ? "अतिथि छात्र (Guest)" : "अभ्यर्थी");
+  const isAdmin = activeProfile?.role === "admin";
 
-  const attemptedQuestions = useMemo(() => questions.filter(
-    (q) => progressStore[q.id] && progressStore[q.id].status !== "unattempted"
-  ), [questions, progressStore]);
+  // ─────────────────────────────────────────────────────────────
+  // ANALYTICS & COMPUTED METRICS
+  // ─────────────────────────────────────────────────────────────
+  const progressValues = useMemo(() => Object.values(progressStore), [progressStore]);
 
-  const correctCount = useMemo(() => questions.filter(
-    (q) => progressStore[q.id]?.status === "correct"
-  ).length, [questions, progressStore]);
+  const attemptedCount = useMemo(() => {
+    if (questions.length > 0) {
+      return questions.filter((q) => progressStore[q.id] && progressStore[q.id].status !== "unattempted").length;
+    }
+    return progressValues.filter((p) => p.status !== "unattempted").length;
+  }, [questions, progressStore, progressValues]);
 
-  const accuracy = attemptedQuestions.length > 0 ? Math.round((correctCount / attemptedQuestions.length) * 100) : 0;
+  const correctCount = useMemo(() => {
+    if (questions.length > 0) {
+      return questions.filter((q) => progressStore[q.id]?.status === "correct").length;
+    }
+    return progressValues.filter((p) => p.status === "correct").length;
+  }, [questions, progressStore, progressValues]);
+
+  const wrongCount = useMemo(() => {
+    return progressValues.filter((p) => p.status === "wrong").length;
+  }, [progressValues]);
+
+  const bookmarkedCount = useMemo(() => {
+    return progressValues.filter((p) => p.isBookmarked).length;
+  }, [progressValues]);
+
+  const masteredCount = useMemo(() => {
+    return progressValues.filter((p) => (p.box && p.box >= 4) || p.status === "mastered").length;
+  }, [progressValues]);
+
+  const accuracy = attemptedCount > 0 ? Math.round((correctCount / attemptedCount) * 100) : 0;
+
+  // Daily Goal Calculations
+  const todayStr = useMemo(() => new Date().toISOString().slice(0, 10), []);
+  const todaySolvedCount = useMemo(() => {
+    return progressValues.filter((p) => p.lastAttemptedAt && p.lastAttemptedAt.startsWith(todayStr)).length;
+  }, [progressValues, todayStr]);
+
+  const dailyGoal = activeProfile?.dailyGoalQuestions || settings.dailyGoal || 30;
+  const dailyGoalPercent = Math.min(100, Math.round((todaySolvedCount / dailyGoal) * 100));
+
+  // Level & XP System (Gamification)
+  const currentLevel = Math.max(1, Math.floor(attemptedCount / 25) + 1);
+  const questionsInCurrentLevel = attemptedCount % 25;
+  const remainingForNextLevel = 25 - questionsInCurrentLevel;
+  const levelProgressPercent = Math.min(100, Math.round((questionsInCurrentLevel / 25) * 100));
+
+  const streakDays = activeProfile?.streakDays || 1;
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 2500);
+  };
 
   const handleShareInvite = () => {
     triggerHaptic("light");
     setShareData({
-      title: "Join me on DISHA 20-20 — Exam Prep Platform",
-      text: "Hey! I'm preparing for competitive exams (RPSC, RSMSSB, REET, CET, RAS) on DISHA 20-20. Practice topic-wise MCQs, official PYQs, and daily mock tests with instant explanations!",
+      title: "दिशा 20-20 (DISHA 20-20) — राजस्थान परीक्षा तैयारी मंच",
+      text: `नमस्ते! मैं DISHA 20-20 पर ${activeProfile.targetExam || "राजस्थान प्रतियोगी परीक्षाओं"} की तैयारी कर रहा हूँ। यहाँ टॉपिक-वाइज MCQs, ऑफिशियल PYQs और 5वें विकल्प (Option E) के साथ लाइव मॉक टेस्ट उपलब्ध हैं। अभी जुड़ें:`,
       url: typeof window !== "undefined" ? window.location.origin : "https://disha2020.in",
       category: "Study Group Invite",
     });
@@ -124,18 +190,18 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
 
   const handleSaveProfile = (e: React.FormEvent) => {
     e.preventDefault();
-    onUpdateProfile?.({
+    const updated: UserProfile = {
       ...activeProfile,
-      name: editName,
-      targetExam: editTargetExam
-    });
+      name: editName.trim() || "अभ्यर्थी",
+      targetExam: editTargetExam.trim() || "RPSC RAS Pre",
+      dailyGoalQuestions: Number(editDailyGoal) || 30,
+    };
+    setActiveProfile(updated);
+    saveUserProfile(updated);
+    onUpdateProfile?.(updated);
+    onUpdateSettings({ dailyGoal: Number(editDailyGoal) || 30 });
     setShowEditProfileModal(false);
-    showToast("Profile updated successfully");
-  };
-
-  const showToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 2500);
+    showToast("प्रोफ़ाइल सफलतापूर्वक अपडेट हो गई!");
   };
 
   const containerVariants = {
@@ -144,28 +210,35 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
       opacity: 1,
       transition: {
         staggerChildren: 0.05,
-        delayChildren: 0.05
-      }
-    }
+        delayChildren: 0.05,
+      },
+    },
   };
 
   const itemVariants = {
     hidden: { opacity: 0, y: 12 },
-    show: { opacity: 1, y: 0 }
+    show: { opacity: 1, y: 0 },
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#FFF9EF] dark:bg-[#171923] overflow-y-auto pb-20 selection:bg-[#800020] selection:text-white" id="profile-tab">
-      {/* 1. PROFILE HEADER WITH DISHA 20-20 BRAND BAR & SCORECARD */}
-      <header className="px-3.5 sm:px-4 pt-3.5 sm:pt-4 pb-5 sm:pb-8 bg-white dark:bg-[#1F2330] border-b border-[#E8D9C0] dark:border-[#31374A] relative overflow-hidden shrink-0">
-        {/* Heritage Top Accent Strip */}
-        <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-[#800020] via-[#F47B20] to-[#C99A45]" />
-        <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-[#800020]/10 via-[#F47B20]/5 to-transparent rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-20 -left-10 w-48 h-48 bg-[#C99A45]/10 rounded-full blur-3xl pointer-events-none" />
+    <div
+      className="flex flex-col h-full bg-[#FFF9EF] dark:bg-[#171923] overflow-y-auto pb-24 selection:bg-[#800020] selection:text-white"
+      id="profile-tab"
+    >
+      {/* ─────────────────────────────────────────────────────────────
+          1. TOP HERITAGE HEADER & ASPIRANT HERO CARD
+      ───────────────────────────────────────────────────────────── */}
+      <header className="px-3.5 sm:px-6 pt-3.5 sm:pt-4 pb-6 sm:pb-8 bg-white dark:bg-[#1F2330] border-b border-[#E8D9C0] dark:border-[#31374A] relative overflow-hidden shrink-0 shadow-xs">
+        {/* Heritage Royal Strip */}
+        <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-[#800020] via-[#F47B20] to-[#C99A45]" />
+        
+        {/* Ambient Glows */}
+        <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-bl from-[#800020]/15 via-[#F47B20]/10 to-transparent rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-20 -left-10 w-60 h-60 bg-[#C99A45]/15 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="max-w-4xl mx-auto relative z-10">
+        <div className="max-w-4xl mx-auto relative z-10 space-y-4">
           {/* Top Brand Identity Bar */}
-          <div className="flex items-center justify-between gap-2 pb-3 mb-3 sm:pb-4 sm:mb-4 border-b border-[#E8D9C0]/70 dark:border-[#31374A]">
+          <div className="flex items-center justify-between gap-2 pb-3 border-b border-[#E8D9C0]/70 dark:border-[#31374A]">
             <AppLogo size="sm" variant="horizontal" showTagline={true} />
             <div className="flex items-center gap-1.5 sm:gap-2">
               <button
@@ -173,12 +246,12 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                   triggerHaptic("light");
                   onUpdateSettings({ darkMode: !settings.darkMode });
                 }}
-                className="h-8 sm:h-9 px-2.5 sm:px-3 rounded-lg sm:rounded-xl bg-[#FFF9EF] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center gap-1.5 text-[11px] sm:text-xs font-extrabold text-[#171923] dark:text-[#FFF9EF] hover:border-[#800020] dark:hover:border-[#F47B20] active:scale-95 transition-all cursor-pointer"
+                className="h-8 sm:h-9 px-2.5 sm:px-3 rounded-xl bg-[#FFF9EF] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center gap-1.5 text-xs font-black text-[#171923] dark:text-[#FFF9EF] hover:border-[#800020] dark:hover:border-[#C99A45] active:scale-95 transition-all cursor-pointer shadow-2xs"
                 aria-label="Toggle Theme"
               >
                 {settings.darkMode ? (
                   <>
-                    <Sun size={14} className="text-[#F47B20]" />
+                    <Sun size={14} className="text-[#C99A45]" />
                     <span className="hidden sm:inline">Light</span>
                   </>
                 ) : (
@@ -188,36 +261,49 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                   </>
                 )}
               </button>
-              <button 
+              <button
                 onClick={() => {
                   triggerHaptic("light");
                   setShowSettingsModal(true);
                 }}
-                className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center text-[#800020] dark:text-[#F47B20] shadow-2xs active:scale-90 transition-all cursor-pointer"
+                className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center text-[#800020] dark:text-[#C99A45] shadow-2xs hover:border-[#800020] dark:hover:border-[#C99A45] active:scale-90 transition-all cursor-pointer"
                 aria-label="App Settings"
+                title="ऐप सेटिंग्स"
               >
                 <Settings size={16} />
               </button>
             </div>
           </div>
 
-          <motion.div 
+          {/* Aspirant Hero Card */}
+          <motion.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col sm:flex-row items-center sm:items-start gap-3 sm:gap-5"
+            className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 bg-gradient-to-b from-[#FFF9EF] to-white dark:from-[#171923] dark:to-[#1F2330] p-4 sm:p-5 rounded-3xl border border-[#E8D9C0] dark:border-[#31374A] shadow-sm relative overflow-hidden"
           >
-            {/* Avatar with Royal Maroon & Saffron Heritage Ring (20% reduced: w-16 h-16 vs w-20 h-20) */}
+            {/* Royal Corner Accent */}
+            <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-[#C99A45]/15 to-transparent rounded-bl-full pointer-events-none" />
+
+            {/* Avatar with Triple-Hue Royal Ring */}
             <div className="relative shrink-0">
-              <div className="w-16 h-16 sm:w-22 sm:h-22 rounded-[20px] sm:rounded-[26px] p-0.5 sm:p-1 bg-gradient-to-tr from-[#800020] via-[#F47B20] to-[#C99A45] shadow-md">
-                <div className="w-full h-full rounded-[18px] sm:rounded-[22px] border-2 border-white dark:border-[#1F2330] overflow-hidden bg-[#FFF9EF] dark:bg-[#171923]">
-                  <img 
-                    src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${userName}&backgroundColor=ffdfbf,ffd5dc,c0aede`} 
-                    alt="Aspirant Avatar" 
-                    className="w-full h-full object-cover"
-                  />
+              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl p-1 bg-gradient-to-tr from-[#800020] via-[#F47B20] to-[#C99A45] shadow-md">
+                <div className="w-full h-full rounded-[22px] border-2 border-white dark:border-[#1F2330] overflow-hidden bg-[#FFF9EF] dark:bg-[#171923] flex items-center justify-center">
+                  {activeProfile?.photoURL ? (
+                    <img
+                      src={activeProfile.photoURL}
+                      alt={userName}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <img
+                      src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(userName)}&backgroundColor=ffdfbf,ffd5dc,c0aede`}
+                      alt={userName}
+                      className="w-full h-full object-cover"
+                    />
+                  )}
                 </div>
               </div>
-              <button 
+              <button
                 onClick={() => {
                   if (!isAuthenticated) {
                     onOpenLogin?.();
@@ -226,39 +312,76 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                   triggerHaptic("light");
                   setShowEditProfileModal(true);
                 }}
-                className="absolute -bottom-1 -right-1 w-6.5 h-6.5 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-[#800020] dark:bg-[#F47B20] text-white flex items-center justify-center shadow-md border-2 border-white dark:border-[#1F2330] active:scale-90 transition-transform cursor-pointer"
+                className="absolute -bottom-1.5 -right-1.5 w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-gradient-to-r from-[#800020] to-[#5E0017] dark:from-[#F47B20] dark:to-[#E06A14] text-white flex items-center justify-center shadow-md border-2 border-white dark:border-[#1F2330] active:scale-90 transition-transform cursor-pointer"
                 aria-label="Edit Profile"
+                title="प्रोफ़ाइल संपादित करें"
               >
-                <Edit2 size={11} />
+                <Edit2 size={12} />
               </button>
             </div>
-            
-            {/* Aspirant Identity Details (20% compact typography & spacing) */}
-            <div className="flex-1 text-center sm:text-left min-w-0">
-              <div className="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-0.5 rounded-md bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] text-[9px] sm:text-[10px] font-black uppercase tracking-wider mb-1">
-                <Award size={10.5} />
-                <span>DISHA 20-20 Aspirant</span>
-                <span>•</span>
-                <span className="font-mono tabular-nums">LVL {Math.floor(attemptedQuestions.length / 50) + 1}</span>
-              </div>
-              <h2 className="text-base sm:text-2xl font-black text-[#171923] dark:text-[#FFF9EF] tracking-tight truncate leading-tight">
-                {!isAuthenticated ? "Guest Aspirant" : userName}
-              </h2>
-              <p className="text-[10.5px] sm:text-xs font-bold text-[#52576A] dark:text-[#CBD2E1] mt-0.5 truncate max-w-xs sm:max-w-none mx-auto sm:mx-0">
-                {!isAuthenticated
-                  ? "RPSC • RSMSSB • REET • CET • RAS Exam Preparation"
-                  : (activeProfile?.targetExam || "Competitive Exam Aspirant")}
-              </p>
 
-              {/* Action Buttons (20% compact) */}
-              <div className="mt-2.5 sm:mt-3 flex flex-wrap items-center justify-center sm:justify-start gap-1.5 sm:gap-2">
+            {/* Aspirant Details */}
+            <div className="flex-1 text-center sm:text-left min-w-0 space-y-2">
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-1.5">
+                {isAdmin ? (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-[#C99A45]/20 to-[#C99A45]/30 text-[#800020] dark:text-[#C99A45] border border-[#C99A45]/40 text-[10px] font-black uppercase tracking-wider">
+                    <Crown size={11} className="text-[#C99A45]" />
+                    <span>व्यवस्थापक (Verified Admin)</span>
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] border border-[#800020]/20 dark:border-[#F47B20]/30 text-[10px] font-black uppercase tracking-wider">
+                    <Award size={11} />
+                    <span>DISHA 20-20 अभ्यर्थी</span>
+                  </span>
+                )}
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#F7EFE2] dark:bg-[#252A3A] text-slate-700 dark:text-[#E8D9C0] text-[10px] font-black border border-[#E8D9C0] dark:border-[#31374A]">
+                  <Zap size={10} className="text-[#C99A45]" />
+                  <span>LVL {currentLevel}</span>
+                </span>
+              </div>
+
+              <div>
+                <h2 className="text-lg sm:text-2xl font-black text-[#171923] dark:text-[#FFF9EF] tracking-tight truncate leading-tight">
+                  {userName}
+                </h2>
+                {activeProfile?.email && (
+                  <div className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-500 dark:text-[#E8D9C0]/70 mt-0.5">
+                    <Mail size={11} />
+                    <span className="truncate">{activeProfile.email}</span>
+                    <CheckCircle2 size={11} className="text-emerald-500 shrink-0" />
+                  </div>
+                )}
+              </div>
+
+              {/* Target Exam Badge */}
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] text-xs font-black text-[#800020] dark:text-[#C99A45] shadow-2xs">
+                <Target size={13} className="text-[#F47B20]" />
+                <span className="truncate">{activeProfile?.targetExam || "RPSC RAS Pre & Competitive Exams"}</span>
+              </div>
+
+              {/* Level & XP Progress Bar */}
+              <div className="pt-1 max-w-sm mx-auto sm:mx-0">
+                <div className="flex items-center justify-between text-[10px] font-bold text-slate-500 dark:text-[#E8D9C0]/80 mb-1">
+                  <span>Level {currentLevel} Aspirant</span>
+                  <span className="font-mono">{remainingForNextLevel} प्रश्न Level {currentLevel + 1} हेतु</span>
+                </div>
+                <div className="w-full h-2 rounded-full bg-[#E8D9C0]/60 dark:bg-[#31374A] overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-[#800020] via-[#F47B20] to-[#C99A45] transition-all duration-500"
+                    style={{ width: `${levelProgressPercent}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* CTA Buttons */}
+              <div className="pt-1 flex flex-wrap items-center justify-center sm:justify-start gap-2">
                 {!isAuthenticated ? (
                   <button
                     onClick={onOpenLogin}
-                    className="px-3 sm:px-4 py-1.5 sm:py-2 bg-[#800020] hover:bg-[#5E0017] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] text-white rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-black shadow-sm transition-all active:scale-95 flex items-center gap-1 sm:gap-1.5 cursor-pointer whitespace-nowrap"
+                    className="px-4 py-2 bg-gradient-to-r from-[#800020] via-[#5E0017] to-[#800020] hover:opacity-95 text-white rounded-xl text-xs font-black shadow-md border border-[#C99A45]/30 transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer"
                   >
-                    <LogIn size={12} />
-                    <span>Sign In to Sync</span>
+                    <LogIn size={13} />
+                    <span>Google से लॉगिन करें (Sync Progress)</span>
                   </button>
                 ) : (
                   <button
@@ -266,439 +389,798 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                       triggerHaptic("light");
                       setShowEditProfileModal(true);
                     }}
-                    className="px-3 sm:px-3.5 py-1.5 bg-[#FFF9EF] dark:bg-[#252A3A] hover:border-[#800020] dark:hover:border-[#F47B20] text-[#171923] dark:text-[#FFF9EF] border border-[#E8D9C0] dark:border-[#31374A] rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-extrabold transition-all active:scale-95 flex items-center gap-1 sm:gap-1.5 cursor-pointer whitespace-nowrap"
+                    className="px-3.5 py-1.5 bg-[#FFF9EF] dark:bg-[#252A3A] hover:border-[#800020] dark:hover:border-[#C99A45] text-[#171923] dark:text-[#FFF9EF] border border-[#E8D9C0] dark:border-[#31374A] rounded-xl text-xs font-black transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer shadow-2xs"
                   >
-                    <Edit2 size={11} className="text-[#800020] dark:text-[#F47B20]" />
-                    <span>Edit Profile</span>
+                    <Edit2 size={12} className="text-[#800020] dark:text-[#C99A45]" />
+                    <span>लक्ष्य व प्रोफ़ाइल बदलें</span>
                   </button>
                 )}
               </div>
             </div>
           </motion.div>
-
-          {/* 3-Column Aspirant Performance Scorecard (15% reduced dimensions) */}
-          <div className="grid grid-cols-3 gap-1.5 sm:gap-2.5 mt-3.5 sm:mt-5 pt-3 sm:pt-4 border-t border-[#E8D9C0]/70 dark:border-[#31374A]">
-            <div className="bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] rounded-xl sm:rounded-2xl p-2 sm:p-3 text-center flex flex-col justify-between">
-              <div className="flex items-center justify-center gap-0.5 sm:gap-1 text-[#800020] dark:text-[#F47B20] mb-0.5">
-                <Target size={11} />
-                <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wide truncate">Attempted</span>
-              </div>
-              <div className="text-[15px] sm:text-xl font-black text-[#171923] dark:text-[#FFF9EF] font-mono tabular-nums leading-tight my-0.5 sm:my-0">
-                {attemptedQuestions.length}
-              </div>
-              <div className="text-[8.5px] sm:text-[10px] font-semibold text-[#52576A] dark:text-[#CBD2E1] truncate leading-none">
-                Solved Questions
-              </div>
-            </div>
-
-            <div className="bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] rounded-xl sm:rounded-2xl p-2 sm:p-3 text-center flex flex-col justify-between">
-              <div className="flex items-center justify-center gap-0.5 sm:gap-1 text-[#15803D] dark:text-emerald-400 mb-0.5">
-                <CheckCircle2 size={11} />
-                <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wide truncate">Correct</span>
-              </div>
-              <div className="text-[15px] sm:text-xl font-black text-[#15803D] dark:text-emerald-400 font-mono tabular-nums leading-tight my-0.5 sm:my-0">
-                {correctCount}
-              </div>
-              <div className="text-[8.5px] sm:text-[10px] font-semibold text-[#52576A] dark:text-[#CBD2E1] truncate leading-none">
-                Correct Answers
-              </div>
-            </div>
-
-            <div className="bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] rounded-xl sm:rounded-2xl p-2 sm:p-3 text-center flex flex-col justify-between">
-              <div className="flex items-center justify-center gap-0.5 sm:gap-1 text-[#C99A45] mb-0.5">
-                <Award size={11} />
-                <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wide truncate">Accuracy</span>
-              </div>
-              <div className="text-[15px] sm:text-xl font-black text-[#171923] dark:text-[#FFF9EF] font-mono tabular-nums leading-tight my-0.5 sm:my-0">
-                {accuracy}%
-              </div>
-              <div className="text-[8.5px] sm:text-[10px] font-semibold text-[#52576A] dark:text-[#CBD2E1] truncate leading-none">
-                Accuracy Rate
-              </div>
-            </div>
-          </div>
         </div>
       </header>
 
-      <motion.main 
+      {/* ─────────────────────────────────────────────────────────────
+          2. MAIN PROFILE BODY & METRICS DASHBOARD
+      ───────────────────────────────────────────────────────────── */}
+      <motion.main
         variants={containerVariants}
         initial="hidden"
         animate="show"
-        className="px-4 pt-5 space-y-5 relative z-20 max-w-4xl mx-auto w-full"
+        className="px-3.5 sm:px-6 pt-5 space-y-5 max-w-4xl mx-auto w-full"
       >
-        {/* 2. ASPIRANT TOOLKIT & PREFERENCES */}
+        {/* Daily Goal & Streak Card */}
+        <motion.div
+          variants={itemVariants}
+          className="bg-white dark:bg-[#1F2330] rounded-3xl p-4 sm:p-5 border border-[#E8D9C0] dark:border-[#31374A] shadow-xs space-y-3 relative overflow-hidden"
+        >
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-xl bg-[#800020]/10 dark:bg-[#C99A45]/15 text-[#800020] dark:text-[#C99A45] flex items-center justify-center shrink-0">
+                <Target size={16} />
+              </div>
+              <div>
+                <h4 className="text-xs font-black text-[#171923] dark:text-[#FFF9EF] uppercase tracking-wider">
+                  आज का दैनिक अभ्यास लक्ष्य (Daily Goal)
+                </h4>
+                <p className="text-[11px] font-bold text-slate-500 dark:text-[#E8D9C0]/70">
+                  {todaySolvedCount} / {dailyGoal} MCQs हल किए ({dailyGoalPercent}%)
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-gradient-to-r from-amber-500/15 to-orange-500/15 border border-amber-500/30 text-amber-600 dark:text-amber-400 text-xs font-black">
+              <Flame size={14} className="fill-amber-500 text-amber-500" />
+              <span>{streakDays} दिन निरंतरता (Streak)</span>
+            </div>
+          </div>
+
+          <div className="w-full h-3 rounded-full bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] overflow-hidden p-0.5">
+            <div
+              className={`h-full rounded-full transition-all duration-700 ${
+                dailyGoalPercent >= 100
+                  ? "bg-gradient-to-r from-emerald-500 to-teal-500"
+                  : "bg-gradient-to-r from-[#800020] via-[#F47B20] to-[#C99A45]"
+              }`}
+              style={{ width: `${dailyGoalPercent}%` }}
+            />
+          </div>
+
+          {dailyGoalPercent >= 100 ? (
+            <p className="text-[11px] font-black text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+              <CheckCircle2 size={13} />
+              <span>शानदार! आज का दैनिक लक्ष्य पूर्ण हो चुका है। निरंतरता बनाए रखें!</span>
+            </p>
+          ) : (
+            <p className="text-[11px] font-bold text-slate-500 dark:text-[#E8D9C0]/60">
+              दैनिक लक्ष्य पूरा करने के लिए केवल {Math.max(0, dailyGoal - todaySolvedCount)} प्रश्न शेष हैं।
+            </p>
+          )}
+        </motion.div>
+
+        {/* 6-Metric Performance Grid */}
         <motion.section variants={itemVariants} className="space-y-2.5">
-          <h3 className="text-[11px] font-black text-[#52576A] dark:text-[#CBD2E1] uppercase tracking-[0.16em] px-1">
-            Aspirant Toolkit
+          <div className="flex items-center justify-between px-1">
+            <h3 className="text-xs font-black text-slate-600 dark:text-[#E8D9C0] uppercase tracking-wider flex items-center gap-1.5">
+              <BarChart3 size={14} className="text-[#800020] dark:text-[#C99A45]" />
+              <span>अभ्यास स्कोरकार्ड एवं संपूर्ण प्रदर्शन</span>
+            </h3>
+            <span className="text-[10px] font-bold text-[#800020] dark:text-[#C99A45]">
+              Real-time Analytics
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3">
+            {/* 1. Attempted */}
+            <div className="bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-2xl p-3.5 space-y-1 shadow-2xs hover:border-[#800020] dark:hover:border-[#C99A45] transition-all">
+              <div className="flex items-center justify-between text-[#800020] dark:text-[#F47B20]">
+                <span className="text-[11px] font-black uppercase tracking-wider">कुल हल</span>
+                <Target size={16} />
+              </div>
+              <div className="text-2xl font-black text-[#171923] dark:text-[#FFF9EF] font-mono tabular-nums">
+                {attemptedCount}
+              </div>
+              <div className="text-[10px] font-bold text-slate-500 dark:text-[#CBD2E1]">प्रश्नों का अभ्यास किया</div>
+            </div>
+
+            {/* 2. Correct */}
+            <div className="bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-2xl p-3.5 space-y-1 shadow-2xs hover:border-emerald-500 transition-all">
+              <div className="flex items-center justify-between text-emerald-600 dark:text-emerald-400">
+                <span className="text-[11px] font-black uppercase tracking-wider">सही उत्तर</span>
+                <CheckCircle2 size={16} />
+              </div>
+              <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400 font-mono tabular-nums">
+                {correctCount}
+              </div>
+              <div className="text-[10px] font-bold text-slate-500 dark:text-[#CBD2E1]">सटीक सही उत्तर</div>
+            </div>
+
+            {/* 3. Accuracy */}
+            <div className="bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-2xl p-3.5 space-y-1 shadow-2xs hover:border-[#C99A45] transition-all">
+              <div className="flex items-center justify-between text-[#C99A45]">
+                <span className="text-[11px] font-black uppercase tracking-wider">सटीकता (Acc)</span>
+                <Award size={16} />
+              </div>
+              <div className="text-2xl font-black text-[#171923] dark:text-[#FFF9EF] font-mono tabular-nums">
+                {accuracy}%
+              </div>
+              <div className="text-[10px] font-bold text-slate-500 dark:text-[#CBD2E1]">औसत शुद्धता दर</div>
+            </div>
+
+            {/* 4. Wrong / Needs Revision */}
+            <div
+              onClick={() => onNavigateTab?.("wrong")}
+              className="bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-2xl p-3.5 space-y-1 shadow-2xs hover:border-rose-500 transition-all cursor-pointer group"
+            >
+              <div className="flex items-center justify-between text-rose-600 dark:text-rose-400">
+                <span className="text-[11px] font-black uppercase tracking-wider">गलत प्रश्न</span>
+                <RotateCcw size={16} className="group-hover:-rotate-45 transition-transform" />
+              </div>
+              <div className="text-2xl font-black text-rose-600 dark:text-rose-400 font-mono tabular-nums">
+                {wrongCount}
+              </div>
+              <div className="text-[10px] font-bold text-slate-500 dark:text-[#CBD2E1]">रिवीजन की आवश्यकता</div>
+            </div>
+
+            {/* 5. Mastered Questions */}
+            <div className="bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-2xl p-3.5 space-y-1 shadow-2xs hover:border-teal-500 transition-all">
+              <div className="flex items-center justify-between text-teal-600 dark:text-teal-400">
+                <span className="text-[11px] font-black uppercase tracking-wider">मास्टर्ड</span>
+                <Sparkles size={16} />
+              </div>
+              <div className="text-2xl font-black text-teal-600 dark:text-teal-400 font-mono tabular-nums">
+                {masteredCount}
+              </div>
+              <div className="text-[10px] font-bold text-slate-500 dark:text-[#CBD2E1]">कंठस्थ प्रश्न (Leitner 4+)</div>
+            </div>
+
+            {/* 6. Bookmarks */}
+            <div
+              onClick={() => onNavigateTab?.("wrong")}
+              className="bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-2xl p-3.5 space-y-1 shadow-2xs hover:border-[#F47B20] transition-all cursor-pointer group"
+            >
+              <div className="flex items-center justify-between text-[#F47B20]">
+                <span className="text-[11px] font-black uppercase tracking-wider">बुकमार्क</span>
+                <Bookmark size={16} className="group-hover:scale-110 transition-transform" />
+              </div>
+              <div className="text-2xl font-black text-[#171923] dark:text-[#FFF9EF] font-mono tabular-nums">
+                {bookmarkedCount}
+              </div>
+              <div className="text-[10px] font-bold text-slate-500 dark:text-[#CBD2E1]">सुरक्षित किए गए प्रश्न</div>
+            </div>
+          </div>
+        </motion.section>
+
+        {/* ─────────────────────────────────────────────────────────────
+            3. ASPIRANT QUICK LAUNCHER (त्वरित हब)
+        ───────────────────────────────────────────────────────────── */}
+        <motion.section variants={itemVariants} className="space-y-2.5">
+          <h3 className="text-xs font-black text-slate-600 dark:text-[#E8D9C0] uppercase tracking-wider px-1">
+            अभ्यर्थी त्वरित हब (Quick Hub)
           </h3>
-          <div className="bg-white dark:bg-[#1F2330] rounded-[24px] border border-[#E8D9C0] dark:border-[#31374A] shadow-2xs overflow-hidden divide-y divide-[#E8D9C0]/60 dark:divide-[#31374A]">
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {/* AI Weakness Radar Tile */}
+            <div
+              onClick={() => onNavigateTab?.("analytics")}
+              className="bg-gradient-to-r from-[#800020] via-[#5E0017] to-[#800020] rounded-3xl p-4 text-white border border-[#C99A45]/40 shadow-md hover:shadow-lg transition-all cursor-pointer group relative overflow-hidden"
+            >
+              <div className="absolute top-0 right-0 w-32 h-32 bg-[#C99A45]/20 rounded-full blur-2xl pointer-events-none" />
+              <div className="flex items-start justify-between relative z-10">
+                <div className="space-y-1 max-w-[80%]">
+                  <span className="px-2 py-0.5 rounded-full bg-[#C99A45] text-slate-950 text-[9px] font-black uppercase tracking-wider inline-flex items-center gap-1">
+                    <Sparkles size={10} /> Smart AI
+                  </span>
+                  <h4 className="text-sm font-black text-white group-hover:text-[#FFF9EF]">
+                    छात्र की कमजोरियों का AI रडार
+                  </h4>
+                  <p className="text-[11px] font-medium text-white/80 leading-snug">
+                    कमजोर विषयों की पहचान करें एवं कस्टमाइज़्ड बूस्टर टेस्ट दें।
+                  </p>
+                </div>
+                <div className="w-10 h-10 rounded-2xl bg-white/15 border border-white/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                  <BarChart3 size={20} className="text-[#C99A45]" />
+                </div>
+              </div>
+            </div>
+
+            {/* Rajasthan Live Tests & Leaderboard Tile */}
+            <div
+              onClick={() => onNavigateTab?.("live_tests")}
+              className="bg-white dark:bg-[#1F2330] rounded-3xl p-4 border border-[#E8D9C0] dark:border-[#31374A] shadow-xs hover:border-[#800020] dark:hover:border-[#C99A45] transition-all cursor-pointer group"
+            >
+              <div className="flex items-start justify-between">
+                <div className="space-y-1 max-w-[80%]">
+                  <span className="px-2 py-0.5 rounded-full bg-[#F47B20]/15 text-[#F47B20] text-[9px] font-black uppercase tracking-wider inline-flex items-center gap-1">
+                    <Trophy size={10} /> State Merit
+                  </span>
+                  <h4 className="text-sm font-black text-[#171923] dark:text-[#FFF9EF] group-hover:text-[#800020] dark:group-hover:text-[#C99A45] transition-colors">
+                    ऑल-राजस्थान लाइव टेस्ट व मेरिट
+                  </h4>
+                  <p className="text-[11px] font-bold text-slate-500 dark:text-[#CBD2E1] leading-snug">
+                    राज्य स्तरीय लाइव मॉक टेस्ट दें और टॉपर्स पोडियम में अपनी रैंक देखें।
+                  </p>
+                </div>
+                <div className="w-10 h-10 rounded-2xl bg-[#FFF9EF] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform text-[#C99A45]">
+                  <Trophy size={20} />
+                </div>
+              </div>
+            </div>
+
+            {/* Wrong Questions & Spaced Revision Tile */}
+            <div
+              onClick={() => onNavigateTab?.("wrong")}
+              className="bg-white dark:bg-[#1F2330] rounded-3xl p-4 border border-[#E8D9C0] dark:border-[#31374A] shadow-xs hover:border-[#800020] dark:hover:border-[#C99A45] transition-all cursor-pointer group"
+            >
+              <div className="flex items-start justify-between">
+                <div className="space-y-1 max-w-[80%]">
+                  <span className="px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-600 dark:text-rose-400 text-[9px] font-black uppercase tracking-wider inline-flex items-center gap-1">
+                    <RotateCcw size={10} /> Spaced Revision
+                  </span>
+                  <h4 className="text-sm font-black text-[#171923] dark:text-[#FFF9EF] group-hover:text-[#800020] dark:group-hover:text-[#C99A45] transition-colors">
+                    गलत प्रश्न रिवीजन बैंक ({wrongCount})
+                  </h4>
+                  <p className="text-[11px] font-bold text-slate-500 dark:text-[#CBD2E1] leading-snug">
+                    गलतियों को कंठस्थ ज्ञान में बदलें और परीक्षा में निगेटिव मार्किंग से बचें।
+                  </p>
+                </div>
+                <div className="w-10 h-10 rounded-2xl bg-[#FFF9EF] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform text-rose-500">
+                  <RotateCcw size={20} />
+                </div>
+              </div>
+            </div>
+
+            {/* Rajasthan PYQ Vault Tile */}
+            <div
+              onClick={() => onNavigateTab?.("pyq_vault")}
+              className="bg-white dark:bg-[#1F2330] rounded-3xl p-4 border border-[#E8D9C0] dark:border-[#31374A] shadow-xs hover:border-[#800020] dark:hover:border-[#C99A45] transition-all cursor-pointer group"
+            >
+              <div className="flex items-start justify-between">
+                <div className="space-y-1 max-w-[80%]">
+                  <span className="px-2 py-0.5 rounded-full bg-[#C99A45]/20 text-[#800020] dark:text-[#C99A45] text-[9px] font-black uppercase tracking-wider inline-flex items-center gap-1">
+                    <BookOpen size={10} /> PYQ Papers
+                  </span>
+                  <h4 className="text-sm font-black text-[#171923] dark:text-[#FFF9EF] group-hover:text-[#800020] dark:group-hover:text-[#C99A45] transition-colors">
+                    राजस्थान PYQ वॉल्ट (विगत 25 वर्ष)
+                  </h4>
+                  <p className="text-[11px] font-bold text-slate-500 dark:text-[#CBD2E1] leading-snug">
+                    RPSC एवं RSMSSB के पिछले वर्षों के पेपर्स व्याख्या सहित हल करें।
+                  </p>
+                </div>
+                <div className="w-10 h-10 rounded-2xl bg-[#FFF9EF] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform text-[#800020] dark:text-[#C99A45]">
+                  <Layers size={20} />
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.section>
+
+        {/* ─────────────────────────────────────────────────────────────
+            4. ASPIRANT TOOLKIT & PREFERENCES
+        ───────────────────────────────────────────────────────────── */}
+        <motion.section variants={itemVariants} className="space-y-2.5">
+          <h3 className="text-xs font-black text-slate-600 dark:text-[#E8D9C0] uppercase tracking-wider px-1">
+            टूलकिट एवं अध्ययन प्राथमिकताएं (Settings)
+          </h3>
+          <div className="bg-white dark:bg-[#1F2330] rounded-3xl border border-[#E8D9C0] dark:border-[#31374A] shadow-xs overflow-hidden divide-y divide-[#E8D9C0]/60 dark:divide-[#31374A]">
             {/* App & Practice Settings */}
-            <button 
+            <button
               onClick={() => {
                 triggerHaptic("light");
                 setShowSettingsModal(true);
               }}
-              className="w-full flex items-center justify-between p-4 hover:bg-[#FFF9EF] dark:hover:bg-[#252A3A]/60 transition-colors group cursor-pointer"
+              className="w-full flex items-center justify-between p-4 hover:bg-[#FFF9EF] dark:hover:bg-[#252A3A]/60 transition-colors group cursor-pointer text-left"
             >
               <div className="flex items-center gap-3.5">
-                <div className="w-10 h-10 rounded-xl bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] flex items-center justify-center shadow-2xs">
+                <div className="w-10 h-10 rounded-2xl bg-[#800020]/10 dark:bg-[#C99A45]/15 text-[#800020] dark:text-[#C99A45] flex items-center justify-center shrink-0 shadow-2xs">
                   <Settings size={19} />
                 </div>
-                <div className="text-left min-w-0 flex-1">
+                <div className="min-w-0 flex-1">
                   <span className="text-sm font-black text-[#171923] dark:text-[#FFF9EF] block truncate">
-                    Practice & Display Settings
+                    अभ्यास एवं डिस्प्ले सेटिंग्स (Display & Sound)
                   </span>
-                  <span className="text-[10px] text-[#52576A] dark:text-[#CBD2E1] font-bold uppercase tracking-wider mt-0.5 block truncate tabular-nums">
-                    Daily Goal: {settings.dailyGoal || 20} MCQs • Sound & Haptics
+                  <span className="text-[11px] text-slate-500 dark:text-[#CBD2E1] font-bold block truncate">
+                    दैनिक लक्ष्य: {dailyGoal} MCQs • ध्वनि व वाइब्रेशन • परीक्षा टाइमर
                   </span>
                 </div>
               </div>
-              <ChevronRight size={18} className="text-[#787D91] group-hover:text-[#800020] dark:group-hover:text-[#F47B20] transition-colors" />
+              <ChevronRight size={18} className="text-slate-400 group-hover:text-[#800020] dark:group-hover:text-[#C99A45] transition-colors" />
             </button>
 
-            {/* AI Settings */}
-            <button 
+            {/* AI Assistant Preferences */}
+            <button
               onClick={() => {
                 triggerHaptic("light");
                 setShowApiSettingsModal(true);
               }}
-              className="w-full flex items-center justify-between p-4 hover:bg-[#FFF9EF] dark:hover:bg-[#252A3A]/60 transition-colors group cursor-pointer"
+              className="w-full flex items-center justify-between p-4 hover:bg-[#FFF9EF] dark:hover:bg-[#252A3A]/60 transition-colors group cursor-pointer text-left"
             >
               <div className="flex items-center gap-3.5">
-                <div className="w-10 h-10 rounded-xl bg-[#C99A45]/15 text-[#C99A45] flex items-center justify-center shadow-2xs">
+                <div className="w-10 h-10 rounded-2xl bg-[#C99A45]/20 text-[#800020] dark:text-[#C99A45] flex items-center justify-center shrink-0 shadow-2xs">
                   <Sparkles size={19} />
                 </div>
-                <div className="text-left min-w-0 flex-1">
+                <div className="min-w-0 flex-1">
                   <span className="text-sm font-black text-[#171923] dark:text-[#FFF9EF] block truncate">
-                    Study Assistant Preferences
+                    AI अध्ययन सहायक प्राथमिकताएं (AI Model & Keys)
                   </span>
-                  <span className="text-[10px] text-[#52576A] dark:text-[#CBD2E1] font-bold uppercase tracking-wider mt-0.5 block truncate">
-                    {settings.aiMode === "personal_keys" ? "Personal Keys Active" : "DISHA 20-20 Default Active"}
+                  <span className="text-[11px] text-slate-500 dark:text-[#CBD2E1] font-bold block truncate">
+                    {settings.aiMode === "personal_keys" ? "व्यक्तिगत Gemini Key सक्रिय" : "DISHA 20-20 AI डिफ़ॉल्ट सक्रिय"}
                   </span>
                 </div>
               </div>
-              <ChevronRight size={18} className="text-[#787D91] group-hover:text-[#800020] dark:group-hover:text-[#F47B20] transition-colors" />
+              <ChevronRight size={18} className="text-slate-400 group-hover:text-[#800020] dark:group-hover:text-[#C99A45] transition-colors" />
             </button>
 
             {/* Share App */}
-            <button 
+            <button
               onClick={handleShareInvite}
-              className="w-full flex items-center justify-between p-4 hover:bg-[#FFF9EF] dark:hover:bg-[#252A3A]/60 transition-colors group cursor-pointer"
+              className="w-full flex items-center justify-between p-4 hover:bg-[#FFF9EF] dark:hover:bg-[#252A3A]/60 transition-colors group cursor-pointer text-left"
             >
               <div className="flex items-center gap-3.5">
-                <div className="w-10 h-10 rounded-xl bg-[#F47B20]/15 text-[#F47B20] flex items-center justify-center shadow-2xs">
+                <div className="w-10 h-10 rounded-2xl bg-[#F47B20]/15 text-[#F47B20] flex items-center justify-center shrink-0 shadow-2xs">
                   <Share2 size={19} />
                 </div>
-                <div className="text-left">
-                  <span className="text-sm font-black text-[#171923] dark:text-[#FFF9EF] block">
-                    Invite Fellow Aspirants
+                <div className="min-w-0 flex-1">
+                  <span className="text-sm font-black text-[#171923] dark:text-[#FFF9EF] block truncate">
+                    साथी अभ्यर्थियों को आमंत्रित करें (Share App)
                   </span>
-                  <span className="text-[10px] text-[#52576A] dark:text-[#CBD2E1] font-bold uppercase tracking-widest mt-0.5 block">
-                    Share DISHA 20-20 on WhatsApp & Telegram
+                  <span className="text-[11px] text-slate-500 dark:text-[#CBD2E1] font-bold block truncate">
+                    WhatsApp व Telegram पर DISHA 20-20 साझा करें
                   </span>
                 </div>
               </div>
-              <ChevronRight size={18} className="text-[#787D91] group-hover:text-[#800020] dark:group-hover:text-[#F47B20] transition-colors" />
+              <ChevronRight size={18} className="text-slate-400 group-hover:text-[#800020] dark:group-hover:text-[#C99A45] transition-colors" />
             </button>
           </div>
         </motion.section>
 
-        {/* 4. COMMUNITY & LEGAL GRID */}
+        {/* ─────────────────────────────────────────────────────────────
+            5. COMMUNITY, HELP & LEGAL GRID
+        ───────────────────────────────────────────────────────────── */}
         <motion.section variants={itemVariants} className="space-y-2.5">
-          <h3 className="text-[10px] font-black text-[#52576A] dark:text-[#CBD2E1] uppercase tracking-[0.2em] px-1">
-            Support & Platform Info
+          <h3 className="text-xs font-black text-slate-600 dark:text-[#E8D9C0] uppercase tracking-wider px-1">
+            सहायता, कम्युनिटी एवं नीति (Support)
           </h3>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
             {[
-              { label: "Community", sub: "Telegram Hub", icon: Send, color: "text-[#800020] dark:text-[#F47B20]", bg: "bg-[#800020]/10 dark:bg-[#F47B20]/15", action: () => window.open("https://t.me/disha2020_official", "_blank") },
-              { label: "Help Center", sub: "Contact Us", icon: Mail, color: "text-[#F47B20]", bg: "bg-[#F47B20]/15", action: () => onNavigateTab?.("contact") },
-              { label: "About DISHA", sub: "Our Mission", icon: Info, color: "text-[#C99A45]", bg: "bg-[#C99A45]/15", action: () => setShowAboutModal(true) },
-              { label: "Legal", sub: "Privacy & Terms", icon: Shield, color: "text-[#15803D] dark:text-emerald-400", bg: "bg-[#15803D]/10", action: () => onNavigateTab?.("privacy-policy") },
+              {
+                label: "टेलीग्राम",
+                sub: "कम्युनिटी हब",
+                icon: Send,
+                color: "text-[#800020] dark:text-[#C99A45]",
+                bg: "bg-[#800020]/10 dark:bg-[#C99A45]/15",
+                action: () => window.open("https://t.me/disha2020_official", "_blank"),
+              },
+              {
+                label: "सहायता केंद्र",
+                sub: "संपर्क करें",
+                icon: Mail,
+                color: "text-[#F47B20]",
+                bg: "bg-[#F47B20]/15",
+                action: () => onNavigateTab?.("contact"),
+              },
+              {
+                label: "दिशा 20-20",
+                sub: "हमारा उद्देश्य",
+                icon: Info,
+                color: "text-[#C99A45]",
+                bg: "bg-[#C99A45]/15",
+                action: () => setShowAboutModal(true),
+              },
+              {
+                label: "गोपनीयता नीति",
+                sub: "नियम व शर्तें",
+                icon: Shield,
+                color: "text-emerald-600 dark:text-emerald-400",
+                bg: "bg-emerald-500/10",
+                action: () => onNavigateTab?.("privacy-policy"),
+              },
             ].map((item, i) => (
               <button
                 key={i}
                 onClick={item.action}
-                className="bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] p-3.5 rounded-[20px] flex flex-col items-center text-center gap-2 shadow-2xs hover:border-[#800020] dark:hover:border-[#F47B20] active:scale-95 transition-all cursor-pointer group"
+                className="bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] p-3.5 rounded-2xl flex flex-col items-center text-center gap-2 shadow-2xs hover:border-[#800020] dark:hover:border-[#C99A45] active:scale-95 transition-all cursor-pointer group"
               >
-                <div className={`w-9 h-9 rounded-xl ${item.bg} ${item.color} flex items-center justify-center group-hover:scale-105 transition-transform shrink-0`}>
-                  <item.icon size={17} />
+                <div
+                  className={`w-10 h-10 rounded-xl ${item.bg} ${item.color} flex items-center justify-center group-hover:scale-105 transition-transform shrink-0`}
+                >
+                  <item.icon size={18} />
                 </div>
                 <div className="min-w-0 w-full px-0.5">
-                  <span className="text-[10px] font-black text-[#171923] dark:text-[#FFF9EF] block truncate uppercase tracking-wider">{item.label}</span>
-                  <span className="text-[8.5px] font-bold text-[#787D91] dark:text-[#929AB0] block truncate uppercase tracking-wider">{item.sub}</span>
+                  <span className="text-[11px] font-black text-[#171923] dark:text-[#FFF9EF] block truncate">
+                    {item.label}
+                  </span>
+                  <span className="text-[9px] font-bold text-slate-500 dark:text-[#CBD2E1] block truncate">
+                    {item.sub}
+                  </span>
                 </div>
               </button>
             ))}
           </div>
         </motion.section>
 
-        {/* 5. SYSTEM ACTIONS */}
+        {/* ─────────────────────────────────────────────────────────────
+            6. SYSTEM DATA & STORAGE ACTIONS
+        ───────────────────────────────────────────────────────────── */}
         <motion.section variants={itemVariants} className="pt-1">
-          <div className="bg-[#F7EFE2] dark:bg-[#1F2330] rounded-[24px] p-2 space-y-1 border border-[#E8D9C0] dark:border-[#31374A]">
-            <button 
+          <div className="bg-[#F7EFE2] dark:bg-[#1F2330] rounded-3xl p-2 space-y-1.5 border border-[#E8D9C0] dark:border-[#31374A]">
+            {/* Reset Progress */}
+            <button
               onClick={() => setShowResetConfirm(true)}
-              className="w-full flex items-center justify-between p-3.5 hover:bg-white dark:hover:bg-[#252A3A] rounded-2xl transition-all group cursor-pointer"
+              className="w-full flex items-center justify-between p-3.5 hover:bg-white dark:hover:bg-[#252A3A] rounded-2xl transition-all group cursor-pointer text-left"
             >
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-xl bg-[#DC2626]/10 text-[#DC2626] flex items-center justify-center">
+                <div className="w-8 h-8 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
                   <RotateCcw size={16} />
                 </div>
-                <span className="text-xs font-bold text-[#DC2626] dark:rose-400">Reset All Study Progress</span>
+                <div>
+                  <span className="text-xs font-black text-rose-600 dark:text-rose-400 block">
+                    अध्ययन प्रगति रीसेट करें (Reset Study Progress)
+                  </span>
+                  <span className="text-[10px] text-slate-500 dark:text-[#CBD2E1] block">
+                    सभी प्रश्न अभ्यास और आंकड़े साफ़ करें
+                  </span>
+                </div>
               </div>
-              <ChevronRight size={14} className="text-[#DC2626]/60" />
+              <ChevronRight size={14} className="text-rose-400/80" />
             </button>
 
-            <button 
+            {/* Clear Cache */}
+            <button
               onClick={() => setShowCacheResetConfirm(true)}
-              className="w-full flex items-center justify-between p-3.5 hover:bg-white dark:hover:bg-[#252A3A] rounded-2xl transition-all group cursor-pointer"
+              className="w-full flex items-center justify-between p-3.5 hover:bg-white dark:hover:bg-[#252A3A] rounded-2xl transition-all group cursor-pointer text-left"
             >
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-xl bg-white dark:bg-[#252A3A] text-[#52576A] dark:text-[#CBD2E1] flex items-center justify-center border border-[#E8D9C0] dark:border-[#31374A]">
+                <div className="w-8 h-8 rounded-xl bg-white dark:bg-[#252A3A] text-slate-700 dark:text-[#FFF9EF] flex items-center justify-center border border-[#E8D9C0] dark:border-[#31374A] shrink-0">
                   <RefreshCw size={16} />
                 </div>
-                <span className="text-xs font-bold text-[#52576A] dark:text-[#CBD2E1]">Clear App Cache & Sync</span>
+                <div>
+                  <span className="text-xs font-black text-[#171923] dark:text-[#FFF9EF] block">
+                    कैश व क्लाउड सिंक ताज़ा करें (Purge Cache & Sync)
+                  </span>
+                  <span className="text-[10px] text-slate-500 dark:text-[#CBD2E1] block">
+                    ऑफलाइन फाइल्स रिफ्रेश और डेटा सिंक करें
+                  </span>
+                </div>
               </div>
-              <ChevronRight size={14} className="text-[#787D91]" />
+              <ChevronRight size={14} className="text-slate-400" />
             </button>
 
+            {/* Logout */}
             {isAuthenticated && (
-              <button 
+              <button
                 onClick={onLogout}
-                className="w-full flex items-center justify-between p-3.5 hover:bg-white dark:hover:bg-[#252A3A] rounded-2xl transition-all group cursor-pointer"
+                className="w-full flex items-center justify-between p-3.5 hover:bg-white dark:hover:bg-[#252A3A] rounded-2xl transition-all group cursor-pointer text-left"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-xl bg-[#800020] text-white flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-xl bg-[#800020] text-white flex items-center justify-center shrink-0">
                     <LogOut size={16} />
                   </div>
-                  <span className="text-xs font-bold text-[#171923] dark:text-[#FFF9EF]">Logout Current Session</span>
+                  <div>
+                    <span className="text-xs font-black text-[#800020] dark:text-rose-400 block">
+                      सत्र समाप्त करें (Logout Current Session)
+                    </span>
+                    <span className="text-[10px] text-slate-500 dark:text-[#CBD2E1] block">
+                      खाते से सुरक्षित लॉगआउट करें
+                    </span>
+                  </div>
                 </div>
-                <ChevronRight size={14} className="text-[#787D91]" />
+                <ChevronRight size={14} className="text-slate-400" />
               </button>
             )}
           </div>
         </motion.section>
 
-        <motion.section variants={itemVariants} className="text-center pt-2 pb-4">
-          <p className="text-[10px] font-black text-[#800020] dark:text-[#C99A45] uppercase tracking-[0.22em]">
+        {/* Footer Brand Banner */}
+        <motion.section variants={itemVariants} className="text-center pt-2 pb-6 space-y-1">
+          <p className="text-[11px] font-black text-[#800020] dark:text-[#C99A45] uppercase tracking-widest">
             DISHA 20-20 • दिशा 20-20 • सही दिशा, सटीक तैयारी
+          </p>
+          <p className="text-[10px] font-bold text-slate-400 dark:text-slate-600">
+            RPSC • RSMSSB • REET • CET • RAS • राजस्थान प्रतियोगी परीक्षा विशेषज्ञ
           </p>
         </motion.section>
       </motion.main>
 
-      {/* MODALS */}
-      
-      {/* Reset Confirmation */}
+      {/* ─────────────────────────────────────────────────────────────
+          7. MODALS
+      ───────────────────────────────────────────────────────────── */}
+
+      {/* Edit Profile Modal */}
+      {showEditProfileModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div
+            className="fixed inset-0 bg-black/75 backdrop-blur-xs"
+            onClick={() => setShowEditProfileModal(false)}
+          />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="relative bg-white dark:bg-[#1F2330] rounded-3xl p-6 w-full max-w-md border border-[#E8D9C0] dark:border-[#C99A45]/30 shadow-2xl space-y-5"
+          >
+            <div className="flex items-center justify-between pb-3 border-b border-[#E8D9C0] dark:border-[#31374A]">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-[#800020]/10 dark:bg-[#C99A45]/15 text-[#800020] dark:text-[#C99A45] flex items-center justify-center">
+                  <User size={20} />
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-[#171923] dark:text-[#FFF9EF]">
+                    अभ्यर्थी प्रोफ़ाइल संपादन
+                  </h3>
+                  <p className="text-[10px] font-bold text-slate-500 dark:text-[#CBD2E1] uppercase tracking-wider">
+                    Update Aspirant Identity
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowEditProfileModal(false)}
+                className="w-8 h-8 rounded-full bg-[#F7EFE2] dark:bg-[#252A3A] flex items-center justify-center text-slate-600 dark:text-[#FFF9EF] hover:bg-[#E8D9C0] cursor-pointer"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveProfile} className="space-y-4">
+              {/* Full Name */}
+              <div className="space-y-1">
+                <label className="text-[11px] font-black text-slate-700 dark:text-[#E8D9C0] uppercase tracking-wider block">
+                  आपका पूरा नाम (Full Name) *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] text-sm font-bold text-[#171923] dark:text-[#FFF9EF] focus:outline-none focus:ring-2 focus:ring-[#800020] dark:focus:ring-[#C99A45]"
+                  placeholder="अपना नाम दर्ज करें"
+                />
+              </div>
+
+              {/* Target Exam */}
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-black text-slate-700 dark:text-[#E8D9C0] uppercase tracking-wider block">
+                  लक्षित परीक्षा (Target Exam) *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={editTargetExam}
+                  onChange={(e) => setEditTargetExam(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] text-sm font-bold text-[#171923] dark:text-[#FFF9EF] focus:outline-none focus:ring-2 focus:ring-[#800020] dark:focus:ring-[#C99A45]"
+                  placeholder="उदा. RPSC RAS Pre / CET / SI"
+                />
+
+                {/* Popular Exam Chips */}
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {POPULAR_TARGET_EXAMS.map((exam) => (
+                    <button
+                      type="button"
+                      key={exam}
+                      onClick={() => setEditTargetExam(exam)}
+                      className={`px-2.5 py-1 rounded-lg text-[10px] font-black transition-all cursor-pointer ${
+                        editTargetExam === exam
+                          ? "bg-[#800020] dark:bg-[#C99A45] text-white dark:text-slate-950 shadow-2xs"
+                          : "bg-[#F7EFE2] dark:bg-[#252A3A] text-slate-700 dark:text-[#E8D9C0] border border-[#E8D9C0] dark:border-[#31374A]"
+                      }`}
+                    >
+                      {exam}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Daily Goal Question Selector */}
+              <div className="space-y-1.5 pt-1">
+                <label className="text-[11px] font-black text-slate-700 dark:text-[#E8D9C0] uppercase tracking-wider block">
+                  दैनिक अभ्यास लक्ष्य (Daily Question Goal)
+                </label>
+                <div className="grid grid-cols-4 gap-2">
+                  {[20, 30, 50, 100].map((goal) => (
+                    <button
+                      type="button"
+                      key={goal}
+                      onClick={() => setEditDailyGoal(goal)}
+                      className={`py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                        editDailyGoal === goal
+                          ? "bg-gradient-to-r from-[#800020] to-[#5E0017] dark:from-[#C99A45] dark:to-[#B88934] text-white dark:text-slate-950 shadow-xs"
+                          : "bg-[#F7EFE2] dark:bg-[#252A3A] text-slate-700 dark:text-[#E8D9C0] border border-[#E8D9C0] dark:border-[#31374A]"
+                      }`}
+                    >
+                      {goal} प्रश्न
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="pt-2 flex items-center gap-2">
+                <button
+                  type="submit"
+                  className="flex-1 py-3 bg-gradient-to-r from-[#800020] via-[#5E0017] to-[#800020] hover:opacity-95 text-white rounded-xl text-xs font-black shadow-md border border-[#C99A45]/30 cursor-pointer active:scale-95 transition-all"
+                >
+                  बदलाव सुरक्षित करें
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowEditProfileModal(false)}
+                  className="px-4 py-3 bg-[#F7EFE2] dark:bg-[#252A3A] text-slate-700 dark:text-[#E8D9C0] rounded-xl text-xs font-bold cursor-pointer"
+                >
+                  रद्द करें
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Reset Confirmation Modal */}
       {showResetConfirm && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
-          <div className="fixed inset-0 bg-[#171923]/80 backdrop-blur-sm" onClick={() => setShowResetConfirm(false)} />
-          <motion.div 
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div
+            className="fixed inset-0 bg-black/75 backdrop-blur-xs"
+            onClick={() => setShowResetConfirm(false)}
+          />
+          <motion.div
             initial={{ opacity: 0, scale: 0.94 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="relative bg-white dark:bg-[#1F2330] rounded-[32px] p-7 w-full max-w-sm border border-[#E8D9C0] dark:border-[#31374A] shadow-2xl"
+            className="relative bg-white dark:bg-[#1F2330] rounded-3xl p-6 w-full max-w-sm border border-rose-200 dark:border-rose-900/50 shadow-2xl space-y-4"
           >
-            <div className="w-16 h-16 rounded-2xl bg-[#DC2626]/10 text-[#DC2626] flex items-center justify-center mx-auto mb-5">
-              <AlertCircle size={32} />
+            <div className="w-14 h-14 rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center mx-auto">
+              <AlertCircle size={28} />
             </div>
-            <h3 className="text-xl font-black text-[#171923] dark:text-[#FFF9EF] text-center tracking-tight">Hard Reset?</h3>
-            <p className="text-[13px] text-[#52576A] dark:text-[#CBD2E1] text-center mt-2.5 leading-relaxed font-medium">
-              This will permanently clear all your test attempts and statistics. This action cannot be reversed.
+            <h3 className="text-lg font-black text-[#171923] dark:text-[#FFF9EF] text-center tracking-tight">
+              क्या आप अध्ययन प्रगति रीसेट करना चाहते हैं?
+            </h3>
+            <p className="text-xs text-slate-500 dark:text-[#CBD2E1] text-center leading-relaxed">
+              यह आपके सभी हल किए गए प्रश्नों, स्कोर और आंकड़ों को स्थायी रूप से हटा देगा। यह क्रिया वापस नहीं ली जा सकती।
             </p>
-            
-            <div className="mt-5 space-y-2">
-              <label className="text-[10px] font-black text-[#787D91] dark:text-[#929AB0] uppercase tracking-widest block text-center">Type "RESET" to confirm</label>
-              <input 
+
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-black text-slate-600 dark:text-[#E8D9C0] uppercase tracking-widest block text-center">
+                पुष्टि के लिए &quot;RESET&quot; टाइप करें
+              </label>
+              <input
                 type="text"
                 value={resetConfirmText}
                 onChange={(e) => setResetConfirmText(e.target.value.toUpperCase())}
                 placeholder="RESET"
-                className="w-full px-4 py-3 rounded-xl bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] text-center text-sm font-black text-[#DC2626] focus:outline-none focus:ring-2 focus:ring-[#DC2626]/25"
+                className="w-full px-4 py-2.5 rounded-xl bg-[#FFF9EF] dark:bg-[#171923] border border-rose-300 dark:border-rose-800 text-center text-sm font-black text-rose-600 focus:outline-none focus:ring-2 focus:ring-rose-500/30"
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-3 mt-7">
-              <button 
+            <div className="grid grid-cols-2 gap-2.5 pt-2">
+              <button
                 onClick={() => {
                   setShowResetConfirm(false);
                   setResetConfirmText("");
                 }}
-                className="py-3.5 rounded-2xl bg-[#F7EFE2] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] text-xs font-black uppercase tracking-widest text-[#52576A] dark:text-[#CBD2E1] active:scale-95 transition-transform cursor-pointer"
+                className="py-2.5 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] text-xs font-black text-slate-700 dark:text-[#CBD2E1] active:scale-95 transition-transform cursor-pointer"
               >
-                Cancel
+                रद्द करें
               </button>
-              <button 
+              <button
                 onClick={() => {
                   if (resetConfirmText === "RESET") {
                     onResetProgress();
                     setShowResetConfirm(false);
                     setResetConfirmText("");
-                    showToast("Progress reset successfully.");
+                    showToast("अध्ययन प्रगति सफलतापूर्वक रीसेट हो गई।");
                   }
                 }}
                 disabled={resetConfirmText !== "RESET"}
-                className={`py-3.5 rounded-2xl text-white text-xs font-black uppercase tracking-widest shadow-lg transition-all active:scale-95 ${
-                  resetConfirmText === "RESET" 
-                    ? "bg-[#DC2626] shadow-[#DC2626]/25 cursor-pointer" 
-                    : "bg-[#E8D9C0] dark:bg-[#31374A] text-[#787D91] cursor-not-allowed shadow-none"
+                className={`py-2.5 rounded-xl text-white text-xs font-black shadow-md transition-all active:scale-95 ${
+                  resetConfirmText === "RESET"
+                    ? "bg-rose-600 hover:bg-rose-700 cursor-pointer shadow-rose-600/30"
+                    : "bg-slate-300 dark:bg-slate-700 text-slate-500 cursor-not-allowed shadow-none"
                 }`}
               >
-                Confirm
+                हाँ, रीसेट करें
               </button>
             </div>
           </motion.div>
         </div>
       )}
 
-      {/* Cache Reset Confirmation */}
+      {/* Cache Purge Modal */}
       {showCacheResetConfirm && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
-          <div className="fixed inset-0 bg-[#171923]/80 backdrop-blur-sm" onClick={() => setShowCacheResetConfirm(false)} />
-          <motion.div 
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div
+            className="fixed inset-0 bg-black/75 backdrop-blur-xs"
+            onClick={() => setShowCacheResetConfirm(false)}
+          />
+          <motion.div
             initial={{ opacity: 0, scale: 0.94 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="relative bg-white dark:bg-[#1F2330] rounded-[32px] p-7 w-full max-w-sm border border-[#E8D9C0] dark:border-[#31374A] shadow-2xl"
+            className="relative bg-white dark:bg-[#1F2330] rounded-3xl p-6 w-full max-w-sm border border-[#E8D9C0] dark:border-[#31374A] shadow-2xl space-y-4"
           >
-            <div className="w-16 h-16 rounded-2xl bg-[#F47B20]/15 text-[#F47B20] flex items-center justify-center mx-auto mb-5">
-              <RefreshCw size={32} />
+            <div className="w-14 h-14 rounded-2xl bg-[#F47B20]/15 text-[#F47B20] flex items-center justify-center mx-auto">
+              <RefreshCw size={28} />
             </div>
-            <h3 className="text-xl font-black text-[#171923] dark:text-[#FFF9EF] text-center tracking-tight">Purge Cache?</h3>
-            <p className="text-[13px] text-[#52576A] dark:text-[#CBD2E1] text-center mt-2.5 leading-relaxed font-medium">
-              This will clear local session data and force a full synchronization. You may need to sign in again.
+            <h3 className="text-lg font-black text-[#171923] dark:text-[#FFF9EF] text-center tracking-tight">
+              कैश और सिंक ताज़ा करें?
+            </h3>
+            <p className="text-xs text-slate-500 dark:text-[#CBD2E1] text-center leading-relaxed font-medium">
+              यह लोकल कैश साफ़ करके क्लाउड से नवीनतम प्रश्न और डेटा डाउनलोड करेगा।
             </p>
-            <div className="grid grid-cols-2 gap-3 mt-8">
-              <button 
+            <div className="grid grid-cols-2 gap-2.5 pt-2">
+              <button
                 onClick={() => setShowCacheResetConfirm(false)}
-                className="py-3.5 rounded-2xl bg-[#F7EFE2] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] text-xs font-black uppercase tracking-widest text-[#52576A] dark:text-[#CBD2E1] active:scale-95 transition-transform cursor-pointer"
+                className="py-2.5 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] text-xs font-black text-slate-700 dark:text-[#CBD2E1] active:scale-95 transition-transform cursor-pointer"
               >
-                Cancel
+                रद्द करें
               </button>
-              <button 
+              <button
                 onClick={async () => {
                   triggerHaptic("light");
                   safeClearLocalStorage();
                   safeClearSessionStorage();
                   await clearIndexedDB().catch(() => {});
                   setShowCacheResetConfirm(false);
-                  showToast("System cache purged. Reloading...");
+                  showToast("सिस्टम कैश साफ़ हो गया। पुनः लोड हो रहा है...");
                   setTimeout(() => window.location.reload(), 1200);
                 }}
-                className="py-3.5 rounded-2xl bg-[#F47B20] hover:bg-[#E06A12] text-white text-xs font-black uppercase tracking-widest shadow-lg shadow-[#F47B20]/25 active:scale-95 transition-transform cursor-pointer"
+                className="py-2.5 rounded-xl bg-gradient-to-r from-[#F47B20] to-[#E06A14] text-white text-xs font-black shadow-md shadow-[#F47B20]/25 active:scale-95 transition-transform cursor-pointer"
               >
-                Yes, Purge
+                हाँ, रिफ्रेश करें
               </button>
             </div>
-          </motion.div>
-        </div>
-      )}
-
-      {/* Edit Profile Modal */}
-      {showEditProfileModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
-          <div className="fixed inset-0 bg-[#171923]/80 backdrop-blur-sm" onClick={() => setShowEditProfileModal(false)} />
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.94 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="relative bg-white dark:bg-[#1F2330] rounded-[32px] p-7 w-full max-w-sm border border-[#E8D9C0] dark:border-[#31374A] shadow-2xl"
-          >
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3.5">
-                <div className="w-11 h-11 rounded-2xl bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] flex items-center justify-center">
-                  <User size={22} />
-                </div>
-                <div>
-                  <h3 className="text-lg font-black text-[#171923] dark:text-[#FFF9EF]">Aspirant Profile</h3>
-                  <p className="text-[10px] font-bold text-[#787D91] dark:text-[#929AB0] uppercase tracking-widest">Update Identity</p>
-                </div>
-              </div>
-              <button onClick={() => setShowEditProfileModal(false)} className="w-9 h-9 rounded-full bg-[#F7EFE2] dark:bg-[#252A3A] flex items-center justify-center text-[#52576A] dark:text-[#CBD2E1] cursor-pointer">
-                <X size={18} />
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveProfile} className="space-y-5">
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-[#52576A] dark:text-[#CBD2E1] uppercase tracking-[0.18em] block ml-1">Full Name</label>
-                <input 
-                  type="text"
-                  required
-                  value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
-                  className="w-full px-4 py-3.5 rounded-2xl bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] text-sm font-bold text-[#171923] dark:text-[#FFF9EF] focus:outline-none focus:ring-2 focus:ring-[#800020] dark:focus:ring-[#F47B20] transition-all"
-                  placeholder="Enter your name"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-[#52576A] dark:text-[#CBD2E1] uppercase tracking-[0.18em] block ml-1">Target Exam</label>
-                <input 
-                  type="text"
-                  required
-                  value={editTargetExam}
-                  onChange={(e) => setEditTargetExam(e.target.value)}
-                  className="w-full px-4 py-3.5 rounded-2xl bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] text-sm font-bold text-[#171923] dark:text-[#FFF9EF] focus:outline-none focus:ring-2 focus:ring-[#800020] dark:focus:ring-[#F47B20] transition-all"
-                  placeholder="e.g. RPSC RAS / REET / CET / RSMSSB"
-                />
-              </div>
-
-              <button 
-                type="submit"
-                className="w-full py-3.5 bg-[#800020] hover:bg-[#5E0017] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.18em] shadow-lg shadow-[#800020]/20 mt-2 active:scale-95 transition-transform cursor-pointer"
-              >
-                Save Changes
-              </button>
-            </form>
           </motion.div>
         </div>
       )}
 
       {/* About Modal */}
       {showAboutModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
-          <div className="fixed inset-0 bg-[#171923]/80 backdrop-blur-sm" onClick={() => setShowAboutModal(false)} />
-          <motion.div 
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div
+            className="fixed inset-0 bg-black/75 backdrop-blur-xs"
+            onClick={() => setShowAboutModal(false)}
+          />
+          <motion.div
             initial={{ opacity: 0, scale: 0.94 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="relative bg-white dark:bg-[#1F2330] rounded-[32px] p-7 w-full max-w-sm border border-[#E8D9C0] dark:border-[#31374A] shadow-2xl overflow-hidden"
+            className="relative bg-white dark:bg-[#1F2330] rounded-3xl p-6 w-full max-w-sm border border-[#E8D9C0] dark:border-[#C99A45]/30 shadow-2xl space-y-4"
           >
-            <div className="relative z-10">
-              <div className="flex items-center justify-between mb-6">
-                <AppLogo size="sm" variant="horizontal" showTagline={true} />
-                <button onClick={() => setShowAboutModal(false)} className="w-9 h-9 rounded-full bg-[#F7EFE2] dark:bg-[#252A3A] flex items-center justify-center text-[#52576A] dark:text-[#CBD2E1] cursor-pointer">
-                  <X size={18} />
-                </button>
-              </div>
-
-              <div className="space-y-4 text-sm text-[#52576A] dark:text-[#CBD2E1] leading-relaxed font-medium">
-                <p>DISHA 20-20 is a competitive-exam preparation platform designed to help aspirants master RPSC, RSMSSB, REET, CET, and RAS exams through topic-wise MCQs, PYQs, and spaced revision.</p>
-                
-                <div className="space-y-2.5 bg-[#FFF9EF] dark:bg-[#171923] p-4 rounded-2xl border border-[#E8D9C0] dark:border-[#31374A]">
-                  <div className="flex items-center gap-3 text-[#800020] dark:text-[#F47B20]">
-                    <div className="w-6 h-6 rounded-lg bg-[#800020]/10 dark:bg-[#F47B20]/15 flex items-center justify-center">
-                      <Check size={14} className="stroke-[3]" />
-                    </div>
-                    <span className="text-xs font-black uppercase tracking-wider">Cloud Synced Progress</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-[#800020] dark:text-[#F47B20]">
-                    <div className="w-6 h-6 rounded-lg bg-[#800020]/10 dark:bg-[#F47B20]/15 flex items-center justify-center">
-                      <Check size={14} className="stroke-[3]" />
-                    </div>
-                    <span className="text-xs font-black uppercase tracking-wider">Rajasthan PYQ Vault</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-[#800020] dark:text-[#F47B20]">
-                    <div className="w-6 h-6 rounded-lg bg-[#800020]/10 dark:bg-[#F47B20]/15 flex items-center justify-center">
-                      <Check size={14} className="stroke-[3]" />
-                    </div>
-                    <span className="text-xs font-black uppercase tracking-wider">Leitner Spaced Revision</span>
-                  </div>
-                </div>
-              </div>
-
-              <button 
+            <div className="flex items-center justify-between pb-3 border-b border-[#E8D9C0] dark:border-[#31374A]">
+              <AppLogo size="sm" variant="horizontal" showTagline={true} />
+              <button
                 onClick={() => setShowAboutModal(false)}
-                className="w-full py-3.5 bg-[#800020] hover:bg-[#5E0017] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] text-white rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] mt-6 active:scale-95 transition-transform cursor-pointer"
+                className="w-8 h-8 rounded-full bg-[#F7EFE2] dark:bg-[#252A3A] flex items-center justify-center text-slate-600 dark:text-[#FFF9EF] cursor-pointer"
               >
-                Return to Hub
+                <X size={16} />
               </button>
             </div>
+
+            <div className="space-y-3 text-xs text-slate-600 dark:text-[#CBD2E1] leading-relaxed">
+              <p>
+                <strong>दिशा 20-20 (DISHA 20-20)</strong> राजस्थान की समस्त प्रतियोगी परीक्षाओं (RPSC RAS, SI, REET, CET, Patwar आदि) के लिए समर्पित स्मार्ट तैयारी मंच है।
+              </p>
+
+              <div className="space-y-2 bg-[#FFF9EF] dark:bg-[#171923] p-3.5 rounded-2xl border border-[#E8D9C0] dark:border-[#31374A]">
+                <div className="flex items-center gap-2.5 text-[#800020] dark:text-[#C99A45]">
+                  <Check size={14} className="stroke-[3] text-emerald-600" />
+                  <span className="text-xs font-black">RPSC 5वां विकल्प (Option E) अनुपालन</span>
+                </div>
+                <div className="flex items-center gap-2.5 text-[#800020] dark:text-[#C99A45]">
+                  <Check size={14} className="stroke-[3] text-emerald-600" />
+                  <span className="text-xs font-black">राजस्थान PYQ वॉल्ट (विगत 25 वर्ष)</span>
+                </div>
+                <div className="flex items-center gap-2.5 text-[#800020] dark:text-[#C99A45]">
+                  <Check size={14} className="stroke-[3] text-emerald-600" />
+                  <span className="text-xs font-black">AI कमजोरी निदान एवं कस्टमाइज़्ड टेस्ट</span>
+                </div>
+                <div className="flex items-center gap-2.5 text-[#800020] dark:text-[#C99A45]">
+                  <Check size={14} className="stroke-[3] text-emerald-600" />
+                  <span className="text-xs font-black">ऑल-राजस्थान लाइव टेस्ट एवं मेरिट रैंकिंग</span>
+                </div>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowAboutModal(false)}
+              className="w-full py-3 bg-gradient-to-r from-[#800020] via-[#5E0017] to-[#800020] text-white rounded-xl text-xs font-black shadow-md border border-[#C99A45]/30 cursor-pointer active:scale-95 transition-all"
+            >
+              वापस जाएं
+            </button>
           </motion.div>
         </div>
       )}
@@ -721,6 +1203,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
         />
       )}
 
+      {/* Share Modal */}
       {shareData && (
         <ShareModal
           isOpen={!!shareData}
@@ -729,15 +1212,17 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
         />
       )}
 
+      {/* Toast Notification */}
       <AnimatePresence>
         {toastMessage && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
-            className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[150] bg-[#800020] dark:bg-[#F47B20] text-white px-6 py-3.5 rounded-2xl shadow-2xl text-xs font-black uppercase tracking-widest border border-white/15"
+            className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[150] bg-gradient-to-r from-[#800020] to-[#5E0017] text-white px-5 py-3 rounded-2xl shadow-2xl text-xs font-black tracking-wide border border-[#C99A45]/40 flex items-center gap-2"
           >
-            {toastMessage}
+            <CheckCircle2 size={15} className="text-[#C99A45]" />
+            <span>{toastMessage}</span>
           </motion.div>
         )}
       </AnimatePresence>

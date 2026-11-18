@@ -1504,7 +1504,12 @@ export default function App() {
             onOpenLogin={() => setIsLoginOpen(true)}
             progressStore={progressStore}
             settings={settings}
+            questions={combinedQuestions}
             onUpdateSettings={(newSettings: Partial<AppSettings>) => setSettings(prev => ({ ...prev, ...newSettings }))}
+            onUpdateProfile={(updatedProfile: UserProfile) => {
+              setUserProfile(updatedProfile);
+              saveUserProfile(updatedProfile);
+            }}
             onResetProgress={() => updateProgress(() => ({}))}
             onLogout={handleLogout}
             onNavigateTab={(tab: ActiveTab) => setActiveTab(tab)}
