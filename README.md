@@ -154,3 +154,17 @@ For complete developer knowledge transfer, refer to the detailed guides in the `
 
 Copyright © 2026 DISHA 20-20. All rights reserved.  
 Proprietary educational platform software. Unauthorized distribution, copying, or reverse engineering is strictly prohibited.
+
+## Deployment
+
+| Item | Value |
+| --- | --- |
+| Repository | `jagdishpaliyaljat-dev/disha-20-20-app` |
+| Vercel project | `disha-20-20-app` |
+| Build command | `pnpm run build` |
+| Output directory | `dist` |
+| Required env vars | `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` |
+
+Only the Supabase **publishable (anon)** key belongs in the frontend. Service-role
+and secret keys must never be committed or exposed to the client.
+
