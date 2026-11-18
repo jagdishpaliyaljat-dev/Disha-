@@ -122,10 +122,10 @@ CREATE INDEX IF NOT EXISTS idx_contact_messages_status ON public.contact_message
 -- ----------------------------------------------------------------------------
 -- SECURITY & AUTHORIZATION FUNCTIONS
 -- ----------------------------------------------------------------------------
--- Designated Administrator: jagdishpaliyaljat@gmail.com (provisioned via app_metadata.role = 'admin')
+-- Designated Administrator: jagdishpaliyaljat@gmail.com (provisioned strictly via server-controlled app_metadata.role = 'admin')
 -- Hardened Admin Authorization: Security Definer with empty search_path
--- Relies on server-controlled Supabase Auth app_metadata (role) and the
--- authenticated account email. Never trust user_metadata (client-controllable).
+-- Relies exclusively on server-controlled Supabase Auth app_metadata (role).
+-- Never trust user_metadata (which is client-controllable).
 CREATE OR REPLACE FUNCTION public.is_admin()
 RETURNS boolean
 LANGUAGE sql
@@ -134,36 +134,44 @@ STABLE
 SET search_path = ''
 AS $$
   SELECT COALESCE(
-    (auth.jwt() -> 'app_metadata' ->> 'role' = 'admin') OR
-    (
-      (auth.jwt() ->> 'email_confirmed_at' IS NOT NULL OR auth.jwt() -> 'app_metadata' ->> 'email_verified' = 'true' OR auth.jwt() ->> 'email_verified' = 'true') AND
-      LOWER(auth.jwt() ->> 'email') IN ('jagdishpaliyaljat@gmail.com', 'zdpaliyal@gmail.com', 'kamleshchoudhary96022@gmail.com', 'disha2020prep@gmail.com')
-    ),
+    (auth.jwt() -> 'app_metadata' ->> 'role' = 'admin'),
     false
   );
 $$;
 
-
 REVOKE ALL ON FUNCTION public.is_admin() FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.is_admin() TO anon, authenticated, service_role;
 
--- Trigger to prevent privilege escalation on profiles
-CREATE OR REPLACE FUNCTION public.handle_profile_role_guard()
-RETURNS TRIGGER AS $$
+-- Trigger to prevent privilege escalation & attribute tampering on profiles
+CREATE OR REPLACE FUNCTION public.handle_profile_security_guard()
+RETURNS trigger AS $$
 BEGIN
+  -- 1. Disallow changing the primary key ID
+  IF NEW.id IS DISTINCT FROM OLD.id THEN
+    RAISE EXCEPTION 'Modifying user profile ID is strictly forbidden';
+  END IF;
+
+  -- 2. Disallow students/non-admins from elevating their role
   IF NEW.role IS DISTINCT FROM OLD.role AND NOT public.is_admin() THEN
     NEW.role := OLD.role;
   END IF;
+
+  -- 3. Prevent tampering with original registration timestamp
+  IF NEW.created_at IS DISTINCT FROM OLD.created_at THEN
+    NEW.created_at := OLD.created_at;
+  END IF;
+
   NEW.updated_at := NOW();
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 DROP TRIGGER IF EXISTS trg_profile_role_guard ON public.profiles;
-CREATE TRIGGER trg_profile_role_guard
+DROP TRIGGER IF EXISTS trg_profile_security_guard ON public.profiles;
+CREATE TRIGGER trg_profile_security_guard
 BEFORE UPDATE ON public.profiles
 FOR EACH ROW
-EXECUTE FUNCTION public.handle_profile_role_guard();
+EXECUTE FUNCTION public.handle_profile_security_guard();
 
 -- ----------------------------------------------------------------------------
 -- ROW LEVEL SECURITY (RLS) POLICIES
@@ -197,7 +205,7 @@ CREATE POLICY "Admin Update Topics" ON public.topics FOR UPDATE USING (public.is
 CREATE POLICY "Admin Delete Topics" ON public.topics FOR DELETE USING (public.is_admin());
 
 -- Questions
-CREATE POLICY "Public Read Questions" ON public.questions FOR SELECT USING (true);
+CREATE POLICY "Public Read Questions" ON public.questions FOR SELECT USING (COALESCE(verified, true) = true OR public.is_admin());
 CREATE POLICY "Admin Insert Questions" ON public.questions FOR INSERT WITH CHECK (public.is_admin());
 CREATE POLICY "Admin Update Questions" ON public.questions FOR UPDATE USING (public.is_admin()) WITH CHECK (public.is_admin());
 CREATE POLICY "Admin Delete Questions" ON public.questions FOR DELETE USING (public.is_admin());
@@ -212,7 +220,7 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.profiles, public.attempts, 
 
 -- User Profiles: Isolated by owner, role-guarded
 CREATE POLICY "Profiles are viewable by owner" ON public.profiles FOR SELECT USING (auth.uid() = id OR public.is_admin());
-CREATE POLICY "Profiles updateable by owner" ON public.profiles FOR UPDATE USING (auth.uid() = id) WITH CHECK (auth.uid() = id);
+CREATE POLICY "Profiles updateable by owner" ON public.profiles FOR UPDATE USING (auth.uid() = id) WITH CHECK (auth.uid() = id AND (role = (SELECT p.role FROM public.profiles p WHERE p.id = auth.uid()) OR public.is_admin()));
 CREATE POLICY "Admins can update profiles" ON public.profiles FOR UPDATE USING (public.is_admin()) WITH CHECK (public.is_admin());
 CREATE POLICY "Profiles insertable by owner" ON public.profiles FOR INSERT WITH CHECK (auth.uid() = id);
 CREATE POLICY "Admins can delete profiles" ON public.profiles FOR DELETE USING (public.is_admin());
@@ -327,4 +335,39 @@ CREATE POLICY "Public Read Banners" ON storage.objects FOR SELECT USING (bucket_
 CREATE POLICY "Admin All Banners" ON storage.objects FOR ALL USING (bucket_id = 'banners' AND public.is_admin());
 CREATE POLICY "Authenticated Read Materials" ON storage.objects FOR SELECT USING (bucket_id = 'materials' AND auth.role() = 'authenticated');
 CREATE POLICY "Admin All Materials" ON storage.objects FOR ALL USING (bucket_id = 'materials' AND public.is_admin());
+
+-- ----------------------------------------------------------------------------
+-- 10. AUTOMATED USER PROFILE CREATION TRIGGER (auth.users -> public.profiles)
+-- ----------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = 'public'
+AS $$
+BEGIN
+  INSERT INTO public.profiles (id, email, display_name, photo_url, role)
+  VALUES (
+    NEW.id,
+    NEW.email,
+    COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.raw_user_meta_data->>'name', split_part(NEW.email, '@', 1)),
+    NEW.raw_user_meta_data->>'avatar_url',
+    CASE
+      WHEN NEW.raw_app_meta_data->>'role' = 'admin' THEN 'admin'
+      ELSE 'student'
+    END
+  )
+  ON CONFLICT (id) DO UPDATE SET
+    email = EXCLUDED.email,
+    role = CASE WHEN NEW.raw_app_meta_data->>'role' = 'admin' THEN 'admin' ELSE profiles.role END;
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW
+  EXECUTE FUNCTION public.handle_new_user();
+
 
