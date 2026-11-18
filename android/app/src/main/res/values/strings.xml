@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">दिशा 20-20</string>
+    <string name="title_activity_main">दिशा 20-20</string>
+    <string name="package_name">com.disha2020.examprep</string>
+    <string name="custom_url_scheme">com.disha2020.examprep</string>
+</resources>
