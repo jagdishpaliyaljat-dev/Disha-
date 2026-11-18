@@ -441,81 +441,76 @@ export const HomeTab: React.FC<HomeTabProps> = ({
           <motion.div
             whileTap={{ scale: 0.99 }}
             onClick={() => onNavigateTab?.("analytics")}
-            className="w-full bg-gradient-to-r from-[#800020] via-[#5E0017] to-[#171923] hover:brightness-105 border border-amber-400/30 rounded-xl sm:rounded-2xl p-3 sm:p-4 text-white shadow-md flex items-center justify-between text-left transition-all cursor-pointer group relative overflow-hidden"
+            className="w-full bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] hover:border-[#800020] dark:hover:border-[#F47B20] rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-xs flex items-center justify-between text-left transition-all cursor-pointer group"
           >
-            {/* Background Glow */}
-            <div className="absolute top-0 right-0 w-44 h-44 bg-gradient-to-bl from-[#F47B20]/25 to-transparent rounded-full blur-xl pointer-events-none" />
-
-            <div className="flex items-center gap-3 min-w-0 flex-1 relative z-10">
-              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-white/15 border border-white/20 text-[#F47B20] flex items-center justify-center shrink-0 shadow-xs">
-                <Target className="w-5 h-5 sm:w-6 sm:h-6 text-[#F47B20]" />
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl bg-[#800020]/10 dark:bg-[#800020]/30 text-[#800020] dark:text-[#F47B20] flex items-center justify-center shrink-0">
+                <Target className="w-5 h-5 sm:w-6 sm:h-6" />
               </div>
 
               <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-1.5 mb-0.5">
-                  <span className="text-xs sm:text-sm font-black tracking-tight text-white flex items-center gap-1">
-                    <span>छात्र AI रिपोर्ट कार्ड व कमजोरी रडार</span>
-                  </span>
-                  <span className="px-1.5 py-0.2 rounded-md bg-[#F47B20] text-white text-[9px] font-black uppercase tracking-wider">
+                <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
+                  <h3 className="text-xs sm:text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] leading-tight">
+                    छात्र AI रिपोर्ट कार्ड व कमजोरी रडार
+                  </h3>
+                  <span className="px-1.5 py-0.5 rounded-md bg-[#F47B20]/12 text-[#C85A0A] dark:text-[#F47B20] text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider">
                     AI Radar
                   </span>
                 </div>
-                <p className="text-[10.5px] sm:text-xs text-white/80 font-medium truncate">
+                <p className="text-[10px] sm:text-[11px] font-medium text-[#52576A] dark:text-[#929AB0] truncate leading-tight">
                   जानें परीक्षा में कहाँ कट रहे हैं अंक, नेगेटिव मार्किंग नुकसान और दें 1-क्लिक बूस्टर टेस्ट
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-1 shrink-0 pl-2 relative z-10">
-              <span className="hidden sm:inline-block text-xs font-black text-amber-300">
+            <div className="flex items-center gap-1 shrink-0 pl-2">
+              <span className="hidden sm:inline-block text-xs font-extrabold text-[#800020] dark:text-[#F47B20]">
                 रिपोर्ट देखें
               </span>
-              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-white/10 flex items-center justify-center group-hover:translate-x-1 transition-transform">
-                <ChevronRight className="w-4 h-4 text-white" />
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#F7EFE2] dark:bg-[#252A3A] flex items-center justify-center group-hover:translate-x-1 transition-transform">
+                <ChevronRight className="w-4 h-4 text-[#800020] dark:text-[#F47B20]" />
               </div>
             </div>
           </motion.div>
         </section>
+
 
         {/* 3.6 RAJASTHAN 50 DISTRICTS ATLAS & MAP QUIZ */}
         <section>
           <motion.div
             whileTap={{ scale: 0.99 }}
             onClick={() => onOpenRajasthanMap?.()}
-            className="w-full bg-gradient-to-r from-[#171923] via-[#800020] to-[#F47B20] hover:brightness-105 border border-[#C99A45]/40 rounded-xl sm:rounded-2xl p-3 sm:p-4 text-white shadow-md flex items-center justify-between text-left transition-all cursor-pointer group relative overflow-hidden"
+            className="w-full bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] hover:border-[#800020] dark:hover:border-[#F47B20] rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-xs flex items-center justify-between text-left transition-all cursor-pointer group"
           >
-            {/* Background Glow */}
-            <div className="absolute top-0 right-0 w-44 h-44 bg-gradient-to-bl from-[#F47B20]/30 to-transparent rounded-full blur-xl pointer-events-none" />
-
-            <div className="flex items-center gap-3 min-w-0 flex-1 relative z-10">
-              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-white/15 border border-white/20 text-[#FFF9EF] flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform">
-                <Map className="w-5 h-5 sm:w-6 sm:h-6 text-[#FFF9EF]" />
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl bg-[#15803D]/10 dark:bg-[#22C55E]/15 text-[#15803D] dark:text-[#22C55E] flex items-center justify-center shrink-0">
+                <Map className="w-5 h-5 sm:w-6 sm:h-6" />
               </div>
 
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
-                  <span className="text-xs sm:text-sm font-black tracking-tight text-white flex items-center gap-1">
-                    <span>राजस्थान नया नक्शा (50 ज़िले व 10 संभाग)</span>
-                  </span>
-                  <span className="px-1.5 py-0.2 rounded-md bg-[#FFF9EF] text-[#800020] text-[9px] font-black uppercase tracking-wider">
+                  <h3 className="text-xs sm:text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] leading-tight">
+                    राजस्थान नया नक्शा (50 ज़िले व 10 संभाग)
+                  </h3>
+                  <span className="px-1.5 py-0.5 rounded-md bg-[#15803D]/10 text-[#15803D] dark:text-[#22C55E] text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider">
                     नया भूगोल 2026
                   </span>
-                  <span className="px-1.5 py-0.2 rounded-md bg-[#F47B20] text-white text-[9px] font-black uppercase tracking-wider">
+                  <span className="px-1.5 py-0.5 rounded-md bg-[#C99A45]/15 text-[#946B1E] dark:text-[#C99A45] text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider">
                     🎯 मैप क्विज़
                   </span>
                 </div>
-                <p className="text-[10.5px] sm:text-xs text-white/90 font-medium truncate">
+                <p className="text-[10px] sm:text-[11px] font-medium text-[#52576A] dark:text-[#929AB0] truncate leading-tight">
                   50 ज़िला दर्शन • 2023 पुनर्गठन बदलाव • दुर्ग, खनिज, नदियाँ व नक्शा क्विज़
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-1 shrink-0 pl-2 relative z-10">
-              <span className="hidden sm:inline-block text-xs font-black text-amber-200">
+            <div className="flex items-center gap-1 shrink-0 pl-2">
+              <span className="hidden sm:inline-block text-xs font-extrabold text-[#15803D] dark:text-[#22C55E]">
                 नक्शा खोलें
               </span>
-              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-white/15 flex items-center justify-center group-hover:translate-x-1 transition-transform">
-                <ChevronRight className="w-4 h-4 text-white" />
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#F7EFE2] dark:bg-[#252A3A] flex items-center justify-center group-hover:translate-x-1 transition-transform">
+                <ChevronRight className="w-4 h-4 text-[#15803D] dark:text-[#22C55E]" />
               </div>
             </div>
           </motion.div>
@@ -526,44 +521,42 @@ export const HomeTab: React.FC<HomeTabProps> = ({
           <motion.div
             whileTap={{ scale: 0.99 }}
             onClick={() => onOpenLiveBattle?.()}
-            className="w-full bg-gradient-to-r from-[#800020] via-[#5a0016] to-[#C99A45] hover:brightness-105 border border-[#C99A45]/50 rounded-xl sm:rounded-2xl p-3 sm:p-4 text-white shadow-md flex items-center justify-between text-left transition-all cursor-pointer group relative overflow-hidden"
+            className="w-full bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] hover:border-[#800020] dark:hover:border-[#F47B20] rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-xs flex items-center justify-between text-left transition-all cursor-pointer group"
           >
-            {/* Background Glow */}
-            <div className="absolute top-0 right-0 w-44 h-44 bg-gradient-to-bl from-amber-400/25 to-transparent rounded-full blur-xl pointer-events-none" />
-
-            <div className="flex items-center gap-3 min-w-0 flex-1 relative z-10">
-              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-white/15 border border-white/25 text-amber-300 flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform">
-                <Swords className="w-5 h-5 sm:w-6 sm:h-6 text-amber-300" />
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl bg-[#C99A45]/15 text-[#946B1E] dark:text-[#E5BC6B] flex items-center justify-center shrink-0">
+                <Swords className="w-5 h-5 sm:w-6 sm:h-6" />
               </div>
 
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
-                  <span className="text-xs sm:text-sm font-black tracking-tight text-white flex items-center gap-1">
-                    <span>1v1 व ग्रुप लाइव क्विज़ मुकाबला</span>
-                  </span>
-                  <span className="px-1.5 py-0.2 rounded-md bg-amber-400 text-stone-900 text-[9px] font-black uppercase tracking-wider">
+                  <h3 className="text-xs sm:text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] leading-tight">
+                    1v1 व ग्रुप लाइव क्विज़ मुकाबला
+                  </h3>
+                  <span className="px-1.5 py-0.5 rounded-md bg-[#F47B20]/12 text-[#C85A0A] dark:text-[#F47B20] text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider">
                     ⚡ Realtime
                   </span>
-                  <span className="px-1.5 py-0.2 rounded-md bg-white/20 text-white text-[9px] font-black uppercase tracking-wider">
+                  <span className="px-1.5 py-0.5 rounded-md bg-[#800020]/10 dark:bg-[#800020]/30 text-[#800020] dark:text-[#F47B20] text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider">
                     🏆 लाइव रैंक
                   </span>
                 </div>
-                <p className="text-[10.5px] sm:text-xs text-amber-100 font-medium truncate">
+                <p className="text-[10px] sm:text-[11px] font-medium text-[#52576A] dark:text-[#929AB0] truncate leading-tight">
                   मित्रों को WhatsApp से आमंत्रित करें • 6-अंकों का कोड • AI बॉट मुकाबला
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-1 shrink-0 pl-2 relative z-10">
-              <span className="hidden sm:inline-block text-xs font-black text-amber-200">
+            <div className="flex items-center gap-1 shrink-0 pl-2">
+              <span className="hidden sm:inline-block text-xs font-extrabold text-[#946B1E] dark:text-[#C99A45]">
                 मुकाबला खेलें
               </span>
-              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-white/15 flex items-center justify-center group-hover:translate-x-1 transition-transform">
-                <ChevronRight className="w-4 h-4 text-white" />
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#F7EFE2] dark:bg-[#252A3A] flex items-center justify-center group-hover:translate-x-1 transition-transform">
+                <ChevronRight className="w-4 h-4 text-[#946B1E] dark:text-[#C99A45]" />
               </div>
             </div>
           </motion.div>
         </section>
+
 
         {/* 3.8 RAJASTHAN 50 DISTRICT WAR LEADERBOARD */}
         <section>
