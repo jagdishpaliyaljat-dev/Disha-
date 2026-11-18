@@ -41,6 +41,12 @@ const PROVIDER_METADATA: Record<AIProvider, {
   icon: React.FC<{ className?: string }>;
   tagline: string;
 }> = {
+  cliproxy: {
+    name: "AGY Pro Proxy (5-Account)",
+    badgeClass: "bg-teal-100 text-teal-700 dark:bg-teal-950/60 dark:text-teal-300 border-teal-200 dark:border-teal-800",
+    icon: Zap,
+    tagline: "5-Account Auto-Rotation · Zero Quota Errors",
+  },
   gemini: {
     name: "Google Gemini",
     badgeClass: "bg-purple-100 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300 border-purple-200 dark:border-purple-800",

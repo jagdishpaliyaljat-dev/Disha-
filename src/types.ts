@@ -5,8 +5,10 @@ export interface Question {
   sectionId?: string; // Mapped to Chapter / Section
   subjectId?: string; // Always Economics
   text: string; // Question text (Hindi or English)
+  question?: string; // Compatibility alias
   options: string[];
   correctIndex: number; // 0, 1, 2, 3
+  correct_answer?: number; // Compatibility alias
   explanation: string;
   importantFact?: string;
   difficulty?: "easy" | "medium" | "hard";
@@ -132,12 +134,15 @@ export interface Chapter {
 }
 
 export interface QuestionProgress {
-  status: "unattempted" | "correct" | "wrong";
+  status: "unattempted" | "correct" | "wrong" | "mastered";
   stage: number; // 0–4
+  box?: number; // Leitner box alias
   nextReviewAt: string; // YYYY-MM-DD
   wrongCount: number;
   bookmarked: boolean;
+  isBookmarked?: boolean; // Alias for bookmarked
   lastAnsweredAt: string | null;
+  lastAttemptedAt?: string; // Alias for lastAnsweredAt
   lastSelectedOption?: number;
   timesAttempted?: number;
   updatedAt?: string;
@@ -271,6 +276,7 @@ export interface AppSettings {
   aiMode?: "platform_default" | "personal_keys";
   personalAiKeys?: UserPersonalAIKey[];
   activePersonalKeyId?: string;
+  selectedExam?: string;
 }
 
 export interface UserPersonalAIKey {
@@ -711,6 +717,7 @@ export interface AppBanner {
 export interface UserProfile {
   id: string;
   name: string;
+  full_name?: string; // Compatibility alias
   displayName?: string;
   email?: string;
   photoURL?: string;
@@ -860,7 +867,7 @@ export interface LeaderboardEntry {
   updatedAt: string;
 }
 
-export type AIProvider = "gemini" | "openai" | "claude" | "groq" | "openrouter";
+export type AIProvider = "cliproxy" | "gemini" | "openai" | "claude" | "groq" | "openrouter";
 
 export type AIKeyHealthStatus = 
   | "available" 

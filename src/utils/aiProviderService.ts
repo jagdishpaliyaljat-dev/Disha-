@@ -11,35 +11,59 @@ export interface AIModelDefinition {
 }
 
 export const PROVIDER_RECOMMENDED_MODELS: Record<AIProvider, AIModelDefinition[]> = {
-  gemini: [
+  cliproxy: [
     {
-      id: "gemini-flash-latest",
-      name: "gemini-flash-latest",
-      displayName: "Gemini Flash Latest (Official Auto-Updating Flash)",
-      provider: "gemini",
-      description: "Always routes to the fastest, most reliable Gemini Flash model on Google's network",
+      id: "gemini-2.5-flash",
+      name: "gemini-2.5-flash",
+      displayName: "Gemini 2.5 Flash (Pro 5-Account Rotation)",
+      provider: "cliproxy",
+      description: "Auto-rotates across 5 Antigravity Pro accounts. Zero quota errors and 5x capacity.",
       recommended: true,
     },
     {
-      id: "gemini-3.8-flash",
-      name: "gemini-3.8-flash",
-      displayName: "Gemini 3.8 Flash (High Speed Flagship)",
-      provider: "gemini",
-      description: "Latest 3.8 Flash generation for smart Q&A, exam hints and reasoning",
+      id: "gemini-2.5-pro",
+      name: "gemini-2.5-pro",
+      displayName: "Gemini 2.5 Pro (Deep Context)",
+      provider: "cliproxy",
+      description: "Advanced Pro reasoning for difficult competitive exams and complex math.",
     },
     {
-      id: "gemini-3.1-flash-lite",
-      name: "gemini-3.1-flash-lite",
-      displayName: "Gemini 3.1 Flash Lite (Ultra Fast)",
+      id: "gemini-3.8-flash-tiered",
+      name: "gemini-3.8-flash-tiered",
+      displayName: "Gemini 3.8 Flash Tiered",
+      provider: "cliproxy",
+      description: "Ultra-fast tiered flash model with Antigravity OAuth rotation.",
+    },
+    {
+      id: "openrouter/free",
+      name: "openrouter/free",
+      displayName: "OpenRouter Free (Fallback)",
+      provider: "cliproxy",
+      description: "Automatic fallback when Google accounts reach temporary limits.",
+    },
+  ],
+  gemini: [
+    {
+      id: "gemini-2.5-flash",
+      name: "gemini-2.5-flash",
+      displayName: "Gemini 2.5 Flash (Recommended - Ultra Fast)",
+      provider: "gemini",
+      description: "Official Google AI Studio high-speed multimodal reasoning model for exam Q&A",
+      recommended: true,
+    },
+    {
+      id: "gemini-2.5-flash-lite",
+      name: "gemini-2.5-flash-lite",
+      displayName: "Gemini 2.5 Flash Lite (High Speed)",
       provider: "gemini",
       description: "Lightweight, ultra-fast model for instant explanations and rapid chat",
     },
     {
-      id: "gemini-2.5-flash",
-      name: "gemini-2.5-flash",
-      displayName: "Gemini 2.5 Flash",
+      id: "gemini-2.0-flash",
+      name: "gemini-2.0-flash",
+      displayName: "Gemini 2.0 Flash (Stable)",
       provider: "gemini",
-      description: "Stable, high-quality multimodal reasoning model",
+      description: "Stable and widely compatible Google Gemini model",
     },
     {
       id: "gemini-2.5-pro",
@@ -276,9 +300,63 @@ export async function testAIKeyConnection({
 
   try {
     switch (provider) {
+      case "cliproxy": {
+        const activeModel = (!selectedModel || selectedModel === "default") ? "gemini-2.5-flash" : selectedModel;
+        const proxyBaseUrl = (typeof import.meta !== "undefined" && import.meta.env?.VITE_AI_PROXY_URL) || "http://127.0.0.1:8317/v1";
+        const authKey = cleanKey || "cliproxy-local";
+
+        let response: Response | null = null;
+        try {
+          response = await fetchWithAbort(
+            `${proxyBaseUrl.replace(/\/+$/, "")}/chat/completions`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${authKey}`,
+              },
+              body: JSON.stringify({
+                model: activeModel,
+                messages: [{ role: "user", content: "Respond with 'OK' only." }],
+                max_tokens: 10,
+                temperature: 0,
+              }),
+            },
+            CONNECTIVITY_TIMEOUT
+          );
+        } catch (_) {
+          response = null;
+        }
+
+        const latencyMs = Date.now() - startTime;
+        if (!response || !response.ok) {
+          const errData = response ? await response.json().catch(() => ({})) : {};
+          const errMsg = errData?.error?.message || (response ? `HTTP ${response.status}: ${response.statusText}` : "Proxy not responding. Ensure 'start-ai' is running on port 8317.");
+          return {
+            success: false,
+            provider: "cliproxy",
+            model: activeModel,
+            latencyMs,
+            message: `Antigravity Proxy test failed: ${errMsg}`,
+            error: errMsg,
+          };
+        }
+
+        const data = await response.json();
+        const text = data?.choices?.[0]?.message?.content || "OK";
+        return {
+          success: true,
+          provider: "cliproxy",
+          model: activeModel,
+          latencyMs,
+          message: `Antigravity Pro Proxy connected! Model ${activeModel} (5-Account Rotation active) responded in ${latencyMs}ms.`,
+          response: text.trim(),
+        };
+      }
+
       case "gemini": {
-        const initialCandidate = (!selectedModel || selectedModel === "default" || selectedModel.includes("1.5"))
-          ? "gemini-flash-latest"
+        const initialCandidate = (!selectedModel || selectedModel === "default" || selectedModel.includes("1.5") || selectedModel === "gemini-flash-latest")
+          ? "gemini-2.5-flash"
           : selectedModel;
         
         const runTestFetch = async (modelName: string, timeoutMs: number = CONNECTIVITY_TIMEOUT) => {
@@ -298,12 +376,10 @@ export async function testAIKeyConnection({
 
         const candidatesToTry = Array.from(new Set([
           initialCandidate,
-          "gemini-flash-latest",
-          "gemini-3.8-flash",
-          "gemini-3.1-flash-lite",
           "gemini-2.5-flash",
-          "gemini-2.5-flash-lite"
-        ])).filter(m => m && !m.includes("1.5"));
+          "gemini-2.5-flash-lite",
+          "gemini-2.0-flash"
+        ])).filter(m => m && !m.includes("1.5") && !m.includes("1.0"));
 
         let response: Response | null = null;
         let activeModel = initialCandidate;
@@ -694,6 +770,44 @@ export async function executeAICompletion({
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
       switch (provider) {
+        case "cliproxy": {
+          const messages: any[] = [];
+          if (systemPrompt) messages.push({ role: "system", content: systemPrompt });
+          messages.push({ role: "user", content: prompt });
+
+          const targetModel = (!currentModel || currentModel === "default") ? "gemini-2.5-flash" : currentModel;
+          const body: any = {
+            model: targetModel,
+            messages,
+            temperature,
+          };
+          if (jsonMode) body.response_format = { type: "json_object" };
+
+          const proxyBaseUrl = (typeof import.meta !== "undefined" && import.meta.env?.VITE_AI_PROXY_URL) || "http://127.0.0.1:8317/v1";
+          const authKey = currentKey || "cliproxy-local";
+
+          const response = await withTimeout(
+            fetch(`${proxyBaseUrl.replace(/\/+$/, "")}/chat/completions`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${authKey}`,
+              },
+              body: JSON.stringify(body),
+            }),
+            DEFAULT_TIMEOUT,
+            "Antigravity Pro Proxy request timed out after 15s."
+          );
+
+          if (!response.ok) {
+            const errData = await response.json().catch(() => ({}));
+            throw new Error(errData?.error?.message || `Antigravity Proxy error status ${response.status}`);
+          }
+
+          const data = await response.json();
+          return data?.choices?.[0]?.message?.content || "";
+        }
+
         case "gemini": {
           const client = new GoogleGenAI({
             apiKey: currentKey,
@@ -708,18 +822,16 @@ export async function executeAICompletion({
           if (systemPrompt) config.systemInstruction = systemPrompt;
           if (jsonMode) config.responseMimeType = "application/json";
 
-          const rawTarget = (!currentModel || currentModel === "default" || currentModel.includes("1.5"))
-            ? "gemini-flash-latest"
+          const rawTarget = (!currentModel || currentModel === "default" || currentModel.includes("1.5") || currentModel === "gemini-flash-latest")
+            ? "gemini-2.5-flash"
             : currentModel;
 
           const modelsToTry = Array.from(new Set([
             rawTarget,
-            "gemini-flash-latest",
-            "gemini-3.8-flash",
-            "gemini-3.1-flash-lite",
             "gemini-2.5-flash",
-            "gemini-2.5-flash-lite"
-          ])).filter(m => m && !m.includes("1.5"));
+            "gemini-2.5-flash-lite",
+            "gemini-2.0-flash"
+          ])).filter(m => m && !m.includes("1.5") && !m.includes("1.0"));
 
           let lastErr: any = null;
           for (const mName of modelsToTry) {

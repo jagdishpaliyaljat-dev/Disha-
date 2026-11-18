@@ -147,11 +147,11 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
   }, [progressValues]);
 
   const bookmarkedCount = useMemo(() => {
-    return progressValues.filter((p) => p.isBookmarked).length;
+    return progressValues.filter((p) => p.bookmarked || p.isBookmarked).length;
   }, [progressValues]);
 
   const masteredCount = useMemo(() => {
-    return progressValues.filter((p) => (p.box && p.box >= 4) || p.status === "mastered").length;
+    return progressValues.filter((p) => (p.stage !== undefined && p.stage >= 4) || (p.box && p.box >= 4) || (p.status as string) === "mastered").length;
   }, [progressValues]);
 
   const accuracy = attemptedCount > 0 ? Math.round((correctCount / attemptedCount) * 100) : 0;
@@ -159,7 +159,10 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
   // Daily Goal Calculations
   const todayStr = useMemo(() => new Date().toISOString().slice(0, 10), []);
   const todaySolvedCount = useMemo(() => {
-    return progressValues.filter((p) => p.lastAttemptedAt && p.lastAttemptedAt.startsWith(todayStr)).length;
+    return progressValues.filter((p) => {
+      const dt = p.lastAttemptedAt || p.lastAnsweredAt;
+      return Boolean(dt && dt.startsWith(todayStr));
+    }).length;
   }, [progressValues, todayStr]);
 
   const dailyGoal = activeProfile?.dailyGoalQuestions || settings.dailyGoal || 30;

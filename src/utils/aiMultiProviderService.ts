@@ -17,6 +17,15 @@ export const PROVIDER_METADATA: Record<AIProvider, {
   color: string;
   bgBadge: string;
 }> = {
+  cliproxy: {
+    name: "Antigravity Pro (Local Proxy)",
+    tagline: "5-Account Round-Robin Rotation + OpenRouter Fallback",
+    defaultModel: "gemini-2.5-flash",
+    docsUrl: "http://127.0.0.1:8317",
+    keyPlaceholder: "cliproxy-local",
+    color: "text-teal-600 dark:text-teal-400",
+    bgBadge: "bg-teal-500/10 text-teal-600 dark:text-teal-400 border-teal-500/20"
+  },
   gemini: {
     name: "Google Gemini",
     tagline: "Ultra-fast multimodal reasoning with long context",
@@ -65,11 +74,18 @@ export const PROVIDER_METADATA: Record<AIProvider, {
 };
 
 export const DEFAULT_PROVIDER_MODELS: Record<AIProvider, ProviderModelInfo[]> = {
+  cliproxy: [
+    { id: "gemini-2.5-flash", name: "gemini-2.5-flash", displayName: "Gemini 2.5 Flash (Pro 5-Account Rotation)", badge: "5x Rotation" },
+    { id: "gemini-2.5-pro", name: "gemini-2.5-pro", displayName: "Gemini 2.5 Pro (Deep Context)", badge: "Pro" },
+    { id: "gemini-3.8-flash-tiered", name: "gemini-3.8-flash-tiered", displayName: "Gemini 3.8 Flash Tiered", badge: "Fast" },
+    { id: "openrouter/free", name: "openrouter/free", displayName: "OpenRouter Free (Fallback)", badge: "Free" },
+    { id: "google/gemma-4-31b-it:free", name: "google/gemma-4-31b-it:free", displayName: "Gemma 4 31B Free (Fallback)", badge: "Free" },
+    { id: "cohere/north-mini-code:free", name: "cohere/north-mini-code:free", displayName: "Cohere North Code Free (Fallback)", badge: "Free" },
+  ],
   gemini: [
     { id: "gemini-2.5-flash", name: "gemini-2.5-flash", displayName: "Gemini 2.5 Flash (Recommended - Ultra Fast)", badge: "Recommended" },
     { id: "gemini-2.5-flash-lite", name: "gemini-2.5-flash-lite", displayName: "Gemini 2.5 Flash Lite (High Speed)", badge: "Fast" },
-    { id: "gemini-2.0-flash", name: "gemini-2.0-flash", displayName: "Gemini 2.0 Flash", badge: "2.0" },
-    { id: "gemini-1.5-flash", name: "gemini-1.5-flash", displayName: "Gemini 1.5 Flash (Stable)", badge: "Stable" },
+    { id: "gemini-2.0-flash", name: "gemini-2.0-flash", displayName: "Gemini 2.0 Flash (Stable)", badge: "Stable" },
     { id: "gemini-2.5-pro", name: "gemini-2.5-pro", displayName: "Gemini 2.5 Pro (Deep Context)", badge: "Pro" },
   ],
   openai: [

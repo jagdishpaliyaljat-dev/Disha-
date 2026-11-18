@@ -69,7 +69,7 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
   // Handle Question Context explanation automatically
   useEffect(() => {
     if (isOpen && contextQuestion) {
-      const qText = contextQuestion.question;
+      const qText = contextQuestion.text || contextQuestion.question || "";
       const initialUserMsg: ChatMessage = {
         id: `user_${Date.now()}`,
         role: "user",

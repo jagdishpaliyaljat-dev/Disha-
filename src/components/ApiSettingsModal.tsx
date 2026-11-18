@@ -42,6 +42,15 @@ const PROVIDER_META: Record<AIProvider, {
   badgeClass: string;
   icon: any;
 }> = {
+  cliproxy: {
+    name: "AGY Pro Proxy",
+    tagline: "5-Account Auto-Rotation (कोटा खत्म नहीं होगा)",
+    defaultModel: "gemini-2.5-flash",
+    keyPlaceholder: "cliproxy-local",
+    docsUrl: "http://127.0.0.1:8317",
+    badgeClass: "bg-teal-100 text-teal-700 dark:bg-teal-950/50 dark:text-teal-300 border-teal-200 dark:border-teal-800",
+    icon: Zap
+  },
   gemini: {
     name: "Google Gemini",
     tagline: "Multimodal & High-Speed Reasoning",
@@ -88,6 +97,7 @@ const PROVIDER_META: Record<AIProvider, {
     icon: Globe
   }
 };
+
 
 export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({ 
   onClose, 

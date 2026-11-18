@@ -120,14 +120,23 @@ export function loadSettingsFromStorage(): AppSettings {
       parsed.todayDate = today;
       parsed.todayAnsweredCount = 0;
     }
-    // Auto-heal legacy non-existent models from older sessions to prevent 404 latency
+    // Auto-heal legacy deprecated models (like gemini-1.5-flash which causes 404) to gemini-2.5-flash
     if (Array.isArray(parsed.personalAiKeys)) {
+      let modified = false;
       parsed.personalAiKeys = parsed.personalAiKeys.map((k: any) => {
-        if (k && k.model && (k.model.includes("gemini-3") || k.model.includes("3.8") || k.model.includes("3.1"))) {
-          return { ...k, model: "gemini-2.5-flash" };
+        if (k && (k.provider === "gemini" || !k.provider)) {
+          if (!k.model || k.model.includes("1.5") || k.model.includes("1.0") || k.model === "default" || k.model === "gemini-flash-latest" || k.model.includes("3.8") || k.model.includes("3.1")) {
+            modified = true;
+            return { ...k, model: "gemini-2.5-flash" };
+          }
         }
         return k;
       });
+      if (modified) {
+        try {
+          localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(parsed));
+        } catch (_) {}
+      }
     }
     return { ...DEFAULT_SETTINGS, ...parsed };
   } catch (e) {

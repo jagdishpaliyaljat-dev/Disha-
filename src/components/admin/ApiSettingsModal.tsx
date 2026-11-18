@@ -35,6 +35,15 @@ const PROVIDER_INFO: Record<AIProvider, {
   docsLabel: string;
   badgeColor: string;
 }> = {
+  cliproxy: {
+    title: "AGY Pro Proxy (5-Account Local)",
+    subtitle: "5 Gmail Pro Accounts Auto-Rotation • Zero Quota Errors • OpenRouter Fallback",
+    keyPlaceholder: "cliproxy-local",
+    defaultName: "Antigravity Pro Proxy",
+    docsUrl: "http://127.0.0.1:8317",
+    docsLabel: "Proxy Status (port 8317)",
+    badgeColor: "bg-teal-100 text-teal-700 dark:bg-teal-950/60 dark:text-teal-300 border-teal-200 dark:border-teal-800",
+  },
   gemini: {
     title: "Google Gemini",
     subtitle: "Native @google/genai SDK • Multimodal & High Speed Bilingual Reasoning",

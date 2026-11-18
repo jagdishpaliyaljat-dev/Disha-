@@ -57,10 +57,10 @@ export function getActiveAICredentials(): {
 
   if (activeKey && activeKey.apiKey?.trim()) {
     const provider = activeKey.provider || "gemini";
-    const defaultModel = PROVIDER_RECOMMENDED_MODELS[provider]?.[0]?.id || "gemini-flash-latest";
+    const defaultModel = PROVIDER_RECOMMENDED_MODELS[provider]?.[0]?.id || "gemini-2.5-flash";
     let chosenModel = activeKey.model || defaultModel;
-    if (provider === "gemini" && (chosenModel.includes("1.5") || chosenModel.includes("1.0") || chosenModel === "default")) {
-      chosenModel = "gemini-flash-latest";
+    if (provider === "gemini" && (!chosenModel || chosenModel.includes("1.5") || chosenModel.includes("1.0") || chosenModel === "default" || chosenModel === "gemini-flash-latest")) {
+      chosenModel = "gemini-2.5-flash";
     }
     return {
       configured: true,
@@ -75,7 +75,7 @@ export function getActiveAICredentials(): {
       configured: true,
       provider: "gemini",
       apiKey: settings.geminiApiKey.trim(),
-      model: "gemini-flash-latest",
+      model: "gemini-2.5-flash",
     };
   }
 
@@ -86,7 +86,7 @@ export function getActiveAICredentials(): {
       configured: true,
       provider: "gemini",
       apiKey: envGemini.trim(),
-      model: "gemini-flash-latest",
+      model: "gemini-2.5-flash",
     };
   }
 
@@ -100,11 +100,14 @@ export function getActiveAICredentials(): {
     };
   }
 
+  // Antigravity Pro 5-Account Local Proxy auto-detection
+  const envProxyUrl = (typeof import.meta !== "undefined" && import.meta.env?.VITE_AI_PROXY_URL) || "http://127.0.0.1:8317/v1";
+  const envProxyKey = (typeof import.meta !== "undefined" && import.meta.env?.VITE_AI_PROXY_KEY) || "cliproxy-local";
   return {
-    configured: false,
-    provider: "gemini",
-    apiKey: "",
-    model: "gemini-flash-latest",
+    configured: true,
+    provider: "cliproxy",
+    apiKey: envProxyKey,
+    model: "gemini-2.5-flash",
   };
 }
 
@@ -161,7 +164,8 @@ export async function askDishaAITutor(
  * Generate a comprehensive 4-part explanation for any MCQ Question
  */
 export async function explainQuestionWithAI(question: Question): Promise<string> {
-  const cacheKey = `q_explain_${question.id || question.question.slice(0, 40)}`;
+  const qText = question.text || question.question || "";
+  const cacheKey = `q_explain_${question.id || qText.slice(0, 40)}`;
   const cached = getCachedAnswer(cacheKey);
   if (cached) {
     return cached;
@@ -172,16 +176,17 @@ export async function explainQuestionWithAI(question: Question): Promise<string>
     throw new Error("NO_API_KEY");
   }
 
-  const correctOptionText = question.options[question.correct_answer] || "विकल्प " + (question.correct_answer + 1);
+  const correctIdx = typeof question.correctIndex === "number" ? question.correctIndex : (question.correct_answer ?? 0);
+  const correctOptionText = question.options[correctIdx] || "विकल्प " + (correctIdx + 1);
   const optionsList = question.options.map((opt, idx) => `(${String.fromCharCode(65 + idx)}) ${opt}`).join("\n");
 
   const prompt = `कृपया इस प्रतियोगी परीक्षा प्रश्न का विस्तृत और शैक्षणिक विश्लेषण (In-depth Academic Breakdown) करें:
 
-प्रश्न: ${question.question}
+प्रश्न: ${qText}
 विकल्प:
 ${optionsList}
 
-आधिकारिक सही उत्तर: विकल्प ${String.fromCharCode(65 + question.correct_answer)} (${correctOptionText})
+आधिकारिक सही उत्तर: विकल्प ${String.fromCharCode(65 + correctIdx)} (${correctOptionText})
 ${question.explanation ? `मौजूदा व्याख्या: ${question.explanation}` : ""}
 
 कृपया उत्तर को अनिवार्य रूप से इन 4 भागों में संरचित करें:
@@ -275,16 +280,28 @@ export function formatFriendlyAIError(err: any): { message: string; isApiKeyIssu
   if (
     lower.includes("not found") ||
     lower.includes("404") ||
-    lower.includes("not supported")
+    lower.includes("not supported") ||
+    lower.includes("1.5-flash") ||
+    lower.includes("1.5")
   ) {
     return {
-      message: "पुराना मॉडल संस्करण अनुपलब्ध था। सिस्टम ने स्वतः अद्यतन 'gemini-flash-latest' मॉडल पर स्विच कर दिया है। कृपया पुनः प्रयास करें।",
+      message: "गूगल ने पुराने मॉडल (gemini-1.5-flash) को बंद कर दिया है। दिशा ऐप ने स्वतः नए व तीव्र 'gemini-2.5-flash' मॉडल पर अपडेट कर दिया है। कृपया पुनः प्रश्न पूछें।",
       isApiKeyIssue: false,
     };
   }
 
+  // Sanitize any remaining technical or JSON remnants
+  const cleanDisplay = parsedMessage
+    .replace(/\{"error":\{.*\}\}/gs, "")
+    .replace(/models\/[a-zA-Z0-9_.-]+/g, "AI मॉडल")
+    .replace(/for API version [a-zA-Z0-9_.-]+/g, "")
+    .replace(/Call ModelService\.[a-zA-Z0-9_.-]+ [^.]+\./g, "")
+    .trim();
+
   return {
-    message: `उत्तर प्राप्त करने में समस्या आई: ${parsedMessage.slice(0, 160)}। कृपया पुनः प्रयास करें।`,
+    message: cleanDisplay
+      ? `माफ़ कीजिए, उत्तर प्राप्त करने में समस्या आई: ${cleanDisplay.slice(0, 160)}। कृपया पुनः प्रयास करें।`
+      : "माफ़ कीजिए, उत्तर प्राप्त करने में समस्या आई। कृपया पुनः प्रयास करें।",
     isApiKeyIssue: false,
   };
 }

@@ -85,3 +85,39 @@ describe("AIMessageRenderer", () => {
     expect(html).toContain("क्षेत्रफल का सूत्र");
   });
 });
+
+import { formatFriendlyAIError } from "../src/utils/aiTutorService";
+
+describe("formatFriendlyAIError", () => {
+  it("converts exact user 404 gemini-1.5-flash error into clean Hindi message", () => {
+    const rawError = new Error(
+      '{"error":{"code":404,"message":"models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.","status":"NOT_FOUND"}}'
+    );
+    const result = formatFriendlyAIError(rawError);
+    expect(result.message).toContain("पुराने मॉडल (gemini-1.5-flash) को बंद कर दिया है");
+    expect(result.message).toContain("gemini-2.5-flash");
+    expect(result.message).not.toContain('{"error":{"code":404');
+  });
+
+  it("identifies API key invalid errors and sets isApiKeyIssue to true", () => {
+    const rawError = new Error("API_KEY_INVALID: User api key is invalid or revoked.");
+    const result = formatFriendlyAIError(rawError);
+    expect(result.isApiKeyIssue).toBe(true);
+    expect(result.message).toContain("API Key अमान्य (Invalid) है");
+  });
+
+  it("handles quota exceeded / 429 gracefully", () => {
+    const rawError = new Error("RESOURCE_EXHAUSTED: Rate limit exceeded (429)");
+    const result = formatFriendlyAIError(rawError);
+    expect(result.isApiKeyIssue).toBe(true);
+    expect(result.message).toContain("दैनिक मुफ़्त सीमा (Rate Limit / Quota) पूरी हो चुकी है");
+  });
+
+  it("handles NO_API_KEY clearly", () => {
+    const rawError = new Error("NO_API_KEY");
+    const result = formatFriendlyAIError(rawError);
+    expect(result.isApiKeyIssue).toBe(true);
+    expect(result.message).toContain("Google Gemini या OpenRouter API Key जोड़ें");
+  });
+});
+
