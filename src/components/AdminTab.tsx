@@ -4,7 +4,7 @@ import {
   FolderPlus, PlusCircle, Database, LayoutGrid, Settings, ShieldCheck, 
   Upload, Sparkles, Menu, ChevronRight, ChevronLeft, HardDrive, Activity, Cpu, RefreshCw, Newspaper,
   Trophy, CheckCircle2, ListFilter, ChevronDown, Trash2, AlertCircle, Building2,
-  FileCode, Archive, LogOut, ArrowRight, Timer, FileText, FileSpreadsheet, Home
+  FileCode, Archive, LogOut, ArrowRight, Timer, FileText, FileSpreadsheet, Home, Bot
 } from "lucide-react";
 import { Subject, Chapter, UserQuestionsStore, UserProfile } from "../types";
 import { ConfirmDialog } from "./admin/ConfirmDialog";
@@ -53,6 +53,7 @@ const SupabaseHealthPanel = adminSafeLazy<any>(() => import("./admin/SupabaseHea
 const SyncHealthMonitorPanel = adminSafeLazy<any>(() => import("./admin/SyncHealthMonitorPanel"), "SyncHealthMonitorPanel");
 const AdminDiagnosticsSection = adminSafeLazy<any>(() => import("./admin/AdminDiagnosticsSection"), "AdminDiagnosticsSection");
 const DiagnosticReport = adminSafeLazy<any>(() => import("./admin/DiagnosticReport"), "DiagnosticReport");
+const DishaAIDashboard = adminSafeLazy<any>(() => import("./admin/DishaAIDashboard"), "DishaAIDashboard");
 const AIApiManagementSection = adminSafeLazy<any>(() => import("./admin/AIApiManagementSection"), "AIApiManagementSection");
 const ExportDataWidget = adminSafeLazy<any>(() => import("./admin/ExportDataWidget"), "ExportDataWidget");
 const BackupRestoreSection = adminSafeLazy<any>(() => import("./admin/BackupRestoreSection"), "BackupRestoreSection");
@@ -125,6 +126,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
   const [subTabContent, setSubTabContent] = React.useState<"news" | "banners">("news");
   const [subTabUsers, setSubTabUsers] = React.useState<"directory" | "messages" | "reports" | "notifications">("directory");
   const [subTabSupabase, setSubTabSupabase] = React.useState<"overview" | "explorer" | "diagnostics" | "report" | "audit" | "sync">("overview");
+  const [subTabAI, setSubTabAI] = React.useState<"dashboard" | "configs">("dashboard");
 
   const [selectedUserForDetails, setSelectedUserForDetails] = React.useState<UserProfile | null>(null);
   const [showQATestRunner, setShowQATestRunner] = React.useState(false);
@@ -673,8 +675,9 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
     },
     {
       id: "integrations",
-      title: "AI API Config",
-      icon: Cpu,
+      title: "Disha AI & APIs",
+      icon: Bot,
+      badge: "AI",
     },
     {
       id: "backup",
@@ -742,8 +745,9 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
         },
         {
           id: "integrations" as AdminGroupSection,
-          title: "AI API Config",
-          icon: Cpu,
+          title: "Disha AI & APIs",
+          icon: Bot,
+          badge: "AI",
         },
         {
           id: "backup" as AdminGroupSection,
@@ -1612,28 +1616,62 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
               </React.Suspense>
             )}
 
-            {/* Integrations Section */}
+            {/* Group 8: Disha AI Companion & Model Telemetry */}
             {activeGroup === "integrations" && (
               <div className="space-y-6">
-                <div className="bg-white dark:bg-[#111A2E] p-4 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs flex items-center justify-between">
+                <div className="bg-white dark:bg-[#111A2E] p-4 sm:p-5 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-2xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
-                      <Sparkles className="w-5 h-5" />
+                    <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#800020] to-[#F47B20] text-white flex items-center justify-center shrink-0 shadow-xs">
+                      <Bot className="w-5 h-5 text-white" />
                     </div>
                     <div>
                       <h2 className="text-base font-black text-slate-900 dark:text-white">
-                        Group 8: API & Model Integrations
+                        Group 8: Disha AI Engine & Token Analytics
                       </h2>
                       <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                        Configure Gemini API keys, provider rotation pool & quota limits
+                        Input/output messages, real-time token tracking, query audit & API key rotation
                       </p>
                     </div>
                   </div>
+
+                  {/* Subtab Toggle */}
+                  <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl border border-slate-200 dark:border-slate-700 self-start sm:self-auto">
+                    <button
+                      type="button"
+                      onClick={() => setSubTabAI("dashboard")}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-1.5 ${
+                        subTabAI === "dashboard"
+                          ? "bg-[#800020] text-white shadow-2xs"
+                          : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+                      }`}
+                    >
+                      <Bot className="w-3.5 h-3.5" />
+                      <span>AI Analytics & Tokens</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSubTabAI("configs")}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-1.5 ${
+                        subTabAI === "configs"
+                          ? "bg-[#800020] text-white shadow-2xs"
+                          : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+                      }`}
+                    >
+                      <Cpu className="w-3.5 h-3.5" />
+                      <span>API Keys & Rotation</span>
+                    </button>
+                  </div>
                 </div>
 
-                <React.Suspense fallback={<AdminSectionLoader type="cards" title="Loading API Configurations..." />}>
-                  <AIApiManagementSection />
-                </React.Suspense>
+                {subTabAI === "dashboard" ? (
+                  <React.Suspense fallback={<AdminSectionLoader type="cards" title="Loading Disha AI Telemetry..." />}>
+                    <DishaAIDashboard />
+                  </React.Suspense>
+                ) : (
+                  <React.Suspense fallback={<AdminSectionLoader type="cards" title="Loading API Configurations..." />}>
+                    <AIApiManagementSection />
+                  </React.Suspense>
+                )}
               </div>
             )}
 

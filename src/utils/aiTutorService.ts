@@ -1,6 +1,7 @@
 import { loadSettingsFromStorage } from "./storage";
 import { executeAICompletion, PROVIDER_RECOMMENDED_MODELS } from "./aiProviderService";
 import { AIProvider, Question } from "../types";
+import { recordAIUsage } from "./aiUsageTracker";
 
 export interface ChatMessage {
   id: string;
@@ -144,20 +145,46 @@ export async function askDishaAITutor(
     fullPrompt = `पिछले संवाद:\n${recent}\n\nछात्र का नया सवाल:\n${userPrompt}`;
   }
 
-  const response = await executeAICompletion({
-    provider: credentials.provider,
-    apiKey: credentials.apiKey,
-    model: credentials.model,
-    prompt: fullPrompt,
-    systemPrompt: SYSTEM_PROMPT_STUDY_TUTOR,
-    temperature: 0.3,
-  });
+  const startTime = Date.now();
+  try {
+    const response = await executeAICompletion({
+      provider: credentials.provider,
+      apiKey: credentials.apiKey,
+      model: credentials.model,
+      prompt: fullPrompt,
+      systemPrompt: SYSTEM_PROMPT_STUDY_TUTOR,
+      temperature: 0.3,
+    });
 
-  if (response && chatHistory.length === 0) {
-    setCachedAnswer(cacheKey, response);
+    const latencyMs = Date.now() - startTime;
+    recordAIUsage({
+      provider: credentials.provider,
+      model: credentials.model,
+      queryType: "doubt",
+      prompt: userPrompt,
+      response,
+      latencyMs,
+      status: "success",
+    });
+
+    if (response && chatHistory.length === 0) {
+      setCachedAnswer(cacheKey, response);
+    }
+
+    return response;
+  } catch (err: any) {
+    const latencyMs = Date.now() - startTime;
+    recordAIUsage({
+      provider: credentials.provider,
+      model: credentials.model,
+      queryType: "doubt",
+      prompt: userPrompt,
+      latencyMs,
+      status: "error",
+      errorMessage: err?.message || String(err),
+    });
+    throw err;
   }
-
-  return response;
 }
 
 /**
@@ -195,20 +222,46 @@ ${question.explanation ? `मौजूदा व्याख्या: ${questio
 3. 💡 **परीक्षा उपयोगी महत्वपूर्ण तथ्य (Key Facts)**: इस विषय से संबंधित 2-3 ऐसे बिंदु बताएं जो आगामी परीक्षाओं में पूछे जा सकते हैं।
 4. 🧠 **याद रखने की ट्रिक (Memory Tip)**: इस तथ्य को लंबे समय तक याद रखने का आसान सूत्र या ट्रिक।`;
 
-  const response = await executeAICompletion({
-    provider: credentials.provider,
-    apiKey: credentials.apiKey,
-    model: credentials.model,
-    prompt,
-    systemPrompt: SYSTEM_PROMPT_STUDY_TUTOR,
-    temperature: 0.2,
-  });
+  const startTime = Date.now();
+  try {
+    const response = await executeAICompletion({
+      provider: credentials.provider,
+      apiKey: credentials.apiKey,
+      model: credentials.model,
+      prompt,
+      systemPrompt: SYSTEM_PROMPT_STUDY_TUTOR,
+      temperature: 0.2,
+    });
 
-  if (response) {
-    setCachedAnswer(cacheKey, response);
+    const latencyMs = Date.now() - startTime;
+    recordAIUsage({
+      provider: credentials.provider,
+      model: credentials.model,
+      queryType: "question_explain",
+      prompt: qText,
+      response,
+      latencyMs,
+      status: "success",
+    });
+
+    if (response) {
+      setCachedAnswer(cacheKey, response);
+    }
+
+    return response;
+  } catch (err: any) {
+    const latencyMs = Date.now() - startTime;
+    recordAIUsage({
+      provider: credentials.provider,
+      model: credentials.model,
+      queryType: "question_explain",
+      prompt: qText,
+      latencyMs,
+      status: "error",
+      errorMessage: err?.message || String(err),
+    });
+    throw err;
   }
-
-  return response;
 }
 
 /**
