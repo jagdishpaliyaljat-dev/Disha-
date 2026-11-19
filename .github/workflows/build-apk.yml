@@ -1,4 +1,4 @@
-name: Build Android APK (दिशा 20-20)
+name: Build Android APK (Disha 20-20)
 
 on:
   workflow_dispatch:
