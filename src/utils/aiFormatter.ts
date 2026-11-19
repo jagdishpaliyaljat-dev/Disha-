@@ -68,7 +68,47 @@ export async function formatBatchQuestionsWithAI(rawText: string): Promise<Forma
     }
     throw new Error("Failed to receive formatted question structure from server.");
   } catch (error: any) {
-    console.warn("AI formatting API call failed, running smart local parser:", error);
+    console.warn("AI formatting API endpoint unavailable, attempting direct client AI fallback:", error);
+    try {
+      const { getActiveAICredentials } = await import("./aiTutorService");
+      const creds = getActiveAICredentials();
+      if (creds.configured && creds.apiKey) {
+        const { executeAICompletion } = await import("./aiProviderService");
+        const prompt = `Convert the following text into standard structured MCQ JSON format. Return valid JSON array only:
+[
+  {
+    "text": "Question text in Hindi/English",
+    "options": ["Option A", "Option B", "Option C", "Option D"],
+    "correctIndex": 0,
+    "explanation": "Detailed explanation"
+  }
+]
+Text to parse:
+${rawText}`;
+        const aiResponse = await executeAICompletion({
+          messages: [{ role: "user", content: prompt }],
+          provider: creds.provider,
+          apiKey: creds.apiKey,
+          model: creds.provider === "gemini" ? "gemini-2.5-flash-lite" : undefined,
+        });
+
+        const jsonMatch = aiResponse.match(/\[\s*\{[\s\S]*\}\s*\]/);
+        if (jsonMatch) {
+          const parsed = JSON.parse(jsonMatch[0]);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            return parsed.map((item: any) => ({
+              questionType: "single_correct",
+              text: formatMathAndChemistryLatex(item.text || ""),
+              options: Array.isArray(item.options) ? item.options.map(String).map(formatMathAndChemistryLatex) : [],
+              correctIndex: typeof item.correctIndex === "number" ? item.correctIndex : 0,
+              explanation: formatMathAndChemistryLatex(item.explanation || ""),
+            }));
+          }
+        }
+      }
+    } catch (directAiErr) {
+      console.warn("Direct client AI parse notice:", directAiErr);
+    }
     return [formatQuestionClientLocally(rawText)];
   }
 }

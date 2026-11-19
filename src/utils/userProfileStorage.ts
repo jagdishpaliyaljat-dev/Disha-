@@ -53,17 +53,60 @@ export function isSuperAdmin(profileOrIdentifier?: UserProfile | string | null):
   return false;
 }
 
+export function generatePersistentGuestUUID(): string {
+  const GUEST_UUID_KEY = "disha2020_guest_uuid_v1";
+  try {
+    if (typeof localStorage !== "undefined") {
+      const existing = localStorage.getItem(GUEST_UUID_KEY);
+      if (existing && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(existing)) {
+        return existing;
+      }
+    }
+  } catch (_) {}
+
+  const uuid = typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+    ? crypto.randomUUID()
+    : "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+        const r = (Math.random() * 16) | 0;
+        const v = c === "x" ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+      });
+
+  try {
+    if (typeof localStorage !== "undefined") {
+      localStorage.setItem(GUEST_UUID_KEY, uuid);
+    }
+  } catch (_) {}
+
+  return uuid;
+}
+
 export function loadUserProfile(): UserProfile | null {
   try {
     const raw = safeGetLocalStorageItem(USER_PROFILE_KEY);
     if (!raw) {
-      return inMemoryProfile;
+      if (inMemoryProfile) return inMemoryProfile;
+      const initialGuest: UserProfile = {
+        ...DEFAULT_USER_PROFILE,
+        id: generatePersistentGuestUUID(),
+      };
+      inMemoryProfile = initialGuest;
+      return initialGuest;
     }
     const parsed = JSON.parse(raw);
     const profile = {
       ...DEFAULT_USER_PROFILE,
       ...parsed,
     };
+
+    // Ensure profile always has a valid UUID format for PostgreSQL compatibility
+    const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!profile.id || !UUID_REGEX.test(profile.id)) {
+      profile.id = generatePersistentGuestUUID();
+      try {
+        safeSetLocalStorageItem(USER_PROFILE_KEY, JSON.stringify(profile));
+      } catch (_) {}
+    }
     
     // Check super admins or persistent admin role
     const isActuallyAdmin = Boolean(

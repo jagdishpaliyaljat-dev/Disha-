@@ -863,15 +863,18 @@ export class RealtimeBattleManager {
     }
   }
 
-  // Leave room and unsubscribe
+  // Leave room and unsubscribe with full Supabase v2 socket de-allocation
   public disconnect(): void {
     this.outgoingQueue = [];
     if (this.channel) {
       try {
         this.channel.unsubscribe();
-      } catch {
-        // Ignore unsubscribe error
-      }
+      } catch {}
+      try {
+        if (isSupabaseConfigured()) {
+          supabase.removeChannel(this.channel);
+        }
+      } catch {}
       this.channel = null;
       this.isConnected = false;
     }

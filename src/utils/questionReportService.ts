@@ -231,28 +231,31 @@ export async function submitQuestionReport(input: SubmitReportInput): Promise<{
     // 5. Attempt graceful cloud sync to Supabase if configured (without blocking)
     if (isSupabaseConfigured()) {
       try {
-        const { error: repErr } = await supabase.from("question_reports").insert([
+        const { error: repErr } = await supabase.from("question_reports").upsert([
           {
             id: report.id,
             question_id: report.questionId,
             question_text: report.questionText,
-            subject_name: report.subjectName,
-            chapter_name: report.chapterName,
-            topic_name: report.topicName,
+            subject_name: report.subjectName || null,
+            chapter_name: report.chapterName || null,
+            topic_name: report.topicName || null,
             student_name: report.studentName,
-            student_email: report.studentEmail,
-            student_uid: report.studentUid,
+            student_email: report.studentEmail || null,
+            student_uid: report.studentUid || null,
             issue_type: report.issueType,
             student_comment: report.studentComment,
             status: "pending",
+            source_exam: report.sourceExam || null,
+            options_snapshot: report.optionsSnapshot || null,
+            correct_index_snapshot: report.correctIndexSnapshot ?? null,
             created_at: report.reportedAt,
+            updated_at: report.reportedAt,
           },
         ]);
         if (repErr) {
           console.info("[QuestionReportService] Cloud report staging notice:", repErr.message);
         }
       } catch (cloudErr) {
-        // Table may not exist yet or user is offline — local report is already saved and completely safe
         console.info("[QuestionReportService] Cloud report staging fallback active:", cloudErr);
       }
     }
@@ -401,4 +404,94 @@ export async function fetchStudentReports(studentUid?: string): Promise<Question
   }
   return getStoredReports();
 }
+
+/**
+ * Fetch all question reports for the Admin Doubt Desk.
+ * Synchronizes with Supabase cloud table and merges with local storage.
+ */
+export async function fetchAllQuestionReports(): Promise<QuestionReport[]> {
+  if (isSupabaseConfigured()) {
+    try {
+      const { data, error } = await supabase
+        .from("question_reports")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (!error && Array.isArray(data)) {
+        const cloudReports: QuestionReport[] = data.map((row: any) => ({
+          id: row.id,
+          questionId: row.question_id,
+          questionText: row.question_text,
+          subjectName: row.subject_name || undefined,
+          chapterName: row.chapter_name || undefined,
+          topicName: row.topic_name || undefined,
+          studentName: row.student_name,
+          studentEmail: row.student_email || undefined,
+          studentUid: row.student_uid || undefined,
+          issueType: row.issue_type,
+          studentComment: row.student_comment,
+          status: row.status,
+          adminNotes: row.admin_notes || undefined,
+          reportedAt: row.created_at,
+          resolvedAt: row.resolved_at || undefined,
+          sourceExam: row.source_exam || undefined,
+          optionsSnapshot: row.options_snapshot || undefined,
+          correctIndexSnapshot: row.correct_index_snapshot !== null && row.correct_index_snapshot !== undefined ? Number(row.correct_index_snapshot) : undefined,
+        }));
+
+        const local = getStoredReports();
+        const cloudIds = new Set(cloudReports.map((r) => r.id));
+        const localOnly = local.filter((r) => !cloudIds.has(r.id));
+        const merged = [...cloudReports, ...localOnly].sort(
+          (a, b) => new Date(b.reportedAt).getTime() - new Date(a.reportedAt).getTime()
+        );
+
+        saveStoredReports(merged);
+        return merged;
+      }
+    } catch (err) {
+      console.warn("[QuestionReportService] Cloud fetch all reports note:", err);
+    }
+  }
+
+  return getStoredReports();
+}
+
+/**
+ * Subscribes to Realtime question reports updates.
+ */
+export function subscribeToQuestionReports(callback: (reports: QuestionReport[]) => void): () => void {
+  // Emit initial local reports immediately
+  callback(getStoredReports());
+
+  // Fetch fresh reports from Supabase
+  fetchAllQuestionReports().then(callback).catch(() => {});
+
+  let channel: any = null;
+  if (isSupabaseConfigured()) {
+    try {
+      channel = supabase
+        .channel("public:question_reports_changes")
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "question_reports" },
+          () => {
+            fetchAllQuestionReports().then(callback).catch(() => {});
+          }
+        )
+        .subscribe();
+    } catch (err) {
+      console.warn("[QuestionReportService] Realtime subscription error:", err);
+    }
+  }
+
+  return () => {
+    if (channel) {
+      try {
+        supabase.removeChannel(channel);
+      } catch (_) {}
+    }
+  };
+}
+
 

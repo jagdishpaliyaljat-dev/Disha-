@@ -31,6 +31,7 @@ import {
   calculateCoverageMetrics,
 } from "../../utils/examMatcher";
 import { apiFetch } from "../../utils/api";
+import { recordAIUsage } from "../../utils/aiUsageTracker";
 import { ApiSettingsModal } from "../ApiSettingsModal";
 import {
   X,
@@ -189,7 +190,6 @@ export const ExamPaperAnalyzerModal: React.FC<ExamPaperAnalyzerModalProps> = ({
         }
       }
 
-      // Evaluation & Routing
       if (allQuestions.length > 0) {
         // Re-number sequentially if duplicates exist
         const normalized = allQuestions.map((q, idx) => ({
@@ -198,6 +198,16 @@ export const ExamPaperAnalyzerModal: React.FC<ExamPaperAnalyzerModalProps> = ({
         }));
         setExtractedQuestions(normalized);
         setCurrentStep("review_extracted");
+
+        recordAIUsage({
+          queryType: "exam_ocr_extraction",
+          model: "gemini-3.5-flash-lite",
+          inputChars: rawText ? rawText.length : 1500,
+          outputChars: JSON.stringify(normalized).length,
+          status: "success",
+          promptSnippet: `Exam paper extraction: ${files.length} files, ${normalized.length} questions`,
+          responseSnippet: `Extracted ${normalized.length} questions`,
+        });
       } else {
         setExtractionError(
           files && files.length > 0

@@ -62,6 +62,7 @@ import { ParsedQuestion } from "./ParsedQuestion";
 import { sanitizeSvgContent, isValidPngOrSvg } from "../utils/svgSanitizer";
 import { uploadDiagramToStorage, dataUrlToBlob } from "../utils/diagramStorage";
 import { apiFetch } from "../utils/api";
+import { recordAIUsage } from "../utils/aiUsageTracker";
 import { ImportTemplatesModal } from "./admin/ImportTemplatesModal";
 import { SyllabusSelectionModal } from "./AddQuestionsModal";
 
@@ -1130,6 +1131,16 @@ export const AIImportModal: React.FC<AIImportModalProps> = ({
           });
           setSelectedDraftIds(validIds);
           setActiveStep("preview");
+
+          recordAIUsage({
+            queryType: "ai_import",
+            model: "gemini-3.5-flash-lite",
+            inputChars: rawInput.length,
+            outputChars: typeof data.schema === "string" ? data.schema.length : JSON.stringify(data.schema).length,
+            status: "success",
+            promptSnippet: rawInput.slice(0, 100),
+            responseSnippet: `Parsed ${parsed.results?.length || 0} questions`,
+          });
         } else throw new Error(data.message || "AI parsing failed.");
       } else {
         throw new Error("Could not parse JSON. Please check the format.");

@@ -20,6 +20,8 @@ import { Question, Subject, Chapter } from "../../types";
 import {
   QuestionReport,
   getStoredReports,
+  fetchAllQuestionReports,
+  subscribeToQuestionReports,
   saveStoredReports,
   updateReportStatus,
   deleteReport,
@@ -57,22 +59,25 @@ export const QuestionReportDesk: React.FC<QuestionReportDeskProps> = ({
   const [fixExplanation, setFixExplanation] = React.useState<string>("");
   const [isSavingFix, setIsSavingFix] = React.useState(false);
 
-  // Load reports from storage & seed realistic initial doubts if empty
+  // Load reports from Supabase Cloud with Realtime listener
   const fetchReports = async () => {
     setLoading(true);
     try {
-      const loaded = getStoredReports();
+      const loaded = await fetchAllQuestionReports();
       setReports(loaded);
     } catch (e) {
       console.warn("Using local report buffer", e);
-      setReports([]);
+      setReports(getStoredReports());
     } finally {
       setLoading(false);
     }
   };
 
   React.useEffect(() => {
-    fetchReports();
+    const unsubscribe = subscribeToQuestionReports((freshReports) => {
+      setReports(freshReports);
+      setLoading(false);
+    });
 
     const handleReportLiveEvent = () => {
       fetchReports();
@@ -80,6 +85,7 @@ export const QuestionReportDesk: React.FC<QuestionReportDeskProps> = ({
 
     window.addEventListener(REPORT_EVENT_NAME, handleReportLiveEvent);
     return () => {
+      unsubscribe();
       window.removeEventListener(REPORT_EVENT_NAME, handleReportLiveEvent);
     };
   }, []);

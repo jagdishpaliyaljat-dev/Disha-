@@ -559,12 +559,47 @@ export default function App() {
     }
   }, []);
 
+  const isAnyModalOpen = Boolean(
+    isAITutorOpen || isLoginOpen || isSettingsOpen || isApiSettingsOpen || isPDFOpen ||
+    isFullExamOpen || isCustomTestOpen || isExamAnalyzerOpen || isRajasthanMapOpen ||
+    isLiveBattleOpen || isDistrictWarOpen || isAddSubjectOpen || isAddChapterOpen ||
+    isAddTopicOpen || isAddQuestionsOpen || isManageSyllabusOpen || isManageQuestionsOpen ||
+    isManageCategoriesOpen || isManagePYQVaultOpen || isManageLiveTestsOpen ||
+    isAIImportOpen || isHTMLImportOpen || isGlobalSearchOpen
+  );
+
+  const modalHistoryPushedRef = React.useRef(false);
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (isAnyModalOpen) {
+      if (!modalHistoryPushedRef.current) {
+        modalHistoryPushedRef.current = true;
+        try {
+          window.history.pushState({ dishaModalOpen: true }, '', window.location.href);
+        } catch (_) {}
+      }
+    } else {
+      if (modalHistoryPushedRef.current) {
+        modalHistoryPushedRef.current = false;
+        if (window.history.state?.dishaModalOpen) {
+          try {
+            window.history.back();
+          } catch (_) {}
+        }
+      }
+    }
+  }, [isAnyModalOpen]);
+
   // Handle Android Back button, browser Back button and gesture PopState navigation
   React.useEffect(() => {
     if (typeof window === 'undefined') return;
 
     const handlePopState = (event: PopStateEvent) => {
       isPopStateRef.current = true;
+      if (modalHistoryPushedRef.current) {
+        modalHistoryPushedRef.current = false;
+      }
 
       const path = window.location.pathname;
       const searchParams = new URLSearchParams(window.location.search);
