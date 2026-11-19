@@ -904,6 +904,102 @@ export default function App() {
     };
   }, [updateProgress]);
 
+  // Real-time listener for user profile role updates (e.g., Super Admin promotes user)
+  React.useEffect(() => {
+    if (!isAuthenticated || !userProfile?.id) return;
+    const currentUserId = userProfile.id;
+    let channel: any = null;
+    let isDisposed = false;
+
+    import('./lib/supabase').then(({ supabase, isSupabaseConfigured }) => {
+      if (isDisposed || !isSupabaseConfigured() || !supabase) return;
+
+      const refreshCurrentProfile = async () => {
+        try {
+          const { fetchUserProfileFromSupabase } = await import('./utils/supabaseSyncService');
+          const remote = await fetchUserProfileFromSupabase(currentUserId);
+          if (isDisposed || !remote) return;
+
+          const { isSuperAdmin, saveUserProfile: saveProfile } = await import('./utils/userProfileStorage');
+          const isSuper = isSuperAdmin(remote.email) || isSuperAdmin(remote.id);
+          const authoritativeRole = (isSuper || remote.role === "admin") ? "admin" : "student";
+
+          setUserProfile((prev) => {
+            if (!prev) return null;
+            if (prev.role === authoritativeRole && prev.name === (remote.name || remote.displayName)) {
+              return prev;
+            }
+            const updated: UserProfile = {
+              ...prev,
+              role: authoritativeRole,
+              name: remote.name || remote.displayName || prev.name,
+              displayName: remote.displayName || remote.name || prev.displayName,
+              photoURL: remote.photoURL || prev.photoURL,
+              status: remote.status || prev.status,
+            };
+            saveProfile(updated);
+            return updated;
+          });
+
+          if (authoritativeRole === "admin" && userProfile.role !== "admin") {
+            try {
+              const { showAdminToast } = await import('./utils/adminToast');
+              showAdminToast("बधाई! आपको Admin अधिकार प्राप्त हो गए हैं। Admin Panel अब सक्रिय है।", "success");
+            } catch {
+              alert("बधाई! आपको Admin अधिकार प्राप्त हो गए हैं। Admin Panel अब सक्रिय है।");
+            }
+          }
+        } catch (e) {
+          console.warn("[ProfileSync] Auto-refresh check note:", e);
+        }
+      };
+
+      // 1. Listen to Realtime WebSocket updates on profiles table
+      try {
+        channel = supabase
+          .channel(`user-profile-sync-${currentUserId}`)
+          .on(
+            'postgres_changes',
+            {
+              event: 'UPDATE',
+              schema: 'public',
+              table: 'profiles',
+              filter: `id=eq.${currentUserId}`,
+            },
+            (payload) => {
+              console.log("[Supabase Realtime] Profile update received:", payload.new);
+              refreshCurrentProfile();
+            }
+          )
+          .subscribe();
+      } catch (subErr) {
+        console.warn("[Supabase Realtime] Profile subscription error:", subErr);
+      }
+
+      // 2. Also refresh on window focus / app return
+      const handleAppFocus = () => {
+        refreshCurrentProfile();
+      };
+      window.addEventListener("focus", handleAppFocus);
+      document.addEventListener("visibilitychange", handleAppFocus);
+
+      // 3. Initial check right now in case promotion happened just before
+      refreshCurrentProfile();
+
+      return () => {
+        window.removeEventListener("focus", handleAppFocus);
+        document.removeEventListener("visibilitychange", handleAppFocus);
+        if (channel && supabase) {
+          try { supabase.removeChannel(channel); } catch {}
+        }
+      };
+    }).catch(() => {});
+
+    return () => {
+      isDisposed = true;
+    };
+  }, [isAuthenticated, userProfile?.id]);
+
   // Background fetch of curriculum from Supabase on startup (non-destructive merge, single run)
   React.useEffect(() => {
     let isSubscribed = true;

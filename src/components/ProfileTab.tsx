@@ -8,7 +8,7 @@ import {
   ActiveTab,
   UserProfile,
 } from "../types";
-import { loadUserProfile, DEFAULT_USER_PROFILE, saveUserProfile } from "../utils/userProfileStorage";
+import { loadUserProfile, DEFAULT_USER_PROFILE, saveUserProfile, isUserAdmin } from "../utils/userProfileStorage";
 import { triggerHaptic } from "../utils/audioFeedback";
 import {
   User,
@@ -114,7 +114,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
   }, [activeProfile, settings.dailyGoal]);
 
   const userName = activeProfile?.name || (!isAuthenticated ? "Guest Student" : "Aspirant");
-  const isAdmin = activeProfile?.role === "admin";
+  const isAdmin = isUserAdmin(activeProfile);
 
   // ─────────────────────────────────────────────────────────────
   // ANALYTICS & COMPUTED METRICS
@@ -373,6 +373,39 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
         animate="show"
         className="px-3.5 sm:px-6 pt-5 space-y-5 max-w-4xl mx-auto w-full"
       >
+        {isAdmin && (
+          <motion.div
+            variants={itemVariants}
+            className="p-4 rounded-3xl bg-gradient-to-r from-[#800020] via-[#5E0017] to-[#800020] text-white shadow-md border border-[#C99A45]/40 flex items-center justify-between gap-3"
+          >
+            <div className="flex items-center gap-3.5 min-w-0">
+              <div className="w-11 h-11 rounded-2xl bg-[#C99A45]/20 flex items-center justify-center text-[#C99A45] shrink-0 border border-[#C99A45]/40 shadow-inner">
+                <Crown size={22} className="text-[#C99A45]" />
+              </div>
+              <div className="min-w-0">
+                <div className="font-black text-sm sm:text-base flex items-center gap-2 flex-wrap text-white">
+                  <span>प्रशासक पोर्टल सक्रिय</span>
+                  <span className="text-[10px] bg-[#C99A45] text-[#171923] px-2 py-0.5 rounded-full font-black tracking-wider uppercase">
+                    Admin Access
+                  </span>
+                </div>
+                <p className="text-xs text-[#FFF9EF]/80 truncate mt-0.5">
+                  पाठ्यक्रम, प्रश्न बैंक, और लाइव टेस्ट प्रबंधित करें
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                triggerHaptic("medium");
+                onNavigateTab?.("admin");
+              }}
+              className="px-4 py-2 bg-[#C99A45] hover:bg-[#d4a853] active:scale-95 text-[#171923] text-xs font-black rounded-xl transition-all shrink-0 cursor-pointer shadow-md flex items-center gap-1.5"
+            >
+              <span>एडमिन पैनल</span>
+              <ChevronRight size={14} />
+            </button>
+          </motion.div>
+        )}
         {/* ─────────────────────────────────────────────────────────────
             A. ASPIRANT TOOLKIT & PREFERENCES
         ───────────────────────────────────────────────────────────── */}
