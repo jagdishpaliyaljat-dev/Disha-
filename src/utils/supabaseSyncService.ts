@@ -1253,9 +1253,7 @@ export async function deleteQuestionsBulkFromSupabase(questionIds: string[]): Pr
 
   if (anyDraft) {
     try {
-      for (const id of questionIds) {
-        await idbDelete(STORES.MCQS, id);
-      }
+      await idbDeleteBatch(STORES.MCQS, questionIds);
       const { removeQuestionsFromCache } = await import('./questionBankCache');
       await removeQuestionsFromCache(questionIds);
     } catch (_) {}
@@ -1279,9 +1277,7 @@ export async function deleteQuestionsBulkFromSupabase(questionIds: string[]): Pr
 
   if (cloudSynced) {
     if (!anyDraft) {
-      for (const id of questionIds) {
-        await idbDelete(STORES.MCQS, id);
-      }
+      await idbDeleteBatch(STORES.MCQS, questionIds);
       try {
         const { removeQuestionsFromCache } = await import('./questionBankCache');
         await removeQuestionsFromCache(questionIds);
