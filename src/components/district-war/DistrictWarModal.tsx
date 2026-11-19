@@ -18,7 +18,9 @@ import {
 import { districtWarService } from "./districtWarService";
 import { DistrictWarScore, WarLeagueTab, DistrictWarEvent, UserDistrictAffiliation } from "./types";
 import { DistrictSelectModal } from "./DistrictSelectModal";
+import { DistrictDetailSheet } from "../rajasthan-map/components/DistrictDetailSheet";
 import { RAJASTHAN_50_DISTRICTS } from "../rajasthan-map/data/districtsData";
+import { DistrictInfo } from "../rajasthan-map/types";
 import { triggerHaptic, playClickSound, playSuccessSound } from "../../utils/audioFeedback";
 
 interface DistrictWarModalProps {
@@ -38,6 +40,16 @@ export const DistrictWarModal: React.FC<DistrictWarModalProps> = ({
   const [leaderboard, setLeaderboard] = useState<DistrictWarScore[]>([]);
   const [liveEvents, setLiveEvents] = useState<DistrictWarEvent[]>([]);
   const [userAffiliation, setUserAffiliation] = useState<UserDistrictAffiliation | null>(null);
+  const [selectedDistrictForDetail, setSelectedDistrictForDetail] = useState<DistrictInfo | null>(null);
+
+  const handleOpenDistrictDetail = (districtId: string) => {
+    triggerHaptic("light");
+    playClickSound();
+    const info = RAJASTHAN_50_DISTRICTS[districtId];
+    if (info) {
+      setSelectedDistrictForDetail(info);
+    }
+  };
 
   const refreshData = () => {
     setLeaderboard(districtWarService.getLeaderboard(activeLeague));
@@ -255,11 +267,14 @@ export const DistrictWarModal: React.FC<DistrictWarModalProps> = ({
         {!searchQuery.trim() && topThree.length === 3 && (
           <div className="grid grid-cols-3 gap-2 sm:gap-4 max-w-lg mx-auto pt-2 pb-4">
             {/* Rank 2 (Silver) */}
-            <div className="flex flex-col items-center justify-end">
-              <div className="w-8 h-8 rounded-full bg-slate-300 dark:bg-slate-600 text-stone-800 dark:text-white flex items-center justify-center font-black text-xs shadow-md mb-1.5">
+            <div
+              onClick={() => handleOpenDistrictDetail(topThree[1].districtId)}
+              className="flex flex-col items-center justify-end cursor-pointer group active:scale-95 transition-transform"
+            >
+              <div className="w-8 h-8 rounded-full bg-slate-300 dark:bg-slate-600 text-stone-800 dark:text-white flex items-center justify-center font-black text-xs shadow-md mb-1.5 group-hover:scale-110 transition-transform">
                 🥈 2
               </div>
-              <div className="w-full bg-gradient-to-b from-slate-100 to-slate-200 dark:from-[#1E2232] dark:to-[#171926] p-2.5 rounded-2xl border border-slate-300 dark:border-slate-700 text-center shadow-xs">
+              <div className="w-full bg-gradient-to-b from-slate-100 to-slate-200 dark:from-[#1E2232] dark:to-[#171926] p-2.5 rounded-2xl border border-slate-300 dark:border-slate-700 text-center shadow-xs group-hover:border-[#800020] dark:group-hover:border-[#C99A45] transition-colors">
                 <span className="font-black text-xs sm:text-sm text-stone-900 dark:text-white block truncate">
                   {RAJASTHAN_50_DISTRICTS[topThree[1].districtId]?.nameEnglish || topThree[1].nameHindi}
                 </span>
@@ -271,18 +286,24 @@ export const DistrictWarModal: React.FC<DistrictWarModalProps> = ({
                 <span className="text-[9px] text-stone-500 block">
                   {topThree[1].activeWarriors} warriors
                 </span>
+                <span className="text-[8.5px] font-bold text-[#800020] dark:text-[#C99A45] mt-1 block">
+                  विवरण देखें →
+                </span>
               </div>
             </div>
 
             {/* Rank 1 (Gold Champion) */}
-            <div className="flex flex-col items-center justify-end -mt-3">
+            <div
+              onClick={() => handleOpenDistrictDetail(topThree[0].districtId)}
+              className="flex flex-col items-center justify-end -mt-3 cursor-pointer group active:scale-95 transition-transform"
+            >
               <div className="relative">
                 <Crown className="w-7 h-7 text-amber-500 absolute -top-5 left-1/2 -translate-x-1/2 animate-bounce" />
-                <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-400 to-amber-200 text-stone-900 flex items-center justify-center font-black text-sm shadow-lg mb-1.5 border-2 border-white dark:border-stone-800">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-400 to-amber-200 text-stone-900 flex items-center justify-center font-black text-sm shadow-lg mb-1.5 border-2 border-white dark:border-stone-800 group-hover:scale-110 transition-transform">
                   🥇 1
                 </div>
               </div>
-              <div className="w-full bg-gradient-to-b from-amber-50 to-amber-100 dark:from-[#2A2418] dark:to-[#1E1C16] p-3 rounded-2xl border-2 border-[#C99A45] text-center shadow-md">
+              <div className="w-full bg-gradient-to-b from-amber-50 to-amber-100 dark:from-[#2A2418] dark:to-[#1E1C16] p-3 rounded-2xl border-2 border-[#C99A45] text-center shadow-md group-hover:border-amber-400 transition-colors">
                 <span className="font-black text-sm sm:text-base text-stone-900 dark:text-amber-200 block truncate">
                   {RAJASTHAN_50_DISTRICTS[topThree[0].districtId]?.nameEnglish || topThree[0].nameHindi}
                 </span>
@@ -294,15 +315,21 @@ export const DistrictWarModal: React.FC<DistrictWarModalProps> = ({
                 <span className="text-[9.5px] text-stone-600 dark:text-amber-100/70 block font-medium">
                   {topThree[0].activeWarriors} warriors
                 </span>
+                <span className="text-[8.5px] font-black text-amber-700 dark:text-amber-300 mt-1 block">
+                  विवरण देखें →
+                </span>
               </div>
             </div>
 
             {/* Rank 3 (Bronze) */}
-            <div className="flex flex-col items-center justify-end">
-              <div className="w-8 h-8 rounded-full bg-amber-700/30 text-amber-800 dark:text-amber-400 flex items-center justify-center font-black text-xs shadow-md mb-1.5">
+            <div
+              onClick={() => handleOpenDistrictDetail(topThree[2].districtId)}
+              className="flex flex-col items-center justify-end cursor-pointer group active:scale-95 transition-transform"
+            >
+              <div className="w-8 h-8 rounded-full bg-amber-700/30 text-amber-800 dark:text-amber-400 flex items-center justify-center font-black text-xs shadow-md mb-1.5 group-hover:scale-110 transition-transform">
                 🥉 3
               </div>
-              <div className="w-full bg-gradient-to-b from-orange-50 to-orange-100/50 dark:from-[#221C18] dark:to-[#191614] p-2.5 rounded-2xl border border-amber-700/30 text-center shadow-xs">
+              <div className="w-full bg-gradient-to-b from-orange-50 to-orange-100/50 dark:from-[#221C18] dark:to-[#191614] p-2.5 rounded-2xl border border-amber-700/30 text-center shadow-xs group-hover:border-amber-600 transition-colors">
                 <span className="font-black text-xs sm:text-sm text-stone-900 dark:text-white block truncate">
                   {RAJASTHAN_50_DISTRICTS[topThree[2].districtId]?.nameEnglish || topThree[2].nameHindi}
                 </span>
@@ -313,6 +340,9 @@ export const DistrictWarModal: React.FC<DistrictWarModalProps> = ({
                 </span>
                 <span className="text-[9px] text-stone-500 block">
                   {topThree[2].activeWarriors} warriors
+                </span>
+                <span className="text-[8.5px] font-bold text-amber-700 dark:text-amber-400 mt-1 block">
+                  विवरण देखें →
                 </span>
               </div>
             </div>
@@ -328,12 +358,13 @@ export const DistrictWarModal: React.FC<DistrictWarModalProps> = ({
             return (
               <div
                 key={item.districtId}
-                className={`w-full p-3 rounded-2xl border transition-all flex items-center justify-between gap-3 ${
+                onClick={() => handleOpenDistrictDetail(item.districtId)}
+                className={`w-full p-3 rounded-2xl border transition-all flex items-center justify-between gap-3 cursor-pointer group active:scale-[0.99] ${
                   isUserDistrict
                     ? "bg-[#800020]/10 dark:bg-[#800020]/30 border-[#800020] dark:border-[#C99A45] shadow-md ring-2 ring-[#800020]/20"
                     : item.rank === 1
                     ? "bg-amber-500/10 dark:bg-amber-500/20 border-[#C99A45]"
-                    : "bg-white dark:bg-[#161825] border-stone-200 dark:border-stone-800 hover:border-stone-300"
+                    : "bg-white dark:bg-[#161825] border-stone-200 dark:border-stone-800 hover:border-[#800020] dark:hover:border-[#C99A45]"
                 }`}
               >
                 {/* Left: Rank & Name */}
@@ -385,8 +416,8 @@ export const DistrictWarModal: React.FC<DistrictWarModalProps> = ({
                   </div>
                 </div>
 
-                {/* Right: Scores & Share Action */}
-                <div className="flex items-center gap-2.5 shrink-0">
+                {/* Right: Scores & Actions */}
+                <div className="flex items-center gap-2 shrink-0">
                   <div className="text-right">
                     <span className="font-mono font-black text-xs sm:text-sm text-stone-900 dark:text-white block">
                       {activeLeague === "total"
@@ -400,12 +431,19 @@ export const DistrictWarModal: React.FC<DistrictWarModalProps> = ({
 
                   <button
                     type="button"
-                    onClick={() => handleShareWhatsApp(item.districtId)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleShareWhatsApp(item.districtId);
+                    }}
                     title={`Send WhatsApp challenge for ${RAJASTHAN_50_DISTRICTS[item.districtId]?.nameEnglish || item.nameHindi} army`}
                     className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center transition active:scale-90 cursor-pointer"
                   >
                     <Share2 className="w-4 h-4" />
                   </button>
+
+                  <div className="w-7 h-7 rounded-xl bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-stone-400 group-hover:text-[#800020] dark:group-hover:text-[#C99A45] group-hover:translate-x-0.5 transition-all">
+                    <ChevronRight className="w-4 h-4" />
+                  </div>
                 </div>
               </div>
             );
@@ -445,6 +483,19 @@ export const DistrictWarModal: React.FC<DistrictWarModalProps> = ({
           refreshData();
         }}
       />
+
+      {/* Full-Page District Detail Modal */}
+      {selectedDistrictForDetail && (
+        <DistrictDetailSheet
+          district={selectedDistrictForDetail}
+          onClose={() => setSelectedDistrictForDetail(null)}
+          onOpenMap={() => {
+            setSelectedDistrictForDetail(null);
+            onClose();
+            onOpenMap?.();
+          }}
+        />
+      )}
     </div>
   );
 };
