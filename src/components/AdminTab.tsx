@@ -4,7 +4,7 @@ import {
   FolderPlus, PlusCircle, Database, LayoutGrid, Settings, ShieldCheck, 
   Upload, Sparkles, Menu, ChevronRight, ChevronLeft, HardDrive, Activity, Cpu, RefreshCw, Newspaper,
   Trophy, CheckCircle2, ListFilter, ChevronDown, Trash2, AlertCircle, Building2,
-  FileCode, Archive, LogOut, ArrowRight, Timer, FileText, FileSpreadsheet, Home, Bot, Swords
+  FileCode, Archive, LogOut, ArrowRight, Timer, FileText, FileSpreadsheet, Home, Bot, Swords, ShieldAlert
 } from "lucide-react";
 import { Subject, Chapter, UserQuestionsStore, UserProfile } from "../types";
 import { ConfirmDialog } from "./admin/ConfirmDialog";
@@ -67,6 +67,7 @@ const BulkQuestionDeleteModal = adminSafeLazy<any>(() => import("./admin/BulkQue
 const QuestionReportDesk = adminSafeLazy<any>(() => import("./admin/QuestionReportDesk"), "QuestionReportDesk");
 const MeritListPdfModal = adminSafeLazy<any>(() => import("./admin/MeritListPdfModal"), "MeritListPdfModal");
 const LiveBattleDashboard = adminSafeLazy<any>(() => import("./admin/LiveBattleDashboard"), "LiveBattleDashboard");
+const DuplicateQuestionsHubModal = adminSafeLazy<any>(() => import("./admin/DuplicateQuestionsHubModal"), "DuplicateQuestionsHubModal");
 
 interface AdminTabProps {
   userProfile: UserProfile | null;
@@ -136,6 +137,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
   const [showExcelCsvImporter, setShowExcelCsvImporter] = React.useState(false);
   const [showBulkDeleteModal, setShowBulkDeleteModal] = React.useState(false);
   const [showMeritListModal, setShowMeritListModal] = React.useState(false);
+  const [showDuplicateHubModal, setShowDuplicateHubModal] = React.useState(false);
   const [isAdminMenuOpen, setIsAdminMenuOpen] = React.useState(false);
   const adminMenuRef = React.useRef<HTMLDivElement>(null);
 
@@ -1305,6 +1307,14 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                       AI Import
                     </button>
                     <button
+                      onClick={() => setShowDuplicateHubModal(true)}
+                      className="px-3.5 py-2 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white text-xs font-black rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                      title="Fuzzy similarity duplicate detector (>=90%) with 1-click cleanup"
+                    >
+                      <ShieldAlert className="w-3.5 h-3.5" />
+                      <span>Duplicate Control (≥90%)</span>
+                    </button>
+                    <button
                       onClick={() => setShowBulkDeleteModal(true)}
                       className="px-3.5 py-2 bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-700 hover:to-red-700 text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
                       title="Mass question removal tool with hierarchy filter & safety confirmation"
@@ -1324,15 +1334,11 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                     { label: "Bulk Delete", action: () => setShowBulkDeleteModal(true), icon: Trash2, isSpecial: true, specialColor: "rose" },
                     { label: "Quick Add", action: () => props.onShowAddQuestions(undefined, undefined, undefined, "paste"), icon: PlusCircle, isSpecial: false },
                     { 
-                      label: "Deduplication", 
-                      action: () => {
-                        const el = document.getElementById("duplicate-scanner-widget");
-                        if (el) {
-                          el.scrollIntoView({ behavior: "smooth", block: "start" });
-                        }
-                      }, 
-                      icon: ListFilter,
-                      isSpecial: false
+                      label: "Duplicates (≥90%)", 
+                      action: () => setShowDuplicateHubModal(true), 
+                      icon: ShieldAlert,
+                      isSpecial: true,
+                      specialColor: "amber"
                     },
                   ].map((item) => (
                     <button
@@ -1936,6 +1942,20 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
             questionsStore={props.questionsStore}
             onBulkDeleteQuestions={props.onBulkDeleteQuestions}
             onStoreUpdated={props.onStoreUpdated}
+          />
+        </React.Suspense>
+      )}
+      {showDuplicateHubModal && (
+        <React.Suspense fallback={null}>
+          <DuplicateQuestionsHubModal
+            isOpen={showDuplicateHubModal}
+            onClose={() => setShowDuplicateHubModal(false)}
+            chapters={combinedChaptersList}
+            onQuestionsUpdated={() => {
+              if (props.onStoreUpdated) {
+                props.onStoreUpdated(loadUserQuestionsStore());
+              }
+            }}
           />
         </React.Suspense>
       )}

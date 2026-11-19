@@ -17,6 +17,7 @@ import {
 import { parseRawMcqText, validateMathSyntax } from "../utils/questionParser";
 import { UniversalSmartParser } from "../utils/UniversalSmartParser";
 import { detectQuestionExams } from "../lib/mcqImport/examDetector";
+import { checkBatchForFuzzyDuplicates, calculateQuestionSimilarity } from "../utils/questionSimilarity";
 import {
   X,
   Upload,
@@ -712,27 +713,48 @@ export const AddQuestionsModal: React.FC<AddQuestionsModalProps> = ({
   const invalidCount = useMemo(() => draftQuestions?.filter(q => !q.isValid).length || 0, [draftQuestions]);
   const aiRecoveredCount = useMemo(() => draftQuestions?.filter(q => q.recoveredByAI).length || 0, [draftQuestions]);
 
-  // Duplicate Detection with Normalized Question Hash (Declared before filteredDrafts to avoid TDZ ReferenceError)
-  const duplicateIds = useMemo(() => {
-    if (!draftQuestions) return new Set<string>();
+  // Duplicate Detection with Normalized Question Hash + Fuzzy Similarity (>=90%)
+  const { duplicateIds, duplicateDetailsMap } = useMemo(() => {
+    if (!draftQuestions || draftQuestions.length === 0) {
+      return {
+        duplicateIds: new Set<string>(),
+        duplicateDetailsMap: new Map<string, { matchedText: string; percentage: number; isBatchInternal: boolean; reason: string }>(),
+      };
+    }
+
+    const allExistingQuestions: Question[] = chapters.flatMap((c) =>
+      (c.topics || []).flatMap((t) => t.questions || [])
+    );
+
+    const duplicates = new Set<string>();
+    const detailsMap = new Map<string, { matchedText: string; percentage: number; isBatchInternal: boolean; reason: string }>();
+
+    // 1. Run 90%+ fuzzy matching across database & batch
+    const fuzzyMap = checkBatchForFuzzyDuplicates(draftQuestions, allExistingQuestions, 0.90);
+    fuzzyMap.forEach((info, tempId) => {
+      duplicates.add(tempId);
+      const matchedText = info.matchedWith.text || (info.matchedWith as any).question || "";
+      detailsMap.set(tempId, {
+        matchedText,
+        percentage: info.similarity.percentage,
+        isBatchInternal: info.isBatchInternal,
+        reason: info.similarity.reason,
+      });
+    });
+
+    // 2. Also include exact hash matches if any
     const existingHashes = new Set(
-      chapters.flatMap((c) =>
-        (c.topics || []).flatMap((t) =>
-          (t.questions || []).map((q) =>
-            generateQuestionHash({
-              question: q.text,
-              options: q.options,
-              answer: ["A", "B", "C", "D", "E"][q.correctIndex] || "A",
-            })
-          )
-        )
+      allExistingQuestions.map((q) =>
+        generateQuestionHash({
+          question: q.text,
+          options: q.options,
+          answer: ["A", "B", "C", "D", "E"][q.correctIndex] || "A",
+        })
       )
     );
-    const duplicates = new Set<string>();
+
     draftQuestions.forEach((q) => {
-      if (q.hash && existingHashes.has(q.hash)) {
-        duplicates.add(q.tempId);
-      } else if (q.isDuplicate) {
+      if (q.isDuplicate || (q.hash && existingHashes.has(q.hash))) {
         duplicates.add(q.tempId);
       } else {
         const h = generateQuestionHash({
@@ -745,7 +767,8 @@ export const AddQuestionsModal: React.FC<AddQuestionsModalProps> = ({
         }
       }
     });
-    return duplicates;
+
+    return { duplicateIds: duplicates, duplicateDetailsMap: detailsMap };
   }, [draftQuestions, chapters]);
 
   // Compute filtered drafts list for display
@@ -1238,13 +1261,30 @@ export const AddQuestionsModal: React.FC<AddQuestionsModalProps> = ({
 
     try {
       let toImport = draftQuestions.filter((q) => q.isValid);
+
+      // Strict Duplicate Prevention: Automatically skip >=90% and exact duplicates if strategy is 'skip'
+      if (duplicateStrategy === "skip" && duplicateIds.size > 0) {
+        const initialCount = toImport.length;
+        toImport = toImport.filter((q) => !duplicateIds.has(q.tempId));
+        const skippedCount = initialCount - toImport.length;
+        if (skippedCount > 0) {
+          console.log(`[MCQ Import] [Deduplication Guard] Skipped ${skippedCount} duplicate question(s) (>=90% similarity).`);
+        }
+      }
+
       if (onlySelected && selectedCount > 0) {
         toImport = toImport.filter((q) => selectedDraftIds.has(q.tempId));
       }
 
       if (toImport.length === 0) {
-        setParseError("No valid questions selected to import. Please check and fix any errors.");
-        setBulkSaveErrorCode("no-selection");
+        setParseError(
+          duplicateIds.size > 0
+            ? "सभी प्रश्न पहले से डेटाबेस में मौजूद हैं या डुप्लीकेट हैं (समानता >=90%)। डाटाबेस को सुरक्षित रखते हुए डुप्लीकेट प्रश्न छोड़ दिए गए।"
+            : "No valid questions selected to import. Please check and fix any errors."
+        );
+        setBulkSaveErrorCode("all-duplicates");
+        setIsBulkSaving(false);
+        isBulkSavingRef.current = false;
         return;
       }
 
@@ -2850,19 +2890,34 @@ Format B: { "testId": "...", "questions": [ { "question": "...", "options": { "A
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-black text-amber-900 dark:text-amber-200">
-                      ⚠️ Duplicate Question Identification: {duplicateIds.size} of the uploaded question(s) already exist in the database or are duplicates!
+                      ⚠️ 90%+ समानता वाले डुप्लीकेट प्रश्न: {duplicateIds.size} प्रश्न डेटाबेस या पेस्ट बैच में पहले से मौजूद हैं!
                     </p>
                     <p className="text-[11px] text-amber-700 dark:text-amber-400 mt-0.5 font-medium">
-                      These are tagged as "Duplicate in DB". They will be automatically skipped or can be reviewed by clicking the "Dupes" tab below.
+                      सिस्टम ने डुप्लीकेट प्रश्नों को चिन्हित कर लिया है ताकि बार-बार एक ही प्रश्न डेटाबेस में न जुड़े। आप इन्हें फ़िल्टर कर सकते हैं या एक-क्लिक में हटा सकते हैं।
                     </p>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setFilterMode("duplicates")}
-                    className="px-2.5 py-1 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-[10px] font-black uppercase tracking-wider shrink-0 transition-all cursor-pointer"
-                  >
-                    View Dupes ({duplicateIds.size})
-                  </button>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => setFilterMode("duplicates")}
+                      className="px-2.5 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer shadow-xs active:scale-95"
+                    >
+                      डुप्लीकेट देखें ({duplicateIds.size})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (window.confirm(`क्या आप सभी ${duplicateIds.size} डुप्लीकेट प्रश्नों को इस इम्पोर्ट लिस्ट से हटाना चाहते हैं?`)) {
+                          setDraftQuestions((prev) => (prev || []).filter((q) => !duplicateIds.has(q.tempId)));
+                        }
+                      }}
+                      className="px-2.5 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer shadow-xs active:scale-95 flex items-center gap-1"
+                      title="Remove all duplicate questions from this import batch"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                      <span>सभी हटाएं</span>
+                    </button>
+                  </div>
                 </div>
               )}
 
@@ -3163,6 +3218,7 @@ Format B: { "testId": "...", "questions": [ { "question": "...", "options": { "A
                     const isExpanded = expandedCardIds.has(draft.tempId);
                     const qTypeInfo = getQuestionTypeInfo(draft.questionType);
                     const isDupe = duplicateIds.has(draft.tempId);
+                    const dupeInfo = duplicateDetailsMap.get(draft.tempId);
 
                     return (
                       <div
@@ -3248,8 +3304,24 @@ Format B: { "testId": "...", "questions": [ { "question": "...", "options": { "A
                             )}
 
                             {isDupe && (
-                              <span className="px-2 py-0.5 rounded-lg text-[10px] font-black bg-purple-100 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300 border border-purple-300">
-                                Duplicate in DB
+                              <span
+                                className={`px-2 py-0.5 rounded-lg text-[10px] font-black border flex items-center gap-1 ${
+                                  dupeInfo && dupeInfo.percentage === 100
+                                    ? "bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 border-rose-300"
+                                    : "bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border-amber-300"
+                                }`}
+                                title={
+                                  dupeInfo
+                                    ? `${dupeInfo.percentage}% समानता (${dupeInfo.isBatchInternal ? "पेस्ट बैच में मौजूद" : "डेटाबेस में मौजूद"}): "${dupeInfo.matchedText.slice(0, 100)}..."`
+                                    : "Duplicate question detected"
+                                }
+                              >
+                                <AlertTriangle className="w-3 h-3" />
+                                <span>
+                                  {dupeInfo
+                                    ? `${dupeInfo.percentage}% डुप्लीकेट (${dupeInfo.isBatchInternal ? "बैच" : "DB"})`
+                                    : "Duplicate in DB"}
+                                </span>
                               </span>
                             )}
 

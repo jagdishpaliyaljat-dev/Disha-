@@ -1,8 +1,9 @@
 import * as React from "react";
-import { Search, AlertTriangle, CheckCircle2, RefreshCw, FileText, ChevronDown, ChevronUp, Database, ShieldCheck, Wrench, HelpCircle, Trash2 } from "lucide-react";
+import { Search, AlertTriangle, CheckCircle2, RefreshCw, FileText, ChevronDown, ChevronUp, Database, ShieldCheck, Wrench, HelpCircle, Trash2, ShieldAlert } from "lucide-react";
 import { scanMcqCollectionDuplicates, McqScanResult } from "../../utils/scanMcqDuplicates";
 import { AdminCard } from "./AdminCard";
 import { loadUserQuestionsStore, getCombinedChapters, getCombinedQuestions, saveUserQuestionsStore } from "../../utils/questionsStorage";
+import { DuplicateQuestionsHubModal } from "./DuplicateQuestionsHubModal";
 
 export const McqDuplicateScannerWidget: React.FC = () => {
   const [result, setResult] = React.useState<McqScanResult | null>(null);
@@ -12,6 +13,7 @@ export const McqDuplicateScannerWidget: React.FC = () => {
   const [targetCollection, setTargetCollection] = React.useState("questions");
   const [expandedGroupIdx, setExpandedGroupIdx] = React.useState<number | null>(null);
   const [showExplanation, setShowExplanation] = React.useState(false);
+  const [showHubModal, setShowHubModal] = React.useState(false);
 
   // Active Store Counts
   const activeStats = React.useMemo(() => {
@@ -107,6 +109,15 @@ export const McqDuplicateScannerWidget: React.FC = () => {
             <option value="questions">questions table (Supabase)</option>
             <option value="all">All Repositories (Cloud & Local)</option>
           </select>
+
+          <button
+            onClick={() => setShowHubModal(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer shadow-xs active:scale-95"
+            title="Launch comprehensive >=90% similarity duplicate manager"
+          >
+            <ShieldAlert className="w-3.5 h-3.5" />
+            <span>Duplicate Manager (≥90%)</span>
+          </button>
 
           <button
             onClick={handleRunScan}
@@ -310,6 +321,20 @@ export const McqDuplicateScannerWidget: React.FC = () => {
                                   <span className="text-[9px] font-sans text-indigo-600 dark:text-indigo-400 font-bold">
                                     {item.source}
                                   </span>
+                                  <button
+                                    type="button"
+                                    onClick={async (e) => {
+                                      e.stopPropagation();
+                                      if (!window.confirm(`क्या आप इस डुप्लीकेट प्रति (ID: ${item.docId}) को हटाना चाहते हैं?`)) return;
+                                      const { deleteQuestionFromSupabase } = await import("../../utils/supabaseSyncService");
+                                      await deleteQuestionFromSupabase(item.docId);
+                                      handleRunScan();
+                                    }}
+                                    className="p-1 text-rose-500 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded transition-colors cursor-pointer"
+                                    title="Delete this duplicate copy"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  </button>
                                 </div>
                               </div>
                               <div className="text-[10px] font-sans text-slate-500 dark:text-slate-400 flex flex-wrap gap-2">
@@ -336,6 +361,14 @@ export const McqDuplicateScannerWidget: React.FC = () => {
             Click "Scan Database" above to inspect the 'questions' table for duplicate question IDs or identical question texts.
           </p>
         </div>
+      )}
+
+      {showHubModal && (
+        <DuplicateQuestionsHubModal
+          isOpen={showHubModal}
+          onClose={() => setShowHubModal(false)}
+          onQuestionsUpdated={handleRunScan}
+        />
       )}
     </AdminCard>
   );
