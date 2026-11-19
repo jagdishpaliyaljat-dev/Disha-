@@ -1,7 +1,7 @@
 # DISHA 20-20 (दिशा 20-20) — Exam Preparation Platform
 
 [![Official Live Website](https://img.shields.io/badge/Live%20Website-disha--2020.vercel.app-800020?style=for-the-badge&logo=vercel)](https://disha-2020.vercel.app)
-[![Download Android APK](https://img.shields.io/badge/Download%20APK-v1.0.2%20Release-22c55e?style=for-the-badge&logo=android)](https://github.com/jagdishpaliyaljat-dev/Disha-/releases/download/v1.0.2/Disha-20-20-Exam-Prep-v1.0.2.apk)
+[![Download Android APK](https://img.shields.io/badge/Download%20APK-v1.0.3%20Release-22c55e?style=for-the-badge&logo=android)](https://github.com/jagdishpaliyaljat-dev/Disha-/releases/download/v1.0.3/Disha-20-20-Exam-Prep-v1.0.3.apk)
 [![Production Status](https://img.shields.io/badge/Production-Verified%20Grade%20A%2B-emerald)](https://disha-2020.vercel.app)
 [![Node.js](https://img.shields.io/badge/Node.js-22.x-brightgreen)](https://nodejs.org)
 [![Vite](https://img.shields.io/badge/Vite-8.3.0-646CFF)](https://vitejs.dev)
@@ -11,7 +11,7 @@
 [![PWA](https://img.shields.io/badge/PWA-Workbox%20Offline%20First-blue)](https://web.dev/progressive-web-apps/)
 
 > 🌐 **आधिकारिक लाइव वेबसाइट**: [https://disha-2020.vercel.app](https://disha-2020.vercel.app)  
-> 📱 **नवीनतम Android APK डाउनलोड (v1.0.2)**: [Disha-20-20-Exam-Prep-v1.0.2.apk](https://github.com/jagdishpaliyaljat-dev/Disha-/releases/download/v1.0.2/Disha-20-20-Exam-Prep-v1.0.2.apk)
+> 📱 **नवीनतम Android APK डाउनलोड (v1.0.3)**: [Disha-20-20-Exam-Prep-v1.0.3.apk](https://github.com/jagdishpaliyaljat-dev/Disha-/releases/download/v1.0.3/Disha-20-20-Exam-Prep-v1.0.3.apk) (13.05 MB)
 
 **DISHA 20-20 (दिशा 20-20)** is an enterprise-grade, offline-first Progressive Web Application (PWA) tailored specifically for Indian competitive exam aspirants—including **RPSC RAS Pre, 1st & 2nd Grade, REET, RSMSSB Patwar, CET, SI Exam, and Rajasthan Police Constable**.
 
