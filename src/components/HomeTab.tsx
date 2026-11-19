@@ -330,7 +330,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                 onClick={() => onNavigateTab?.("analytics")}
                 className="w-full min-h-[32px] sm:min-h-[36px] text-center text-[11px] sm:text-xs font-extrabold text-[#800020] dark:text-[#F47B20] hover:opacity-80 flex items-center justify-center gap-1 active:scale-95 transition-all cursor-pointer"
               >
-                <span>🎯 छात्र AI रिपोर्ट कार्ड व कमजोरी रडार देखें</span>
+                <span>🎯 View Student AI Report Card &amp; Weakness Radar</span>
                 <ChevronRight className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -451,21 +451,21 @@ export const HomeTab: React.FC<HomeTabProps> = ({
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
                   <h3 className="text-xs sm:text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] leading-tight">
-                    छात्र AI रिपोर्ट कार्ड व कमजोरी रडार
+                    Student AI Report Card &amp; Weakness Radar
                   </h3>
                   <span className="px-1.5 py-0.5 rounded-md bg-[#F47B20]/12 text-[#C85A0A] dark:text-[#F47B20] text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider">
                     AI Radar
                   </span>
                 </div>
                 <p className="text-[10px] sm:text-[11px] font-medium text-[#52576A] dark:text-[#929AB0] truncate leading-tight">
-                  जानें परीक्षा में कहाँ कट रहे हैं अंक, नेगेटिव मार्किंग नुकसान और दें 1-क्लिक बूस्टर टेस्ट
+                  Identify score leaks, negative marking penalties &amp; take 1-click booster tests
                 </p>
               </div>
             </div>
 
             <div className="flex items-center gap-1 shrink-0 pl-2">
               <span className="hidden sm:inline-block text-xs font-extrabold text-[#800020] dark:text-[#F47B20]">
-                रिपोर्ट देखें
+                View Report
               </span>
               <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#F7EFE2] dark:bg-[#252A3A] flex items-center justify-center group-hover:translate-x-1 transition-transform">
                 <ChevronRight className="w-4 h-4 text-[#800020] dark:text-[#F47B20]" />
@@ -490,24 +490,24 @@ export const HomeTab: React.FC<HomeTabProps> = ({
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
                   <h3 className="text-xs sm:text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] leading-tight">
-                    राजस्थान नया नक्शा (50 ज़िले व 10 संभाग)
+                    Rajasthan New Map (50 Districts &amp; 10 Divisions)
                   </h3>
                   <span className="px-1.5 py-0.5 rounded-md bg-[#15803D]/10 text-[#15803D] dark:text-[#22C55E] text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider">
-                    नया भूगोल 2026
+                    New Geography 2026
                   </span>
                   <span className="px-1.5 py-0.5 rounded-md bg-[#C99A45]/15 text-[#946B1E] dark:text-[#C99A45] text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider">
-                    🎯 मैप क्विज़
+                    🎯 Map Quiz
                   </span>
                 </div>
                 <p className="text-[10px] sm:text-[11px] font-medium text-[#52576A] dark:text-[#929AB0] truncate leading-tight">
-                  50 ज़िला दर्शन • 2023 पुनर्गठन बदलाव • दुर्ग, खनिज, नदियाँ व नक्शा क्विज़
+                  50 Districts Overview • 2023 Reorganization • Forts, Minerals, Rivers &amp; Map Quiz
                 </p>
               </div>
             </div>
 
             <div className="flex items-center gap-1 shrink-0 pl-2">
               <span className="hidden sm:inline-block text-xs font-extrabold text-[#15803D] dark:text-[#22C55E]">
-                नक्शा खोलें
+                Open Map
               </span>
               <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#F7EFE2] dark:bg-[#252A3A] flex items-center justify-center group-hover:translate-x-1 transition-transform">
                 <ChevronRight className="w-4 h-4 text-[#15803D] dark:text-[#22C55E]" />
@@ -531,24 +531,24 @@ export const HomeTab: React.FC<HomeTabProps> = ({
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
                   <h3 className="text-xs sm:text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] leading-tight">
-                    1v1 व ग्रुप लाइव क्विज़ मुकाबला
+                    1v1 &amp; Group Live Quiz Battle
                   </h3>
                   <span className="px-1.5 py-0.5 rounded-md bg-[#F47B20]/12 text-[#C85A0A] dark:text-[#F47B20] text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider">
                     ⚡ Realtime
                   </span>
                   <span className="px-1.5 py-0.5 rounded-md bg-[#800020]/10 dark:bg-[#800020]/30 text-[#800020] dark:text-[#F47B20] text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider">
-                    🏆 लाइव रैंक
+                    🏆 Live Rank
                   </span>
                 </div>
                 <p className="text-[10px] sm:text-[11px] font-medium text-[#52576A] dark:text-[#929AB0] truncate leading-tight">
-                  मित्रों को WhatsApp से आमंत्रित करें • 6-अंकों का कोड • AI बॉट मुकाबला
+                  Invite friends via WhatsApp • 6-Digit Room Code • Challenge AI Bot
                 </p>
               </div>
             </div>
 
             <div className="flex items-center gap-1 shrink-0 pl-2">
               <span className="hidden sm:inline-block text-xs font-extrabold text-[#946B1E] dark:text-[#C99A45]">
-                मुकाबला खेलें
+                Play Battle
               </span>
               <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#F7EFE2] dark:bg-[#252A3A] flex items-center justify-center group-hover:translate-x-1 transition-transform">
                 <ChevronRight className="w-4 h-4 text-[#946B1E] dark:text-[#C99A45]" />
@@ -704,9 +704,9 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                   </h4>
                   {[
                     { label: "Dashboard", icon: Home, tab: "home" },
-                    { label: "⚔️ राजस्थान 50 ज़िला महासंग्राम", icon: Swords, action: () => onOpenDistrictWar?.() },
-                    { label: "राजस्थान 50 ज़िला नक्शा व क्विज़", icon: Map, action: () => onOpenRajasthanMap?.() },
-                    { label: "⚔️ 1v1 लाइव क्विज़ मुकाबला", icon: Swords, action: () => onOpenLiveBattle?.() },
+                    { label: "⚔️ Rajasthan 50-District War", icon: Swords, action: () => onOpenDistrictWar?.() },
+                    { label: "Rajasthan 50 Districts Map & Quiz", icon: Map, action: () => onOpenRajasthanMap?.() },
+                    { label: "⚔️ 1v1 Live Quiz Battle", icon: Swords, action: () => onOpenLiveBattle?.() },
                     { label: "Subjects & Syllabus", icon: BookOpen, tab: "topics" },
                     { label: "Weekly Standings", icon: Trophy, action: () => setShowLeaderboard(true) },
                     { label: "Live Mock Tests", icon: Zap, tab: "live_tests" },

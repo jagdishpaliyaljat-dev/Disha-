@@ -3,6 +3,7 @@ import { Swords, Crown, ChevronRight } from "lucide-react";
 import { districtWarService } from "./districtWarService";
 import { DistrictWarScore, UserDistrictAffiliation } from "./types";
 import { triggerHaptic, playClickSound } from "../../utils/audioFeedback";
+import { RAJASTHAN_50_DISTRICTS } from "../rajasthan-map/data/districtsData";
 
 interface DistrictWarHomeWidgetProps {
   onOpenWar: () => void;
@@ -36,6 +37,11 @@ export const DistrictWarHomeWidget: React.FC<DistrictWarHomeWidgetProps> = ({ on
     onOpenWar();
   };
 
+  const getDistrictName = (districtId?: string, fallback = "") => {
+    if (!districtId) return fallback;
+    return RAJASTHAN_50_DISTRICTS[districtId]?.nameEnglish || fallback;
+  };
+
   return (
     <div
       onClick={handleClick}
@@ -49,7 +55,7 @@ export const DistrictWarHomeWidget: React.FC<DistrictWarHomeWidgetProps> = ({ on
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
             <h3 className="text-xs sm:text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] leading-tight">
-              राजस्थान 50 ज़िला महासंग्राम
+              Rajasthan 50-District War
             </h3>
             <span className="px-1.5 py-0.5 rounded-md bg-[#800020]/10 dark:bg-[#800020]/25 text-[#800020] dark:text-[#F47B20] text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-[#800020] dark:bg-[#F47B20] inline-block animate-ping" />
@@ -57,7 +63,7 @@ export const DistrictWarHomeWidget: React.FC<DistrictWarHomeWidgetProps> = ({ on
             </span>
             {topDistricts[0] && (
               <span className="px-1.5 py-0.5 rounded-md bg-[#C99A45]/15 text-[#946B1E] dark:text-[#C99A45] text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider flex items-center gap-0.5">
-                <Crown className="w-2.5 h-2.5 inline" /> #{topDistricts[0].nameHindi}
+                <Crown className="w-2.5 h-2.5 inline" /> #{getDistrictName(topDistricts[0].districtId, topDistricts[0].nameHindi)}
               </span>
             )}
           </div>
@@ -65,12 +71,12 @@ export const DistrictWarHomeWidget: React.FC<DistrictWarHomeWidgetProps> = ({ on
           <div className="text-[10px] sm:text-[11px] font-medium text-[#52576A] dark:text-[#929AB0] truncate leading-tight">
             {userAffiliation ? (
               <span>
-                आपकी सेना: <b className="text-[#171923] dark:text-[#FFF9EF] font-bold">{userAffiliation.districtNameHindi}</b> (रैंक #{userRank || "—"}) •{" "}
-                <b className="text-[#800020] dark:text-[#F47B20] font-bold">+{userAffiliation.userPointsEarned} अंक</b>
+                Your Army: <b className="text-[#171923] dark:text-[#FFF9EF] font-bold">{getDistrictName(userAffiliation.districtId, userAffiliation.districtNameHindi)}</b> (Rank #{userRank || "—"}) •{" "}
+                <b className="text-[#800020] dark:text-[#F47B20] font-bold">+{userAffiliation.userPointsEarned} Pts</b>
               </span>
             ) : (
               <span>
-                🥇 #1 {topDistricts[0]?.nameHindi || "सीकर"} • 🥈 #2 {topDistricts[1]?.nameHindi || "जोधपुर"} • 🥉 #3 {topDistricts[2]?.nameHindi || "जयपुर"}
+                🥇 #1 {getDistrictName(topDistricts[0]?.districtId, "Sikar")} • 🥈 #2 {getDistrictName(topDistricts[1]?.districtId, "Jodhpur")} • 🥉 #3 {getDistrictName(topDistricts[2]?.districtId, "Jaipur")}
               </span>
             )}
           </div>
@@ -79,7 +85,7 @@ export const DistrictWarHomeWidget: React.FC<DistrictWarHomeWidgetProps> = ({ on
 
       <div className="flex items-center gap-1 shrink-0 pl-2">
         <span className="hidden sm:inline-block text-xs font-extrabold text-[#800020] dark:text-[#F47B20]">
-          वॉर लीडरबोर्ड
+          War Leaderboard
         </span>
         <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#F7EFE2] dark:bg-[#252A3A] flex items-center justify-center group-hover:translate-x-1 transition-transform">
           <ChevronRight className="w-4 h-4 text-[#800020] dark:text-[#F47B20]" />
