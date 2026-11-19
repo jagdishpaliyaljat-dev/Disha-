@@ -289,12 +289,12 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                 {isAdmin ? (
                   <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-[#C99A45]/20 to-[#C99A45]/30 text-[#800020] dark:text-[#C99A45] border border-[#C99A45]/40 text-[10px] font-black uppercase tracking-wider">
                     <Crown size={11} className="text-[#C99A45]" />
-                    <span>Verified Admin</span>
+                    <span>Admin</span>
                   </span>
                 ) : (
                   <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] border border-[#800020]/20 dark:border-[#F47B20]/30 text-[10px] font-black uppercase tracking-wider">
                     <Award size={11} />
-                    <span>DISHA 20-20 Aspirant</span>
+                    <span>Aspirant</span>
                   </span>
                 )}
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#F7EFE2] dark:bg-[#252A3A] text-slate-700 dark:text-[#E8D9C0] text-[10px] font-black border border-[#E8D9C0] dark:border-[#31374A]">
@@ -325,8 +325,8 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
               {/* Level & XP Progress Bar */}
               <div className="pt-1 max-w-sm mx-auto sm:mx-0">
                 <div className="flex items-center justify-between text-[10px] font-bold text-slate-500 dark:text-[#E8D9C0]/80 mb-1">
-                  <span>Level {currentLevel} Aspirant</span>
-                  <span className="font-mono">{remainingForNextLevel} Qs to Level {currentLevel + 1}</span>
+                  <span>Level {currentLevel}</span>
+                  <span className="font-mono">{remainingForNextLevel} Qs to Next Level</span>
                 </div>
                 <div className="w-full h-2 rounded-full bg-[#E8D9C0]/60 dark:bg-[#31374A] overflow-hidden">
                   <div
@@ -344,7 +344,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                     className="px-4 py-2 bg-gradient-to-r from-[#800020] via-[#5E0017] to-[#800020] hover:opacity-95 text-white rounded-xl text-xs font-black shadow-md border border-[#C99A45]/30 transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer"
                   >
                     <LogIn size={13} />
-                    <span>Sign In with Google (Sync Progress)</span>
+                    <span>Sign In with Google</span>
                   </button>
                 ) : (
                   <button
@@ -355,7 +355,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                     className="px-3.5 py-1.5 bg-[#FFF9EF] dark:bg-[#252A3A] hover:border-[#800020] dark:hover:border-[#C99A45] text-[#171923] dark:text-[#FFF9EF] border border-[#E8D9C0] dark:border-[#31374A] rounded-xl text-xs font-black transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer shadow-2xs"
                   >
                     <Edit2 size={12} className="text-[#800020] dark:text-[#C99A45]" />
-                    <span>Change Target &amp; Profile</span>
+                    <span>Edit Profile</span>
                   </button>
                 )}
               </div>
@@ -378,7 +378,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
         ───────────────────────────────────────────────────────────── */}
         <motion.section variants={itemVariants} className="space-y-2.5">
           <h3 className="text-xs font-black text-slate-600 dark:text-[#E8D9C0] uppercase tracking-wider px-1">
-            Toolkit &amp; Preferences (Settings)
+            Preferences
           </h3>
           <div className="bg-white dark:bg-[#1F2330] rounded-3xl border border-[#E8D9C0] dark:border-[#31374A] shadow-xs overflow-hidden divide-y divide-[#E8D9C0]/60 dark:divide-[#31374A]">
             {/* App & Practice Settings */}
@@ -395,10 +395,10 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                 </div>
                 <div className="min-w-0 flex-1">
                   <span className="text-sm font-black text-[#171923] dark:text-[#FFF9EF] block truncate">
-                    Display &amp; Practice Settings (Display &amp; Sound)
+                    Practice Settings
                   </span>
                   <span className="text-[11px] text-slate-500 dark:text-[#CBD2E1] font-bold block truncate">
-                    Daily Goal: {dailyGoal} MCQs • Sound &amp; Vibration • Exam Timer
+                    Daily goal: {dailyGoal} Qs • Sound &amp; Timer
                   </span>
                 </div>
               </div>
@@ -419,10 +419,10 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                 </div>
                 <div className="min-w-0 flex-1">
                   <span className="text-sm font-black text-[#171923] dark:text-[#FFF9EF] block truncate">
-                    AI Study Assistant Preferences (AI Model &amp; Keys)
+                    AI Assistant
                   </span>
                   <span className="text-[11px] text-slate-500 dark:text-[#CBD2E1] font-bold block truncate">
-                    {settings.aiMode === "personal_keys" ? "Personal Gemini Key Active" : "DISHA 20-20 Default AI Active"}
+                    {settings.aiMode === "personal_keys" ? "Personal Gemini Key" : "Default AI Model"}
                   </span>
                 </div>
               </div>
@@ -440,10 +440,10 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                 </div>
                 <div className="min-w-0 flex-1">
                   <span className="text-sm font-black text-[#171923] dark:text-[#FFF9EF] block truncate">
-                    Invite Fellow Aspirants (Share App)
+                    Share App
                   </span>
                   <span className="text-[11px] text-slate-500 dark:text-[#CBD2E1] font-bold block truncate">
-                    Share DISHA 20-20 on WhatsApp &amp; Telegram
+                    Invite friends on WhatsApp &amp; Telegram
                   </span>
                 </div>
               </div>
@@ -457,37 +457,37 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
         ───────────────────────────────────────────────────────────── */}
         <motion.section variants={itemVariants} className="space-y-2.5">
           <h3 className="text-xs font-black text-slate-600 dark:text-[#E8D9C0] uppercase tracking-wider px-1">
-            Community, Support &amp; Policy
+            Support &amp; Info
           </h3>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
             {[
               {
                 label: "Telegram",
-                sub: "Community Hub",
+                sub: "Community",
                 icon: Send,
                 color: "text-[#800020] dark:text-[#C99A45]",
                 bg: "bg-[#800020]/10 dark:bg-[#C99A45]/15",
                 action: () => window.open("https://t.me/disha2020_official", "_blank"),
               },
               {
-                label: "Help Center",
-                sub: "Contact Us",
+                label: "Support",
+                sub: "Help Desk",
                 icon: Mail,
                 color: "text-[#F47B20]",
                 bg: "bg-[#F47B20]/15",
                 action: () => onNavigateTab?.("contact"),
               },
               {
-                label: "DISHA 20-20",
-                sub: "About Platform",
+                label: "About",
+                sub: "Version & Info",
                 icon: Info,
                 color: "text-[#C99A45]",
                 bg: "bg-[#C99A45]/15",
                 action: () => setShowAboutModal(true),
               },
               {
-                label: "Privacy Policy",
-                sub: "Terms & Conditions",
+                label: "Privacy",
+                sub: "Terms & Policy",
                 icon: Shield,
                 color: "text-emerald-600 dark:text-emerald-400",
                 bg: "bg-emerald-500/10",
@@ -533,10 +533,10 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                 </div>
                 <div>
                   <span className="text-xs font-black text-rose-600 dark:text-rose-400 block">
-                    Reset Study Progress
+                    Reset Progress
                   </span>
                   <span className="text-[10px] text-slate-500 dark:text-[#CBD2E1] block">
-                    Clear all question practice history and statistics
+                    Clear practice history &amp; stats
                   </span>
                 </div>
               </div>
@@ -554,10 +554,10 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                 </div>
                 <div>
                   <span className="text-xs font-black text-[#171923] dark:text-[#FFF9EF] block">
-                    Purge Cache &amp; Re-sync
+                    Clear Cache
                   </span>
                   <span className="text-[10px] text-slate-500 dark:text-[#CBD2E1] block">
-                    Refresh offline files and re-sync database
+                    Refresh offline data &amp; re-sync
                   </span>
                 </div>
               </div>
@@ -576,10 +576,10 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                   </div>
                   <div>
                     <span className="text-xs font-black text-[#800020] dark:text-rose-400 block">
-                      Logout Current Session
+                      Log Out
                     </span>
                     <span className="text-[10px] text-slate-500 dark:text-[#CBD2E1] block">
-                      Sign out securely from this device
+                      Sign out from this device
                     </span>
                   </div>
                 </div>
@@ -623,10 +623,10 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                 </div>
                 <div>
                   <h3 className="text-base font-black text-[#171923] dark:text-[#FFF9EF]">
-                    Edit Aspirant Profile
+                    Edit Profile
                   </h3>
                   <p className="text-[10px] font-bold text-slate-500 dark:text-[#CBD2E1] uppercase tracking-wider">
-                    Update Aspirant Identity
+                    Target exam &amp; daily goal
                   </p>
                 </div>
               </div>

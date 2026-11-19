@@ -335,7 +335,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                 onClick={() => onNavigateTab?.("analytics")}
                 className="w-full min-h-[32px] sm:min-h-[36px] text-center text-[11px] sm:text-xs font-extrabold text-[#800020] dark:text-[#F47B20] hover:opacity-80 flex items-center justify-center gap-1 active:scale-95 transition-all cursor-pointer"
               >
-                <span>View Student AI Report Card &amp; Weakness Radar</span>
+                <span>View AI Diagnostic Report</span>
                 <ChevronRight className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -456,14 +456,14 @@ export const HomeTab: React.FC<HomeTabProps> = ({
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
                   <h3 className="text-xs sm:text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] leading-tight">
-                    Student AI Report Card &amp; Weakness Radar
+                    AI Diagnostic Radar
                   </h3>
                   <span className="px-1.5 py-0.5 rounded-md bg-[#F47B20]/12 text-[#C85A0A] dark:text-[#F47B20] text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider">
                     AI Radar
                   </span>
                 </div>
                 <p className="text-[10px] sm:text-[11px] font-medium text-[#52576A] dark:text-[#929AB0] truncate leading-tight">
-                  Identify score leaks, negative marking penalties &amp; take 1-click booster tests
+                  Score leak diagnosis, negative marking analysis &amp; booster tests
                 </p>
               </div>
             </div>
@@ -495,17 +495,17 @@ export const HomeTab: React.FC<HomeTabProps> = ({
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
                   <h3 className="text-xs sm:text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] leading-tight">
-                    Rajasthan New Map (50 Districts &amp; 10 Divisions)
+                    Rajasthan 50 Districts
                   </h3>
                   <span className="px-1.5 py-0.5 rounded-md bg-[#15803D]/10 text-[#15803D] dark:text-[#22C55E] text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider">
-                    New Geography 2026
+                    New Map
                   </span>
                   <span className="px-1.5 py-0.5 rounded-md bg-[#C99A45]/15 text-[#946B1E] dark:text-[#C99A45] text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider">
                     Map Quiz
                   </span>
                 </div>
                 <p className="text-[10px] sm:text-[11px] font-medium text-[#52576A] dark:text-[#929AB0] truncate leading-tight">
-                  50 Districts Overview • 2023 Reorganization • Forts, Minerals, Rivers &amp; Map Quiz
+                  Interactive atlas, 2023 reorganization, forts, minerals &amp; quiz
                 </p>
               </div>
             </div>
@@ -536,17 +536,17 @@ export const HomeTab: React.FC<HomeTabProps> = ({
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
                   <h3 className="text-xs sm:text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] leading-tight">
-                    1v1 &amp; Group Live Quiz Battle
+                    Live Quiz Battle
                   </h3>
                   <span className="px-1.5 py-0.5 rounded-md bg-[#F47B20]/12 text-[#C85A0A] dark:text-[#F47B20] text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider">
                     Realtime
                   </span>
                   <span className="px-1.5 py-0.5 rounded-md bg-[#800020]/10 dark:bg-[#800020]/30 text-[#800020] dark:text-[#F47B20] text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider">
-                    Live Rank
+                    1v1 &amp; Bot
                   </span>
                 </div>
                 <p className="text-[10px] sm:text-[11px] font-medium text-[#52576A] dark:text-[#929AB0] truncate leading-tight">
-                  Invite friends via WhatsApp • 6-Digit Room Code • Challenge AI Bot
+                  Real-time multiplayer quiz duel with friends or AI bot
                 </p>
               </div>
             </div>
@@ -744,9 +744,9 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                     Competitive &amp; Interactive
                   </h4>
                   {[
-                    { label: "Rajasthan 50-District War", icon: Swords, action: () => onOpenDistrictWar?.() },
-                    { label: "Rajasthan 50 Districts Map & Quiz", icon: Map, action: () => onOpenRajasthanMap?.() },
-                    { label: "1v1 Live Quiz Battle", icon: Target, action: () => onOpenLiveBattle?.() },
+                    { label: "District War", icon: Swords, action: () => onOpenDistrictWar?.() },
+                    { label: "Rajasthan Map & Quiz", icon: Map, action: () => onOpenRajasthanMap?.() },
+                    { label: "Live Quiz Battle", icon: Target, action: () => onOpenLiveBattle?.() },
                     { label: "Weekly Leaderboard", icon: Trophy, action: () => setShowLeaderboard(true) },
                   ].map((item) => (
                     <button
