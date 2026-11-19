@@ -28,6 +28,7 @@ import {
 import { supabase, isSupabaseConfigured, SUPABASE_URL } from "../../lib/supabase";
 import { UserProfile } from "../../types";
 import { isUserAdmin } from "../../utils/userProfileStorage";
+import { ContentLoader } from "../ui/LoadingScreen";
 
 interface SupabaseDataExplorerProps {
   userProfile?: UserProfile | null;
@@ -340,10 +341,12 @@ export const SupabaseDataExplorer: React.FC<SupabaseDataExplorerProps> = ({
 
         {/* Loading / Error States */}
         {loading && (
-          <div className="py-20 flex flex-col items-center justify-center gap-3 text-center">
-            <RefreshCw className="w-7 h-7 text-emerald-500 animate-spin" />
-            <p className="text-xs font-bold text-slate-500">Querying Supabase PostgREST table...</p>
-          </div>
+          <ContentLoader
+            message="Supabase डेटा लोड हो रहा है..."
+            submessage="तालिका डेटा सुरक्षित रूप से सिंक किया जा रहा है"
+            minHeight="min-h-[220px]"
+            size="md"
+          />
         )}
 
         {error && !loading && (

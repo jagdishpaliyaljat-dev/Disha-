@@ -58,6 +58,7 @@ import ShareModal, { ShareData } from "../ShareModal";
 import { updateSEOHead } from "../../utils/seoHelper";
 import { SITE_CONFIG } from "../../config/siteConfig";
 import { parseSmartText } from "../../utils/smartArticleImporter";
+import { FullScreenLoader, ContentLoader } from "../ui/LoadingScreen";
 import {
   ArticleCalloutBox,
   AutoIdentifiedCallout,
@@ -1397,10 +1398,12 @@ export const NewsPage: React.FC<NewsPageProps> = ({
   if (selectedSlug) {
     if (singleLoading) {
       return (
-        <div className="min-h-screen bg-[#FFF9EF] dark:bg-[#171923] flex flex-col items-center justify-center p-6 text-center">
-          <div className="w-12 h-12 border-4 border-[#800020] dark:border-[#F47B20] border-t-transparent rounded-full animate-spin mb-4" />
-          <p className="text-[#52576A] dark:text-[#CBD2E1] font-bold">Loading article...</p>
-        </div>
+        <FullScreenLoader
+          message="लेख लोड हो रहा है..."
+          submessage="DISHA 20-20 • परीक्षा विशेषांक एवं आधिकारिक विश्लेषण"
+          onCancel={handleBackToList}
+          cancelLabel="समाचार सूची पर लौटें (Back)"
+        />
       );
     }
 
@@ -2135,13 +2138,15 @@ export const NewsPage: React.FC<NewsPageProps> = ({
             {[1, 2, 3, 4, 5, 6].map((n) => (
               <div
                 key={n}
-                className="bg-white dark:bg-[#1F2330] rounded-3xl border border-[#E8D9C0] dark:border-[#31374A] p-4 space-y-3 animate-pulse"
+                className="bg-white dark:bg-[#111622] rounded-3xl border border-[#E8D9C0] dark:border-[#263045] p-4 space-y-3.5 shadow-xs overflow-hidden relative"
               >
-                <div className="w-full aspect-[16/9] bg-[#F7EFE2] dark:bg-[#252A3A] rounded-2xl" />
-                <div className="h-3 bg-[#F7EFE2] dark:bg-[#252A3A] rounded-full w-1/3" />
-                <div className="h-4 bg-[#F7EFE2] dark:bg-[#252A3A] rounded-full w-full" />
-                <div className="h-4 bg-[#F7EFE2] dark:bg-[#252A3A] rounded-full w-2/3" />
-                <div className="h-3 bg-[#F7EFE2] dark:bg-[#252A3A] rounded-full w-1/2 pt-2" />
+                <div className="w-full aspect-[16/9] bg-[#F2ECE1] dark:bg-[#1A2234] rounded-2xl relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#FFF9EF]/40 dark:via-[#C99A45]/10 to-transparent animate-pulse" />
+                </div>
+                <div className="h-3 bg-[#F2ECE1] dark:bg-[#1A2234] rounded-full w-1/4" />
+                <div className="h-4 bg-[#F2ECE1] dark:bg-[#1A2234] rounded-full w-full" />
+                <div className="h-4 bg-[#F2ECE1] dark:bg-[#1A2234] rounded-full w-3/4" />
+                <div className="h-3 bg-[#F2ECE1] dark:bg-[#1A2234] rounded-full w-1/2" />
               </div>
             ))}
           </div>

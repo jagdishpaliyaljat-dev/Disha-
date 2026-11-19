@@ -24,6 +24,7 @@ import {
 } from "../utils/aiTutorService";
 import { AIMessageRenderer } from "./AIMessageRenderer";
 import { triggerHaptic } from "../utils/audioFeedback";
+import { InlineSpinner } from "./ui/LoadingScreen";
 
 interface DishaAITutorModalProps {
   isOpen: boolean;
@@ -427,16 +428,16 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
 
           {isLoading && (
             <div className="flex items-start gap-2.5 animate-in fade-in">
-              <div className="w-8 h-8 rounded-xl bg-[#800020]/10 dark:bg-[#C99A45]/15 border border-[#800020]/20 dark:border-[#C99A45]/30 flex items-center justify-center shrink-0">
-                <Bot className="w-4 h-4 text-[#800020] dark:text-[#C99A45] animate-pulse" />
+              <div className="w-8 h-8 rounded-xl bg-[#C99A45]/15 border border-[#C99A45]/30 flex items-center justify-center shrink-0">
+                <Bot className="w-4 h-4 text-[#C99A45] animate-pulse" />
               </div>
-              <div className="p-3.5 bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-2xl rounded-bl-xs shadow-xs space-y-1">
-                <div className="flex items-center gap-2 text-xs font-black text-[#800020] dark:text-[#C99A45]">
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  <span>Preparing response...</span>
+              <div className="p-3.5 bg-white dark:bg-[#111622] border border-[#E8D9C0] dark:border-[#263045] rounded-2xl rounded-bl-xs shadow-xs space-y-1">
+                <div className="flex items-center gap-2 text-xs font-black text-[#C99A45]">
+                  <InlineSpinner size="xs" />
+                  <span>DISHA AI उत्तर तैयार कर रहा है...</span>
                 </div>
-                <p className="text-[11px] text-slate-500 dark:text-[#CBD2E1]">
-                  Analyzing exam-oriented concepts and facts...
+                <p className="text-[11px] text-[#6F768A] dark:text-[#9AA2B8]">
+                  परीक्षा-उन्मुख अवधारणाओं और तथ्यों का सटीक विश्लेषण जारी है...
                 </p>
               </div>
             </div>

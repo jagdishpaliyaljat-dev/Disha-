@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Database, BookOpen, Layers, Target, HelpCircle, FileText, Loader2, RefreshCw, CheckCircle2, AlertTriangle } from "lucide-react";
+import { InlineSpinner } from "../ui/LoadingScreen";
 import { supabase, isSupabaseConfigured } from "../../lib/supabase";
 import { openLocalDatabase, idbGetAll, STORES } from "../../utils/localDatabaseEngine";
 import { getReconciledCurriculumCounts } from "../../utils/questionsStorage";
@@ -211,7 +212,7 @@ export const DatabaseStatusWidget: React.FC<DatabaseStatusWidgetProps> = ({
               </div>
               <div>
                 <p className="text-base sm:text-lg font-black text-slate-900 dark:text-white tabular-nums">
-                  {loading ? <Loader2 className="w-4 h-4 animate-spin text-slate-400" /> : stat.value?.toLocaleString() ?? "0"}
+                  {loading ? <InlineSpinner size="xs" /> : stat.value?.toLocaleString() ?? "0"}
                 </p>
                 <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mt-0.5">{stat.label}</p>
               </div>

@@ -34,6 +34,7 @@ import {
   GitMerge,
   RefreshCw
 } from "lucide-react";
+import { InlineSpinner } from "./ui/LoadingScreen";
 import { motion, AnimatePresence } from "motion/react";
 import { Question, Subject, Chapter, Topic, UserQuestionsStore, PYQPaper, LiveTest, ExamHistoryEntry, QuestionClassification } from "../types";
 import {
@@ -1566,14 +1567,14 @@ export const AIImportModal: React.FC<AIImportModalProps> = ({
   );
 
   const MobileBottomAction = ({ onClick, disabled, icon: Icon, label, loading }: any) => (
-    <div className="sticky bottom-0 left-0 right-0 p-4 bg-white/90 dark:bg-[#1F2330]/90 backdrop-blur-md border-t border-[#E8D9C0] dark:border-[#31374A] z-50">
+    <div className="sticky bottom-0 left-0 right-0 p-4 bg-white/90 dark:bg-[#111622]/90 backdrop-blur-md border-t border-[#E8D9C0] dark:border-[#263045] z-50">
       <button 
         onClick={onClick} 
         disabled={disabled || loading}
-        className={`w-full py-4 rounded-2xl flex items-center justify-center gap-2 font-black text-sm transition-all active:scale-[0.98] disabled:opacity-50 shadow-md bg-[#800020] hover:bg-[#660019] dark:bg-[#F47B20] dark:hover:bg-[#e06b12] text-white cursor-pointer`}
+        className="w-full py-3.5 rounded-2xl flex items-center justify-center gap-2 font-black text-sm transition-all active:scale-[0.98] disabled:opacity-50 shadow-[0_4px_16px_rgba(244,123,32,0.35)] bg-gradient-to-r from-[#F47B20] to-[#E06716] hover:brightness-105 border border-[#C99A45]/40 text-white cursor-pointer"
       >
-        {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Icon className="w-5 h-5" />}
-        <span>{loading ? "Processing..." : label}</span>
+        {loading ? <InlineSpinner size="sm" /> : <Icon className="w-5 h-5" />}
+        <span>{loading ? "प्रक्रिया जारी है..." : label}</span>
       </button>
     </div>
   );
@@ -2236,10 +2237,10 @@ export const AIImportModal: React.FC<AIImportModalProps> = ({
               <button
                 onClick={handleAnalyzeWithAI}
                 disabled={isAiProcessing || (activeInputTab === "text" ? !pasteText.trim() : !jsonText.trim())}
-                className="w-full py-4 rounded-2xl flex items-center justify-center gap-2 font-black text-sm text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transition-all shadow-xl shadow-blue-600/25 active:scale-[0.98] disabled:opacity-50 cursor-pointer"
+                className="w-full py-4 rounded-2xl flex items-center justify-center gap-2 font-black text-sm text-white bg-gradient-to-r from-[#F47B20] to-[#E06716] hover:brightness-105 border border-[#C99A45]/40 transition-all shadow-[0_4px_16px_rgba(244,123,32,0.35)] active:scale-[0.98] disabled:opacity-50 cursor-pointer"
               >
-                {isAiProcessing ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
-                <span>{isAiProcessing ? (processingStatus || "Analyzing Questions...") : "Parse & Preview Bulk Questions →"}</span>
+                {isAiProcessing ? <InlineSpinner size="sm" /> : <Sparkles className="w-5 h-5 text-[#FFF9EF]" />}
+                <span>{isAiProcessing ? (processingStatus || "प्रश्नों का विश्लेषण जारी है...") : "प्रश्नों का पूर्वावलोकन व विश्लेषण करें →"}</span>
               </button>
               )}
             </motion.div>
@@ -2906,11 +2907,11 @@ export const AIImportModal: React.FC<AIImportModalProps> = ({
                     disabled={isCommitting || selectedCount === 0}
                     className="w-full py-4 rounded-2xl flex items-center justify-center gap-2 font-black text-sm text-white bg-emerald-600 hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-600/20 active:scale-[0.98] disabled:opacity-50 cursor-pointer"
                   >
-                    {isCommitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Check className="w-5 h-5" />}
+                    {isCommitting ? <InlineSpinner size="sm" /> : <Check className="w-5 h-5" />}
                     <span>
                       {isCommitting
-                        ? (commitProgressText ? `Importing to Database (${commitProgressText})...` : "Importing to Database...")
-                        : `Import ${selectedCount} Questions to Database`}
+                        ? (commitProgressText ? `डेटाबेस में सुरक्षित किया जा रहा है (${commitProgressText})...` : "डेटाबेस में सुरक्षित किया जा रहा है...")
+                        : `डेटाबेस में ${selectedCount} प्रश्न सुरक्षित करें`}
                     </span>
                   </button>
                 </div>

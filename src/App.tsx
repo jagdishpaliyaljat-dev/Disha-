@@ -34,6 +34,7 @@ import { OfflineIndicator } from './components/OfflineIndicator';
 import { ToastNotificationContainer, ToastMessage } from './components/ToastNotification';
 import { PWAUpdateToast } from './components/PWAUpdateToast';
 import { BrandSplashAndOnboarding } from './components/BrandSplashAndOnboarding';
+import { ContentLoader } from './components/ui/LoadingScreen';
 import { AdminErrorBoundary } from './components/admin/AdminErrorBoundary';
 import { RouteErrorBoundary } from './components/RouteErrorBoundary';
 import { OverlayErrorBoundary } from './components/OverlayErrorBoundary';
@@ -1430,7 +1431,7 @@ export default function App() {
       {/* Main Content Rendering */}
       <main className="flex-1 pb-16 md:pb-6">
         <RouteErrorBoundary tabName={activeTab} onNavigateHome={() => setActiveTab('home')}>
-        <React.Suspense fallback={<div className="flex items-center justify-center py-20"><div className="w-7 h-7 border-3 border-[#800020] dark:border-[#F47B20] border-t-transparent rounded-full animate-spin" /></div>}>
+        <React.Suspense fallback={<ContentLoader message="सामग्री लोड हो रही है..." submessage="सही दिशा • सटीक तैयारी" minHeight="min-h-[60vh]" />}>
         {activeTab === 'home' && (
           <HomeTab
             progressStore={progressStore}

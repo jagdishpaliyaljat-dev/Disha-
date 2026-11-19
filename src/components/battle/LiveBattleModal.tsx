@@ -128,8 +128,10 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
   const managerRef = useRef<RealtimeBattleManager | null>(null);
   const roundTimerRef = useRef<NodeJS.Timeout | null>(null);
   const revealTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const botAnswerTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const botAnswerTimersRef = useRef<{ [botId: string]: NodeJS.Timeout }>({});
   const roundStartTimeRef = useRef<number>(Date.now());
+  const playersRef = useRef<BattlePlayer[]>(players);
+  playersRef.current = players;
 
   const isHost = roomConfig.hostId === myPlayerId;
 
@@ -184,6 +186,17 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
           if (Array.isArray(battleQuestions) && battleQuestions.length > 0) {
             setQuestions(battleQuestions);
             if (config) setRoomConfig(config);
+            setCurrentQuestionIndex(0);
+            setPlayers((prev) =>
+              prev.map((p) => ({
+                ...p,
+                score: 0,
+                streak: 0,
+                correctCount: 0,
+                wrongCount: 0,
+                lastAnswer: null,
+              }))
+            );
             setPhase("countdown");
             setCountdownNum(3);
           }
@@ -292,7 +305,8 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
       }
       if (roundTimerRef.current) clearInterval(roundTimerRef.current);
       if (revealTimerRef.current) clearTimeout(revealTimerRef.current);
-      if (botAnswerTimerRef.current) clearTimeout(botAnswerTimerRef.current);
+      Object.values(botAnswerTimersRef.current).forEach((t) => clearTimeout(t));
+      botAnswerTimersRef.current = {};
     };
   }, []);
 
@@ -497,6 +511,17 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
     });
 
     setQuestions(sampledQuestions);
+    setCurrentQuestionIndex(0);
+    setPlayers((prev) =>
+      prev.map((p) => ({
+        ...p,
+        score: 0,
+        streak: 0,
+        correctCount: 0,
+        wrongCount: 0,
+        lastAnswer: null,
+      }))
+    );
 
     if (managerRef.current) {
       managerRef.current.broadcastEvent("START_GAME", {
@@ -530,6 +555,77 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
     }
   }, [phase, countdownNum]);
 
+  // Round time up handler
+  const handleRoundTimeUp = useCallback(() => {
+    setIsRevealing(true);
+    triggerHaptic("warning");
+
+    const currentQ = questions[currentQuestionIndex];
+    if (selectedOption === currentQ?.correctIndex) {
+      playCorrectSound();
+    } else {
+      playWrongSound();
+    }
+
+    // Clear all pending bot timers
+    Object.values(botAnswerTimersRef.current).forEach((t) => clearTimeout(t));
+    botAnswerTimersRef.current = {};
+
+    // Force-resolve any bot that hasn't recorded an answer for this question yet
+    const correctIdx =
+      typeof currentQ?.correctIndex === "number" ? currentQ.correctIndex : 0;
+    const totalOpts = currentQ?.options?.length || 4;
+    const timeLimitSec = roomConfig.timePerQuestionSec || 10;
+
+    setPlayers((prev) =>
+      prev.map((p) => {
+        if (!p.isBot) return p;
+        if (p.lastAnswer?.questionIndex === currentQuestionIndex) {
+          return p; // Already answered
+        }
+
+        const botIsCorrect = Math.random() < 0.78;
+        const botOption = botIsCorrect
+          ? correctIdx
+          : (correctIdx + 1 + Math.floor(Math.random() * Math.max(1, totalOpts - 1))) %
+            totalOpts;
+
+        const timeTakenMs = Math.floor(timeLimitSec * 1000 * 0.7);
+        const { points, newStreak } = calculateRoundScore(
+          botIsCorrect,
+          timeTakenMs,
+          timeLimitSec,
+          p.streak
+        );
+
+        return {
+          ...p,
+          score: p.score + points,
+          streak: newStreak,
+          correctCount: p.correctCount + (botIsCorrect ? 1 : 0),
+          wrongCount: p.wrongCount + (botIsCorrect ? 0 : 1),
+          lastAnswer: {
+            questionIndex: currentQuestionIndex,
+            selectedOption: botOption,
+            timeTakenMs,
+            isCorrect: botIsCorrect,
+            pointsEarned: points,
+          },
+        };
+      })
+    );
+
+    // Schedule next question or podium
+    if (revealTimerRef.current) clearTimeout(revealTimerRef.current);
+    revealTimerRef.current = setTimeout(() => {
+      if (currentQuestionIndex + 1 < questions.length) {
+        setCurrentQuestionIndex((prev) => prev + 1);
+      } else {
+        setPhase("podium");
+      }
+    }, 3500);
+  }, [questions, currentQuestionIndex, selectedOption, roomConfig.timePerQuestionSec]);
+
   // Round progression and timer effect
   useEffect(() => {
     if (phase !== "question_active") return;
@@ -558,27 +654,51 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
       });
     }, 1000);
 
-    // Simulate AI Bot answer if bot is in match
-    const botPlayer = players.find((p) => p.isBot);
-    if (botPlayer) {
-      const currentQ = questions[currentQuestionIndex];
-      const botDelay = Math.floor(Math.random() * 4000) + 3000; // 3-7s delay
-      const botIsCorrect = Math.random() < 0.75; // 75% accuracy
-      const botOption = botIsCorrect
-        ? currentQ.correctIndex
-        : (currentQ.correctIndex + 1) % currentQ.options.length;
+    // Clear any previous bot timers
+    Object.values(botAnswerTimersRef.current).forEach((t) => clearTimeout(t));
+    botAnswerTimersRef.current = {};
 
-      if (botAnswerTimerRef.current) clearTimeout(botAnswerTimerRef.current);
-      botAnswerTimerRef.current = setTimeout(() => {
+    // Simulate AI Bot answers for all bot players in match
+    const currentQ = questions[currentQuestionIndex];
+    const correctIdx =
+      typeof currentQ?.correctIndex === "number" ? currentQ.correctIndex : 0;
+    const totalOpts = currentQ?.options?.length || 4;
+    const timeLimitSec = roomConfig.timePerQuestionSec || 10;
+
+    const botPlayers = playersRef.current.filter((p) => p.isBot);
+
+    botPlayers.forEach((botPlayer, botIdx) => {
+      // Dynamic reaction time strictly bounded inside round limits:
+      // 5s:  900ms - 3200ms
+      // 10s: 1800ms - 6500ms
+      // 15s: 2200ms - 8800ms
+      const minDelay = Math.max(900, Math.floor(timeLimitSec * 1000 * 0.20));
+      const maxDelay = Math.min(
+        timeLimitSec * 1000 - 1200,
+        Math.floor(timeLimitSec * 1000 * 0.65)
+      );
+      const span = Math.max(600, maxDelay - minDelay);
+      const botDelay = Math.min(
+        maxDelay,
+        minDelay + Math.floor(Math.random() * span) + (botIdx * 300) % 700
+      );
+
+      const botIsCorrect = Math.random() < 0.78; // 78% competitive accuracy
+      const botOption = botIsCorrect
+        ? correctIdx
+        : (correctIdx + 1 + Math.floor(Math.random() * Math.max(1, totalOpts - 1))) %
+          totalOpts;
+
+      botAnswerTimersRef.current[botPlayer.id] = setTimeout(() => {
         const { points, newStreak } = calculateRoundScore(
           botIsCorrect,
           botDelay,
-          roomConfig.timePerQuestionSec,
+          timeLimitSec,
           botPlayer.streak
         );
 
-        setPlayers((prev) =>
-          prev.map((p) =>
+        setPlayers((prev) => {
+          const updated = prev.map((p) =>
             p.id === botPlayer.id
               ? {
                   ...p,
@@ -595,39 +715,28 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                   },
                 }
               : p
-          )
-        );
+          );
+
+          // If all players have locked answers, conclude round early
+          const allAnswered = updated.every(
+            (p) => p.lastAnswer?.questionIndex === currentQuestionIndex
+          );
+          if (allAnswered && updated.length > 1) {
+            if (roundTimerRef.current) clearInterval(roundTimerRef.current);
+            setTimeout(handleRoundTimeUp, 500);
+          }
+
+          return updated;
+        });
       }, botDelay);
-    }
+    });
 
     return () => {
       if (roundTimerRef.current) clearInterval(roundTimerRef.current);
-      if (botAnswerTimerRef.current) clearTimeout(botAnswerTimerRef.current);
+      Object.values(botAnswerTimersRef.current).forEach((t) => clearTimeout(t));
+      botAnswerTimersRef.current = {};
     };
-  }, [phase, currentQuestionIndex]);
-
-  // Round time up handler
-  const handleRoundTimeUp = () => {
-    setIsRevealing(true);
-    triggerHaptic("warning");
-
-    const currentQ = questions[currentQuestionIndex];
-    if (selectedOption === currentQ?.correctIndex) {
-      playCorrectSound();
-    } else {
-      playWrongSound();
-    }
-
-    // Schedule next question or podium
-    if (revealTimerRef.current) clearTimeout(revealTimerRef.current);
-    revealTimerRef.current = setTimeout(() => {
-      if (currentQuestionIndex + 1 < questions.length) {
-        setCurrentQuestionIndex((prev) => prev + 1);
-      } else {
-        setPhase("podium");
-      }
-    }, 3500);
-  };
+  }, [phase, currentQuestionIndex, roomConfig.timePerQuestionSec, handleRoundTimeUp, questions]);
 
   // Option selection by local player
   const handleSelectOption = (idx: number) => {
@@ -638,9 +747,9 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
 
     const timeTakenMs = Date.now() - roundStartTimeRef.current;
     const currentQ = questions[currentQuestionIndex];
-    const isCorrect = idx === currentQ.correctIndex;
+    const isCorrect = idx === currentQ?.correctIndex;
 
-    const myPlayer = players.find((p) => p.id === myPlayerId);
+    const myPlayer = playersRef.current.find((p) => p.id === myPlayerId);
     const { points, newStreak } = calculateRoundScore(
       isCorrect,
       timeTakenMs,
@@ -656,9 +765,9 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
       playClickSound();
     }
 
-    // Update self score locally
-    setPlayers((prev) =>
-      prev.map((p) =>
+    // Update self score locally & check if all players answered
+    setPlayers((prev) => {
+      const updated = prev.map((p) =>
         p.id === myPlayerId
           ? {
               ...p,
@@ -675,8 +784,19 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
               },
             }
           : p
-      )
-    );
+      );
+
+      // If all players have locked answers, conclude round early
+      const allAnswered = updated.every(
+        (p) => p.lastAnswer?.questionIndex === currentQuestionIndex
+      );
+      if (allAnswered && updated.length > 1) {
+        if (roundTimerRef.current) clearInterval(roundTimerRef.current);
+        setTimeout(handleRoundTimeUp, 500);
+      }
+
+      return updated;
+    });
 
     // Broadcast answer to room
     if (managerRef.current) {
@@ -687,16 +807,6 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
         isCorrect,
         streak: newStreak,
       });
-    }
-
-    // If all players have locked answers, conclude round early
-    const otherPlayers = players.filter((p) => p.id !== myPlayerId);
-    const allOthersAnswered = otherPlayers.every(
-      (p) => p.lastAnswer?.questionIndex === currentQuestionIndex
-    );
-    if (allOthersAnswered && otherPlayers.length > 0) {
-      if (roundTimerRef.current) clearInterval(roundTimerRef.current);
-      setTimeout(handleRoundTimeUp, 500);
     }
   };
 

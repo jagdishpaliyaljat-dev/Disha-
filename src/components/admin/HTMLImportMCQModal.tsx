@@ -35,6 +35,7 @@ import {
   Radio,
   Plus,
 } from "lucide-react";
+import { InlineSpinner } from "../ui/LoadingScreen";
 import { triggerHaptic, playClickSound } from "../../utils/audioFeedback";
 import { generateQuestionHash } from "../../lib/mcqImport/dedupe";
 import { commitQuestions, CommitProgress } from "../../lib/mcqImport/commit";
@@ -1270,10 +1271,10 @@ export const HTMLImportMCQModal: React.FC<HTMLImportMCQModalProps> = ({
                       type="button"
                       disabled={isParsing || !htmlContent.trim()}
                       onClick={() => handleRunParse(htmlContent)}
-                      className="px-4 py-2 text-xs font-bold text-white bg-orange-600 hover:bg-orange-700 disabled:opacity-50 rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer"
+                      className="px-4 py-2 text-xs font-black text-white bg-gradient-to-r from-[#F47B20] to-[#E06716] hover:brightness-105 border border-[#C99A45]/40 disabled:opacity-50 rounded-xl shadow-[0_3px_12px_rgba(244,123,32,0.3)] flex items-center gap-1.5 transition-all cursor-pointer"
                     >
-                      {isParsing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <FileCode className="w-3.5 h-3.5" />}
-                      <span>Parse HTML Questions</span>
+                      {isParsing ? <InlineSpinner size="xs" /> : <FileCode className="w-3.5 h-3.5" />}
+                      <span>{isParsing ? "HTML विश्लेषण जारी..." : "HTML प्रश्न पार्स करें"}</span>
                     </button>
                   </div>
                 </div>
@@ -1610,17 +1611,17 @@ export const HTMLImportMCQModal: React.FC<HTMLImportMCQModalProps> = ({
                 type="button"
                 disabled={selectedTempIds.size === 0 || isCommitting}
                 onClick={() => setShowConfirmModal(true)}
-                className="px-5 py-2 text-xs font-bold text-white bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 disabled:opacity-50 rounded-xl shadow-xs flex items-center gap-2 transition-all cursor-pointer"
+                className="px-5 py-2 text-xs font-black text-white bg-gradient-to-r from-[#F47B20] to-[#E06716] hover:brightness-105 border border-[#C99A45]/40 disabled:opacity-50 rounded-xl shadow-[0_3px_12px_rgba(244,123,32,0.3)] flex items-center gap-2 transition-all cursor-pointer"
               >
                 {isCommitting ? (
                   <>
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    <span>Saving to Database...</span>
+                    <InlineSpinner size="xs" />
+                    <span>डेटाबेस में सुरक्षित हो रहा है...</span>
                   </>
                 ) : (
                   <>
                     <CheckCircle2 className="w-3.5 h-3.5" />
-                    <span>Import {selectedTempIds.size} Questions</span>
+                    <span>{selectedTempIds.size} प्रश्न इम्पोर्ट करें</span>
                   </>
                 )}
               </button>

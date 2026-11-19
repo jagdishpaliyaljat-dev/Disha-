@@ -18,6 +18,7 @@ import {
   Calendar
 } from "lucide-react";
 import { UserProfile } from "../types";
+import { ContentLoader } from "./ui/LoadingScreen";
 
 function getStartOfWeekId(): string {
   const d = new Date();
@@ -135,10 +136,12 @@ const WeeklyLeaderboard: React.FC<WeeklyLeaderboardProps> = ({
       {/* Main List */}
       <div className="p-3 space-y-1.5">
         {loading ? (
-          <div className="py-8 text-center space-y-2.5">
-            <RefreshCw className="w-5 h-5 text-blue-500 animate-spin mx-auto" />
-            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Syncing Rankings...</p>
-          </div>
+          <ContentLoader
+            message="रैंकिंग अपडेट हो रही है..."
+            submessage="राज्य स्तरीय प्रतियोगी रैंकिंग सिंक जारी"
+            minHeight="min-h-[160px]"
+            size="sm"
+          />
         ) : entries.length === 0 ? (
           <div className="py-8 text-center space-y-2 bg-slate-50 dark:bg-slate-900/40 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800">
             <Users className="w-6 h-6 text-slate-300 mx-auto" />

@@ -1,5 +1,6 @@
 import * as React from "react";
 import { X, AlertTriangle, Trash2, Loader2 } from 'lucide-react';
+import { InlineSpinner } from "../ui/LoadingScreen";
 
 interface ConfirmDialogProps {
   isOpen: boolean;
@@ -53,7 +54,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
             disabled={isDeleting}
             className="flex-1 py-2.5 bg-slate-900 text-white rounded-lg text-xs font-bold shadow-sm hover:bg-slate-800 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
           >
-            {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+            {isDeleting ? <InlineSpinner size="xs" /> : <Trash2 className="w-4 h-4" />}
             <span>{confirmText}</span>
           </button>
         </div>

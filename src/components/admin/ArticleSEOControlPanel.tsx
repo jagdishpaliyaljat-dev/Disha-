@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { NewsArticle } from "../../types";
 import { autoInjectLinksToArticleBlocks } from "../../utils/smartArticleImporter";
+import { InlineSpinner } from "../ui/LoadingScreen";
 
 interface ArticleSEOControlPanelProps {
   article: Partial<NewsArticle>;
@@ -364,14 +365,14 @@ export const ArticleSEOControlPanel: React.FC<ArticleSEOControlPanelProps> = ({
               type="button"
               onClick={onAiOptimize}
               disabled={aiLoading}
-              className="px-4 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl text-xs font-black flex items-center gap-2 shadow-md active:scale-95 disabled:opacity-50 cursor-pointer"
+              className="px-4 py-2.5 bg-gradient-to-r from-[#F47B20] to-[#E06716] hover:brightness-105 border border-[#C99A45]/40 text-white rounded-xl text-xs font-black flex items-center gap-2 shadow-[0_4px_14px_rgba(244,123,32,0.35)] active:scale-95 disabled:opacity-50 cursor-pointer"
             >
               {aiLoading ? (
-                <RefreshCw className="w-4 h-4 animate-spin text-amber-300" />
+                <InlineSpinner size="xs" />
               ) : (
-                <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" />
+                <Sparkles className="w-4 h-4 text-[#FFF9EF] animate-pulse" />
               )}
-              <span>AI Auto-Optimize</span>
+              <span>{aiLoading ? "AI विश्लेषण जारी है..." : "AI Auto-Optimize"}</span>
             </button>
           )}
         </div>

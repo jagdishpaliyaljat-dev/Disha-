@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Clock, CheckCircle2, AlertCircle, Loader2, ShieldCheck, Activity, RefreshCw } from "lucide-react";
+import { ContentLoader } from "../ui/LoadingScreen";
 import { LoginAttempt } from "../../types";
 import { supabase, isSupabaseConfigured } from "../../lib/supabase";
 
@@ -130,10 +131,11 @@ export const RecentActivityWidget: React.FC<RecentActivityWidgetProps> = ({ refr
       </div>
       
       {loading ? (
-        <div className="py-8 flex flex-col items-center justify-center gap-3">
-          <Loader2 className="w-5 h-5 text-emerald-500 animate-spin" />
-          <span className="text-xs font-bold text-slate-400">Fetching live activity...</span>
-        </div>
+        <ContentLoader
+          message="लाइव गतिविधि लोड हो रही है..."
+          minHeight="min-h-[120px]"
+          size="sm"
+        />
       ) : activities.length === 0 ? (
         <div className="py-8 text-center">
           <p className="text-xs text-slate-400 font-bold">No recent activities recorded.</p>

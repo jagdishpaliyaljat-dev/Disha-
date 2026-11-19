@@ -23,6 +23,7 @@ import { Chapter, Question, Subject, UserQuestionsStore } from "../../types";
 import { getChapterDisplayName, getTopicDisplayName } from "../../utils/curriculumUtils";
 import { triggerAdminToast } from "../../utils/adminToast";
 import { bulkDeleteQuestions } from "../../utils/questionsStorage";
+import { InlineSpinner } from "../ui/LoadingScreen";
 
 interface FlattenedMCQ {
   id: string;
@@ -899,8 +900,8 @@ export const BulkQuestionDeleteModal: React.FC<BulkQuestionDeleteModalProps> = (
                 onClick={() => handleSingleDelete(singleDeleteId)}
                 className="flex-1 py-2.5 bg-rose-600 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer hover:bg-rose-700"
               >
-                {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-                <span>Yes, Delete</span>
+                {isDeleting ? <InlineSpinner size="xs" /> : <Trash2 className="w-4 h-4" />}
+                <span>{isDeleting ? "हटाया जा रहा है..." : "Yes, Delete"}</span>
               </button>
             </div>
           </div>
@@ -986,8 +987,8 @@ export const BulkQuestionDeleteModal: React.FC<BulkQuestionDeleteModalProps> = (
               >
                 {isDeleting ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Deleting...</span>
+                    <InlineSpinner size="xs" />
+                    <span>हटाया जा रहा है...</span>
                   </>
                 ) : (
                   <>

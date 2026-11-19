@@ -33,6 +33,7 @@ import {
 } from "lucide-react";
 import ShareModal, { ShareData } from "./ShareModal";
 import { buildPYQShareData } from "../utils/shareService";
+import { InlineSpinner } from "./ui/LoadingScreen";
 
 interface PYQVaultTabProps {
   onStartSession: (session: MCQSession) => void;
@@ -446,14 +447,14 @@ export const PYQVaultTab: React.FC<PYQVaultTabProps> = ({
                     <button
                       id={`btn-start-pyq-${paper.id}`}
                       onClick={() => handleStartPYQExam(paper)}
-                      className="bg-[#800020] hover:bg-[#5E0017] dark:bg-[#800020] dark:hover:bg-[#650019] active:scale-95 text-white py-2.5 px-2 rounded-xl font-semibold text-xs flex items-center justify-center gap-1.5 border border-[#C99A45]/35 shadow-xs transition-all duration-180 cursor-pointer"
+                      className="bg-gradient-to-r from-[#F47B20] to-[#E06716] hover:brightness-105 active:scale-95 text-white py-2.5 px-2 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 border border-[#C99A45]/40 shadow-[0_3px_10px_rgba(244,123,32,0.3)] transition-all duration-180 cursor-pointer"
                     >
                       {fetchingPaperId === paper.id ? (
-                         <RefreshCw size={14} className="animate-spin text-[#C99A45]" />
+                         <InlineSpinner size="xs" />
                       ) : (
                          <Play size={14} fill="currentColor" />
                       )}
-                      <span className="uppercase tracking-wider">{fetchingPaperId === paper.id ? "Loading" : "Exam"}</span>
+                      <span className="uppercase tracking-wider">{fetchingPaperId === paper.id ? "लोडिंग..." : "Exam"}</span>
                     </button>
 
                     <button
@@ -480,12 +481,12 @@ export const PYQVaultTab: React.FC<PYQVaultTabProps> = ({
                         setViewingSolutionPaper(paperWithQs);
                         setActiveQuestionIndex(0);
                       }}
-                      className="bg-white hover:bg-[#F7EFE2] dark:bg-[#252A3A] dark:hover:bg-[#31374A] border border-[#E8D9C0] dark:border-[#31374A] text-[#171923] dark:text-[#FFF9EF] py-2.5 px-2 rounded-xl font-semibold text-xs flex items-center justify-center gap-1.5 active:scale-95 transition-all duration-180 cursor-pointer shadow-xs"
+                      className="bg-white hover:bg-[#F7EFE2] dark:bg-[#1A2234] dark:hover:bg-[#252E42] border border-[#E8D9C0] dark:border-[#2C374E] text-[#171923] dark:text-[#FFF9EF] py-2.5 px-2 rounded-xl font-semibold text-xs flex items-center justify-center gap-1.5 active:scale-95 transition-all duration-180 cursor-pointer shadow-xs"
                     >
                       {fetchingPaperId === paper.id ? (
-                        <RefreshCw size={14} className="animate-spin text-[#800020] dark:text-[#C99A45]" />
+                        <InlineSpinner size="xs" />
                       ) : (
-                        <Eye size={14} className="text-[#800020] dark:text-[#C99A45]" />
+                        <Eye size={14} className="text-[#C99A45]" />
                       )}
                       <span className="uppercase tracking-wider">Key</span>
                     </button>

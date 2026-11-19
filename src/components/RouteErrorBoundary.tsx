@@ -52,14 +52,14 @@ export class RouteErrorBoundary extends React.Component<
           aria-live="assertive"
           className="min-h-[60vh] flex flex-col items-center justify-center px-4 py-12 text-center max-w-md mx-auto"
         >
-          <div className="w-16 h-16 rounded-2xl bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center mb-5 shadow-lg shadow-amber-500/5">
+          <div className="w-16 h-16 rounded-2xl bg-[#C99A45]/15 border border-[#C99A45]/30 text-[#C99A45] flex items-center justify-center mb-5 shadow-lg shadow-[#C99A45]/5">
             <AlertTriangle className="w-8 h-8 stroke-[2]" />
           </div>
 
           <h2 className="text-xl sm:text-2xl font-extrabold text-[#171923] dark:text-[#FFF9EF] tracking-tight">
             Section Temporarily Unavailable
           </h2>
-          <p className="text-sm font-bold text-[#800020] dark:text-[#C99A45] mt-1 font-hindi">
+          <p className="text-sm font-bold text-[#C99A45] mt-1 font-hindi">
             यह अनुभाग अस्थायी रूप से अनुपलब्ध है
           </p>
 
@@ -71,7 +71,7 @@ export class RouteErrorBoundary extends React.Component<
             <button
               type="button"
               onClick={this.handleReset}
-              className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#800020] hover:bg-[#600018] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] text-white font-bold text-xs uppercase tracking-wider shadow-md active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-2"
+              className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#F47B20] to-[#E06716] hover:brightness-105 text-white font-black text-xs uppercase tracking-wider shadow-[0_4px_14px_rgba(244,123,32,0.35)] border border-[#C99A45]/40 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-2"
             >
               <RotateCcw className="w-4 h-4" />
               <span>Retry / पुनः प्रयास करें</span>

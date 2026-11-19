@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Trophy, Award, Medal, Users, Flame, RefreshCw, CheckCircle2, Clock, Sparkles, User, ChevronRight } from "lucide-react";
 import { UserProfile } from "../types";
+import { ContentLoader } from "./ui/LoadingScreen";
 
 export interface LeaderboardEntry {
   id: string;
@@ -284,10 +285,12 @@ export const SessionLeaderboard: React.FC<SessionLeaderboardProps> = ({
 
       {/* Leaderboard Table / Rows */}
       {loading ? (
-        <div className="py-8 text-center space-y-2">
-          <RefreshCw className="w-5 h-5 text-[#800020] dark:text-[#C99A45] animate-spin mx-auto" />
-          <p className="text-[10px] font-black uppercase tracking-widest text-[#787D91] dark:text-[#929AB0]">Loading Aspirant Ranks...</p>
-        </div>
+        <ContentLoader
+          message="अभ्यर्थी रैंकिंग लोड हो रही है..."
+          submessage="DISHA 20-20 • सटीक मेरिट गणना जारी"
+          minHeight="min-h-[160px]"
+          size="sm"
+        />
       ) : (
         <div className="space-y-1.5">
           {displayedList.map((entry) => {

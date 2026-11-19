@@ -43,6 +43,7 @@ import {
   Key,
   Loader2,
 } from "lucide-react";
+import { InlineSpinner } from "../ui/LoadingScreen";
 
 interface ExamPaperAnalyzerModalProps {
   isOpen: boolean;
@@ -507,11 +508,11 @@ export const ExamPaperAnalyzerModal: React.FC<ExamPaperAnalyzerModalProps> = ({
       <main className="flex-1 p-4 sm:p-6 max-w-4xl w-full mx-auto">
         {/* Real-time Extraction Status Banner */}
         {isExtracting && extractionProgress && (
-          <div className="mb-4 p-4 rounded-2xl bg-white dark:bg-[#1F2330] border border-[#C99A45] dark:border-[#F47B20]/60 flex items-center gap-3 shadow-xs">
-            <Loader2 className="w-5 h-5 text-[#800020] dark:text-[#F47B20] animate-spin shrink-0" />
+          <div className="mb-4 p-4 rounded-2xl bg-white dark:bg-[#111622] border border-[#C99A45]/40 flex items-center gap-3.5 shadow-xs">
+            <InlineSpinner size="md" />
             <div>
               <p className="text-xs font-bold text-[#171923] dark:text-[#FFF9EF]">{extractionProgress}</p>
-              <p className="text-[11px] text-[#6E6254] dark:text-[#A39887]">Processing Hindi & English text with DISHA 20-20 Vision OCR...</p>
+              <p className="text-[11px] text-[#6F768A] dark:text-[#9AA2B8]">Processing Hindi & English text with DISHA 20-20 Vision OCR...</p>
             </div>
           </div>
         )}

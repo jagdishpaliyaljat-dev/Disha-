@@ -193,7 +193,7 @@ export class AppErrorBoundary extends React.Component<AppErrorBoundaryProps, App
               <button
                 type="button"
                 onClick={this.handleSelfHealingRecovery}
-                className="w-full py-3.5 px-4 bg-[#800020] hover:bg-[#600018] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] text-white rounded-xl text-xs font-bold shadow-md transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-2"
+                className="w-full py-3.5 px-4 bg-gradient-to-r from-[#F47B20] to-[#E06716] hover:brightness-105 text-white font-black rounded-xl text-xs shadow-[0_4px_16px_rgba(244,123,32,0.35)] border border-[#C99A45]/40 transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-2"
               >
                 <span>🚀 1-क्लिक स्वतः मरम्मत और खोलें (1-Tap Auto-Repair & Launch)</span>
               </button>

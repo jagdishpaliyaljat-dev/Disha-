@@ -28,6 +28,7 @@ import { supabase, isSupabaseConfigured } from "../../lib/supabase";
 import { RecentActivityWidget } from "./RecentActivityWidget";
 import { DatabaseStatusWidget, DatabaseInventoryCounts } from "./DatabaseStatusWidget";
 import { AuditLogWidget } from "./AuditLogWidget";
+import { ContentLoader } from "../ui/LoadingScreen";
 import { ExportDataWidget } from "./ExportDataWidget";
 import { QuickActionsWidget } from "./QuickActionsWidget";
 import { SupabaseHealthPanel } from "./SupabaseHealthPanel";
@@ -222,7 +223,12 @@ export const AdminDashboardSection: React.FC<AdminDashboardSectionProps> = ({
             
             <div className="p-3">
               {loading ? (
-                <div className="py-12 text-center text-xs font-bold text-slate-400 animate-pulse">Synchronizing student directory...</div>
+                <ContentLoader
+                  message="विद्यार्थी डायरेक्टरी लोड हो रही है..."
+                  submessage="सक्रिय पंजीकृत अभ्यर्थी डेटा सिंक जारी"
+                  minHeight="min-h-[140px]"
+                  size="sm"
+                />
               ) : recentUsers.length === 0 ? (
                 <div className="py-12 text-center text-xs font-bold text-slate-400">No recent student records found.</div>
               ) : (

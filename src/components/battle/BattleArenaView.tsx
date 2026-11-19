@@ -112,7 +112,15 @@ export const BattleArenaView: React.FC<BattleArenaViewProps> = ({
                 <span className="text-[10px] text-amber-300 font-bold">
                   #{idx + 1}
                 </span>
-                <BattleAvatar avatar={player.avatar} name={player.name} size="sm" />
+                <div className="relative inline-flex items-center">
+                  <BattleAvatar avatar={player.avatar} name={player.name} size="sm" />
+                  {player.lastAnswer?.questionIndex === questionIndex && (
+                    <span
+                      className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-400 rounded-full border border-stone-900 ring-1 ring-emerald-300 shadow-xs"
+                      title="Answer locked"
+                    />
+                  )}
+                </div>
                 <span className="max-w-[70px] truncate text-xs">
                   {player.name}
                 </span>
