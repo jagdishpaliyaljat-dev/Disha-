@@ -110,9 +110,15 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
     };
   }, []);
 
-  // Live and Upcoming Tests
+  // Live and Upcoming Tests — also exclude tests whose endTime has already passed (BUG-08)
   const liveAndUpcoming = React.useMemo(() => {
-    return tests.filter((t) => t.status === "live" || t.status === "upcoming");
+    const now = Date.now();
+    return tests.filter((t) => {
+      if (t.status !== "live" && t.status !== "upcoming") return false;
+      // If the test has an endTime and it's already past, exclude it
+      if (t.endTime && new Date(t.endTime).getTime() <= now) return false;
+      return true;
+    });
   }, [tests]);
 
   // Check if test was attempted

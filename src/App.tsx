@@ -1229,6 +1229,11 @@ export default function App() {
     safeRemoveLocalStorageItem("disha2020_progress");
     safeRemoveLocalStorageItem("disha2020_user_bookmarks_v1");
     safeRemoveLocalStorageItem("disha2020_student_reported_qids_v1");
+    // BUG-06: Clear per-user test data to prevent leakage to next user on same device
+    safeRemoveLocalStorageItem("remix_rajprep_live_submissions_v1");
+    safeRemoveLocalStorageItem("remix_rajprep_pyq_attempts_v2");
+    safeRemoveLocalStorageItem("economic_survey_test_history_v1");
+    safeRemoveLocalStorageItem("disha2020_smart_test_records_v1");
     updateProgress(() => ({}));
     setUserProfile(null);
     setIsAuthenticated(false);

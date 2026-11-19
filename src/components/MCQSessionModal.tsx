@@ -1209,7 +1209,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
         const marksPerQ = session.marksPerQuestion || 1;
         const negMarksPerQ = session.negativeMarking ?? Number((marksPerQ / 3).toFixed(2));
         const rawScore = totalCorrect * marksPerQ - totalWrong * negMarksPerQ;
-        const finalScore = Math.max(0, Number(rawScore.toFixed(2)));
+        const finalScore = Number(rawScore.toFixed(2));
         const paperId = session.pyqDetails?.id || session.testId || session.title;
         const paperTitle = session.pyqDetails?.title || session.title;
         const totalMarks = session.pyqDetails?.totalMarks || questions.length * marksPerQ;
@@ -1245,7 +1245,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
       const smartMarksPerQ = session.marksPerQuestion || (isLiveTestSession ? 2 : 1);
       const smartNegMarksPerQ = session.negativeMarking ?? (isLiveTestSession ? 0.66 : Number((smartMarksPerQ / 3).toFixed(2)));
       const rawSmartScore = totalCorrect * smartMarksPerQ - totalWrong * smartNegMarksPerQ;
-      const finalSmartScore = Math.max(0, Number(rawSmartScore.toFixed(2)));
+      const finalSmartScore = Number(rawSmartScore.toFixed(2));
 
       const smartRecord: any = {
         testId: session.testId || `test_${Date.now()}`,
@@ -2587,6 +2587,28 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
     );
   }
 
+  if (!currentQuestion || questions.length === 0) {
+    return (
+      <div className="fixed inset-0 z-[100] bg-[#FFF9EF] dark:bg-[#171923] flex flex-col items-center justify-center p-6 text-center">
+        <div className="w-16 h-16 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center mb-4">
+          <AlertCircle className="w-8 h-8" />
+        </div>
+        <h3 className="text-lg font-black text-slate-900 dark:text-white mb-2">
+          इस सत्र में कोई प्रश्न उपलब्ध नहीं हैं
+        </h3>
+        <p className="text-sm text-slate-500 dark:text-slate-400 max-w-sm mb-6">
+          कृपया कोई अन्य अध्याय या विषय चुनें, या व्यवस्थापक से संपर्क करें।
+        </p>
+        <button
+          onClick={onClose}
+          className="px-6 py-2.5 rounded-xl bg-[#800020] text-white font-bold text-sm shadow-md active:scale-95 transition-transform cursor-pointer"
+        >
+          वापस जाएं (Go Back)
+        </button>
+      </div>
+    );
+  }
+
   const isCurrentCorrect =
     isSubmitted && currentQuestion && selectedOptionIndex === currentQuestion.correctIndex;
   return (
@@ -2844,7 +2866,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                     <h4 className="text-sm font-black text-white uppercase tracking-widest">Mastery Keys</h4>
                   </div>
                   <div className="text-[15px] sm:text-[16px] text-slate-100 font-hindi leading-relaxed font-bold">
-                    <RichText text={currentQuestion.explanation} enablePronunciation={true} />
+                    <RichText text={currentQuestion?.explanation || "व्याख्या उपलब्ध नहीं है।"} enablePronunciation={true} />
                   </div>
                   <div className="pt-3.5 mt-3.5 border-t border-white/10 flex items-center justify-between flex-wrap gap-2.5">
                     <button
@@ -3207,6 +3229,9 @@ function RedesignedLiveAndPYQTestView({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showPaletteDrawer, setShowPaletteDrawer] = useState(false);
   const [shareData, setShareData] = useState<ShareData | null>(null);
+  const [paletteChunkIndex, setPaletteChunkIndex] = useState(0);
+  const CHUNK_SIZE = 50;
+  const totalChunks = Math.ceil((questions?.length || 0) / CHUNK_SIZE);
 
   // Debounce duplicate taps on Prev/Next navigation buttons.
   const isNavigatingRef = useRef<boolean>(false);
@@ -3214,6 +3239,12 @@ function RedesignedLiveAndPYQTestView({
   const safeCurrentIndex = (questions && questions.length > 0)
     ? Math.max(0, Math.min(currentIndex, questions.length - 1))
     : 0;
+
+  useEffect(() => {
+    if (questions && questions.length > CHUNK_SIZE) {
+      setPaletteChunkIndex(Math.floor(safeCurrentIndex / CHUNK_SIZE));
+    }
+  }, [safeCurrentIndex, questions?.length]);
   const currentQuestion = (questions && questions.length > 0)
     ? questions[safeCurrentIndex]
     : undefined;
@@ -3591,10 +3622,31 @@ function RedesignedLiveAndPYQTestView({
               </div>
             </div>
 
-            {/* 1..N Question Grid */}
+            {/* 1..N Question Grid with Chunking */}
+            {totalChunks > 1 && (
+              <div className="flex items-center gap-1 overflow-x-auto pb-1 mb-2 no-scrollbar">
+                {Array.from({ length: totalChunks }).map((_, cIdx) => (
+                  <button
+                    key={`chunk-tab-${cIdx}`}
+                    onClick={() => setPaletteChunkIndex(cIdx)}
+                    className={`px-2 py-1 text-[10px] font-black rounded-lg transition-all shrink-0 cursor-pointer ${
+                      paletteChunkIndex === cIdx
+                        ? "bg-[#800020] text-white shadow-xs"
+                        : "bg-[#F7EFE2] dark:bg-[#252A3A] text-slate-600 dark:text-slate-300"
+                    }`}
+                  >
+                    {cIdx * CHUNK_SIZE + 1}-{Math.min((cIdx + 1) * CHUNK_SIZE, totalQuestions)}
+                  </button>
+                ))}
+              </div>
+            )}
             <div className="max-h-[calc(100vh-340px)] min-h-[180px] overflow-y-auto pr-1">
               <div className="grid grid-cols-5 gap-2">
-                {questions.map((q, idx) => {
+                {(totalChunks > 1
+                  ? questions.slice(paletteChunkIndex * CHUNK_SIZE, (paletteChunkIndex + 1) * CHUNK_SIZE)
+                  : questions
+                ).map((q, localIdx) => {
+                  const idx = totalChunks > 1 ? paletteChunkIndex * CHUNK_SIZE + localIdx : localIdx;
                   const isAns = Boolean(sessionResults[q.id]);
                   const isRev = Boolean(reviewStates[q.id]);
                   const isVis = Boolean(visitedStates[q.id]);
@@ -3752,10 +3804,31 @@ function RedesignedLiveAndPYQTestView({
                 ))}
               </div>
 
-              {/* Grid of Numbers */}
+              {/* Grid of Numbers with Chunking */}
+              {totalChunks > 1 && (
+                <div className="px-6 pt-3 flex items-center gap-1.5 overflow-x-auto no-scrollbar shrink-0">
+                  {Array.from({ length: totalChunks }).map((_, cIdx) => (
+                    <button
+                      key={`drawer-chunk-${cIdx}`}
+                      onClick={() => setPaletteChunkIndex(cIdx)}
+                      className={`px-3 py-1.5 text-xs font-black rounded-xl transition-all shrink-0 cursor-pointer ${
+                        paletteChunkIndex === cIdx
+                          ? "bg-blue-600 text-white shadow-xs"
+                          : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
+                      }`}
+                    >
+                      {cIdx * CHUNK_SIZE + 1}-{Math.min((cIdx + 1) * CHUNK_SIZE, totalQuestions)}
+                    </button>
+                  ))}
+                </div>
+              )}
               <div className="flex-1 overflow-y-auto p-6 scrollbar-hide">
                 <div className="grid grid-cols-5 gap-4">
-                  {questions.map((q, idx) => {
+                  {(totalChunks > 1
+                    ? questions.slice(paletteChunkIndex * CHUNK_SIZE, (paletteChunkIndex + 1) * CHUNK_SIZE)
+                    : questions
+                  ).map((q, localIdx) => {
+                    const idx = totalChunks > 1 ? paletteChunkIndex * CHUNK_SIZE + localIdx : localIdx;
                     const isAns = Boolean(sessionResults[q.id]);
                     const isRev = Boolean(reviewStates[q.id]);
                     const isVis = Boolean(visitedStates[q.id]);
@@ -4143,7 +4216,8 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
   const blankPenalty = Number((totalCompletelyBlank * blankPenaltyPerQ).toFixed(2));
 
   const rawScore = (totalCorrect * marksPerQ) - (totalWrong * negMarksPerQ) - blankPenalty;
-  const obtainedMarks = serverSubmission ? Number(serverSubmission.score ?? Math.max(0, Number(rawScore.toFixed(2)))) : Math.max(0, Number(rawScore.toFixed(2)));
+  const rawFinal = Number(rawScore.toFixed(2));
+  const obtainedMarks = serverSubmission ? Number(serverSubmission.score ?? rawFinal) : rawFinal;
   const maxMarks = serverSubmission ? Number(serverSubmission.totalMarks ?? totalQuestions * marksPerQ) : totalQuestions * marksPerQ;
   const scorePercent = maxMarks > 0 ? Math.round((obtainedMarks / maxMarks) * 100) : 0;
   const accuracy = serverSubmission ? Number(serverSubmission.accuracy ?? (totalAttempted > 0 ? Math.round((totalCorrect / totalAttempted) * 100) : 0)) : (totalAttempted > 0 ? Math.round((totalCorrect / totalAttempted) * 100) : 0);

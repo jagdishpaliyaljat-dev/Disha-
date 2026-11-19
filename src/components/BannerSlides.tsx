@@ -104,6 +104,9 @@ export const BannerSlides: React.FC<BannerSlidesProps> = ({ banners, onNavigateT
                     alt={banner.title || "DISHA 20-20 Banner"}
                     className="w-full h-full object-cover"
                     loading="eager"
+                    onError={(e) => {
+                      (e.currentTarget as HTMLImageElement).style.display = "none";
+                    }}
                   />
                 ) : (
                   <div className="w-full h-full flex flex-col justify-center px-4 sm:px-8 py-3.5 sm:py-5 text-[#FFF9EF] select-none relative z-10">

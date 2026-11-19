@@ -134,8 +134,48 @@ export const BulkQuestionDeleteModal: React.FC<BulkQuestionDeleteModalProps> = (
       }
     }
 
+    // Also merge cloud-cached and user-added questions from questionsStore
+    const extraQuestions = [
+      ...(Array.isArray(questionsStore?.cloudCacheQuestions) ? questionsStore.cloudCacheQuestions : []),
+      ...(Array.isArray((questionsStore as any)?.customQuestions) ? (questionsStore as any).customQuestions : []),
+    ];
+
+    for (let i = 0; i < extraQuestions.length; i++) {
+      const q = extraQuestions[i];
+      if (!q || !q.id || seenIds.has(q.id)) continue;
+      seenIds.add(q.id);
+
+      const ch = chapters.find((c) => c.id === q.chapterId);
+      const sub = subjects.find((s) => s.id === (q.subjectId || ch?.subjectId));
+      const top = ch?.topics?.find((t) => t.id === q.topicId);
+
+      const correctIdx =
+        typeof q.correctIndex === "number"
+          ? q.correctIndex
+          : typeof (q as any).correctAnswer === "number"
+          ? (q as any).correctAnswer
+          : 0;
+
+      list.push({
+        id: q.id,
+        text: q.text || "",
+        options: Array.isArray(q.options) ? q.options : [],
+        correctIndex: correctIdx,
+        explanation: q.explanation || "",
+        chapterId: q.chapterId || ch?.id,
+        chapterTitle: ch ? getChapterDisplayName(ch) : "General Chapter",
+        chapterNumber: ch?.number,
+        topicId: q.topicId || top?.id,
+        topicTitle: top ? getTopicDisplayName(top) : "General Topic",
+        subjectId: q.subjectId || ch?.subjectId,
+        subjectTitle: sub?.name || sub?.hindiName || "General Studies",
+        isUserAdded: Boolean(q.isUserAdded),
+        isPYQ: Boolean((q as any).isPYQ),
+      });
+    }
+
     return list;
-  }, [chapters, subjects]);
+  }, [chapters, subjects, questionsStore]);
 
   // Available chapters based on selected subject
   const availableChapters = React.useMemo(() => {

@@ -68,18 +68,23 @@ export async function scanMcqCollectionDuplicates(
 
   let docsToScan: Array<{ docId: string; data: any; source: string }> = [];
 
-  // 1. Fetch from Supabase questions table
+  // 1. Fetch ALL questions from Supabase with pagination (BUG-18: was hard-limited to 2000)
   try {
-    const { data, error } = await supabase.from("questions").select("id,question,options,correct_answer,explanation,subject_id,chapter_id,topic_id,exam,year,level,created_at,updated_at").limit(maxScanLimit);
-    if (!error && data) {
-      scannedSources.push(`Supabase 'questions' table (${data.length} rows)`);
+    const PAGE_SIZE = 1000;
+    let page = 0;
+    let keepFetching = true;
+    while (keepFetching) {
+      const { data, error } = await supabase
+        .from("questions")
+        .select("id,question,options,correct_answer,explanation,subject_id,chapter_id,topic_id,exam,year,level,created_at,updated_at")
+        .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
+      if (error || !data || data.length === 0) { keepFetching = false; break; }
+      scannedSources.push(`Supabase 'questions' page ${page + 1} (${data.length} rows)`);
       data.forEach((row) => {
-        docsToScan.push({
-          docId: row.id,
-          data: row,
-          source: "Supabase (questions)",
-        });
+        docsToScan.push({ docId: row.id, data: row, source: "Supabase (questions)" });
       });
+      if (data.length < PAGE_SIZE) { keepFetching = false; }
+      page++;
     }
   } catch (err: any) {
     console.warn(`[McqScan] Supabase scan failed:`, err?.message || err);

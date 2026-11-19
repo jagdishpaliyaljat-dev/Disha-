@@ -449,7 +449,9 @@ export async function fetchPublishedArticles(): Promise<NewsArticle[]> {
  * Fetch single article by slug
  */
 export async function fetchArticleBySlug(slug: string): Promise<NewsArticle | null> {
-  const cleanSlug = slug.trim().toLowerCase();
+  // BUG-09: Sanitize slug to prevent PostgREST filter injection
+  const cleanSlug = slug.trim().toLowerCase().replace(/[^a-z0-9_-]/g, "");
+  if (!cleanSlug) return null;
   const deletedIds = new Set(getDeletedArticleIds());
   const local = getLocalArticles();
   const found = local.find(a => (a.slug.toLowerCase() === cleanSlug || a.id.toLowerCase() === cleanSlug) && !deletedIds.has(a.id));

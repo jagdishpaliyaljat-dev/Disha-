@@ -103,9 +103,19 @@ export const AdminBannerManagementSection: React.FC<{ onBannerUpdated?: () => vo
     }
   };
 
+  const [isOperating, setIsOperating] = React.useState(false);
+
   const handleApplyUrl = () => {
-    if (!urlInput.trim()) return;
-    setCurrentBanner((prev) => ({ ...prev, imageUrl: urlInput.trim() }));
+    const trimmed = urlInput.trim();
+    if (!trimmed) return;
+    // BUG-03: Block javascript: and other dangerous protocols
+    const proto = trimmed.split(":")[0].toLowerCase();
+    if (!["http", "https", "data"].includes(proto)) {
+      setNotification({ type: "error", message: "अमान्य URL! केवल https://, http://, या data: URLs की अनुमति है।" });
+      setTimeout(() => setNotification(null), 4000);
+      return;
+    }
+    setCurrentBanner((prev) => ({ ...prev, imageUrl: trimmed }));
     setNotification({ type: "success", message: "Remote asset linked." });
     setTimeout(() => setNotification(null), 3000);
   };
@@ -138,7 +148,10 @@ export const AdminBannerManagementSection: React.FC<{ onBannerUpdated?: () => vo
     }
   };
 
+  // BUG-05: Locked toggle to prevent duplicate writes on rapid clicks
   const handleToggleActive = async (banner: AppBanner) => {
+    if (isOperating) return;
+    setIsOperating(true);
     try {
       const updated = { ...banner, isActive: !banner.isActive };
       await saveBanner(updated);
@@ -152,15 +165,20 @@ export const AdminBannerManagementSection: React.FC<{ onBannerUpdated?: () => vo
       onBannerUpdated?.();
     } catch (err) {
       console.error(err);
+    } finally {
+      setIsOperating(false);
     }
   };
 
+  // BUG-05: Locked move to prevent duplicate order writes on rapid clicks
   const handleMoveOrder = async (banner: AppBanner, direction: "up" | "down") => {
+    if (isOperating) return;
+    setIsOperating(true);
     const sorted = [...banners].sort((a, b) => (a.order || 0) - (b.order || 0));
     const idx = sorted.findIndex((b) => b.id === banner.id);
-    if (idx === -1) return;
+    if (idx === -1) { setIsOperating(false); return; }
     const targetIdx = direction === "up" ? idx - 1 : idx + 1;
-    if (targetIdx < 0 || targetIdx >= sorted.length) return;
+    if (targetIdx < 0 || targetIdx >= sorted.length) { setIsOperating(false); return; }
     const other = sorted[targetIdx];
     try {
       await Promise.all([
@@ -171,6 +189,8 @@ export const AdminBannerManagementSection: React.FC<{ onBannerUpdated?: () => vo
       onBannerUpdated?.();
     } catch (err) {
       console.warn(err);
+    } finally {
+      setIsOperating(false);
     }
   };
 

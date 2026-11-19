@@ -150,7 +150,7 @@ export const ExcelCsvQuestionImporter: React.FC<ExcelCsvQuestionImporterProps> =
     if (currentLine.trim()) lines.push(currentLine.trim());
     if (lines.length < 2) return [];
 
-    // Split fields function
+    // Split fields function supporting RFC-4180 escaped quotes
     const splitRow = (rowStr: string): string[] => {
       const fields: string[] = [];
       let inQuote = false;
@@ -158,7 +158,12 @@ export const ExcelCsvQuestionImporter: React.FC<ExcelCsvQuestionImporterProps> =
       for (let i = 0; i < rowStr.length; i++) {
         const c = rowStr[i];
         if (c === '"') {
-          inQuote = !inQuote;
+          if (inQuote && i + 1 < rowStr.length && rowStr[i + 1] === '"') {
+            curField += '"';
+            i++; // skip escaped double quote
+          } else {
+            inQuote = !inQuote;
+          }
         } else if (c === delimiter && !inQuote) {
           fields.push(curField.trim());
           curField = "";
@@ -167,7 +172,7 @@ export const ExcelCsvQuestionImporter: React.FC<ExcelCsvQuestionImporterProps> =
         }
       }
       fields.push(curField.trim());
-      return fields.map(f => f.replace(/^["']|["']$/g, "").trim());
+      return fields.map(f => f.replace(/^["']|["']$/g, "").replace(/""/g, '"').trim());
     };
 
     const header = splitRow(lines[0]).map(h => h.toLowerCase());
@@ -297,6 +302,18 @@ export const ExcelCsvQuestionImporter: React.FC<ExcelCsvQuestionImporterProps> =
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    const validExtensions = [".csv", ".tsv", ".txt"];
+    const fileExt = file.name.substring(file.name.lastIndexOf(".")).toLowerCase();
+    if (!validExtensions.includes(fileExt)) {
+      setStatusMessage("अमान्य फ़ाइल प्रकार! कृपया केवल .csv, .tsv या .txt फ़ाइल ही अपलोड करें (Only .csv, .tsv, .txt supported).");
+      return;
+    }
+
+    if (file.size > 15 * 1024 * 1024) {
+      setStatusMessage("फ़ाइल बहुत बड़ी है (अधिकतम सीमा: 15 MB)। कृपया फ़ाइल का आकार कम करें।");
+      return;
+    }
 
     setFileName(file.name);
     setIsProcessing(true);

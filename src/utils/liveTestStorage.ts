@@ -546,8 +546,10 @@ export async function gradeAndSubmitLiveTestDirectly(options: DirectGradeOptions
     };
   });
 
-  const rawScore = correctCount * marksPerQuestion - wrongCount * negativeMarking;
-  const finalScore = Math.max(0, Number(rawScore.toFixed(2)));
+  const blankPenalty = Number((unattemptedCount * (marksPerQuestion / 3)).toFixed(2));
+  const isRpscDisqualified = testQuestions.length > 0 && unattemptedCount > (testQuestions.length * 0.10);
+  const rawScore = correctCount * marksPerQuestion - wrongCount * negativeMarking - blankPenalty;
+  const finalScore = Number(rawScore.toFixed(2));
   const accuracy = (correctCount + wrongCount) > 0 ? Math.round((correctCount / (correctCount + wrongCount)) * 100) : 0;
 
   const submission: LiveTestSubmission = {
@@ -561,11 +563,11 @@ export async function gradeAndSubmitLiveTestDirectly(options: DirectGradeOptions
     totalMarks,
     correctCount,
     wrongCount,
-    unattemptedCount,
+    unattemptedCount: unattemptedCount + unattemptedECount,
     unattemptedECount,
     completelyBlankCount: unattemptedCount,
-    blankPenalty: 0,
-    isRpscDisqualified: false,
+    blankPenalty,
+    isRpscDisqualified,
     accuracy,
     timeSpentSeconds,
     submittedAt: new Date().toISOString(),
