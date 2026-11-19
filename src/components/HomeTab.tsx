@@ -441,122 +441,82 @@ export const HomeTab: React.FC<HomeTabProps> = ({
           </section>
         </div>
 
-        {/* 3.5 AI WEAKNESS RADAR & STUDENT REPORT CARD CALLOUT */}
+        {/* 3.5 AI WEAKNESS RADAR & STUDENT REPORT CARD */}
         <section>
           <motion.div
             whileTap={{ scale: 0.99 }}
             onClick={() => onNavigateTab?.("analytics")}
-            className="w-full bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] hover:border-[#800020] dark:hover:border-[#F47B20] rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-xs flex items-center justify-between text-left transition-all cursor-pointer group"
+            className="w-full bg-white dark:bg-[#1A1D2B] border border-[#E8D9C0] dark:border-[#31374A] hover:border-[#800020] dark:hover:border-[#C99A45] rounded-2xl p-3.5 sm:p-4 shadow-xs flex items-center justify-between text-left transition-all cursor-pointer group select-none"
           >
             <div className="flex items-center gap-3 min-w-0 flex-1">
-              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl bg-[#800020]/10 dark:bg-[#800020]/30 text-[#800020] dark:text-[#F47B20] flex items-center justify-center shrink-0">
-                <Target className="w-5 h-5 sm:w-6 sm:h-6" />
+              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-[#800020]/10 dark:bg-[#800020]/25 text-[#800020] dark:text-[#F47B20] border border-[#800020]/20 flex items-center justify-center shrink-0 shadow-xs">
+                <Target className="w-5.5 h-5.5 sm:w-6 sm:h-6" />
               </div>
 
               <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
-                  <h3 className="text-xs sm:text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] leading-tight">
-                    AI Diagnostic Radar
-                  </h3>
-                  <span className="px-1.5 py-0.5 rounded-md bg-[#F47B20]/12 text-[#C85A0A] dark:text-[#F47B20] text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider">
-                    AI Radar
-                  </span>
-                </div>
-                <p className="text-[10px] sm:text-[11px] font-medium text-[#52576A] dark:text-[#929AB0] truncate leading-tight">
-                  Score leak diagnosis, negative marking analysis &amp; booster tests
-                </p>
+                <h3 className="text-[13.5px] sm:text-[15.5px] font-black text-[#171923] dark:text-[#FFF9EF] leading-snug tracking-tight truncate">
+                  AI डायग्नोज़ रडार
+                </h3>
               </div>
             </div>
 
             <div className="flex items-center gap-1 shrink-0 pl-2">
-              <span className="hidden sm:inline-block text-xs font-extrabold text-[#800020] dark:text-[#F47B20]">
-                View Report
-              </span>
-              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#F7EFE2] dark:bg-[#252A3A] flex items-center justify-center group-hover:translate-x-1 transition-transform">
-                <ChevronRight className="w-4 h-4 text-[#800020] dark:text-[#F47B20]" />
+              <div className="w-8 h-8 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] text-[#800020] dark:text-[#F47B20] flex items-center justify-center group-hover:translate-x-1 transition-transform">
+                <ChevronRight className="w-4 h-4" />
               </div>
             </div>
           </motion.div>
         </section>
 
-
-        {/* 3.6 RAJASTHAN 41 DISTRICTS ATLAS & MAP QUIZ */}
+        {/* 3.6 RAJASTHAN 41 DISTRICTS ATLAS & MAP */}
         <section>
           <motion.div
             whileTap={{ scale: 0.99 }}
             onClick={() => onOpenRajasthanMap?.()}
-            className="w-full bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] hover:border-[#800020] dark:hover:border-[#F47B20] rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-xs flex items-center justify-between text-left transition-all cursor-pointer group"
+            className="w-full bg-white dark:bg-[#1A1D2B] border border-[#E8D9C0] dark:border-[#31374A] hover:border-[#15803D] dark:hover:border-[#22C55E] rounded-2xl p-3.5 sm:p-4 shadow-xs flex items-center justify-between text-left transition-all cursor-pointer group select-none"
           >
             <div className="flex items-center gap-3 min-w-0 flex-1">
-              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl bg-[#15803D]/10 dark:bg-[#22C55E]/15 text-[#15803D] dark:text-[#22C55E] flex items-center justify-center shrink-0">
-                <Map className="w-5 h-5 sm:w-6 sm:h-6" />
+              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-[#15803D]/10 dark:bg-[#22C55E]/20 text-[#15803D] dark:text-[#22C55E] border border-[#15803D]/20 flex items-center justify-center shrink-0 shadow-xs">
+                <Map className="w-5.5 h-5.5 sm:w-6 sm:h-6" />
               </div>
 
               <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
-                  <h3 className="text-xs sm:text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] leading-tight">
-                    Rajasthan 41 Districts
-                  </h3>
-                  <span className="px-1.5 py-0.5 rounded-md bg-[#15803D]/10 text-[#15803D] dark:text-[#22C55E] text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider">
-                    7 Divisions
-                  </span>
-                  <span className="px-1.5 py-0.5 rounded-md bg-[#C99A45]/15 text-[#946B1E] dark:text-[#C99A45] text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider">
-                    Map Quiz
-                  </span>
-                </div>
-                <p className="text-[10px] sm:text-[11px] font-medium text-[#52576A] dark:text-[#929AB0] truncate leading-tight">
-                  नवीनतम 41 ज़िले व 7 संभाग पुनर्गठन स्वरूप, इतिहास, भूगोल व क्विज़
-                </p>
+                <h3 className="text-[13.5px] sm:text-[15.5px] font-black text-[#171923] dark:text-[#FFF9EF] leading-snug tracking-tight truncate">
+                  राजस्थान 41 ज़िला मैप (41 ज़िले व 7 संभाग)
+                </h3>
               </div>
             </div>
 
             <div className="flex items-center gap-1 shrink-0 pl-2">
-              <span className="hidden sm:inline-block text-xs font-extrabold text-[#15803D] dark:text-[#22C55E]">
-                Open Map
-              </span>
-              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#F7EFE2] dark:bg-[#252A3A] flex items-center justify-center group-hover:translate-x-1 transition-transform">
-                <ChevronRight className="w-4 h-4 text-[#15803D] dark:text-[#22C55E]" />
+              <div className="w-8 h-8 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] text-[#15803D] dark:text-[#22C55E] flex items-center justify-center group-hover:translate-x-1 transition-transform">
+                <ChevronRight className="w-4 h-4" />
               </div>
             </div>
           </motion.div>
         </section>
 
-        {/* 3.7 REALTIME 1v1 & MULTI-FRIEND LIVE QUIZ BATTLE */}
+        {/* 3.7 REALTIME 1v1 LIVE QUIZ BATTLE */}
         <section>
           <motion.div
             whileTap={{ scale: 0.99 }}
             onClick={() => onOpenLiveBattle?.()}
-            className="w-full bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] hover:border-[#800020] dark:hover:border-[#F47B20] rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-xs flex items-center justify-between text-left transition-all cursor-pointer group"
+            className="w-full bg-white dark:bg-[#1A1D2B] border border-[#E8D9C0] dark:border-[#31374A] hover:border-[#F47B20] dark:hover:border-[#C99A45] rounded-2xl p-3.5 sm:p-4 shadow-xs flex items-center justify-between text-left transition-all cursor-pointer group select-none"
           >
             <div className="flex items-center gap-3 min-w-0 flex-1">
-              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl bg-[#C99A45]/15 text-[#946B1E] dark:text-[#E5BC6B] flex items-center justify-center shrink-0">
-                <Swords className="w-5 h-5 sm:w-6 sm:h-6" />
+              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-[#F47B20]/10 dark:bg-[#F47B20]/25 text-[#C85A0A] dark:text-[#F47B20] border border-[#F47B20]/20 flex items-center justify-center shrink-0 shadow-xs">
+                <Swords className="w-5.5 h-5.5 sm:w-6 sm:h-6" />
               </div>
 
               <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
-                  <h3 className="text-xs sm:text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] leading-tight">
-                    Live Quiz Battle
-                  </h3>
-                  <span className="px-1.5 py-0.5 rounded-md bg-[#F47B20]/12 text-[#C85A0A] dark:text-[#F47B20] text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider">
-                    Realtime
-                  </span>
-                  <span className="px-1.5 py-0.5 rounded-md bg-[#800020]/10 dark:bg-[#800020]/30 text-[#800020] dark:text-[#F47B20] text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider">
-                    1v1 &amp; Bot
-                  </span>
-                </div>
-                <p className="text-[10px] sm:text-[11px] font-medium text-[#52576A] dark:text-[#929AB0] truncate leading-tight">
-                  Real-time multiplayer quiz duel with friends or AI bot
-                </p>
+                <h3 className="text-[13.5px] sm:text-[15.5px] font-black text-[#171923] dark:text-[#FFF9EF] leading-snug tracking-tight truncate">
+                  1v1 लाइव क्विज़ बैटल
+                </h3>
               </div>
             </div>
 
             <div className="flex items-center gap-1 shrink-0 pl-2">
-              <span className="hidden sm:inline-block text-xs font-extrabold text-[#946B1E] dark:text-[#C99A45]">
-                Play Battle
-              </span>
-              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#F7EFE2] dark:bg-[#252A3A] flex items-center justify-center group-hover:translate-x-1 transition-transform">
-                <ChevronRight className="w-4 h-4 text-[#946B1E] dark:text-[#C99A45]" />
+              <div className="w-8 h-8 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] text-[#C85A0A] dark:text-[#F47B20] flex items-center justify-center group-hover:translate-x-1 transition-transform">
+                <ChevronRight className="w-4 h-4" />
               </div>
             </div>
           </motion.div>
