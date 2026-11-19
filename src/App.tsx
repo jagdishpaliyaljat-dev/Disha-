@@ -28,7 +28,8 @@ import {
   LogIn, 
   Bell,
   Ban,
-  LogOut
+  LogOut,
+  Video
 } from 'lucide-react';
 import { BottomNav } from './components/BottomNav';
 import { DishaAITutorModal, FloatingAIAssistant } from './components/DishaAITutorModal';
@@ -1517,6 +1518,7 @@ export default function App() {
               {[
                 { id: 'home' as ActiveTab, label: 'Home', icon: Home },
                 { id: 'topics' as ActiveTab, label: 'Subjects', icon: BookOpen },
+                { id: 'videos' as ActiveTab, label: 'Videos', icon: Video },
                 { id: 'live_tests' as ActiveTab, label: 'Tests', icon: Trophy },
                 { id: 'analyzer' as ActiveTab, label: 'Scan', icon: Scan },
                 { id: 'analytics' as ActiveTab, label: 'Analytics', icon: BarChart2 },
@@ -1735,6 +1737,8 @@ export default function App() {
             selectedTopicId={selectedTopicId}
             onSelectTopic={(topId: string | null) => setSelectedTopicId(topId)}
             onStartSession={handleStartSession}
+            isAdmin={isAdmin}
+            onEditTopic={(topic: Topic) => handleEditTopic(topic)}
             onBack={() => {
               if (selectedTopicId) {
                 setSelectedTopicId(null);

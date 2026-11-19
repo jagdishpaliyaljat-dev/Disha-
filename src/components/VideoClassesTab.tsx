@@ -23,6 +23,10 @@ import {
   Share2,
   CheckCircle2,
   AlertCircle,
+  Edit3,
+  Plus,
+  X,
+  Save,
 } from "lucide-react";
 import { triggerHaptic, playClickSound } from "../utils/audioFeedback";
 import {
@@ -47,6 +51,8 @@ interface VideoClassesTabProps {
   onSelectTopic: (id: string | null) => void;
   onStartSession: (session: MCQSession) => void;
   onBack?: () => void;
+  isAdmin?: boolean;
+  onEditTopic?: (topic: Topic) => void;
 }
 
 // Utility to safely extract YouTube video ID from various link formats
@@ -94,9 +100,205 @@ export const VideoClassesTab: React.FC<VideoClassesTabProps> = ({
   onSelectTopic,
   onStartSession,
   onBack,
+  isAdmin = false,
+  onEditTopic,
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeMediaTab, setActiveMediaTab] = useState<"video" | "pdf" | "practice">("video");
+
+  // Local overrides for instant UI update upon editing media
+  const [mediaOverrides, setMediaOverrides] = useState<Record<string, Partial<Topic>>>({});
+
+  // Editing state for video & PDF
+  const [editingTopic, setEditingTopic] = useState<Topic | null>(null);
+  const [formVideoUrl, setFormVideoUrl] = useState("");
+  const [formVideoTitle, setFormVideoTitle] = useState("");
+  const [formVideoDuration, setFormVideoDuration] = useState("");
+  const [formPdfUrl, setFormPdfUrl] = useState("");
+  const [formPdfTitle, setFormPdfTitle] = useState("");
+  const [formSummary, setFormSummary] = useState("");
+  const [isSavingMedia, setIsSavingMedia] = useState(false);
+
+  const handleOpenEditMedia = (topic: Topic) => {
+    triggerHaptic("light");
+    playClickSound();
+    setEditingTopic(topic);
+    setFormVideoUrl(topic.videoUrl || "");
+    setFormVideoTitle(topic.videoTitle || "");
+    setFormVideoDuration(topic.videoDuration || "");
+    setFormPdfUrl(topic.pdfUrl || "");
+    setFormPdfTitle(topic.pdfTitle || "");
+    setFormSummary(topic.guideSummary || "");
+  };
+
+  const handleSaveMedia = async () => {
+    if (!editingTopic) return;
+    setIsSavingMedia(true);
+    triggerHaptic("medium");
+
+    const updated: Topic = {
+      ...editingTopic,
+      videoUrl: formVideoUrl.trim() || undefined,
+      videoTitle: formVideoTitle.trim() || undefined,
+      videoDuration: formVideoDuration.trim() || undefined,
+      pdfUrl: formPdfUrl.trim() || undefined,
+      pdfTitle: formPdfTitle.trim() || undefined,
+      guideSummary: formSummary.trim() || undefined,
+    };
+
+    setMediaOverrides((prev) => ({
+      ...prev,
+      [editingTopic.id]: updated,
+    }));
+
+    if (onEditTopic) {
+      try {
+        await onEditTopic(updated);
+      } catch (e) {
+        console.warn("Failed to propagate topic update", e);
+      }
+    }
+
+    setIsSavingMedia(false);
+    setEditingTopic(null);
+  };
+
+  const renderMediaModal = () => (
+    <AnimatePresence>
+      {editingTopic && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-[120] bg-black/60 backdrop-blur-xs flex items-center justify-center p-4"
+        >
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.95, opacity: 0 }}
+            className="bg-white dark:bg-[#1E2230] rounded-3xl border border-[#E8D9C0] dark:border-[#31374A] max-w-lg w-full p-5 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto"
+          >
+            <div className="flex items-center justify-between pb-3 border-b border-[#E8D9C0] dark:border-[#31374A]">
+              <div>
+                <h3 className="text-base font-black text-[#171923] dark:text-[#FFF9EF]">
+                  वीडियो व PDF लिंक जोड़ें / बदलें
+                </h3>
+                <p className="text-xs text-[#52576A] dark:text-[#929AB0]">
+                  {editingTopic.hindiTitle || editingTopic.title}
+                </p>
+              </div>
+              <button
+                onClick={() => setEditingTopic(null)}
+                className="p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-3.5">
+              <div>
+                <label className="block text-[11px] font-black uppercase text-slate-500 mb-1">
+                  YouTube Video Link / ID
+                </label>
+                <input
+                  type="text"
+                  value={formVideoUrl}
+                  onChange={(e) => setFormVideoUrl(e.target.value)}
+                  placeholder="https://www.youtube.com/watch?v=... या Video ID"
+                  className="w-full h-11 px-3.5 rounded-xl bg-[#FAF5EB] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#800020]/40"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[11px] font-black uppercase text-slate-500 mb-1">
+                    Video Duration
+                  </label>
+                  <input
+                    type="text"
+                    value={formVideoDuration}
+                    onChange={(e) => setFormVideoDuration(e.target.value)}
+                    placeholder="उदा. 24:15 min"
+                    className="w-full h-11 px-3.5 rounded-xl bg-[#FAF5EB] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#800020]/40"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-black uppercase text-slate-500 mb-1">
+                    Video Title (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={formVideoTitle}
+                    onChange={(e) => setFormVideoTitle(e.target.value)}
+                    placeholder="लेक्चर का शीर्षक"
+                    className="w-full h-11 px-3.5 rounded-xl bg-[#FAF5EB] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#800020]/40"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-black uppercase text-slate-500 mb-1">
+                  Google Drive / Direct PDF Link
+                </label>
+                <input
+                  type="text"
+                  value={formPdfUrl}
+                  onChange={(e) => setFormPdfUrl(e.target.value)}
+                  placeholder="https://drive.google.com/file/d/.../view"
+                  className="w-full h-11 px-3.5 rounded-xl bg-[#FAF5EB] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#800020]/40"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-black uppercase text-slate-500 mb-1">
+                  PDF Title (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={formPdfTitle}
+                  onChange={(e) => setFormPdfTitle(e.target.value)}
+                  placeholder="उदा. हस्तलिखित नोट्स भाग 1"
+                  className="w-full h-11 px-3.5 rounded-xl bg-[#FAF5EB] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#800020]/40"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-black uppercase text-slate-500 mb-1">
+                  Guide Summary / Key Concepts
+                </label>
+                <textarea
+                  rows={3}
+                  value={formSummary}
+                  onChange={(e) => setFormSummary(e.target.value)}
+                  placeholder="मुख्य अध्ययन बिंदु जो छात्रों को वीडियो के नीचे दिखेंगे..."
+                  className="w-full p-3 rounded-xl bg-[#FAF5EB] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#800020]/40 resize-none"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-[#E8D9C0] dark:border-[#31374A]">
+              <button
+                type="button"
+                onClick={() => setEditingTopic(null)}
+                className="px-4 py-2 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer"
+              >
+                रद्द करें
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveMedia}
+                disabled={isSavingMedia}
+                className="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-[#800020] hover:bg-[#600018] dark:bg-[#F47B20] dark:hover:bg-[#d66512] transition-all flex items-center gap-1.5 shadow-md active:scale-95 cursor-pointer disabled:opacity-50"
+              >
+                <Save className="w-4 h-4" />
+                <span>{isSavingMedia ? "सेव हो रहा है..." : "सेव करें (Save)"}</span>
+              </button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
 
   // Merge provided subjects with sample video classes so demo data is always available
   const effectiveSubjects = useMemo(() => {
@@ -120,8 +322,17 @@ export const VideoClassesTab: React.FC<VideoClassesTabProps> = ({
         }
       });
     }
-    return list;
-  }, [chapters]);
+    // Apply local media overrides
+    return list.map((c) => ({
+      ...c,
+      topics: (c.topics || []).map((t) => {
+        if (mediaOverrides[t.id]) {
+          return { ...t, ...mediaOverrides[t.id] };
+        }
+        return t;
+      }),
+    }));
+  }, [chapters, mediaOverrides]);
 
   // Current Subject, Chapter, Topic objects
   const currentSubject = useMemo(
@@ -271,6 +482,16 @@ export const VideoClassesTab: React.FC<VideoClassesTabProps> = ({
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#800020] dark:text-[#F47B20] bg-[#800020]/10 dark:bg-[#F47B20]/15 px-2.5 py-1 rounded-full">
               {getSubjectDisplayName(currentSubject)}
             </span>
+            {isAdmin && (
+              <button
+                onClick={() => handleOpenEditMedia(currentTopic)}
+                className="flex items-center gap-1.5 text-xs font-bold text-white bg-[#800020] hover:bg-[#600018] dark:bg-[#F47B20] dark:hover:bg-[#d66512] px-3 py-1.5 rounded-xl shadow-xs active:scale-95 transition-all cursor-pointer"
+                title="वीडियो व PDF लिंक अपडेट करें"
+              >
+                <Edit3 className="w-3.5 h-3.5" />
+                <span>वीडियो / PDF जोड़ें</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -297,6 +518,15 @@ export const VideoClassesTab: React.FC<VideoClassesTabProps> = ({
               <p className="text-xs sm:text-sm text-[#52576A] dark:text-[#929AB0] max-w-md">
                 इस टॉपिक की वीडियो क्लास जल्द ही अपडेट की जाएगी। तब तक आप नीचे दिए गए PDF नोट्स पढ़ सकते हैं या टेस्ट दे सकते हैं।
               </p>
+              {isAdmin && (
+                <button
+                  onClick={() => handleOpenEditMedia(currentTopic)}
+                  className="mt-3 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-[#800020] text-white hover:bg-[#600018] dark:bg-[#F47B20] transition-all cursor-pointer shadow-xs active:scale-95"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>+ वीडियो क्लास लिंक जोड़ें</span>
+                </button>
+              )}
             </div>
           )}
 
@@ -439,6 +669,15 @@ export const VideoClassesTab: React.FC<VideoClassesTabProps> = ({
                 <p className="text-xs text-[#52576A] dark:text-[#929AB0]">
                   एडमिन जल्द ही इस टॉपिक के अध्ययन नोट्स संलग्न करेगा।
                 </p>
+                {isAdmin && (
+                  <button
+                    onClick={() => handleOpenEditMedia(currentTopic)}
+                    className="mt-3 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-[#800020] text-white hover:bg-[#600018] dark:bg-[#F47B20] transition-all cursor-pointer shadow-xs active:scale-95"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>+ PDF नोट्स लिंक जोड़ें</span>
+                  </button>
+                )}
               </div>
             )}
           </div>
@@ -464,6 +703,9 @@ export const VideoClassesTab: React.FC<VideoClassesTabProps> = ({
             </button>
           </div>
         )}
+
+        {/* Render Media Modal */}
+        {renderMediaModal()}
       </div>
     );
   }
@@ -563,6 +805,18 @@ export const VideoClassesTab: React.FC<VideoClassesTabProps> = ({
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0">
+                  {isAdmin && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleOpenEditMedia(topic);
+                      }}
+                      className="p-1.5 sm:p-2 rounded-xl bg-[#FAF5EB] dark:bg-[#262B3D] text-[#800020] dark:text-[#F47B20] hover:bg-[#800020]/15 active:scale-95 transition-all cursor-pointer border border-[#E8D9C0]/50 dark:border-[#31374A]/50"
+                      title="वीडियो / PDF लिंक जोड़ें या बदलें"
+                    >
+                      <Edit3 className="w-3.5 h-3.5" />
+                    </button>
+                  )}
                   <span className="text-xs font-bold text-[#800020] dark:text-[#F47B20] hidden sm:inline">
                     देखें
                   </span>
@@ -572,6 +826,9 @@ export const VideoClassesTab: React.FC<VideoClassesTabProps> = ({
             );
           })}
         </div>
+
+        {/* Render Media Modal */}
+        {renderMediaModal()}
       </div>
     );
   }
@@ -794,6 +1051,9 @@ export const VideoClassesTab: React.FC<VideoClassesTabProps> = ({
           </div>
         </div>
       )}
+
+      {/* Render Media Modal */}
+      {renderMediaModal()}
     </div>
   );
 };

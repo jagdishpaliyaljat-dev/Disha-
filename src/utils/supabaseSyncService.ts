@@ -1000,6 +1000,12 @@ export async function saveTopicToSupabase(topic: Topic): Promise<{ success: bool
         name: enrichedTopic.title,
         hindi_name: enrichedTopic.hindiTitle || enrichedTopic.title,
         order_index: enrichedTopic.number || 0,
+        video_url: enrichedTopic.videoUrl || null,
+        video_duration: enrichedTopic.videoDuration || null,
+        video_title: enrichedTopic.videoTitle || null,
+        pdf_url: enrichedTopic.pdfUrl || null,
+        pdf_title: enrichedTopic.pdfTitle || null,
+        guide_summary: enrichedTopic.guideSummary || null,
         updated_at: new Date().toISOString()
       }, { onConflict: 'id' });
 

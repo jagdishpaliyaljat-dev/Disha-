@@ -67,6 +67,8 @@ export const ManageSyllabusModal: React.FC<ManageSyllabusModalProps> = ({
   const [editingTopic, setEditingTopic] = useState<Topic | null>(null);
   const [topicHindiTitle, setTopicHindiTitle] = useState("");
   const [topicTitle, setTopicTitle] = useState("");
+  const [topicVideoUrl, setTopicVideoUrl] = useState("");
+  const [topicPdfUrl, setTopicPdfUrl] = useState("");
   
   // Chapter selection for bulk actions
   const [selectedChapterIds, setSelectedChapterIds] = useState<Set<string>>(new Set());
@@ -138,6 +140,8 @@ export const ManageSyllabusModal: React.FC<ManageSyllabusModalProps> = ({
     setEditingTopic({ ...t, chapterId: t.chapterId || chapterId || "" });
     setTopicHindiTitle(t.hindiTitle || "");
     setTopicTitle(t.title || "");
+    setTopicVideoUrl(t.videoUrl || "");
+    setTopicPdfUrl(t.pdfUrl || "");
   };
 
   const saveEditTopic = () => {
@@ -149,6 +153,8 @@ export const ManageSyllabusModal: React.FC<ManageSyllabusModalProps> = ({
       chapterId: editingTopic.chapterId,
       hindiTitle: finalHindi || finalTitle || editingTopic.hindiTitle,
       title: finalTitle || finalHindi || editingTopic.title,
+      videoUrl: topicVideoUrl.trim() || undefined,
+      pdfUrl: topicPdfUrl.trim() || undefined,
     });
     setEditingTopic(null);
   };
@@ -579,6 +585,28 @@ export const ManageSyllabusModal: React.FC<ManageSyllabusModalProps> = ({
                                     placeholder="Alternative Title"
                                     className="w-full px-3 py-1.5 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-xs font-bold"
                                   />
+                                </div>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                  <div>
+                                    <label className="text-[10px] font-bold text-slate-500 block mb-0.5">YouTube Video Link / ID</label>
+                                    <input
+                                      type="text"
+                                      value={topicVideoUrl}
+                                      onChange={(e) => setTopicVideoUrl(e.target.value)}
+                                      placeholder="https://youtu.be/... या ID"
+                                      className="w-full px-3 py-1.5 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-xs"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="text-[10px] font-bold text-slate-500 block mb-0.5">Google Drive / Direct PDF URL</label>
+                                    <input
+                                      type="text"
+                                      value={topicPdfUrl}
+                                      onChange={(e) => setTopicPdfUrl(e.target.value)}
+                                      placeholder="https://drive.google.com/..."
+                                      className="w-full px-3 py-1.5 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-xs"
+                                    />
+                                  </div>
                                 </div>
                                 <div className="flex justify-end gap-2 pt-1">
                                   <button

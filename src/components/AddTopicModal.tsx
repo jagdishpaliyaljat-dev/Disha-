@@ -288,6 +288,9 @@ export const AddTopicModal: React.FC<AddTopicModalProps> = ({
       // KEY WORKFLOW BENEFIT: Keep Subject & Chapter intact, clear only topic fields for immediate next entry
       setTitle("");
       setHindiTitle("");
+      setVideoUrl("");
+      setVideoDuration("");
+      setPdfUrl("");
       
       // Auto-focus back to title input for next topic
       setTimeout(() => {
