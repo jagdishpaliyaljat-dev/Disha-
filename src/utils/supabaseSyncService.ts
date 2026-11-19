@@ -156,7 +156,9 @@ export async function syncCurriculumAuthoritative(options?: { force?: boolean })
       const serverQuestionIds = new Set(serverQuestions.map((q: any) => q.id));
       const localMCQs = await idbGetAll<any>(STORES.MCQS);
       for (const q of localMCQs) {
-        if (!q || !q.id || !serverQuestionIds.has(q.id) || deletedQSet.has(q.id) || (typeof q.id === "string" && (q.id.startsWith("q_pilot_") || q.id.startsWith("usr-q-topic_c60f80e6") || q.id.startsWith("usr-q-topic_7eef8754")))) {
+        if (!q || !q.id) continue;
+        if (isUserDraftOrCustom(q)) continue; // Preserve user custom questions
+        if (!serverQuestionIds.has(q.id) || deletedQSet.has(q.id) || (typeof q.id === "string" && (q.id.startsWith("q_pilot_") || q.id.startsWith("usr-q-topic_c60f80e6") || q.id.startsWith("usr-q-topic_7eef8754")))) {
           await idbDelete(STORES.MCQS, q.id);
         }
       }
@@ -172,14 +174,18 @@ export async function syncCurriculumAuthoritative(options?: { force?: boolean })
       // 1. Reconcile Subjects
       const localSubjects = await idbGetAll<Subject>(STORES.SUBJECTS);
       for (const s of localSubjects) {
-        if (!serverSubjIds.has(s.id) || deletedSubSet.has(s.id) || s.id === "sub_raj_hist") {
+        if (isUserDraftOrCustom(s)) {
+          result.preservedDrafts++;
+          continue; // NEVER delete user-added subjects!
+        }
+        if (!serverSubjIds.has(s.id) || deletedSubSet.has(s.id)) {
           await idbDelete(STORES.SUBJECTS, s.id);
           result.prunedSubjects++;
         }
       }
       const subjectsToBatch: Subject[] = [];
       for (const s of serverSubjects) {
-        if (deletedSubSet.has(s.id) || s.id === "sub_raj_hist") continue; // Respect local deletion
+        if (deletedSubSet.has(s.id)) continue; // Respect local deletion
         subjectsToBatch.push({
           id: s.id,
           name: s.name,
@@ -200,14 +206,18 @@ export async function syncCurriculumAuthoritative(options?: { force?: boolean })
       // 2. Reconcile Chapters
       const localChapters = await idbGetAll<Chapter>(STORES.CHAPTERS);
       for (const c of localChapters) {
-        if (!serverChapIds.has(c.id) || deletedChapSet.has(c.id) || c.id === "chap_raj_sources" || c.id === "chap_raj_1857") {
+        if (isUserDraftOrCustom(c)) {
+          result.preservedDrafts++;
+          continue; // NEVER delete user-added chapters!
+        }
+        if (!serverChapIds.has(c.id) || deletedChapSet.has(c.id)) {
           await idbDelete(STORES.CHAPTERS, c.id);
           result.prunedChapters++;
         }
       }
       const chaptersToBatch: Chapter[] = [];
       for (const c of serverChapters) {
-        if (deletedChapSet.has(c.id) || c.id === "chap_raj_sources" || c.id === "chap_raj_1857") continue; // Respect local deletion
+        if (deletedChapSet.has(c.id)) continue; // Respect local deletion
         chaptersToBatch.push({
           id: c.id,
           subjectId: c.subject_id,
@@ -227,8 +237,12 @@ export async function syncCurriculumAuthoritative(options?: { force?: boolean })
       // 3. Reconcile Topics
       const localTopics = await idbGetAll<Topic>(STORES.TOPICS);
       for (const t of localTopics) {
+        if (isUserDraftOrCustom(t)) {
+          result.preservedDrafts++;
+          continue; // NEVER delete user-added topics!
+        }
         const tName = (t as any).name || t.title;
-        if (!serverTopIds.has(t.id) || deletedTopSet.has(t.id) || t.id.startsWith("top_") || tName === "X" || tName === "MCQ 01") {
+        if (!serverTopIds.has(t.id) || deletedTopSet.has(t.id) || tName === "X" || tName === "MCQ 01") {
           await idbDelete(STORES.TOPICS, t.id);
           result.prunedTopics++;
         }
@@ -347,10 +361,10 @@ export async function fetchFullAuthoritativeCurriculum(options?: { force?: boole
   if ((!subs || subs.length === 0) && isSupabaseConfigured()) {
     try {
       const [sRes, cRes, tRes, qRes] = await Promise.all([
-        supabase.from("subjects").select("*").order("order_index", { ascending: true }),
-        supabase.from("chapters").select("*").order("order_index", { ascending: true }),
-        supabase.from("topics").select("*").order("order_index", { ascending: true }),
-        supabase.from("questions").select("*").limit(5000),
+        supabase.from("subjects").select("id,name,hindi_name,description,icon,color,order_index").order("order_index", { ascending: true }),
+        supabase.from("chapters").select("id,subject_id,name,hindi_name,order_index").order("order_index", { ascending: true }),
+        supabase.from("topics").select("id,chapter_id,subject_id,name,hindi_name,order_index").order("order_index", { ascending: true }),
+        supabase.from("questions").select("id,question,options,correct_answer,explanation,subject_id,chapter_id,topic_id,exam,year,level,created_at").order("created_at", { ascending: false }).limit(1000),
       ]);
       if (sRes.data && sRes.data.length > 0) {
         const directSubs: Subject[] = (sRes.data || []).map(s => ({

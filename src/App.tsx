@@ -24,9 +24,10 @@ import {
   ShieldCheck, 
   Search, 
   Sun, 
-  Moon, 
   LogIn, 
-  Bell 
+  Bell,
+  Ban,
+  LogOut
 } from 'lucide-react';
 import { BottomNav } from './components/BottomNav';
 import { DishaAITutorModal, FloatingAIAssistant } from './components/DishaAITutorModal';
@@ -971,6 +972,7 @@ export default function App() {
               displayName: remote.displayName || remote.name || prev.displayName,
               photoURL: remote.photoURL || prev.photoURL,
               status: remote.status || prev.status,
+              blocked: Boolean(remote.blocked || remote.status === "blocked"),
             };
             saveProfile(updated);
             return updated;
@@ -1153,6 +1155,7 @@ export default function App() {
   }, [setQuestionsStore]);
 
   const isAdmin = userProfile ? isUserAdmin(userProfile) : false;
+  const isUserBlocked = Boolean(userProfile?.status === 'blocked' || userProfile?.blocked);
 
   // Track page views dynamically on activeTab navigation
   React.useEffect(() => {
@@ -1610,6 +1613,35 @@ export default function App() {
 
       {/* Main Content Rendering */}
       <main className="flex-1 pb-16 md:pb-6">
+        {isUserBlocked ? (
+          <div className="max-w-xl mx-auto my-12 px-4 animate-in fade-in zoom-in-95 duration-200">
+            <div className="p-6 sm:p-8 bg-white dark:bg-[#111A2E] rounded-3xl border-2 border-rose-500/30 shadow-2xl text-center space-y-6">
+              <div className="w-16 h-16 mx-auto rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 flex items-center justify-center text-rose-600 dark:text-rose-400 shadow-sm">
+                <Ban className="w-8 h-8" />
+              </div>
+              <div className="space-y-2">
+                <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
+                  खाता निलंबित (Account Suspended)
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                  आपका विद्यार्थी खाता प्रशासनिक समीक्षा अथवा सुरक्षा नीति के तहत निलंबित कर दिया गया है। आप वर्तमान में क्विज़, लाइव टेस्ट अथवा AI सेवाओं का उपयोग नहीं कर सकते।
+                </p>
+              </div>
+              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400 space-y-1.5 text-left">
+                <p className="font-semibold text-slate-700 dark:text-slate-300">सहायता एवं अपील हेतु संपर्क करें:</p>
+                <p className="font-mono text-indigo-600 dark:text-indigo-400 select-all">disha2020prep@gmail.com</p>
+              </div>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="px-6 py-2.5 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-bold hover:opacity-90 transition-all cursor-pointer inline-flex items-center gap-2 shadow-md"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>साइन आउट करें</span>
+              </button>
+            </div>
+          </div>
+        ) : (
         <RouteErrorBoundary tabName={activeTab} onNavigateHome={() => setActiveTab('home')}>
         <React.Suspense fallback={<ContentLoader message="सामग्री लोड हो रही है..." submessage="सही दिशा • सटीक तैयारी" minHeight="min-h-[60vh]" />}>
         {activeTab === 'home' && (
@@ -1898,10 +1930,11 @@ export default function App() {
         )}
         </React.Suspense>
         </RouteErrorBoundary>
+        )}
       </main>
 
       {/* Bottom Navigation (Student view only; Admin has its own specialized management bottom bar) */}
-      {activeTab !== 'admin' && (
+      {activeTab !== 'admin' && !isUserBlocked && (
         <OverlayErrorBoundary viewName="Bottom Navigation" fallbackComponent={null}>
           <BottomNav
             activeTab={activeTab}
@@ -1934,7 +1967,7 @@ export default function App() {
       )}
 
       {/* Floating AI Assistant (Student view only; hidden in Admin and active test sessions) */}
-      {activeTab !== 'admin' && (
+      {activeTab !== 'admin' && !isUserBlocked && (
         <FloatingAIAssistant
           onOpen={() => {
             setAiTutorContextQuestion(null);
@@ -1945,7 +1978,7 @@ export default function App() {
       )}
 
       {/* Disha AI Tutor Drawer / Modal */}
-      {isAITutorOpen && (
+      {isAITutorOpen && !isUserBlocked && (
         <DishaAITutorModal
           isOpen={isAITutorOpen}
           onClose={() => {
@@ -2061,7 +2094,7 @@ export default function App() {
         </OverlayErrorBoundary>
       )}
 
-      {isLiveBattleOpen && (
+      {isLiveBattleOpen && !isUserBlocked && (
         <OverlayErrorBoundary
           viewName="Live Quiz Battle"
           onClose={() => setIsLiveBattleOpen(false)}
