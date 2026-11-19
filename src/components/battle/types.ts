@@ -76,6 +76,7 @@ export interface FloatingEmoji {
   emoji: string;
   fromPlayerName: string;
   timestamp: number;
+  xPercent?: number;
 }
 
 export interface BattleState {

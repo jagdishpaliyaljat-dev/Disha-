@@ -246,7 +246,11 @@ export const BattleArenaView: React.FC<BattleArenaViewProps> = ({
                 key={idx}
                 type="button"
                 disabled={hasLockedAnswer || isRevealing}
-                onClick={() => onSelectOption(idx)}
+                onClick={() => {
+                  playClickSound();
+                  triggerHaptic("light");
+                  onSelectOption(idx);
+                }}
                 className={`w-full flex items-center justify-between p-3.5 sm:p-4 rounded-2xl border-2 transition-all active:scale-98 text-left ${buttonStyle}`}
               >
                 <div className="flex items-center gap-3">
@@ -262,12 +266,12 @@ export const BattleArenaView: React.FC<BattleArenaViewProps> = ({
                 <div>
                   {isRevealing ? (
                     isCorrect ? (
-                      <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                      <CheckCircle2 className="w-5 h-5 text-emerald-600 animate-bounce" />
                     ) : isSelected ? (
-                      <XCircle className="w-5 h-5 text-red-500" />
+                      <XCircle className="w-5 h-5 text-red-500 animate-in spin-in-90 duration-200" />
                     ) : null
                   ) : isSelected ? (
-                    <span className="text-[11px] font-bold text-[#800020] dark:text-amber-300 bg-amber-200/90 dark:bg-amber-950/60 px-2.5 py-0.5 rounded-full border border-amber-300 dark:border-amber-600">
+                    <span className="text-[11px] font-bold text-[#800020] dark:text-amber-300 bg-amber-200/90 dark:bg-amber-950/60 px-2.5 py-0.5 rounded-full border border-amber-300 dark:border-amber-600 animate-pulse">
                       Locked ✓
                     </span>
                   ) : null}

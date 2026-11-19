@@ -258,6 +258,7 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
             emoji,
             fromPlayerName,
             timestamp: Date.now(),
+            xPercent: 15 + Math.random() * 70,
           };
           setFloatingEmojis((prev) => [...prev, newEmoji]);
           setTimeout(() => {
@@ -886,6 +887,7 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
       emoji,
       fromPlayerName: playerName,
       timestamp: Date.now(),
+      xPercent: 15 + Math.random() * 70,
     };
     setFloatingEmojis((prev) => [...prev, newEmoji]);
     setTimeout(() => {
@@ -971,8 +973,10 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
         {floatingEmojis.map((e) => (
           <div
             key={e.id}
-            className="absolute bottom-16 left-1/2 transform -translate-x-1/2 flex items-center gap-1.5 animate-bounce text-3xl drop-shadow-lg"
+            className="absolute bottom-16 flex items-center gap-1.5 animate-bounce text-3xl drop-shadow-lg"
             style={{
+              left: `${e.xPercent ?? 50}%`,
+              transform: "translateX(-50%)",
               animation: "floatUp 2.4s ease-out forwards",
             }}
           >
@@ -1543,7 +1547,10 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
             </div>
 
             <div className="relative w-36 h-36 rounded-full border-4 border-amber-400 flex items-center justify-center shadow-[0_0_50px_rgba(245,158,11,0.5)] bg-black/40 my-6 transform animate-pulse">
-              <span className="text-8xl font-black font-mono text-amber-300 drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">
+              <span
+                key={countdownNum}
+                className="text-8xl font-black font-mono text-amber-300 drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)] animate-in zoom-in-50 duration-300"
+              >
                 {countdownNum}
               </span>
             </div>
