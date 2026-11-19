@@ -1411,22 +1411,35 @@ export async function recordStudentAttempt(attempt: {
 }) {
   if (!isSupabaseConfigured()) return;
   try {
+    const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     let uid = attempt.userId;
     if (!uid) {
       const { data: { user } } = await supabase.auth.getUser();
       uid = user?.id;
     }
-    if (!uid || uid === "student_default" || String(uid).startsWith("guest_")) return;
 
-    const isValidUUID = Boolean(attempt.id && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(attempt.id));
+    // In PostgreSQL attempts table, user_id is a UUID referencing auth.users(id) and is nullable.
+    // If uid is a valid UUID, use it; otherwise null so unauthenticated/guest attempts
+    // are still captured in Supabase and visible in Admin Dashboard live activity.
+    const validUserId = (uid && UUID_REGEX.test(uid) && uid !== "student_default" && !String(uid).startsWith("guest_"))
+      ? uid
+      : null;
+
+    const isValidUUID = Boolean(attempt.id && UUID_REGEX.test(attempt.id));
     const row: any = {
       ...(isValidUUID ? { id: attempt.id } : {}),
-      user_id: uid,
+      user_id: validUserId,
       topic_id: attempt.topicId || null,
       subject_id: attempt.subjectId || null,
       score: attempt.score,
       total_questions: attempt.totalQuestions,
-      answers: attempt.answers,
+      answers: {
+        ...(attempt.answers || {}),
+        _student_meta: {
+          clientUserId: attempt.userId || "anonymous",
+          recordedAt: new Date().toISOString()
+        }
+      },
       time_spent_seconds: attempt.timeSpentSeconds
     };
 

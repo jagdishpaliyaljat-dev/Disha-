@@ -105,3 +105,12 @@ export function triggerAdminToast(
     );
   }
 }
+
+export function showAdminToast(
+  message: string,
+  type: "add" | "delete" | "success" | "error" | "info" | "update" = "info",
+  title?: string
+) {
+  triggerAdminToast(type, title || "Admin Notice", message);
+}
+

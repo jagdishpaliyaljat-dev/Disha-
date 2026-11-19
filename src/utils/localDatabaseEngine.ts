@@ -677,7 +677,7 @@ export async function recordLocalAttempt(attempt: QuestionAttemptRecord, userId:
   };
   await idbPut(STORES.USER_ATTEMPTS, record);
 
-  // Queue for next 24-hour sync
+  // Queue for durable offline-first sync
   await enqueueSyncEvent({
     userId,
     eventType: "attempt",
@@ -685,6 +685,25 @@ export async function recordLocalAttempt(attempt: QuestionAttemptRecord, userId:
     operation: "append",
     payload: record,
   });
+
+  // Real-time telemetry: push to Supabase attempts table immediately if online
+  if (typeof navigator === "undefined" || navigator.onLine) {
+    import("./supabaseSyncService").then(({ recordStudentAttempt }) => {
+      recordStudentAttempt({
+        userId,
+        score: attempt.isCorrect ? 1 : 0,
+        totalQuestions: 1,
+        answers: {
+          [attempt.questionId]: {
+            selectedOption: attempt.selectedOption,
+            isCorrect: attempt.isCorrect,
+            timeSpentSeconds: attempt.timeTakenSeconds || 0,
+          },
+        },
+        timeSpentSeconds: attempt.timeTakenSeconds || 0,
+      }).catch(() => {});
+    }).catch(() => {});
+  }
 }
 
 export async function getLocalAttempts(userId?: string): Promise<QuestionAttemptRecord[]> {

@@ -62,45 +62,10 @@ export const QuestionReportDesk: React.FC<QuestionReportDeskProps> = ({
     setLoading(true);
     try {
       const loaded = getStoredReports();
-      if (loaded.length > 0) {
-        setReports(loaded);
-        setLoading(false);
-        return;
-      }
-
-      // Fallback / seed initial realistic doubts
-      const sampleReports: QuestionReport[] = [
-        {
-          id: "rep-1",
-          questionId: questions[0]?.id || "q-101",
-          questionText: questions[0]?.text || "राजस्थान के किस दुर्ग को 'यूनेस्को विश्व धरोहर' में शामिल किया गया है?",
-          subjectName: "राजस्थान का इतिहास व संस्कृति",
-          chapterName: "दुर्ग एवं स्थापत्य",
-          studentName: "राकेश शर्मा (Aspirant)",
-          studentEmail: "rakesh.sharma@gmail.com",
-          issueType: "wrong_answer",
-          studentComment: "सर ऑप्शन में आमेर दुर्ग दिया है, लेकिन व्याख्या में वर्ष 2013 की जगह 2010 लिखा आ रहा है। कृपया वर्ष चेक करें।",
-          reportedAt: new Date(Date.now() - 3600000 * 4).toISOString(),
-          status: "pending"
-        },
-        {
-          id: "rep-2",
-          questionId: questions[1]?.id || "q-102",
-          questionText: questions[1]?.text || "राजस्थान में 1857 की क्रांति का प्रारंभ सर्वप्रथम कहाँ हुआ था?",
-          subjectName: "राजस्थान का इतिहास",
-          chapterName: "1857 की क्रांति",
-          studentName: "सुरेश बिश्नोई",
-          studentEmail: "suresh.b@gmail.com",
-          issueType: "typo",
-          studentComment: "नसीराबाद छावनी की तारीख 28 मई 1857 होनी चाहिए, टाइपिंग में 28 मार्च लिखा हुआ है।",
-          reportedAt: new Date(Date.now() - 3600000 * 18).toISOString(),
-          status: "pending"
-        }
-      ];
-      setReports(sampleReports);
-      saveStoredReports(sampleReports);
+      setReports(loaded);
     } catch (e) {
       console.warn("Using local report buffer", e);
+      setReports([]);
     } finally {
       setLoading(false);
     }

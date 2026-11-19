@@ -88,89 +88,9 @@ function calculateCostUsd(model: string, inputTokens: number, outputTokens: numb
   return Number(cost.toFixed(6));
 }
 
-// Initial seed data generator so admin immediately sees realistic analytics
+// Clean-slate production policy: Zero hardcoded mock AI records
 function generateSeedRecords(): AIUsageRecord[] {
-  const models = ["gemini-3.5-flash-lite", "gemini-3.8-flash", "gemini-2.5-flash"];
-  const queries: { prompt: string; response: string; type: AIUsageRecord["queryType"] }[] = [
-    {
-      prompt: "राजस्थान के 6 यूनेस्को पहाड़ी किलों की याद रखने की ट्रिक बताएं",
-      response: "चीकू गाजर आम ट्रिक: चित्तौड़गढ़, कुम्भलगढ़, गागरोण, जैसलमेर, रणथम्भौर, आमेर...",
-      type: "doubt",
-    },
-    {
-      prompt: "1857 की क्रांति में राजस्थान की 6 सैनिक छावनियां कौन सी थीं?",
-      response: "नसीराबाद, नीमच, देवली, ब्यावर, एरिनपुरा और खेरवाड़ा। ब्यावर व खेरवाड़ा ने भाग नहीं लिया।",
-      type: "doubt",
-    },
-    {
-      prompt: "Please analyze and explain this question: राजस्थान का राज्य पुष्प कौन सा है?",
-      response: "1. सही उत्तर: रोहिड़ा (Tecomella undulata)। 1983 में राज्य पुष्प घोषित किया गया।",
-      type: "question_explain",
-    },
-    {
-      prompt: "RPSC 1/3 नेगेटिव मार्किंग से कैसे बचें और तुक्केबाजी कैसे रोकें?",
-      response: "ऑप्शन एलिमिनेशन मेथड अपनाएं। जिस प्रश्न में 2 विकल्प कट जाएं केवल वहीं रिस्क लें...",
-      type: "exam_strategy",
-    },
-    {
-      prompt: "राजस्थान में सर्वाधिक वन क्षेत्र वाला जिला कौन सा है?",
-      response: "उदयपुर में सर्वाधिक वन क्षेत्र पाया जाता है, जबकि न्यूनतम वन क्षेत्र चूरू में है।",
-      type: "doubt",
-    },
-    {
-      prompt: "Explain RPSC 5th option (Option E) circular guidelines",
-      response: "यदि 10% से अधिक प्रश्नों में कोई भी गोला नहीं भरा जाता तो अभ्यर्थी अयोग्य हो जाएगा।",
-      type: "exam_strategy",
-    },
-    {
-      prompt: "Explain Question: मेहरानगढ़ दुर्ग किस पहाड़ी पर स्थित है?",
-      response: "चिड़ियाटूक पहाड़ी पर स्थित है। राव जोधा ने 1459 ईस्वी में नींव रखी थी।",
-      type: "question_explain",
-    },
-  ];
-
-  const now = new Date();
-  const seed: AIUsageRecord[] = [];
-
-  // Generate 25 historical records over the last 7 days
-  for (let i = 0; i < 28; i++) {
-    const q = queries[i % queries.length];
-    const model = models[i % models.length];
-    const daysAgo = Math.floor(i / 4);
-    const date = new Date(now.getTime() - daysAgo * 24 * 60 * 60 * 1000 - (i % 4) * 3600 * 1000);
-    
-    const inputChars = q.prompt.length;
-    const outputChars = q.response.length * 4;
-    const inputTokens = estimateTokens(q.prompt) + 120; // adding system instruction tokens
-    const outputTokens = estimateTokens(q.response) * 3;
-    const totalTokens = inputTokens + outputTokens;
-    const latencyMs = Math.floor(650 + Math.random() * 800);
-    const cost = calculateCostUsd(model, inputTokens, outputTokens);
-
-    seed.push({
-      id: `ai_log_seed_${i + 1}`,
-      timestamp: date.toISOString(),
-      userId: `user_${(i % 5) + 1}`,
-      userName: ["Jagdish Paliyal", "Aspirant Rahul", "Pooja Sharma", "Sunil Bishnoi", "Anita Meena"][i % 5],
-      provider: "gemini",
-      model,
-      queryType: q.type,
-      inputMessages: 1,
-      outputMessages: 1,
-      inputChars,
-      outputChars,
-      inputTokens,
-      outputTokens,
-      totalTokens,
-      latencyMs,
-      status: "success",
-      promptSnippet: q.prompt.slice(0, 75),
-      responseSnippet: q.response.slice(0, 90),
-      estimatedCostUsd: cost,
-    });
-  }
-
-  return seed;
+  return [];
 }
 
 /**
@@ -281,23 +201,19 @@ export function recordAIUsage(record: {
 function loadRawLogs(): AIUsageRecord[] {
   try {
     if (typeof window === "undefined" || typeof localStorage === "undefined") {
-      return generateSeedRecords();
+      return [];
     }
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) {
-      const seed = generateSeedRecords();
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(seed));
-      return seed;
+      return [];
     }
     const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed) && parsed.length > 0) {
-      return parsed;
+    if (Array.isArray(parsed)) {
+      return parsed.filter((l) => !l.id?.startsWith("ai_log_seed_"));
     }
-    const seed = generateSeedRecords();
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(seed));
-    return seed;
+    return [];
   } catch {
-    return generateSeedRecords();
+    return [];
   }
 }
 
@@ -496,7 +412,7 @@ export async function fetchLiveAIUsageSummary(
       }
 
       const { data, error } = await query;
-      if (!error && Array.isArray(data) && data.length > 0) {
+      if (!error && Array.isArray(data)) {
         const cloudLogs: AIUsageRecord[] = data.map((r: any) => ({
           id: r.id,
           timestamp: r.created_at,
@@ -523,7 +439,8 @@ export async function fetchLiveAIUsageSummary(
         // Merge with local logs to prevent missing any offline records
         const local = loadRawLogs();
         const cloudIds = new Set(cloudLogs.map((l) => l.id));
-        const merged = [...cloudLogs, ...local.filter((l) => !cloudIds.has(l.id))];
+        const merged = [...cloudLogs, ...local.filter((l) => !cloudIds.has(l.id))]
+          .filter((l) => !l.id?.startsWith("ai_log_seed_"));
         try {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(merged.slice(0, 500)));
         } catch {}

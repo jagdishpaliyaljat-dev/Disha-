@@ -979,19 +979,10 @@ export async function flushStudentWriteBuffer(
       (i) => i.status !== "committed" && (!identity || i.userId === identity.userId)
     );
 
-    // Strict 24-Hour Offline-First Policy:
-    // Staging data is durably stored in the local outbox. Network commits to Firestore
-    // are strictly gated and execute only during the coordinated 24-hour sync cycle.
-    if (options.trigger !== "explicit_sync") {
-      return {
-        flushedOutboxItems: 0,
-        totalFirestoreWrites: 0,
-        totalTransactionWrites: 0,
-        remainingPendingQuestions: Object.keys(getStagingBuffer().pendingProgress).length,
-        remainingOutboxItems: pendingOutbox.length,
-        skippedReason: "gated_24h_policy",
-      };
-    }
+    // Real-Time & Offline-First Policy:
+    // Staging data is durably stored in the local outbox. When the browser is online,
+    // pending outbox items (test submissions, session completions, question threshold batches)
+    // are flushed immediately to Supabase PostgreSQL so admin analytics & student records stay live.
 
     if (pendingOutbox.length === 0) {
       return {

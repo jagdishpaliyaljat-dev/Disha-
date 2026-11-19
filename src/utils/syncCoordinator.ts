@@ -272,8 +272,12 @@ class SyncCoordinatorClass {
         for (const evt of pendingEvents) {
           try {
             if (evt.eventType === "attempt") {
+              const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+              const validUserId = (userId && UUID_REGEX.test(userId) && userId !== "student_default" && !String(userId).startsWith("guest_"))
+                ? userId
+                : null;
               const { error: attErr } = await supabase.from("attempts").insert({
-                user_id: userId,
+                user_id: validUserId,
                 topic_id: evt.payload?.topicId || null,
                 subject_id: evt.payload?.subjectId || null,
                 score: evt.payload?.score || 0,

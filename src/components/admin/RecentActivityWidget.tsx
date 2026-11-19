@@ -72,17 +72,7 @@ export const RecentActivityWidget: React.FC<RecentActivityWidgetProps> = ({ refr
       } catch {}
     }
 
-    // Default baseline if completely empty
-    if (list.length === 0) {
-      list.push({
-        id: "act_baseline_admin",
-        type: "auth",
-        title: "jagdishpaliyaljat@gmail.com",
-        subtitle: "Authorized Super Administrator",
-        success: true,
-        timestamp: new Date().toISOString(),
-      });
-    }
+
 
     // Sort by most recent timestamp descending
     list.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());

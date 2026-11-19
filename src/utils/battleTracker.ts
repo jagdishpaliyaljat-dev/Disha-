@@ -52,133 +52,27 @@ export interface BattleAnalyticsSummary {
 const STORAGE_KEY = "disha2020_battle_telemetry_v1";
 const REALTIME_CHANNEL_NAME = "disha_global_battle_monitor";
 
-// Fallback seed history so admin has realistic metrics immediately
-const SEED_BATTLES: LiveBattleRoomRecord[] = [
-  {
-    id: "battle_seed_1",
-    roomCode: "RJ-8241",
-    hostId: "user_paliyal",
-    hostName: "Jagdish Paliyal",
-    hostAvatar: "👑",
-    status: "completed",
-    questionCount: 30,
-    timePerQuestionSec: 10,
-    category: "history",
-    activePlayerCount: 0,
-    totalPlayerCount: 3,
-    players: [
-      { id: "user_paliyal", name: "Jagdish Paliyal", avatar: "👑", isHost: true, score: 2840, correctCount: 26, streak: 9 },
-      { id: "bot_1", name: "Tanjiro", avatar: "⚔️", isBot: true, score: 2510, correctCount: 23, streak: 6 },
-      { id: "user_2", name: "Ramesh Sharma", avatar: "🎯", score: 1980, correctCount: 19, streak: 3 },
-    ],
-    winnerName: "Jagdish Paliyal",
-    winnerScore: 2840,
-    winnerAvatar: "👑",
-    winnerAccuracy: 87,
-    createdAt: new Date(Date.now() - 3600000 * 3).toISOString(),
-    startedAt: new Date(Date.now() - 3600000 * 3 + 20000).toISOString(),
-    endedAt: new Date(Date.now() - 3600000 * 3 + 420000).toISOString(),
-    lastHeartbeat: Date.now() - 3600000 * 3 + 420000,
-  },
-  {
-    id: "battle_seed_2",
-    roomCode: "GK-4491",
-    hostId: "user_surendra",
-    hostName: "Surendra Kumar",
-    hostAvatar: "🦁",
-    status: "completed",
-    questionCount: 50,
-    timePerQuestionSec: 10,
-    category: "all",
-    activePlayerCount: 0,
-    totalPlayerCount: 4,
-    players: [
-      { id: "bot_2", name: "Goku", avatar: "⚡", isBot: true, score: 4620, correctCount: 42, streak: 11 },
-      { id: "user_surendra", name: "Surendra Kumar", avatar: "🦁", isHost: true, score: 4350, correctCount: 39, streak: 8 },
-      { id: "user_3", name: "Pooja Choudhary", avatar: "🌸", score: 3820, correctCount: 35, streak: 5 },
-      { id: "bot_3", name: "Naruto", avatar: "🍥", isBot: true, score: 3410, correctCount: 31, streak: 4 },
-    ],
-    winnerName: "Goku",
-    winnerScore: 4620,
-    winnerAvatar: "⚡",
-    winnerAccuracy: 84,
-    createdAt: new Date(Date.now() - 3600000 * 7).toISOString(),
-    startedAt: new Date(Date.now() - 3600000 * 7 + 15000).toISOString(),
-    endedAt: new Date(Date.now() - 3600000 * 7 + 650000).toISOString(),
-    lastHeartbeat: Date.now() - 3600000 * 7 + 650000,
-  },
-  {
-    id: "battle_seed_3",
-    roomCode: "EX-1092",
-    hostId: "user_manish",
-    hostName: "Manish Bishnoi",
-    hostAvatar: "🦅",
-    status: "completed",
-    questionCount: 30,
-    timePerQuestionSec: 5,
-    category: "geography",
-    activePlayerCount: 0,
-    totalPlayerCount: 2,
-    players: [
-      { id: "user_manish", name: "Manish Bishnoi", avatar: "🦅", isHost: true, score: 2980, correctCount: 27, streak: 12 },
-      { id: "bot_4", name: "Zenitsu", avatar: "⚡", isBot: true, score: 2420, correctCount: 22, streak: 5 },
-    ],
-    winnerName: "Manish Bishnoi",
-    winnerScore: 2980,
-    winnerAvatar: "🦅",
-    winnerAccuracy: 90,
-    createdAt: new Date(Date.now() - 3600000 * 18).toISOString(),
-    startedAt: new Date(Date.now() - 3600000 * 18 + 10000).toISOString(),
-    endedAt: new Date(Date.now() - 3600000 * 18 + 240000).toISOString(),
-    lastHeartbeat: Date.now() - 3600000 * 18 + 240000,
-  },
-  {
-    id: "battle_seed_4",
-    roomCode: "BT-7721",
-    hostId: "user_anil",
-    hostName: "Anil Meena",
-    hostAvatar: "🔥",
-    status: "completed",
-    questionCount: 60,
-    timePerQuestionSec: 15,
-    category: "culture",
-    activePlayerCount: 0,
-    totalPlayerCount: 3,
-    players: [
-      { id: "user_anil", name: "Anil Meena", avatar: "🔥", isHost: true, score: 5410, correctCount: 51, streak: 14 },
-      { id: "user_vikas", name: "Vikas Jakhar", avatar: "🌟", score: 4980, correctCount: 46, streak: 9 },
-      { id: "bot_5", name: "Levi", avatar: "⚔️", isBot: true, score: 4720, correctCount: 44, streak: 7 },
-    ],
-    winnerName: "Anil Meena",
-    winnerScore: 5410,
-    winnerAvatar: "🔥",
-    winnerAccuracy: 85,
-    createdAt: new Date(Date.now() - 3600000 * 28).toISOString(),
-    startedAt: new Date(Date.now() - 3600000 * 28 + 30000).toISOString(),
-    endedAt: new Date(Date.now() - 3600000 * 28 + 1100000).toISOString(),
-    lastHeartbeat: Date.now() - 3600000 * 28 + 1100000,
-  },
-];
+// Clean-slate production policy: Zero hardcoded mock battle records
+const SEED_BATTLES: LiveBattleRoomRecord[] = [];
 
 // Helper to load battle records from localStorage
 export function loadStoredBattleRecords(): LiveBattleRoomRecord[] {
   try {
     if (typeof window === "undefined" || !window.localStorage) {
-      return SEED_BATTLES;
+      return [];
     }
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(SEED_BATTLES));
-      return SEED_BATTLES;
+      return [];
     }
     const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed) && parsed.length > 0) {
-      return parsed;
+    if (Array.isArray(parsed)) {
+      return parsed.filter((r) => !r.id.startsWith("battle_seed_"));
     }
   } catch (err) {
     console.warn("Failed to parse stored battle telemetry:", err);
   }
-  return SEED_BATTLES;
+  return [];
 }
 
 // Helper to save battle records to localStorage
@@ -302,6 +196,7 @@ async function syncBattleRecordToCloud(record: LiveBattleRoomRecord): Promise<vo
       started_at: record.startedAt || null,
       ended_at: record.endedAt || null,
       last_heartbeat: record.lastHeartbeat || Date.now(),
+      updated_at: new Date().toISOString(),
     });
   } catch (err) {
     console.warn("Failed to sync battle room to Supabase:", err);
@@ -608,7 +503,7 @@ export async function fetchLiveBattleAnalyticsSummary(): Promise<BattleAnalytics
         .order("created_at", { ascending: false })
         .limit(100);
 
-      if (!error && Array.isArray(data) && data.length > 0) {
+      if (!error && Array.isArray(data)) {
         const cloudRecords: LiveBattleRoomRecord[] = data.map((r: any) => ({
           id: r.id,
           roomCode: r.room_code,
@@ -637,9 +532,11 @@ export async function fetchLiveBattleAnalyticsSummary(): Promise<BattleAnalytics
         localRecords.forEach((lr) => mergedMap.set(lr.id, lr));
         cloudRecords.forEach((cr) => mergedMap.set(cr.id, cr));
 
-        const allRecords = Array.from(mergedMap.values()).sort(
-          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        );
+        const allRecords = Array.from(mergedMap.values())
+          .filter((r) => !r.id.startsWith("battle_seed_"))
+          .sort(
+            (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
         saveStoredBattleRecords(allRecords);
         return computeBattleSummaryFromRecords(allRecords);
       }
@@ -654,5 +551,10 @@ export async function fetchLiveBattleAnalyticsSummary(): Promise<BattleAnalytics
  * Clear or reset battle history in localStorage
  */
 export function clearBattleHistory(): void {
-  saveStoredBattleRecords(SEED_BATTLES);
+  saveStoredBattleRecords([]);
+  try {
+    if (typeof window !== "undefined" && window.localStorage) {
+      window.localStorage.removeItem(STORAGE_KEY);
+    }
+  } catch {}
 }

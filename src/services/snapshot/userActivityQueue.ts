@@ -148,8 +148,12 @@ export class UserActivityQueue {
       for (const ev of batchToFlush) {
         try {
           if (ev.eventType === "attempt" && (ev.payload?.questionId || ev.payload?.topicId)) {
+            const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+            const validUserId = (ev.userId && UUID_REGEX.test(ev.userId) && ev.userId !== "student_default" && !String(ev.userId).startsWith("guest_"))
+              ? ev.userId
+              : null;
             const attemptRow: any = {
-              user_id: ev.userId,
+              user_id: validUserId,
               topic_id: ev.payload.topicId || null,
               subject_id: ev.payload.subjectId || null,
               score: typeof ev.payload.score === "number" ? Math.round(ev.payload.score) : (ev.payload.isCorrect ? 1 : 0),
