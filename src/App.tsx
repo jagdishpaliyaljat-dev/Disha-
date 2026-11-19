@@ -24,6 +24,7 @@ import {
   ShieldCheck, 
   Search, 
   Sun, 
+  Moon,
   LogIn, 
   Bell,
   Ban,
@@ -139,6 +140,7 @@ function safeLazy<T extends React.ComponentType<any>>(
 
 const HomeTab = safeLazy<typeof import('./components/HomeTab').HomeTab>(() => import('./components/HomeTab'), 'HomeTab');
 const TopicsTab = safeLazy<typeof import('./components/TopicsTab').TopicsTab>(() => import('./components/TopicsTab'), 'TopicsTab');
+const VideoClassesTab = safeLazy<typeof import('./components/VideoClassesTab').VideoClassesTab>(() => import('./components/VideoClassesTab'), 'VideoClassesTab');
 const ProfileTab = safeLazy<typeof import('./components/ProfileTab').ProfileTab>(() => import('./components/ProfileTab'), 'ProfileTab');
 const AdminTab = safeLazy<typeof import('./components/AdminTab').AdminTab>(() => import('./components/AdminTab'), 'AdminTab');
 const PYQVaultTab = safeLazy<typeof import('./components/PYQVaultTab').PYQVaultTab>(() => import('./components/PYQVaultTab'), 'PYQVaultTab');
@@ -1701,6 +1703,34 @@ export default function App() {
             onOpenPDFExport={() => setIsPDFOpen(true)}
             onBack={() => {
               // Hierarchical state-aware back navigation
+              if (selectedTopicId) {
+                setSelectedTopicId(null);
+              } else if (selectedChapterId) {
+                setSelectedChapterId(null);
+              } else if (selectedSubjectId) {
+                setSelectedSubjectId(null);
+              } else if (typeof window !== 'undefined' && window.history.length > 1) {
+                window.history.back();
+              } else {
+                setActiveTab('home');
+              }
+            }}
+          />
+        )}
+
+        {activeTab === 'videos' && (
+          <VideoClassesTab
+            subjects={combinedSubjects}
+            chapters={combinedChapters}
+            progressStore={progressStore}
+            selectedSubjectId={selectedSubjectId}
+            onSelectSubject={(subId: string | null) => setSelectedSubjectId(subId)}
+            selectedChapterId={selectedChapterId}
+            onSelectChapter={(chapId: string | null) => setSelectedChapterId(chapId)}
+            selectedTopicId={selectedTopicId}
+            onSelectTopic={(topId: string | null) => setSelectedTopicId(topId)}
+            onStartSession={handleStartSession}
+            onBack={() => {
               if (selectedTopicId) {
                 setSelectedTopicId(null);
               } else if (selectedChapterId) {

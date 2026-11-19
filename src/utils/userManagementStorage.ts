@@ -328,7 +328,7 @@ export async function updateUserAccountStatus(
 export async function updateUserRole(userId: string, newRole: "admin" | "student" | "user"): Promise<void> {
   const currentAdmin = loadUserProfile();
   if (!isSuperAdmin(currentAdmin)) {
-    throw new Error("Unauthorized: केवल मुख्य प्रशासक (Super Admin) ही एडमिन बना या हटा सकते हैं (Unauthorized: Only super admins can update roles)।");
+    throw new Error("अनधिकृत: केवल मुख्य प्रशासक (Super Admin) ही एडमिन बना या हटा सकते हैं (Unauthorized: Only super admins can update roles)।");
   }
 
   // Prevent demoting a Super Admin

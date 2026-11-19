@@ -100,13 +100,17 @@ export function recordAIUsage(record: {
   provider?: string;
   model?: string;
   queryType?: AIUsageRecord["queryType"];
-  prompt: string;
+  prompt?: string;
   response?: string;
   latencyMs?: number;
   status?: "success" | "error";
   errorMessage?: string;
   inputTokens?: number;
   outputTokens?: number;
+  inputChars?: number;
+  outputChars?: number;
+  promptSnippet?: string;
+  responseSnippet?: string;
 }): AIUsageRecord {
   const profile = loadUserProfile();
   const userName = profile?.full_name || profile?.name || "Student";
@@ -118,10 +122,11 @@ export function recordAIUsage(record: {
   const latencyMs = record.latencyMs || 850;
   const status = record.status || "success";
 
-  const inputChars = record.prompt.length;
-  const outputChars = (record.response || "").length;
+  const rawPrompt = record.prompt || record.promptSnippet || "";
+  const inputChars = record.inputChars !== undefined ? record.inputChars : rawPrompt.length;
+  const outputChars = record.outputChars !== undefined ? record.outputChars : (record.response || "").length;
 
-  const inTok = record.inputTokens || (estimateTokens(record.prompt) + 150); // account for system prompt
+  const inTok = record.inputTokens || (estimateTokens(rawPrompt) + 150); // account for system prompt
   const outTok = record.outputTokens || (record.response ? estimateTokens(record.response) : 0);
   const totalTokens = inTok + outTok;
   const cost = calculateCostUsd(model, inTok, outTok);
@@ -144,8 +149,8 @@ export function recordAIUsage(record: {
     latencyMs,
     status,
     errorMessage: record.errorMessage,
-    promptSnippet: record.prompt.slice(0, 80),
-    responseSnippet: (record.response || "").slice(0, 100),
+    promptSnippet: record.promptSnippet || rawPrompt.slice(0, 80),
+    responseSnippet: record.responseSnippet || (record.response || "").slice(0, 100),
     estimatedCostUsd: cost,
   };
 

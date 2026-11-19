@@ -1,6 +1,6 @@
 import React from "react";
 import { ActiveTab } from "../types";
-import { Home, BookOpen, User, Scan, Trophy, ShieldCheck } from "lucide-react";
+import { Home, BookOpen, User, Scan, Trophy, ShieldCheck, PlaySquare } from "lucide-react";
 import { triggerHaptic, playClickSound } from "../utils/audioFeedback";
 
 interface BottomNavProps {
@@ -19,6 +19,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
   const items = [
     { id: "home" as ActiveTab, label: "Home", icon: Home },
     { id: "topics" as ActiveTab, label: "Subjects", icon: BookOpen },
+    { id: "videos" as ActiveTab, label: "Videos", icon: PlaySquare },
     { id: "analyzer" as ActiveTab, label: "Paper Scan", icon: Scan },
     { id: "live_tests" as ActiveTab, label: "Tests", icon: Trophy, hasLiveIndicator: true },
   ];

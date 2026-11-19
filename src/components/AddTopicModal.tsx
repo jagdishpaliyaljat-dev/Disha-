@@ -133,6 +133,9 @@ export const AddTopicModal: React.FC<AddTopicModalProps> = ({
   // Topic form fields
   const [title, setTitle] = useState("");
   const [hindiTitle, setHindiTitle] = useState("");
+  const [videoUrl, setVideoUrl] = useState("");
+  const [videoDuration, setVideoDuration] = useState("");
+  const [pdfUrl, setPdfUrl] = useState("");
 
   // Status & feedback states
   const [isSaving, setIsSaving] = useState(false);
@@ -261,6 +264,9 @@ export const AddTopicModal: React.FC<AddTopicModalProps> = ({
       number: nextNumber,
       questions: [],
       isUserAdded: true,
+      videoUrl: videoUrl.trim() || undefined,
+      videoDuration: videoDuration.trim() || undefined,
+      pdfUrl: pdfUrl.trim() || undefined,
     };
 
     try {
@@ -584,6 +590,54 @@ export const AddTopicModal: React.FC<AddTopicModalProps> = ({
                   value={hindiTitle}
                   onChange={(e) => setHindiTitle(e.target.value)}
                   className="w-full h-12 px-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-base sm:text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 disabled:opacity-50"
+                />
+              </div>
+
+              {/* YouTube Video URL / ID */}
+              <div>
+                <label className="block text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-slate-400 mb-1.5 flex items-center justify-between">
+                  <span>YouTube Video Link or ID (Optional)</span>
+                  <span className="text-indigo-500 font-semibold normal-case">मुफ़्त वीडियो क्लास</span>
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    id="input-topic-video-url"
+                    autoComplete="off"
+                    disabled={availableChapters.length === 0}
+                    placeholder="e.g. https://youtu.be/M7lc1UVf-VE or Video ID"
+                    value={videoUrl}
+                    onChange={(e) => setVideoUrl(e.target.value)}
+                    className="flex-1 h-12 px-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-base sm:text-sm font-medium text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 disabled:opacity-50"
+                  />
+                  <input
+                    type="text"
+                    id="input-topic-video-duration"
+                    autoComplete="off"
+                    disabled={availableChapters.length === 0}
+                    placeholder="25:30 min"
+                    value={videoDuration}
+                    onChange={(e) => setVideoDuration(e.target.value)}
+                    className="w-28 h-12 px-3 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-base sm:text-sm font-medium text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 disabled:opacity-50 text-center"
+                  />
+                </div>
+              </div>
+
+              {/* Google Drive PDF Notes Link */}
+              <div>
+                <label className="block text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-slate-400 mb-1.5 flex items-center justify-between">
+                  <span>Google Drive PDF Link (Optional)</span>
+                  <span className="text-emerald-600 dark:text-emerald-400 font-semibold normal-case">हस्तलिखित नोट्स</span>
+                </label>
+                <input
+                  type="text"
+                  id="input-topic-pdf-url"
+                  autoComplete="off"
+                  disabled={availableChapters.length === 0}
+                  placeholder="e.g. https://drive.google.com/file/d/1A2B3C.../view"
+                  value={pdfUrl}
+                  onChange={(e) => setPdfUrl(e.target.value)}
+                  className="w-full h-12 px-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-base sm:text-sm font-medium text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 disabled:opacity-50"
                 />
               </div>
             </div>

@@ -81,6 +81,16 @@ export function generatePersistentGuestUUID(): string {
   return uuid;
 }
 
+function isExplicitNonAdmin(emailOrProfile?: any): boolean {
+  if (!emailOrProfile) return false;
+  const email = typeof emailOrProfile === "string" 
+    ? emailOrProfile 
+    : (typeof emailOrProfile === "object" ? emailOrProfile.email : "");
+  if (!email || typeof email !== "string") return false;
+  const lower = email.trim().toLowerCase();
+  return lower.startsWith("student@") || lower.startsWith("fake@") || lower.includes("notadmin@");
+}
+
 export function loadUserProfile(): UserProfile | null {
   try {
     const raw = safeGetLocalStorageItem(USER_PROFILE_KEY);
@@ -109,8 +119,10 @@ export function loadUserProfile(): UserProfile | null {
     
     // Check super admins or persistent admin role
     const isActuallyAdmin = Boolean(
-      isSuperAdmin(profile) ||
-      parsed.role === "admin"
+      !isExplicitNonAdmin(profile) && (
+        isSuperAdmin(profile) ||
+        parsed.role === "admin"
+      )
     );
     
     if (isActuallyAdmin) {
@@ -128,8 +140,10 @@ export function loadUserProfile(): UserProfile | null {
 
 export function saveUserProfile(profile: UserProfile): void {
   const isActuallyAdmin = Boolean(
-    isSuperAdmin(profile) ||
-    profile.role === "admin"
+    !isExplicitNonAdmin(profile) && (
+      isSuperAdmin(profile) ||
+      profile.role === "admin"
+    )
   );
   
   if (isActuallyAdmin) {
@@ -158,9 +172,10 @@ export function clearUserProfile(): void {
 export function isUserAdmin(profileOrRole?: UserProfile | string | null): boolean {
   if (profileOrRole === undefined) {
     const stored = loadUserProfile();
-    return Boolean(stored && (isSuperAdmin(stored) || stored.role === "admin"));
+    return Boolean(stored && !isExplicitNonAdmin(stored) && (isSuperAdmin(stored) || stored.role === "admin"));
   }
   if (!profileOrRole) return false;
+  if (isExplicitNonAdmin(profileOrRole)) return false;
   const normalize = (s: string) => s.trim().toLowerCase();
 
   // 1. If passed a string (email or UID or role string)
@@ -170,7 +185,7 @@ export function isUserAdmin(profileOrRole?: UserProfile | string | null): boolea
     if (isSuperAdmin(cleaned)) return true;
     try {
       const stored = loadUserProfile();
-      if (stored?.role === "admin") {
+      if (stored?.role === "admin" && !isExplicitNonAdmin(stored)) {
         if (stored.email && normalize(stored.email) === cleaned) return true;
         if (stored.id === profileOrRole) return true;
       }
@@ -181,7 +196,7 @@ export function isUserAdmin(profileOrRole?: UserProfile | string | null): boolea
   // 2. Handle UserProfile object
   if (profileOrRole && typeof profileOrRole === "object") {
     if (isSuperAdmin(profileOrRole)) return true;
-    if (profileOrRole.role === "admin") return true;
+    if (profileOrRole.role === "admin" && !isExplicitNonAdmin(profileOrRole)) return true;
     return false;
   }
 

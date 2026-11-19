@@ -15,6 +15,7 @@ export interface ParsedNavState {
 export const KNOWN_TABS: readonly ActiveTab[] = [
   "home",
   "topics",
+  "videos",
   "pyq_vault",
   "live_tests",
   "test_series",
@@ -98,6 +99,16 @@ export function resolvePathToNavigationState(
     cleanPath.startsWith("/topics/")
   ) {
     tab = "topics";
+  }
+  // 4b. Videos / Classes
+  else if (
+    cleanPath === "/videos" ||
+    cleanPath === "/classes" ||
+    cleanPath === "/video-classes" ||
+    cleanPath.startsWith("/videos/") ||
+    cleanPath.startsWith("/classes/")
+  ) {
+    tab = "videos";
   }
   // 5. PYQ Vault
   else if (
@@ -236,14 +247,14 @@ export function buildCanonicalPath(
   }
 
   // 6. Topics with query parameters
-  if (tab === "topics") {
+  if (tab === "topics" || tab === "videos") {
     const params = new URLSearchParams();
     if (subjectId) params.set("subject", subjectId);
     if (chapterId) params.set("chapter", chapterId);
     if (topicId) params.set("topic", topicId);
     if (hasSession) params.set("session", "1");
     const qs = params.toString();
-    return `/topics${qs ? `?${qs}` : ""}`;
+    return `/${tab}${qs ? `?${qs}` : ""}`;
   }
 
   // 7. Other standard tabs (convert underscore to kebab-case for canonical URLs)
