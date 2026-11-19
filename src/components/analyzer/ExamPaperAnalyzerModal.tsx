@@ -201,7 +201,7 @@ export const ExamPaperAnalyzerModal: React.FC<ExamPaperAnalyzerModalProps> = ({
 
         recordAIUsage({
           queryType: "exam_ocr_extraction",
-          model: "gemini-3.5-flash-lite",
+          model: "gemini-2.0-flash",
           inputChars: rawText ? rawText.length : 1500,
           outputChars: JSON.stringify(normalized).length,
           status: "success",

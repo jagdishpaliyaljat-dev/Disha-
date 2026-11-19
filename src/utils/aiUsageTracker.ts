@@ -60,6 +60,9 @@ const USD_TO_INR = 87.5;
 
 // Pricing per million tokens (USD)
 const MODEL_PRICING: Record<string, { inputPerM: number; outputPerM: number }> = {
+  "gemini-2.0-flash": { inputPerM: 0.10, outputPerM: 0.40 },
+  "gemini-1.5-flash": { inputPerM: 0.075, outputPerM: 0.30 },
+  "gemini-2.0-flash-lite": { inputPerM: 0.075, outputPerM: 0.30 },
   "gemini-3.5-flash-lite": { inputPerM: 0.075, outputPerM: 0.30 },
   "gemini-3.8-flash": { inputPerM: 0.15, outputPerM: 0.60 },
   "gemini-3.1-flash-lite": { inputPerM: 0.075, outputPerM: 0.30 },
@@ -117,7 +120,7 @@ export function recordAIUsage(record: {
   const userId = profile?.id || "anonymous";
 
   const provider = record.provider || "gemini";
-  const model = record.model || "gemini-3.5-flash-lite";
+  const model = record.model || "gemini-2.0-flash";
   const queryType = record.queryType || "doubt";
   const latencyMs = record.latencyMs || 850;
   const status = record.status || "success";
@@ -277,7 +280,7 @@ export function getAIUsageSummary(timeframe: "today" | "7days" | "30days" | "all
     }
 
     // Model breakdown
-    const m = log.model || "gemini-3.5-flash-lite";
+    const m = log.model || "gemini-2.0-flash";
     if (!modelBreakdown[m]) {
       modelBreakdown[m] = { count: 0, inputTokens: 0, outputTokens: 0, totalTokens: 0, costUsd: 0 };
     }
@@ -331,7 +334,7 @@ export function getAIUsageSummary(timeframe: "today" | "7days" | "30days" | "all
   const totalCostInr = Number((totalCostUsd * USD_TO_INR).toFixed(2));
 
   // Determine active model from most used
-  let activeModel = "gemini-3.5-flash-lite";
+  let activeModel = "gemini-2.0-flash";
   let maxModelCount = -1;
   Object.entries(modelBreakdown).forEach(([mName, val]) => {
     if (val.count > maxModelCount) {
@@ -424,7 +427,7 @@ export async function fetchLiveAIUsageSummary(
           userId: r.user_id || "anonymous",
           userName: r.user_name || "Student",
           provider: r.provider || "gemini",
-          model: r.model || "gemini-3.5-flash-lite",
+          model: r.model || "gemini-2.0-flash",
           queryType: r.query_type || "doubt",
           inputMessages: r.input_messages || 1,
           outputMessages: r.output_messages || 1,
@@ -514,7 +517,7 @@ function computeSummaryFromLogs(
       errorCount++;
     }
 
-    const m = log.model || "gemini-3.5-flash-lite";
+    const m = log.model || "gemini-2.0-flash";
     if (!modelBreakdown[m]) {
       modelBreakdown[m] = { count: 0, inputTokens: 0, outputTokens: 0, totalTokens: 0, costUsd: 0 };
     }
@@ -564,7 +567,7 @@ function computeSummaryFromLogs(
   const successRate = totalCalls > 0 ? Number(((successCount / totalCalls) * 100).toFixed(1)) : 100;
   const totalCostInr = Number((totalCostUsd * USD_TO_INR).toFixed(2));
 
-  let activeModel = "gemini-3.5-flash-lite";
+  let activeModel = "gemini-2.0-flash";
   let maxModelCount = -1;
   Object.entries(modelBreakdown).forEach(([mName, val]) => {
     if (val.count > maxModelCount) {

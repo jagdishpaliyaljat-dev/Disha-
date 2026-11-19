@@ -33,6 +33,7 @@ import {
   getTopicDisplayName,
   getTopicSecondaryTitle,
 } from "../utils/curriculumUtils";
+import { SAMPLE_VIDEO_SUBJECTS, SAMPLE_VIDEO_CHAPTERS } from "../data/sampleVideoClasses";
 
 interface VideoClassesTabProps {
   subjects: Subject[];
@@ -97,18 +98,43 @@ export const VideoClassesTab: React.FC<VideoClassesTabProps> = ({
   const [searchQuery, setSearchQuery] = useState("");
   const [activeMediaTab, setActiveMediaTab] = useState<"video" | "pdf" | "practice">("video");
 
+  // Merge provided subjects with sample video classes so demo data is always available
+  const effectiveSubjects = useMemo(() => {
+    const list = [...SAMPLE_VIDEO_SUBJECTS];
+    if (subjects && subjects.length > 0) {
+      subjects.forEach((s) => {
+        if (!list.some((demo) => demo.id === s.id)) {
+          list.push(s);
+        }
+      });
+    }
+    return list;
+  }, [subjects]);
+
+  const effectiveChapters = useMemo(() => {
+    const list = [...SAMPLE_VIDEO_CHAPTERS];
+    if (chapters && chapters.length > 0) {
+      chapters.forEach((c) => {
+        if (!list.some((demo) => demo.id === c.id)) {
+          list.push(c);
+        }
+      });
+    }
+    return list;
+  }, [chapters]);
+
   // Current Subject, Chapter, Topic objects
   const currentSubject = useMemo(
-    () => subjects.find((s) => s.id === selectedSubjectId) || null,
-    [subjects, selectedSubjectId]
+    () => effectiveSubjects.find((s) => s.id === selectedSubjectId) || null,
+    [effectiveSubjects, selectedSubjectId]
   );
 
   const currentSubjectChapters = useMemo(() => {
     if (!selectedSubjectId) return [];
-    return chapters.filter(
-      (c) => c.subjectId === selectedSubjectId || (!c.subjectId && selectedSubjectId === subjects[0]?.id)
+    return effectiveChapters.filter(
+      (c) => c.subjectId === selectedSubjectId || (!c.subjectId && selectedSubjectId === effectiveSubjects[0]?.id)
     );
-  }, [chapters, selectedSubjectId, subjects]);
+  }, [effectiveChapters, selectedSubjectId, effectiveSubjects]);
 
   const currentChapter = useMemo(
     () => currentSubjectChapters.find((c) => c.id === selectedChapterId) || null,
@@ -123,9 +149,9 @@ export const VideoClassesTab: React.FC<VideoClassesTabProps> = ({
   // Video stats per subject
   const subjectStats = useMemo(() => {
     const stats: Record<string, { totalTopics: number; videoCount: number; pdfCount: number }> = {};
-    subjects.forEach((sub) => {
-      const subChaps = chapters.filter(
-        (c) => c.subjectId === sub.id || (!c.subjectId && sub.id === subjects[0]?.id)
+    effectiveSubjects.forEach((sub) => {
+      const subChaps = effectiveChapters.filter(
+        (c) => c.subjectId === sub.id || (!c.subjectId && sub.id === effectiveSubjects[0]?.id)
       );
       let totalTopics = 0;
       let videoCount = 0;
@@ -142,7 +168,7 @@ export const VideoClassesTab: React.FC<VideoClassesTabProps> = ({
       stats[sub.id] = { totalTopics, videoCount, pdfCount };
     });
     return stats;
-  }, [subjects, chapters]);
+  }, [effectiveSubjects, effectiveChapters]);
 
   // Global search across topics
   const searchResults = useMemo(() => {
@@ -150,9 +176,9 @@ export const VideoClassesTab: React.FC<VideoClassesTabProps> = ({
     const q = searchQuery.toLowerCase().trim();
     const results: { subject: Subject; chapter: Chapter; topic: Topic }[] = [];
 
-    subjects.forEach((sub) => {
-      const subChaps = chapters.filter(
-        (c) => c.subjectId === sub.id || (!c.subjectId && sub.id === subjects[0]?.id)
+    effectiveSubjects.forEach((sub) => {
+      const subChaps = effectiveChapters.filter(
+        (c) => c.subjectId === sub.id || (!c.subjectId && sub.id === effectiveSubjects[0]?.id)
       );
       subChaps.forEach((chap) => {
         chap.topics.forEach((topic) => {
@@ -168,7 +194,7 @@ export const VideoClassesTab: React.FC<VideoClassesTabProps> = ({
     });
 
     return results.slice(0, 30);
-  }, [searchQuery, subjects, chapters]);
+  }, [searchQuery, effectiveSubjects, effectiveChapters]);
 
   // Handlers
   const handleSubjectClick = (subId: string) => {
@@ -715,11 +741,11 @@ export const VideoClassesTab: React.FC<VideoClassesTabProps> = ({
         <div>
           <h2 className="text-xs sm:text-sm font-bold text-[#52576A] dark:text-[#929AB0] uppercase tracking-wider mb-3 flex items-center justify-between">
             <span>विषय चुनें (Select Subject)</span>
-            <span className="text-[11px] font-normal lowercase">{subjects.length} उपलब्ध</span>
+            <span className="text-[11px] font-normal lowercase">{effectiveSubjects.length} उपलब्ध</span>
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-            {subjects.map((sub, idx) => {
+            {effectiveSubjects.map((sub, idx) => {
               const stats = subjectStats[sub.id] || { totalTopics: 0, videoCount: 0, pdfCount: 0 };
               return (
                 <motion.div

@@ -39,7 +39,7 @@ export const AIMessageRenderer: React.FC<AIMessageRendererProps> = ({
   const normalized = normalizeGfmTables(content);
 
   return (
-    <div className={`ai-message-markdown leading-relaxed text-xs sm:text-sm text-slate-800 dark:text-slate-100 ${className}`}>
+    <div className={`ai-message-markdown leading-relaxed text-[13.5px] sm:text-[15.5px] text-slate-800 dark:text-slate-100 ${className}`}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
@@ -59,17 +59,17 @@ export const AIMessageRenderer: React.FC<AIMessageRendererProps> = ({
             </em>
           ),
           h1: ({ node, children, ...props }) => (
-            <h1 className="font-black text-sm sm:text-base text-indigo-950 dark:text-indigo-100 mt-3 mb-1.5 border-b border-indigo-100 dark:border-slate-700/60 pb-1" {...props}>
+            <h1 className="font-black text-[15.5px] sm:text-[17.5px] text-indigo-950 dark:text-indigo-100 mt-3 mb-1.5 border-b border-indigo-100 dark:border-slate-700/60 pb-1" {...props}>
               {children}
             </h1>
           ),
           h2: ({ node, children, ...props }) => (
-            <h2 className="font-bold text-xs sm:text-sm text-indigo-950 dark:text-indigo-100 mt-2.5 mb-1 border-b border-indigo-50 dark:border-slate-700/40 pb-0.5" {...props}>
+            <h2 className="font-bold text-[14px] sm:text-[16px] text-indigo-950 dark:text-indigo-100 mt-2.5 mb-1 border-b border-indigo-50 dark:border-slate-700/40 pb-0.5" {...props}>
               {children}
             </h2>
           ),
           h3: ({ node, children, ...props }) => (
-            <h3 className="font-bold text-xs sm:text-sm text-indigo-900 dark:text-indigo-200 mt-2 mb-1" {...props}>
+            <h3 className="font-bold text-[13.5px] sm:text-[15px] text-indigo-900 dark:text-indigo-200 mt-2 mb-1" {...props}>
               {children}
             </h3>
           ),
@@ -89,7 +89,7 @@ export const AIMessageRenderer: React.FC<AIMessageRendererProps> = ({
             </li>
           ),
           blockquote: ({ node, children, ...props }) => (
-            <blockquote className="border-l-3 border-indigo-500 pl-3 py-1.5 my-2 bg-indigo-50/60 dark:bg-indigo-950/40 rounded-r-lg italic text-slate-700 dark:text-slate-300 text-xs sm:text-sm" {...props}>
+            <blockquote className="border-l-3 border-indigo-500 pl-3 py-1.5 my-2 bg-indigo-50/60 dark:bg-indigo-950/40 rounded-r-lg italic text-slate-700 dark:text-slate-300 text-[13.5px] sm:text-[15.5px]" {...props}>
               {children}
             </blockquote>
           ),
@@ -97,13 +97,13 @@ export const AIMessageRenderer: React.FC<AIMessageRendererProps> = ({
             const isBlock = codeClass || (typeof children === "string" && children.includes("\n"));
             if (!isBlock) {
               return (
-                <code className="px-1.5 py-0.5 rounded-md bg-indigo-50 dark:bg-slate-800 text-indigo-700 dark:text-indigo-300 font-mono text-[11px] sm:text-xs font-semibold border border-indigo-100 dark:border-slate-700" {...props}>
+                <code className="px-1.5 py-0.5 rounded-md bg-indigo-50 dark:bg-slate-800 text-indigo-700 dark:text-indigo-300 font-mono text-[12px] sm:text-[13.5px] font-semibold border border-indigo-100 dark:border-slate-700" {...props}>
                   {children}
                 </code>
               );
             }
             return (
-              <pre className="p-3 my-2 rounded-xl bg-slate-900 text-slate-100 font-mono text-[11px] sm:text-xs overflow-x-auto border border-slate-800">
+              <pre className="p-3 my-2 rounded-xl bg-slate-900 text-slate-100 font-mono text-[12px] sm:text-[13.5px] overflow-x-auto border border-slate-800">
                 <code className={codeClass} {...props}>
                   {children}
                 </code>
@@ -113,7 +113,7 @@ export const AIMessageRenderer: React.FC<AIMessageRendererProps> = ({
           table: ({ node, children, ...props }) => (
             <div className="my-3 overflow-hidden rounded-xl border border-slate-200 dark:border-slate-700">
               <div className="overflow-x-auto w-full">
-                <table className="w-full text-left text-xs border-collapse min-w-[320px]" {...props}>
+                <table className="w-full text-left text-[13px] sm:text-[14px] border-collapse min-w-[320px]" {...props}>
                   {children}
                 </table>
               </div>
@@ -135,12 +135,12 @@ export const AIMessageRenderer: React.FC<AIMessageRendererProps> = ({
             </tr>
           ),
           th: ({ node, children, ...props }) => (
-            <th className="p-2 sm:p-2.5 font-bold uppercase text-[10px] sm:text-[11px] tracking-wider" {...props}>
+            <th className="p-2 sm:p-2.5 font-bold uppercase text-[11px] sm:text-[12px] tracking-wider" {...props}>
               {children}
             </th>
           ),
           td: ({ node, children, ...props }) => (
-            <td className="p-2 sm:p-2.5 text-xs font-medium" {...props}>
+            <td className="p-2 sm:p-2.5 text-[13px] sm:text-[14px] font-medium" {...props}>
               {children}
             </td>
           ),

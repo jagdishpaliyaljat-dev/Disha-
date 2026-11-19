@@ -45,7 +45,7 @@ const PROVIDER_META: Record<AIProvider, {
   cliproxy: {
     name: "AGY Pro Proxy",
     tagline: "5-Account Auto-Rotation (Continuous High Quota)",
-    defaultModel: "gemini-3.5-flash-lite",
+    defaultModel: "gemini-2.0-flash",
     keyPlaceholder: "cliproxy-local",
     docsUrl: "http://127.0.0.1:8317",
     badgeClass: "bg-teal-100 text-teal-700 dark:bg-teal-950/50 dark:text-teal-300 border-teal-200 dark:border-teal-800",
@@ -54,7 +54,7 @@ const PROVIDER_META: Record<AIProvider, {
   gemini: {
     name: "Google Gemini",
     tagline: "Multimodal & High-Speed Reasoning",
-    defaultModel: "gemini-3.5-flash-lite",
+    defaultModel: "gemini-2.0-flash",
     keyPlaceholder: "AIzaSy...",
     docsUrl: "https://aistudio.google.com/app/apikey",
     badgeClass: "bg-purple-100 text-purple-700 dark:bg-purple-950/50 dark:text-purple-300 border-purple-200 dark:border-purple-800",
@@ -115,7 +115,7 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
           name: "My Personal Gemini Key",
           provider: "gemini",
           apiKey: currentSettings.geminiApiKey.trim(),
-          model: "gemini-3.5-flash-lite",
+          model: "gemini-2.0-flash",
           enabled: true,
           createdAt: new Date().toISOString()
         }]

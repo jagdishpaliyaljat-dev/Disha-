@@ -58,10 +58,10 @@ export function getActiveAICredentials(): {
 
   if (activeKey && activeKey.apiKey?.trim()) {
     const provider = activeKey.provider || "gemini";
-    const defaultModel = PROVIDER_RECOMMENDED_MODELS[provider]?.[0]?.id || "gemini-3.5-flash-lite";
+    const defaultModel = PROVIDER_RECOMMENDED_MODELS[provider]?.[0]?.id || "gemini-2.0-flash";
     let chosenModel = activeKey.model || defaultModel;
-    if (provider === "gemini" && (!chosenModel || chosenModel.includes("1.5") || chosenModel.includes("1.0") || chosenModel.includes("2.5") || chosenModel === "default" || chosenModel === "gemini-flash-latest" || chosenModel === "gemini-2.0-flash")) {
-      chosenModel = "gemini-3.5-flash-lite";
+    if (provider === "gemini" && (!chosenModel || chosenModel.includes("3.5") || chosenModel.includes("3.8") || chosenModel === "default" || chosenModel === "gemini-flash-latest")) {
+      chosenModel = "gemini-2.0-flash";
     }
     return {
       configured: true,
@@ -76,7 +76,7 @@ export function getActiveAICredentials(): {
       configured: true,
       provider: "gemini",
       apiKey: settings.geminiApiKey.trim(),
-      model: "gemini-3.5-flash-lite",
+      model: "gemini-2.0-flash",
     };
   }
 
@@ -87,7 +87,7 @@ export function getActiveAICredentials(): {
       configured: true,
       provider: "gemini",
       apiKey: envGemini.trim(),
-      model: "gemini-3.5-flash-lite",
+      model: "gemini-2.0-flash",
     };
   }
 
@@ -101,14 +101,23 @@ export function getActiveAICredentials(): {
     };
   }
 
-  // Antigravity Pro 5-Account Local Proxy auto-detection
-  const envProxyUrl = (typeof import.meta !== "undefined" && import.meta.env?.VITE_AI_PROXY_URL) || "http://127.0.0.1:8317/v1";
-  const envProxyKey = (typeof import.meta !== "undefined" && import.meta.env?.VITE_AI_PROXY_KEY) || "cliproxy-local";
+  // Antigravity Pro Local Proxy auto-detection (if actively configured)
+  const envProxyUrl = (typeof import.meta !== "undefined" && import.meta.env?.VITE_AI_PROXY_URL) || "";
+  const envProxyKey = (typeof import.meta !== "undefined" && import.meta.env?.VITE_AI_PROXY_KEY) || "";
+  if (envProxyUrl && envProxyKey && envProxyKey !== "cliproxy-local") {
+    return {
+      configured: true,
+      provider: "cliproxy",
+      apiKey: envProxyKey,
+      model: "gemini-2.0-flash",
+    };
+  }
+
   return {
-    configured: true,
-    provider: "cliproxy",
-    apiKey: envProxyKey,
-    model: "gemini-3.5-flash-lite",
+    configured: false,
+    provider: "gemini",
+    apiKey: "",
+    model: "gemini-2.0-flash",
   };
 }
 
@@ -342,7 +351,7 @@ export function formatFriendlyAIError(err: any): { message: string; isApiKeyIssu
     lower.includes("2.5")
   ) {
     return {
-      message: "गूगल ने पुराने मॉडल को बंद कर दिया है। दिशा ऐप ने स्वतः नवीनतम 'gemini-3.5-flash-lite' मॉडल पर अपडेट कर दिया है। कृपया पुनः प्रश्न पूछें।",
+      message: "गूगल ने पुराने मॉडल को बंद कर दिया है। दिशा ऐप ने स्वतः नवीनतम 'gemini-2.0-flash' मॉडल पर अपडेट कर दिया है। कृपया पुनः प्रश्न पूछें।",
       isApiKeyIssue: false,
     };
   }

@@ -157,7 +157,7 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
     }
   };
 
-  // Text-to-Speech playback in Hindi
+  // Text-to-Speech playback in Hindi with natural, snappy playback rate
   const handleToggleSpeak = (msgId: string, text: string) => {
     triggerHaptic("light");
     if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
@@ -169,10 +169,35 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
     }
 
     window.speechSynthesis.cancel();
-    const cleanText = text.replace(/[*#_`>-]/g, "").slice(0, 600);
+    if (window.speechSynthesis.paused) {
+      window.speechSynthesis.resume();
+    }
+
+    // Clean markdown symbols, bullets, brackets, urls for smooth uninterrupted speech
+    const cleanText = text
+      .replace(/https?:\/\/\S+/g, "")
+      .replace(/[*#_`>~-]/g, " ")
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 800);
+
     const utterance = new SpeechSynthesisUtterance(cleanText);
     utterance.lang = "hi-IN";
-    utterance.rate = 1.0;
+    // 1.18x speed: Crisp, snappy speech eliminating sluggish mobile TTS lag
+    utterance.rate = 1.18;
+    utterance.pitch = 1.0;
+
+    try {
+      const voices = window.speechSynthesis.getVoices();
+      const bestVoice = voices.find((v) => v.lang === "hi-IN" || v.lang === "hi_IN")
+        || voices.find((v) => v.lang.startsWith("hi"))
+        || voices.find((v) => v.lang === "en-IN" || v.lang.startsWith("en-IN"));
+      if (bestVoice) {
+        utterance.voice = bestVoice;
+      }
+    } catch (_) {}
+
     utterance.onend = () => setSpeakingId(null);
     utterance.onerror = () => setSpeakingId(null);
 
@@ -343,7 +368,7 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
                     <button
                       key={idx}
                       onClick={() => handleSendMessage(item.prompt)}
-                      className="text-left px-3.5 py-2.5 bg-white dark:bg-[#1F2330] hover:bg-[#FFF9EF] dark:hover:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] rounded-2xl text-xs font-bold text-slate-800 dark:text-[#FFF9EF] hover:border-[#800020] dark:hover:border-[#C99A45] transition-all flex items-center justify-between group shadow-2xs cursor-pointer"
+                      className="text-left px-3.5 py-2.5 bg-white dark:bg-[#1F2330] hover:bg-[#FFF9EF] dark:hover:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] rounded-2xl text-[13.5px] font-bold text-slate-800 dark:text-[#FFF9EF] hover:border-[#800020] dark:hover:border-[#C99A45] transition-all flex items-center justify-between group shadow-2xs cursor-pointer"
                     >
                       <span className="pr-2">{item.label}</span>
                       <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#800020] dark:group-hover:text-[#C99A45] group-hover:translate-x-0.5 transition-all shrink-0" />
@@ -359,7 +384,7 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
                 className={`flex flex-col ${msg.role === "user" ? "items-end" : "items-start"}`}
               >
                 <div
-                  className={`max-w-[88%] rounded-3xl p-4 text-xs sm:text-sm leading-relaxed shadow-xs ${
+                  className={`max-w-[88%] rounded-3xl p-4 text-[13.5px] sm:text-[15.5px] leading-relaxed shadow-xs ${
                     msg.role === "user"
                       ? "bg-gradient-to-r from-[#800020] via-[#5E0017] to-[#800020] text-white rounded-br-xs border border-[#C99A45]/30"
                       : "bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] text-slate-900 dark:text-[#FFF9EF] rounded-bl-xs shadow-2xs"
@@ -382,7 +407,7 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
                                 onClose();
                               }
                             }}
-                            className="px-3 py-1.5 bg-gradient-to-r from-[#800020] to-[#5E0017] text-white font-bold rounded-xl text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-xs border border-[#C99A45]/30"
+                            className="px-3 py-1.5 bg-gradient-to-r from-[#800020] to-[#5E0017] text-white font-bold rounded-xl text-[13px] flex items-center gap-1.5 transition-all cursor-pointer shadow-xs border border-[#C99A45]/30"
                           >
                             <span>{msg.suggestedAction.label}</span>
                             <ArrowRight className="w-3 h-3 text-[#C99A45]" />
@@ -391,7 +416,7 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
                       )}
 
                       {/* Audio Read-Aloud Button */}
-                      <div className="flex items-center justify-between pt-1.5 border-t border-[#E8D9C0]/60 dark:border-[#31374A]/60 text-[10px] text-slate-400">
+                      <div className="flex items-center justify-between pt-1.5 border-t border-[#E8D9C0]/60 dark:border-[#31374A]/60 text-[11.5px] text-slate-400">
                         <span>{msg.timestamp}</span>
                         <button
                           onClick={() => handleToggleSpeak(msg.id, msg.content)}
@@ -415,8 +440,8 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
                     </div>
                   ) : (
                     <div>
-                      <p className="whitespace-pre-wrap">{msg.content}</p>
-                      <span className="text-[10px] text-[#E8D9C0] block text-right mt-1">
+                      <p className="whitespace-pre-wrap text-[13.5px] sm:text-[15.5px] leading-relaxed font-medium">{msg.content}</p>
+                      <span className="text-[11px] text-[#E8D9C0] block text-right mt-1.5">
                         {msg.timestamp}
                       </span>
                     </div>
@@ -432,11 +457,11 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
                 <Bot className="w-4 h-4 text-[#C99A45] animate-pulse" />
               </div>
               <div className="p-3.5 bg-white dark:bg-[#111622] border border-[#E8D9C0] dark:border-[#263045] rounded-2xl rounded-bl-xs shadow-xs space-y-1">
-                <div className="flex items-center gap-2 text-xs font-black text-[#C99A45]">
+                <div className="flex items-center gap-2 text-[13.5px] font-black text-[#C99A45]">
                   <InlineSpinner size="xs" />
                   <span>DISHA AI उत्तर तैयार कर रहा है...</span>
                 </div>
-                <p className="text-[11px] text-[#6F768A] dark:text-[#9AA2B8]">
+                <p className="text-[12px] text-[#6F768A] dark:text-[#9AA2B8]">
                   परीक्षा-उन्मुख अवधारणाओं और तथ्यों का सटीक विश्लेषण जारी है...
                 </p>
               </div>

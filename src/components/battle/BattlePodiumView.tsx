@@ -102,7 +102,7 @@ export const BattlePodiumView: React.FC<BattlePodiumViewProps> = ({
   const third = rankedPlayers[2];
 
   return (
-    <div className="flex flex-col h-full bg-[#FFFDF9] text-stone-900 select-none overflow-y-auto">
+    <div className="flex flex-col h-full bg-[#FFFDF9] dark:bg-[#171923] text-stone-900 dark:text-[#FFF9EF] select-none overflow-y-auto">
       {/* Header Banner */}
       <div className="bg-gradient-to-b from-[#5E0017] via-[#800020] to-[#500013] text-white pt-6 pb-5 px-4 text-center shadow-lg relative overflow-hidden">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-amber-400/20 rounded-full blur-2xl pointer-events-none" />
@@ -122,7 +122,7 @@ export const BattlePodiumView: React.FC<BattlePodiumViewProps> = ({
 
       <div className="p-4 space-y-4 flex-1">
         {/* 3D Royal Podium Display */}
-        <div className="bg-white rounded-3xl p-4 sm:p-5 shadow-sm border border-amber-900/10">
+        <div className="bg-white dark:bg-[#1F2330] rounded-3xl p-4 sm:p-5 shadow-sm border border-amber-900/10 dark:border-[#31374A]">
           <div className="flex items-end justify-center gap-2 pt-8 pb-1">
             {/* 2nd Place */}
             {second && (
@@ -133,10 +133,10 @@ export const BattlePodiumView: React.FC<BattlePodiumViewProps> = ({
                     2
                   </span>
                 </div>
-                <span className="text-xs font-extrabold text-stone-800 truncate w-full text-center">
+                <span className="text-xs font-extrabold text-stone-800 dark:text-stone-100 truncate w-full text-center">
                   {second.name}
                 </span>
-                <span className="text-[11px] font-bold text-stone-500">
+                <span className="text-[11px] font-bold text-stone-500 dark:text-stone-400">
                   {second.score} pts
                 </span>
                 <div className="w-full bg-gradient-to-t from-stone-400 to-stone-200 h-20 rounded-t-2xl mt-2 flex flex-col items-center justify-center border-t-2 border-white shadow-inner">
@@ -162,10 +162,10 @@ export const BattlePodiumView: React.FC<BattlePodiumViewProps> = ({
                     1
                   </span>
                 </div>
-                <span className="text-xs sm:text-sm font-black text-stone-900 truncate w-full text-center mt-1">
+                <span className="text-xs sm:text-sm font-black text-stone-900 dark:text-white truncate w-full text-center mt-1">
                   {first.name}
                 </span>
-                <span className="text-xs font-black text-[#800020]">
+                <span className="text-xs font-black text-[#800020] dark:text-amber-400">
                   {first.score} pts
                 </span>
                 <div className="w-full bg-gradient-to-t from-amber-500 via-amber-400 to-amber-300 h-28 rounded-t-2xl mt-2 flex flex-col items-center justify-center border-t-2 border-amber-200 shadow-md">
@@ -186,10 +186,10 @@ export const BattlePodiumView: React.FC<BattlePodiumViewProps> = ({
                     3
                   </span>
                 </div>
-                <span className="text-xs font-extrabold text-stone-800 truncate w-full text-center">
+                <span className="text-xs font-extrabold text-stone-800 dark:text-stone-100 truncate w-full text-center">
                   {third.name}
                 </span>
-                <span className="text-[11px] font-bold text-stone-500">
+                <span className="text-[11px] font-bold text-stone-500 dark:text-stone-400">
                   {third.score} pts
                 </span>
                 <div className="w-full bg-gradient-to-t from-amber-800 to-amber-600 h-16 rounded-t-2xl mt-2 flex flex-col items-center justify-center border-t-2 border-amber-400 shadow-inner">
@@ -212,38 +212,38 @@ export const BattlePodiumView: React.FC<BattlePodiumViewProps> = ({
           );
 
           return (
-            <div className="bg-gradient-to-r from-amber-50 via-white to-amber-50 rounded-3xl p-4 border-2 border-amber-300/80 shadow-xs">
-              <h3 className="text-xs font-bold text-stone-600 uppercase tracking-wider mb-2.5 flex items-center justify-between">
+            <div className="bg-gradient-to-r from-amber-50 via-white to-amber-50 dark:from-[#1F2330] dark:via-[#252A3A] dark:to-[#1F2330] rounded-3xl p-4 border-2 border-amber-300/80 dark:border-amber-500/40 shadow-xs">
+              <h3 className="text-xs font-bold text-stone-600 dark:text-stone-300 uppercase tracking-wider mb-2.5 flex items-center justify-between">
                 <span>Your Performance Card</span>
-                <span className="text-xs font-extrabold text-[#800020] bg-amber-200/80 px-2 py-0.5 rounded-full">
+                <span className="text-xs font-extrabold text-[#800020] dark:text-amber-300 bg-amber-200/80 dark:bg-amber-950/60 px-2 py-0.5 rounded-full">
                   Rank #{myRank} / {rankedPlayers.length}
                 </span>
               </h3>
 
               <div className="grid grid-cols-3 gap-2 text-center">
-                <div className="bg-white p-2.5 rounded-2xl border border-stone-200 shadow-xs">
-                  <span className="block text-base sm:text-lg font-black text-[#800020]">
+                <div className="bg-white dark:bg-[#1F2330] p-2.5 rounded-2xl border border-stone-200 dark:border-[#31374A] shadow-xs">
+                  <span className="block text-base sm:text-lg font-black text-[#800020] dark:text-amber-400">
                     {myPlayer?.score || 0}
                   </span>
-                  <span className="text-[10px] text-stone-500 font-bold uppercase">
+                  <span className="text-[10px] text-stone-500 dark:text-stone-400 font-bold uppercase">
                     Total Score
                   </span>
                 </div>
 
-                <div className="bg-white p-2.5 rounded-2xl border border-stone-200 shadow-xs">
-                  <span className="block text-base sm:text-lg font-black text-emerald-700">
+                <div className="bg-white dark:bg-[#1F2330] p-2.5 rounded-2xl border border-stone-200 dark:border-[#31374A] shadow-xs">
+                  <span className="block text-base sm:text-lg font-black text-emerald-700 dark:text-emerald-400">
                     {myPlayer?.correctCount || 0}/{totalQuestions}
                   </span>
-                  <span className="text-[10px] text-stone-500 font-bold uppercase">
+                  <span className="text-[10px] text-stone-500 dark:text-stone-400 font-bold uppercase">
                     Correct ({accuracy}%)
                   </span>
                 </div>
 
-                <div className="bg-white p-2.5 rounded-2xl border border-stone-200 shadow-xs">
-                  <span className="block text-base sm:text-lg font-black text-orange-600">
+                <div className="bg-white dark:bg-[#1F2330] p-2.5 rounded-2xl border border-stone-200 dark:border-[#31374A] shadow-xs">
+                  <span className="block text-base sm:text-lg font-black text-orange-600 dark:text-orange-400">
                     🔥 {myPlayer?.streak || 0}
                   </span>
-                  <span className="text-[10px] text-stone-500 font-bold uppercase">
+                  <span className="text-[10px] text-stone-500 dark:text-stone-400 font-bold uppercase">
                     Max Streak
                   </span>
                 </div>
@@ -253,8 +253,8 @@ export const BattlePodiumView: React.FC<BattlePodiumViewProps> = ({
         })()}
 
         {/* Detailed Leaderboard Table */}
-        <div className="bg-white rounded-3xl p-4 shadow-sm border border-stone-200">
-          <h3 className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-3">
+        <div className="bg-white dark:bg-[#1F2330] rounded-3xl p-4 shadow-sm border border-stone-200 dark:border-[#31374A]">
+          <h3 className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider mb-3">
             Complete Scorecard ({rankedPlayers.length} Players)
           </h3>
 
@@ -270,18 +270,18 @@ export const BattlePodiumView: React.FC<BattlePodiumViewProps> = ({
                   key={player.id}
                   className={`flex items-center justify-between p-3 rounded-2xl border transition ${
                     isMe
-                      ? "bg-amber-50/80 border-amber-300 ring-1 ring-amber-400/50 shadow-xs"
-                      : "bg-stone-50 border-stone-200"
+                      ? "bg-amber-50/80 dark:bg-amber-950/40 border-amber-300 dark:border-amber-400/60 ring-1 ring-amber-400/50 shadow-xs"
+                      : "bg-stone-50 dark:bg-[#252A3A] border-stone-200 dark:border-[#31374A]"
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <span className="w-6 text-center font-black text-stone-500 text-sm">
+                    <span className="w-6 text-center font-black text-stone-500 dark:text-stone-400 text-sm">
                       {idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : `#${idx + 1}`}
                     </span>
                     <BattleAvatar avatar={player.avatar} name={player.name} size="md" />
                     <div>
                       <div className="flex items-center gap-1.5">
-                        <span className="font-extrabold text-sm text-stone-800">
+                        <span className="font-extrabold text-sm text-stone-800 dark:text-[#FFF9EF]">
                           {player.name}
                         </span>
                         {isMe && (
@@ -290,13 +290,13 @@ export const BattlePodiumView: React.FC<BattlePodiumViewProps> = ({
                           </span>
                         )}
                       </div>
-                      <div className="flex items-center gap-3 text-xs text-stone-500 mt-0.5">
-                        <span className="flex items-center gap-0.5 text-emerald-700 font-semibold">
+                      <div className="flex items-center gap-3 text-xs text-stone-500 dark:text-stone-400 mt-0.5">
+                        <span className="flex items-center gap-0.5 text-emerald-700 dark:text-emerald-400 font-semibold">
                           <CheckCircle2 className="w-3 h-3" />
                           {player.correctCount || 0}/{totalQuestions} ({accuracy}%)
                         </span>
                         {player.streak >= 2 && (
-                          <span className="flex items-center gap-0.5 text-orange-600 font-semibold">
+                          <span className="flex items-center gap-0.5 text-orange-600 dark:text-orange-400 font-semibold">
                             <Flame className="w-3 h-3 fill-current" />
                             {player.streak} streak
                           </span>
@@ -306,10 +306,10 @@ export const BattlePodiumView: React.FC<BattlePodiumViewProps> = ({
                   </div>
 
                   <div className="text-right">
-                    <span className="text-base font-black text-[#800020]">
+                    <span className="text-base font-black text-[#800020] dark:text-amber-400">
                       {player.score}
                     </span>
-                    <span className="block text-[10px] text-stone-500 font-bold uppercase">
+                    <span className="block text-[10px] text-stone-500 dark:text-stone-400 font-bold uppercase">
                       pts
                     </span>
                   </div>
@@ -339,7 +339,7 @@ export const BattlePodiumView: React.FC<BattlePodiumViewProps> = ({
 
           <button
             onClick={onExit}
-            className="w-full flex items-center justify-center gap-2 py-3 px-6 rounded-2xl bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold text-sm border border-stone-300 active:scale-98 transition"
+            className="w-full flex items-center justify-center gap-2 py-3 px-6 rounded-2xl bg-stone-100 dark:bg-[#252A3A] hover:bg-stone-200 dark:hover:bg-[#2E3448] text-stone-700 dark:text-[#FFF9EF] font-bold text-sm border border-stone-300 dark:border-[#31374A] active:scale-98 transition"
           >
             <Home className="w-4 h-4" />
             <span>Return to Home</span>

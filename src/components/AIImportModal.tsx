@@ -1134,7 +1134,7 @@ export const AIImportModal: React.FC<AIImportModalProps> = ({
 
           recordAIUsage({
             queryType: "ai_import",
-            model: "gemini-3.5-flash-lite",
+            model: "gemini-2.0-flash",
             inputChars: rawInput.length,
             outputChars: typeof data.schema === "string" ? data.schema.length : JSON.stringify(data.schema).length,
             status: "success",

@@ -120,14 +120,14 @@ export function loadSettingsFromStorage(): AppSettings {
       parsed.todayDate = today;
       parsed.todayAnsweredCount = 0;
     }
-    // Auto-heal legacy or restricted models (1.5, 2.5, 1.0, latest) to gemini-3.5-flash-lite
+    // Auto-heal invalid or discontinued models (3.5, 3.8, 3.1, legacy flash) to gemini-2.0-flash
     if (Array.isArray(parsed.personalAiKeys)) {
       let modified = false;
       parsed.personalAiKeys = parsed.personalAiKeys.map((k: any) => {
         if (k && (k.provider === "gemini" || !k.provider)) {
-          if (!k.model || k.model.includes("1.5") || k.model.includes("1.0") || k.model.includes("2.5") || k.model === "default" || k.model === "gemini-flash-latest" || k.model === "gemini-2.0-flash") {
+          if (!k.model || k.model.includes("3.5") || k.model.includes("3.8") || k.model.includes("3.1") || k.model === "default" || k.model === "gemini-flash-latest") {
             modified = true;
-            return { ...k, model: "gemini-3.5-flash-lite" };
+            return { ...k, model: "gemini-2.0-flash" };
           }
         }
         return k;

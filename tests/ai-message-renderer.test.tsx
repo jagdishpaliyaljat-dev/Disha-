@@ -95,17 +95,17 @@ describe("formatFriendlyAIError", () => {
     );
     const result = formatFriendlyAIError(rawError);
     expect(result.message).toContain("गूगल ने पुराने मॉडल को बंद कर दिया है");
-    expect(result.message).toContain("gemini-3.5-flash-lite");
+    expect(result.message).toContain("gemini-2.0-flash");
     expect(result.message).not.toContain('{"error":{"code":404');
   });
 
   it("converts exact user 'no longer available' error into clean Hindi message", () => {
     const rawError = new Error(
-      "This model models/gemini-2.5-flash is no longer available. Please update your code to use models/gemini-3.5-flash-lite for the latest features and improvements."
+      "This model models/gemini-2.5-flash is no longer available. Please update your code to use models/gemini-2.0-flash for the latest features and improvements."
     );
     const result = formatFriendlyAIError(rawError);
     expect(result.message).toContain("गूगल ने पुराने मॉडल को बंद कर दिया है");
-    expect(result.message).toContain("gemini-3.5-flash-lite");
+    expect(result.message).toContain("gemini-2.0-flash");
     expect(result.message).not.toContain("This model");
   });
 

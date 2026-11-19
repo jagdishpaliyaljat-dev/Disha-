@@ -191,7 +191,7 @@ export const BattleAvatar: React.FC<BattleAvatarProps> = ({
 
   return (
     <div
-      className={`relative inline-flex items-center justify-center shrink-0 rounded-full overflow-hidden bg-stone-100 ${sizeStyles} ${className}`}
+      className={`relative inline-flex items-center justify-center shrink-0 rounded-full overflow-hidden bg-stone-100 dark:bg-stone-800 ${sizeStyles} ${className}`}
     >
       {isUrl && !hasError ? (
         <img
@@ -202,9 +202,9 @@ export const BattleAvatar: React.FC<BattleAvatarProps> = ({
           onError={() => setHasError(true)}
         />
       ) : (
-        <span className="font-bold select-none flex items-center justify-center text-stone-800">
+        <span className="font-bold select-none flex items-center justify-center text-stone-800 dark:text-stone-200">
           {isUrl && hasError ? (
-            <span className="text-[10px] uppercase font-bold text-stone-600">
+            <span className="text-[10px] uppercase font-bold text-stone-600 dark:text-stone-400">
               {name.charAt(0) || "P"}
             </span>
           ) : (
