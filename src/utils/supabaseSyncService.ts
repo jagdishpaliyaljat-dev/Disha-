@@ -6,7 +6,8 @@ import {
   idbGetAll, 
   idbPut, 
   idbPutBatch,
-  idbDelete, 
+  idbDelete,
+  idbDeleteBatch,
   enqueueSyncEvent,
   STORES 
 } from "./localDatabaseEngine";
