@@ -35,11 +35,11 @@ interface DishaAITutorModalProps {
 }
 
 const QUICK_SUGGESTIONS = [
-  { label: "📅 30 दिन का आदर्श स्टडी प्लान", prompt: "मेरी राजस्थान प्रतियोगी परीक्षा 30 दिनों में है। कृपया मेरे लिए एक आदर्श दैनिक समय-सारणी (Daily Study Plan) तैयार करें।" },
-  { label: "🔍 यूनेस्को राजस्थान के 6 दुर्ग याद रखने की ट्रिक", prompt: "राजस्थान के यूनेस्को विश्व धरोहर में शामिल 6 प्रमुख पहाड़ी दुर्गों (चीकू, गाजर, आम) को याद रखने की आसान ट्रिक और विवरण बताएं।" },
-  { label: "⚡ नेगेटिव मार्किंग (Negative Marking) से कैसे बचें?", prompt: "RPSC और RSMSSB परीक्षाओं में 1/3 नेगेटिव मार्किंग से बचने और तुक्का न लगाने की वैज्ञानिक रणनीति क्या है?" },
-  { label: "🎯 RPSC 5वां विकल्प (Option E) क्या है?", prompt: "RPSC के नए 5वें विकल्प (Option E) नियम और 10% खाली छोड़ने पर अयोग्य घोषित होने के नियम को विस्तार से समझाएं।" },
-  { label: "📝 1857 की क्रांति के 6 सैनिक छावनियां", prompt: "1857 की क्रांति के समय राजस्थान में कौन-सी 6 सैनिक छावनियां थीं और किसमें विद्रोह नहीं हुआ था?" }
+  { label: "📅 30-Day Ideal Study Plan", prompt: "My Rajasthan competitive exam is in 30 days. Please create an ideal daily study schedule and timetable for me." },
+  { label: "🔍 Trick to Memorize UNESCO 6 Hill Forts", prompt: "Explain the memory trick and key details for Rajasthan's 6 UNESCO World Heritage hill forts." },
+  { label: "⚡ How to Avoid Negative Marking?", prompt: "What is the scientific strategy to avoid 1/3 negative marking and eliminate random guessing in RPSC and RSMSSB exams?" },
+  { label: "🎯 What is the RPSC 5th Option (Option E)?", prompt: "Explain RPSC's 5th option (Option E) rule and the disqualification threshold for leaving more than 10% questions blank." },
+  { label: "📝 6 Military Cantonments in 1857 Mutiny", prompt: "Which were the 6 military cantonments in Rajasthan during the 1857 revolt, and where did no mutiny occur?" }
 ];
 
 export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
@@ -73,7 +73,7 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
       const initialUserMsg: ChatMessage = {
         id: `user_${Date.now()}`,
         role: "user",
-        content: `कृपया इस प्रश्न का विस्तृत विश्लेषण करें:\n\n"${qText}"`,
+        content: `Please analyze and explain this question in detail:\n\n"${qText}"`,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
 
@@ -97,7 +97,7 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
             role: "assistant",
             content: message,
             timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            suggestedAction: isApiKeyIssue ? { label: "⚙️ API Key जांचें / जोड़ें", action: "open_settings" } : undefined,
+            suggestedAction: isApiKeyIssue ? { label: "⚙️ Check / Add API Key", action: "open_settings" } : undefined,
           };
           setMessages((prev) => [...prev, errorMsg]);
         })
@@ -140,7 +140,7 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
   const toggleSpeechRecognition = () => {
     triggerHaptic("light");
     if (!recognitionRef.current) {
-      alert("आपके ब्राउज़र में वॉइस इनपुट समर्थित नहीं है।");
+      alert("Voice input is not supported in your browser.");
       return;
     }
     if (isListening) {
@@ -218,7 +218,7 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
         role: "assistant",
         content: message,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        suggestedAction: isApiKeyIssue ? { label: "⚙️ API Key जांचें / जोड़ें", action: "open_settings" } : undefined,
+        suggestedAction: isApiKeyIssue ? { label: "⚙️ Check / Add API Key", action: "open_settings" } : undefined,
       };
       setMessages((prev) => [...prev, errorMsg]);
     } finally {
@@ -257,12 +257,12 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
             <div>
               <div className="flex items-center gap-1.5">
                 <h3 className="font-black text-sm tracking-tight text-white flex items-center gap-1">
-                  <span>दिशा AI साथी</span>
+                  <span>Disha AI Companion</span>
                   <Sparkles className="w-3.5 h-3.5 text-[#C99A45]" />
                 </h3>
               </div>
               <p className="text-[11px] text-[#E8D9C0] font-bold">
-                24×7 राजस्थान प्रतियोगी परीक्षा डिजिटल गुरुजी
+                24×7 Rajasthan Exam Digital Mentor
               </p>
             </div>
           </div>
@@ -270,7 +270,7 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
           <div className="flex items-center gap-1">
             <button
               onClick={handleResetChat}
-              title="चैट रीसेट करें"
+              title="Reset Chat"
               className="p-1.5 rounded-xl text-white/80 hover:text-white hover:bg-white/15 transition-colors cursor-pointer"
             >
               <RotateCcw className="w-4 h-4" />
@@ -280,7 +280,7 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
                 triggerHaptic("light");
                 onOpenApiSettings();
               }}
-              title="AI सेटिंग्स व मॉडल्स"
+              title="AI Settings & Models"
               className="p-1.5 rounded-xl text-white/80 hover:text-white hover:bg-white/15 transition-colors cursor-pointer"
             >
               <Settings2 className="w-4 h-4" />
@@ -290,7 +290,7 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
                 triggerHaptic("light");
                 onClose();
               }}
-              title="बंद करें"
+              title="Close"
               className="p-1.5 rounded-xl text-white/80 hover:text-white hover:bg-white/15 transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
@@ -303,7 +303,7 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
           <div className="px-3.5 py-2 bg-[#FFF9EF] dark:bg-[#1F2330] border-b border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-between gap-2 shrink-0">
             <div className="flex items-center gap-1.5 text-xs text-[#800020] dark:text-[#C99A45]">
               <Key className="w-3.5 h-3.5 text-[#F47B20] shrink-0" />
-              <span className="text-[11px] font-bold">नि:शुल्क Gemini / OpenRouter API Key जोड़ें</span>
+              <span className="text-[11px] font-bold">Add Free Gemini / OpenRouter API Key</span>
             </div>
             <button
               onClick={() => {
@@ -312,7 +312,7 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
               }}
               className="px-2.5 py-1 bg-gradient-to-r from-[#C99A45] to-[#B88934] text-slate-950 rounded-lg text-[10px] font-black uppercase tracking-wider shrink-0 transition-opacity hover:opacity-90 cursor-pointer shadow-2xs"
             >
-              सेट करें
+              Configure
             </button>
           </div>
         )}
@@ -325,17 +325,17 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
               <div className="p-4 rounded-3xl bg-gradient-to-br from-[#FFF9EF] to-[#F7EFE2] dark:from-[#1F2330] dark:to-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] shadow-2xs space-y-2">
                 <div className="flex items-center gap-2 text-[#800020] dark:text-[#C99A45] font-black text-xs">
                   <Sparkles className="w-4 h-4 text-[#F47B20]" />
-                  <span>नमस्ते अभ्यर्थी! आपका स्वागत है</span>
+                  <span>Welcome Aspirant!</span>
                 </div>
                 <p className="text-xs text-slate-700 dark:text-[#CBD2E1] leading-relaxed font-medium">
-                  मैं आपका <strong>दिशा AI डिजिटल गुरुजी</strong> हूँ। मुझसे किसी भी परीक्षा (RAS, SI, CET, REET, Patwar), राजस्थान सामान्य ज्ञान, इतिहास, भूगोल, याद रखने की शॉर्ट ट्रिक या परीक्षा रणनीति के बारे में पूछें!
+                  I am your <strong>Disha AI Digital Mentor</strong>. Ask me anything about Rajasthan competitive exams (RAS, SI, CET, REET, Patwar), GK, history, geography, memory tricks, or exam strategy!
                 </p>
               </div>
 
               {/* Quick Suggestion Chips */}
               <div className="space-y-2">
                 <span className="text-[11px] font-black text-slate-500 dark:text-[#E8D9C0] uppercase tracking-wider block px-1">
-                  💡 त्वरित सवाल (Quick Suggestions):
+                  💡 Quick Suggestions:
                 </span>
                 <div className="flex flex-col gap-2">
                   {QUICK_SUGGESTIONS.map((item, idx) => (
@@ -401,12 +401,12 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
                           {speakingId === msg.id ? (
                             <>
                               <VolumeX className="w-3.5 h-3.5" />
-                              <span>रोकें</span>
+                              <span>Stop</span>
                             </>
                           ) : (
                             <>
                               <Volume2 className="w-3.5 h-3.5" />
-                              <span>🔊 सुनें</span>
+                              <span>🔊 Listen</span>
                             </>
                           )}
                         </button>
@@ -433,10 +433,10 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
               <div className="p-3.5 bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-2xl rounded-bl-xs shadow-xs space-y-1">
                 <div className="flex items-center gap-2 text-xs font-black text-[#800020] dark:text-[#C99A45]">
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  <span>उत्तर तैयार किया जा रहा है...</span>
+                  <span>Preparing response...</span>
                 </div>
                 <p className="text-[11px] text-slate-500 dark:text-[#CBD2E1]">
-                  अवधारणा और परीक्षा उपयोगी तथ्यों का विश्लेषण जारी है
+                  Analyzing exam-oriented concepts and facts...
                 </p>
               </div>
             </div>
@@ -457,7 +457,7 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
             <button
               type="button"
               onClick={toggleSpeechRecognition}
-              title={isListening ? "माइक बंद करें" : "बोलकर पूछें (Voice Input)"}
+              title={isListening ? "Stop Microphone" : "Voice Input"}
               className={`p-2.5 rounded-xl border transition-all cursor-pointer ${
                 isListening
                   ? "bg-rose-600 text-white border-rose-700 animate-pulse"
@@ -471,7 +471,7 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
               type="text"
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
-              placeholder={isListening ? "बोलिए, सुन रहा हूँ..." : "पूछें अपना सवाल या डाउट..."}
+              placeholder={isListening ? "Listening, please speak..." : "Ask your question or doubt..."}
               disabled={isLoading}
               className="flex-1 px-4 py-2.5 bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] rounded-xl text-xs sm:text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#800020] dark:focus:ring-[#C99A45] transition-all"
             />
@@ -508,7 +508,7 @@ export const FloatingAIAssistant: React.FC<FloatingAIAssistantProps> = ({ onOpen
           triggerHaptic("light");
           onOpen();
         }}
-        title="दिशा AI साथी — कोई भी सवाल या डाउट पूछें"
+        title="Disha AI Companion — Ask any question or doubt"
         className="relative flex items-center gap-2 px-3.5 py-2.5 sm:px-4 sm:py-3 bg-gradient-to-r from-[#800020] via-[#5E0017] to-[#800020] hover:opacity-95 text-white font-black rounded-full shadow-lg shadow-[#800020]/30 hover:shadow-[#800020]/50 transition-all duration-300 active:scale-95 cursor-pointer border border-[#C99A45]/50 group"
       >
         <span className="relative flex items-center justify-center">
@@ -516,7 +516,7 @@ export const FloatingAIAssistant: React.FC<FloatingAIAssistantProps> = ({ onOpen
           <Sparkles className="w-3 h-3 text-[#C99A45] absolute -top-1.5 -right-1.5 animate-spin" style={{ animationDuration: '4s' }} />
         </span>
         <span className="text-xs tracking-tight font-black pr-0.5 text-[#FFF9EF]">
-          दिशा AI
+          Disha AI
         </span>
         <span className="absolute -top-1 -right-1 flex h-3 w-3">
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#C99A45] opacity-75" />

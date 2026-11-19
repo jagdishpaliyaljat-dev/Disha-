@@ -40,7 +40,7 @@ export function LoginPage({ onLoginSuccess, onClose }: LoginPageProps) {
           console.warn("Supabase Google OAuth error:", error.message);
           if (error.message?.toLowerCase().includes("not enabled")) {
             setConfigNotice(
-              "Google Sign-In Supabase Dashboard में अभी सक्षम (Enable) नहीं है। कृपया Supabase Console > Authentication > Providers > Google में जाकर Client ID व Secret दर्ज करें और Enable करें।"
+              "Google Sign-In is not yet enabled in the Supabase Dashboard. Please navigate to Supabase Console > Authentication > Providers > Google, configure your Client ID & Secret, and enable it."
             );
           } else {
             setConfigNotice(`Authentication notice: ${error.message}`);

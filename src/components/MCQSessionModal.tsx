@@ -651,7 +651,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
       }
       return {
         id,
-        text: (q as any)?.text || "लोड हो रहा है... (Loading question...)",
+        text: (q as any)?.text || "Loading question...",
         options: Array.isArray(q?.options) && q.options.length >= 2 ? q.options : ["(A)", "(B)", "(C)", "(D)"],
         correctIndex: q?.correctIndex ?? 0,
         explanation: q?.explanation || "",
@@ -753,7 +753,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
 
     // RPSC 5th Option standard: append Option E if question has 4 options
     if (baseOptions.length === 4) {
-      baseOptions.push("अनुत्तरित प्रश्न (Question not attempted)");
+      baseOptions.push("Question not attempted (Option E)");
     }
 
     // Map to objects with original index
@@ -2660,7 +2660,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                 }
               }}
               className="w-9 h-9 rounded-xl border bg-white dark:bg-[#252A3A] border-[#E8D9C0] dark:border-[#31374A] text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/20 flex items-center justify-center active:scale-90 transition-transform cursor-pointer"
-              title="प्रश्न पर दावा / आपत्ति दर्ज करें (Report Question)"
+              title="Report Question / Raise Objection"
               aria-label="Report Question"
             >
               <Flag className="w-4.5 h-4.5" />
@@ -2840,7 +2840,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                       className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 hover:from-indigo-600 hover:to-purple-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-indigo-500/20 active:scale-95 transition-all cursor-pointer"
                     >
                       <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-spin" style={{ animationDuration: '3s' }} />
-                      <span>✨ AI से समझें (Explain with AI)</span>
+                      <span>✨ Explain with AI</span>
                     </button>
 
                     <button
@@ -2855,7 +2855,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                       className="text-xs font-bold text-amber-300 hover:text-amber-200 flex items-center gap-1.5 transition-colors cursor-pointer"
                     >
                       <Flag className="w-3.5 h-3.5 fill-current" />
-                      <span>प्रश्न / उत्तर में कोई त्रुटि या मिसप्रिंट है? दावा / रिपोर्ट करें</span>
+                      <span>Found an error or typo? Report Question</span>
                     </button>
                   </div>
                 </div>
@@ -3448,7 +3448,7 @@ function RedesignedLiveAndPYQTestView({
                 onOpenReport(currentQuestion);
               }}
               className="w-10 h-10 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] text-amber-600 dark:text-amber-400 flex items-center justify-center active:scale-90 transition-transform cursor-pointer border border-[#E8D9C0] dark:border-[#31374A]"
-              title="प्रश्न पर दावा / आपत्ति दर्ज करें (Report Question)"
+              title="Report Question / Raise Objection"
               aria-label="Report Question"
             >
               <Flag size={18} />
@@ -4252,10 +4252,10 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
           <div className="p-3.5 sm:p-4 rounded-2xl bg-rose-500/10 border-2 border-rose-500/30 text-rose-800 dark:text-rose-200 text-left space-y-1.5 shadow-sm">
             <div className="flex items-center gap-2 font-black text-xs sm:text-sm text-rose-600 dark:text-rose-400">
               <AlertCircle className="w-4 h-4 shrink-0 text-rose-600 dark:text-rose-400" />
-              <span>⚠️ RPSC नियम चेतावनी: उम्मीदवारी अयोग्य (Disqualified)!</span>
+              <span>⚠️ RPSC Rule Notice: Disqualified!</span>
             </div>
             <p className="text-[11px] sm:text-xs leading-relaxed text-rose-700 dark:text-rose-300">
-              आपने <strong>{totalCompletelyBlank} प्रश्न</strong> बिना 5वां विकल्प (Option E) भरे रिक्त छोड़ दिए हैं ({((totalCompletelyBlank / Math.max(1, totalQuestions)) * 100).toFixed(1)}%)। RPSC के आधिकारिक नियम के अनुसार 10% से अधिक प्रश्न खाली छोड़ने पर अभ्यर्थी को परीक्षा से अयोग्य घोषित कर दिया जाता है।
+              You left <strong>{totalCompletelyBlank} question(s)</strong> completely blank without filling Option E ({((totalCompletelyBlank / Math.max(1, totalQuestions)) * 100).toFixed(1)}%). Under official RPSC guidelines, leaving over 10% questions blank leads to disqualification.
             </p>
           </div>
         )}
@@ -4723,7 +4723,7 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
                           setShowReportModal(true);
                         }}
                         className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl border flex items-center justify-center transition-all cursor-pointer bg-white dark:bg-[#20181B] border-[#E8D9C0] dark:border-[#33252A] text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/20"
-                        title="प्रश्न पर दावा / आपत्ति दर्ज करें (Report Question)"
+                        title="Report Question / Raise Objection"
                         aria-label="Report Question"
                       >
                         <Flag className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
@@ -4823,7 +4823,7 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
                             className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 hover:from-indigo-600 hover:to-purple-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-indigo-500/20 active:scale-95 transition-all cursor-pointer"
                           >
                             <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-spin" style={{ animationDuration: '3s' }} />
-                            <span>✨ AI से समझें (Explain with AI)</span>
+                            <span>✨ Explain with AI</span>
                           </button>
 
                           <button
@@ -4836,7 +4836,7 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
                             className="text-xs font-bold text-amber-300/90 hover:text-amber-200 flex items-center gap-1.5 transition-colors cursor-pointer"
                           >
                             <Flag className="w-3.5 h-3.5 fill-current" />
-                            <span>प्रश्न / समाधान पर आपत्ति दर्ज करें (Report Question)</span>
+                            <span>Report Question / Solution</span>
                           </button>
                         </div>
                       </div>

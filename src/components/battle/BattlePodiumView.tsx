@@ -42,9 +42,9 @@ export const BattlePodiumView: React.FC<BattlePodiumViewProps> = ({
 
     // Award District War Points
     if (isMeWinner) {
-      districtWarService.addDistrictWarPoints(50, "1v1 लाइव बैटल में शानदार विजय!");
+      districtWarService.addDistrictWarPoints(50, "Glorious victory in 1v1 Live Battle!");
     } else {
-      districtWarService.addDistrictWarPoints(20, "1v1 लाइव बैटल में सहभागिता");
+      districtWarService.addDistrictWarPoints(20, "Participated in 1v1 Live Battle");
     }
 
     // Confetti cannon blast
@@ -86,11 +86,11 @@ export const BattlePodiumView: React.FC<BattlePodiumViewProps> = ({
     const myRank = rankedPlayers.findIndex((p) => p.id === myPlayerId) + 1;
     const myPlayer = rankedPlayers.find((p) => p.id === myPlayerId);
 
-    const text = `🏆 *दिशा 20-20 लाइव क्विज़ मुकाबला परिणाम*\n\n` +
-      `विजेता: ${winner.avatar} ${winner.name} (${winner.score} अंक)\n` +
-      `मेरी रैंक: #${myRank} / ${rankedPlayers.length} खिलाड़ी ${myPlayer?.avatar} (${myPlayer?.score} अंक)\n` +
-      `सटीकता: ${myPlayer?.correctCount || 0}/${totalQuestions} प्रश्न सही (10s प्रति प्रश्न ⚡)\n\n` +
-      `क्या आप मुझे हरा सकते हैं? अभी दिशा 20-20 ऐप में लाइव मुकाबला खेलें! ⚔️`;
+    const text = `🏆 *Disha 20-20 Live Battle Result*\n\n` +
+      `Winner: ${winner.avatar} ${winner.name} (${winner.score} pts)\n` +
+      `My Rank: #${myRank} / ${rankedPlayers.length} players ${myPlayer?.avatar} (${myPlayer?.score} pts)\n` +
+      `Accuracy: ${myPlayer?.correctCount || 0}/${totalQuestions} correct (10s per question ⚡)\n\n` +
+      `Can you beat me? Play Live Battle now in Disha 20-20 app! ⚔️`;
 
     const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
     window.open(whatsappUrl, "_blank", "noopener,noreferrer");
@@ -110,12 +110,12 @@ export const BattlePodiumView: React.FC<BattlePodiumViewProps> = ({
           <Trophy className="w-8 h-8" />
         </div>
         <h2 className="text-xl sm:text-2xl font-extrabold tracking-wide drop-shadow-xs">
-          मुकाबला संपन्न!
+          Battle Concluded!
         </h2>
         <p className="text-xs text-amber-200/95 mt-1 max-w-xs mx-auto font-medium">
           {isMeWinner
-            ? "👑 अद्भुत विजय! आप इस मुकाबले के विजेता बने हैं!"
-            : `🏆 विजेता: ${winner?.name || "खिलाड़ी"} (${winner?.score || 0} अंक)`}
+            ? "👑 Outstanding Victory! You are the Champion of this battle!"
+            : `🏆 Winner: ${winner?.name || "Player"} (${winner?.score || 0} pts)`}
         </p>
       </div>
 
@@ -136,12 +136,12 @@ export const BattlePodiumView: React.FC<BattlePodiumViewProps> = ({
                   {second.name}
                 </span>
                 <span className="text-[11px] font-bold text-stone-500">
-                  {second.score} अंक
+                  {second.score} pts
                 </span>
                 <div className="w-full bg-gradient-to-t from-stone-400 to-stone-200 h-20 rounded-t-2xl mt-2 flex flex-col items-center justify-center border-t-2 border-white shadow-inner">
                   <span className="text-xl">🥈</span>
                   <span className="text-[9px] font-extrabold text-stone-700 uppercase tracking-wider">
-                    द्वितीय
+                    2nd Place
                   </span>
                 </div>
               </div>
@@ -165,12 +165,12 @@ export const BattlePodiumView: React.FC<BattlePodiumViewProps> = ({
                   {first.name}
                 </span>
                 <span className="text-xs font-black text-[#800020]">
-                  {first.score} अंक
+                  {first.score} pts
                 </span>
                 <div className="w-full bg-gradient-to-t from-amber-500 via-amber-400 to-amber-300 h-28 rounded-t-2xl mt-2 flex flex-col items-center justify-center border-t-2 border-amber-200 shadow-md">
                   <span className="text-2xl drop-shadow">👑 🥇</span>
                   <span className="text-[10px] font-black text-amber-950 uppercase tracking-wider">
-                    प्रथम विजेता
+                    Champion 1st
                   </span>
                 </div>
               </div>
@@ -189,12 +189,12 @@ export const BattlePodiumView: React.FC<BattlePodiumViewProps> = ({
                   {third.name}
                 </span>
                 <span className="text-[11px] font-bold text-stone-500">
-                  {third.score} अंक
+                  {third.score} pts
                 </span>
                 <div className="w-full bg-gradient-to-t from-amber-800 to-amber-600 h-16 rounded-t-2xl mt-2 flex flex-col items-center justify-center border-t-2 border-amber-400 shadow-inner">
                   <span className="text-xl">🥉</span>
                   <span className="text-[9px] font-extrabold text-amber-100 uppercase tracking-wider">
-                    तृतीय
+                    3rd Place
                   </span>
                 </div>
               </div>
@@ -213,9 +213,9 @@ export const BattlePodiumView: React.FC<BattlePodiumViewProps> = ({
           return (
             <div className="bg-gradient-to-r from-amber-50 via-white to-amber-50 rounded-3xl p-4 border-2 border-amber-300/80 shadow-xs">
               <h3 className="text-xs font-bold text-stone-600 uppercase tracking-wider mb-2.5 flex items-center justify-between">
-                <span>आपका प्रदर्शन कार्ड</span>
+                <span>Your Performance Card</span>
                 <span className="text-xs font-extrabold text-[#800020] bg-amber-200/80 px-2 py-0.5 rounded-full">
-                  रैंक #{myRank} / {rankedPlayers.length}
+                  Rank #{myRank} / {rankedPlayers.length}
                 </span>
               </h3>
 
@@ -225,7 +225,7 @@ export const BattlePodiumView: React.FC<BattlePodiumViewProps> = ({
                     {myPlayer?.score || 0}
                   </span>
                   <span className="text-[10px] text-stone-500 font-bold uppercase">
-                    कुल अंक
+                    Total Score
                   </span>
                 </div>
 
@@ -234,7 +234,7 @@ export const BattlePodiumView: React.FC<BattlePodiumViewProps> = ({
                     {myPlayer?.correctCount || 0}/{totalQuestions}
                   </span>
                   <span className="text-[10px] text-stone-500 font-bold uppercase">
-                    सही ({accuracy}%)
+                    Correct ({accuracy}%)
                   </span>
                 </div>
 
@@ -243,7 +243,7 @@ export const BattlePodiumView: React.FC<BattlePodiumViewProps> = ({
                     🔥 {myPlayer?.streak || 0}
                   </span>
                   <span className="text-[10px] text-stone-500 font-bold uppercase">
-                    मैक्स स्ट्रीक
+                    Max Streak
                   </span>
                 </div>
               </div>
@@ -254,7 +254,7 @@ export const BattlePodiumView: React.FC<BattlePodiumViewProps> = ({
         {/* Detailed Leaderboard Table */}
         <div className="bg-white rounded-3xl p-4 shadow-sm border border-stone-200">
           <h3 className="text-xs font-bold text-stone-500 uppercase tracking-wider mb-3">
-            पूर्ण स्कोरकार्ड ({rankedPlayers.length} खिलाड़ी)
+            Complete Scorecard ({rankedPlayers.length} Players)
           </h3>
 
           <div className="space-y-2">
@@ -285,7 +285,7 @@ export const BattlePodiumView: React.FC<BattlePodiumViewProps> = ({
                         </span>
                         {isMe && (
                           <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-[#800020] text-white">
-                            आप
+                            You
                           </span>
                         )}
                       </div>
@@ -297,7 +297,7 @@ export const BattlePodiumView: React.FC<BattlePodiumViewProps> = ({
                         {player.streak >= 2 && (
                           <span className="flex items-center gap-0.5 text-orange-600 font-semibold">
                             <Flame className="w-3 h-3 fill-current" />
-                            {player.streak} स्ट्रीक
+                            {player.streak} streak
                           </span>
                         )}
                       </div>
@@ -309,7 +309,7 @@ export const BattlePodiumView: React.FC<BattlePodiumViewProps> = ({
                       {player.score}
                     </span>
                     <span className="block text-[10px] text-stone-500 font-bold uppercase">
-                      अंक
+                      pts
                     </span>
                   </div>
                 </div>
@@ -325,7 +325,7 @@ export const BattlePodiumView: React.FC<BattlePodiumViewProps> = ({
             className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl bg-gradient-to-r from-[#800020] via-[#A00028] to-[#800020] text-white font-extrabold text-sm shadow-md active:scale-98 transition border border-amber-400/40 hover:brightness-110"
           >
             <RotateCcw className="w-4 h-4" />
-            <span>पुनः मुकाबला खेलें (Rematch)</span>
+            <span>Play Rematch</span>
           </button>
 
           <button
@@ -333,7 +333,7 @@ export const BattlePodiumView: React.FC<BattlePodiumViewProps> = ({
             className="w-full flex items-center justify-center gap-2 py-3 px-6 rounded-2xl bg-gradient-to-r from-[#25D366] to-[#1da851] text-white font-extrabold text-sm shadow-sm active:scale-98 transition border border-emerald-400/40 hover:brightness-105"
           >
             <Share2 className="w-4 h-4" />
-            <span>परिणाम WhatsApp पर साझा करें</span>
+            <span>Share Result on WhatsApp</span>
           </button>
 
           <button
@@ -341,7 +341,7 @@ export const BattlePodiumView: React.FC<BattlePodiumViewProps> = ({
             className="w-full flex items-center justify-center gap-2 py-3 px-6 rounded-2xl bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold text-sm border border-stone-300 active:scale-98 transition"
           >
             <Home className="w-4 h-4" />
-            <span>होम स्क्रीन पर लौटें</span>
+            <span>Return to Home</span>
           </button>
         </div>
       </div>

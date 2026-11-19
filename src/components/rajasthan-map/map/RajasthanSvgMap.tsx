@@ -214,7 +214,7 @@ export const RajasthanSvgMap: React.FC<RajasthanSvgMapProps> = ({
           type="button"
           onClick={handleZoomIn}
           aria-label="Zoom In"
-          title="बड़ा करें"
+          title="Zoom In"
           className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl hover:bg-[#800020]/10 dark:hover:bg-[#800020]/30 text-[#800020] dark:text-[#F47B20] flex items-center justify-center transition active:scale-90 cursor-pointer"
         >
           <ZoomIn className="w-5 h-5" />
@@ -229,7 +229,7 @@ export const RajasthanSvgMap: React.FC<RajasthanSvgMapProps> = ({
           type="button"
           onClick={handleZoomOut}
           aria-label="Zoom Out"
-          title="छोटा करें"
+          title="Zoom Out"
           className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl hover:bg-[#800020]/10 dark:hover:bg-[#800020]/30 text-[#800020] dark:text-[#F47B20] flex items-center justify-center transition active:scale-90 cursor-pointer"
         >
           <ZoomOut className="w-5 h-5" />
@@ -241,7 +241,7 @@ export const RajasthanSvgMap: React.FC<RajasthanSvgMapProps> = ({
           type="button"
           onClick={handleResetZoom}
           aria-label="Reset View"
-          title="केंद्रित करें"
+          title="Reset View"
           className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl hover:bg-[#800020]/10 dark:hover:bg-[#800020]/30 text-[#800020] dark:text-[#F47B20] flex items-center justify-center transition active:scale-90 cursor-pointer"
         >
           <RotateCcw className="w-4 h-4" />
@@ -252,7 +252,7 @@ export const RajasthanSvgMap: React.FC<RajasthanSvgMapProps> = ({
       <div className="absolute top-3 left-3 z-10 flex items-center gap-2 pointer-events-none">
         <div className="flex items-center gap-1.5 bg-white/95 dark:bg-[#1E222D]/95 backdrop-blur-md px-2.5 py-1 rounded-full border border-[#C99A45]/30 shadow-xs">
           <Navigation className="w-3.5 h-3.5 text-[#800020] dark:text-[#F47B20]" />
-          <span className="text-[10px] sm:text-xs font-black text-[#800020] dark:text-[#F47B20]">N (उत्तर)</span>
+          <span className="text-[10px] sm:text-xs font-black text-[#800020] dark:text-[#F47B20]">N (North)</span>
         </div>
 
         <button
@@ -266,17 +266,17 @@ export const RajasthanSvgMap: React.FC<RajasthanSvgMapProps> = ({
               ? "bg-[#C99A45]/20 border-[#C99A45] text-[#800020] dark:text-[#F47B20]"
               : "bg-white/80 dark:bg-[#1E222D]/80 border-stone-300 dark:border-stone-700 text-stone-500"
           }`}
-          title="अरावली पर्वतमाला देखें/छिपाएं"
+          title="Show/Hide Aravalli Range"
         >
           <Mountain className="w-3 h-3" />
-          <span className="hidden xs:inline">अरावली</span>
+          <span className="hidden xs:inline">Aravalli</span>
         </button>
       </div>
 
       {/* ================= MAP TITLE & STATS PILL (Top Right) ================= */}
       <div className="absolute top-3 right-3 z-10 hidden sm:flex items-center gap-2 pointer-events-none">
         <div className="bg-white/90 dark:bg-[#1E222D]/90 backdrop-blur-md px-3 py-1 rounded-full border border-[#C99A45]/30 shadow-xs text-[10px] font-black text-[#52576A] dark:text-stone-300">
-          <span className="text-[#800020] dark:text-[#F47B20] font-black">50 ज़िले</span> • 10 संभाग
+          <span className="text-[#800020] dark:text-[#F47B20] font-black">50 Districts</span> • 10 Divisions
         </div>
       </div>
 
@@ -285,16 +285,16 @@ export const RajasthanSvgMap: React.FC<RajasthanSvgMapProps> = ({
         <div className="absolute bottom-4 left-3 z-20 max-w-[210px] sm:max-w-xs bg-[#171923]/95 text-white backdrop-blur-md px-3 py-2 rounded-xl shadow-xl border border-[#C99A45]/40 pointer-events-none animate-in fade-in duration-150">
           <div className="flex items-center gap-1.5">
             <span className="font-black text-xs sm:text-sm text-[#F47B20] truncate">
-              {RAJASTHAN_50_DISTRICTS[hoveredDistrictId]?.nameHindi || hoveredDistrictId}
+              {RAJASTHAN_50_DISTRICTS[hoveredDistrictId]?.nameEnglish || RAJASTHAN_50_DISTRICTS[hoveredDistrictId]?.nameHindi || hoveredDistrictId}
             </span>
             {RAJASTHAN_50_DISTRICTS[hoveredDistrictId]?.isNewDistrict && (
               <span className="px-1.5 py-0.2 text-[8px] font-black bg-amber-500 text-stone-900 rounded-sm">
-                नया ज़िला
+                New District
               </span>
             )}
           </div>
           <div className="text-[10px] text-stone-300 truncate">
-            संभाग: {RAJASTHAN_DIVISIONS[RAJASTHAN_50_DISTRICTS[hoveredDistrictId]?.divisionId]?.nameHindi || "—"}
+            Division: {RAJASTHAN_DIVISIONS[RAJASTHAN_50_DISTRICTS[hoveredDistrictId]?.divisionId]?.nameEnglish || RAJASTHAN_DIVISIONS[RAJASTHAN_50_DISTRICTS[hoveredDistrictId]?.divisionId]?.nameHindi || "—"}
           </div>
         </div>
       )}

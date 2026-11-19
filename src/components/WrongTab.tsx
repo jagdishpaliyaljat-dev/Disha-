@@ -404,7 +404,7 @@ export const WrongTab: React.FC<WrongTabProps> = ({
                 setReportingQuestion(q);
                 setShowReportModal(true);
               }}
-              title="प्रश्न पर दावा / आपत्ति दर्ज करें (Report Question)"
+              title="Report Question / Raise Objection"
               className="w-8 h-8 rounded-xl flex items-center justify-center transition-all cursor-pointer active:scale-90 bg-[#F7EFE2] dark:bg-[#252A3A] text-amber-600 dark:text-amber-400 border border-[#E8D9C0] dark:border-[#31374A] hover:bg-amber-50 dark:hover:bg-amber-950/30"
               aria-label="Report Question"
             >

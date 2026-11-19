@@ -1104,8 +1104,8 @@ export default function App() {
       const { triggerDatabaseSavedToast } = await import('./utils/adminToast');
       triggerDatabaseSavedToast({
         type: "add",
-        title: "प्रश्न Supabase में लाइव हो गए!",
-        message: `${newQuestions.length} नए प्रश्न Supabase में सुरक्षित सेव हो गए हैं और यूजर ऐप में लाइव उपलब्ध हैं।`,
+        title: "Questions Live in Supabase!",
+        message: `${newQuestions.length} new question(s) saved to Supabase and live in the app.`,
         count: newQuestions.length,
       });
       return;
@@ -1127,8 +1127,8 @@ export default function App() {
         const { triggerDatabaseSavedToast } = await import('./utils/adminToast');
         triggerDatabaseSavedToast({
           type: "add",
-          title: "प्रश्न Supabase में लाइव हो गए!",
-          message: `${newQuestions.length} नए प्रश्न Supabase में सुरक्षित सेव हो गए हैं और यूजर ऐप में लाइव उपलब्ध हैं।`,
+          title: "Questions Live in Supabase!",
+          message: `${newQuestions.length} new question(s) saved to Supabase and live in the app.`,
           count: newQuestions.length,
         });
       } else {
@@ -1152,8 +1152,8 @@ export default function App() {
         const { triggerDatabaseSavedToast } = await import('./utils/adminToast');
         triggerDatabaseSavedToast({
           type: "update",
-          title: "प्रश्न Supabase में अपडेट हुआ!",
-          message: "प्रश्न का विवरण Supabase में लाइव अपडेट हो चुका है और यूजर ऐप में प्रदर्शित हो रहा है।",
+          title: "Question Updated in Supabase!",
+          message: "Question details have been updated live in Supabase.",
         });
       } else {
         addToast('info', 'Saved Locally', res.message);
@@ -1176,8 +1176,8 @@ export default function App() {
         const { triggerAdminToast } = await import('./utils/adminToast');
         triggerAdminToast(
           "delete",
-          "प्रश्न Supabase से हटाया गया",
-          "प्रश्न को Supabase डेटाबेस से हटा दिया गया है और यह यूजर ऐप से तुरंत रिमूव हो चुका है।"
+          "Question Removed from Supabase",
+          "The question has been deleted from Supabase database.",
         );
       } else {
         addToast('info', 'Deleted Locally', res.message);
@@ -1202,8 +1202,8 @@ export default function App() {
         const { triggerAdminToast } = await import('./utils/adminToast');
         triggerAdminToast(
           "delete",
-          "प्रश्न बल्क डिलीट (Supabase Live)",
-          `${questionIds.length} प्रश्न Supabase डेटाबेस से हटा दिए गए हैं और यूजर ऐप से तुरंत रिमूव हो चुके हैं।`,
+          "Questions Bulk Deleted (Supabase Live)",
+          `${questionIds.length} question(s) deleted from Supabase database.`,
           { count: questionIds.length }
         );
       } else {
@@ -2141,7 +2141,7 @@ export default function App() {
             onClose={() => setIsGlobalSearchOpen(false)}
             onSelectQuestion={(q: any) => {
               handleStartSession({
-                title: "लक्षित प्रश्न अभ्यास",
+                title: "Targeted Question Practice",
                 subtitle: `${q.examCategory || "General"} • Quick Practice`,
                 questionIds: [q.id],
                 extraQuestions: [q],

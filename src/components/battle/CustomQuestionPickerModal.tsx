@@ -110,10 +110,10 @@ export const CustomQuestionPickerModal: React.FC<CustomQuestionPickerModalProps>
             </div>
             <div>
               <h3 className="text-base font-extrabold tracking-wide">
-                कस्टम प्रश्न चयन करें
+                Select Custom Questions
               </h3>
               <p className="text-xs text-amber-200/90 font-medium">
-                चयनित: <span className="font-black text-amber-300">{selectedIds.length}</span> प्रश्न (लक्ष्य: {targetCount} प्रश्न)
+                Selected: <span className="font-black text-amber-300">{selectedIds.length}</span> questions (Target: {targetCount})
               </p>
             </div>
           </div>
@@ -121,7 +121,7 @@ export const CustomQuestionPickerModal: React.FC<CustomQuestionPickerModalProps>
           <button
             onClick={onClose}
             className="p-2 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 transition border border-white/10"
-            title="बंद करें"
+            title="Close"
           >
             <X className="w-5 h-5" />
           </button>
@@ -136,7 +136,7 @@ export const CustomQuestionPickerModal: React.FC<CustomQuestionPickerModalProps>
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="प्रश्न, विकल्प या विषय खोजें..."
+              placeholder="Search questions, options or topics..."
               className="w-full pl-10 pr-9 py-2 text-sm bg-stone-50 border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#800020]"
             />
             {searchQuery && (
@@ -161,7 +161,7 @@ export const CustomQuestionPickerModal: React.FC<CustomQuestionPickerModalProps>
                     : "text-stone-600 hover:text-stone-900"
                 }`}
               >
-                सभी ({allAvailableQuestions.length})
+                All ({allAvailableQuestions.length})
               </button>
               <button
                 type="button"
@@ -172,7 +172,7 @@ export const CustomQuestionPickerModal: React.FC<CustomQuestionPickerModalProps>
                     : "text-stone-600 hover:text-stone-900"
                 }`}
               >
-                कस्टम प्रश्न ({customQuestions.length})
+                Custom Questions ({customQuestions.length})
               </button>
               <button
                 type="button"
@@ -183,7 +183,7 @@ export const CustomQuestionPickerModal: React.FC<CustomQuestionPickerModalProps>
                     : "text-stone-600 hover:text-stone-900"
                 }`}
               >
-                राजस्थान GK ({curatedQuestions.length})
+                Rajasthan GK ({curatedQuestions.length})
               </button>
             </div>
 
@@ -194,21 +194,21 @@ export const CustomQuestionPickerModal: React.FC<CustomQuestionPickerModalProps>
                 className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-950 font-bold active:scale-95 transition border border-amber-300"
               >
                 <Shuffle className="w-3.5 h-3.5 text-[#800020]" />
-                <span>रैंडम {targetCount}</span>
+                <span>Random {targetCount}</span>
               </button>
               <button
                 type="button"
                 onClick={handleSelectAllFiltered}
                 className="px-2.5 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 active:scale-95 transition"
               >
-                सभी
+                All
               </button>
               <button
                 type="button"
                 onClick={handleClearAll}
                 className="px-2.5 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 active:scale-95 transition"
               >
-                साफ़
+                Clear
               </button>
             </div>
           </div>
@@ -219,9 +219,9 @@ export const CustomQuestionPickerModal: React.FC<CustomQuestionPickerModalProps>
           {filteredQuestions.length === 0 ? (
             <div className="text-center py-16 text-stone-500">
               <Sparkles className="w-10 h-10 text-amber-500 mx-auto mb-2 opacity-50" />
-              <p className="text-sm font-bold">कोई प्रश्न नहीं मिला।</p>
+              <p className="text-sm font-bold">No questions found.</p>
               <p className="text-xs text-stone-400 mt-1">
-                कृपया सर्च कीवर्ड बदलें या अन्य टैब चुनें।
+                Please try a different search keyword or select another tab.
               </p>
             </div>
           ) : (
@@ -252,11 +252,11 @@ export const CustomQuestionPickerModal: React.FC<CustomQuestionPickerModalProps>
                       </span>
                       {q.source === "custom" ? (
                         <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 border border-purple-200">
-                          कस्टम प्रश्न
+                          Custom Question
                         </span>
                       ) : (
                         <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-200">
-                          राजस्थान GK
+                          Rajasthan GK
                         </span>
                       )}
                       {q.category && (
@@ -294,7 +294,7 @@ export const CustomQuestionPickerModal: React.FC<CustomQuestionPickerModalProps>
         {/* Footer */}
         <div className="p-3.5 bg-white border-t border-stone-200 flex items-center justify-between shadow-lg">
           <div className="text-xs font-semibold text-stone-700">
-            चयनित: <span className="text-[#800020] font-black text-sm">{selectedIds.length}</span> / {targetCount} प्रश्न
+            Selected: <span className="text-[#800020] font-black text-sm">{selectedIds.length}</span> / {targetCount} Questions
           </div>
 
           <div className="flex gap-2">
@@ -303,7 +303,7 @@ export const CustomQuestionPickerModal: React.FC<CustomQuestionPickerModalProps>
               onClick={onClose}
               className="px-4 py-2 rounded-xl text-xs font-bold text-stone-600 bg-stone-100 hover:bg-stone-200 active:scale-95 transition"
             >
-              रद्द करें
+              Cancel
             </button>
             <button
               type="button"
@@ -311,7 +311,7 @@ export const CustomQuestionPickerModal: React.FC<CustomQuestionPickerModalProps>
               className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-xs font-extrabold bg-gradient-to-r from-[#800020] to-[#6A001A] text-white shadow-md active:scale-95 transition border border-amber-400/40 hover:brightness-110"
             >
               <Check className="w-4 h-4" />
-              <span>चयन सहेजें ({selectedIds.length})</span>
+              <span>Save Selection ({selectedIds.length})</span>
             </button>
           </div>
         </div>

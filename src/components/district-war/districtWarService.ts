@@ -93,7 +93,7 @@ export const districtWarService = {
     try {
       localStorage.setItem(USER_DISTRICT_KEY, districtId);
       // Give 50 initial enrollment bonus points to the district
-      this.addDistrictWarPoints(50, "नया योद्धा सेना में शामिल हुआ!");
+      this.addDistrictWarPoints(50, "New warrior joined the army!");
       triggerHaptic("medium");
       playSuccessSound();
       window.dispatchEvent(new CustomEvent("disha:district-war-updated"));
@@ -116,8 +116,8 @@ export const districtWarService = {
 
     return {
       districtId,
-      districtNameHindi: district.nameHindi,
-      joinedAt: "आज",
+      districtNameHindi: district.nameEnglish || district.nameHindi,
+      joinedAt: "Today",
       userPointsEarned: points,
       userRankInDistrict: Math.max(1, Math.floor(1000 / (points / 10 + 1))),
     };
@@ -195,8 +195,8 @@ export const districtWarService = {
     this.addLiveEvent({
       id: `evt_${Date.now()}`,
       districtId,
-      districtNameHindi: district.nameHindi,
-      warriorName: "आप (सैनिक)",
+      districtNameHindi: district.nameEnglish || district.nameHindi,
+      warriorName: "You (Warrior)",
       pointsEarned: points,
       actionText,
       timestamp: Date.now(),
@@ -222,37 +222,37 @@ export const districtWarService = {
       {
         id: "e1",
         districtId: "sikar",
-        districtNameHindi: "सीकर",
-        warriorName: "मुकेश चौधरी",
+        districtNameHindi: "Sikar",
+        warriorName: "Mukesh Choudhary",
         pointsEarned: 50,
-        actionText: "1v1 लाइव बैटल में जयपुर के छात्र को हराया",
+        actionText: "Defeated Jaipur player in 1v1 Live Battle",
         timestamp: Date.now() - 1000 * 60 * 2,
       },
       {
         id: "e2",
         districtId: "nagaur",
-        districtNameHindi: "नागौर",
-        warriorName: "राकेश बिश्नोई",
+        districtNameHindi: "Nagaur",
+        warriorName: "Rakesh Bishnoi",
         pointsEarned: 20,
-        actionText: "राजस्थान 50-ज़िला नक्शा क्विज़ 100% सही हल किया",
+        actionText: "Solved Rajasthan 50-District Map Quiz with 100% accuracy",
         timestamp: Date.now() - 1000 * 60 * 5,
       },
       {
         id: "e3",
         districtId: "jodhpur",
-        districtNameHindi: "जोधपुर",
-        warriorName: "सुनीता राठौड़",
+        districtNameHindi: "Jodhpur",
+        warriorName: "Sunita Rathore",
         pointsEarned: 100,
-        actionText: "5-दिवसीय डेली स्ट्रीक पूर्ण की",
+        actionText: "Completed 5-day daily streak",
         timestamp: Date.now() - 1000 * 60 * 9,
       },
       {
         id: "e4",
         districtId: "dudu",
-        districtNameHindi: "दूदू",
-        warriorName: "सुरेश वर्मा",
+        districtNameHindi: "Dudu",
+        warriorName: "Suresh Verma",
         pointsEarned: 30,
-        actionText: "REET PYQ टेस्ट में 20/20 अंक प्राप्त किए",
+        actionText: "Scored 20/20 in REET PYQ Test",
         timestamp: Date.now() - 1000 * 60 * 14,
       },
     ];
@@ -271,21 +271,21 @@ export const districtWarService = {
   getWhatsAppShareUrl(targetDistrictId?: string): string {
     const districtId = targetDistrictId || this.getUserHomeDistrict() || "sikar";
     const district = RAJASTHAN_50_DISTRICTS[districtId];
-    const distName = district ? district.nameHindi : "राजस्थान";
+    const distName = district ? (district.nameEnglish || district.nameHindi) : "Rajasthan";
     const rank = this.getDistrictRank(districtId, "total");
 
     let message = "";
     if (rank <= 3) {
-      message = `👑 *गर्व की बात! हमारा ${distName} ज़िला आज राजस्थान में #${rank} पर है!* 🚩\n\n` +
-        `⚔️ *दिशा 20-20 ऐप के 'राजस्थान 50 ज़िला महासंग्राम' में ${distName} की सेना ने झंडा गाड़ दिया है!*\n\n` +
-        `भाइयों, अपनी बढ़त बनाए रखने और ज़िले को हमेशा नंबर-1 रखने के लिए अभी जुड़ें और अभ्यास करें:\n` +
+      message = `👑 *Proud Moment! Our ${distName} district is currently ranked #${rank} in Rajasthan!* 🚩\n\n` +
+        `⚔️ *The ${distName} army is leading in Disha 20-20's 'Rajasthan 50 District War'!*\n\n` +
+        `Join now, practice tests, and keep our district at #1:\n` +
         `👉 https://disha2020.app/war?district=${districtId}\n\n` +
         `#Disha2020 #${distName}Warriors #RajasthanGK`;
     } else {
-      message = `🚨 *चेतावनी! हमारा ${distName} ज़िला अभी #${rank} रैंक पर चल रहा है!* ⚔️\n\n` +
-        `शीर्ष पर आने के लिए हमें और योद्धाओं की ज़रूरत है!\n` +
-        `सभी ${distName} वाले साथी तुरंत 'दिशा 20-20' ऐप खोलें और राजस्थान GK क्विज़ खेलकर अपने ज़िले को #1 बनाएँ!\n\n` +
-        `सेना में अभी शामिल हों:\n` +
+      message = `🚨 *Call to Action! Our ${distName} district is currently at rank #${rank}!* ⚔️\n\n` +
+        `We need more champions to reach the top!\n` +
+        `Open Disha 20-20 app now and score points to make ${distName} #1 in Rajasthan!\n\n` +
+        `Join the army now:\n` +
         `👉 https://disha2020.app/war?district=${districtId}\n\n` +
         `#MissionNumber1 #${distName}`;
     }

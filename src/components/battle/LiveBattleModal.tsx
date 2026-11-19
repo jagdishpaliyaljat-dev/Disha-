@@ -70,9 +70,9 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
   const [playerName, setPlayerName] = useState<string>(() => {
     try {
       const profile = loadUserProfile();
-      return profile?.name || "अभ्यर्थी";
+      return profile?.name || "Player";
     } catch {
-      return "अभ्यर्थी";
+      return "Player";
     }
   });
   const [selectedAvatar, setSelectedAvatar] = useState<string>(() => {
@@ -317,7 +317,7 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
 
     const hostPlayer: BattlePlayer = {
       id: myPlayerId,
-      name: playerName.trim() || "आयोजक",
+      name: playerName.trim() || "Host",
       avatar: selectedAvatar,
       isHost: true,
       isReady: true,
@@ -348,7 +348,7 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
   const handleJoinRoom = () => {
     const code = inputRoomCode.toUpperCase().trim();
     if (!code || code.length < 4) {
-      alert("कृपया मान्य 6-अंकों का कमरा कोड दर्ज करें।");
+      alert("Please enter a valid 6-digit room code.");
       return;
     }
 
@@ -357,7 +357,7 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
 
     const joinerPlayer: BattlePlayer = {
       id: myPlayerId,
-      name: playerName.trim() || "खिलाड़ी",
+      name: playerName.trim() || "Player",
       avatar: selectedAvatar,
       isHost: false,
       isReady: false,
@@ -787,7 +787,7 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
               <button
                 onClick={onClose}
                 className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 transition border border-white/10"
-                title="बंद करें"
+                title="Close"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -798,14 +798,14 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
 
               <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-amber-400/20 text-amber-200 text-[11px] font-bold border border-amber-300/30 mb-1.5">
                 <Sparkles className="w-3 h-3 text-amber-300" />
-                <span>लाइव मल्टीप्लेयर मुकाबला</span>
+                <span>Live Multiplayer Battle</span>
               </div>
 
               <h2 className="text-xl sm:text-2xl font-extrabold tracking-wide drop-shadow-sm">
-                राजस्थान GK रणभूमि
+                Rajasthan GK Arena
               </h2>
               <p className="text-xs text-amber-100/90 max-w-xs mx-auto mt-1">
-                मित्रों के साथ 1v1 या ग्रुप में खेलें • 10s में तेज उत्तर देकर शीर्ष रैंक पाएं!
+                Play 1v1 or in groups with friends • Answer quickly in 10s to rank top!
               </p>
             </div>
 
@@ -819,7 +819,7 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                   <div className="flex items-center justify-between mb-1">
                     <label className="text-[11px] font-bold text-stone-600 flex items-center gap-1 uppercase tracking-wider">
                       <User className="w-3 h-3 text-[#800020]" />
-                      <span>आपका नाम</span>
+                      <span>Your Name</span>
                     </label>
                     <span className="text-[10px] text-stone-400 font-mono">
                       {playerName.length}/20
@@ -830,7 +830,7 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                     value={playerName}
                     onChange={(e) => setPlayerName(e.target.value)}
                     maxLength={20}
-                    placeholder="अपना नाम दर्ज करें..."
+                    placeholder="Enter your name..."
                     className="w-full text-sm font-bold text-stone-800 bg-[#FFFDF9] border border-amber-300/70 rounded-xl px-3.5 py-2 focus:outline-none focus:ring-2 focus:ring-[#800020] focus:border-transparent transition shadow-inner"
                   />
                 </div>
@@ -839,7 +839,7 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
               {/* Avatar Selector Strip */}
               <div className="mt-3">
                 <div className="text-[10px] font-bold text-stone-500 uppercase tracking-wider mb-1.5 flex items-center gap-1">
-                  <span>अवतार चुनें:</span>
+                  <span>Choose Avatar:</span>
                 </div>
                 <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
                   {PLAYER_AVATARS.map((av) => {
@@ -880,7 +880,7 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                   }`}
                 >
                   <Swords className="w-4 h-4 text-amber-300" />
-                  <span>नया कमरा बनाएं (Host)</span>
+                  <span>Host Room</span>
                 </button>
                 <button
                   onClick={() => {
@@ -894,7 +894,7 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                   }`}
                 >
                   <Users className="w-4 h-4 text-amber-300" />
-                  <span>कोड से जुड़ें (Join)</span>
+                  <span>Join Room</span>
                 </button>
               </div>
 
@@ -903,12 +903,12 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                   {/* Question Source Selector (4 Premium Cards) */}
                   <div>
                     <label className="block text-xs font-bold text-stone-700 mb-2 flex items-center justify-between">
-                      <span>प्रश्न चयन का प्रकार (Question Source)</span>
+                      <span>Question Source</span>
                       <span className="text-[10px] text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full font-bold">
-                        {questionSource === "curated" && "🎯 अनुशंसित"}
-                        {questionSource === "custom_bank" && "📝 स्व-निर्मित"}
-                        {questionSource === "chapter" && "📚 अध्याय-वार"}
-                        {questionSource === "manual_pick" && "✏️ हाथ से चुना"}
+                        {questionSource === "curated" && "🎯 Recommended"}
+                        {questionSource === "custom_bank" && "📝 Custom Bank"}
+                        {questionSource === "chapter" && "📚 Chapter-Wise"}
+                        {questionSource === "manual_pick" && "✏️ Hand-Picked"}
                       </span>
                     </label>
 
@@ -925,11 +925,11 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                         <div className="flex items-center gap-2 mb-1">
                           <span className="text-lg">🎯</span>
                           <span className="text-xs font-extrabold text-stone-900">
-                            राजस्थान GK बैंक
+                            Rajasthan GK Bank
                           </span>
                         </div>
                         <p className="text-[10px] text-stone-500">
-                          40+ प्रामाणिक परीक्षा स्तरीय प्रश्न
+                          40+ authentic exam-level questions
                         </p>
                       </button>
 
@@ -945,11 +945,11 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                         <div className="flex items-center gap-2 mb-1">
                           <span className="text-lg">📝</span>
                           <span className="text-xs font-extrabold text-stone-900">
-                            कस्टम प्रश्न
+                            Custom Bank
                           </span>
                         </div>
                         <p className="text-[10px] text-stone-500">
-                          ऐप में आपके जोड़े गए प्रश्न
+                          Questions added by you in-app
                         </p>
                       </button>
 
@@ -965,11 +965,11 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                         <div className="flex items-center gap-2 mb-1">
                           <span className="text-lg">📚</span>
                           <span className="text-xs font-extrabold text-stone-900">
-                            अध्याय अनुसार
+                            Chapter-Wise
                           </span>
                         </div>
                         <p className="text-[10px] text-stone-500">
-                          विशिष्ट विषय/अध्याय के प्रश्न
+                          Questions from specific subjects/chapters
                         </p>
                       </button>
 
@@ -989,17 +989,17 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                           <div className="flex items-center gap-2">
                             <span className="text-lg">✏️</span>
                             <span className="text-xs font-extrabold text-stone-900">
-                              खुद चुनें
+                              Pick Manually
                             </span>
                           </div>
                           <span className="text-[10px] font-bold text-[#800020] bg-amber-100 px-1.5 py-0.5 rounded-full">
                             {selectedQuestionIds.length > 0
-                              ? `${selectedQuestionIds.length} चुने`
-                              : "चुनें"}
+                              ? `${selectedQuestionIds.length} Selected`
+                              : "Select"}
                           </span>
                         </div>
                         <p className="text-[10px] text-stone-500">
-                          हाथ से एक-एक प्रश्न चुनें
+                          Hand-pick questions one by one
                         </p>
                       </button>
                     </div>
@@ -1009,7 +1009,7 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                   {questionSource === "curated" && (
                     <div className="bg-white p-3 rounded-2xl border border-stone-200 shadow-xs">
                       <label className="block text-xs font-bold text-stone-700 mb-1.5">
-                        विषय श्रेणी (Category)
+                        Category
                       </label>
                       <select
                         value={selectedCategory}
@@ -1018,12 +1018,12 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                         }
                         className="w-full text-sm font-semibold bg-stone-50 border border-stone-300 rounded-xl px-3 py-2.5 text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#800020]"
                       >
-                        <option value="all">🎯 सभी विषय (मिश्रित GK)</option>
-                        <option value="history">🏰 राजस्थान इतिहास</option>
-                        <option value="geography">🗺️ राजस्थान भूगोल</option>
-                        <option value="culture">🎭 कला एवं संस्कृति</option>
-                        <option value="polity">🏛️ राजव्यवस्था व प्रशासन</option>
-                        <option value="economy">📊 अर्थव्यवस्था व योजनाएं</option>
+                        <option value="all">🎯 All Subjects (Mixed GK)</option>
+                        <option value="history">🏰 Rajasthan History</option>
+                        <option value="geography">🗺️ Rajasthan Geography</option>
+                        <option value="culture">🎭 Art & Culture</option>
+                        <option value="polity">🏛️ Polity & Administration</option>
+                        <option value="economy">📊 Economy & Schemes</option>
                       </select>
                     </div>
                   )}
@@ -1032,7 +1032,7 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                   <div className="grid grid-cols-2 gap-3">
                     <div className="bg-white p-3 rounded-2xl border border-stone-200 shadow-xs">
                       <label className="block text-xs font-bold text-stone-700 mb-1.5">
-                        कुल प्रश्न
+                        Total Questions
                       </label>
                       <div className="flex gap-1.5">
                         {[5, 10, 15].map((cnt) => (
@@ -1058,7 +1058,7 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                     <div className="bg-white p-3 rounded-2xl border border-stone-200 shadow-xs">
                       <label className="block text-xs font-bold text-stone-700 mb-1.5 flex items-center gap-1">
                         <Clock className="w-3.5 h-3.5 text-[#800020]" />
-                        <span>प्रति प्रश्न समय</span>
+                        <span>Time per Question</span>
                       </label>
                       <div className="flex gap-1.5">
                         {[10, 15, 20].map((sec) => (
@@ -1087,7 +1087,7 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                     onClick={handleCreateRoom}
                     className="w-full mt-2 flex items-center justify-center gap-2 py-4 px-6 rounded-2xl bg-gradient-to-r from-[#800020] via-[#A00028] to-[#800020] text-white font-extrabold text-base shadow-lg shadow-[#800020]/30 hover:brightness-110 active:scale-98 transition border border-amber-400/40"
                   >
-                    <span>कमरा बनाएं और कोड पाएं</span>
+                    <span>Create Room & Get Code</span>
                     <ArrowRight className="w-5 h-5" />
                   </button>
                 </div>
@@ -1096,7 +1096,7 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                   {/* Join Room Code Input Card */}
                   <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-xs space-y-3">
                     <label className="block text-xs font-bold text-stone-700 text-center">
-                      6-अंकों का कमरा कोड दर्ज करें (Enter Room Code)
+                      Enter 6-Digit Room Code
                     </label>
 
                     <div className="relative">
@@ -1106,7 +1106,7 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                         onChange={(e) =>
                           setInputRoomCode(e.target.value.toUpperCase())
                         }
-                        placeholder="उदा. 849201"
+                        placeholder="e.g. 849201"
                         maxLength={6}
                         className="w-full text-center text-3xl font-mono font-extrabold tracking-widest text-[#800020] bg-amber-50/50 border-2 border-amber-300 rounded-2xl py-3.5 px-4 focus:outline-none focus:ring-2 focus:ring-[#800020] shadow-inner"
                       />
@@ -1117,13 +1117,13 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                         className="mt-2.5 w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-stone-100 hover:bg-amber-100 text-stone-700 text-xs font-bold transition border border-stone-200 active:scale-95"
                       >
                         <ClipboardPaste className="w-4 h-4 text-[#800020]" />
-                        <span>क्लिपबोर्ड से पेस्ट करें (Paste Code)</span>
+                        <span>Paste from Clipboard</span>
                       </button>
                     </div>
 
                     <div className="p-3 bg-amber-50 rounded-xl border border-amber-200/70 text-center">
                       <p className="text-xs text-amber-900 font-medium">
-                        💡 <b>टिप:</b> मित्र द्वारा WhatsApp पर भेजे गए लिंक पर टैप करके भी आप सीधे कमरे में शामिल हो सकते हैं!
+                        💡 <b>Tip:</b> You can also tap the WhatsApp invite link shared by your friend to join directly!
                       </p>
                     </div>
                   </div>
@@ -1137,7 +1137,7 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                         : "bg-stone-200 text-stone-400 cursor-not-allowed"
                     }`}
                   >
-                    <span>कमरे में शामिल हों (Join Battle)</span>
+                    <span>Join Battle</span>
                     <ArrowRight className="w-5 h-5" />
                   </button>
                 </div>
@@ -1169,7 +1169,7 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
 
             <div className="mb-4 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/20 text-amber-300 text-xs font-bold uppercase tracking-wider border border-amber-300/30">
               <Zap className="w-4 h-4 fill-current animate-bounce" />
-              <span>रणभूमि तैयार हो रही है!</span>
+              <span>Preparing the Arena!</span>
             </div>
 
             <div className="relative w-36 h-36 rounded-full border-4 border-amber-400 flex items-center justify-center shadow-[0_0_50px_rgba(245,158,11,0.5)] bg-black/40 my-6 transform animate-pulse">
@@ -1179,10 +1179,10 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
             </div>
 
             <h3 className="text-xl font-extrabold text-white">
-              तैयार हो जाएं!
+              Get Ready!
             </h3>
             <p className="text-xs text-amber-200/90 mt-1 max-w-xs">
-              ⚡ प्रति प्रश्न 10 सेकंड समय • तेज और सही उत्तर पर अधिक अंक मिलेंगे!
+              ⚡ 10s per question • Faster and correct answers score more points!
             </p>
           </div>
         )}
@@ -1222,23 +1222,23 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
             <div className="bg-white rounded-2xl p-5 max-w-xs w-full text-center shadow-2xl border border-stone-200">
               <AlertCircle className="w-10 h-10 text-red-500 mx-auto mb-2" />
               <h3 className="text-base font-bold text-stone-900">
-                क्या आप मुकाबला छोड़ना चाहते हैं?
+                Do you want to leave the battle?
               </h3>
               <p className="text-xs text-stone-600 mt-1 mb-4">
-                कमरा छोड़ने पर आपका स्कोर और प्रगति समाप्त हो जाएगी।
+                Leaving the room will forfeit your score and progress.
               </p>
               <div className="flex gap-2">
                 <button
                   onClick={() => setShowExitConfirm(false)}
                   className="flex-1 py-2 text-xs font-bold text-stone-700 bg-stone-100 hover:bg-stone-200 rounded-xl"
                 >
-                  नहीं, खेलें
+                  No, Stay
                 </button>
                 <button
                   onClick={handleLeaveRoom}
                   className="flex-1 py-2 text-xs font-bold text-white bg-red-600 hover:bg-red-700 rounded-xl"
                 >
-                  हाँ, छोड़ें
+                  Yes, Leave
                 </button>
               </div>
             </div>

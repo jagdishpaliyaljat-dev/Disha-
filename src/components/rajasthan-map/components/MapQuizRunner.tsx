@@ -123,7 +123,7 @@ export const MapQuizRunner: React.FC<MapQuizRunnerProps> = ({
       });
       setStrongDistricts((prev) => Array.from(new Set([...prev, currentQ.targetDistrictName])));
       onQuizFeedback({ selectedDistrictId: selectedDistrictFromMap, isCorrect: true });
-      districtWarService.addDistrictWarPoints(20, `नक्शा क्विज़: ${currentQ.targetDistrictName} सही पहचाना`);
+      districtWarService.addDistrictWarPoints(20, `Map Quiz: Identified ${currentQ.targetDistrictName} correctly`);
     } else {
       triggerHaptic("error");
       setStreak(0);
@@ -167,25 +167,25 @@ export const MapQuizRunner: React.FC<MapQuizRunnerProps> = ({
 
         <div>
           <h3 className="text-base sm:text-lg font-black text-[#800020] dark:text-[#F47B20]">
-            मैप क्विज़ पूर्ण! 🏆
+            Map Quiz Complete! 🏆
           </h3>
           <p className="text-[11px] text-[#52576A] dark:text-[#929AB0]">
-            राजस्थान 50 ज़िला भूगोल स्कोर कार्ड
+            Rajasthan 50 Districts Geography Scorecard
           </p>
         </div>
 
         {/* Stats Row */}
         <div className="grid grid-cols-3 gap-2 py-1 max-w-sm mx-auto">
           <div className="p-2 rounded-xl bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A]">
-            <span className="text-[9px] font-bold text-[#52576A] dark:text-[#929AB0] block uppercase">स्कोर</span>
+            <span className="text-[9px] font-bold text-[#52576A] dark:text-[#929AB0] block uppercase">Score</span>
             <span className="text-sm sm:text-base font-black text-[#800020] dark:text-[#F47B20] font-mono">{score}</span>
           </div>
           <div className="p-2 rounded-xl bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A]">
-            <span className="text-[9px] font-bold text-[#52576A] dark:text-[#929AB0] block uppercase">सटीकता</span>
+            <span className="text-[9px] font-bold text-[#52576A] dark:text-[#929AB0] block uppercase">Accuracy</span>
             <span className="text-sm sm:text-base font-black text-emerald-600 dark:text-emerald-400 font-mono">{accuracy}%</span>
           </div>
           <div className="p-2 rounded-xl bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A]">
-            <span className="text-[9px] font-bold text-[#52576A] dark:text-[#929AB0] block uppercase">स्ट्रीक 🔥</span>
+            <span className="text-[9px] font-bold text-[#52576A] dark:text-[#929AB0] block uppercase">Streak 🔥</span>
             <span className="text-sm sm:text-base font-black text-amber-600 dark:text-amber-400 font-mono">{maxStreak}</span>
           </div>
         </div>
@@ -193,7 +193,7 @@ export const MapQuizRunner: React.FC<MapQuizRunnerProps> = ({
         {/* Weak Districts Callout */}
         {weakDistricts.length > 0 && (
           <div className="p-2 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-300 text-[11px] text-left">
-            <span className="font-bold">पुनः अभ्यास योग्य ज़िले: </span>
+            <span className="font-bold">Districts to Review: </span>
             <span>{weakDistricts.join(", ")}</span>
           </div>
         )}
@@ -206,14 +206,14 @@ export const MapQuizRunner: React.FC<MapQuizRunnerProps> = ({
             className="flex-1 py-2 rounded-xl font-black text-xs bg-gradient-to-r from-[#800020] to-[#F47B20] text-white shadow-md flex items-center justify-center gap-1 active:scale-95 transition cursor-pointer"
           >
             <RotateCcw className="w-3.5 h-3.5" />
-            <span>पुनः खेलें</span>
+            <span>Play Again</span>
           </button>
           <button
             type="button"
             onClick={onExitQuiz}
             className="px-3 py-2 rounded-xl font-bold text-xs border border-[#E8D9C0] dark:border-[#31374A] hover:bg-stone-100 dark:hover:bg-stone-800 transition cursor-pointer"
           >
-            नक्शा देखें
+            View Map
           </button>
         </div>
       </div>
@@ -231,7 +231,7 @@ export const MapQuizRunner: React.FC<MapQuizRunnerProps> = ({
             {currentIndex + 1} / {questions.length}
           </span>
           <span className="text-[10px] text-[#52576A] dark:text-[#929AB0] hidden xs:inline">
-            • {currentQ.category === "new_formation" ? "2023 पुनर्गठन" : currentQ.category === "geography_nature" ? "भूगोल व नदियाँ" : "दुर्ग व स्मारक"}
+            • {currentQ.category === "new_formation" ? "2023 Reorganization" : currentQ.category === "geography_nature" ? "Geography & Rivers" : "Forts & Heritage"}
           </span>
         </div>
 
@@ -265,7 +265,7 @@ export const MapQuizRunner: React.FC<MapQuizRunnerProps> = ({
             type="button"
             onClick={() => setIsMinimized(!isMinimized)}
             className="w-6 h-6 rounded-md bg-stone-100 dark:bg-stone-800 text-stone-500 flex items-center justify-center hover:text-stone-800 dark:hover:text-stone-200 transition"
-            title={isMinimized ? "विस्तार करें" : "छोटा करें"}
+            title={isMinimized ? "Expand" : "Collapse"}
           >
             {isMinimized ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronUp className="w-3.5 h-3.5" />}
           </button>
@@ -278,7 +278,7 @@ export const MapQuizRunner: React.FC<MapQuizRunnerProps> = ({
           <div className="flex items-center justify-between gap-1 mb-0.5">
             <span className="text-[9px] font-black uppercase tracking-wider text-[#800020] dark:text-[#F47B20] flex items-center gap-1">
               <Zap className="w-3 h-3 fill-current" />
-              नक्शे पर सही ज़िला स्पर्श करें
+              Tap the correct district on map
             </span>
 
             {/* Hint Button */}
@@ -288,7 +288,7 @@ export const MapQuizRunner: React.FC<MapQuizRunnerProps> = ({
                 onClick={() => setShowHint(true)}
                 className="text-[10px] font-bold text-amber-600 dark:text-amber-400 hover:underline flex items-center gap-0.5"
               >
-                <span>💡 संकेत</span>
+                <span>💡 Hint</span>
               </button>
             )}
           </div>
@@ -322,7 +322,7 @@ export const MapQuizRunner: React.FC<MapQuizRunnerProps> = ({
             )}
             <div className="min-w-0">
               <div className="font-black text-xs truncate">
-                {lastAnswerCorrect ? "बिल्कुल सही उत्तर! 🎉" : `गलत! सही उत्तर: ${currentQ.targetDistrictName}`}
+                {lastAnswerCorrect ? "Spot on! Correct! 🎉" : `Incorrect! Correct was: ${currentQ.targetDistrictName}`}
               </div>
               <p className="text-[10px] opacity-85 line-clamp-1">{currentQ.explanation}</p>
             </div>
@@ -333,7 +333,7 @@ export const MapQuizRunner: React.FC<MapQuizRunnerProps> = ({
             onClick={handleNextQuestion}
             className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#800020] to-[#F47B20] text-white font-black text-xs shrink-0 flex items-center gap-1 shadow-md hover:brightness-110 active:scale-95 transition cursor-pointer"
           >
-            <span>अगला</span>
+            <span>Next</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>

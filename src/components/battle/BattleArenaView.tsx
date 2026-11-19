@@ -72,7 +72,7 @@ export const BattleArenaView: React.FC<BattleArenaViewProps> = ({
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
             <span className="text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-amber-400/20 text-amber-300 border border-amber-300/30">
-              प्रश्न {questionIndex + 1} / {totalQuestions}
+              Question {questionIndex + 1} / {totalQuestions}
             </span>
             {question.category && (
               <span className="text-[11px] font-semibold text-amber-100/80 capitalize bg-white/10 px-2 py-0.5 rounded-full">
@@ -90,7 +90,7 @@ export const BattleArenaView: React.FC<BattleArenaViewProps> = ({
             className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 hover:bg-white/25 active:scale-95 transition text-xs font-bold text-amber-300 border border-amber-300/40 shadow-xs"
           >
             <Trophy className="w-3.5 h-3.5 text-amber-300" />
-            <span>मेरी रैंक: #{myRank}</span>
+            <span>My Rank: #{myRank}</span>
             <span className="text-white/60">({players.length})</span>
           </button>
         </div>
@@ -133,7 +133,7 @@ export const BattleArenaView: React.FC<BattleArenaViewProps> = ({
               onClick={() => setShowAllRanks(true)}
               className="text-xs font-bold text-amber-300 px-2 py-1 rounded-lg bg-white/10 hover:bg-white/20 whitespace-nowrap"
             >
-              +{sortedPlayers.length - 8} और
+              +{sortedPlayers.length - 8} more
             </button>
           )}
         </div>
@@ -192,7 +192,7 @@ export const BattleArenaView: React.FC<BattleArenaViewProps> = ({
             </div>
 
             <span className="text-[10px] font-bold text-stone-500 mt-1 flex items-center gap-1">
-              <span>⚡ तेज उत्तर = अधिक अंक</span>
+              <span>⚡ Faster Answer = More Points</span>
             </span>
           </div>
 
@@ -259,7 +259,7 @@ export const BattleArenaView: React.FC<BattleArenaViewProps> = ({
                     ) : null
                   ) : isSelected ? (
                     <span className="text-[11px] font-bold text-[#800020] bg-amber-200/90 px-2.5 py-0.5 rounded-full border border-amber-300">
-                      लॉक किया गया ✓
+                      Locked ✓
                     </span>
                   ) : null}
                 </div>
@@ -290,18 +290,18 @@ export const BattleArenaView: React.FC<BattleArenaViewProps> = ({
               {selectedOption === question.correctIndex ? (
                 <span className="flex items-center gap-1 text-sm font-bold text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full border border-emerald-200">
                   <CheckCircle2 className="w-4 h-4" />
-                  <span>शाबाश! सही उत्तर (+{myPlayer?.lastAnswer?.pointsEarned || 100})</span>
+                  <span>Great Job! Correct (+{myPlayer?.lastAnswer?.pointsEarned || 100})</span>
                 </span>
               ) : (
                 <span className="flex items-center gap-1 text-sm font-bold text-red-700 bg-red-100 px-3 py-1 rounded-full border border-red-200">
                   <XCircle className="w-4 h-4" />
-                  <span>गलत उत्तर (+0 अंक)</span>
+                  <span>Incorrect (+0 pts)</span>
                 </span>
               )}
             </div>
 
             <span className="text-xs font-semibold text-stone-500">
-              अगला प्रश्न आ रहा है...
+              Next question incoming...
             </span>
           </div>
 
@@ -322,7 +322,7 @@ export const BattleArenaView: React.FC<BattleArenaViewProps> = ({
               <div className="flex items-center gap-2">
                 <Trophy className="w-5 h-5 text-amber-300" />
                 <h3 className="text-sm font-bold">
-                  लाइव लीडरबोर्ड ({sortedPlayers.length} खिलाड़ी)
+                  Live Leaderboard ({sortedPlayers.length} Players)
                 </h3>
               </div>
               <button
@@ -357,7 +357,7 @@ export const BattleArenaView: React.FC<BattleArenaViewProps> = ({
                           </span>
                           {isMe && (
                             <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-[#800020] text-white">
-                              आप
+                              You
                             </span>
                           )}
                         </div>
@@ -372,7 +372,7 @@ export const BattleArenaView: React.FC<BattleArenaViewProps> = ({
                         </span>
                       )}
                       <span className="text-sm font-black text-[#800020]">
-                        {p.score} अंक
+                        {p.score} pts
                       </span>
                     </div>
                   </div>

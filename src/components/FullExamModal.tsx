@@ -1474,7 +1474,7 @@ export const FullExamModal: React.FC<FullExamModalProps> = ({
                           setShowReportModal(true);
                         }}
                         className="p-1.5 rounded-lg text-amber-600 hover:text-amber-700 hover:bg-amber-50 dark:hover:bg-amber-950/30 transition-colors cursor-pointer"
-                        title="प्रश्न पर दावा / आपत्ति दर्ज करें (Report Question)"
+                        title="Report Question / Raise Objection"
                         aria-label="Report Question"
                       >
                         <Flag className="w-4 h-4" />

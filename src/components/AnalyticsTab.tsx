@@ -381,7 +381,7 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
             }`}
           >
             <Award className="w-3.5 h-3.5" />
-            <span>छात्र AI रिपोर्ट कार्ड</span>
+            <span>Student AI Report Card</span>
           </button>
           <button
             type="button"
@@ -396,7 +396,7 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
             }`}
           >
             <BarChart3 className="w-3.5 h-3.5" />
-            <span>विस्तृत ग्राफिक्स व विषय</span>
+            <span>Detailed Analytics &amp; Topics</span>
           </button>
         </div>
 
@@ -424,7 +424,7 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
                 className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] text-xs font-extrabold text-[#800020] dark:text-[#F47B20] hover:bg-[#F7EFE2] active:scale-95 transition-all cursor-pointer shadow-2xs"
               >
                 <BarChart3 className="w-4 h-4" />
-                <span>विस्तृत विषयवार विश्लेषण व मेमोरी स्टेजेस देखें</span>
+                <span>View Detailed Topic Breakdown &amp; Memory Stages</span>
                 <ChevronRight className="w-3.5 h-3.5" />
               </button>
             </div>

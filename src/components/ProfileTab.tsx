@@ -57,7 +57,7 @@ interface ProfileTabProps {
 }
 
 const POPULAR_TARGET_EXAMS = [
-  "RPSC RAS (प्रारंभिक एवं मुख्य)",
+  "RPSC RAS (Prelims & Mains)",
   "RPSC Sub Inspector (SI)",
   "RSMSSB CET (Graduate / 12th)",
   "REET (Level 1 & 2)",
@@ -113,7 +113,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
     }
   }, [activeProfile, settings.dailyGoal]);
 
-  const userName = activeProfile?.name || (!isAuthenticated ? "अतिथि छात्र (Guest)" : "अभ्यर्थी");
+  const userName = activeProfile?.name || (!isAuthenticated ? "Guest Student" : "Aspirant");
   const isAdmin = activeProfile?.role === "admin";
 
   // ─────────────────────────────────────────────────────────────
@@ -144,8 +144,8 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
   const handleShareInvite = () => {
     triggerHaptic("light");
     setShareData({
-      title: "दिशा 20-20 (DISHA 20-20) — राजस्थान परीक्षा तैयारी मंच",
-      text: `नमस्ते! मैं DISHA 20-20 पर ${activeProfile.targetExam || "राजस्थान प्रतियोगी परीक्षाओं"} की तैयारी कर रहा हूँ। यहाँ टॉपिक-वाइज MCQs, ऑफिशियल PYQs और 5वें विकल्प (Option E) के साथ लाइव मॉक टेस्ट उपलब्ध हैं। अभी जुड़ें:`,
+      title: "DISHA 20-20 — Rajasthan Exam Preparation Platform",
+      text: `Hello! I am preparing for ${activeProfile.targetExam || "Rajasthan Competitive Exams"} on DISHA 20-20. It features topic-wise MCQs, official PYQs, and live mock tests with Option E. Join now:`,
       url: typeof window !== "undefined" ? window.location.origin : "https://disha2020.in",
       category: "Study Group Invite",
     });
@@ -155,7 +155,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
     e.preventDefault();
     const updated: UserProfile = {
       ...activeProfile,
-      name: editName.trim() || "अभ्यर्थी",
+      name: editName.trim() || "Aspirant",
       targetExam: editTargetExam.trim() || "RPSC RAS Pre",
       dailyGoalQuestions: Number(editDailyGoal) || 30,
     };
@@ -164,7 +164,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
     onUpdateProfile?.(updated);
     onUpdateSettings({ dailyGoal: Number(editDailyGoal) || 30 });
     setShowEditProfileModal(false);
-    showToast("प्रोफ़ाइल सफलतापूर्वक अपडेट हो गई!");
+    showToast("Profile successfully updated!");
   };
 
   const containerVariants = {
@@ -231,7 +231,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                 }}
                 className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center text-[#800020] dark:text-[#C99A45] shadow-2xs hover:border-[#800020] dark:hover:border-[#C99A45] active:scale-90 transition-all cursor-pointer"
                 aria-label="App Settings"
-                title="ऐप सेटिंग्स"
+                title="App Settings"
               >
                 <Settings size={16} />
               </button>
@@ -277,7 +277,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                 }}
                 className="absolute -bottom-1.5 -right-1.5 w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-gradient-to-r from-[#800020] to-[#5E0017] dark:from-[#F47B20] dark:to-[#E06A14] text-white flex items-center justify-center shadow-md border-2 border-white dark:border-[#1F2330] active:scale-90 transition-transform cursor-pointer"
                 aria-label="Edit Profile"
-                title="प्रोफ़ाइल संपादित करें"
+                title="Edit Profile"
               >
                 <Edit2 size={12} />
               </button>
@@ -289,12 +289,12 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                 {isAdmin ? (
                   <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-[#C99A45]/20 to-[#C99A45]/30 text-[#800020] dark:text-[#C99A45] border border-[#C99A45]/40 text-[10px] font-black uppercase tracking-wider">
                     <Crown size={11} className="text-[#C99A45]" />
-                    <span>व्यवस्थापक (Verified Admin)</span>
+                    <span>Verified Admin</span>
                   </span>
                 ) : (
                   <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] border border-[#800020]/20 dark:border-[#F47B20]/30 text-[10px] font-black uppercase tracking-wider">
                     <Award size={11} />
-                    <span>DISHA 20-20 अभ्यर्थी</span>
+                    <span>DISHA 20-20 Aspirant</span>
                   </span>
                 )}
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#F7EFE2] dark:bg-[#252A3A] text-slate-700 dark:text-[#E8D9C0] text-[10px] font-black border border-[#E8D9C0] dark:border-[#31374A]">
@@ -326,7 +326,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
               <div className="pt-1 max-w-sm mx-auto sm:mx-0">
                 <div className="flex items-center justify-between text-[10px] font-bold text-slate-500 dark:text-[#E8D9C0]/80 mb-1">
                   <span>Level {currentLevel} Aspirant</span>
-                  <span className="font-mono">{remainingForNextLevel} प्रश्न Level {currentLevel + 1} हेतु</span>
+                  <span className="font-mono">{remainingForNextLevel} Qs to Level {currentLevel + 1}</span>
                 </div>
                 <div className="w-full h-2 rounded-full bg-[#E8D9C0]/60 dark:bg-[#31374A] overflow-hidden">
                   <div
@@ -344,7 +344,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                     className="px-4 py-2 bg-gradient-to-r from-[#800020] via-[#5E0017] to-[#800020] hover:opacity-95 text-white rounded-xl text-xs font-black shadow-md border border-[#C99A45]/30 transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer"
                   >
                     <LogIn size={13} />
-                    <span>Google से लॉगिन करें (Sync Progress)</span>
+                    <span>Sign In with Google (Sync Progress)</span>
                   </button>
                 ) : (
                   <button
@@ -355,7 +355,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                     className="px-3.5 py-1.5 bg-[#FFF9EF] dark:bg-[#252A3A] hover:border-[#800020] dark:hover:border-[#C99A45] text-[#171923] dark:text-[#FFF9EF] border border-[#E8D9C0] dark:border-[#31374A] rounded-xl text-xs font-black transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer shadow-2xs"
                   >
                     <Edit2 size={12} className="text-[#800020] dark:text-[#C99A45]" />
-                    <span>लक्ष्य व प्रोफ़ाइल बदलें</span>
+                    <span>Change Target &amp; Profile</span>
                   </button>
                 )}
               </div>
@@ -378,7 +378,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
         ───────────────────────────────────────────────────────────── */}
         <motion.section variants={itemVariants} className="space-y-2.5">
           <h3 className="text-xs font-black text-slate-600 dark:text-[#E8D9C0] uppercase tracking-wider px-1">
-            टूलकिट एवं अध्ययन प्राथमिकताएं (Settings)
+            Toolkit &amp; Preferences (Settings)
           </h3>
           <div className="bg-white dark:bg-[#1F2330] rounded-3xl border border-[#E8D9C0] dark:border-[#31374A] shadow-xs overflow-hidden divide-y divide-[#E8D9C0]/60 dark:divide-[#31374A]">
             {/* App & Practice Settings */}
@@ -395,10 +395,10 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                 </div>
                 <div className="min-w-0 flex-1">
                   <span className="text-sm font-black text-[#171923] dark:text-[#FFF9EF] block truncate">
-                    अभ्यास एवं डिस्प्ले सेटिंग्स (Display & Sound)
+                    Display &amp; Practice Settings (Display &amp; Sound)
                   </span>
                   <span className="text-[11px] text-slate-500 dark:text-[#CBD2E1] font-bold block truncate">
-                    दैनिक लक्ष्य: {dailyGoal} MCQs • ध्वनि व वाइब्रेशन • परीक्षा टाइमर
+                    Daily Goal: {dailyGoal} MCQs • Sound &amp; Vibration • Exam Timer
                   </span>
                 </div>
               </div>
@@ -419,10 +419,10 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                 </div>
                 <div className="min-w-0 flex-1">
                   <span className="text-sm font-black text-[#171923] dark:text-[#FFF9EF] block truncate">
-                    AI अध्ययन सहायक प्राथमिकताएं (AI Model & Keys)
+                    AI Study Assistant Preferences (AI Model &amp; Keys)
                   </span>
                   <span className="text-[11px] text-slate-500 dark:text-[#CBD2E1] font-bold block truncate">
-                    {settings.aiMode === "personal_keys" ? "व्यक्तिगत Gemini Key सक्रिय" : "DISHA 20-20 AI डिफ़ॉल्ट सक्रिय"}
+                    {settings.aiMode === "personal_keys" ? "Personal Gemini Key Active" : "DISHA 20-20 Default AI Active"}
                   </span>
                 </div>
               </div>
@@ -440,10 +440,10 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                 </div>
                 <div className="min-w-0 flex-1">
                   <span className="text-sm font-black text-[#171923] dark:text-[#FFF9EF] block truncate">
-                    साथी अभ्यर्थियों को आमंत्रित करें (Share App)
+                    Invite Fellow Aspirants (Share App)
                   </span>
                   <span className="text-[11px] text-slate-500 dark:text-[#CBD2E1] font-bold block truncate">
-                    WhatsApp व Telegram पर DISHA 20-20 साझा करें
+                    Share DISHA 20-20 on WhatsApp &amp; Telegram
                   </span>
                 </div>
               </div>
@@ -457,37 +457,37 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
         ───────────────────────────────────────────────────────────── */}
         <motion.section variants={itemVariants} className="space-y-2.5">
           <h3 className="text-xs font-black text-slate-600 dark:text-[#E8D9C0] uppercase tracking-wider px-1">
-            सहायता, कम्युनिटी एवं नीति (Support)
+            Community, Support &amp; Policy
           </h3>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
             {[
               {
-                label: "टेलीग्राम",
-                sub: "कम्युनिटी हब",
+                label: "Telegram",
+                sub: "Community Hub",
                 icon: Send,
                 color: "text-[#800020] dark:text-[#C99A45]",
                 bg: "bg-[#800020]/10 dark:bg-[#C99A45]/15",
                 action: () => window.open("https://t.me/disha2020_official", "_blank"),
               },
               {
-                label: "सहायता केंद्र",
-                sub: "संपर्क करें",
+                label: "Help Center",
+                sub: "Contact Us",
                 icon: Mail,
                 color: "text-[#F47B20]",
                 bg: "bg-[#F47B20]/15",
                 action: () => onNavigateTab?.("contact"),
               },
               {
-                label: "दिशा 20-20",
-                sub: "हमारा उद्देश्य",
+                label: "DISHA 20-20",
+                sub: "About Platform",
                 icon: Info,
                 color: "text-[#C99A45]",
                 bg: "bg-[#C99A45]/15",
                 action: () => setShowAboutModal(true),
               },
               {
-                label: "गोपनीयता नीति",
-                sub: "नियम व शर्तें",
+                label: "Privacy Policy",
+                sub: "Terms & Conditions",
                 icon: Shield,
                 color: "text-emerald-600 dark:text-emerald-400",
                 bg: "bg-emerald-500/10",
@@ -533,10 +533,10 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                 </div>
                 <div>
                   <span className="text-xs font-black text-rose-600 dark:text-rose-400 block">
-                    अध्ययन प्रगति रीसेट करें (Reset Study Progress)
+                    Reset Study Progress
                   </span>
                   <span className="text-[10px] text-slate-500 dark:text-[#CBD2E1] block">
-                    सभी प्रश्न अभ्यास और आंकड़े साफ़ करें
+                    Clear all question practice history and statistics
                   </span>
                 </div>
               </div>
@@ -554,10 +554,10 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                 </div>
                 <div>
                   <span className="text-xs font-black text-[#171923] dark:text-[#FFF9EF] block">
-                    कैश व क्लाउड सिंक ताज़ा करें (Purge Cache & Sync)
+                    Purge Cache &amp; Re-sync
                   </span>
                   <span className="text-[10px] text-slate-500 dark:text-[#CBD2E1] block">
-                    ऑफलाइन फाइल्स रिफ्रेश और डेटा सिंक करें
+                    Refresh offline files and re-sync database
                   </span>
                 </div>
               </div>
@@ -576,10 +576,10 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                   </div>
                   <div>
                     <span className="text-xs font-black text-[#800020] dark:text-rose-400 block">
-                      सत्र समाप्त करें (Logout Current Session)
+                      Logout Current Session
                     </span>
                     <span className="text-[10px] text-slate-500 dark:text-[#CBD2E1] block">
-                      खाते से सुरक्षित लॉगआउट करें
+                      Sign out securely from this device
                     </span>
                   </div>
                 </div>
@@ -592,10 +592,10 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
         {/* Footer Brand Banner */}
         <motion.section variants={itemVariants} className="text-center pt-2 pb-6 space-y-1">
           <p className="text-[11px] font-black text-[#800020] dark:text-[#C99A45] uppercase tracking-widest">
-            DISHA 20-20 • दिशा 20-20 • सही दिशा, सटीक तैयारी
+            DISHA 20-20 • Right Direction, Accurate Preparation
           </p>
           <p className="text-[10px] font-bold text-slate-400 dark:text-slate-600">
-            RPSC • RSMSSB • REET • CET • RAS • राजस्थान प्रतियोगी परीक्षा विशेषज्ञ
+            RPSC • RSMSSB • REET • CET • RAS • Rajasthan Exam Specialist
           </p>
         </motion.section>
       </motion.main>
@@ -623,7 +623,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                 </div>
                 <div>
                   <h3 className="text-base font-black text-[#171923] dark:text-[#FFF9EF]">
-                    अभ्यर्थी प्रोफ़ाइल संपादन
+                    Edit Aspirant Profile
                   </h3>
                   <p className="text-[10px] font-bold text-slate-500 dark:text-[#CBD2E1] uppercase tracking-wider">
                     Update Aspirant Identity
@@ -642,7 +642,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
               {/* Full Name */}
               <div className="space-y-1">
                 <label className="text-[11px] font-black text-slate-700 dark:text-[#E8D9C0] uppercase tracking-wider block">
-                  आपका पूरा नाम (Full Name) *
+                  Full Name *
                 </label>
                 <input
                   type="text"
@@ -650,14 +650,14 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
                   className="w-full px-4 py-2.5 rounded-xl bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] text-sm font-bold text-[#171923] dark:text-[#FFF9EF] focus:outline-none focus:ring-2 focus:ring-[#800020] dark:focus:ring-[#C99A45]"
-                  placeholder="अपना नाम दर्ज करें"
+                  placeholder="Enter your name"
                 />
               </div>
 
               {/* Target Exam */}
               <div className="space-y-1.5">
                 <label className="text-[11px] font-black text-slate-700 dark:text-[#E8D9C0] uppercase tracking-wider block">
-                  लक्षित परीक्षा (Target Exam) *
+                  Target Exam *
                 </label>
                 <input
                   type="text"
@@ -665,7 +665,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                   value={editTargetExam}
                   onChange={(e) => setEditTargetExam(e.target.value)}
                   className="w-full px-4 py-2.5 rounded-xl bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] text-sm font-bold text-[#171923] dark:text-[#FFF9EF] focus:outline-none focus:ring-2 focus:ring-[#800020] dark:focus:ring-[#C99A45]"
-                  placeholder="उदा. RPSC RAS Pre / CET / SI"
+                  placeholder="e.g. RPSC RAS Pre / CET / SI"
                 />
 
                 {/* Popular Exam Chips */}
@@ -690,7 +690,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
               {/* Daily Goal Question Selector */}
               <div className="space-y-1.5 pt-1">
                 <label className="text-[11px] font-black text-slate-700 dark:text-[#E8D9C0] uppercase tracking-wider block">
-                  दैनिक अभ्यास लक्ष्य (Daily Question Goal)
+                  Daily Question Goal
                 </label>
                 <div className="grid grid-cols-4 gap-2">
                   {[20, 30, 50, 100].map((goal) => (
@@ -704,7 +704,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                           : "bg-[#F7EFE2] dark:bg-[#252A3A] text-slate-700 dark:text-[#E8D9C0] border border-[#E8D9C0] dark:border-[#31374A]"
                       }`}
                     >
-                      {goal} प्रश्न
+                      {goal} Qs
                     </button>
                   ))}
                 </div>
@@ -715,14 +715,14 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                   type="submit"
                   className="flex-1 py-3 bg-gradient-to-r from-[#800020] via-[#5E0017] to-[#800020] hover:opacity-95 text-white rounded-xl text-xs font-black shadow-md border border-[#C99A45]/30 cursor-pointer active:scale-95 transition-all"
                 >
-                  बदलाव सुरक्षित करें
+                  Save Changes
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowEditProfileModal(false)}
                   className="px-4 py-3 bg-[#F7EFE2] dark:bg-[#252A3A] text-slate-700 dark:text-[#E8D9C0] rounded-xl text-xs font-bold cursor-pointer"
                 >
-                  रद्द करें
+                  Cancel
                 </button>
               </div>
             </form>
@@ -746,15 +746,15 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
               <AlertCircle size={28} />
             </div>
             <h3 className="text-lg font-black text-[#171923] dark:text-[#FFF9EF] text-center tracking-tight">
-              क्या आप अध्ययन प्रगति रीसेट करना चाहते हैं?
+              Reset Study Progress?
             </h3>
             <p className="text-xs text-slate-500 dark:text-[#CBD2E1] text-center leading-relaxed">
-              यह आपके सभी हल किए गए प्रश्नों, स्कोर और आंकड़ों को स्थायी रूप से हटा देगा। यह क्रिया वापस नहीं ली जा सकती।
+              This will permanently delete all your practiced questions, scores, and analytics. This action cannot be undone.
             </p>
 
             <div className="space-y-1.5">
               <label className="text-[10px] font-black text-slate-600 dark:text-[#E8D9C0] uppercase tracking-widest block text-center">
-                पुष्टि के लिए &quot;RESET&quot; टाइप करें
+                Type &quot;RESET&quot; to confirm
               </label>
               <input
                 type="text"
@@ -773,7 +773,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                 }}
                 className="py-2.5 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] text-xs font-black text-slate-700 dark:text-[#CBD2E1] active:scale-95 transition-transform cursor-pointer"
               >
-                रद्द करें
+                Cancel
               </button>
               <button
                 onClick={() => {
@@ -781,7 +781,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                     onResetProgress();
                     setShowResetConfirm(false);
                     setResetConfirmText("");
-                    showToast("अध्ययन प्रगति सफलतापूर्वक रीसेट हो गई।");
+                    showToast("Study progress successfully reset.");
                   }
                 }}
                 disabled={resetConfirmText !== "RESET"}
@@ -791,7 +791,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                     : "bg-slate-300 dark:bg-slate-700 text-slate-500 cursor-not-allowed shadow-none"
                 }`}
               >
-                हाँ, रीसेट करें
+                Yes, Reset
               </button>
             </div>
           </motion.div>
@@ -814,17 +814,17 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
               <RefreshCw size={28} />
             </div>
             <h3 className="text-lg font-black text-[#171923] dark:text-[#FFF9EF] text-center tracking-tight">
-              कैश और सिंक ताज़ा करें?
+              Purge Cache &amp; Re-sync?
             </h3>
             <p className="text-xs text-slate-500 dark:text-[#CBD2E1] text-center leading-relaxed font-medium">
-              यह लोकल कैश साफ़ करके क्लाउड से नवीनतम प्रश्न और डेटा डाउनलोड करेगा।
+              This will clear local cache and re-download the latest questions and data from cloud.
             </p>
             <div className="grid grid-cols-2 gap-2.5 pt-2">
               <button
                 onClick={() => setShowCacheResetConfirm(false)}
                 className="py-2.5 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] text-xs font-black text-slate-700 dark:text-[#CBD2E1] active:scale-95 transition-transform cursor-pointer"
               >
-                रद्द करें
+                Cancel
               </button>
               <button
                 onClick={async () => {
@@ -833,12 +833,12 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                   safeClearSessionStorage();
                   await clearIndexedDB().catch(() => {});
                   setShowCacheResetConfirm(false);
-                  showToast("सिस्टम कैश साफ़ हो गया। पुनः लोड हो रहा है...");
+                  showToast("System cache cleared. Reloading...");
                   setTimeout(() => window.location.reload(), 1200);
                 }}
                 className="py-2.5 rounded-xl bg-gradient-to-r from-[#F47B20] to-[#E06A14] text-white text-xs font-black shadow-md shadow-[#F47B20]/25 active:scale-95 transition-transform cursor-pointer"
               >
-                हाँ, रिफ्रेश करें
+                Yes, Refresh
               </button>
             </div>
           </motion.div>
@@ -869,25 +869,25 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
 
             <div className="space-y-3 text-xs text-slate-600 dark:text-[#CBD2E1] leading-relaxed">
               <p>
-                <strong>दिशा 20-20 (DISHA 20-20)</strong> राजस्थान की समस्त प्रतियोगी परीक्षाओं (RPSC RAS, SI, REET, CET, Patwar आदि) के लिए समर्पित स्मार्ट तैयारी मंच है।
+                <strong>DISHA 20-20</strong> is a dedicated smart preparation platform for all Rajasthan competitive exams (RPSC RAS, SI, REET, CET, Patwar, etc.).
               </p>
 
               <div className="space-y-2 bg-[#FFF9EF] dark:bg-[#171923] p-3.5 rounded-2xl border border-[#E8D9C0] dark:border-[#31374A]">
                 <div className="flex items-center gap-2.5 text-[#800020] dark:text-[#C99A45]">
                   <Check size={14} className="stroke-[3] text-emerald-600" />
-                  <span className="text-xs font-black">RPSC 5वां विकल्प (Option E) अनुपालन</span>
+                  <span className="text-xs font-black">RPSC Option E (5th Option) Compliance</span>
                 </div>
                 <div className="flex items-center gap-2.5 text-[#800020] dark:text-[#C99A45]">
                   <Check size={14} className="stroke-[3] text-emerald-600" />
-                  <span className="text-xs font-black">राजस्थान PYQ वॉल्ट (विगत 25 वर्ष)</span>
+                  <span className="text-xs font-black">Rajasthan PYQ Vault (Past 25 Years)</span>
                 </div>
                 <div className="flex items-center gap-2.5 text-[#800020] dark:text-[#C99A45]">
                   <Check size={14} className="stroke-[3] text-emerald-600" />
-                  <span className="text-xs font-black">AI कमजोरी निदान एवं कस्टमाइज़्ड टेस्ट</span>
+                  <span className="text-xs font-black">AI Weakness Radar &amp; Customized Practice</span>
                 </div>
                 <div className="flex items-center gap-2.5 text-[#800020] dark:text-[#C99A45]">
                   <Check size={14} className="stroke-[3] text-emerald-600" />
-                  <span className="text-xs font-black">ऑल-राजस्थान लाइव टेस्ट एवं मेरिट रैंकिंग</span>
+                  <span className="text-xs font-black">All-Rajasthan Live Mock Tests &amp; Merit Ranks</span>
                 </div>
               </div>
             </div>
@@ -896,7 +896,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
               onClick={() => setShowAboutModal(false)}
               className="w-full py-3 bg-gradient-to-r from-[#800020] via-[#5E0017] to-[#800020] text-white rounded-xl text-xs font-black shadow-md border border-[#C99A45]/30 cursor-pointer active:scale-95 transition-all"
             >
-              वापस जाएं
+              Close
             </button>
           </motion.div>
         </div>

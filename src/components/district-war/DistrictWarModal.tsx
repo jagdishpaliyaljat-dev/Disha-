@@ -56,9 +56,12 @@ export const DistrictWarModal: React.FC<DistrictWarModalProps> = ({
 
   const filteredDistricts = useMemo(() => {
     if (!searchQuery.trim()) return leaderboard;
-    return leaderboard.filter((item) =>
-      item.nameHindi.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    return leaderboard.filter((item) => {
+      const eng = (RAJASTHAN_50_DISTRICTS[item.districtId]?.nameEnglish || "").toLowerCase();
+      const hin = item.nameHindi.toLowerCase();
+      const q = searchQuery.toLowerCase();
+      return eng.includes(q) || hin.includes(q);
+    });
   }, [leaderboard, searchQuery]);
 
   if (!isOpen) return null;
@@ -84,7 +87,7 @@ export const DistrictWarModal: React.FC<DistrictWarModalProps> = ({
           <div>
             <div className="flex items-center gap-2">
               <h2 className="font-black text-sm sm:text-lg tracking-tight leading-tight">
-                राजस्थान 50 ज़िला महासंग्राम
+                Rajasthan 50 Districts War
               </h2>
               <span className="px-1.5 py-0.2 rounded-full bg-red-500 text-white text-[9px] font-black uppercase tracking-wider animate-pulse flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-white inline-block" />
@@ -92,7 +95,7 @@ export const DistrictWarModal: React.FC<DistrictWarModalProps> = ({
               </span>
             </div>
             <p className="text-[10.5px] sm:text-xs text-amber-200 font-medium">
-              हर सही उत्तर से आपके ज़िले को मिलेंगे अंक • साप्ताहिक समापन: रविवार रात 12 बजे
+              Every correct answer earns points for your district • Weekly reset: Sunday midnight
             </p>
           </div>
         </div>
@@ -109,16 +112,16 @@ export const DistrictWarModal: React.FC<DistrictWarModalProps> = ({
       {/* ================= 2. LIVE TICKER ================= */}
       <div className="bg-[#171923] text-white/90 px-3 py-1.5 text-[10.5px] font-medium flex items-center gap-2 shrink-0 overflow-hidden border-b border-stone-800">
         <span className="flex items-center gap-1 text-[#F47B20] font-black shrink-0 uppercase tracking-wider text-[9px] bg-[#F47B20]/15 px-1.5 py-0.5 rounded-sm">
-          <Flame className="w-3 h-3 text-[#F47B20]" /> ताज़ा हलचल
+          <Flame className="w-3 h-3 text-[#F47B20]" /> Live Activity
         </span>
         <div className="truncate flex-1">
           {liveEvents.length > 0 ? (
             <span>
-              ⚡ <b>{liveEvents[0].districtNameHindi}</b> के {liveEvents[0].warriorName} ने{" "}
-              <b>+{liveEvents[0].pointsEarned} अंक</b> जोड़े ({liveEvents[0].actionText})
+              ⚡ <b>{RAJASTHAN_50_DISTRICTS[liveEvents[0].districtId]?.nameEnglish || liveEvents[0].districtNameHindi}</b>'s {liveEvents[0].warriorName} scored{" "}
+              <b>+{liveEvents[0].pointsEarned} pts</b> ({liveEvents[0].actionText})
             </span>
           ) : (
-            <span>सभी 50 ज़िलों में घमासान जारी है...</span>
+            <span>Battle is raging across all 50 districts...</span>
           )}
         </div>
       </div>
@@ -134,18 +137,18 @@ export const DistrictWarModal: React.FC<DistrictWarModalProps> = ({
               <div>
                 <div className="flex items-center gap-2">
                   <span className="font-black text-sm sm:text-base text-stone-900 dark:text-white">
-                    आपकी सेना: {userAffiliation.districtNameHindi}
+                    Your Army: {RAJASTHAN_50_DISTRICTS[userAffiliation.districtId]?.nameEnglish || userAffiliation.districtNameHindi}
                   </span>
                   <span className="px-2 py-0.5 rounded-md text-[10px] font-black bg-[#800020] text-white">
-                    रैंक #{districtWarService.getDistrictRank(userAffiliation.districtId, activeLeague)}
+                    Rank #{districtWarService.getDistrictRank(userAffiliation.districtId, activeLeague)}
                   </span>
                 </div>
                 <p className="text-[11px] text-stone-600 dark:text-stone-300 font-medium">
-                  आपका योगदान:{" "}
+                  Your Contribution:{" "}
                   <b className="text-[#800020] dark:text-[#F47B20]">
-                    {userAffiliation.userPointsEarned} अंक
+                    {userAffiliation.userPointsEarned} pts
                   </b>{" "}
-                  • ज़िला सेना में आपकी रैंक #{userAffiliation.userRankInDistrict}
+                  • District Rank #{userAffiliation.userRankInDistrict}
                 </p>
               </div>
             </div>
@@ -157,14 +160,14 @@ export const DistrictWarModal: React.FC<DistrictWarModalProps> = ({
                 className="flex-1 sm:flex-initial px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black shadow-md flex items-center justify-center gap-1.5 active:scale-95 transition cursor-pointer"
               >
                 <Share2 className="w-3.5 h-3.5" />
-                <span>सेना बुलाएँ 📲</span>
+                <span>Rally Army 📲</span>
               </button>
               <button
                 type="button"
                 onClick={() => setIsSelectDistrictOpen(true)}
                 className="px-2.5 py-2 rounded-xl bg-stone-200 dark:bg-stone-800 text-stone-700 dark:text-stone-300 text-[11px] font-bold hover:bg-stone-300 transition cursor-pointer"
               >
-                बदलें
+                Change
               </button>
             </div>
           </div>
@@ -176,10 +179,10 @@ export const DistrictWarModal: React.FC<DistrictWarModalProps> = ({
               </div>
               <div>
                 <span className="font-black text-xs sm:text-sm text-stone-900 dark:text-white block">
-                  आप अभी किसी ज़िले की सेना में नहीं हैं!
+                  You haven't joined a district army yet!
                 </span>
                 <span className="text-[10.5px] text-stone-600 dark:text-stone-400">
-                  अपना गृह ज़िला चुनें और तुरंत +50 वेलकम अंक दिलाएँ।
+                  Select your home district and get +50 welcome bonus points immediately.
                 </span>
               </div>
             </div>
@@ -189,7 +192,7 @@ export const DistrictWarModal: React.FC<DistrictWarModalProps> = ({
               onClick={() => setIsSelectDistrictOpen(true)}
               className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#800020] to-[#F47B20] text-white font-black text-xs shadow-md active:scale-95 transition cursor-pointer shrink-0"
             >
-              ज़िला सेना चुनें 🛡️
+              Join Army 🛡️
             </button>
           </div>
         )}
@@ -213,7 +216,7 @@ export const DistrictWarModal: React.FC<DistrictWarModalProps> = ({
             }`}
           >
             <Trophy className="w-3.5 h-3.5" />
-            <span>महासंग्राम (कुल अंक)</span>
+            <span>Total Points</span>
           </button>
           <button
             type="button"
@@ -229,7 +232,7 @@ export const DistrictWarModal: React.FC<DistrictWarModalProps> = ({
             }`}
           >
             <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-            <span>सबसे जुझारू (औसत अंक)</span>
+            <span>Efficiency (Avg Score)</span>
           </button>
         </div>
 
@@ -238,7 +241,7 @@ export const DistrictWarModal: React.FC<DistrictWarModalProps> = ({
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" />
           <input
             type="text"
-            placeholder="50 ज़िलों में खोजें..."
+            placeholder="Search 50 districts..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-9 pr-3 py-1.5 bg-white dark:bg-[#1A1D2C] text-xs rounded-xl border border-stone-200 dark:border-stone-700 focus:outline-hidden focus:border-[#C99A45]"
@@ -258,15 +261,15 @@ export const DistrictWarModal: React.FC<DistrictWarModalProps> = ({
               </div>
               <div className="w-full bg-gradient-to-b from-slate-100 to-slate-200 dark:from-[#1E2232] dark:to-[#171926] p-2.5 rounded-2xl border border-slate-300 dark:border-slate-700 text-center shadow-xs">
                 <span className="font-black text-xs sm:text-sm text-stone-900 dark:text-white block truncate">
-                  {topThree[1].nameHindi}
+                  {RAJASTHAN_50_DISTRICTS[topThree[1].districtId]?.nameEnglish || topThree[1].nameHindi}
                 </span>
                 <span className="text-[10px] sm:text-xs font-mono font-black text-[#800020] dark:text-amber-400 block">
                   {activeLeague === "total"
                     ? topThree[1].totalPoints.toLocaleString()
-                    : `${topThree[1].avgScore} अंक/छात्र`}
+                    : `${topThree[1].avgScore} pts/student`}
                 </span>
                 <span className="text-[9px] text-stone-500 block">
-                  {topThree[1].activeWarriors} योद्धा
+                  {topThree[1].activeWarriors} warriors
                 </span>
               </div>
             </div>
@@ -281,15 +284,15 @@ export const DistrictWarModal: React.FC<DistrictWarModalProps> = ({
               </div>
               <div className="w-full bg-gradient-to-b from-amber-50 to-amber-100 dark:from-[#2A2418] dark:to-[#1E1C16] p-3 rounded-2xl border-2 border-[#C99A45] text-center shadow-md">
                 <span className="font-black text-sm sm:text-base text-stone-900 dark:text-amber-200 block truncate">
-                  {topThree[0].nameHindi}
+                  {RAJASTHAN_50_DISTRICTS[topThree[0].districtId]?.nameEnglish || topThree[0].nameHindi}
                 </span>
                 <span className="text-xs sm:text-sm font-mono font-black text-[#800020] dark:text-amber-300 block">
                   {activeLeague === "total"
                     ? topThree[0].totalPoints.toLocaleString()
-                    : `${topThree[0].avgScore} अंक/छात्र`}
+                    : `${topThree[0].avgScore} pts/student`}
                 </span>
                 <span className="text-[9.5px] text-stone-600 dark:text-amber-100/70 block font-medium">
-                  {topThree[0].activeWarriors} योद्धा
+                  {topThree[0].activeWarriors} warriors
                 </span>
               </div>
             </div>
@@ -301,15 +304,15 @@ export const DistrictWarModal: React.FC<DistrictWarModalProps> = ({
               </div>
               <div className="w-full bg-gradient-to-b from-orange-50 to-orange-100/50 dark:from-[#221C18] dark:to-[#191614] p-2.5 rounded-2xl border border-amber-700/30 text-center shadow-xs">
                 <span className="font-black text-xs sm:text-sm text-stone-900 dark:text-white block truncate">
-                  {topThree[2].nameHindi}
+                  {RAJASTHAN_50_DISTRICTS[topThree[2].districtId]?.nameEnglish || topThree[2].nameHindi}
                 </span>
                 <span className="text-[10px] sm:text-xs font-mono font-black text-[#800020] dark:text-amber-400 block">
                   {activeLeague === "total"
                     ? topThree[2].totalPoints.toLocaleString()
-                    : `${topThree[2].avgScore} अंक/छात्र`}
+                    : `${topThree[2].avgScore} pts/student`}
                 </span>
                 <span className="text-[9px] text-stone-500 block">
-                  {topThree[2].activeWarriors} योद्धा
+                  {topThree[2].activeWarriors} warriors
                 </span>
               </div>
             </div>
@@ -352,16 +355,16 @@ export const DistrictWarModal: React.FC<DistrictWarModalProps> = ({
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5 flex-wrap">
                       <span className="font-black text-xs sm:text-sm text-stone-900 dark:text-white truncate">
-                        {item.nameHindi}
+                        {RAJASTHAN_50_DISTRICTS[item.districtId]?.nameEnglish || item.nameHindi}
                       </span>
                       {isUserDistrict && (
                         <span className="px-1.5 py-0.2 rounded-xs bg-[#800020] text-white text-[8px] font-black uppercase tracking-wider">
-                          आपकी सेना
+                          Your Army
                         </span>
                       )}
                       {item.rank === 1 && (
                         <span className="px-1.5 py-0.2 rounded-xs bg-amber-400 text-stone-900 text-[8px] font-black uppercase tracking-wider flex items-center gap-0.5">
-                          <Crown className="w-2.5 h-2.5 inline" /> ताज
+                          <Crown className="w-2.5 h-2.5 inline" /> Crown
                         </span>
                       )}
                     </div>
@@ -391,14 +394,14 @@ export const DistrictWarModal: React.FC<DistrictWarModalProps> = ({
                         : `${item.avgScore}`}
                     </span>
                     <span className="text-[9px] text-stone-500 block">
-                      {item.activeWarriors} योद्धा
+                      {item.activeWarriors} warriors
                     </span>
                   </div>
 
                   <button
                     type="button"
                     onClick={() => handleShareWhatsApp(item.districtId)}
-                    title={`${item.nameHindi} सेना को व्हाट्सएप पर चुनौती / आमंत्रण भेजें`}
+                    title={`Send WhatsApp challenge for ${RAJASTHAN_50_DISTRICTS[item.districtId]?.nameEnglish || item.nameHindi} army`}
                     className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center transition active:scale-90 cursor-pointer"
                   >
                     <Share2 className="w-4 h-4" />
@@ -421,7 +424,7 @@ export const DistrictWarModal: React.FC<DistrictWarModalProps> = ({
           className="flex-1 py-2.5 px-3 rounded-xl bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 text-stone-800 dark:text-stone-200 font-bold text-xs flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer"
         >
           <MapPin className="w-4 h-4 text-[#800020] dark:text-[#F47B20]" />
-          <span>नक्शे पर लाइव स्थिति देखें</span>
+          <span>View Live Map Status</span>
         </button>
 
         <button
@@ -430,7 +433,7 @@ export const DistrictWarModal: React.FC<DistrictWarModalProps> = ({
           className="flex-1 py-2.5 px-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black text-xs shadow-md flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer"
         >
           <Share2 className="w-4 h-4" />
-          <span>व्हाट्सएप पर चुनौती भेजें</span>
+          <span>Send WhatsApp Challenge</span>
         </button>
       </div>
 

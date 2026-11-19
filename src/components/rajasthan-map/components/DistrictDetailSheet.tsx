@@ -103,12 +103,12 @@ export const DistrictDetailSheet: React.FC<DistrictDetailSheetProps> = ({
               className="px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-black shadow-xs"
               style={{ backgroundColor: division?.color || "#F47B20", color: "#FFF" }}
             >
-              {division?.nameHindi || "संभाग"}
+              {division?.nameEnglish || division?.nameHindi || "Division"}
             </span>
             {district.isNewDistrict && (
               <span className="px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-black bg-[#F47B20] text-white shadow-xs flex items-center gap-1">
                 <Sparkles className="w-3 h-3 fill-current" />
-                2023 नया ज़िला
+                2023 New District
               </span>
             )}
           </div>
@@ -117,17 +117,17 @@ export const DistrictDetailSheet: React.FC<DistrictDetailSheetProps> = ({
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0">
               <h2 className="text-xl sm:text-2xl font-black tracking-tight truncate">
-                {district.nameHindi}
+                {district.nameEnglish || district.nameHindi}
               </h2>
               <p className="text-[11px] sm:text-xs font-medium text-[#FFF9EF]/80">
-                {district.nameEnglish} • मुख्यालय: {district.headquarter}
+                {district.nameHindi} • Headquarter: {district.headquarter}
               </p>
             </div>
 
             <button
               type="button"
               onClick={handleSpeakHighlights}
-              title="हिंदी में परीक्षा बिंदु सुनें"
+              title="Listen to high-yield facts"
               className={`px-3 py-1.5 rounded-xl border transition active:scale-95 flex items-center gap-1.5 text-xs font-black shrink-0 cursor-pointer ${
                 isSpeaking
                   ? "bg-[#F47B20] text-white border-white animate-pulse shadow-md"
@@ -135,7 +135,7 @@ export const DistrictDetailSheet: React.FC<DistrictDetailSheetProps> = ({
               }`}
             >
               <Volume2 className="w-4 h-4" />
-              <span>{isSpeaking ? "रोकें" : "ऑडियो"}</span>
+              <span>{isSpeaking ? "Stop" : "Audio"}</span>
             </button>
           </div>
 
@@ -147,10 +147,10 @@ export const DistrictDetailSheet: React.FC<DistrictDetailSheetProps> = ({
         {/* ================= TOUCH SCROLLABLE TABS ================= */}
         <div className="flex border-b border-[#E8D9C0] dark:border-[#2D3345] bg-white dark:bg-[#181B26] overflow-x-auto no-scrollbar px-3 pt-2 gap-1 shrink-0">
           {[
-            { id: "overview", label: "अवलोकन", icon: Landmark },
-            { id: "new_changes", label: "2023 बदलाव", icon: Sparkles },
-            { id: "culture", label: "दुर्ग व संस्कृति", icon: BookOpen },
-            { id: "geography", label: "भूगोल व खनिज", icon: Compass },
+            { id: "overview", label: "Overview", icon: Landmark },
+            { id: "new_changes", label: "2023 Changes", icon: Sparkles },
+            { id: "culture", label: "Forts & Culture", icon: BookOpen },
+            { id: "geography", label: "Geography & Minerals", icon: Compass },
             { id: "pyqs", label: `PYQs (${district.pyqQuestions?.length || 0})`, icon: HelpCircle },
           ].map((tab) => {
             const Icon = tab.icon;
@@ -186,12 +186,12 @@ export const DistrictDetailSheet: React.FC<DistrictDetailSheetProps> = ({
               <div className="p-3.5 rounded-2xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] shadow-xs">
                 <div className="flex items-center gap-2 text-xs font-bold text-[#800020] dark:text-[#F47B20] mb-1">
                   <Calendar className="w-4 h-4" />
-                  <span>गठन / पुनर्गठन विवरण</span>
+                  <span>Formation / Reorganization Details</span>
                 </div>
                 <p className="text-xs sm:text-sm font-semibold">{district.formationInfo}</p>
                 {district.parentDistricts?.length > 0 && (
                   <p className="text-[11px] text-[#52576A] dark:text-[#929AB0] mt-1">
-                    मूल ज़िला (Parent): {district.parentDistricts.join(", ")}
+                    Parent District: {district.parentDistricts.join(", ")}
                   </p>
                 )}
               </div>
@@ -200,7 +200,7 @@ export const DistrictDetailSheet: React.FC<DistrictDetailSheetProps> = ({
               <div className="space-y-2">
                 <h4 className="text-xs font-black text-[#800020] dark:text-[#F47B20] uppercase tracking-wider flex items-center gap-1.5">
                   <Layers className="w-4 h-4" />
-                  <span>परीक्षा उपयोगी उच्च-प्राथमिकता बिंदु (High-Yield Facts)</span>
+                  <span>High-Yield Exam Points</span>
                 </h4>
                 <div className="space-y-2">
                   {district.examHighYieldFacts.map((fact, idx) => (
@@ -225,10 +225,10 @@ export const DistrictDetailSheet: React.FC<DistrictDetailSheetProps> = ({
               <div className="p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/40 text-amber-900 dark:text-amber-200 text-xs sm:text-sm">
                 <span className="font-black flex items-center gap-1 mb-1">
                   <Sparkles className="w-4 h-4 text-amber-600" />
-                  रामलुभाया कमेटी रिपोर्ट के अनुसार 2023 पुनर्गठन बदलाव:
+                  2023 Reorganization Changes (Ram Lubhaya Committee Report):
                 </span>
                 <p className="text-[11px] opacity-90">
-                  नवीनतम भूगोल में ये तथ्य सीधे परीक्षा प्रश्नों में पूछे जा रहे हैं।
+                  These updated geographical facts are frequently tested in recent exams.
                 </p>
               </div>
 
@@ -253,7 +253,7 @@ export const DistrictDetailSheet: React.FC<DistrictDetailSheetProps> = ({
                 <div className="p-3.5 rounded-2xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] shadow-xs">
                   <h4 className="text-xs font-black text-[#800020] dark:text-[#F47B20] mb-2 flex items-center gap-1.5">
                     <Landmark className="w-4 h-4" />
-                    <span>प्रमुख दुर्ग व ऐतिहासिक धरोहर</span>
+                    <span>Major Forts & Heritage</span>
                   </h4>
                   <div className="flex flex-wrap gap-1.5">
                     {district.culture.forts.map((fort, i) => (
@@ -269,7 +269,7 @@ export const DistrictDetailSheet: React.FC<DistrictDetailSheetProps> = ({
                 <div className="p-3.5 rounded-2xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] shadow-xs">
                   <h4 className="text-xs font-black text-[#800020] dark:text-[#F47B20] mb-2 flex items-center gap-1.5">
                     <Landmark className="w-4 h-4" />
-                    <span>प्रमुख मंदिर व लोक-तीर्थ</span>
+                    <span>Major Temples & Sacred Sites</span>
                   </h4>
                   <div className="flex flex-wrap gap-1.5">
                     {district.culture.temples.map((temple, i) => (
@@ -285,7 +285,7 @@ export const DistrictDetailSheet: React.FC<DistrictDetailSheetProps> = ({
                 <div className="p-3.5 rounded-2xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] shadow-xs">
                   <h4 className="text-xs font-black text-[#800020] dark:text-[#F47B20] mb-2 flex items-center gap-1.5">
                     <Sparkles className="w-4 h-4" />
-                    <span>हस्तकला, उत्सव व संस्कृति</span>
+                    <span>Handicrafts, Festivals & Culture</span>
                   </h4>
                   <div className="flex flex-wrap gap-1.5">
                     {district.culture.artAndCraft.map((craft, i) => (
@@ -303,7 +303,7 @@ export const DistrictDetailSheet: React.FC<DistrictDetailSheetProps> = ({
           {activeTab === "geography" && (
             <div className="space-y-4 animate-in fade-in duration-150">
               <div className="p-3.5 rounded-2xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] shadow-xs">
-                <span className="text-[10px] font-bold text-[#52576A] dark:text-[#929AB0] block uppercase">भौगोलिक स्वरूप (Terrain)</span>
+                <span className="text-[10px] font-bold text-[#52576A] dark:text-[#929AB0] block uppercase">Terrain</span>
                 <p className="text-xs sm:text-sm font-semibold mt-0.5">{district.geography.terrain}</p>
               </div>
 
@@ -311,7 +311,7 @@ export const DistrictDetailSheet: React.FC<DistrictDetailSheetProps> = ({
                 <div className="p-3.5 rounded-2xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] shadow-xs">
                   <h4 className="text-xs font-black text-[#800020] dark:text-[#F47B20] mb-2 flex items-center gap-1.5">
                     <Compass className="w-4 h-4" />
-                    <span>प्रमुख खनिज संपदा (Minerals)</span>
+                    <span>Major Minerals</span>
                   </h4>
                   <div className="flex flex-wrap gap-1.5">
                     {district.geography.minerals.map((m, i) => (
@@ -327,7 +327,7 @@ export const DistrictDetailSheet: React.FC<DistrictDetailSheetProps> = ({
                 <div className="p-3.5 rounded-2xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] shadow-xs">
                   <h4 className="text-xs font-black text-[#800020] dark:text-[#F47B20] mb-2 flex items-center gap-1.5">
                     <Compass className="w-4 h-4" />
-                    <span>नदियाँ व जल प्रवाह (Drainage)</span>
+                    <span>Rivers & Drainage</span>
                   </h4>
                   <div className="flex flex-wrap gap-1.5">
                     {district.geography.rivers.map((r, i) => (
@@ -345,7 +345,7 @@ export const DistrictDetailSheet: React.FC<DistrictDetailSheetProps> = ({
           {activeTab === "pyqs" && (
             <div className="space-y-4 animate-in fade-in duration-150">
               <div className="text-[11px] font-bold text-[#800020] dark:text-[#F47B20]">
-                {district.nameHindi} से पूछे गए वास्तविक RPSC व RSMSSB पूर्व परीक्षा प्रश्न:
+                Real RPSC & RSMSSB past exam questions from this district:
               </div>
 
               {district.pyqQuestions.map((pyq, idx) => {
@@ -359,7 +359,7 @@ export const DistrictDetailSheet: React.FC<DistrictDetailSheetProps> = ({
                   >
                     <div className="flex items-center justify-between text-[10px] font-bold">
                       <span className="px-2 py-0.5 rounded-md bg-[#800020]/10 dark:bg-[#800020]/30 text-[#800020] dark:text-[#F47B20]">
-                        प्रश्न {idx + 1}
+                        Question {idx + 1}
                       </span>
                       <span className="px-2 py-0.5 rounded-md bg-stone-100 dark:bg-stone-800 text-[#52576A] dark:text-[#929AB0]">
                         {pyq.examTag}
@@ -409,7 +409,7 @@ export const DistrictDetailSheet: React.FC<DistrictDetailSheetProps> = ({
                     {/* Explanation */}
                     {isAnswered && (
                       <div className="p-3 rounded-xl bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/40 text-[11px] text-amber-900 dark:text-amber-200 leading-relaxed animate-in fade-in">
-                        <span className="font-black">व्याख्या: </span>
+                        <span className="font-black">Explanation: </span>
                         <span>{pyq.explanation}</span>
                       </div>
                     )}
@@ -432,7 +432,7 @@ export const DistrictDetailSheet: React.FC<DistrictDetailSheetProps> = ({
             className="flex-1 min-h-[44px] py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#800020] to-[#F47B20] text-white font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md hover:brightness-110 active:scale-95 transition cursor-pointer"
           >
             <Flame className="w-4 h-4" />
-            <span>🎯 इस ज़िले का क्विज़ खेलें</span>
+            <span>🎯 Practice District Quiz</span>
             <ArrowRight className="w-4 h-4 ml-auto" />
           </button>
 
@@ -441,7 +441,7 @@ export const DistrictDetailSheet: React.FC<DistrictDetailSheetProps> = ({
             onClick={onClose}
             className="min-h-[44px] px-4 py-2.5 rounded-xl border border-[#E8D9C0] dark:border-[#31374A] hover:bg-stone-100 dark:hover:bg-stone-800 text-xs font-bold transition cursor-pointer"
           >
-            बंद करें
+            Close
           </button>
         </div>
       </div>

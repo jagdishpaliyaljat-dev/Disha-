@@ -119,28 +119,28 @@ export const StudentAIReportCard: React.FC<StudentAIReportCardProps> = ({
     );
 
     let grade = "D";
-    let gradeLabel = "प्रारंभिक स्तर (Needs Foundation)";
+    let gradeLabel = "Foundational Level (Needs Work)";
     let gradeColor = "text-[#991B1B] dark:text-[#F87171]";
     let gradeBadgeBg = "bg-[#991B1B]/10 dark:bg-[#991B1B]/20 text-[#991B1B] dark:text-[#F87171] border-[#991B1B]/30";
 
     if (readinessScore >= 80) {
       grade = "A+";
-      gradeLabel = "रैंकर्स लीग (Exam Ready)";
+      gradeLabel = "Rankers League (Exam Ready)";
       gradeColor = "text-emerald-600 dark:text-emerald-400";
       gradeBadgeBg = "bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border-emerald-400 dark:border-emerald-700";
     } else if (readinessScore >= 65) {
       grade = "A";
-      gradeLabel = "सशक्त स्थिति (Strong Aspirant)";
+      gradeLabel = "Strong Standing (Competitive)";
       gradeColor = "text-[#800020] dark:text-[#F47B20]";
       gradeBadgeBg = "bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] border-[#800020]/30 dark:border-[#F47B20]/40";
     } else if (readinessScore >= 50) {
       grade = "B";
-      gradeLabel = "संतोषजनक (Needs Polish)";
+      gradeLabel = "Satisfactory (Needs Polish)";
       gradeColor = "text-[#C99A45] dark:text-[#E5BC6B]";
       gradeBadgeBg = "bg-[#C99A45]/15 dark:bg-[#C99A45]/20 text-[#946B1E] dark:text-[#E5BC6B] border-[#C99A45]/40";
     } else if (readinessScore >= 35) {
       grade = "C";
-      gradeLabel = "कमजोर (High Negative Risk)";
+      gradeLabel = "High Risk (Heavy Negative Marks)";
       gradeColor = "text-[#EA580C] dark:text-[#FB923C]";
       gradeBadgeBg = "bg-[#EA580C]/10 dark:bg-[#EA580C]/20 text-[#EA580C] dark:text-[#FB923C] border-[#EA580C]/30";
     }
@@ -230,23 +230,23 @@ export const StudentAIReportCard: React.FC<StudentAIReportCardProps> = ({
       const accuracy = totalAttempts > 0 ? Math.round((correct / totalAttempts) * 100) : 0;
 
       let status: WeakTopicItem["status"] = "mastered";
-      let weakReason = "मजबूत पकड़ • निरंतर अभ्यास बनाए रखें";
+      let weakReason = "Strong grasp • Keep up consistent practice";
 
       if (accuracy < 50 || wrong >= 3) {
         status = "critical";
         if (accuracy < 30) {
-          weakReason = "गंभीर कॉन्सेप्ट गैप • थ्योरी को दोबारा पढ़ना अनिवार्य";
+          weakReason = "Severe concept gap • Theory revision required";
         } else if (wrong >= 4) {
-          weakReason = "बार-बार गलत विकल्प चुनना • नेगेटिव मार्किंग का बड़ा खतरा";
+          weakReason = "Frequent incorrect guesses • High negative marking risk";
         } else {
-          weakReason = "कन्फ्यूजन व सिली मिस्टेक • त्वरित बूस्टर टेस्ट की जरूरत";
+          weakReason = "Confusion & silly mistakes • Needs quick booster test";
         }
       } else if (accuracy < 75) {
         status = "warning";
-        weakReason = "औसत सटीकता • कठिन प्रश्नों पर थोड़ा संशय";
+        weakReason = "Moderate accuracy • Uncertainty on harder questions";
       } else {
         status = "mastered";
-        weakReason = "शानदार पकड़ • 75%+ सटीकता हासिल";
+        weakReason = "Excellent command • 75%+ accuracy achieved";
       }
 
       items.push({
@@ -298,22 +298,22 @@ export const StudentAIReportCard: React.FC<StudentAIReportCardProps> = ({
       const topWeak = criticalWeakList[0];
       remarks.push({
         icon: AlertTriangle,
-        title: `🔴 सबसे गंभीर कमजोरी: '${topWeak.name}'`,
-        desc: `इस टॉपिक में आपने ${topWeak.attempted} में से ${topWeak.wrong} प्रश्न गलत किए हैं (${topWeak.accuracy}% एक्यूरेसी). मुख्य परीक्षा में यह टॉपिक आपको सीधे कटऑफ से बाहर कर सकता है. इसे आज ही क्लियर करें!`,
+        title: `🔴 Critical Weakness: '${topWeak.name}'`,
+        desc: `In this topic, you got ${topWeak.wrong} out of ${topWeak.attempted} questions wrong (${topWeak.accuracy}% accuracy). This could place you below the cutoff in the final exam. Review and master it today!`,
         type: "alert",
       });
     } else if (baseStats.totalPracticed === 0) {
       remarks.push({
         icon: Info,
-        title: "अभ्यास अभी शुरू नहीं हुआ है",
-        desc: "जब आप कम से कम 20-30 प्रश्न हल करेंगे, तब AI आपकी व्यक्तिगत कमियों और नेगेटिव मार्किंग का सटीक रडार तैयार करेगा.",
+        title: "Practice Not Started Yet",
+        desc: "Solve at least 20-30 questions for AI to generate your personalized weakness radar and negative marking diagnostic.",
         type: "tip",
       });
     } else {
       remarks.push({
         icon: ShieldCheck,
-        title: "🟢 कोई गंभीर लाल निशान नहीं",
-        desc: "आपने अभ्यास किए गए टॉपिक्स में 50% से अधिक एक्यूरेसी बनाए रखी है. अब कठिन व विश्लेषणात्मक प्रश्नों पर ध्यान दें.",
+        title: "🟢 No Critical Red Flags",
+        desc: "You maintained above 50% accuracy across practiced topics. Focus on difficult and analytical questions next.",
         type: "success",
       });
     }
@@ -322,8 +322,8 @@ export const StudentAIReportCard: React.FC<StudentAIReportCardProps> = ({
     if (baseStats.negativeMarksLost > 0) {
       remarks.push({
         icon: TrendingDown,
-        title: `⚠️ तुक्केबाजी की मार: -${baseStats.negativeMarksLost} अंक का नुकसान`,
-        desc: `आपने ${baseStats.totalWrong} गलत उत्तर दिए हैं. यदि आप संशय वाले प्रश्न छोड़ देते, तो आपके ये ${baseStats.negativeMarksLost} अंक सुरक्षित रहते. 1/3 नेगेटिव मार्किंग वाली प्रतियोगी परीक्षाओं में यह 500 से 2,000 रैंक का अंतर पैदा करता है!`,
+        title: `⚠️ Penalty Cost: -${baseStats.negativeMarksLost} Marks Lost`,
+        desc: `You answered ${baseStats.totalWrong} questions incorrectly. Skipping uncertain questions would have preserved these ${baseStats.negativeMarksLost} marks, making a difference of hundreds of ranks in competitive exams.`,
         type: "warning",
       });
     }
@@ -332,8 +332,8 @@ export const StudentAIReportCard: React.FC<StudentAIReportCardProps> = ({
     if (baseStats.dueQuestions.length > 0) {
       remarks.push({
         icon: Brain,
-        title: `🧠 भूलने की अवस्था: ${baseStats.dueQuestions.length} प्रश्न रिवीजन ड्यू`,
-        desc: `एबिंगहॉस विस्मरण वक्र (Forgetting Curve) के अनुसार, जो प्रश्न आपने कुछ दिन पहले पढ़े थे, वे अब मस्तिष्क से धुंधले हो रहे हैं. आज 15 मिनट निकालकर इनका स्पैस्ड रिवीजन करें.`,
+        title: `🧠 Memory Retention: ${baseStats.dueQuestions.length} Questions Due for Revision`,
+        desc: `According to the Ebbinghaus Forgetting Curve, questions studied a few days ago are fading from memory. Spend 15 minutes today on spaced revision.`,
         type: "tip",
       });
     }
@@ -341,8 +341,8 @@ export const StudentAIReportCard: React.FC<StudentAIReportCardProps> = ({
     // Remark 4: Action Plan
     remarks.push({
       icon: Zap,
-      title: "⚡ आज का एक्शन प्लान",
-      desc: "नीचे दिए 'AI कमजोरी बूस्टर टेस्ट' बटन को दबाएं. AI ने आपकी गलतियों और कमजोर अध्यायों से 20 प्रश्नों का स्पेशल सेट बनाया है. इसे 80%+ स्कोर तक ले जाएं.",
+      title: "⚡ Today's Action Plan",
+      desc: "Tap the 'AI Weakness Booster Test' button below. AI has generated a focused 20-question set from your mistakes and weak chapters. Aim for 80%+ score.",
       type: "tip",
     });
 
@@ -394,8 +394,8 @@ export const StudentAIReportCard: React.FC<StudentAIReportCardProps> = ({
     const selected = Array.from(poolMap.values()).slice(0, 20);
 
     onStartSession({
-      title: "🔥 AI कमजोरी सुधार बूस्टर टेस्ट",
-      subtitle: `शीर्ष कमजोर टॉपिक्स के ${selected.length} महत्वपूर्ण प्रश्न • 1/3 नेगेटिव मार्किंग`,
+      title: "🔥 AI Weakness Booster Test",
+      subtitle: `${selected.length} High-Yield Questions from Top Weak Areas • 1/3 Negative Marking`,
       questionIds: selected.map((q) => q.id),
       extraQuestions: selected,
       source: "custom-smart",
@@ -413,8 +413,8 @@ export const StudentAIReportCard: React.FC<StudentAIReportCardProps> = ({
     const selected = (item.wrongQuestions.length > 0 ? item.wrongQuestions : item.allQuestions).slice(0, 15);
 
     onStartSession({
-      title: `${item.name} — AI सुधारात्मक अभ्यास`,
-      subtitle: `${item.chapterName} • 15 लक्षित प्रश्न`,
+      title: `${item.name} — AI Remedial Practice`,
+      subtitle: `${item.chapterName} • 15 Targeted Questions`,
       questionIds: selected.map((q) => q.id),
       extraQuestions: selected,
       source: "custom-smart",
@@ -428,41 +428,41 @@ export const StudentAIReportCard: React.FC<StudentAIReportCardProps> = ({
     triggerHaptic("light");
     playClickSound();
 
-    const studentName = userProfile?.full_name || userProfile?.name || "अभ्यर्थी";
-    const examTarget = settings?.selectedExam || "राजस्थान प्रतियोगी परीक्षा (RPSC / CET / Patwar / REET)";
+    const studentName = userProfile?.full_name || userProfile?.name || "Aspirant";
+    const examTarget = settings?.selectedExam || "Rajasthan Competitive Exam (RPSC / CET / Patwar / REET)";
 
     const weakText = criticalWeakList.length > 0
-      ? criticalWeakList.slice(0, 3).map((w, i) => `${i + 1}. ${w.name} (${w.accuracy}% सटीकता - ${w.wrong} गलत)`).join("\n")
-      : "कोई गंभीर कमजोरी नहीं • संतुलन अच्छा है";
+      ? criticalWeakList.slice(0, 3).map((w, i) => `${i + 1}. ${w.name} (${w.accuracy}% Accuracy - ${w.wrong} Wrong)`).join("\n")
+      : "No critical weaknesses • Good balance";
 
-    const reportCardText = `📋 *दिशा 20-20 — छात्र AI कमजोरी व प्रोग्रेस रिपोर्ट कार्ड*
+    const reportCardText = `📋 *Disha 20-20 — Student AI Diagnostic & Progress Report Card*
 ━━━━━━━━━━━━━━━━━━
-👤 अभ्यर्थी: ${studentName}
-🎯 लक्ष्य: ${examTarget}
-📅 दिनांक: ${todayStr}
+👤 Aspirant: ${studentName}
+🎯 Target Exam: ${examTarget}
+📅 Date: ${todayStr}
 
-📊 *स्कोर व परफॉर्मेंस ऑडिट:*
-• परीक्षा तत्परता स्कोर: ${baseStats.readinessScore}/100 [ग्रेड: ${baseStats.grade} - ${baseStats.gradeLabel}]
-• कुल हल प्रश्न: ${baseStats.totalPracticed}
-• कुल सटीकता: ${baseStats.accuracy}%
-• सही: ${baseStats.totalCorrect} | गलत: ${baseStats.totalWrong}
-• ⚠️ नेगेटिव मार्किंग नुकसान: -${baseStats.negativeMarksLost} अंक
-• 🧠 स्मृति रिवीजन ड्यू: ${baseStats.dueQuestions.length} प्रश्न
+📊 *Score & Performance Audit:*
+• Exam Readiness Score: ${baseStats.readinessScore}/100 [Grade: ${baseStats.grade} - ${baseStats.gradeLabel}]
+• Total Practiced Questions: ${baseStats.totalPracticed}
+• Overall Accuracy: ${baseStats.accuracy}%
+• Correct: ${baseStats.totalCorrect} | Incorrect: ${baseStats.totalWrong}
+• ⚠️ Negative Marking Lost: -${baseStats.negativeMarksLost} marks
+• 🧠 Memory Revision Due: ${baseStats.dueQuestions.length} questions
 
-🔴 *शीर्ष कमजोर टॉपिक्स (सुधार अपेक्षित):*
+🔴 *Top Weak Topics (Review Needed):*
 ${weakText}
 
-💡 *AI गुरुजी की सीधी सलाह:*
-तुक्केबाजी से बचें, कमजोर अध्यायों का 1-क्लिक बूस्टर टेस्ट दें और नेगेटिव मार्किंग रोकें!
+💡 *AI Mentor Advice:*
+Avoid guessing, take the 1-click weakness booster test, and stop negative marking!
 
-📱 अपनी कमजोरी जांचें और बूस्टर टेस्ट दें:
+📱 Check your weakness radar and start booster test:
 https://disha2020.in
 ━━━━━━━━━━━━━━━━━━`;
 
     if (navigator.share) {
       try {
         await navigator.share({
-          title: "दिशा 20-20 छात्र AI रिपोर्ट कार्ड",
+          title: "Disha 20-20 Student AI Report Card",
           text: reportCardText,
         });
         return;
@@ -497,10 +497,10 @@ https://disha2020.in
                 <span>DISHA 20-20 AI Diagnostic Audit</span>
               </div>
               <h2 className="text-lg sm:text-xl font-black text-[#171923] dark:text-[#FFF9EF] tracking-tight">
-                छात्र AI रिपोर्ट कार्ड व कमजोरी रडार
+                Student AI Report Card & Weakness Radar
               </h2>
               <p className="text-[11px] text-[#52576A] dark:text-[#CBD2E1] font-medium">
-                आपकी वास्तविक कमियों, नेगेटिव मार्किंग नुकसान और सुधार का पूर्ण विश्लेषण
+                Comprehensive diagnostic of your knowledge gaps, negative marks, and improvement areas
               </p>
             </div>
           </div>
@@ -512,7 +512,7 @@ https://disha2020.in
               className="h-9 px-3.5 rounded-xl bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] hover:bg-[#800020] hover:text-white dark:hover:bg-[#F47B20] dark:hover:text-white flex items-center gap-1.5 text-xs font-black transition-all active:scale-95 cursor-pointer border border-[#800020]/20 dark:border-[#F47B20]/30"
             >
               {copiedSummary ? <Check className="w-4 h-4 text-emerald-600" /> : <Share2 className="w-4 h-4" />}
-              <span>{copiedSummary ? "कॉपी हो गया!" : "रिपोर्ट कार्ड शेयर करें"}</span>
+              <span>{copiedSummary ? "Copied!" : "Share Report Card"}</span>
             </button>
           </div>
         </div>
@@ -521,25 +521,25 @@ https://disha2020.in
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-4 relative z-10 text-[11px]">
           <div className="p-2.5 rounded-xl bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0]/80 dark:border-[#31374A]">
             <span className="text-[9px] font-bold uppercase tracking-wider text-[#787D91] dark:text-[#929AB0] block mb-0.5">
-              अभ्यर्थी का नाम
+              Candidate Name
             </span>
             <span className="font-extrabold text-[#171923] dark:text-[#FFF9EF] truncate block">
-              {userProfile?.full_name || userProfile?.name || "प्रिय अभ्यर्थी"}
+              {userProfile?.full_name || userProfile?.name || "Student"}
             </span>
           </div>
 
           <div className="p-2.5 rounded-xl bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0]/80 dark:border-[#31374A]">
             <span className="text-[9px] font-bold uppercase tracking-wider text-[#787D91] dark:text-[#929AB0] block mb-0.5">
-              लक्ष्य परीक्षा
+              Target Exam
             </span>
             <span className="font-extrabold text-[#800020] dark:text-[#F47B20] truncate block">
-              {settings?.selectedExam || "राजस्थान प्रतियोगी परीक्षा"}
+              {settings?.selectedExam || "Rajasthan Competitive Exam"}
             </span>
           </div>
 
           <div className="p-2.5 rounded-xl bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0]/80 dark:border-[#31374A]">
             <span className="text-[9px] font-bold uppercase tracking-wider text-[#787D91] dark:text-[#929AB0] block mb-0.5">
-              ऑडिट दिनांक
+              Audit Date
             </span>
             <span className="font-extrabold text-[#171923] dark:text-[#FFF9EF] block font-mono">
               {todayStr}
@@ -548,7 +548,7 @@ https://disha2020.in
 
           <div className="p-2.5 rounded-xl bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0]/80 dark:border-[#31374A]">
             <span className="text-[9px] font-bold uppercase tracking-wider text-[#787D91] dark:text-[#929AB0] block mb-0.5">
-              समग्र स्थिति
+              Overall Standing
             </span>
             <span className={`font-black truncate block ${baseStats.gradeColor}`}>
               {baseStats.grade} • {baseStats.gradeLabel}
@@ -565,10 +565,10 @@ https://disha2020.in
             <div className="flex items-center justify-between mb-3">
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-wider bg-[#F7EFE2] dark:bg-[#252A3A] text-[#800020] dark:text-[#F47B20]">
                 <Target className="w-3.5 h-3.5 text-[#800020] dark:text-[#F47B20]" />
-                <span>परीक्षा तत्परता सूचकांक</span>
+                <span>Exam Readiness Index</span>
               </span>
               <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black border ${baseStats.gradeBadgeBg}`}>
-                ग्रेड {baseStats.grade}
+                Grade {baseStats.grade}
               </span>
             </div>
 
@@ -602,15 +602,15 @@ https://disha2020.in
           <div className="grid grid-cols-3 gap-2 pt-4 mt-4 border-t border-[#E8D9C0] dark:border-[#31374A] text-center">
             <div>
               <span className="text-[9px] font-bold text-[#787D91] dark:text-[#929AB0] uppercase block">
-                कुल अभ्यास
+                Total Practiced
               </span>
               <span className="text-base font-black text-[#171923] dark:text-[#FFF9EF] font-mono tabular-nums">
-                {baseStats.totalPracticed} प्रश्न
+                {baseStats.totalPracticed} Qs
               </span>
             </div>
             <div>
               <span className="text-[9px] font-bold text-[#787D91] dark:text-[#929AB0] uppercase block">
-                सटीकता (Accuracy)
+                Accuracy
               </span>
               <span className="text-base font-black text-emerald-600 dark:text-emerald-400 font-mono tabular-nums">
                 {baseStats.accuracy}%
@@ -618,7 +618,7 @@ https://disha2020.in
             </div>
             <div>
               <span className="text-[9px] font-bold text-[#787D91] dark:text-[#929AB0] uppercase block">
-                सही उत्तर
+                Correct Answers
               </span>
               <span className="text-base font-black text-[#800020] dark:text-[#F47B20] font-mono tabular-nums">
                 {baseStats.totalCorrect}
@@ -633,7 +633,7 @@ https://disha2020.in
             <div className="flex items-center justify-between mb-2">
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-wider bg-[#991B1B]/15 dark:bg-[#991B1B]/30 text-[#991B1B] dark:text-[#FCA5A5] border border-[#991B1B]/20">
                 <AlertTriangle className="w-3.5 h-3.5 text-[#991B1B] dark:text-[#FCA5A5]" />
-                <span>नेगेटिव मार्किंग व तुक्केबाजी की मार</span>
+                <span>Negative Marking Penalty</span>
               </span>
               <span className="text-[10px] font-black text-[#991B1B] dark:text-[#F87171]">
                 1/3rd Negative Penalty
@@ -645,25 +645,25 @@ https://disha2020.in
                 -{baseStats.negativeMarksLost}
               </span>
               <span className="text-sm font-extrabold text-[#991B1B] dark:text-[#F87171]">
-                अंक कटे
+                Marks Lost
               </span>
               <span className="text-xs font-bold text-[#52576A] dark:text-[#CBD2E1] ml-auto">
-                ({baseStats.totalWrong} गलत प्रश्न)
+                ({baseStats.totalWrong} Incorrect Questions)
               </span>
             </div>
 
             <div className="bg-white/95 dark:bg-[#1F2330]/95 p-3 rounded-2xl border border-[#800020]/15 dark:border-[#800020]/30 text-[11px] leading-relaxed text-[#171923] dark:text-[#FFF9EF] font-medium space-y-1">
               <p className="font-bold text-[#991B1B] dark:text-[#F87171]">
-                ⚠️ कठोर वास्तविकता (Harsh Truth):
+                ⚠️ Harsh Truth:
               </p>
               <p>
                 {baseStats.negativeMarksLost > 0 ? (
                   <>
-                    गलत उत्तरों के कारण आपके <strong className="text-[#991B1B] dark:text-[#F87171] font-black">{baseStats.negativeMarksLost} अंक</strong> कट गए. यदि आप इन प्रश्नों को छोड़ देते तो आपकी मेरिट सूची में <strong className="text-emerald-600 font-black">सैकड़ों अभ्यर्थियों से ऊपर</strong> रैंक होती!
+                    Incorrect guesses cost you <strong className="text-[#991B1B] dark:text-[#F87171] font-black">-{baseStats.negativeMarksLost} marks</strong>. Leaving these blank would have placed your rank <strong className="text-emerald-600 font-black">hundreds of spots higher</strong> on the merit list!
                   </>
                 ) : (
                   <>
-                    शानदार! अभी तक आपके कोई नेगेटिव अंक नहीं कटे हैं. आगे भी इसी तरह सोच-समझकर सटीक उत्तर दें.
+                    Outstanding! No negative marks lost so far. Continue practicing with precision and discipline.
                   </>
                 )}
               </p>
@@ -672,14 +672,14 @@ https://disha2020.in
 
           <div className="pt-3 mt-3 border-t border-[#800020]/15 dark:border-[#800020]/30 flex items-center justify-between text-[11px]">
             <span className="text-[#52576A] dark:text-[#CBD2E1]">
-              गलत प्रश्नों का तुरंत सुधार करें:
+              Review and fix incorrect questions immediately:
             </span>
             <button
               type="button"
               onClick={() => onNavigateTab?.("wrong")}
               className="text-xs font-extrabold text-[#800020] dark:text-[#F47B20] hover:underline flex items-center gap-1 cursor-pointer"
             >
-              <span>गलत प्रश्न देखें ({baseStats.totalWrong})</span>
+              <span>Review Incorrect Questions ({baseStats.totalWrong})</span>
               <ChevronRight className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -695,7 +695,7 @@ https://disha2020.in
             </div>
             <div>
               <h3 className="text-xs sm:text-sm font-black uppercase tracking-wider text-[#171923] dark:text-[#FFF9EF]">
-                AI गुरुजी की सीधी खरी समीक्षा
+                AI Mentor Candid Review
               </h3>
               <p className="text-[10px] font-bold text-[#787D91] dark:text-[#929AB0] uppercase tracking-widest">
                 Direct Unvarnished Diagnostic Insights
@@ -703,7 +703,7 @@ https://disha2020.in
             </div>
           </div>
           <span className="text-[10px] font-extrabold text-[#800020] dark:text-[#F47B20] px-2 py-0.5 rounded-full bg-[#800020]/10 dark:bg-[#F47B20]/15">
-            बिना लाग-लपेट सच
+            Unvarnished Truth
           </span>
         </div>
 
@@ -749,10 +749,10 @@ https://disha2020.in
           <div>
             <h3 className="text-xs sm:text-sm font-black uppercase tracking-wider text-[#171923] dark:text-[#FFF9EF] flex items-center gap-2">
               <Target className="w-4 h-4 text-[#800020] dark:text-[#F47B20]" />
-              <span>कमजोरियों का AI रडार (Flaw & Vulnerability Radar)</span>
+              <span>AI Weakness Radar (Flaw & Vulnerability Matrix)</span>
             </h3>
             <p className="text-[10px] font-bold text-[#787D91] dark:text-[#929AB0] uppercase tracking-widest mt-0.5">
-              कहाँ-कहाँ कट रहे हैं अंक • टॉपिकवार विस्तृत रिपोर्ट
+              Where marks are lost • Detailed topic-by-topic diagnostic
             </p>
           </div>
 
@@ -766,7 +766,7 @@ https://disha2020.in
                   : "text-[#52576A] dark:text-[#CBD2E1] hover:text-[#171923]"
               }`}
             >
-              रेड अलर्ट ({criticalWeakList.length})
+              Red Alert ({criticalWeakList.length})
             </button>
             <button
               onClick={() => setActiveFilter("warning")}
@@ -776,7 +776,7 @@ https://disha2020.in
                   : "text-[#52576A] dark:text-[#CBD2E1] hover:text-[#171923]"
               }`}
             >
-              सुधार योग्य ({warningList.length})
+              Needs Review ({warningList.length})
             </button>
             <button
               onClick={() => setActiveFilter("mastered")}
@@ -786,7 +786,7 @@ https://disha2020.in
                   : "text-[#52576A] dark:text-[#CBD2E1] hover:text-[#171923]"
               }`}
             >
-              मजबूत ({masteredList.length})
+              Mastered ({masteredList.length})
             </button>
             <button
               onClick={() => setActiveFilter("all")}
@@ -796,7 +796,7 @@ https://disha2020.in
                   : "text-[#52576A] dark:text-[#CBD2E1] hover:text-[#171923]"
               }`}
             >
-              सभी ({topicDiagnostics.length})
+              All Topics ({topicDiagnostics.length})
             </button>
           </div>
         </div>
@@ -806,12 +806,12 @@ https://disha2020.in
           <div className="py-12 text-center bg-[#FFF9EF] dark:bg-[#171923] rounded-2xl border border-dashed border-[#E8D9C0] dark:border-[#31374A] p-6">
             <ShieldCheck className="w-10 h-10 text-emerald-500 mx-auto mb-2" />
             <h4 className="text-xs font-black text-[#171923] dark:text-[#FFF9EF]">
-              इस श्रेणी में कोई टॉपिक नहीं है
+              No topics found in this category
             </h4>
             <p className="text-[11px] text-[#52576A] dark:text-[#CBD2E1] mt-1 max-w-sm mx-auto">
               {activeFilter === "critical"
-                ? "बधाई! आपके किसी भी टॉपिक में गंभीर लाल निशान नहीं है. अपनी सटीकता को इसी तरह बरकरार रखें."
-                : "अधिक अभ्यास करने पर आपका AI रडार और अधिक विस्तृत डेटा प्रदर्शित करेगा."}
+                ? "Congratulations! No critical red flags detected. Maintain your consistency."
+                : "Practice more questions to populate your diagnostic radar."}
             </p>
           </div>
         ) : (
@@ -843,7 +843,7 @@ https://disha2020.in
                               : "bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border-emerald-300"
                           }`}
                         >
-                          {isCrit ? "🔴 गंभीर कमजोरी" : isWarn ? "🟡 सुधार योग्य" : "🟢 मजबूत पकड़"}
+                          {isCrit ? "🔴 Critical Weakness" : isWarn ? "🟡 Needs Review" : "🟢 Mastered"}
                         </span>
                         <span className="text-[10px] text-[#787D91] dark:text-[#929AB0] font-bold">
                           {item.chapterName}
@@ -856,7 +856,7 @@ https://disha2020.in
 
                       <p className="text-[11px] text-[#52576A] dark:text-[#CBD2E1] font-medium mt-0.5 flex items-center gap-1.5">
                         <span className={`font-bold ${isCrit ? "text-[#991B1B] dark:text-[#F87171]" : isWarn ? "text-[#C99A45]" : "text-emerald-600"}`}>
-                          AI निदान:
+                          AI Diagnosis:
                         </span>
                         <span>{item.weakReason}</span>
                       </p>
@@ -878,11 +878,11 @@ https://disha2020.in
                             {item.accuracy}%
                           </span>
                           <span className="text-[9px] font-bold text-[#787D91]">
-                            सटीकता
+                            Accuracy
                           </span>
                         </div>
                         <span className="text-[10px] text-[#787D91] dark:text-[#929AB0] font-mono block">
-                          {item.wrong} गलत / {item.attempted} प्रयास
+                          {item.wrong} Wrong / {item.attempted} Attempted
                         </span>
                       </div>
 
@@ -896,7 +896,7 @@ https://disha2020.in
                         }`}
                       >
                         <Zap className="w-3.5 h-3.5" />
-                        <span>सुधारें</span>
+                        <span>Improve</span>
                       </button>
                     </div>
                   </div>
@@ -926,13 +926,13 @@ https://disha2020.in
           <div className="max-w-xl">
             <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-wider bg-white/15 text-[#FFF9EF] border border-white/20 mb-2">
               <Sparkles className="w-3.5 h-3.5 text-[#F47B20]" />
-              <span>कस्टमाइज़्ड AI सुधारात्मक ड्रिल (Targeted Remedial Test)</span>
+              <span>Targeted Remedial Test</span>
             </div>
             <h3 className="text-xl sm:text-2xl font-black tracking-tight leading-snug">
-              ⚡ मेरी कमजोरियों का AI बूस्टर टेस्ट दें
+              ⚡ Take My AI Weakness Booster Test
             </h3>
             <p className="text-xs sm:text-[13px] text-white/80 font-medium mt-1 leading-relaxed">
-              AI ने आपकी पिछली गलतियों ({baseStats.totalWrong} गलत प्रश्न) और सबसे कमजोर अध्यायों से 20 सबसे महत्वपूर्ण प्रश्नों का स्पेशल सुधारात्मक सेट तैयार किया है. अभी टेस्ट देकर अपनी कमजोरियों को हमेशा के लिए दूर करें!
+              AI has curated a 20-question remedial test based on your previous mistakes ({baseStats.totalWrong} wrong questions) and weakest chapters. Take the test now to eliminate your weak spots!
             </p>
           </div>
 
@@ -943,7 +943,7 @@ https://disha2020.in
               className="w-full sm:w-auto h-12 sm:h-14 px-6 rounded-2xl bg-gradient-to-r from-[#F47B20] to-[#E05A10] hover:brightness-110 text-white font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-[#F47B20]/30 active:scale-95 transition-all cursor-pointer border border-amber-300/40"
             >
               <Flame className="w-5 h-5 fill-white text-white animate-pulse" />
-              <span>बूस्टर टेस्ट शुरू करें (20 प्रश्न)</span>
+              <span>Start Booster Test (20 Qs)</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -956,7 +956,7 @@ https://disha2020.in
         <div className="bg-white dark:bg-[#1F2330] rounded-2xl p-4 border border-[#E8D9C0] dark:border-[#31374A] shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between mb-2">
             <span className="text-[10px] font-black uppercase tracking-wider text-[#787D91] dark:text-[#929AB0]">
-              स्मृति ह्रास (Revision Due)
+              Revision Due (Memory Curve)
             </span>
             <Brain className="w-4 h-4 text-[#800020] dark:text-[#F47B20]" />
           </div>
@@ -965,10 +965,10 @@ https://disha2020.in
               <span className="text-2xl font-black text-[#171923] dark:text-[#FFF9EF] tabular-nums">
                 {baseStats.dueQuestions.length}
               </span>
-              <span className="text-xs font-bold text-[#787D91]">प्रश्न बाकी</span>
+              <span className="text-xs font-bold text-[#787D91]">Questions Remaining</span>
             </div>
             <p className="text-[10px] text-[#52576A] dark:text-[#CBD2E1] font-medium mt-1">
-              जिन्हें 24-48 घंटे में दोहराना जरूरी है
+              Essential to review within 24-48 hours
             </p>
           </div>
           <button
@@ -977,7 +977,7 @@ https://disha2020.in
               if (baseStats.dueQuestions.length > 0 && onStartSession) {
                 onStartSession({
                   title: "Due Spaced Revision",
-                  subtitle: `${baseStats.dueQuestions.length} प्रश्न रिवीजन`,
+                  subtitle: `${baseStats.dueQuestions.length} Questions Revision`,
                   questionIds: baseStats.dueQuestions.map((q) => q.id),
                   source: "all-chapters",
                 });
@@ -987,7 +987,7 @@ https://disha2020.in
             }}
             className="text-[11px] font-black text-[#800020] dark:text-[#F47B20] mt-3 pt-2 border-t border-[#E8D9C0]/80 dark:border-[#31374A] flex items-center justify-between hover:underline cursor-pointer"
           >
-            <span>रिवीजन शुरू करें</span>
+            <span>Start Revision</span>
             <ChevronRight className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -996,7 +996,7 @@ https://disha2020.in
         <div className="bg-white dark:bg-[#1F2330] rounded-2xl p-4 border border-[#E8D9C0] dark:border-[#31374A] shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between mb-2">
             <span className="text-[10px] font-black uppercase tracking-wider text-[#787D91] dark:text-[#929AB0]">
-              सिलेबस कवरेज
+              Syllabus Coverage
             </span>
             <BookOpen className="w-4 h-4 text-[#800020] dark:text-[#F47B20]" />
           </div>
@@ -1010,7 +1010,7 @@ https://disha2020.in
               </span>
             </div>
             <p className="text-[10px] text-[#52576A] dark:text-[#CBD2E1] font-medium mt-1">
-              दिशा 20-20 प्रश्न बैंक का हल किया गया भाग
+              Portion of Disha 20-20 question bank completed
             </p>
           </div>
           <button
@@ -1018,7 +1018,7 @@ https://disha2020.in
             onClick={() => onNavigateTab?.("topics")}
             className="text-[11px] font-black text-[#800020] dark:text-[#F47B20] mt-3 pt-2 border-t border-[#E8D9C0]/80 dark:border-[#31374A] flex items-center justify-between hover:underline cursor-pointer"
           >
-            <span>नए अध्याय हल करें</span>
+            <span>Practice New Chapters</span>
             <ChevronRight className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -1027,7 +1027,7 @@ https://disha2020.in
         <div className="bg-white dark:bg-[#1F2330] rounded-2xl p-4 border border-[#E8D9C0] dark:border-[#31374A] shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between mb-2">
             <span className="text-[10px] font-black uppercase tracking-wider text-[#787D91] dark:text-[#929AB0]">
-              कमजोर टॉपिक्स संख्या
+              Weak Topics Count
             </span>
             <AlertTriangle className="w-4 h-4 text-[#991B1B] dark:text-[#F87171]" />
           </div>
@@ -1036,10 +1036,10 @@ https://disha2020.in
               <span className="text-2xl font-black text-[#991B1B] dark:text-[#F87171] tabular-nums">
                 {criticalWeakList.length}
               </span>
-              <span className="text-xs font-bold text-[#787D91]">अध्यायों में सुधार बाकी</span>
+              <span className="text-xs font-bold text-[#787D91]">Chapters Needing Attention</span>
             </div>
             <p className="text-[10px] text-[#52576A] dark:text-[#CBD2E1] font-medium mt-1">
-              जहाँ एक्यूरेसी 50% से कम या गलतियां अधिक हैं
+              Where accuracy is under 50% or mistakes are frequent
             </p>
           </div>
           <button
@@ -1047,7 +1047,7 @@ https://disha2020.in
             onClick={() => setActiveFilter("critical")}
             className="text-[11px] font-black text-[#991B1B] dark:text-[#F87171] mt-3 pt-2 border-t border-[#E8D9C0]/80 dark:border-[#31374A] flex items-center justify-between hover:underline cursor-pointer"
           >
-            <span>कमजोरियां फ़िल्टर करें</span>
+            <span>Filter Weaknesses</span>
             <ChevronRight className="w-3.5 h-3.5" />
           </button>
         </div>

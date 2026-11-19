@@ -520,7 +520,7 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
                         <div className="mt-2 p-2 rounded-xl bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] text-[10px] leading-relaxed text-[#171923] dark:text-[#E8D9C0] flex items-start gap-1.5">
                           <AlertCircle size={13} className="shrink-0 text-[#800020] dark:text-[#C99A45] mt-0.5" />
                           <div>
-                            <strong className="text-[#800020] dark:text-[#C99A45]">RPSC 5वां विकल्प नियम:</strong> यदि प्रश्न हल नहीं करना है तो Option E ('अनुत्तरित') भरें। खाली छोड़ने पर {negMark} अंक कटौती तथा 10% से अधिक खाली छोड़ने पर अयोग्यता नियम लागू।
+                            <strong className="text-[#800020] dark:text-[#C99A45]">RPSC Option E Rule:</strong> If you do not wish to attempt a question, select Option E ('Unattempted'). Leaving it blank deducts {negMark} marks, and leaving &gt;10% blank results in disqualification.
                           </div>
                         </div>
                       </div>
@@ -699,7 +699,7 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
                   {sub.isRpscDisqualified && (
                     <div className="p-2 rounded-xl bg-[#991B1B]/10 border border-[#991B1B]/30 text-[#991B1B] dark:text-[#F47B20] text-[11px] font-bold flex items-center gap-1.5">
                       <AlertCircle size={14} className="shrink-0 text-[#991B1B] dark:text-[#F47B20]" />
-                      <span>RPSC अयोग्य (Disqualified): 10% से अधिक प्रश्न खाली छोड़े गए</span>
+                      <span>RPSC Disqualified: More than 10% questions left blank</span>
                     </div>
                   )}
 

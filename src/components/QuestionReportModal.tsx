@@ -79,7 +79,7 @@ export const QuestionReportModal: React.FC<QuestionReportModalProps> = ({
     if (!question) return;
 
     if (!selectedIssue) {
-      setErrorMsg("कृपया आपत्ति का प्रकार चुनें");
+      setErrorMsg("Please select the type of issue");
       return;
     }
 
@@ -94,7 +94,7 @@ export const QuestionReportModal: React.FC<QuestionReportModalProps> = ({
         subjectName: subjectName || question.subjectId,
         chapterName: chapterName || question.chapterId,
         topicName: topicName || question.topicId,
-        studentName: studentName || userProfile?.displayName || "विद्यार्थी (Aspirant)",
+        studentName: studentName || userProfile?.displayName || "Aspirant",
         studentEmail: studentEmail || userProfile?.email || "",
         studentUid: userProfile?.id,
         issueType: selectedIssue,
@@ -115,10 +115,10 @@ export const QuestionReportModal: React.FC<QuestionReportModalProps> = ({
           onClose();
         }, 1800);
       } else {
-        setErrorMsg(result.error || "आपत्ति दर्ज नहीं हो सकी, पुनः प्रयास करें");
+        setErrorMsg(result.error || "Could not submit report. Please try again.");
       }
     } catch (err: any) {
-      setErrorMsg(err?.message || "नेटवर्क या आंतरिक त्रुटि हुई");
+      setErrorMsg(err?.message || "Network or internal error occurred");
     } finally {
       setSubmitting(false);
     }
@@ -152,10 +152,10 @@ export const QuestionReportModal: React.FC<QuestionReportModalProps> = ({
               </div>
               <div className="min-w-0">
                 <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-white leading-tight truncate">
-                  प्रश्न पर आपत्ति / दावा दर्ज करें
+                  Report Question &amp; Answer Key
                 </h3>
                 <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 truncate">
-                  Report Question & Answer Key Discrepancy
+                  Report Discrepancy, Typo or Objection
                 </p>
               </div>
             </div>
@@ -184,10 +184,10 @@ export const QuestionReportModal: React.FC<QuestionReportModalProps> = ({
                   <CheckCircle2 className="w-8 h-8" />
                 </div>
                 <h4 className="text-lg font-black text-slate-900 dark:text-white">
-                  आपकी आपत्ति दर्ज कर ली गई है!
+                  Objection Submitted Successfully!
                 </h4>
                 <p className="text-xs text-slate-600 dark:text-slate-300 max-w-sm mx-auto leading-relaxed">
-                  धन्यवाद! विषय विशेषज्ञ टीम इस प्रश्न की तुरंत समीक्षा करेगी और आवश्यकतानुसार उत्तर व व्याख्या को अपडेट करेगी।
+                  Thank you! Our subject expert team will review this question and verify the answer key or explanation promptly.
                 </p>
               </motion.div>
             ) : (
@@ -196,8 +196,8 @@ export const QuestionReportModal: React.FC<QuestionReportModalProps> = ({
                   <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 rounded-2xl p-3 flex items-start gap-2.5 text-xs text-amber-800 dark:text-amber-200">
                     <Info className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                     <div>
-                      <span className="font-bold block">नोट:</span>
-                      आपने या किसी अन्य परीक्षार्थी ने इस प्रश्न पर पहले भी आपत्ति दर्ज की है। यदि आप अतिरिक्त तथ्य जोड़ना चाहते हैं, तो नीचे लिख सकते हैं।
+                      <span className="font-bold block">Note:</span>
+                      An objection has already been logged for this question. If you have additional facts or references, feel free to add them below.
                     </div>
                   </div>
                 )}
@@ -222,7 +222,7 @@ export const QuestionReportModal: React.FC<QuestionReportModalProps> = ({
                 {/* Objection Category Picker */}
                 <div>
                   <label className="block text-xs font-black text-slate-700 dark:text-slate-300 mb-2 uppercase tracking-wider">
-                    त्रुटि / आपत्ति का प्रकार चुनें:
+                    Select Type of Issue / Objection:
                   </label>
                   <div className="space-y-1.5 max-h-52 overflow-y-auto pr-1">
                     {issueOptions.map((type) => {
@@ -253,7 +253,7 @@ export const QuestionReportModal: React.FC<QuestionReportModalProps> = ({
                           </div>
                           <div className="min-w-0 flex-1">
                             <div className="text-xs font-black leading-tight flex items-center gap-1.5">
-                              <span>{meta.hi}</span>
+                              <span>{meta.en}</span>
                             </div>
                             <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">
                               {meta.description}
@@ -268,18 +268,18 @@ export const QuestionReportModal: React.FC<QuestionReportModalProps> = ({
                 {/* Student Comment / Explanation */}
                 <div>
                   <label className="block text-xs font-black text-slate-700 dark:text-slate-300 mb-1.5 uppercase tracking-wider">
-                    आपका विवरण / प्रामाणिक स्रोत (वैकल्पिक परंतु सहायक):
+                    Your Remarks / Authentic Source (Optional but helpful):
                   </label>
                   <textarea
                     value={comment}
                     onChange={(e) => setComment(e.target.value)}
-                    placeholder="जैसे: सही उत्तर विकल्प (B) होना चाहिए क्योंकि राजस्थान माध्यमिक शिक्षा बोर्ड/हिंदी ग्रंथ अकादमी की पुस्तक के पृष्ठ 42 के अनुसार..."
+                    placeholder="e.g. Option (B) should be correct according to Rajasthan Board / Hindi Granth Academy textbook..."
                     rows={3}
                     maxLength={1000}
                     className="w-full p-3 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-medium text-slate-800 dark:text-slate-200 focus:outline-hidden focus:ring-2 focus:ring-amber-500 placeholder:text-slate-400 resize-none"
                   />
                   <div className="text-right text-[10px] text-slate-400 mt-1">
-                    {comment.length}/1000 अक्षर
+                    {comment.length}/1000 chars
                   </div>
                 </div>
 
@@ -291,7 +291,7 @@ export const QuestionReportModal: React.FC<QuestionReportModalProps> = ({
                         type="text"
                         value={studentName}
                         onChange={(e) => setStudentName(e.target.value)}
-                        placeholder="आपका नाम (वैकल्पिक)"
+                        placeholder="Your Name (Optional)"
                         className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-800 dark:text-slate-200 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
                       />
                     </div>
@@ -300,7 +300,7 @@ export const QuestionReportModal: React.FC<QuestionReportModalProps> = ({
                         type="email"
                         value={studentEmail}
                         onChange={(e) => setStudentEmail(e.target.value)}
-                        placeholder="ईमेल (निवारण सूचना हेतु)"
+                        placeholder="Email (for resolution notice)"
                         className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium text-slate-800 dark:text-slate-200 focus:outline-hidden focus:ring-2 focus:ring-amber-500"
                       />
                     </div>
@@ -330,7 +330,7 @@ export const QuestionReportModal: React.FC<QuestionReportModalProps> = ({
                 disabled={submitting}
                 className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
               >
-                रद्द करें
+                Cancel
               </button>
 
               <button
@@ -342,12 +342,12 @@ export const QuestionReportModal: React.FC<QuestionReportModalProps> = ({
                 {submitting ? (
                   <>
                     <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    <span>सबमिट हो रहा है...</span>
+                    <span>Submitting...</span>
                   </>
                 ) : (
                   <>
                     <Send className="w-3.5 h-3.5" />
-                    <span>आपत्ति सबमिट करें</span>
+                    <span>Submit Report</span>
                   </>
                 )}
               </button>

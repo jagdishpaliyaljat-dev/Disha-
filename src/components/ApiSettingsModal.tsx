@@ -44,7 +44,7 @@ const PROVIDER_META: Record<AIProvider, {
 }> = {
   cliproxy: {
     name: "AGY Pro Proxy",
-    tagline: "5-Account Auto-Rotation (कोटा खत्म नहीं होगा)",
+    tagline: "5-Account Auto-Rotation (Continuous High Quota)",
     defaultModel: "gemini-3.5-flash-lite",
     keyPlaceholder: "cliproxy-local",
     docsUrl: "http://127.0.0.1:8317",
