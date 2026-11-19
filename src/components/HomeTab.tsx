@@ -52,6 +52,9 @@ import {
   Swords,
   User,
   HelpCircle,
+  LayoutDashboard,
+  RotateCcw,
+  BarChart3,
 } from "lucide-react";
 import { BannerSlides } from "./BannerSlides";
 import { AppLogo } from "./AppLogo";
@@ -332,7 +335,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                 onClick={() => onNavigateTab?.("analytics")}
                 className="w-full min-h-[32px] sm:min-h-[36px] text-center text-[11px] sm:text-xs font-extrabold text-[#800020] dark:text-[#F47B20] hover:opacity-80 flex items-center justify-center gap-1 active:scale-95 transition-all cursor-pointer"
               >
-                <span>🎯 View Student AI Report Card &amp; Weakness Radar</span>
+                <span>View Student AI Report Card &amp; Weakness Radar</span>
                 <ChevronRight className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -498,7 +501,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                     New Geography 2026
                   </span>
                   <span className="px-1.5 py-0.5 rounded-md bg-[#C99A45]/15 text-[#946B1E] dark:text-[#C99A45] text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider">
-                    🎯 Map Quiz
+                    Map Quiz
                   </span>
                 </div>
                 <p className="text-[10px] sm:text-[11px] font-medium text-[#52576A] dark:text-[#929AB0] truncate leading-tight">
@@ -536,10 +539,10 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                     1v1 &amp; Group Live Quiz Battle
                   </h3>
                   <span className="px-1.5 py-0.5 rounded-md bg-[#F47B20]/12 text-[#C85A0A] dark:text-[#F47B20] text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider">
-                    ⚡ Realtime
+                    Realtime
                   </span>
                   <span className="px-1.5 py-0.5 rounded-md bg-[#800020]/10 dark:bg-[#800020]/30 text-[#800020] dark:text-[#F47B20] text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider">
-                    🏆 Live Rank
+                    Live Rank
                   </span>
                 </div>
                 <p className="text-[10px] sm:text-[11px] font-medium text-[#52576A] dark:text-[#929AB0] truncate leading-tight">
@@ -699,18 +702,18 @@ export const HomeTab: React.FC<HomeTabProps> = ({
               </div>
 
               {/* Scrollable Navigation Links */}
-              <div className="flex-1 overflow-y-auto px-4 py-5 space-y-6 no-scrollbar">
+              <div className="flex-1 overflow-y-auto px-3.5 py-4 space-y-5 no-scrollbar">
                 {/* 1. Core Learning */}
-                <div className="space-y-1.5">
-                  <h4 className="text-[10px] font-extrabold text-[#787D91] dark:text-[#929AB0] uppercase tracking-[0.2em] px-2 mb-2">
+                <div className="space-y-1">
+                  <h4 className="text-[10px] font-extrabold text-[#787D91] dark:text-[#929AB0] uppercase tracking-[0.18em] px-2.5 mb-1.5">
                     Core Learning
                   </h4>
                   {[
-                    { label: "Dashboard", icon: Home, tab: "home" },
+                    { label: "Dashboard", icon: LayoutDashboard, tab: "home" },
                     { label: "Subjects & Syllabus", icon: BookOpen, tab: "topics" },
                     { label: "Live Mock Tests", icon: Zap, tab: "live_tests" },
                     { label: "PYQ Vault", icon: FileText, tab: "pyq_vault" },
-                    { label: "Mistake Bank", icon: FileX, tab: "wrong" },
+                    { label: "Mistake Bank", icon: RotateCcw, tab: "wrong" },
                   ].map((item) => (
                     <button
                       key={item.label}
@@ -718,25 +721,26 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                         onNavigateTab?.(item.tab as ActiveTab);
                         setIsMenuOpen(false);
                       }}
-                      className="w-full min-h-[44px] flex items-center gap-3 p-2 rounded-xl hover:bg-[#F7EFE2] dark:hover:bg-[#1F2330] transition-colors group cursor-pointer"
+                      className="group w-full min-h-[42px] flex items-center gap-3 px-2.5 py-1.5 rounded-xl hover:bg-white/90 dark:hover:bg-[#1F2330] border border-transparent hover:border-[#E8D9C0]/70 dark:hover:border-[#31374A] hover:shadow-[0_1px_4px_rgba(0,0,0,0.02)] transition-all duration-150 cursor-pointer"
                     >
-                      <div className="w-9 h-9 rounded-xl bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] flex items-center justify-center shrink-0">
-                        <item.icon size={17} />
+                      <div className="w-8.5 h-8.5 rounded-[10px] bg-[#800020]/[0.08] dark:bg-[#F47B20]/15 border border-[#800020]/15 dark:border-[#F47B20]/25 text-[#800020] dark:text-[#F47B20] flex items-center justify-center shrink-0 shadow-[0_1px_2px_rgba(0,0,0,0.02)] dark:shadow-none group-hover:scale-105 transition-transform duration-150">
+                        <item.icon size={16} strokeWidth={1.8} />
                       </div>
-                      <span className="text-sm font-bold text-[#171923] dark:text-[#FFF9EF]">
+                      <span className="text-[13px] font-semibold text-[#171923] dark:text-[#FFF9EF] tracking-tight group-hover:text-[#800020] dark:group-hover:text-[#F47B20] transition-colors">
                         {item.label}
                       </span>
                       <ChevronRight
-                        size={14}
-                        className="ml-auto text-[#C99A45] group-hover:translate-x-0.5 transition-transform"
+                        size={13}
+                        strokeWidth={2}
+                        className="ml-auto text-[#929AB0]/50 dark:text-[#787D91]/60 group-hover:text-[#800020] dark:group-hover:text-[#F47B20] group-hover:translate-x-0.5 transition-all duration-150"
                       />
                     </button>
                   ))}
                 </div>
 
                 {/* 2. Competitive & Interactive */}
-                <div className="space-y-1.5">
-                  <h4 className="text-[10px] font-extrabold text-[#787D91] dark:text-[#929AB0] uppercase tracking-[0.2em] px-2 mb-2">
+                <div className="space-y-1">
+                  <h4 className="text-[10px] font-extrabold text-[#787D91] dark:text-[#929AB0] uppercase tracking-[0.18em] px-2.5 mb-1.5">
                     Competitive &amp; Interactive
                   </h4>
                   {[
@@ -753,29 +757,30 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                         }
                         setIsMenuOpen(false);
                       }}
-                      className="w-full min-h-[44px] flex items-center gap-3 p-2 rounded-xl hover:bg-[#F7EFE2] dark:hover:bg-[#1F2330] transition-colors group cursor-pointer"
+                      className="group w-full min-h-[42px] flex items-center gap-3 px-2.5 py-1.5 rounded-xl hover:bg-white/90 dark:hover:bg-[#1F2330] border border-transparent hover:border-[#E8D9C0]/70 dark:hover:border-[#31374A] hover:shadow-[0_1px_4px_rgba(0,0,0,0.02)] transition-all duration-150 cursor-pointer"
                     >
-                      <div className="w-9 h-9 rounded-xl bg-[#C99A45]/15 text-[#946B1E] dark:text-[#E5BC6B] flex items-center justify-center shrink-0">
-                        <item.icon size={17} />
+                      <div className="w-8.5 h-8.5 rounded-[10px] bg-[#C99A45]/[0.12] dark:bg-[#C99A45]/20 border border-[#C99A45]/25 dark:border-[#C99A45]/30 text-[#9E6E18] dark:text-[#E5BC6B] flex items-center justify-center shrink-0 shadow-[0_1px_2px_rgba(0,0,0,0.02)] dark:shadow-none group-hover:scale-105 transition-transform duration-150">
+                        <item.icon size={16} strokeWidth={1.8} />
                       </div>
-                      <span className="text-sm font-bold text-[#171923] dark:text-[#FFF9EF]">
+                      <span className="text-[13px] font-semibold text-[#171923] dark:text-[#FFF9EF] tracking-tight group-hover:text-[#9E6E18] dark:group-hover:text-[#E5BC6B] transition-colors">
                         {item.label}
                       </span>
                       <ChevronRight
-                        size={14}
-                        className="ml-auto text-[#C99A45] group-hover:translate-x-0.5 transition-transform"
+                        size={13}
+                        strokeWidth={2}
+                        className="ml-auto text-[#929AB0]/50 dark:text-[#787D91]/60 group-hover:text-[#9E6E18] dark:group-hover:text-[#E5BC6B] group-hover:translate-x-0.5 transition-all duration-150"
                       />
                     </button>
                   ))}
                 </div>
 
                 {/* 3. Progress & Profile */}
-                <div className="space-y-1.5">
-                  <h4 className="text-[10px] font-extrabold text-[#787D91] dark:text-[#929AB0] uppercase tracking-[0.2em] px-2 mb-2">
+                <div className="space-y-1">
+                  <h4 className="text-[10px] font-extrabold text-[#787D91] dark:text-[#929AB0] uppercase tracking-[0.18em] px-2.5 mb-1.5">
                     Progress &amp; Profile
                   </h4>
                   {[
-                    { label: "Performance Reports", icon: BarChart2, tab: "analytics" },
+                    { label: "Performance Reports", icon: BarChart3, tab: "analytics" },
                     { label: "My Profile", icon: User, tab: "profile" },
                   ].map((item) => (
                     <button
@@ -784,25 +789,26 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                         onNavigateTab?.(item.tab as ActiveTab);
                         setIsMenuOpen(false);
                       }}
-                      className="w-full min-h-[44px] flex items-center gap-3 p-2 rounded-xl hover:bg-[#F7EFE2] dark:hover:bg-[#1F2330] transition-colors group cursor-pointer"
+                      className="group w-full min-h-[42px] flex items-center gap-3 px-2.5 py-1.5 rounded-xl hover:bg-white/90 dark:hover:bg-[#1F2330] border border-transparent hover:border-[#E8D9C0]/70 dark:hover:border-[#31374A] hover:shadow-[0_1px_4px_rgba(0,0,0,0.02)] transition-all duration-150 cursor-pointer"
                     >
-                      <div className="w-9 h-9 rounded-xl bg-[#2563EB]/10 dark:bg-[#60A5FA]/15 text-[#2563EB] dark:text-[#60A5FA] flex items-center justify-center shrink-0">
-                        <item.icon size={17} />
+                      <div className="w-8.5 h-8.5 rounded-[10px] bg-[#2563EB]/[0.08] dark:bg-[#3B82F6]/15 border border-[#2563EB]/15 dark:border-[#3B82F6]/25 text-[#2563EB] dark:text-[#60A5FA] flex items-center justify-center shrink-0 shadow-[0_1px_2px_rgba(0,0,0,0.02)] dark:shadow-none group-hover:scale-105 transition-transform duration-150">
+                        <item.icon size={16} strokeWidth={1.8} />
                       </div>
-                      <span className="text-sm font-bold text-[#171923] dark:text-[#FFF9EF]">
+                      <span className="text-[13px] font-semibold text-[#171923] dark:text-[#FFF9EF] tracking-tight group-hover:text-[#2563EB] dark:group-hover:text-[#60A5FA] transition-colors">
                         {item.label}
                       </span>
                       <ChevronRight
-                        size={14}
-                        className="ml-auto text-[#C99A45] group-hover:translate-x-0.5 transition-transform"
+                        size={13}
+                        strokeWidth={2}
+                        className="ml-auto text-[#929AB0]/50 dark:text-[#787D91]/60 group-hover:text-[#2563EB] dark:group-hover:text-[#60A5FA] group-hover:translate-x-0.5 transition-all duration-150"
                       />
                     </button>
                   ))}
                 </div>
 
                 {/* 4. Resources & Support */}
-                <div className="space-y-1.5">
-                  <h4 className="text-[10px] font-extrabold text-[#787D91] dark:text-[#929AB0] uppercase tracking-[0.2em] px-2 mb-2">
+                <div className="space-y-1">
+                  <h4 className="text-[10px] font-extrabold text-[#787D91] dark:text-[#929AB0] uppercase tracking-[0.18em] px-2.5 mb-1.5">
                     Resources &amp; Support
                   </h4>
                   {[
@@ -816,17 +822,18 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                         onNavigateTab?.(item.tab as ActiveTab);
                         setIsMenuOpen(false);
                       }}
-                      className="w-full min-h-[44px] flex items-center gap-3 p-2 rounded-xl hover:bg-[#F7EFE2] dark:hover:bg-[#1F2330] transition-colors group cursor-pointer"
+                      className="group w-full min-h-[42px] flex items-center gap-3 px-2.5 py-1.5 rounded-xl hover:bg-white/90 dark:hover:bg-[#1F2330] border border-transparent hover:border-[#E8D9C0]/70 dark:hover:border-[#31374A] hover:shadow-[0_1px_4px_rgba(0,0,0,0.02)] transition-all duration-150 cursor-pointer"
                     >
-                      <div className="w-9 h-9 rounded-xl bg-[#0D9488]/10 dark:bg-[#2DD4BF]/15 text-[#0D9488] dark:text-[#2DD4BF] flex items-center justify-center shrink-0">
-                        <item.icon size={17} />
+                      <div className="w-8.5 h-8.5 rounded-[10px] bg-[#0D9488]/[0.08] dark:bg-[#14B8A6]/15 border border-[#0D9488]/15 dark:border-[#14B8A6]/25 text-[#0F766E] dark:text-[#2DD4BF] flex items-center justify-center shrink-0 shadow-[0_1px_2px_rgba(0,0,0,0.02)] dark:shadow-none group-hover:scale-105 transition-transform duration-150">
+                        <item.icon size={16} strokeWidth={1.8} />
                       </div>
-                      <span className="text-sm font-bold text-[#171923] dark:text-[#FFF9EF]">
+                      <span className="text-[13px] font-semibold text-[#171923] dark:text-[#FFF9EF] tracking-tight group-hover:text-[#0F766E] dark:group-hover:text-[#2DD4BF] transition-colors">
                         {item.label}
                       </span>
                       <ChevronRight
-                        size={14}
-                        className="ml-auto text-[#C99A45] group-hover:translate-x-0.5 transition-transform"
+                        size={13}
+                        strokeWidth={2}
+                        className="ml-auto text-[#929AB0]/50 dark:text-[#787D91]/60 group-hover:text-[#0F766E] dark:group-hover:text-[#2DD4BF] group-hover:translate-x-0.5 transition-all duration-150"
                       />
                     </button>
                   ))}
@@ -839,18 +846,18 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                       onNavigateTab?.("admin");
                       setIsMenuOpen(false);
                     }}
-                    className="w-full flex items-center gap-3 p-3 rounded-2xl bg-[#15803D]/10 dark:bg-[#22C55E]/10 border border-[#15803D]/25 text-[#15803D] dark:text-[#22C55E] transition-all cursor-pointer"
+                    className="group w-full flex items-center gap-3 p-2.5 rounded-xl bg-[#15803D]/10 dark:bg-[#22C55E]/10 border border-[#15803D]/25 text-[#15803D] dark:text-[#22C55E] hover:bg-[#15803D]/15 transition-all cursor-pointer"
                   >
-                    <div className="w-9 h-9 rounded-xl bg-[#15803D] text-white flex items-center justify-center shrink-0">
-                      <ShieldCheck size={17} />
+                    <div className="w-8.5 h-8.5 rounded-[10px] bg-[#15803D] text-white flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform duration-150">
+                      <ShieldCheck size={16} strokeWidth={1.8} />
                     </div>
                     <div className="text-left">
-                      <span className="text-sm font-extrabold block">Admin Panel</span>
+                      <span className="text-sm font-extrabold block leading-tight">Admin Panel</span>
                       <span className="text-[10px] font-bold opacity-80 uppercase tracking-wider">
                         Content Management
                       </span>
                     </div>
-                    <ChevronRight size={14} className="ml-auto" />
+                    <ChevronRight size={13} strokeWidth={2} className="ml-auto opacity-70 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all duration-150" />
                   </button>
                 )}
               </div>
