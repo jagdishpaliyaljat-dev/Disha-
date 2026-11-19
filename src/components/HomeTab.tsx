@@ -50,6 +50,8 @@ import {
   Target,
   Map,
   Swords,
+  User,
+  HelpCircle,
 } from "lucide-react";
 import { BannerSlides } from "./BannerSlides";
 import { AppLogo } from "./AppLogo";
@@ -698,28 +700,22 @@ export const HomeTab: React.FC<HomeTabProps> = ({
 
               {/* Scrollable Navigation Links */}
               <div className="flex-1 overflow-y-auto px-4 py-5 space-y-6 no-scrollbar">
+                {/* 1. Core Learning */}
                 <div className="space-y-1.5">
                   <h4 className="text-[10px] font-extrabold text-[#787D91] dark:text-[#929AB0] uppercase tracking-[0.2em] px-2 mb-2">
-                    Learning Hub
+                    Core Learning
                   </h4>
                   {[
                     { label: "Dashboard", icon: Home, tab: "home" },
-                    { label: "⚔️ Rajasthan 50-District War", icon: Swords, action: () => onOpenDistrictWar?.() },
-                    { label: "Rajasthan 50 Districts Map & Quiz", icon: Map, action: () => onOpenRajasthanMap?.() },
-                    { label: "⚔️ 1v1 Live Quiz Battle", icon: Swords, action: () => onOpenLiveBattle?.() },
                     { label: "Subjects & Syllabus", icon: BookOpen, tab: "topics" },
-                    { label: "Weekly Standings", icon: Trophy, action: () => setShowLeaderboard(true) },
                     { label: "Live Mock Tests", icon: Zap, tab: "live_tests" },
                     { label: "PYQ Vault", icon: FileText, tab: "pyq_vault" },
+                    { label: "Mistake Bank", icon: FileX, tab: "wrong" },
                   ].map((item) => (
                     <button
                       key={item.label}
                       onClick={() => {
-                        if (item.action) {
-                          item.action();
-                        } else if (item.tab) {
-                          onNavigateTab?.(item.tab as ActiveTab);
-                        }
+                        onNavigateTab?.(item.tab as ActiveTab);
                         setIsMenuOpen(false);
                       }}
                       className="w-full min-h-[44px] flex items-center gap-3 p-2 rounded-xl hover:bg-[#F7EFE2] dark:hover:bg-[#1F2330] transition-colors group cursor-pointer"
@@ -738,20 +734,23 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                   ))}
                 </div>
 
+                {/* 2. Competitive & Interactive */}
                 <div className="space-y-1.5">
                   <h4 className="text-[10px] font-extrabold text-[#787D91] dark:text-[#929AB0] uppercase tracking-[0.2em] px-2 mb-2">
-                    Prep &amp; Updates
+                    Competitive &amp; Interactive
                   </h4>
                   {[
-                    { label: "Performance Reports", icon: BarChart2, tab: "analytics" },
-                    { label: "Exam News & Guides", icon: Newspaper, tab: "news" },
-                    { label: "About DISHA 20-20", icon: Info, tab: "about" },
-                    { label: "Help & Support", icon: Info, tab: "contact" },
+                    { label: "Rajasthan 50-District War", icon: Swords, action: () => onOpenDistrictWar?.() },
+                    { label: "Rajasthan 50 Districts Map & Quiz", icon: Map, action: () => onOpenRajasthanMap?.() },
+                    { label: "1v1 Live Quiz Battle", icon: Target, action: () => onOpenLiveBattle?.() },
+                    { label: "Weekly Leaderboard", icon: Trophy, action: () => setShowLeaderboard(true) },
                   ].map((item) => (
                     <button
                       key={item.label}
                       onClick={() => {
-                        onNavigateTab?.(item.tab as ActiveTab);
+                        if (item.action) {
+                          item.action();
+                        }
                         setIsMenuOpen(false);
                       }}
                       className="w-full min-h-[44px] flex items-center gap-3 p-2 rounded-xl hover:bg-[#F7EFE2] dark:hover:bg-[#1F2330] transition-colors group cursor-pointer"
@@ -770,6 +769,70 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                   ))}
                 </div>
 
+                {/* 3. Progress & Profile */}
+                <div className="space-y-1.5">
+                  <h4 className="text-[10px] font-extrabold text-[#787D91] dark:text-[#929AB0] uppercase tracking-[0.2em] px-2 mb-2">
+                    Progress &amp; Profile
+                  </h4>
+                  {[
+                    { label: "Performance Reports", icon: BarChart2, tab: "analytics" },
+                    { label: "My Profile", icon: User, tab: "profile" },
+                  ].map((item) => (
+                    <button
+                      key={item.label}
+                      onClick={() => {
+                        onNavigateTab?.(item.tab as ActiveTab);
+                        setIsMenuOpen(false);
+                      }}
+                      className="w-full min-h-[44px] flex items-center gap-3 p-2 rounded-xl hover:bg-[#F7EFE2] dark:hover:bg-[#1F2330] transition-colors group cursor-pointer"
+                    >
+                      <div className="w-9 h-9 rounded-xl bg-[#2563EB]/10 dark:bg-[#60A5FA]/15 text-[#2563EB] dark:text-[#60A5FA] flex items-center justify-center shrink-0">
+                        <item.icon size={17} />
+                      </div>
+                      <span className="text-sm font-bold text-[#171923] dark:text-[#FFF9EF]">
+                        {item.label}
+                      </span>
+                      <ChevronRight
+                        size={14}
+                        className="ml-auto text-[#C99A45] group-hover:translate-x-0.5 transition-transform"
+                      />
+                    </button>
+                  ))}
+                </div>
+
+                {/* 4. Resources & Support */}
+                <div className="space-y-1.5">
+                  <h4 className="text-[10px] font-extrabold text-[#787D91] dark:text-[#929AB0] uppercase tracking-[0.2em] px-2 mb-2">
+                    Resources &amp; Support
+                  </h4>
+                  {[
+                    { label: "Exam News & Guides", icon: Newspaper, tab: "news" },
+                    { label: "About DISHA 20-20", icon: Info, tab: "about" },
+                    { label: "Help & Support", icon: HelpCircle, tab: "contact" },
+                  ].map((item) => (
+                    <button
+                      key={item.label}
+                      onClick={() => {
+                        onNavigateTab?.(item.tab as ActiveTab);
+                        setIsMenuOpen(false);
+                      }}
+                      className="w-full min-h-[44px] flex items-center gap-3 p-2 rounded-xl hover:bg-[#F7EFE2] dark:hover:bg-[#1F2330] transition-colors group cursor-pointer"
+                    >
+                      <div className="w-9 h-9 rounded-xl bg-[#0D9488]/10 dark:bg-[#2DD4BF]/15 text-[#0D9488] dark:text-[#2DD4BF] flex items-center justify-center shrink-0">
+                        <item.icon size={17} />
+                      </div>
+                      <span className="text-sm font-bold text-[#171923] dark:text-[#FFF9EF]">
+                        {item.label}
+                      </span>
+                      <ChevronRight
+                        size={14}
+                        className="ml-auto text-[#C99A45] group-hover:translate-x-0.5 transition-transform"
+                      />
+                    </button>
+                  ))}
+                </div>
+
+                {/* 5. Admin Management */}
                 {isAdmin && (
                   <button
                     onClick={() => {
