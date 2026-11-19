@@ -46,6 +46,21 @@ jobs:
       - name: Make Gradlew Executable
         run: chmod +x android/gradlew
 
+      - name: Setup Fixed Keystore for Consistent APK Signatures
+        run: |
+          if [ ! -f android/app/release.keystore ]; then
+            echo "Generating persistent signing keystore..."
+            keytool -genkeypair -v \
+              -keystore android/app/release.keystore \
+              -alias disha \
+              -keyalg RSA \
+              -keysize 2048 \
+              -validity 10000 \
+              -storepass "DishaApp2020Pass" \
+              -keypass "DishaApp2020Pass" \
+              -dname "CN=Disha 20-20, OU=ExamPrep, O=Disha, L=Jaipur, ST=Rajasthan, C=IN"
+          fi
+
       - name: Build Android Debug APK
         run: |
           cd android
@@ -58,3 +73,11 @@ jobs:
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 30
+
+      - name: Upload Signing Keystore Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Disha-Signing-Keystore
+          path: android/app/release.keystore
+          if-no-files-found: warn
+          retention-days: 90
