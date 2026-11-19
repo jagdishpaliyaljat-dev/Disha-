@@ -1,6 +1,6 @@
 import { supabase } from "../lib/supabase";
 import { UserProfile, AdminAuditLog } from "../types";
-import { ADMIN_UIDS, ADMIN_EMAILS, isUserAdmin, loadUserProfile } from "./userProfileStorage";
+import { ADMIN_UIDS, ADMIN_EMAILS, isUserAdmin, loadUserProfile, isSuperAdmin } from "./userProfileStorage";
 import { fetchAllBanners } from "./bannerStorage";
 
 const AUDIT_LOGS_KEY = "disha2020_admin_audit_logs_v1";
@@ -22,7 +22,7 @@ export async function registerUserToDirectory(profile: UserProfile): Promise<voi
   const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
   if (!UUID_REGEX.test(profile.id)) return;
   const now = new Date().toISOString();
-  const isAdminUID = ADMIN_UIDS.includes(profile.id) || ADMIN_EMAILS.includes((profile.email || "").trim().toLowerCase());
+  const isSuper = isSuperAdmin(profile);
 
   // Keep in-memory cache up to date immediately
   const currentDir = getLocalUsersDirectory();
@@ -31,14 +31,27 @@ export async function registerUserToDirectory(profile: UserProfile): Promise<voi
   }
 
   try {
+    let finalRole = profile.role || "student";
+    if (isSuper) {
+      finalRole = "admin";
+    } else if (finalRole !== "admin") {
+      const { data: existing } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", profile.id)
+        .maybeSingle();
+      if (existing?.role === "admin") {
+        finalRole = "admin";
+      }
+    }
+
     const { error } = await supabase.from("profiles").upsert(
       {
         id: profile.id,
         email: profile.email || "",
-        // Column names must match public.profiles(display_name, photo_url).
         display_name: profile.name || (profile as any).displayName || "User",
         photo_url: profile.photoURL || profile.avatar || "",
-        role: isAdminUID ? "admin" : (profile.role || "student"),
+        role: finalRole,
         updated_at: now,
       },
       { onConflict: "id" }
@@ -300,39 +313,119 @@ export async function updateUserAccountStatus(
 }
 
 /**
- * Update user role (admin / student)
+ * Update user role (admin / student).
+ * Security Rule: Strictly restricted to Super Administrators.
  */
 export async function updateUserRole(userId: string, newRole: "admin" | "student" | "user"): Promise<void> {
   const currentAdmin = loadUserProfile();
-  if (!isUserAdmin(currentAdmin)) {
-    throw new Error("Unauthorized: Only verified administrators can change user roles.");
+  if (!isSuperAdmin(currentAdmin)) {
+    throw new Error("अनधिकृत: केवल मुख्य प्रशासक (Super Admin) ही एडमिन बना या हटा सकते हैं।");
   }
+
+  // Prevent demoting a Super Admin
+  if (isSuperAdmin(userId) && newRole !== "admin") {
+    throw new Error("निषिद्ध: मुख्य Super Admin को डिमोट नहीं किया जा सकता।");
+  }
+
   if (userId === currentAdmin?.id && newRole !== "admin") {
-    throw new Error("Action Restricted: Administrators cannot remove their own admin role.");
+    throw new Error("निषिद्ध: आप स्वयं अपने एडमिन अधिकार नहीं हटा सकते।");
   }
 
   const normalizedRole = newRole === "admin" ? "admin" : "student";
-  const { error } = await supabase
-    .from("profiles")
-    .update({ role: normalizedRole, updated_at: new Date().toISOString() })
-    .eq("id", userId);
 
-  if (error) {
-    throw new Error(`Failed to update user role in Supabase: ${error.message}`);
+  // 1. Try secure Supabase RPC which updates both public.profiles and auth.users metadata
+  let rpcSuccess = false;
+  try {
+    const { data, error } = await supabase.rpc("promote_user_to_admin", {
+      target_user_id: userId,
+      target_role: normalizedRole,
+    });
+    if (!error && data?.success) {
+      rpcSuccess = true;
+    }
+  } catch (rpcErr) {
+    console.warn("RPC promote_user_to_admin call exception:", rpcErr);
   }
 
+  // 2. Direct table update fallback if RPC didn't execute
+  if (!rpcSuccess) {
+    const { error } = await supabase
+      .from("profiles")
+      .update({ role: normalizedRole, updated_at: new Date().toISOString() })
+      .eq("id", userId);
+
+    if (error) {
+      throw new Error(`Supabase में यूज़र रोल अपडेट विफल: ${error.message}`);
+    }
+  }
+
+  // 3. Update local directory cache so UI updates immediately
   let localUsers = getLocalUsersDirectory();
   if (localUsers.length > 0) {
-    localUsers = localUsers.map(u => u.id === userId ? { ...u, role: normalizedRole } : u);
+    localUsers = localUsers.map((u) => (u.id === userId ? { ...u, role: normalizedRole } : u));
     setLocalUsersDirectory(localUsers);
   }
 
   try {
-    const targetUser = localUsers.find(u => u.id === userId) || { id: userId, name: "User", email: "" } as any;
-    await logAdminAction("update_role", targetUser, `User role updated to ${normalizedRole}`);
+    const targetUser = localUsers.find((u) => u.id === userId) || ({ id: userId, name: "User", email: "" } as any);
+    await logAdminAction("update_role", targetUser, `यूज़र रोल को ${normalizedRole === "admin" ? "Admin" : "Student"} में अपडेट किया गया`);
   } catch (e) {
     console.warn("Audit logging for role change failed:", e);
   }
+}
+
+/**
+ * Promote user by exact email directly (Super Admin only)
+ */
+export async function promoteUserByEmail(email: string): Promise<UserProfile> {
+  const currentAdmin = loadUserProfile();
+  if (!isSuperAdmin(currentAdmin)) {
+    throw new Error("अनधिकृत: केवल मुख्य प्रशासक (Super Admin) ही नए एडमिन बना सकते हैं।");
+  }
+  const cleanEmail = email.trim().toLowerCase();
+  if (!cleanEmail || !cleanEmail.includes("@")) {
+    throw new Error("कृपया एक मान्य ईमेल पता दर्ज करें।");
+  }
+
+  // Check if target is already in local directory
+  const localMatch = getLocalUsersDirectory().find(
+    (u) => (u.email || "").trim().toLowerCase() === cleanEmail
+  );
+
+  let targetUserId = localMatch?.id;
+
+  // Search Supabase profiles table
+  if (!targetUserId) {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("id,email,display_name,role")
+      .ilike("email", cleanEmail)
+      .maybeSingle();
+
+    if (error) {
+      throw new Error(`डेटाबेस त्रुटि: ${error.message}`);
+    }
+    if (!data) {
+      throw new Error(`ईमेल "${cleanEmail}" वाला कोई छात्र नहीं मिला। पहले उस यूज़र को ऐप में एक बार लॉगिन करना होगा।`);
+    }
+    targetUserId = data.id;
+  }
+
+  await updateUserRole(targetUserId, "admin");
+
+  // Fetch updated user
+  const updatedUser: UserProfile = localMatch
+    ? { ...localMatch, role: "admin" }
+    : {
+        id: targetUserId,
+        email: cleanEmail,
+        name: cleanEmail.split("@")[0],
+        role: "admin",
+        status: "active",
+        createdAt: new Date().toISOString(),
+      };
+
+  return updatedUser;
 }
 
 export async function deleteUserAccountFromFirestore(userId: string, _reason?: string): Promise<void> {

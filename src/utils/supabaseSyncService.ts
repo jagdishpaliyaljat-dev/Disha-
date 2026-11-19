@@ -1575,11 +1575,28 @@ export async function syncUserProfileToSupabase(profile: any): Promise<boolean> 
       return false;
     }
 
-    // Prevent privilege escalation: only allow admin role if authenticated session email is an authorized admin
-    const { ADMIN_EMAILS } = await import("./userProfileStorage");
+    // Prevent privilege escalation: verify super admin or existing persistent admin role in database
+    const { isSuperAdmin } = await import("./userProfileStorage");
     const userEmail = (session.user.email || profile.email || "").trim().toLowerCase();
-    const isSuperAdmin = ADMIN_EMAILS.some(e => e.toLowerCase() === userEmail);
-    const assignedRole = (isSuperAdmin && profile.role === "admin") ? "admin" : "student";
+    const isSuper = isSuperAdmin(userEmail) || isSuperAdmin(uid);
+
+    let assignedRole: "admin" | "student" = "student";
+    if (isSuper) {
+      assignedRole = "admin";
+    } else {
+      // Check existing row in profiles table so we never demote an admin promoted by Super Admin!
+      const { data: existingRow } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", uid)
+        .maybeSingle();
+
+      if (existingRow?.role === "admin" || profile.role === "admin") {
+        assignedRole = (existingRow?.role === "admin" || profile.role === "admin") ? "admin" : "student";
+      } else {
+        assignedRole = "student";
+      }
+    }
 
     const { error } = await supabase.from("profiles").upsert({
       id: uid,

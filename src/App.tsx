@@ -785,19 +785,41 @@ export default function App() {
         if (session?.user) {
           const u = session.user;
           const emailLower = (u.email || "").trim().toLowerCase();
-          const { ADMIN_EMAILS, ADMIN_UIDS, saveUserProfile: saveProfile } = await import('./utils/userProfileStorage');
-          const isAdminUser = Boolean(
-            (u.email && ADMIN_EMAILS.includes(emailLower)) ||
-            ADMIN_UIDS.includes(u.id)
+          const [
+            { isSuperAdmin, saveUserProfile: saveProfile, loadUserProfile: loadLocalProfile },
+            { fetchUserProfileFromSupabase }
+          ] = await Promise.all([
+            import('./utils/userProfileStorage'),
+            import('./utils/supabaseSyncService'),
+          ]);
+
+          // 1. Check if user is Super Admin
+          const isSuper = isSuperAdmin(emailLower) || isSuperAdmin(u.id);
+
+          // 2. Fetch remote profile from Supabase to verify persistent database role
+          let remoteProfile: any = null;
+          try {
+            remoteProfile = await fetchUserProfileFromSupabase(u.id);
+          } catch (fetchErr) {
+            console.warn("Could not fetch remote profile on session restore:", fetchErr);
+          }
+
+          // 3. Fallback: check stored local profile
+          const localProfile = loadLocalProfile();
+          const hasAdminRole = Boolean(
+            isSuper ||
+            remoteProfile?.role === "admin" ||
+            (localProfile?.id === u.id && localProfile?.role === "admin")
           );
+
           const profile: UserProfile = {
             id: u.id,
-            name: u.user_metadata?.full_name || u.user_metadata?.name || u.email?.split("@")[0] || "Student",
+            name: remoteProfile?.name || remoteProfile?.displayName || u.user_metadata?.full_name || u.user_metadata?.name || u.email?.split("@")[0] || "Student",
             email: u.email || "",
-            photoURL: u.user_metadata?.avatar_url || u.user_metadata?.picture || "",
-            role: isAdminUser ? "admin" : "student",
-            status: "active",
-            createdAt: u.created_at || new Date().toISOString(),
+            photoURL: remoteProfile?.photoURL || u.user_metadata?.avatar_url || u.user_metadata?.picture || "",
+            role: hasAdminRole ? "admin" : "student",
+            status: remoteProfile?.status || "active",
+            createdAt: remoteProfile?.createdAt || u.created_at || new Date().toISOString(),
           };
           setUserProfile(profile);
           setIsAuthenticated(true);
@@ -819,7 +841,7 @@ export default function App() {
           // chosen to browse the student app. This keeps "Return to Student App"
           // from being overridden by the session restore redirect.
           const preferStudentView = safeGetSessionStorageItem("disha_admin_view_mode") === "student";
-          if (isAdminUser && !preferStudentView) {
+          if (hasAdminRole && !preferStudentView) {
             setActiveTab("admin");
           }
           setIsLoginOpen(false);

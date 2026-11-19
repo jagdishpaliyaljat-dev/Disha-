@@ -19,7 +19,11 @@ import {
   LayoutGrid,
   Filter,
   User,
-  UserX
+  UserX,
+  Crown,
+  ShieldAlert,
+  Lock,
+  Mail
 } from "lucide-react";
 import { UserProfile } from "../../types";
 import { 
@@ -27,9 +31,11 @@ import {
   updateUserAccountStatus, 
   deleteUserAccount, 
   updateUserRole,
+  promoteUserByEmail,
   fetchUserActivityData, 
   UserActivitySummary 
 } from "../../utils/userManagementStorage";
+import { isSuperAdmin, loadUserProfile } from "../../utils/userProfileStorage";
 import { CardGridSkeleton } from "./AdminSkeletonLoaders";
 
 interface AdminUserManagementSectionProps {
@@ -42,6 +48,7 @@ const UserDetailView: React.FC<{
   activity: UserActivitySummary | null;
   loading: boolean;
   actionLoading: string | null;
+  isViewerSuperAdmin: boolean;
   onClose: () => void;
   onUpdateStatus: (user: UserProfile, status: "active" | "inactive" | "blocked") => void;
   onUpdateRole: (user: UserProfile, role: "admin" | "student") => void;
@@ -51,12 +58,14 @@ const UserDetailView: React.FC<{
   activity, 
   loading, 
   actionLoading, 
+  isViewerSuperAdmin,
   onClose, 
   onUpdateStatus, 
   onUpdateRole, 
   onDelete 
 }) => {
   const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
+  const isTargetSuper = isSuperAdmin(user);
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto animate-in fade-in duration-300">
@@ -83,11 +92,19 @@ const UserDetailView: React.FC<{
               }`}>
                 {user.status || 'Active'}
               </span>
-              <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-tight border ${
-                user.role === 'admin' ? 'bg-indigo-50 text-indigo-600 border-indigo-100' : 'bg-blue-50 text-blue-600 border-blue-100'
-              }`}>
-                {user.role || 'Student'}
-              </span>
+              {isTargetSuper ? (
+                <span className="px-2.5 py-0.5 rounded text-[10px] font-black uppercase tracking-tight bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1">
+                  <Crown className="w-3 h-3 text-amber-600" /> Super Admin
+                </span>
+              ) : user.role === 'admin' ? (
+                <span className="px-2.5 py-0.5 rounded text-[10px] font-black uppercase tracking-tight bg-indigo-100 text-indigo-700 border border-indigo-200 flex items-center gap-1">
+                  <ShieldCheck className="w-3 h-3 text-indigo-600" /> Admin
+                </span>
+              ) : (
+                <span className="px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-tight bg-slate-100 text-slate-600 border border-slate-200">
+                  Student
+                </span>
+              )}
             </div>
             <p className="text-xs text-slate-500 font-medium">{user.email || "No email bound"}</p>
           </div>
@@ -158,14 +175,38 @@ const UserDetailView: React.FC<{
               {user.status === 'blocked' ? 'Restore Account' : 'Suspend Access'}
             </button>
 
-            <button 
-              disabled={Boolean(actionLoading)}
-              onClick={() => onUpdateRole(user, user.role === 'admin' ? 'student' : 'admin')} 
-              className="w-full py-3 bg-white text-slate-900 border border-slate-200 rounded-lg font-bold text-[11px] uppercase tracking-wider transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2 shadow-sm"
-            >
-              {actionLoading === 'role' ? <RefreshCw className="w-3.5 h-3.5 animate-spin"/> : <ShieldCheck className="w-3.5 h-3.5 text-indigo-600"/>}
-              {user.role === 'admin' ? 'Revoke Admin' : 'Grant Admin'}
-            </button>
+            {isTargetSuper ? (
+              <button
+                disabled
+                className="w-full py-3 bg-amber-50 text-amber-800 border border-amber-200 rounded-lg font-bold text-[11px] uppercase tracking-wider flex items-center justify-center gap-2 cursor-not-allowed"
+                title="मुख्य Super Admin को डिमोट नहीं किया जा सकता"
+              >
+                <Crown className="w-3.5 h-3.5 text-amber-600" />
+                <span>Super Admin (सुरक्षित)</span>
+              </button>
+            ) : !isViewerSuperAdmin ? (
+              <button
+                disabled
+                className="w-full py-3 bg-slate-100 text-slate-400 border border-slate-200 rounded-lg font-bold text-[11px] uppercase tracking-wider flex items-center justify-center gap-2 cursor-not-allowed"
+                title="केवल मुख्य Super Admin ही एडमिन प्रमोट या डिमोट कर सकते हैं"
+              >
+                <Lock className="w-3.5 h-3.5 text-slate-400" />
+                <span>केवल Super Admin को अधिकार</span>
+              </button>
+            ) : (
+              <button 
+                disabled={Boolean(actionLoading)}
+                onClick={() => onUpdateRole(user, user.role === 'admin' ? 'student' : 'admin')} 
+                className={`w-full py-3 rounded-lg font-bold text-[11px] uppercase tracking-wider transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2 shadow-sm border cursor-pointer ${
+                  user.role === 'admin'
+                    ? 'bg-rose-50 text-rose-700 hover:bg-rose-100 border-rose-200'
+                    : 'bg-indigo-600 text-white hover:bg-indigo-700 border-indigo-500'
+                }`}
+              >
+                {actionLoading === 'role' ? <RefreshCw className="w-3.5 h-3.5 animate-spin"/> : <ShieldCheck className="w-3.5 h-3.5"/>}
+                {user.role === 'admin' ? 'Revoke Admin Privileges' : 'Promote to Full Admin'}
+              </button>
+            )}
           </div>
 
           <div className="pt-2">
@@ -211,6 +252,15 @@ export const AdminUserManagementSection: React.FC<AdminUserManagementSectionProp
   const [loadingActivity, setLoadingActivity] = React.useState(false);
   const [actionLoading, setActionLoading] = React.useState<string | null>(null);
   const [notification, setNotification] = React.useState<{ type: "success" | "error"; message: string } | null>(null);
+
+  // Super Admin security check
+  const currentLoggedInAdmin = React.useMemo(() => loadUserProfile(), []);
+  const currentUserIsSuperAdmin = React.useMemo(() => isSuperAdmin(currentLoggedInAdmin), [currentLoggedInAdmin]);
+
+  // Promote by Email state (Super Admin only)
+  const [showPromoteEmailModal, setShowPromoteEmailModal] = React.useState(false);
+  const [emailToPromote, setEmailToPromote] = React.useState("");
+  const [isPromotingEmail, setIsPromotingEmail] = React.useState(false);
 
   // Cursor-based cloud data fetching & pagination state
   const [lastDocSnap, setLastDocSnap] = React.useState<any>(null);
@@ -336,6 +386,20 @@ export const AdminUserManagementSection: React.FC<AdminUserManagementSectionProp
   };
 
   const handleUpdateRole = async (user: UserProfile, role: "admin" | "student") => {
+    if (!currentUserIsSuperAdmin) {
+      setNotification({
+        type: "error",
+        message: "अनधिकृत: केवल मुख्य प्रशासक (Super Admin) ही एडमिन बना या हटा सकते हैं।",
+      });
+      return;
+    }
+    if (isSuperAdmin(user) && role !== "admin") {
+      setNotification({
+        type: "error",
+        message: "निषिद्ध: मुख्य Super Admin को डिमोट नहीं किया जा सकता।",
+      });
+      return;
+    }
     setActionLoading("role");
     try {
       await updateUserRole(user.id, role);
@@ -344,8 +408,8 @@ export const AdminUserManagementSection: React.FC<AdminUserManagementSectionProp
       setNotification({ 
         type: "success", 
         message: role === "admin" 
-          ? `User "${user.name || user.email}" promoted to Admin!` 
-          : `Admin privileges removed from "${user.name || user.email}".`
+          ? `यूज़र "${user.name || user.email}" को सफलतापूर्वक Admin बना दिया गया!` 
+          : `"${user.name || user.email}" के Admin अधिकार सफलतापूर्वक हटा दिए गए।`
       });
       window.dispatchEvent(new CustomEvent("disha2020-user-tier-updated"));
       window.dispatchEvent(new CustomEvent("quizpro-user-tier-updated"));
@@ -354,6 +418,47 @@ export const AdminUserManagementSection: React.FC<AdminUserManagementSectionProp
     } finally {
       setActionLoading(null);
       setTimeout(() => setNotification(null), 4000);
+    }
+  };
+
+  const handlePromoteByEmail = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentUserIsSuperAdmin) {
+      setNotification({
+        type: "error",
+        message: "अनधिकृत: केवल मुख्य प्रशासक (Super Admin) ही नए एडमिन बना सकते हैं।",
+      });
+      return;
+    }
+    const clean = emailToPromote.trim().toLowerCase();
+    if (!clean || !clean.includes("@")) {
+      setNotification({ type: "error", message: "कृपया एक मान्य ईमेल पता दर्ज करें।" });
+      return;
+    }
+    setIsPromotingEmail(true);
+    try {
+      const updatedUser = await promoteUserByEmail(clean);
+      setUsers((prev) => {
+        const exists = prev.some((u) => u.id === updatedUser.id);
+        if (exists) {
+          return prev.map((u) => (u.id === updatedUser.id ? { ...u, role: "admin" } : u));
+        }
+        return [updatedUser, ...prev];
+      });
+      setNotification({
+        type: "success",
+        message: `ईमेल "${clean}" को सफलतापूर्वक Admin बना दिया गया! अब वह एडमिन के रूप में लॉगिन व कार्य कर सकेगा।`,
+      });
+      setEmailToPromote("");
+      setShowPromoteEmailModal(false);
+      window.dispatchEvent(new CustomEvent("disha2020-user-tier-updated"));
+    } catch (err: any) {
+      setNotification({
+        type: "error",
+        message: err?.message || "एडमिन प्रमोट करने में त्रुटि आई।",
+      });
+    } finally {
+      setIsPromotingEmail(false);
     }
   };
 
@@ -483,14 +588,26 @@ export const AdminUserManagementSection: React.FC<AdminUserManagementSectionProp
               Manage user access, audit learning progress, and maintain educational integrity.
             </p>
           </div>
-          <button 
-            onClick={() => loadUsers(true)} 
-            disabled={refreshing || loading} 
-            className="flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-lg font-bold text-xs uppercase tracking-wider transition-all active:scale-[0.98] shadow-sm self-start md:self-auto cursor-pointer"
-          >
-            <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin text-indigo-600" : "text-slate-400"}`} /> 
-            <span>{refreshing ? "Syncing..." : "Sync Directory"}</span>
-          </button>
+          <div className="flex items-center gap-2.5 flex-wrap self-start md:self-auto">
+            {currentUserIsSuperAdmin && (
+              <button 
+                onClick={() => setShowPromoteEmailModal(true)} 
+                className="flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 bg-gradient-to-r from-amber-500 to-indigo-600 hover:from-amber-600 hover:to-indigo-700 text-white rounded-lg font-bold text-xs uppercase tracking-wider transition-all active:scale-[0.98] shadow-sm cursor-pointer"
+                title="छात्र को सीधे ईमेल द्वारा Admin प्रमोट करें"
+              >
+                <Crown className="w-4 h-4 text-amber-200" />
+                <span>प्रमोट Admin (ईमेल)</span>
+              </button>
+            )}
+            <button 
+              onClick={() => loadUsers(true)} 
+              disabled={refreshing || loading} 
+              className="flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-lg font-bold text-xs uppercase tracking-wider transition-all active:scale-[0.98] shadow-sm cursor-pointer"
+            >
+              <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin text-indigo-600" : "text-slate-400"}`} /> 
+              <span>{refreshing ? "Syncing..." : "Sync Directory"}</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -600,28 +717,46 @@ export const AdminUserManagementSection: React.FC<AdminUserManagementSectionProp
                       }`}>
                         {user.status || 'Active'}
                       </span>
-                      <span className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-tight border ${
-                        user.role === 'admin' ? 'bg-indigo-100 text-indigo-700 border-indigo-200' : 'bg-slate-100 text-slate-600 border-slate-200'
-                      }`}>
-                        {user.role === 'admin' ? 'Admin' : 'Student'}
-                      </span>
+                      {isSuperAdmin(user) ? (
+                        <span className="px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-tight bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1">
+                          <Crown className="w-2.5 h-2.5 text-amber-600" /> Super Admin
+                        </span>
+                      ) : user.role === 'admin' ? (
+                        <span className="px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-tight bg-indigo-100 text-indigo-700 border border-indigo-200 flex items-center gap-1">
+                          <ShieldCheck className="w-2.5 h-2.5 text-indigo-600" /> Admin
+                        </span>
+                      ) : (
+                        <span className="px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-tight bg-slate-100 text-slate-600 border border-slate-200">
+                          Student
+                        </span>
+                      )}
                     </div>
                     
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleUpdateRole(user, user.role === 'admin' ? 'student' : 'admin');
-                      }}
-                      className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all flex items-center gap-1 shrink-0 ${
-                        user.role === 'admin'
-                          ? 'bg-rose-50 text-rose-600 hover:bg-rose-100 border border-rose-200'
-                          : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100 border border-indigo-200'
-                      }`}
-                      title={user.role === 'admin' ? 'Revoke Admin' : 'Grant Admin'}
-                    >
-                      <ShieldCheck className="w-3 h-3" />
-                      <span>{user.role === 'admin' ? 'Demote' : 'Promote'}</span>
-                    </button>
+                    {isSuperAdmin(user) ? (
+                      <span className="px-2 py-1 rounded text-[9px] font-bold text-amber-700 bg-amber-50 border border-amber-200 flex items-center gap-1 shrink-0">
+                        <Crown className="w-3 h-3 text-amber-600" /> Super Admin
+                      </span>
+                    ) : !currentUserIsSuperAdmin ? (
+                      <span className="px-2 py-1 rounded text-[9px] font-bold text-slate-400 bg-slate-50 border border-slate-200 flex items-center gap-1 shrink-0" title="केवल Super Admin को अधिकार है">
+                        <Lock className="w-3 h-3 text-slate-400" /> Protected
+                      </span>
+                    ) : (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleUpdateRole(user, user.role === 'admin' ? 'student' : 'admin');
+                        }}
+                        className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all flex items-center gap-1 shrink-0 cursor-pointer ${
+                          user.role === 'admin'
+                            ? 'bg-rose-50 text-rose-600 hover:bg-rose-100 border border-rose-200'
+                            : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100 border border-indigo-200'
+                        }`}
+                        title={user.role === 'admin' ? 'Admin अधिकार हटाएं' : 'Admin प्रमोट करें'}
+                      >
+                        <ShieldCheck className="w-3 h-3" />
+                        <span>{user.role === 'admin' ? 'Demote' : 'Promote'}</span>
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}
@@ -633,6 +768,81 @@ export const AdminUserManagementSection: React.FC<AdminUserManagementSectionProp
         </div>
       </div>
 
+      {/* Promote Admin by Email Modal (Super Admin only) */}
+      {showPromoteEmailModal && (
+        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+              <div className="flex items-center gap-2 text-indigo-600">
+                <Crown className="w-5 h-5 text-amber-500" />
+                <h3 className="text-base font-black text-slate-900">नया Admin प्रमोट करें</h3>
+              </div>
+              <button
+                onClick={() => setShowPromoteEmailModal(false)}
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handlePromoteByEmail} className="mt-4 space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                  छात्र का ईमेल पता (Email Address)
+                </label>
+                <input
+                  type="email"
+                  required
+                  placeholder="e.g. student@gmail.com"
+                  value={emailToPromote}
+                  onChange={(e) => setEmailToPromote(e.target.value)}
+                  className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm font-medium focus:ring-2 focus:ring-indigo-500 focus:outline-hidden"
+                />
+              </div>
+
+              <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-900 text-xs leading-relaxed space-y-1">
+                <p className="font-bold flex items-center gap-1.5">
+                  <ShieldAlert className="w-3.5 h-3.5 text-amber-600" />
+                  सुरक्षा एवं अधिकार नियम:
+                </p>
+                <ul className="list-disc pl-4 space-y-0.5 text-[11px] text-amber-800">
+                  <li>केवल <strong>Super Admin</strong> ही नए एडमिन बना या हटा सकते हैं।</li>
+                  <li>सामान्य एडमिन किसी अन्य यूज़र को प्रमोट या डिमोट नहीं कर सकते।</li>
+                  <li>प्रमोट होने के बाद वह यूज़र तुरंत एडमिन पैनल में लॉगिन व कार्य कर सकेगा।</li>
+                </ul>
+              </div>
+
+              <div className="flex items-center justify-end gap-2.5 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowPromoteEmailModal(false)}
+                  className="px-4 py-2 border border-slate-200 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-50 cursor-pointer"
+                >
+                  रद्द करें
+                </button>
+                <button
+                  type="submit"
+                  disabled={isPromotingEmail || !emailToPromote.trim()}
+                  className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm cursor-pointer"
+                >
+                  {isPromotingEmail ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>प्रमोट हो रहा है...</span>
+                    </>
+                  ) : (
+                    <>
+                      <ShieldCheck className="w-3.5 h-3.5" />
+                      <span>Admin बनाएं</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* User Detail Modal */}
       {selectedUser && (
         <UserDetailView 
@@ -640,6 +850,7 @@ export const AdminUserManagementSection: React.FC<AdminUserManagementSectionProp
           activity={userActivity} 
           loading={loadingActivity} 
           actionLoading={actionLoading}
+          isViewerSuperAdmin={currentUserIsSuperAdmin}
           onClose={() => {
             if (typeof window !== "undefined" && window.history.length > 1 && window.location.search.includes("userId")) {
               window.history.back();

@@ -37,6 +37,22 @@ export function setInMemoryProfile(profile: UserProfile | null): void {
   inMemoryProfile = profile;
 }
 
+export function isSuperAdmin(profileOrIdentifier?: UserProfile | string | null): boolean {
+  if (!profileOrIdentifier) return false;
+  const normalize = (s: string) => s.trim().toLowerCase();
+  if (typeof profileOrIdentifier === "string") {
+    const cleaned = normalize(profileOrIdentifier);
+    return (
+      ADMIN_EMAILS.some((e) => normalize(e) === cleaned) ||
+      ADMIN_UIDS.includes(profileOrIdentifier)
+    );
+  }
+  const email = profileOrIdentifier.email ? normalize(profileOrIdentifier.email) : "";
+  if (email && ADMIN_EMAILS.some((e) => normalize(e) === email)) return true;
+  if (profileOrIdentifier.id && ADMIN_UIDS.includes(profileOrIdentifier.id)) return true;
+  return false;
+}
+
 export function loadUserProfile(): UserProfile | null {
   try {
     const raw = safeGetLocalStorageItem(USER_PROFILE_KEY);
@@ -49,10 +65,9 @@ export function loadUserProfile(): UserProfile | null {
       ...parsed,
     };
     
-    // Check super admins
+    // Check super admins or persistent admin role
     const isActuallyAdmin = Boolean(
-      (profile.email && ADMIN_EMAILS.includes(profile.email.trim().toLowerCase())) || 
-      (profile.id && ADMIN_UIDS.includes(profile.id)) ||
+      isSuperAdmin(profile) ||
       parsed.role === "admin"
     );
     
@@ -71,8 +86,8 @@ export function loadUserProfile(): UserProfile | null {
 
 export function saveUserProfile(profile: UserProfile): void {
   const isActuallyAdmin = Boolean(
-    (profile.email && ADMIN_EMAILS.includes(profile.email.trim().toLowerCase())) || 
-    (profile.id && ADMIN_UIDS.includes(profile.id))
+    isSuperAdmin(profile) ||
+    profile.role === "admin"
   );
   
   if (isActuallyAdmin) {
@@ -99,21 +114,29 @@ export function clearUserProfile(): void {
 }
 
 export function isUserAdmin(profileOrRole?: UserProfile | string | null): boolean {
+  if (!profileOrRole) return false;
   const normalize = (s: string) => s.trim().toLowerCase();
 
-  // 1. If passed a string (email or UID)
+  // 1. If passed a string (email or UID or "admin")
   if (typeof profileOrRole === "string") {
     const cleaned = normalize(profileOrRole);
-    if (ADMIN_EMAILS.includes(cleaned)) return true;
-    if (ADMIN_UIDS.includes(profileOrRole)) return true;
+    if (cleaned === "admin") return true;
+    if (isSuperAdmin(cleaned)) return true;
+    
+    // Check if stored local profile matches
+    try {
+      const stored = loadUserProfile();
+      if (stored?.role === "admin") {
+        if (stored.email && normalize(stored.email) === cleaned) return true;
+        if (stored.id === profileOrRole) return true;
+      }
+    } catch {}
     return false;
   }
 
   // 2. Handle UserProfile object
   if (profileOrRole && typeof profileOrRole === "object") {
-    const email = profileOrRole.email ? normalize(profileOrRole.email) : null;
-    if (email && ADMIN_EMAILS.includes(email)) return true;
-    if (profileOrRole.id && ADMIN_UIDS.includes(profileOrRole.id)) return true;
+    if (isSuperAdmin(profileOrRole)) return true;
     if (profileOrRole.role === "admin") return true;
     return false;
   }
@@ -121,12 +144,7 @@ export function isUserAdmin(profileOrRole?: UserProfile | string | null): boolea
   // 3. Fallback: check stored local profile
   try {
     const stored = loadUserProfile();
-    if (stored?.email) {
-      const email = normalize(stored.email);
-      if (ADMIN_EMAILS.includes(email)) return true;
-    }
-    if (stored?.id && ADMIN_UIDS.includes(stored.id)) return true;
-    if (stored?.role === "admin") return true;
+    if (stored && (isSuperAdmin(stored) || stored.role === "admin")) return true;
   } catch {}
 
   return false;
