@@ -84,18 +84,18 @@ export const DuplicateQuestionsHubModal: React.FC<DuplicateQuestionsHubModalProp
       if (report.duplicateGroupCount > 0) {
         setExpandedGroupId(report.groups[0].groupId);
       }
-      triggerAdminToast({
-        title: "स्कैन पूर्ण",
-        message: `${report.totalScanned} प्रश्नों में से ${report.duplicateGroupCount} डुप्लीकेट समूह (कुल ${report.totalDuplicateCopies} प्रतियां) मिले।`,
-        type: report.duplicateGroupCount > 0 ? "warning" : "success",
-      });
+      triggerAdminToast(
+        report.duplicateGroupCount > 0 ? "info" : "success",
+        "स्कैन पूर्ण",
+        `${report.totalScanned} प्रश्नों में से ${report.duplicateGroupCount} डुप्लीकेट समूह (कुल ${report.totalDuplicateCopies} प्रतियां) मिले।`
+      );
     } catch (err: any) {
       console.error("Scan error:", err);
-      triggerAdminToast({
-        title: "स्कैन विफल",
-        message: err?.message || "डुप्लीकेट स्कैन में त्रुटि आई।",
-        type: "error",
-      });
+      triggerAdminToast(
+        "error",
+        "स्कैन विफल",
+        err?.message || "डुप्लीकेट स्कैन में त्रुटि आई।"
+      );
     } finally {
       setIsScanning(false);
       setScanProgress("");
@@ -155,21 +155,21 @@ export const DuplicateQuestionsHubModal: React.FC<DuplicateQuestionsHubModalProp
         });
       }
 
-      triggerAdminToast({
-        title: "डुप्लीकेट हटाया गया",
-        message: `प्रश्न (ID: ${questionId}) को सफलतापूर्वक हटा दिया गया।`,
-        type: "success",
-      });
+      triggerAdminToast(
+        "delete",
+        "डुप्लीकेट हटाया गया",
+        `प्रश्न (ID: ${questionId}) को सफलतापूर्वक हटा दिया गया।`
+      );
 
       if (onQuestionsUpdated) {
         onQuestionsUpdated();
       }
     } catch (err: any) {
-      triggerAdminToast({
-        title: "डिलीट विफल",
-        message: err?.message || "प्रश्न हटाने में त्रुटि आई।",
-        type: "error",
-      });
+      triggerAdminToast(
+        "error",
+        "डिलीट विफल",
+        err?.message || "प्रश्न हटाने में त्रुटि आई।"
+      );
     } finally {
       setIsDeleting(null);
     }
@@ -212,21 +212,21 @@ export const DuplicateQuestionsHubModal: React.FC<DuplicateQuestionsHubModalProp
         });
       }
 
-      triggerAdminToast({
-        title: "समूह साफ किया गया",
-        message: `${dupIds.length} डुप्लीकेट प्रतियां हटा दी गईं, मुख्य प्रश्न सुरक्षित रखा गया।`,
-        type: "success",
-      });
+      triggerAdminToast(
+        "delete",
+        "समूह साफ किया गया",
+        `${dupIds.length} डुप्लीकेट प्रतियां हटा दी गईं, मुख्य प्रश्न सुरक्षित रखा गया।`
+      );
 
       if (onQuestionsUpdated) {
         onQuestionsUpdated();
       }
     } catch (err: any) {
-      triggerAdminToast({
-        title: "त्रुटि",
-        message: err?.message || "प्रतियां हटाने में त्रुटि आई।",
-        type: "error",
-      });
+      triggerAdminToast(
+        "error",
+        "त्रुटि",
+        err?.message || "प्रतियां हटाने में त्रुटि आई।"
+      );
     } finally {
       setIsDeleting(null);
     }
@@ -272,21 +272,21 @@ export const DuplicateQuestionsHubModal: React.FC<DuplicateQuestionsHubModalProp
         totalDuplicateCopies: 0,
       });
 
-      triggerAdminToast({
-        title: "सभी डुप्लीकेट साफ",
-        message: `सफलतापूर्वक कुल ${allDupIds.length} डुप्लीकेट प्रश्नों को हटाया गया।`,
-        type: "success",
-      });
+      triggerAdminToast(
+        "delete",
+        "सभी डुप्लीकेट साफ",
+        `सफलतापूर्वक कुल ${allDupIds.length} डुप्लीकेट प्रश्नों को हटाया गया।`
+      );
 
       if (onQuestionsUpdated) {
         onQuestionsUpdated();
       }
     } catch (err: any) {
-      triggerAdminToast({
-        title: "बल्क डिलीट विफल",
-        message: err?.message || "बल्क डिलीट में त्रुटि आई।",
-        type: "error",
-      });
+      triggerAdminToast(
+        "error",
+        "बल्क डिलीट विफल",
+        err?.message || "बल्क डिलीट में त्रुटि आई।"
+      );
     } finally {
       setIsBulkDeleting(false);
     }

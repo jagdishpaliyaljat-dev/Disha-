@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import { Subject, Chapter, UserQuestionsStore, UserProfile } from "../types";
 import { ConfirmDialog } from "./admin/ConfirmDialog";
-import { deleteSubject, deleteChapter, saveUserQuestionsStore } from "../utils/questionsStorage";
+import { deleteSubject, deleteChapter, saveUserQuestionsStore, loadUserQuestionsStore } from "../utils/questionsStorage";
 import { AdminSectionLoader } from "./admin/AdminSkeletonLoaders";
 import type { SyncProgressState } from "./admin/SyncProgressModal";
 import { isUserAdmin, clearUserProfile } from "../utils/userProfileStorage";

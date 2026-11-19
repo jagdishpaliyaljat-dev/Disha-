@@ -226,7 +226,8 @@ export async function syncCurriculumAuthoritative(options?: { force?: boolean })
       // 3. Reconcile Topics
       const localTopics = await idbGetAll<Topic>(STORES.TOPICS);
       for (const t of localTopics) {
-        if (!serverTopIds.has(t.id) || deletedTopSet.has(t.id) || t.id.startsWith("top_") || t.name === "X" || t.name === "MCQ 01") {
+        const tName = (t as any).name || t.title;
+        if (!serverTopIds.has(t.id) || deletedTopSet.has(t.id) || t.id.startsWith("top_") || tName === "X" || tName === "MCQ 01") {
           await idbDelete(STORES.TOPICS, t.id);
           result.prunedTopics++;
         }

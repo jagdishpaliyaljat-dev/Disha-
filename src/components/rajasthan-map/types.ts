@@ -59,6 +59,7 @@ export interface DistrictInfo {
   parentDistricts: string[];
   tagline: string;
   isNewDistrict: boolean;
+  isNew?: boolean;
   newChangesIn2023: string[]; // नए ज़िले में क्या-क्या आया (परीक्षा उपयोगी)
   geography: DistrictGeography;
   culture: DistrictCulture;
