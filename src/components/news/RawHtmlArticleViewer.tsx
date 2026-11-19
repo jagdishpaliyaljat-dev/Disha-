@@ -44,8 +44,9 @@ export const RawHtmlArticleViewer: React.FC<RawHtmlArticleViewerProps> = ({
       }
     } catch (e) {
       console.warn("DOMPurify sanitize fallback in RawHtmlArticleViewer:", e);
+      return "";
     }
-    return htmlContent;
+    return "";
   }, [htmlContent]);
 
   React.useEffect(() => {
