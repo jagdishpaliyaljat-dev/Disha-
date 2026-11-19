@@ -432,7 +432,30 @@ export default function App() {
   const [aiTutorContextQuestion, setAiTutorContextQuestion] = React.useState<Question | null>(null);
   const [viewCount, setViewCount] = React.useState<number>(1240);
 
-  // Global listener for AI Tutor opening from anywhere (questions, review, FAB)
+  // Check for direct battle invite link (?battle=CODE or ?room=CODE)
+  React.useEffect(() => {
+    try {
+      if (typeof window !== "undefined") {
+        const urlParams = new URLSearchParams(window.location.search);
+        let battleCode = urlParams.get("battle") || urlParams.get("room") || urlParams.get("quiz");
+
+        if (!battleCode && window.location.hash) {
+          const hashMatch = window.location.hash.match(/(?:battle|room)=([A-Za-z0-9]{4,8})/i);
+          if (hashMatch) {
+            battleCode = hashMatch[1];
+          }
+        }
+
+        if (battleCode && battleCode.trim().length >= 4) {
+          const cleanCode = battleCode.trim().toUpperCase();
+          setBattleInitialRoomCode(cleanCode);
+          setIsLiveBattleOpen(true);
+        }
+      }
+    } catch (e) {
+      console.error("[Battle Link] Error parsing URL query params:", e);
+    }
+  }, []);
   React.useEffect(() => {
     const handleOpenAITutor = (e: any) => {
       if (e?.detail?.question) {

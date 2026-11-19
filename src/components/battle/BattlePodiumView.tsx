@@ -14,6 +14,7 @@ import {
 import type { BattlePlayer } from "./types";
 import { playVictoryFanfare, triggerHaptic, playClickSound } from "../../utils/audioFeedback";
 import { districtWarService } from "../district-war/districtWarService";
+import { BattleAvatar } from "./BattleAvatar";
 
 interface BattlePodiumViewProps {
   players: BattlePlayer[];
@@ -127,8 +128,8 @@ export const BattlePodiumView: React.FC<BattlePodiumViewProps> = ({
             {second && (
               <div className="flex flex-col items-center flex-1 max-w-[100px]">
                 <div className="relative mb-1">
-                  <span className="text-3xl">{second.avatar}</span>
-                  <span className="absolute -top-2 -right-2 bg-stone-300 text-stone-800 text-[10px] font-extrabold rounded-full w-5 h-5 flex items-center justify-center border-2 border-white shadow">
+                  <BattleAvatar avatar={second.avatar} name={second.name} size="lg" />
+                  <span className="absolute -top-1 -right-1 bg-stone-300 text-stone-800 text-[10px] font-extrabold rounded-full w-5 h-5 flex items-center justify-center border-2 border-white shadow">
                     2
                   </span>
                 </div>
@@ -154,9 +155,9 @@ export const BattlePodiumView: React.FC<BattlePodiumViewProps> = ({
                   <div className="absolute -top-7 left-1/2 -translate-x-1/2 text-amber-500 animate-bounce">
                     <Crown className="w-7 h-7 fill-amber-400 drop-shadow" />
                   </div>
-                  <span className="text-4xl p-2 rounded-2xl bg-amber-100 border-2 border-amber-400 inline-block shadow-md ring-2 ring-amber-300/50">
-                    {first.avatar}
-                  </span>
+                  <div className="p-1 rounded-full bg-amber-100 border-2 border-amber-400 inline-block shadow-md ring-2 ring-amber-300/50">
+                    <BattleAvatar avatar={first.avatar} name={first.name} size="xl" showBadge />
+                  </div>
                   <span className="absolute -bottom-1 -right-1 bg-amber-400 text-stone-900 text-xs font-black rounded-full w-6 h-6 flex items-center justify-center border-2 border-white shadow">
                     1
                   </span>
@@ -180,8 +181,8 @@ export const BattlePodiumView: React.FC<BattlePodiumViewProps> = ({
             {third && (
               <div className="flex flex-col items-center flex-1 max-w-[100px]">
                 <div className="relative mb-1">
-                  <span className="text-3xl">{third.avatar}</span>
-                  <span className="absolute -top-2 -right-2 bg-amber-700 text-white text-[10px] font-extrabold rounded-full w-5 h-5 flex items-center justify-center border-2 border-white shadow">
+                  <BattleAvatar avatar={third.avatar} name={third.name} size="lg" />
+                  <span className="absolute -top-1 -right-1 bg-amber-700 text-white text-[10px] font-extrabold rounded-full w-5 h-5 flex items-center justify-center border-2 border-white shadow">
                     3
                   </span>
                 </div>
@@ -277,7 +278,7 @@ export const BattlePodiumView: React.FC<BattlePodiumViewProps> = ({
                     <span className="w-6 text-center font-black text-stone-500 text-sm">
                       {idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : `#${idx + 1}`}
                     </span>
-                    <span className="text-2xl">{player.avatar}</span>
+                    <BattleAvatar avatar={player.avatar} name={player.name} size="md" />
                     <div>
                       <div className="flex items-center gap-1.5">
                         <span className="font-extrabold text-sm text-stone-800">

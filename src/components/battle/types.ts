@@ -39,19 +39,25 @@ export interface BattlePlayer {
 
 export type QuestionSourceType = 
   | "curated"      // Rajasthan GK Bank (Pre-built)
-  | "custom_bank"  // User's custom added questions
+  | "subject"      // Specific subject questions
   | "chapter"      // Specific chapter questions
+  | "topic"        // Specific topic questions
+  | "custom_bank"  // User's custom added questions
   | "manual_pick"; // Hand-picked questions by host
 
 export interface BattleRoomConfig {
   roomCode: string;
   hostId: string;
-  questionCount: number;
-  timePerQuestionSec: number; // default 10s
+  questionCount: number; // 30, 50, 60, or custom
+  timePerQuestionSec: number; // 5s, 10s, 15s
   category: BattleCategory;
   questionSource: QuestionSourceType;
+  selectedSubjectId?: string;
+  selectedSubjectTitle?: string;
   selectedChapterId?: string;
   selectedChapterTitle?: string;
+  selectedTopicId?: string;
+  selectedTopicTitle?: string;
   selectedQuestionIds?: string[];
   allowUnlimitedUsers?: boolean;
   createdAt: number;

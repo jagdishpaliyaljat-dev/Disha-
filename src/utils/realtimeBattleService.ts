@@ -1,5 +1,11 @@
 import { supabase, isSupabaseConfigured } from "../lib/supabase";
-import { loadUserQuestionsStore } from "./questionsStorage";
+import {
+  loadUserQuestionsStore,
+  getCombinedSubjects,
+  getCombinedChapters,
+  getCombinedQuestions,
+} from "./questionsStorage";
+import { ANIME_CHARACTERS } from "../components/battle/BattleAvatar";
 import type {
   BattleCategory,
   QuestionSourceType,
@@ -300,16 +306,14 @@ export function generateRoomCode(): string {
   return result;
 }
 
-// Default Player Avatars
-export const PLAYER_AVATARS = [
-  "🦁", "🐯", "🦅", "🐎", "🦚", "🐫", "⚔️", "🏹", "🛡️", "🔥", "👑", "⚡"
-];
+// Default Player Avatars (Anime Character Avatars)
+export const PLAYER_AVATARS = ANIME_CHARACTERS.map((c) => c.avatarUrl);
 
-// Curated Bot Opponents for instant solo test & practice
+// Curated Bot Opponents for instant solo test & practice (Anime Personas)
 export const BOT_OPPONENTS: Omit<BattlePlayer, "id">[] = [
   {
-    name: "विक्रम (AI प्रतिद्वंद्वी)",
-    avatar: "🤖",
+    name: "Gojo (AI Sensei)",
+    avatar: ANIME_CHARACTERS[0].avatarUrl,
     isHost: false,
     isReady: true,
     isBot: true,
@@ -320,8 +324,8 @@ export const BOT_OPPONENTS: Omit<BattlePlayer, "id">[] = [
     avgResponseTimeMs: 4200,
   },
   {
-    name: "मेधावी साथी: अंकिता",
-    avatar: "👩‍🎓",
+    name: "Tanjiro (AI Blade)",
+    avatar: ANIME_CHARACTERS[1].avatarUrl,
     isHost: false,
     isReady: true,
     isBot: true,
@@ -332,8 +336,8 @@ export const BOT_OPPONENTS: Omit<BattlePlayer, "id">[] = [
     avgResponseTimeMs: 3800,
   },
   {
-    name: "रणधीर सिंह (RAS अभ्यर्थी)",
-    avatar: "🦁",
+    name: "Zoro (AI Master)",
+    avatar: ANIME_CHARACTERS[4].avatarUrl,
     isHost: false,
     isReady: true,
     isBot: true,
@@ -341,7 +345,7 @@ export const BOT_OPPONENTS: Omit<BattlePlayer, "id">[] = [
     streak: 0,
     correctCount: 0,
     wrongCount: 0,
-    avgResponseTimeMs: 5100,
+    avgResponseTimeMs: 4600,
   },
 ];
 
@@ -368,24 +372,104 @@ export function getUserCustomQuestionsList(): BattleQuestion[] {
   return [];
 }
 
-// Helper to get available chapters list for question selection
-export function getAvailableChaptersList(): { id: string; title: string; count: number }[] {
+// Helper to get available subjects list for live battle selection
+export function getAvailableSubjectsList(): { id: string; title: string; count: number }[] {
   try {
+    const subjects = getCombinedSubjects();
+    const chapters = getCombinedChapters();
+    const allQuestions = getCombinedQuestions(chapters);
+
+    if (subjects.length > 0) {
+      return subjects.map((sub) => {
+        const count = allQuestions.filter((q) => q.subjectId === sub.id).length;
+        return {
+          id: sub.id,
+          title: sub.hindiName || sub.name,
+          count,
+        };
+      });
+    }
+
+    // Default Fallback Subjects
+    return [
+      { id: "history", title: "Rajasthan History", count: 25 },
+      { id: "geography", title: "Rajasthan Geography", count: 25 },
+      { id: "culture", title: "Art & Culture", count: 20 },
+      { id: "polity", title: "Polity & Administration", count: 18 },
+      { id: "economy", title: "Economy & Schemes", count: 15 },
+    ];
+  } catch {
+    return [];
+  }
+}
+
+// Helper to get available chapters list for question selection
+export function getAvailableChaptersList(subjectId?: string): { id: string; title: string; count: number; subjectId?: string }[] {
+  try {
+    const chapters = getCombinedChapters();
+    const allQuestions = getCombinedQuestions(chapters);
+    const targetChapters = subjectId
+      ? chapters.filter((c) => !c.subjectId || c.subjectId === subjectId)
+      : chapters;
+
+    if (targetChapters.length > 0) {
+      return targetChapters.map((ch) => {
+        const count = allQuestions.filter((q) => q.chapterId === ch.id).length;
+        return {
+          id: ch.id,
+          title: ch.hindiTitle || ch.title || `Chapter ${ch.number || ""}`,
+          count,
+          subjectId: ch.subjectId,
+        };
+      });
+    }
+
+    // Fallback from custom chapters in store
     const store = loadUserQuestionsStore();
-    const chapters: { id: string; title: string; count: number }[] = [];
+    const list: { id: string; title: string; count: number; subjectId?: string }[] = [];
     if (store && Array.isArray(store.customChapters)) {
       store.customChapters.forEach((ch) => {
         if (ch && ch.id) {
           const count = store.customQuestions?.filter((q) => q.chapterId === ch.id)?.length || 0;
-          chapters.push({
+          list.push({
             id: ch.id,
-            title: ch.hindiTitle || ch.title || `अध्याय ${ch.number || ""}`,
+            title: ch.hindiTitle || ch.title || `Chapter ${ch.number || ""}`,
             count,
+            subjectId: ch.subjectId,
           });
         }
       });
     }
-    return chapters;
+    return list;
+  } catch {
+    return [];
+  }
+}
+
+// Helper to get available topics list for topic question selection
+export function getAvailableTopicsList(chapterId?: string): { id: string; title: string; count: number; chapterId: string }[] {
+  try {
+    const chapters = getCombinedChapters();
+    const allQuestions = getCombinedQuestions(chapters);
+    const targetChapters = chapterId
+      ? chapters.filter((c) => c.id === chapterId)
+      : chapters;
+
+    const list: { id: string; title: string; count: number; chapterId: string }[] = [];
+    targetChapters.forEach((ch) => {
+      if (Array.isArray(ch.topics)) {
+        ch.topics.forEach((top) => {
+          const count = allQuestions.filter((q) => q.topicId === top.id).length;
+          list.push({
+            id: top.id,
+            title: top.hindiTitle || top.title,
+            count,
+            chapterId: ch.id,
+          });
+        });
+      }
+    });
+    return list;
   } catch {
     return [];
   }
@@ -395,11 +479,26 @@ export interface GetBattleQuestionsOptions {
   category?: BattleCategory;
   count?: number;
   questionSource?: QuestionSourceType;
+  selectedSubjectId?: string;
   selectedChapterId?: string;
+  selectedTopicId?: string;
   selectedQuestionIds?: string[];
 }
 
-// Get Battle Questions based on Category, Source, Chapter, or specific selection
+// Internal helper to convert any app question format to BattleQuestion
+function formatToBattleQuestion(raw: any, fallbackIdPrefix = "q"): BattleQuestion {
+  return {
+    id: raw.id || `${fallbackIdPrefix}_${Math.random().toString(36).substring(2, 7)}`,
+    text: raw.text || raw.question || "",
+    options: Array.isArray(raw.options) && raw.options.length >= 2 ? raw.options : ["A", "B", "C", "D"],
+    correctIndex: typeof raw.correctIndex === "number" ? raw.correctIndex : typeof raw.correct_answer === "number" ? raw.correct_answer : 0,
+    explanation: raw.explanation || "",
+    category: raw.subjectId || raw.category || "General",
+    difficulty: raw.difficulty || "medium",
+  };
+}
+
+// Get Battle Questions based on Category, Source, Chapter, Topic, or specific selection
 export function getBattleQuestions(
   optionsOrCategory: BattleCategory | GetBattleQuestionsOptions = "all",
   legacyCount: number = 10
@@ -407,7 +506,9 @@ export function getBattleQuestions(
   let category: BattleCategory = "all";
   let count: number = 10;
   let source: QuestionSourceType = "curated";
+  let selectedSubjectId: string | undefined;
   let selectedChapterId: string | undefined;
+  let selectedTopicId: string | undefined;
   let selectedQuestionIds: string[] | undefined;
 
   if (typeof optionsOrCategory === "string") {
@@ -417,45 +518,108 @@ export function getBattleQuestions(
     category = optionsOrCategory.category || "all";
     count = optionsOrCategory.count || 10;
     source = optionsOrCategory.questionSource || "curated";
+    selectedSubjectId = optionsOrCategory.selectedSubjectId;
     selectedChapterId = optionsOrCategory.selectedChapterId;
+    selectedTopicId = optionsOrCategory.selectedTopicId;
     selectedQuestionIds = optionsOrCategory.selectedQuestionIds;
+  }
+
+  // Load all app questions once for filtering
+  let allCombinedQuestions: BattleQuestion[] = [];
+  try {
+    const chapters = getCombinedChapters();
+    const rawQuestions = getCombinedQuestions(chapters);
+    allCombinedQuestions = rawQuestions.map((q) => formatToBattleQuestion(q));
+  } catch {
+    allCombinedQuestions = [];
   }
 
   // Mode 1: Hand-picked questions by host
   if (source === "manual_pick" && Array.isArray(selectedQuestionIds) && selectedQuestionIds.length > 0) {
     const allCustom = getUserCustomQuestionsList();
-    const allFallback = FALLBACK_BATTLE_QUESTIONS;
-    const combined = [...allCustom, ...allFallback];
+    const combined = [...allCustom, ...allCombinedQuestions, ...FALLBACK_BATTLE_QUESTIONS];
     const picked = combined.filter((q) => selectedQuestionIds!.includes(q.id));
     if (picked.length > 0) {
-      return picked.slice(0, count);
+      if (picked.length >= count) {
+        return picked.slice(0, count);
+      }
+      // If user requested more questions than selected, supplement
+      const needed = count - picked.length;
+      const supplement = shuffleArray(FALLBACK_BATTLE_QUESTIONS).slice(0, needed);
+      return [...picked, ...supplement];
     }
   }
 
-  // Mode 2: Specific chapter questions
-  if (source === "chapter" && selectedChapterId) {
+  // Mode 2: Specific Topic questions
+  if (source === "topic" && selectedTopicId) {
     try {
-      const store = loadUserQuestionsStore();
-      const chapterQuestions = (store?.customQuestions || [])
-        .filter((q) => q.chapterId === selectedChapterId && q.text && Array.isArray(q.options) && q.options.length >= 2)
-        .map((q) => ({
-          id: q.id,
-          text: q.text,
-          options: q.options,
-          correctIndex: typeof q.correctIndex === "number" ? q.correctIndex : 0,
-          explanation: q.explanation || "",
-          category: q.subjectId || "custom",
-          difficulty: q.difficulty || "medium",
-        }));
-      if (chapterQuestions.length > 0) {
-        return shuffleArray(chapterQuestions).slice(0, count);
+      const chapters = getCombinedChapters();
+      const rawQuestions = getCombinedQuestions(chapters);
+      const matched = rawQuestions
+        .filter((q) => q.topicId === selectedTopicId && q.text)
+        .map((q) => formatToBattleQuestion(q));
+
+      if (matched.length > 0) {
+        const shuffled = shuffleArray(matched);
+        if (shuffled.length >= count) {
+          return shuffled.slice(0, count);
+        }
+        const needed = count - shuffled.length;
+        const supplement = shuffleArray(FALLBACK_BATTLE_QUESTIONS).slice(0, needed);
+        return [...shuffled, ...supplement];
       }
     } catch {
       // Fallback
     }
   }
 
-  // Mode 3: Custom Question Bank
+  // Mode 3: Specific Chapter questions
+  if (source === "chapter" && selectedChapterId) {
+    try {
+      const chapters = getCombinedChapters();
+      const rawQuestions = getCombinedQuestions(chapters);
+      const matched = rawQuestions
+        .filter((q) => q.chapterId === selectedChapterId && q.text)
+        .map((q) => formatToBattleQuestion(q));
+
+      if (matched.length > 0) {
+        const shuffled = shuffleArray(matched);
+        if (shuffled.length >= count) {
+          return shuffled.slice(0, count);
+        }
+        const needed = count - shuffled.length;
+        const supplement = shuffleArray(FALLBACK_BATTLE_QUESTIONS).slice(0, needed);
+        return [...shuffled, ...supplement];
+      }
+    } catch {
+      // Fallback
+    }
+  }
+
+  // Mode 4: Specific Subject questions
+  if (source === "subject" && selectedSubjectId) {
+    try {
+      const chapters = getCombinedChapters();
+      const rawQuestions = getCombinedQuestions(chapters);
+      const matched = rawQuestions
+        .filter((q) => q.subjectId === selectedSubjectId && q.text)
+        .map((q) => formatToBattleQuestion(q));
+
+      if (matched.length > 0) {
+        const shuffled = shuffleArray(matched);
+        if (shuffled.length >= count) {
+          return shuffled.slice(0, count);
+        }
+        const needed = count - shuffled.length;
+        const supplement = shuffleArray(FALLBACK_BATTLE_QUESTIONS).slice(0, needed);
+        return [...shuffled, ...supplement];
+      }
+    } catch {
+      // Fallback
+    }
+  }
+
+  // Mode 5: Custom Question Bank
   if (source === "custom_bank") {
     const customList = getUserCustomQuestionsList();
     if (customList.length > 0) {
@@ -463,14 +627,13 @@ export function getBattleQuestions(
       if (shuffledCustom.length >= count) {
         return shuffledCustom.slice(0, count);
       }
-      // If fewer custom questions than count, supplement with fallback questions
       const needed = count - shuffledCustom.length;
       const fallbackSubset = shuffleArray(FALLBACK_BATTLE_QUESTIONS).slice(0, needed);
       return [...shuffledCustom, ...fallbackSubset];
     }
   }
 
-  // Mode 4: Default Curated Rajasthan GK Bank
+  // Mode 6: Default Curated Rajasthan GK Bank
   let filteredFallback = FALLBACK_BATTLE_QUESTIONS;
   if (category !== "all") {
     const matched = FALLBACK_BATTLE_QUESTIONS.filter((q) => q.category === category);
@@ -480,8 +643,13 @@ export function getBattleQuestions(
   }
 
   let pool: BattleQuestion[] = [...filteredFallback];
-  if (pool.length < count) {
-    pool = [...pool, ...FALLBACK_BATTLE_QUESTIONS];
+  if (allCombinedQuestions.length > 0) {
+    pool = [...pool, ...allCombinedQuestions];
+  }
+
+  // Ensure enough questions in pool
+  while (pool.length < count && pool.length > 0) {
+    pool = [...pool, ...pool.map((q) => ({ ...q, id: `${q.id}_c` }))];
   }
 
   const shuffled = shuffleArray(pool);
@@ -504,8 +672,8 @@ export function calculateRoundScore(
     return { points: 0, newStreak: 0 };
   }
 
-  const maxTimeMs = maxTimeSec * 1000;
-  const clampedTime = Math.max(500, Math.min(timeTakenMs, maxTimeMs));
+  const maxTimeMs = Math.max(5000, maxTimeSec * 1000);
+  const clampedTime = Math.max(300, Math.min(timeTakenMs, maxTimeMs));
   const remainingFraction = Math.max(0, (maxTimeMs - clampedTime) / maxTimeMs);
 
   const basePoints = 100;
@@ -520,8 +688,8 @@ export function calculateRoundScore(
 }
 
 /**
- * Generate WhatsApp Share URL & Text for 1v1 and Multi-Friend Room
- * Allows unlimited participants to join via link!
+ * Generate WhatsApp & Direct Share URL and text for 1v1 and Multi-Friend Room
+ * Allows unlimited participants to join directly via link!
  */
 export function getBattleShareInfo(roomCode: string, timePerQuestionSec: number = 10): { url: string; text: string; whatsappUrl: string } {
   const origin = typeof window !== "undefined" && window.location.origin
@@ -529,7 +697,7 @@ export function getBattleShareInfo(roomCode: string, timePerQuestionSec: number 
     : "https://disha-app.web.app";
   
   const battleUrl = `${origin}/?battle=${roomCode}`;
-  const text = `⚔️ *दिशा 20-20 लाइव क्विज़ मुकाबला!*\n\nआओ देखें कौन बनता है राजस्थान GK का विजेता! 🏆\n(जिसके पास लिंक है, वो सभी दोस्त तुरंत जुड़ सकते हैं 👥)\n\n🔑 कमरा कोड: *${roomCode}*\n⏱️ समय: *${timePerQuestionSec} सेकंड प्रति प्रश्न*\n\n👉 मुकाबला खेलने के लिए नीचे दिए लिंक पर क्लिक करें:\n${battleUrl}`;
+  const text = `⚔️ *Live Quiz Battle Invitation!*\n\nTest your Rajasthan GK skills in real-time! 🏆\n(Direct link: Any friend can join instantly 👥)\n\n🔑 Room Code: *${roomCode}*\n⏱️ Time: *${timePerQuestionSec} seconds per question*\n\n👉 Tap link to enter the battle arena directly:\n${battleUrl}`;
   const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
 
   return {

@@ -35,10 +35,13 @@ import {
   getBattleQuestions,
   calculateRoundScore,
   getUserCustomQuestionsList,
+  getAvailableSubjectsList,
   getAvailableChaptersList,
+  getAvailableTopicsList,
   RealtimeBattleManager,
 } from "../../utils/realtimeBattleService";
 import { loadUserProfile } from "../../utils/userProfileStorage";
+import { ANIME_CHARACTERS, BattleAvatar } from "./BattleAvatar";
 import {
   playClickSound,
   playCorrectSound,
@@ -85,11 +88,17 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
   // Room config state
   const [inputRoomCode, setInputRoomCode] = useState<string>(initialRoomCode);
   const [selectedCategory, setSelectedCategory] = useState<BattleCategory>("all");
-  const [questionCount, setQuestionCount] = useState<number>(10);
+  const [questionCount, setQuestionCount] = useState<number>(30);
+  const [isCustomCountMode, setIsCustomCountMode] = useState<boolean>(false);
+  const [customCountInput, setCustomCountInput] = useState<string>("30");
   const [timePerQuestionSec, setTimePerQuestionSec] = useState<number>(10);
   const [questionSource, setQuestionSource] = useState<QuestionSourceType>("curated");
+  const [selectedSubjectId, setSelectedSubjectId] = useState<string>("");
+  const [selectedSubjectTitle, setSelectedSubjectTitle] = useState<string>("");
   const [selectedChapterId, setSelectedChapterId] = useState<string>("");
   const [selectedChapterTitle, setSelectedChapterTitle] = useState<string>("");
+  const [selectedTopicId, setSelectedTopicId] = useState<string>("");
+  const [selectedTopicTitle, setSelectedTopicTitle] = useState<string>("");
   const [selectedQuestionIds, setSelectedQuestionIds] = useState<string[]>([]);
   const [isQuestionPickerOpen, setIsQuestionPickerOpen] = useState(false);
 
@@ -98,7 +107,7 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
   const [roomConfig, setRoomConfig] = useState<BattleRoomConfig>({
     roomCode: "",
     hostId: "",
-    questionCount: 10,
+    questionCount: 30,
     timePerQuestionSec: 10,
     category: "all",
     questionSource: "curated",
@@ -287,11 +296,21 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
     };
   }, []);
 
-  // Update input code if initialRoomCode changes
+  // Auto direct join when room code is present in initialRoomCode or URL query
   useEffect(() => {
-    if (initialRoomCode) {
-      setInputRoomCode(initialRoomCode.toUpperCase().trim());
-      setActiveTab("join");
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const urlCode = params.get("battle") || params.get("room") || params.get("quiz");
+      const targetCode = (initialRoomCode || urlCode || "").trim().toUpperCase();
+      if (targetCode && targetCode.length >= 4) {
+        setInputRoomCode(targetCode);
+        setActiveTab("join");
+        if (phase === "initial") {
+          handleJoinRoom(targetCode);
+        }
+      }
+    } catch {
+      // Ignore
     }
   }, [initialRoomCode]);
 
@@ -308,8 +327,12 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
       timePerQuestionSec: timePerQuestionSec || 10,
       category: selectedCategory,
       questionSource,
+      selectedSubjectId,
+      selectedSubjectTitle,
       selectedChapterId,
       selectedChapterTitle,
+      selectedTopicId,
+      selectedTopicTitle,
       selectedQuestionIds,
       allowUnlimitedUsers: true,
       createdAt: Date.now(),
@@ -344,9 +367,9 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
     setPhase("lobby");
   };
 
-  // Handle Join Room with Code
-  const handleJoinRoom = () => {
-    const code = inputRoomCode.toUpperCase().trim();
+  // Handle Join Room with Code (Direct auto join supported)
+  const handleJoinRoom = (targetCode?: string) => {
+    const code = (targetCode || inputRoomCode).toUpperCase().trim();
     if (!code || code.length < 4) {
       alert("Please enter a valid 6-digit room code.");
       return;
@@ -371,7 +394,7 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
     const initialConfig: BattleRoomConfig = {
       roomCode: code,
       hostId: "",
-      questionCount: 10,
+      questionCount: 30,
       timePerQuestionSec: 10,
       category: "all",
       questionSource: "curated",
@@ -467,7 +490,9 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
       category: roomConfig.category,
       count: roomConfig.questionCount,
       questionSource: roomConfig.questionSource,
+      selectedSubjectId: roomConfig.selectedSubjectId,
       selectedChapterId: roomConfig.selectedChapterId,
+      selectedTopicId: roomConfig.selectedTopicId,
       selectedQuestionIds: roomConfig.selectedQuestionIds,
     });
 
@@ -705,7 +730,9 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
       category: roomConfig.category,
       count: roomConfig.questionCount,
       questionSource: roomConfig.questionSource,
+      selectedSubjectId: roomConfig.selectedSubjectId,
       selectedChapterId: roomConfig.selectedChapterId,
+      selectedTopicId: roomConfig.selectedTopicId,
       selectedQuestionIds: roomConfig.selectedQuestionIds,
     });
 
@@ -745,6 +772,17 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
     setShowExitConfirm(false);
   };
 
+  const customQuestions = useMemo(() => getUserCustomQuestionsList(), []);
+  const availableSubjects = useMemo(() => getAvailableSubjectsList(), []);
+  const availableChapters = useMemo(
+    () => getAvailableChaptersList(selectedSubjectId),
+    [selectedSubjectId]
+  );
+  const availableTopics = useMemo(
+    () => getAvailableTopicsList(selectedChapterId),
+    [selectedChapterId]
+  );
+
   if (!isOpen) return null;
 
   return (
@@ -775,51 +813,51 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
       `}</style>
 
       {/* Main Container */}
-      <div className="relative w-full max-w-lg h-full sm:h-[90vh] sm:max-h-[760px] bg-[#FFF9EF] sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-amber-900/20">
+      <div className="relative w-full max-w-lg h-full sm:h-[90vh] sm:max-h-[760px] bg-[#FFFDF9] sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-stone-200">
         {/* Phase: Initial Screen (Create or Join) */}
         {phase === "initial" && (
           <div className="flex flex-col h-full overflow-y-auto">
-            {/* Royal Header */}
-            <div className="bg-gradient-to-b from-[#5E0017] via-[#800020] to-[#6A001A] text-white p-5 sm:p-6 text-center relative shadow-lg overflow-hidden">
-              {/* Subtle Ambient Radial Glow */}
-              <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-48 h-48 bg-amber-400/20 rounded-full blur-2xl pointer-events-none" />
-
+            {/* Minimal Premium Dark Header */}
+            <div className="bg-stone-900 text-white p-5 sm:p-6 text-center relative border-b border-stone-800">
               <button
                 onClick={onClose}
-                className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 transition border border-white/10"
+                className="absolute top-4 right-4 p-2 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 transition border border-white/10"
                 title="Close"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
 
-              <div className="relative inline-flex items-center justify-center p-3.5 rounded-2xl bg-gradient-to-br from-amber-400 via-amber-300 to-amber-500 text-stone-950 shadow-[0_4px_20px_rgba(245,158,11,0.4)] mb-2.5 ring-2 ring-amber-200/50">
-                <Swords className="w-7 h-7" />
+              <div className="inline-flex items-center justify-center p-3 rounded-2xl bg-amber-500/15 text-amber-400 border border-amber-500/30 mb-2">
+                <Swords className="w-6 h-6" />
               </div>
 
-              <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-amber-400/20 text-amber-200 text-[11px] font-bold border border-amber-300/30 mb-1.5">
-                <Sparkles className="w-3 h-3 text-amber-300" />
-                <span>Live Multiplayer Battle</span>
+              <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-white/10 text-stone-300 text-[11px] font-semibold border border-white/10 mb-1.5">
+                <Sparkles className="w-3 h-3 text-amber-400" />
+                <span>Live Multiplayer Arena</span>
               </div>
 
-              <h2 className="text-xl sm:text-2xl font-extrabold tracking-wide drop-shadow-sm">
-                Rajasthan GK Arena
+              <h2 className="text-xl sm:text-2xl font-bold tracking-tight">
+                Live Quiz Battle
               </h2>
-              <p className="text-xs text-amber-100/90 max-w-xs mx-auto mt-1">
-                Play 1v1 or in groups with friends • Answer quickly in 10s to rank top!
+              <p className="text-xs text-stone-400 max-w-xs mx-auto mt-1">
+                Fast-paced real-time competition • Direct link joining supported
               </p>
             </div>
 
-            {/* Profile Avatar & Name Card */}
-            <div className="p-4 bg-white/95 border-b border-amber-900/10 shadow-xs">
+            {/* Profile Avatar & Name Card with Anime Character Selection */}
+            <div className="p-4 bg-white border-b border-stone-200 space-y-3">
               <div className="flex items-center gap-3">
-                <div className="relative w-13 h-13 rounded-2xl bg-gradient-to-tr from-amber-400 to-amber-200 p-0.5 shadow-md flex items-center justify-center shrink-0 ring-2 ring-amber-300/60">
-                  <span className="text-3xl">{selectedAvatar}</span>
-                </div>
+                <BattleAvatar
+                  avatar={selectedAvatar}
+                  name={playerName}
+                  size="lg"
+                  showBadge
+                />
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-1">
                     <label className="text-[11px] font-bold text-stone-600 flex items-center gap-1 uppercase tracking-wider">
                       <User className="w-3 h-3 text-[#800020]" />
-                      <span>Your Name</span>
+                      <span>Player Name</span>
                     </label>
                     <span className="text-[10px] text-stone-400 font-mono">
                       {playerName.length}/20
@@ -831,33 +869,42 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                     onChange={(e) => setPlayerName(e.target.value)}
                     maxLength={20}
                     placeholder="Enter your name..."
-                    className="w-full text-sm font-bold text-stone-800 bg-[#FFFDF9] border border-amber-300/70 rounded-xl px-3.5 py-2 focus:outline-none focus:ring-2 focus:ring-[#800020] focus:border-transparent transition shadow-inner"
+                    className="w-full text-sm font-bold text-stone-800 bg-stone-50 border border-stone-200 rounded-xl px-3.5 py-2 focus:outline-none focus:ring-2 focus:ring-[#800020] transition"
                   />
                 </div>
               </div>
 
-              {/* Avatar Selector Strip */}
-              <div className="mt-3">
-                <div className="text-[10px] font-bold text-stone-500 uppercase tracking-wider mb-1.5 flex items-center gap-1">
-                  <span>Choose Avatar:</span>
+              {/* Anime Character Selector Strip */}
+              <div>
+                <div className="text-[10px] font-bold text-stone-500 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                  <span>Choose Anime Character Avatar:</span>
+                  <span className="text-[9px] text-[#800020] font-bold">16 Characters</span>
                 </div>
                 <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-                  {PLAYER_AVATARS.map((av) => {
-                    const isSelected = selectedAvatar === av;
+                  {ANIME_CHARACTERS.map((char) => {
+                    const isSelected = selectedAvatar === char.avatarUrl;
                     return (
                       <button
-                        key={av}
+                        key={char.id}
+                        type="button"
                         onClick={() => {
                           triggerHaptic("light");
-                          setSelectedAvatar(av);
+                          setSelectedAvatar(char.avatarUrl);
                         }}
-                        className={`w-10 h-10 flex-shrink-0 flex items-center justify-center text-xl rounded-xl transition-all ${
+                        className={`flex-shrink-0 flex flex-col items-center p-1.5 rounded-2xl border transition-all ${
                           isSelected
-                            ? "bg-gradient-to-br from-[#800020] to-[#5c0017] text-white shadow-md scale-110 ring-2 ring-amber-400"
-                            : "bg-stone-100 hover:bg-amber-50 active:scale-95 border border-stone-200"
+                            ? "bg-amber-50 border-[#800020] ring-2 ring-[#800020]/20 scale-105 shadow-sm"
+                            : "bg-stone-50 hover:bg-stone-100 border-stone-200"
                         }`}
                       >
-                        {av}
+                        <BattleAvatar
+                          avatar={char.avatarUrl}
+                          name={char.name}
+                          size="md"
+                        />
+                        <span className="text-[10px] font-bold text-stone-700 mt-1 max-w-[56px] truncate text-center">
+                          {char.name}
+                        </span>
                       </button>
                     );
                   })}
@@ -865,9 +912,9 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
               </div>
             </div>
 
-            {/* Mode Switch Segmented Control */}
+            {/* Mode Switch: Host Room vs Join Room */}
             <div className="p-4 flex-1 space-y-4">
-              <div className="flex bg-stone-200/80 p-1.5 rounded-2xl border border-stone-300/60 shadow-inner">
+              <div className="flex bg-stone-100 p-1 rounded-2xl border border-stone-200">
                 <button
                   onClick={() => {
                     triggerHaptic("light");
@@ -875,11 +922,11 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                   }}
                   className={`flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 transition-all ${
                     activeTab === "create"
-                      ? "bg-gradient-to-r from-[#800020] to-[#6A001A] text-white shadow-md"
+                      ? "bg-white text-stone-900 shadow-sm border border-stone-200"
                       : "text-stone-600 hover:text-stone-900"
                   }`}
                 >
-                  <Swords className="w-4 h-4 text-amber-300" />
+                  <Swords className="w-4 h-4 text-[#800020]" />
                   <span>Host Room</span>
                 </button>
                 <button
@@ -889,88 +936,82 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                   }}
                   className={`flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 transition-all ${
                     activeTab === "join"
-                      ? "bg-gradient-to-r from-[#800020] to-[#6A001A] text-white shadow-md"
+                      ? "bg-white text-stone-900 shadow-sm border border-stone-200"
                       : "text-stone-600 hover:text-stone-900"
                   }`}
                 >
-                  <Users className="w-4 h-4 text-amber-300" />
+                  <Users className="w-4 h-4 text-[#800020]" />
                   <span>Join Room</span>
                 </button>
               </div>
 
               {activeTab === "create" ? (
                 <div className="space-y-4">
-                  {/* Question Source Selector (4 Premium Cards) */}
+                  {/* Question Source Selection */}
                   <div>
                     <label className="block text-xs font-bold text-stone-700 mb-2 flex items-center justify-between">
                       <span>Question Source</span>
-                      <span className="text-[10px] text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full font-bold">
-                        {questionSource === "curated" && "🎯 Recommended"}
-                        {questionSource === "custom_bank" && "📝 Custom Bank"}
-                        {questionSource === "chapter" && "📚 Chapter-Wise"}
-                        {questionSource === "manual_pick" && "✏️ Hand-Picked"}
+                      <span className="text-[10px] text-stone-500 font-semibold">
+                        {questionSource === "curated" && "Curated GK Pool"}
+                        {questionSource === "subject" && "Subject-Wise"}
+                        {questionSource === "chapter" && "Chapter-Wise"}
+                        {questionSource === "topic" && "Topic-Wise"}
+                        {questionSource === "manual_pick" && "Hand-Picked"}
+                        {questionSource === "custom_bank" && "Custom Bank"}
                       </span>
                     </label>
 
-                    <div className="grid grid-cols-2 gap-2.5">
+                    <div className="grid grid-cols-3 gap-2">
                       <button
                         type="button"
                         onClick={() => setQuestionSource("curated")}
-                        className={`p-3 rounded-2xl text-left border-2 transition-all active:scale-98 ${
+                        className={`p-2.5 rounded-2xl text-left border transition text-xs ${
                           questionSource === "curated"
-                            ? "bg-amber-50/80 border-[#800020] shadow-sm ring-1 ring-[#800020]/20"
-                            : "bg-white border-stone-200/80 text-stone-700 hover:bg-stone-50"
+                            ? "bg-amber-50/80 border-[#800020] text-[#800020] font-bold shadow-xs"
+                            : "bg-white border-stone-200 text-stone-700 hover:bg-stone-50"
                         }`}
                       >
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-lg">🎯</span>
-                          <span className="text-xs font-extrabold text-stone-900">
-                            Rajasthan GK Bank
-                          </span>
-                        </div>
-                        <p className="text-[10px] text-stone-500">
-                          40+ authentic exam-level questions
-                        </p>
+                        <span className="block font-bold">Curated GK</span>
+                        <span className="text-[10px] text-stone-500 block truncate">High-Yield</span>
                       </button>
 
                       <button
                         type="button"
-                        onClick={() => setQuestionSource("custom_bank")}
-                        className={`p-3 rounded-2xl text-left border-2 transition-all active:scale-98 ${
-                          questionSource === "custom_bank"
-                            ? "bg-amber-50/80 border-[#800020] shadow-sm ring-1 ring-[#800020]/20"
-                            : "bg-white border-stone-200/80 text-stone-700 hover:bg-stone-50"
+                        onClick={() => setQuestionSource("subject")}
+                        className={`p-2.5 rounded-2xl text-left border transition text-xs ${
+                          questionSource === "subject"
+                            ? "bg-amber-50/80 border-[#800020] text-[#800020] font-bold shadow-xs"
+                            : "bg-white border-stone-200 text-stone-700 hover:bg-stone-50"
                         }`}
                       >
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-lg">📝</span>
-                          <span className="text-xs font-extrabold text-stone-900">
-                            Custom Bank
-                          </span>
-                        </div>
-                        <p className="text-[10px] text-stone-500">
-                          Questions added by you in-app
-                        </p>
+                        <span className="block font-bold">By Subject</span>
+                        <span className="text-[10px] text-stone-500 block truncate">Select Sub</span>
                       </button>
 
                       <button
                         type="button"
                         onClick={() => setQuestionSource("chapter")}
-                        className={`p-3 rounded-2xl text-left border-2 transition-all active:scale-98 ${
+                        className={`p-2.5 rounded-2xl text-left border transition text-xs ${
                           questionSource === "chapter"
-                            ? "bg-amber-50/80 border-[#800020] shadow-sm ring-1 ring-[#800020]/20"
-                            : "bg-white border-stone-200/80 text-stone-700 hover:bg-stone-50"
+                            ? "bg-amber-50/80 border-[#800020] text-[#800020] font-bold shadow-xs"
+                            : "bg-white border-stone-200 text-stone-700 hover:bg-stone-50"
                         }`}
                       >
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-lg">📚</span>
-                          <span className="text-xs font-extrabold text-stone-900">
-                            Chapter-Wise
-                          </span>
-                        </div>
-                        <p className="text-[10px] text-stone-500">
-                          Questions from specific subjects/chapters
-                        </p>
+                        <span className="block font-bold">By Chapter</span>
+                        <span className="text-[10px] text-stone-500 block truncate">Select Chap</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setQuestionSource("topic")}
+                        className={`p-2.5 rounded-2xl text-left border transition text-xs ${
+                          questionSource === "topic"
+                            ? "bg-amber-50/80 border-[#800020] text-[#800020] font-bold shadow-xs"
+                            : "bg-white border-stone-200 text-stone-700 hover:bg-stone-50"
+                        }`}
+                      >
+                        <span className="block font-bold">By Topic</span>
+                        <span className="text-[10px] text-stone-500 block truncate">Specific Topic</span>
                       </button>
 
                       <button
@@ -979,31 +1020,135 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                           setQuestionSource("manual_pick");
                           setIsQuestionPickerOpen(true);
                         }}
-                        className={`p-3 rounded-2xl text-left border-2 transition-all active:scale-98 ${
+                        className={`p-2.5 rounded-2xl text-left border transition text-xs ${
                           questionSource === "manual_pick"
-                            ? "bg-amber-50/80 border-[#800020] shadow-sm ring-1 ring-[#800020]/20"
-                            : "bg-white border-stone-200/80 text-stone-700 hover:bg-stone-50"
+                            ? "bg-amber-50/80 border-[#800020] text-[#800020] font-bold shadow-xs"
+                            : "bg-white border-stone-200 text-stone-700 hover:bg-stone-50"
                         }`}
                       >
-                        <div className="flex items-center justify-between mb-1">
-                          <div className="flex items-center gap-2">
-                            <span className="text-lg">✏️</span>
-                            <span className="text-xs font-extrabold text-stone-900">
-                              Pick Manually
-                            </span>
-                          </div>
-                          <span className="text-[10px] font-bold text-[#800020] bg-amber-100 px-1.5 py-0.5 rounded-full">
-                            {selectedQuestionIds.length > 0
-                              ? `${selectedQuestionIds.length} Selected`
-                              : "Select"}
-                          </span>
-                        </div>
-                        <p className="text-[10px] text-stone-500">
-                          Hand-pick questions one by one
-                        </p>
+                        <span className="block font-bold">Hand-Pick</span>
+                        <span className="text-[10px] text-stone-500 block truncate">
+                          {selectedQuestionIds.length > 0 ? `${selectedQuestionIds.length} Picked` : "Select"}
+                        </span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setQuestionSource("custom_bank")}
+                        className={`p-2.5 rounded-2xl text-left border transition text-xs ${
+                          questionSource === "custom_bank"
+                            ? "bg-amber-50/80 border-[#800020] text-[#800020] font-bold shadow-xs"
+                            : "bg-white border-stone-200 text-stone-700 hover:bg-stone-50"
+                        }`}
+                      >
+                        <span className="block font-bold">Custom Bank</span>
+                        <span className="text-[10px] text-stone-500 block truncate">
+                          {customQuestions.length} Questions
+                        </span>
                       </button>
                     </div>
                   </div>
+
+                  {/* Sub-selector for Subject */}
+                  {questionSource === "subject" && (
+                    <div className="bg-amber-50/60 p-3 rounded-2xl border border-amber-200/80">
+                      <label className="block text-xs font-bold text-stone-700 mb-1">
+                        Select Subject
+                      </label>
+                      <select
+                        value={selectedSubjectId}
+                        onChange={(e) => {
+                          const s = availableSubjects.find((x) => x.id === e.target.value);
+                          setSelectedSubjectId(e.target.value);
+                          setSelectedSubjectTitle(s?.title || "");
+                        }}
+                        className="w-full text-xs font-semibold bg-white border border-amber-300 rounded-xl p-2.5 text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#800020]"
+                      >
+                        <option value="">-- Choose Subject --</option>
+                        {availableSubjects.map((sub) => (
+                          <option key={sub.id} value={sub.id}>
+                            {sub.title} ({sub.count} Questions)
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  {/* Sub-selector for Chapter */}
+                  {questionSource === "chapter" && (
+                    <div className="bg-amber-50/60 p-3 rounded-2xl border border-amber-200/80">
+                      <label className="block text-xs font-bold text-stone-700 mb-1">
+                        Select Chapter
+                      </label>
+                      <select
+                        value={selectedChapterId}
+                        onChange={(e) => {
+                          const ch = availableChapters.find((c) => c.id === e.target.value);
+                          setSelectedChapterId(e.target.value);
+                          setSelectedChapterTitle(ch?.title || "");
+                        }}
+                        className="w-full text-xs font-semibold bg-white border border-amber-300 rounded-xl p-2.5 text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#800020]"
+                      >
+                        <option value="">-- Choose Chapter --</option>
+                        {availableChapters.map((ch) => (
+                          <option key={ch.id} value={ch.id}>
+                            {ch.title} ({ch.count} Questions)
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  {/* Sub-selector for Topic */}
+                  {questionSource === "topic" && (
+                    <div className="bg-amber-50/60 p-3 rounded-2xl border border-amber-200/80 space-y-2.5">
+                      <div>
+                        <label className="block text-[11px] font-bold text-stone-700 mb-1">
+                          1. Filter by Chapter
+                        </label>
+                        <select
+                          value={selectedChapterId}
+                          onChange={(e) => {
+                            const ch = availableChapters.find((c) => c.id === e.target.value);
+                            setSelectedChapterId(e.target.value);
+                            setSelectedChapterTitle(ch?.title || "");
+                            setSelectedTopicId("");
+                            setSelectedTopicTitle("");
+                          }}
+                          className="w-full text-xs font-semibold bg-white border border-amber-300 rounded-xl p-2 text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#800020]"
+                        >
+                          <option value="">-- All Chapters --</option>
+                          {availableChapters.map((ch) => (
+                            <option key={ch.id} value={ch.id}>
+                              {ch.title}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-bold text-stone-700 mb-1">
+                          2. Select Topic
+                        </label>
+                        <select
+                          value={selectedTopicId}
+                          onChange={(e) => {
+                            const top = availableTopics.find((t) => t.id === e.target.value);
+                            setSelectedTopicId(e.target.value);
+                            setSelectedTopicTitle(top?.title || "");
+                          }}
+                          className="w-full text-xs font-semibold bg-white border border-amber-300 rounded-xl p-2 text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#800020]"
+                        >
+                          <option value="">-- Choose Topic --</option>
+                          {availableTopics.map((top) => (
+                            <option key={top.id} value={top.id}>
+                              {top.title} ({top.count} Questions)
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Category Selector if curated */}
                   {questionSource === "curated" && (
@@ -1016,79 +1161,125 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                         onChange={(e) =>
                           setSelectedCategory(e.target.value as BattleCategory)
                         }
-                        className="w-full text-sm font-semibold bg-stone-50 border border-stone-300 rounded-xl px-3 py-2.5 text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#800020]"
+                        className="w-full text-sm font-semibold bg-stone-50 border border-stone-200 rounded-xl px-3 py-2 text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#800020]"
                       >
-                        <option value="all">🎯 All Subjects (Mixed GK)</option>
-                        <option value="history">🏰 Rajasthan History</option>
-                        <option value="geography">🗺️ Rajasthan Geography</option>
-                        <option value="culture">🎭 Art & Culture</option>
-                        <option value="polity">🏛️ Polity & Administration</option>
-                        <option value="economy">📊 Economy & Schemes</option>
+                        <option value="all">All Subjects (Mixed GK)</option>
+                        <option value="history">Rajasthan History</option>
+                        <option value="geography">Rajasthan Geography</option>
+                        <option value="culture">Art & Culture</option>
+                        <option value="polity">Polity & Administration</option>
+                        <option value="economy">Economy & Schemes</option>
                       </select>
                     </div>
                   )}
 
-                  {/* Question Count & Time Options */}
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="bg-white p-3 rounded-2xl border border-stone-200 shadow-xs">
-                      <label className="block text-xs font-bold text-stone-700 mb-1.5">
-                        Total Questions
-                      </label>
-                      <div className="flex gap-1.5">
-                        {[5, 10, 15].map((cnt) => (
+                  {/* Time per Question: 5s, 10s, 15s */}
+                  <div className="bg-white p-3 rounded-2xl border border-stone-200 shadow-xs">
+                    <label className="block text-xs font-bold text-stone-700 mb-1.5 flex items-center justify-between">
+                      <span className="flex items-center gap-1">
+                        <Clock className="w-3.5 h-3.5 text-[#800020]" />
+                        <span>Time per Question</span>
+                      </span>
+                      <span className="text-[10px] text-stone-500 font-bold">
+                        {timePerQuestionSec} seconds
+                      </span>
+                    </label>
+                    <div className="flex gap-2">
+                      {[5, 10, 15].map((sec) => (
+                        <button
+                          key={sec}
+                          type="button"
+                          onClick={() => {
+                            triggerHaptic("light");
+                            setTimePerQuestionSec(sec);
+                          }}
+                          className={`flex-1 py-2 text-xs font-bold rounded-xl border transition ${
+                            timePerQuestionSec === sec
+                              ? "bg-[#800020] text-white border-[#800020] shadow-xs"
+                              : "bg-stone-50 text-stone-700 border-stone-200 hover:bg-stone-100"
+                          }`}
+                        >
+                          {sec}s {sec === 10 && "⚡"}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Total Questions: 30, 50, 60, or Customize */}
+                  <div className="bg-white p-3 rounded-2xl border border-stone-200 shadow-xs">
+                    <label className="block text-xs font-bold text-stone-700 mb-1.5 flex items-center justify-between">
+                      <span>Total Questions</span>
+                      <span className="text-[10px] font-bold text-[#800020]">
+                        {questionCount} Questions
+                      </span>
+                    </label>
+                    <div className="space-y-2">
+                      <div className="grid grid-cols-4 gap-2">
+                        {[30, 50, 60].map((cnt) => (
                           <button
                             key={cnt}
                             type="button"
                             onClick={() => {
                               triggerHaptic("light");
+                              setIsCustomCountMode(false);
                               setQuestionCount(cnt);
                             }}
-                            className={`flex-1 py-2 text-xs font-bold rounded-xl border-2 transition ${
-                              questionCount === cnt
-                                ? "bg-[#800020] text-white border-[#800020] shadow-sm"
+                            className={`py-2 text-xs font-bold rounded-xl border transition ${
+                              !isCustomCountMode && questionCount === cnt
+                                ? "bg-[#800020] text-white border-[#800020] shadow-xs"
                                 : "bg-stone-50 text-stone-700 border-stone-200 hover:bg-stone-100"
                             }`}
                           >
                             {cnt}
                           </button>
                         ))}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            triggerHaptic("light");
+                            setIsCustomCountMode(true);
+                          }}
+                          className={`py-2 text-xs font-bold rounded-xl border transition ${
+                            isCustomCountMode
+                              ? "bg-[#800020] text-white border-[#800020] shadow-xs"
+                              : "bg-stone-50 text-stone-700 border-stone-200 hover:bg-stone-100"
+                          }`}
+                        >
+                          Custom
+                        </button>
                       </div>
-                    </div>
 
-                    <div className="bg-white p-3 rounded-2xl border border-stone-200 shadow-xs">
-                      <label className="block text-xs font-bold text-stone-700 mb-1.5 flex items-center gap-1">
-                        <Clock className="w-3.5 h-3.5 text-[#800020]" />
-                        <span>Time per Question</span>
-                      </label>
-                      <div className="flex gap-1.5">
-                        {[10, 15, 20].map((sec) => (
-                          <button
-                            key={sec}
-                            type="button"
-                            onClick={() => {
-                              triggerHaptic("light");
-                              setTimePerQuestionSec(sec);
+                      {isCustomCountMode && (
+                        <div className="flex items-center gap-2 pt-1 animate-in fade-in">
+                          <input
+                            type="number"
+                            min={5}
+                            max={100}
+                            value={customCountInput}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              setCustomCountInput(val);
+                              const num = parseInt(val, 10);
+                              if (!isNaN(num) && num >= 5 && num <= 100) {
+                                setQuestionCount(num);
+                              }
                             }}
-                            className={`flex-1 py-2 text-xs font-bold rounded-xl border-2 transition ${
-                              timePerQuestionSec === sec
-                                ? "bg-[#800020] text-white border-[#800020] shadow-sm"
-                                : "bg-stone-50 text-stone-700 border-stone-200 hover:bg-stone-100"
-                            }`}
-                          >
-                            {sec}s {sec === 10 && "⚡"}
-                          </button>
-                        ))}
-                      </div>
+                            placeholder="e.g. 40"
+                            className="flex-1 px-3 py-2 text-xs font-bold bg-stone-50 border border-stone-300 rounded-xl text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#800020]"
+                          />
+                          <span className="text-xs text-stone-500 font-medium">questions</span>
+                        </div>
+                      )}
                     </div>
                   </div>
 
                   {/* Create Room CTA Button */}
                   <button
                     onClick={handleCreateRoom}
-                    className="w-full mt-2 flex items-center justify-center gap-2 py-4 px-6 rounded-2xl bg-gradient-to-r from-[#800020] via-[#A00028] to-[#800020] text-white font-extrabold text-base shadow-lg shadow-[#800020]/30 hover:brightness-110 active:scale-98 transition border border-amber-400/40"
+                    className="w-full mt-2 flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl bg-[#800020] hover:bg-[#68001a] text-white font-bold text-base shadow-sm active:scale-98 transition"
                   >
                     <span>Create Room & Get Code</span>
-                    <ArrowRight className="w-5 h-5" />
+                    <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>
               ) : (
@@ -1108,37 +1299,37 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                         }
                         placeholder="e.g. 849201"
                         maxLength={6}
-                        className="w-full text-center text-3xl font-mono font-extrabold tracking-widest text-[#800020] bg-amber-50/50 border-2 border-amber-300 rounded-2xl py-3.5 px-4 focus:outline-none focus:ring-2 focus:ring-[#800020] shadow-inner"
+                        className="w-full text-center text-3xl font-mono font-extrabold tracking-widest text-[#800020] bg-stone-50 border-2 border-stone-300 rounded-2xl py-3.5 px-4 focus:outline-none focus:ring-2 focus:ring-[#800020] shadow-inner"
                       />
 
                       <button
                         type="button"
                         onClick={handlePasteCode}
-                        className="mt-2.5 w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-stone-100 hover:bg-amber-100 text-stone-700 text-xs font-bold transition border border-stone-200 active:scale-95"
+                        className="mt-2.5 w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-bold transition border border-stone-200 active:scale-95"
                       >
                         <ClipboardPaste className="w-4 h-4 text-[#800020]" />
                         <span>Paste from Clipboard</span>
                       </button>
                     </div>
 
-                    <div className="p-3 bg-amber-50 rounded-xl border border-amber-200/70 text-center">
+                    <div className="p-3 bg-amber-50/70 rounded-xl border border-amber-200 text-center">
                       <p className="text-xs text-amber-900 font-medium">
-                        💡 <b>Tip:</b> You can also tap the WhatsApp invite link shared by your friend to join directly!
+                        Friends can also join directly by tapping the shared WhatsApp link!
                       </p>
                     </div>
                   </div>
 
                   <button
-                    onClick={handleJoinRoom}
+                    onClick={() => handleJoinRoom()}
                     disabled={!inputRoomCode || inputRoomCode.length < 4}
-                    className={`w-full flex items-center justify-center gap-2 py-4 px-6 rounded-2xl font-extrabold text-base shadow-lg active:scale-98 transition ${
+                    className={`w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl font-bold text-base shadow-sm active:scale-98 transition ${
                       inputRoomCode && inputRoomCode.length >= 4
-                        ? "bg-gradient-to-r from-[#800020] to-[#6A001A] text-white hover:brightness-110 shadow-[#800020]/30 border border-amber-400/40"
+                        ? "bg-[#800020] hover:bg-[#68001a] text-white shadow-sm"
                         : "bg-stone-200 text-stone-400 cursor-not-allowed"
                     }`}
                   >
                     <span>Join Battle</span>
-                    <ArrowRight className="w-5 h-5" />
+                    <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>
               )}

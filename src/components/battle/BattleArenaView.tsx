@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import type { BattlePlayer, BattleQuestion } from "./types";
 import { triggerHaptic, playClickSound } from "../../utils/audioFeedback";
+import { BattleAvatar } from "./BattleAvatar";
 
 interface BattleArenaViewProps {
   question: BattleQuestion;
@@ -111,7 +112,7 @@ export const BattleArenaView: React.FC<BattleArenaViewProps> = ({
                 <span className="text-[10px] text-amber-300 font-bold">
                   #{idx + 1}
                 </span>
-                <span className="text-sm">{player.avatar}</span>
+                <BattleAvatar avatar={player.avatar} name={player.name} size="sm" />
                 <span className="max-w-[70px] truncate text-xs">
                   {player.name}
                 </span>
@@ -349,7 +350,7 @@ export const BattleArenaView: React.FC<BattleArenaViewProps> = ({
                       <span className="w-6 text-center text-xs font-bold text-stone-500">
                         #{idx + 1}
                       </span>
-                      <span className="text-xl">{p.avatar}</span>
+                      <BattleAvatar avatar={p.avatar} name={p.name} size="md" />
                       <div>
                         <div className="flex items-center gap-1.5">
                           <span className="text-xs font-bold text-stone-800">
