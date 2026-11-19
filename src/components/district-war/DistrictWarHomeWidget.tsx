@@ -1,45 +1,16 @@
-import React, { useState, useEffect } from "react";
-import { Swords, Crown, ChevronRight, Shield, Sparkles } from "lucide-react";
-import { districtWarService } from "./districtWarService";
-import { DistrictWarScore, UserDistrictAffiliation } from "./types";
+import React from "react";
+import { Swords, ChevronRight } from "lucide-react";
 import { triggerHaptic, playClickSound } from "../../utils/audioFeedback";
-import { RAJASTHAN_50_DISTRICTS } from "../rajasthan-map/data/districtsData";
 
 interface DistrictWarHomeWidgetProps {
   onOpenWar: () => void;
 }
 
 export const DistrictWarHomeWidget: React.FC<DistrictWarHomeWidgetProps> = ({ onOpenWar }) => {
-  const [topDistricts, setTopDistricts] = useState<DistrictWarScore[]>([]);
-  const [userAffiliation, setUserAffiliation] = useState<UserDistrictAffiliation | null>(null);
-  const [userRank, setUserRank] = useState<number | null>(null);
-
-  const loadData = () => {
-    const top = districtWarService.getTopThree("total");
-    setTopDistricts(top);
-    const aff = districtWarService.getUserContribution();
-    setUserAffiliation(aff);
-    if (aff) {
-      setUserRank(districtWarService.getDistrictRank(aff.districtId, "total"));
-    }
-  };
-
-  useEffect(() => {
-    loadData();
-    const handleUpdate = () => loadData();
-    window.addEventListener("disha:district-war-updated", handleUpdate);
-    return () => window.removeEventListener("disha:district-war-updated", handleUpdate);
-  }, []);
-
   const handleClick = () => {
     triggerHaptic("medium");
     playClickSound();
     onOpenWar();
-  };
-
-  const getDistrictHindiName = (districtId?: string, fallback = "") => {
-    if (!districtId) return fallback;
-    return RAJASTHAN_50_DISTRICTS[districtId]?.nameHindi || fallback;
   };
 
   return (
@@ -53,34 +24,9 @@ export const DistrictWarHomeWidget: React.FC<DistrictWarHomeWidgetProps> = ({ on
         </div>
 
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <h3 className="text-[13.5px] sm:text-[15.5px] font-black text-[#171923] dark:text-[#FFF9EF] leading-snug tracking-tight truncate">
-              राजस्थान 50 ज़िला महासंग्राम
-            </h3>
-            <span className="px-1.5 py-0.2 rounded-full bg-red-500/15 text-red-600 dark:text-red-400 text-[8.5px] font-black uppercase tracking-wider flex items-center gap-1 border border-red-500/25">
-              <span className="w-1.5 h-1.5 rounded-full bg-red-500 inline-block animate-ping" />
-              LIVE
-            </span>
-            {topDistricts[0] && (
-              <span className="px-1.5 py-0.2 rounded-md bg-[#C99A45]/20 text-[#8C6016] dark:text-[#E2B755] text-[9px] font-black flex items-center gap-0.5">
-                <Crown className="w-2.5 h-2.5 inline text-amber-500" /> #{getDistrictHindiName(topDistricts[0].districtId, topDistricts[0].nameHindi)}
-              </span>
-            )}
-          </div>
-
-          <div className="text-[10.5px] sm:text-[11.5px] font-semibold text-stone-500 dark:text-stone-400 truncate mt-0.5">
-            {userAffiliation ? (
-              <span>
-                आपकी सेना: <b className="text-stone-800 dark:text-stone-100 font-bold">{getDistrictHindiName(userAffiliation.districtId, userAffiliation.districtNameHindi)}</b> (रैंक #{userRank || "—"}) •{" "}
-                <b className="text-[#800020] dark:text-[#F47B20] font-black">+{userAffiliation.userPointsEarned} अंक</b>
-              </span>
-            ) : (
-              <span className="text-amber-700 dark:text-amber-400 flex items-center gap-1">
-                <Sparkles className="w-3 h-3 inline text-amber-500 shrink-0" />
-                <span>अपनी गृह सेना चुनें और पाएं +50 बोनस अंक</span>
-              </span>
-            )}
-          </div>
+          <h3 className="text-[13.5px] sm:text-[15.5px] font-black text-[#171923] dark:text-[#FFF9EF] leading-snug tracking-tight truncate">
+            राजस्थान 50 ज़िला महासंग्राम
+          </h3>
         </div>
       </div>
 

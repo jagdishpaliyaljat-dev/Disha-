@@ -468,7 +468,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
           </motion.div>
         </section>
 
-        {/* 3.6 RAJASTHAN 41 DISTRICTS ATLAS & MAP */}
+        {/* 3.6 RAJASTHAN DISTRICT MAP */}
         <section>
           <motion.div
             whileTap={{ scale: 0.99 }}
@@ -482,7 +482,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
 
               <div className="min-w-0 flex-1">
                 <h3 className="text-[13.5px] sm:text-[15.5px] font-black text-[#171923] dark:text-[#FFF9EF] leading-snug tracking-tight truncate">
-                  राजस्थान 41 ज़िला मैप (41 ज़िले व 7 संभाग)
+                  राजस्थान ज़िला मैप
                 </h3>
               </div>
             </div>
@@ -495,7 +495,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
           </motion.div>
         </section>
 
-        {/* 3.7 REALTIME 1v1 LIVE QUIZ BATTLE */}
+        {/* 3.7 REALTIME LIVE BATTLE */}
         <section>
           <motion.div
             whileTap={{ scale: 0.99 }}
@@ -509,7 +509,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
 
               <div className="min-w-0 flex-1">
                 <h3 className="text-[13.5px] sm:text-[15.5px] font-black text-[#171923] dark:text-[#FFF9EF] leading-snug tracking-tight truncate">
-                  1v1 लाइव क्विज़ बैटल
+                  1v1 लाइव बैटल
                 </h3>
               </div>
             </div>
