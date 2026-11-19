@@ -4,7 +4,6 @@ import {
   Subject,
   Chapter,
   Topic,
-  MCQSession,
   ProgressStore,
 } from "../types";
 import {
@@ -19,7 +18,6 @@ import {
   Video,
   ChevronRight,
   Layers,
-  Award,
   Share2,
   CheckCircle2,
   AlertCircle,
@@ -49,7 +47,6 @@ interface VideoClassesTabProps {
   onSelectChapter: (id: string | null) => void;
   selectedTopicId: string | null;
   onSelectTopic: (id: string | null) => void;
-  onStartSession: (session: MCQSession) => void;
   onBack?: () => void;
   isAdmin?: boolean;
   onEditTopic?: (topic: Topic) => void;
@@ -98,13 +95,12 @@ export const VideoClassesTab: React.FC<VideoClassesTabProps> = ({
   onSelectChapter,
   selectedTopicId,
   onSelectTopic,
-  onStartSession,
   onBack,
   isAdmin = false,
   onEditTopic,
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeMediaTab, setActiveMediaTab] = useState<"video" | "pdf" | "practice">("video");
+  const [activeMediaTab, setActiveMediaTab] = useState<"video" | "pdf">("video");
 
   // Local overrides for instant UI update upon editing media
   const [mediaOverrides, setMediaOverrides] = useState<Record<string, Partial<Topic>>>({});
@@ -444,21 +440,6 @@ export const VideoClassesTab: React.FC<VideoClassesTabProps> = ({
     }
   };
 
-  const handleStartPracticeTest = (topic: Topic) => {
-    triggerHaptic("medium");
-    playClickSound();
-    const qs = topic.questions || [];
-    onStartSession({
-      title: `${topic.hindiTitle || topic.title} - 20-20 टेस्ट`,
-      questionIds: qs.map((q) => q.id),
-      extraQuestions: qs,
-      source: "topic",
-      topicId: topic.id,
-      chapterId: currentChapter?.id,
-      subjectId: currentSubject?.id,
-    });
-  };
-
   // -------------------------------------------------------------
   // VIEW 4: TOPIC VIDEO PLAYER & STUDY DESK
   // -------------------------------------------------------------
@@ -516,7 +497,7 @@ export const VideoClassesTab: React.FC<VideoClassesTabProps> = ({
                 {currentTopic.hindiTitle || currentTopic.title}
               </h3>
               <p className="text-xs sm:text-sm text-[#52576A] dark:text-[#929AB0] max-w-md">
-                इस टॉपिक की वीडियो क्लास जल्द ही अपडेट की जाएगी। तब तक आप नीचे दिए गए PDF नोट्स पढ़ सकते हैं या टेस्ट दे सकते हैं।
+                इस टॉपिक की वीडियो क्लास जल्द ही अपडेट की जाएगी। तब तक आप नीचे दिए गए PDF नोट्स पढ़ सकते हैं।
               </p>
               {isAdmin && (
                 <button
@@ -573,18 +554,6 @@ export const VideoClassesTab: React.FC<VideoClassesTabProps> = ({
                 <FileText className="w-4 h-4" />
                 <span>PDF नोट्स {currentTopic.pdfUrl ? "✓" : ""}</span>
               </button>
-
-              <button
-                onClick={() => setActiveMediaTab("practice")}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
-                  activeMediaTab === "practice"
-                    ? "bg-[#800020] text-white shadow-xs"
-                    : "text-[#52576A] dark:text-[#929AB0] hover:bg-[#FAF5EB] dark:hover:bg-[#262B3D]"
-                }`}
-              >
-                <Award className="w-4 h-4" />
-                <span>20-20 टेस्ट ({currentTopic.questions?.length || 0})</span>
-              </button>
             </div>
           </div>
         </div>
@@ -607,16 +576,8 @@ export const VideoClassesTab: React.FC<VideoClassesTabProps> = ({
               </p>
             )}
 
-            <div className="mt-5 pt-4 border-t border-[#E8D9C0] dark:border-[#31374A] flex flex-wrap items-center justify-between gap-3">
-              <button
-                onClick={() => handleStartPracticeTest(currentTopic)}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#800020] hover:bg-[#600018] text-white text-xs sm:text-sm font-bold px-5 py-2.5 rounded-xl shadow-md active:scale-98 transition-all cursor-pointer"
-              >
-                <Play className="w-4 h-4 fill-white" />
-                <span>इस टॉपिक का 20-20 टेस्ट दें</span>
-              </button>
-
-              {currentTopic.pdfUrl && (
+            {currentTopic.pdfUrl && (
+              <div className="mt-5 pt-4 border-t border-[#E8D9C0] dark:border-[#31374A] flex flex-wrap items-center justify-end gap-3">
                 <button
                   onClick={() => setActiveMediaTab("pdf")}
                   className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#FAF5EB] dark:bg-[#262B3D] text-[#800020] dark:text-[#F47B20] text-xs sm:text-sm font-bold px-4 py-2.5 rounded-xl border border-[#E8D9C0] dark:border-[#31374A] hover:bg-white dark:hover:bg-[#1E2230] transition-all cursor-pointer"
@@ -624,8 +585,8 @@ export const VideoClassesTab: React.FC<VideoClassesTabProps> = ({
                   <FileText className="w-4 h-4" />
                   <span>PDF नोट्स पढ़ें</span>
                 </button>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -680,27 +641,6 @@ export const VideoClassesTab: React.FC<VideoClassesTabProps> = ({
                 )}
               </div>
             )}
-          </div>
-        )}
-
-        {/* Tab 3: Practice Test */}
-        {activeMediaTab === "practice" && (
-          <div className="bg-white dark:bg-[#1E2230] rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] p-5 shadow-xs">
-            <h2 className="text-sm sm:text-base font-bold text-[#171923] dark:text-[#FFF9EF] mb-2 flex items-center gap-2">
-              <Award className="w-4 h-4 text-[#800020] dark:text-[#F47B20]" />
-              20-20 टेस्ट सिम्युलेशन
-            </h2>
-            <p className="text-xs sm:text-sm text-[#52576A] dark:text-[#929AB0] mb-4">
-              इस टॉपिक में कुल <strong>{currentTopic.questions?.length || 0}</strong> मानक प्रश्न हैं, जिसमें विगत परीक्षाओं के PYQ और सम्भावित प्रश्न शामिल हैं।
-            </p>
-
-            <button
-              onClick={() => handleStartPracticeTest(currentTopic)}
-              className="w-full inline-flex items-center justify-center gap-2 bg-[#800020] hover:bg-[#600018] text-white text-sm font-bold py-3 rounded-xl shadow-md active:scale-98 transition-all cursor-pointer"
-            >
-              <Play className="w-4.5 h-4.5 fill-white" />
-              <span>अभ्यास टेस्ट शुरू करें ({currentTopic.questions?.length || 0} प्रश्न)</span>
-            </button>
           </div>
         )}
 
@@ -792,12 +732,6 @@ export const VideoClassesTab: React.FC<VideoClassesTabProps> = ({
                       {hasPdf && (
                         <span className="text-[9.5px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-1.5 py-0.5 rounded">
                           PDF नोट्स
-                        </span>
-                      )}
-
-                      {topic.questions?.length > 0 && (
-                        <span className="text-[9.5px] font-bold text-[#800020] dark:text-[#F47B20] bg-[#800020]/10 dark:bg-[#F47B20]/15 px-1.5 py-0.5 rounded">
-                          {topic.questions.length} Qs
                         </span>
                       )}
                     </div>
@@ -929,7 +863,7 @@ export const VideoClassesTab: React.FC<VideoClassesTabProps> = ({
           वीडियो क्लासेज एवं अध्ययन सामग्री
         </h1>
         <p className="text-xs sm:text-sm text-white/80 max-w-xl">
-          RPSC एवं RSMSSB की सभी परीक्षाओं के लिए विषयवार उच्च-गुणवत्ता वीडियो व्याख्यान, हस्तलिखित PDF नोट्स और तुरंत 20-20 टेस्ट अभ्यास।
+          RPSC एवं RSMSSB की सभी परीक्षाओं के लिए विषयवार उच्च-गुणवत्ता वीडियो व्याख्यान एवं हस्तलिखित PDF अध्ययन नोट्स।
         </p>
 
         {/* Search Bar */}

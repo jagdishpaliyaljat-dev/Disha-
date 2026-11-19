@@ -1736,7 +1736,6 @@ export default function App() {
             onSelectChapter={(chapId: string | null) => setSelectedChapterId(chapId)}
             selectedTopicId={selectedTopicId}
             onSelectTopic={(topId: string | null) => setSelectedTopicId(topId)}
-            onStartSession={handleStartSession}
             isAdmin={isAdmin}
             onEditTopic={(topic: Topic) => handleEditTopic(topic)}
             onBack={() => {
