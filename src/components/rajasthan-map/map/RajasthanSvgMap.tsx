@@ -16,6 +16,9 @@ import {
   XCircle,
   Mountain,
   Crown,
+  Type,
+  ShieldCheck,
+  ChevronRight,
 } from "lucide-react";
 import { triggerHaptic, playClickSound } from "../../../utils/audioFeedback";
 import { districtWarService } from "../../district-war/districtWarService";
@@ -52,6 +55,11 @@ export const RajasthanSvgMap: React.FC<RajasthanSvgMapProps> = ({
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [hoveredDistrictId, setHoveredDistrictId] = useState<string | null>(null);
   const [showAravalli, setShowAravalli] = useState<boolean>(true);
+  const [showLabels, setShowLabels] = useState<boolean>(true);
+
+  const userHomeDistrict = useMemo(() => {
+    return districtWarService.getUserHomeDistrict();
+  }, []);
 
   // Drag & Touch Tracking Refs
   const dragStartRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
@@ -237,6 +245,25 @@ export const RajasthanSvgMap: React.FC<RajasthanSvgMapProps> = ({
 
         <div className="w-6 h-px bg-stone-200 dark:bg-stone-700 my-0.5" />
 
+        {/* Toggle District Names / Blind Map Recall Mode */}
+        <button
+          type="button"
+          onClick={() => {
+            triggerHaptic("light");
+            setShowLabels(!showLabels);
+          }}
+          aria-label={showLabels ? "Hide District Labels" : "Show District Labels"}
+          title={showLabels ? "नाम छुपाएं (अंध मानचित्र अभ्यास)" : "नाम दिखाएं"}
+          className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center transition active:scale-90 cursor-pointer ${
+            showLabels
+              ? "bg-[#800020]/15 dark:bg-[#F47B20]/20 text-[#800020] dark:text-[#F47B20]"
+              : "text-stone-400 dark:text-stone-500 hover:text-stone-600"
+          }`}
+        >
+          <Type className="w-4 h-4" />
+        </button>
+
+        {/* Reset Zoom */}
         <button
           type="button"
           onClick={handleResetZoom}
@@ -282,19 +309,49 @@ export const RajasthanSvgMap: React.FC<RajasthanSvgMapProps> = ({
 
       {/* ================= MOBILE BOTTOM-LEFT DISTRICT PREVIEW PILL ================= */}
       {hoveredDistrictId && !isQuizMode && (
-        <div className="absolute bottom-4 left-3 z-20 max-w-[210px] sm:max-w-xs bg-[#171923]/95 text-white backdrop-blur-md px-3 py-2 rounded-xl shadow-xl border border-[#C99A45]/40 pointer-events-none animate-in fade-in duration-150">
-          <div className="flex items-center gap-1.5">
+        <div
+          role="button"
+          tabIndex={0}
+          onClick={(e) => {
+            e.stopPropagation();
+            triggerHaptic("light");
+            playClickSound();
+            onSelectDistrict(hoveredDistrictId);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.stopPropagation();
+              onSelectDistrict(hoveredDistrictId);
+            }
+          }}
+          className="absolute bottom-4 left-3 z-20 max-w-[240px] sm:max-w-xs bg-[#171923]/95 text-white backdrop-blur-md px-3.5 py-2.5 rounded-2xl shadow-2xl border border-[#C99A45]/50 pointer-events-auto cursor-pointer animate-in fade-in duration-150 active:scale-95 transition-transform"
+          title="पूरा विवरण देखने के लिए टैप करें"
+        >
+          <div className="flex items-center justify-between gap-1.5 mb-0.5">
             <span className="font-black text-xs sm:text-sm text-[#F47B20] truncate">
-              {RAJASTHAN_50_DISTRICTS[hoveredDistrictId]?.nameEnglish || RAJASTHAN_50_DISTRICTS[hoveredDistrictId]?.nameHindi || hoveredDistrictId}
+              {RAJASTHAN_50_DISTRICTS[hoveredDistrictId]?.nameHindi || RAJASTHAN_50_DISTRICTS[hoveredDistrictId]?.nameEnglish || hoveredDistrictId}
             </span>
-            {RAJASTHAN_50_DISTRICTS[hoveredDistrictId]?.isNewDistrict && (
-              <span className="px-1.5 py-0.2 text-[8px] font-black bg-amber-500 text-stone-900 rounded-sm">
-                New District
-              </span>
-            )}
+            <div className="flex items-center gap-1 shrink-0">
+              {RAJASTHAN_50_DISTRICTS[hoveredDistrictId]?.isNewDistrict && (
+                <span className="px-1.5 py-0.2 text-[8px] font-black bg-amber-500 text-stone-900 rounded-sm">
+                  2023 नया ज़िला
+                </span>
+              )}
+              {userHomeDistrict === hoveredDistrictId && (
+                <span className="px-1.5 py-0.2 text-[8px] font-black bg-emerald-500/30 text-emerald-300 border border-emerald-400/40 rounded-sm">
+                  🛡️ गृह ज़िला
+                </span>
+              )}
+            </div>
           </div>
           <div className="text-[10px] text-stone-300 truncate">
-            Division: {RAJASTHAN_DIVISIONS[RAJASTHAN_50_DISTRICTS[hoveredDistrictId]?.divisionId]?.nameEnglish || RAJASTHAN_DIVISIONS[RAJASTHAN_50_DISTRICTS[hoveredDistrictId]?.divisionId]?.nameHindi || "—"}
+            {RAJASTHAN_DIVISIONS[RAJASTHAN_50_DISTRICTS[hoveredDistrictId]?.divisionId]?.nameHindi || "—"} • {RAJASTHAN_50_DISTRICTS[hoveredDistrictId]?.tagline || ""}
+          </div>
+          <div className="flex items-center justify-between text-[9px] text-[#C99A45] font-black mt-1 pt-1 border-t border-stone-700/60">
+            <span>इतिहास, भूगोल, PYQs पढ़ें</span>
+            <span className="flex items-center text-[#F47B20]">
+              खोलें <ChevronRight className="w-3 h-3 ml-0.5" />
+            </span>
           </div>
         </div>
       )}
@@ -458,6 +515,9 @@ export const RajasthanSvgMap: React.FC<RajasthanSvgMapProps> = ({
               const badgeWidth = Math.max(displayText.length * 8.2 + 12, 34);
               const badgeHeight = 18;
 
+              const showBadge = showLabels || isSelected || isHovered || isSearchMatch;
+              const isHomeDistrict = userHomeDistrict === district.id;
+
               return (
                 <g
                   key={`label-${district.id}`}
@@ -485,72 +545,90 @@ export const RajasthanSvgMap: React.FC<RajasthanSvgMapProps> = ({
                     />
                   )}
 
-                  {/* Golden Crown on #1 District in War Mode */}
-                  {isWarMode && rank === 1 && (
-                    <g transform={`translate(${cx - 8}, ${cy - 24})`} className="pointer-events-none">
-                      <text x="0" y="0" fontSize="15" className="animate-bounce">👑</text>
-                    </g>
-                  )}
+                  {/* Visible Label Content (Only when showLabels is enabled or district is active) */}
+                  {showBadge && (
+                    <>
+                      {/* Golden Crown on #1 District in War Mode */}
+                      {isWarMode && rank === 1 && (
+                        <g transform={`translate(${cx - 8}, ${cy - 24})`} className="pointer-events-none">
+                          <text x="0" y="0" fontSize="15" className="animate-bounce">👑</text>
+                        </g>
+                      )}
 
-                  {/* District Label Pill Background */}
-                  <rect
-                    x={cx - badgeWidth / 2}
-                    y={cy - badgeHeight / 2}
-                    width={badgeWidth}
-                    height={badgeHeight}
-                    rx={5}
-                    fill={
-                      isSelected
-                        ? "#800020"
-                        : isHovered
-                        ? "#171923"
-                        : isWarMode && rank === 1
-                        ? "#FEF3C7"
-                        : "rgba(255, 255, 255, 0.94)"
-                    }
-                    className="dark:fill-[#171923]/95 shadow-sm pointer-events-none"
-                    stroke={
-                      isSelected
-                        ? "#F47B20"
-                        : isHovered
-                        ? "#C99A45"
-                        : isWarMode && rank && rank <= 3
-                        ? "#F47B20"
-                        : "#CBD5E1"
-                    }
-                    strokeWidth={isSelected || (isWarMode && rank === 1) ? 1.5 : 0.8}
-                  />
+                      {/* District Label Pill Background */}
+                      <rect
+                        x={cx - badgeWidth / 2}
+                        y={cy - badgeHeight / 2}
+                        width={badgeWidth}
+                        height={badgeHeight}
+                        rx={5}
+                        fill={
+                          isSelected
+                            ? "#800020"
+                            : isHovered
+                            ? "#171923"
+                            : isWarMode && rank === 1
+                            ? "#FEF3C7"
+                            : isHomeDistrict
+                            ? "#ECFDF5"
+                            : "rgba(255, 255, 255, 0.94)"
+                        }
+                        className="dark:fill-[#171923]/95 shadow-xs pointer-events-none"
+                        stroke={
+                          isSelected
+                            ? "#F47B20"
+                            : isHovered
+                            ? "#C99A45"
+                            : isWarMode && rank && rank <= 3
+                            ? "#F47B20"
+                            : isHomeDistrict
+                            ? "#10B981"
+                            : "#CBD5E1"
+                        }
+                        strokeWidth={isSelected || (isWarMode && rank === 1) || isHomeDistrict ? 1.5 : 0.8}
+                      />
 
-                  {/* District Name Text (Hindi) */}
-                  <text
-                    x={cx}
-                    y={cy + 4.2}
-                    textAnchor="middle"
-                    fill={
-                      isSelected
-                        ? "#FFF9EF"
-                        : isHovered
-                        ? "#F47B20"
-                        : isWarMode && rank === 1
-                        ? "#92400E"
-                        : "#1E293B"
-                    }
-                    className="dark:fill-[#FFF9EF] font-black text-[10px] pointer-events-none tracking-tight select-none"
-                  >
-                    {displayText}
-                  </text>
+                      {/* District Name Text (Hindi) */}
+                      <text
+                        x={cx}
+                        y={cy + 4.2}
+                        textAnchor="middle"
+                        fill={
+                          isSelected
+                            ? "#FFF9EF"
+                            : isHovered
+                            ? "#F47B20"
+                            : isWarMode && rank === 1
+                            ? "#92400E"
+                            : isHomeDistrict
+                            ? "#065F46"
+                            : "#1E293B"
+                        }
+                        className="dark:fill-[#FFF9EF] font-black text-[10px] pointer-events-none tracking-tight select-none"
+                      >
+                        {displayText}
+                      </text>
 
-                  {/* Star Badge for 2023 Formed Districts */}
-                  {district.isNewDistrict && (
-                    <circle
-                      cx={cx + badgeWidth / 2 - 2}
-                      cy={cy - badgeHeight / 2 + 2}
-                      r={4}
-                      fill="#F47B20"
-                      stroke="#FFF"
-                      strokeWidth="1"
-                      className="pointer-events-none"
-                    />
+                      {/* Home District Shield Indicator */}
+                      {isHomeDistrict && (
+                        <g transform={`translate(${cx - badgeWidth / 2 - 10}, ${cy - 6})`} className="pointer-events-none">
+                          <text x="0" y="0" fontSize="10">🛡️</text>
+                        </g>
+                      )}
+
+                      {/* Star Badge for 2023 Formed Districts */}
+                      {district.isNewDistrict && (
+                        <circle
+                          cx={cx + badgeWidth / 2 - 2}
+                          cy={cy - badgeHeight / 2 + 2}
+                          r={4}
+                          fill="#F47B20"
+                          stroke="#FFF"
+                          strokeWidth="1"
+                          className="pointer-events-none"
+                        />
+                      )}
+                    </>
                   )}
 
                   {/* Quiz Feedback Check/Cross Icon */}

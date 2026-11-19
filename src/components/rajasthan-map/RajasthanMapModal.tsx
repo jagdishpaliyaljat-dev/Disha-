@@ -136,14 +136,14 @@ export const RajasthanMapModal: React.FC<RajasthanMapModalProps> = ({
                   id="rajasthan-map-title"
                   className="text-xs sm:text-base font-black text-[#800020] dark:text-[#F47B20] tracking-tight truncate leading-tight"
                 >
-                  Rajasthan 50 Districts Explorer
+                  राजस्थान 50 ज़िला मानचित्र
                 </h2>
                 <span className="hidden xs:inline-block px-1.5 py-0.2 rounded-full bg-[#F47B20]/15 text-[#C85A0A] dark:text-[#F47B20] text-[9px] font-black uppercase">
-                  2026
+                  2026 अद्यतित
                 </span>
               </div>
               <p className="text-[10px] text-[#52576A] dark:text-[#929AB0] font-medium truncate hidden sm:block">
-                50 Districts • 10 Divisions • Ram Lubhaya Reorganization
+                10 संभाग • 50 ज़िले • राम लुभाया समिति पुनर्गठन (नवीनतम भौगोलिक स्वरूप)
               </p>
             </div>
           </div>
@@ -162,7 +162,7 @@ export const RajasthanMapModal: React.FC<RajasthanMapModalProps> = ({
                 }`}
               >
                 <Layers className="w-3 h-3" />
-                <span>🗺️ Explore</span>
+                <span>🗺️ खोज</span>
               </button>
               <button
                 type="button"
@@ -174,7 +174,7 @@ export const RajasthanMapModal: React.FC<RajasthanMapModalProps> = ({
                 }`}
               >
                 <Flame className="w-3 h-3" />
-                <span>🎯 Quiz</span>
+                <span>🎯 क्विज़</span>
               </button>
               <button
                 type="button"
@@ -186,7 +186,7 @@ export const RajasthanMapModal: React.FC<RajasthanMapModalProps> = ({
                 }`}
               >
                 <Swords className="w-3 h-3" />
-                <span>⚔️ War</span>
+                <span>⚔️ महासंग्राम</span>
               </button>
             </div>
 
@@ -208,7 +208,7 @@ export const RajasthanMapModal: React.FC<RajasthanMapModalProps> = ({
             <div className="flex items-center gap-2 truncate">
               <Crown className="w-4 h-4 text-amber-300 shrink-0 animate-bounce" />
               <span className="text-xs sm:text-sm font-black truncate">
-                District War Live Status • View state ranks & crown on map
+                ज़िला महासंग्राम लाइव स्थिति • शीर्ष ज़िले एवं राज्य रैंक मानचित्र पर देखें
               </span>
             </div>
             <button
@@ -216,7 +216,7 @@ export const RajasthanMapModal: React.FC<RajasthanMapModalProps> = ({
               onClick={() => setShowDistrictWarModal(true)}
               className="px-2.5 py-1 rounded-lg bg-white/20 hover:bg-white/30 text-white font-black text-[10px] sm:text-xs shrink-0 cursor-pointer active:scale-95 transition flex items-center gap-1"
             >
-              <span>Leaderboard 🏆</span>
+              <span>लीडरबोर्ड 🏆</span>
             </button>
           </div>
         )}
@@ -232,7 +232,7 @@ export const RajasthanMapModal: React.FC<RajasthanMapModalProps> = ({
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search district, mineral (Gypsum, Copper, Lignite) or fort..."
+                  placeholder="ज़िला, खनिज (जिप्सम, तांबा, लिग्नाइट), किला या नदी खोजें..."
                   className="w-full pl-8 pr-7 py-1.5 text-xs rounded-xl bg-[#FFF9EF] dark:bg-[#12141C] border border-[#E8D9C0] dark:border-[#31374A] focus:outline-hidden focus:border-[#800020] dark:focus:border-[#F47B20] text-[#171923] dark:text-[#FFF9EF] placeholder-[#929AB0]"
                 />
                 {searchQuery && (
@@ -253,11 +253,11 @@ export const RajasthanMapModal: React.FC<RajasthanMapModalProps> = ({
                   triggerHaptic("light");
                   setShowDistrictListSheet(true);
                 }}
-                title="All 50 Districts List"
+                title="सभी 50 ज़िलों की सूची"
                 className="px-2.5 py-1.5 rounded-xl bg-[#800020]/10 dark:bg-[#F47B20]/15 hover:bg-[#800020]/20 text-[#800020] dark:text-[#F47B20] border border-[#800020]/25 dark:border-[#F47B20]/25 text-xs font-black flex items-center gap-1 shrink-0 active:scale-95 transition cursor-pointer"
               >
                 <ListFilter className="w-3.5 h-3.5" />
-                <span className="hidden xs:inline">Districts List</span>
+                <span className="hidden xs:inline">ज़िला सूची</span>
                 <span className="text-[10px] opacity-75 font-mono">({searchResults.length})</span>
               </button>
 
@@ -268,30 +268,31 @@ export const RajasthanMapModal: React.FC<RajasthanMapModalProps> = ({
                   onClick={handleClearFilters}
                   className="text-[10px] sm:text-xs font-black text-[#800020] dark:text-[#F47B20] hover:underline px-1 py-1 shrink-0"
                 >
-                  Clear
+                  फ़िल्टर हटाएं
                 </button>
               )}
             </div>
 
             {/* Division Filter Pills Horizontal Touch-Scroll */}
-            <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 text-xs touch-pan-x">
+            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 text-xs touch-pan-x">
               <button
                 type="button"
                 onClick={() => {
                   triggerHaptic("light");
                   setActiveDivisionFilter(null);
                 }}
-                className={`px-2 py-0.5 rounded-lg text-[11px] font-black transition-all shrink-0 cursor-pointer ${
+                className={`px-2.5 py-1 rounded-xl text-[11px] font-black transition-all shrink-0 cursor-pointer ${
                   activeDivisionFilter === null
                     ? "bg-[#800020] text-white shadow-xs"
                     : "bg-[#FFF9EF] dark:bg-[#12141C] border border-[#E8D9C0] dark:border-[#31374A] text-[#52576A] dark:text-[#929AB0]"
                 }`}
               >
-                All 50
+                सभी (50)
               </button>
 
               {RAJASTHAN_DIVISIONS_LIST.map((div) => {
                 const isActive = activeDivisionFilter === div.id;
+                const districtCount = div.districtIds.length;
                 return (
                   <button
                     key={div.id}
@@ -300,20 +301,21 @@ export const RajasthanMapModal: React.FC<RajasthanMapModalProps> = ({
                       triggerHaptic("light");
                       setActiveDivisionFilter(isActive ? null : div.id);
                     }}
-                    className={`px-2 py-0.5 rounded-lg text-[11px] font-black transition-all shrink-0 flex items-center gap-1 cursor-pointer border ${
+                    className={`px-2.5 py-1 rounded-xl text-[11px] font-black transition-all shrink-0 flex items-center gap-1.5 cursor-pointer border ${
                       isActive
                         ? "bg-[#800020] text-white border-[#800020] shadow-xs"
-                        : "bg-white dark:bg-[#1F2330] border-[#E8D9C0] dark:border-[#31374A] text-[#171923] dark:text-[#FFF9EF]"
+                        : "bg-white dark:bg-[#1F2330] border-[#E8D9C0] dark:border-[#31374A] text-[#171923] dark:text-[#FFF9EF] hover:border-[#800020]/40"
                     }`}
                   >
                     <span
-                      className="w-1.5 h-1.5 rounded-full shrink-0"
+                      className="w-2 h-2 rounded-full shrink-0"
                       style={{ backgroundColor: div.color }}
                     />
-                    <span>{div.nameEnglish || div.nameHindi.replace(" संभाग", "")}</span>
+                    <span>{div.nameHindi.replace(" संभाग", "")}</span>
+                    <span className="text-[10px] font-mono opacity-80">({districtCount})</span>
                     {div.isNew && (
-                      <span className="px-1 py-0.1 rounded-xs bg-[#F47B20] text-white text-[7px] font-black uppercase">
-                        New
+                      <span className="px-1 py-0.2 rounded-xs bg-[#F47B20] text-white text-[7px] font-black uppercase">
+                        नया
                       </span>
                     )}
                   </button>
@@ -359,11 +361,11 @@ export const RajasthanMapModal: React.FC<RajasthanMapModalProps> = ({
                 <div className="flex items-center gap-1 truncate">
                   <Sparkles className="w-3 h-3 shrink-0 text-[#F47B20]" />
                   <span className="truncate">
-                    Tap any district on the map — View history, 2023 changes & PYQs!
+                    किसी भी ज़िले पर टैप करें — इतिहास, 2023 पुनर्गठन, कला-संस्कृति, भूगोल व PYQs पढ़ें!
                   </span>
                 </div>
                 <span className="hidden xs:inline-block shrink-0 pl-1 font-bold">
-                  Pinch or tap buttons to zoom
+                  पिंच या बटन से ज़ूम करें
                 </span>
               </div>
 
@@ -406,15 +408,15 @@ export const RajasthanMapModal: React.FC<RajasthanMapModalProps> = ({
                 <div className="w-12 h-1 bg-white/40 rounded-full mx-auto mb-2" />
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="font-black text-sm">Rajasthan 50 Districts List</h3>
+                    <h3 className="font-black text-sm">राजस्थान 50 ज़िला सूची (All 50 Districts)</h3>
                     <p className="text-[10px] text-[#FFF9EF]/80">
-                      Tap any district to view on map and study details
+                      मानचित्र पर देखने व अध्ययन हेतु किसी भी ज़िले पर टैप करें
                     </p>
                   </div>
                   <button
                     type="button"
                     onClick={() => setShowDistrictListSheet(false)}
-                    className="p-1 rounded-full bg-white/10 hover:bg-white/20 text-white"
+                    className="p-1 rounded-full bg-white/10 hover:bg-white/20 text-white cursor-pointer"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -432,27 +434,31 @@ export const RajasthanMapModal: React.FC<RajasthanMapModalProps> = ({
                       onClick={() => handleSelectDistrict(d.id)}
                       className="w-full p-2.5 rounded-xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] hover:border-[#800020] flex items-center justify-between text-left transition active:scale-98 cursor-pointer shadow-2xs"
                     >
-                      <div className="flex items-center gap-2 min-w-0">
+                      <div className="flex items-center gap-2.5 min-w-0">
                         <span
                           className="w-2.5 h-2.5 rounded-full shrink-0"
                           style={{ backgroundColor: div?.color || "#800020" }}
                         />
                         <div className="min-w-0">
                           <div className="flex items-center gap-1.5">
-                            <span className="font-bold text-xs truncate">{d.nameEnglish || d.nameHindi}</span>
+                            <span className="font-bold text-xs truncate text-[#171923] dark:text-[#FFF9EF]">{d.nameHindi}</span>
+                            <span className="text-[10px] text-stone-400 font-normal truncate hidden xs:inline">({d.nameEnglish})</span>
                             {d.isNewDistrict && (
                               <span className="px-1.5 py-0.1 text-[8px] font-black bg-[#F47B20] text-white rounded-xs">
-                                2023 New
+                                2023 नया ज़िला
                               </span>
                             )}
                           </div>
                           <p className="text-[10px] text-[#52576A] dark:text-[#929AB0] truncate">
-                            {div?.nameEnglish || div?.nameHindi} • {d.tagline}
+                            {div?.nameHindi || "—"} • {d.tagline}
                           </p>
                         </div>
                       </div>
 
-                      <ChevronRight className="w-4 h-4 text-[#C99A45] shrink-0 ml-1" />
+                      <div className="flex items-center gap-1 text-[10px] font-black text-[#C99A45] shrink-0 ml-1">
+                        <span className="hidden xs:inline">देखें</span>
+                        <ChevronRight className="w-4 h-4" />
+                      </div>
                     </button>
                   );
                 })}
