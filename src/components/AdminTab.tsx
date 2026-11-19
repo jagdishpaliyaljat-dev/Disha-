@@ -466,6 +466,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
         break;
       case "ai-api":
         setActiveGroup("integrations");
+        setSubTabAI("dashboard");
         break;
       case "backup":
       case "restore":
