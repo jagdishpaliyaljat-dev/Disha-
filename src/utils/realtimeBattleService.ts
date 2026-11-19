@@ -705,7 +705,16 @@ export function getBattleShareInfo(roomCode: string, timePerQuestionSec: number 
     : "https://disha-app.web.app";
   
   const battleUrl = `${origin}/?battle=${roomCode}`;
-  const text = `⚔️ *Live Quiz Battle Invitation!*\n\nTest your Rajasthan GK skills in real-time! 🏆\n(Direct link: Any friend can join instantly 👥)\n\n🔑 Room Code: *${roomCode}*\n⏱️ Time: *${timePerQuestionSec} seconds per question*\n\n👉 Tap link to enter the battle arena directly:\n${battleUrl}`;
+  const text = `⚔️ *Live Quiz Battle Invitation!*
+
+राजस्थान GK लाइव मुकाबला! 🏆
+(डायरेक्ट लिंक: सभी दोस्त तुरंत जुड़ सकते हैं 👥)
+
+🔑 Room Code: *${roomCode}*
+⏱️ समय: *${timePerQuestionSec} सेकंड (${timePerQuestionSec} seconds per question)*
+
+👉 सीधे बैटल एरिना में शामिल होने के लिए लिंक दबाएं:
+${battleUrl}`;
   const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
 
   return {

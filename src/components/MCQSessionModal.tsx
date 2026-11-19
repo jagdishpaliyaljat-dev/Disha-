@@ -1106,19 +1106,37 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
         setIsSubmittingLiveTest(true);
         setLiveSubmitError(null);
         try {
-          const response = await apiFetch(`/api/live-tests/${encodeURIComponent(testId)}/submit`, {
-            method: "POST",
-            body: JSON.stringify({
+          let data: any = null;
+          try {
+            const response = await apiFetch(`/api/live-tests/${encodeURIComponent(testId)}/submit`, {
+              method: "POST",
+              body: JSON.stringify({
+                submissionId: subId,
+                answers: answersMap,
+                timeSpentSeconds: elapsedSeconds,
+                userName: userProfile?.name || "Aspirant",
+              }),
+            });
+            if (response.ok) {
+              data = await response.json().catch(() => null);
+            }
+          } catch (_) {}
+
+          if (!data || !data.success) {
+            const { gradeAndSubmitLiveTestDirectly } = await import("../utils/liveTestStorage");
+            data = await gradeAndSubmitLiveTestDirectly({
               submissionId: subId,
+              testId,
               answers: answersMap,
               timeSpentSeconds: elapsedSeconds,
-              userName: userProfile?.name || "Aspirant",
-            }),
-          });
+              userProfile,
+              sessionDetails: session.liveTestDetails,
+              fallbackQuestions: session.extraQuestions || questions,
+            });
+          }
 
-          const data = await response.json().catch(() => ({}));
-          if (!response.ok || !data?.success) {
-            setLiveSubmitError(data?.error || `Server grading failed (HTTP ${response.status}).`);
+          if (!data?.success) {
+            setLiveSubmitError(data?.error || "Server grading failed.");
           } else {
             if (data.submission) {
               setServerLiveSubmission(data.submission);
