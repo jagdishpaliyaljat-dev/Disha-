@@ -242,9 +242,8 @@ export function recordAIUsage(record: {
   // Asynchronously sync to Supabase Cloud ai_telemetry table
   if (isSupabaseConfigured()) {
     try {
-      supabase
-        .from("ai_telemetry")
-        .insert({
+      Promise.resolve(
+        supabase.from("ai_telemetry").insert({
           id: newLog.id,
           user_id: newLog.userId,
           user_name: newLog.userName,
@@ -266,6 +265,7 @@ export function recordAIUsage(record: {
           estimated_cost_usd: newLog.estimatedCostUsd,
           created_at: newLog.timestamp,
         })
+      )
         .then(({ error }) => {
           if (error) console.warn("[aiUsageTracker] Supabase note:", error.message);
         })

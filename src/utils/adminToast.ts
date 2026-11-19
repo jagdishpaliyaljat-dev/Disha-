@@ -60,13 +60,46 @@ export function triggerDatabaseSavedToast(payload?: DatabaseSavedEventPayload | 
  * DatabaseSaved popup for all add/delete/update operations.
  */
 export function triggerAdminToast(
-  type: "add" | "delete" | "success" | "error" | "info" | "update",
-  title: string,
-  message: string,
+  typeOrPayload:
+    | "add"
+    | "delete"
+    | "success"
+    | "error"
+    | "info"
+    | "update"
+    | {
+        type?: "add" | "delete" | "success" | "error" | "info" | "update";
+        title?: string;
+        message: string;
+        itemName?: string;
+        count?: number;
+        category?: string;
+      },
+  title?: string,
+  message?: string,
   extra?: { itemName?: string; count?: number; category?: string }
 ) {
   if (typeof window !== "undefined") {
-    const toastDetail: AdminToastPayload = { type, title, message, ...extra };
+    let toastDetail: AdminToastPayload;
+    if (typeof typeOrPayload === "object" && typeOrPayload !== null) {
+      toastDetail = {
+        type: typeOrPayload.type || "info",
+        title: typeOrPayload.title || "Admin Notice",
+        message: typeOrPayload.message,
+        itemName: typeOrPayload.itemName,
+        category: typeOrPayload.category,
+        count: typeOrPayload.count,
+      };
+    } else {
+      const toastType: AdminToastPayload["type"] =
+        typeof typeOrPayload === "string" ? typeOrPayload : "info";
+      toastDetail = {
+        type: toastType,
+        title: title || "",
+        message: message || "",
+        ...extra,
+      };
+    }
     window.dispatchEvent(
       new CustomEvent("disha2020_admin_toast", { detail: toastDetail })
     );

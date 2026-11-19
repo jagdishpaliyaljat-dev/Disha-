@@ -642,6 +642,11 @@ export function getBattleQuestions(
     }
   }
 
+  let pool: BattleQuestion[] = [...filteredFallback];
+  if (allCombinedQuestions.length > 0) {
+    pool = [...pool, ...allCombinedQuestions];
+  }
+
   // Fallback if pool is empty
   if (pool.length === 0) {
     pool = [...FALLBACK_BATTLE_QUESTIONS];
