@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Swords, Crown, ChevronRight } from "lucide-react";
+import { Swords, Crown, ChevronRight, Shield, Sparkles } from "lucide-react";
 import { districtWarService } from "./districtWarService";
 import { DistrictWarScore, UserDistrictAffiliation } from "./types";
 import { triggerHaptic, playClickSound } from "../../utils/audioFeedback";
@@ -37,46 +37,47 @@ export const DistrictWarHomeWidget: React.FC<DistrictWarHomeWidgetProps> = ({ on
     onOpenWar();
   };
 
-  const getDistrictName = (districtId?: string, fallback = "") => {
+  const getDistrictHindiName = (districtId?: string, fallback = "") => {
     if (!districtId) return fallback;
-    return RAJASTHAN_50_DISTRICTS[districtId]?.nameEnglish || fallback;
+    return RAJASTHAN_50_DISTRICTS[districtId]?.nameHindi || fallback;
   };
 
   return (
     <div
       onClick={handleClick}
-      className="w-full bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] hover:border-[#800020] dark:hover:border-[#F47B20] active:scale-[0.99] rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-xs flex items-center justify-between text-left transition-all cursor-pointer group"
+      className="w-full bg-gradient-to-r from-white via-[#FFFDF9] to-amber-50/30 dark:from-[#1A1D2B] dark:via-[#161825] dark:to-[#191D2E] border border-[#E8D9C0] dark:border-[#31374A] hover:border-[#800020] dark:hover:border-[#C99A45] active:scale-[0.99] rounded-2xl p-3 sm:p-3.5 shadow-xs flex items-center justify-between text-left transition-all cursor-pointer group select-none"
     >
-      <div className="flex items-center gap-3 min-w-0 flex-1">
-        <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl bg-[#800020]/10 dark:bg-[#800020]/30 text-[#800020] dark:text-[#F47B20] flex items-center justify-center shrink-0">
-          <Swords className="w-5 h-5 sm:w-6 sm:h-6" />
+      <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
+        <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-tr from-[#800020] to-[#A8002B] text-amber-300 flex items-center justify-center shrink-0 shadow-xs border border-[#C99A45]/30">
+          <Swords className="w-5 h-5 sm:w-5.5 sm:h-5.5 animate-pulse" />
         </div>
 
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
-            <h3 className="text-xs sm:text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] leading-tight">
-              Rajasthan 50-District War
+            <h3 className="text-xs sm:text-sm font-black text-[#171923] dark:text-[#FFF9EF] leading-tight truncate">
+              राजस्थान 50 ज़िला महासंग्राम
             </h3>
-            <span className="px-1.5 py-0.5 rounded-md bg-[#800020]/10 dark:bg-[#800020]/25 text-[#800020] dark:text-[#F47B20] text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#800020] dark:bg-[#F47B20] inline-block animate-ping" />
-              LIVE WAR
+            <span className="px-1.5 py-0.2 rounded-full bg-red-500/15 text-red-600 dark:text-red-400 text-[8.5px] font-black uppercase tracking-wider flex items-center gap-1 border border-red-500/25">
+              <span className="w-1.5 h-1.5 rounded-full bg-red-500 inline-block animate-ping" />
+              LIVE
             </span>
             {topDistricts[0] && (
-              <span className="px-1.5 py-0.5 rounded-md bg-[#C99A45]/15 text-[#946B1E] dark:text-[#C99A45] text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider flex items-center gap-0.5">
-                <Crown className="w-2.5 h-2.5 inline" /> #{getDistrictName(topDistricts[0].districtId, topDistricts[0].nameHindi)}
+              <span className="px-1.5 py-0.2 rounded-md bg-[#C99A45]/20 text-[#8C6016] dark:text-[#E2B755] text-[9px] font-black flex items-center gap-0.5">
+                <Crown className="w-2.5 h-2.5 inline text-amber-500" /> #{getDistrictHindiName(topDistricts[0].districtId, topDistricts[0].nameHindi)}
               </span>
             )}
           </div>
 
-          <div className="text-[10px] sm:text-[11px] font-medium text-[#52576A] dark:text-[#929AB0] truncate leading-tight">
+          <div className="text-[10px] sm:text-[11px] font-medium text-stone-600 dark:text-stone-300 truncate leading-tight">
             {userAffiliation ? (
               <span>
-                Your Army: <b className="text-[#171923] dark:text-[#FFF9EF] font-bold">{getDistrictName(userAffiliation.districtId, userAffiliation.districtNameHindi)}</b> (Rank #{userRank || "—"}) •{" "}
-                <b className="text-[#800020] dark:text-[#F47B20] font-bold">+{userAffiliation.userPointsEarned} Pts</b>
+                आपकी सेना: <b className="text-stone-900 dark:text-white font-bold">{getDistrictHindiName(userAffiliation.districtId, userAffiliation.districtNameHindi)}</b> (रैंक #{userRank || "—"}) •{" "}
+                <b className="text-[#800020] dark:text-[#F47B20] font-black">+{userAffiliation.userPointsEarned} अंक</b>
               </span>
             ) : (
-              <span>
-                🥇 #1 {getDistrictName(topDistricts[0]?.districtId, "Sikar")} • 🥈 #2 {getDistrictName(topDistricts[1]?.districtId, "Jodhpur")} • 🥉 #3 {getDistrictName(topDistricts[2]?.districtId, "Jaipur")}
+              <span className="flex items-center gap-1 text-amber-700 dark:text-amber-400">
+                <Sparkles className="w-3 h-3 inline text-amber-500 shrink-0" />
+                <span>अपनी गृह सेना चुनें और पाएं +50 बोनस अंक</span>
               </span>
             )}
           </div>
@@ -84,11 +85,11 @@ export const DistrictWarHomeWidget: React.FC<DistrictWarHomeWidgetProps> = ({ on
       </div>
 
       <div className="flex items-center gap-1 shrink-0 pl-2">
-        <span className="hidden sm:inline-block text-xs font-extrabold text-[#800020] dark:text-[#F47B20]">
-          War Leaderboard
+        <span className="hidden sm:inline-block text-xs font-black text-[#800020] dark:text-[#C99A45]">
+          {userAffiliation ? "वॉर लीडरबोर्ड" : "सेना चुनें"}
         </span>
-        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#F7EFE2] dark:bg-[#252A3A] flex items-center justify-center group-hover:translate-x-1 transition-transform">
-          <ChevronRight className="w-4 h-4 text-[#800020] dark:text-[#F47B20]" />
+        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] text-[#800020] dark:text-[#C99A45] flex items-center justify-center group-hover:translate-x-0.5 transition-transform">
+          <ChevronRight className="w-4 h-4" />
         </div>
       </div>
     </div>
