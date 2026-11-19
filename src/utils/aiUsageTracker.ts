@@ -8,7 +8,7 @@ export interface AIUsageRecord {
   userName: string;
   provider: string; // "gemini" | "openrouter" | "openai" | "groq" | "claude" | "cliproxy"
   model: string; // e.g. "gemini-3.5-flash-lite"
-  queryType: "doubt" | "question_explain" | "exam_strategy" | "general";
+  queryType: "doubt" | "question_explain" | "exam_strategy" | "general" | "ai_import" | "exam_ocr_extraction";
   inputMessages: number; // 1
   outputMessages: number; // 1
   inputChars: number;

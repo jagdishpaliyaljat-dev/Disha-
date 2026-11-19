@@ -1,8 +1,7 @@
-import { PYQPaper, PYQPaperAttempt, Question } from "../types";
-import { isUserAdmin, loadUserProfile } from "./userProfileStorage";
-import { serializeTable, normalizeTable } from "./tableUtils";
+import { PYQPaper, PYQPaperAttempt } from "../types";
 import { safeSetLocalStorageItem } from "./safeStorage";
 import { isTestOrMockPYQ } from "./cleanSlate";
+import { supabase, isSupabaseConfigured } from "../lib/supabase";
 
 const PYQ_PAPERS_STORAGE_KEY = "remix_rajprep_pyq_papers_v2";
 const PYQ_ATTEMPTS_STORAGE_KEY = "remix_rajprep_pyq_attempts_v2";
@@ -12,9 +11,61 @@ let inMemoryPYQPapers: PYQPaper[] | null = null;
 
 export const INITIAL_PYQ_PAPERS: PYQPaper[] = [];
 
+export function mapRowToPYQPaper(r: any): PYQPaper {
+  return {
+    id: r.id,
+    title: r.title || "",
+    hindiTitle: r.hindi_title || "",
+    examBoard: r.exam_board || "RPSC",
+    paperYear: r.paper_year || "",
+    examDate: r.exam_date || undefined,
+    category: r.category || "",
+    description: r.description || "",
+    hindiDescription: r.hindi_description || undefined,
+    durationMinutes: Number(r.duration_minutes) || 180,
+    totalMarks: Number(r.total_marks) || 200,
+    marksPerQuestion: Number(r.marks_per_question) || 2,
+    negativeMarking: Number(r.negative_marking) || 0.33,
+    questionCount: Number(r.question_count) || (Array.isArray(r.questions) ? r.questions.length : 0),
+    questions: Array.isArray(r.questions) ? r.questions : [],
+    pdfUrl: r.pdf_url || undefined,
+    officialKeyReleased: Boolean(r.official_key_released),
+    isPublished: r.is_published !== false,
+    attemptStats: r.attempt_stats || undefined,
+    createdAt: r.created_at || new Date().toISOString(),
+    updatedAt: r.updated_at || undefined,
+  };
+}
+
+export function mapPYQPaperToRow(p: PYQPaper): any {
+  return {
+    id: p.id,
+    title: p.title || "",
+    hindi_title: p.hindiTitle || "",
+    exam_board: p.examBoard || "RPSC",
+    paper_year: p.paperYear || "",
+    exam_date: p.examDate || null,
+    category: p.category || "",
+    description: p.description || "",
+    hindi_description: p.hindiDescription || null,
+    duration_minutes: p.durationMinutes || 180,
+    total_marks: p.totalMarks || 200,
+    marks_per_question: p.marksPerQuestion || 2,
+    negative_marking: p.negativeMarking ?? 0.33,
+    question_count: (p.questions || []).length,
+    questions: p.questions || [],
+    pdf_url: p.pdfUrl || null,
+    official_key_released: Boolean(p.officialKeyReleased),
+    is_published: p.isPublished !== false,
+    attempt_stats: p.attemptStats || null,
+    created_at: p.createdAt || new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  };
+}
+
 export function loadLocalPYQPapers(): PYQPaper[] {
   if (inMemoryPYQPapers && inMemoryPYQPapers.length > 0) {
-    return inMemoryPYQPapers.filter(p => !isTestOrMockPYQ(p));
+    return inMemoryPYQPapers.filter((p) => !isTestOrMockPYQ(p));
   }
   try {
     const raw = typeof localStorage !== "undefined" ? localStorage.getItem(PYQ_PAPERS_STORAGE_KEY) : null;
@@ -25,7 +76,7 @@ export function loadLocalPYQPapers(): PYQPaper[] {
     }
     const parsed = JSON.parse(raw);
     if (Array.isArray(parsed) && parsed.length > 0) {
-      const cleanPapers = parsed.filter(p => !isTestOrMockPYQ(p));
+      const cleanPapers = parsed.filter((p) => !isTestOrMockPYQ(p));
       inMemoryPYQPapers = cleanPapers;
       return cleanPapers;
     }
@@ -74,8 +125,8 @@ export function saveLocalPYQAttempts(attempts: PYQPaperAttempt[]): void {
 export async function recordPYQAttempt(attempt: PYQPaperAttempt): Promise<void> {
   try {
     const attempts = loadLocalPYQAttempts();
-    const existingIdx = attempts.findIndex(a => a.attemptId === attempt.attemptId);
-    
+    const existingIdx = attempts.findIndex((a) => a.attemptId === attempt.attemptId);
+
     if (existingIdx >= 0) {
       attempts[existingIdx] = attempt;
     } else {
@@ -123,7 +174,7 @@ export async function savePYQPaper(paper: Partial<PYQPaper> & { id: string }): P
     ...current[idx],
     ...paper,
     updatedAt: new Date().toISOString(),
-    createdAt: idx >= 0 && current[idx].createdAt ? current[idx].createdAt : (paper.createdAt || new Date().toISOString()),
+    createdAt: idx >= 0 && current[idx]?.createdAt ? current[idx].createdAt : (paper.createdAt || new Date().toISOString()),
   };
 
   let updatedList: PYQPaper[];
@@ -135,6 +186,19 @@ export async function savePYQPaper(paper: Partial<PYQPaper> & { id: string }): P
   }
 
   saveLocalPYQPapers(updatedList);
+
+  if (isSupabaseConfigured()) {
+    try {
+      const row = mapPYQPaperToRow(updatedPaper);
+      const { error } = await supabase.from("pyq_papers").upsert(row);
+      if (error) {
+        console.warn("[PYQStorage] Cloud upsert warning:", error.message);
+      }
+    } catch (cloudErr) {
+      console.warn("[PYQStorage] Cloud save exception:", cloudErr);
+    }
+  }
+
   return updatedList;
 }
 
@@ -143,12 +207,44 @@ export async function deletePYQPaper(paperId: string): Promise<PYQPaper[]> {
   const updatedList = current.filter((p) => p.id !== paperId);
   saveLocalPYQPapers(updatedList);
   addDeletedPYQId(paperId);
+
+  if (isSupabaseConfigured()) {
+    try {
+      const { error } = await supabase.from("pyq_papers").delete().eq("id", paperId);
+      if (error) {
+        console.warn("[PYQStorage] Cloud delete warning:", error.message);
+      }
+    } catch (cloudErr) {
+      console.warn("[PYQStorage] Cloud delete exception:", cloudErr);
+    }
+  }
+
   return updatedList;
 }
 
 export async function fetchPYQPapers(): Promise<PYQPaper[]> {
   const localList = loadLocalPYQPapers();
   const deletedIds = new Set(getDeletedPYQIds());
+
+  if (isSupabaseConfigured()) {
+    try {
+      const { data, error } = await supabase
+        .from("pyq_papers")
+        .select("*")
+        .order("paper_year", { ascending: false });
+
+      if (!error && Array.isArray(data)) {
+        const cloudPapers = data.map(mapRowToPYQPaper).filter((p) => !deletedIds.has(p.id));
+        if (cloudPapers.length > 0 || data.length === 0) {
+          saveLocalPYQPapers(cloudPapers);
+          return cloudPapers;
+        }
+      }
+    } catch (err) {
+      console.warn("[PYQStorage] Error fetching PYQ papers from cloud:", err);
+    }
+  }
+
   return localList.filter((p) => !deletedIds.has(p.id));
 }
 
@@ -160,7 +256,47 @@ export function subscribeToPublishedPYQPapers(
     .filter((p) => !deletedIds.has(p.id) && p.isPublished !== false)
     .sort((a, b) => (parseInt(b.paperYear || "0", 10) || 0) - (parseInt(a.paperYear || "0", 10) || 0));
   callback(initial);
-  return () => {};
+
+  // Fetch fresh from cloud asynchronously
+  fetchPYQPapers()
+    .then((fresh) => {
+      const published = fresh
+        .filter((p) => p.isPublished !== false)
+        .sort((a, b) => (parseInt(b.paperYear || "0", 10) || 0) - (parseInt(a.paperYear || "0", 10) || 0));
+      callback(published);
+    })
+    .catch(() => {});
+
+  let channel: any = null;
+  if (isSupabaseConfigured()) {
+    try {
+      channel = supabase
+        .channel("public:pyq_papers_changes")
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "pyq_papers" },
+          () => {
+            fetchPYQPapers().then((fresh) => {
+              const published = fresh
+                .filter((p) => p.isPublished !== false)
+                .sort((a, b) => (parseInt(b.paperYear || "0", 10) || 0) - (parseInt(a.paperYear || "0", 10) || 0));
+              callback(published);
+            }).catch(() => {});
+          }
+        )
+        .subscribe();
+    } catch (err) {
+      console.warn("[PYQStorage] Realtime subscription error:", err);
+    }
+  }
+
+  return () => {
+    if (channel) {
+      try {
+        supabase.removeChannel(channel);
+      } catch (_) {}
+    }
+  };
 }
 
 export async function fetchMCQsByPYQPaper(paperId: string): Promise<any[]> {
@@ -169,5 +305,22 @@ export async function fetchMCQsByPYQPaper(paperId: string): Promise<any[]> {
   if (found && Array.isArray(found.questions) && found.questions.length > 0) {
     return found.questions;
   }
+
+  if (isSupabaseConfigured()) {
+    try {
+      const { data, error } = await supabase
+        .from("pyq_papers")
+        .select("questions")
+        .eq("id", paperId)
+        .single();
+
+      if (!error && data && Array.isArray(data.questions)) {
+        return data.questions;
+      }
+    } catch (err) {
+      console.warn("[PYQStorage] Error fetching MCQs for paper:", err);
+    }
+  }
+
   return [];
 }

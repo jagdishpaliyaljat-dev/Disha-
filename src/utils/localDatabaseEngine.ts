@@ -497,6 +497,32 @@ export async function idbDelete(storeName: StoreName, key: IDBValidKey): Promise
   });
 }
 
+export async function idbDeleteBatch(storeName: StoreName, keys: IDBValidKey[]): Promise<void> {
+  if (!keys || keys.length === 0) return;
+  const db = await openLocalDatabase();
+  if (!db) {
+    const mem = getMemoryStore(storeName);
+    for (const key of keys) {
+      mem.delete(key);
+    }
+    return;
+  }
+
+  return new Promise((resolve) => {
+    try {
+      const tx = db.transaction(storeName, "readwrite");
+      const store = tx.objectStore(storeName);
+      for (const key of keys) {
+        store.delete(key);
+      }
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => resolve();
+    } catch {
+      resolve();
+    }
+  });
+}
+
 export async function idbClear(storeName: StoreName): Promise<void> {
   const db = await openLocalDatabase();
   if (!db) {

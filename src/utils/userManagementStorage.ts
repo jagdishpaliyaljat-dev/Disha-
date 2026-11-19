@@ -478,8 +478,8 @@ export async function fetchUserActivityData(user: UserProfile): Promise<{
 
         historyItems.push({
           id: row.id,
-          type: "practice",
-          title: "Quiz Practice",
+          type: "practice_attempt",
+          title: row.topic_id || "Practice Quiz",
           score: sc,
           totalQuestions: totalQ,
           correct: sc,
@@ -490,23 +490,66 @@ export async function fetchUserActivityData(user: UserProfile): Promise<{
         });
       });
     }
+
+    // Also fetch user's live test submissions
+    let liveTestCount = 0;
+    try {
+      const { data: liveData } = await supabase
+        .from("live_test_submissions")
+        .select("submission_id,test_title,score,total_marks,accuracy,time_spent_seconds,submitted_at")
+        .eq("user_id", user.id)
+        .order("submitted_at", { ascending: false })
+        .limit(50);
+
+      if (Array.isArray(liveData) && liveData.length > 0) {
+        liveTestCount = liveData.length;
+        liveData.forEach((row: any) => {
+          historyItems.push({
+            id: row.submission_id,
+            type: "live_test",
+            title: row.test_title || "Live Mock Test",
+            score: Number(row.score) || 0,
+            totalQuestions: Math.round(Number(row.total_marks) || 100),
+            correct: Math.round(Number(row.score) || 0),
+            wrong: 0,
+            accuracy: Math.round(Number(row.accuracy) || 0),
+            timeSpentSeconds: row.time_spent_seconds || 0,
+            date: row.submitted_at || new Date().toISOString(),
+          });
+        });
+      }
+    } catch {
+      // ignore
+    }
+
+    const totalAllAttempts = attemptsCount + liveTestCount;
+    const avgScore = totalAllAttempts > 0 ? Math.round(totalScoreSum / Math.max(1, attemptsCount)) : 0;
+
+    return {
+      totalTestsAttempted: totalAllAttempts,
+      totalLiveTests: liveTestCount,
+      totalPYQs: 0,
+      averageScore: avgScore,
+      lastActiveDate: user.lastLoginAt || user.createdAt,
+      accountCreatedAt: user.createdAt,
+      status: user.status || "active",
+      attemptsCount: totalAllAttempts,
+      history: historyItems,
+    };
   } catch (err) {
     console.warn("Could not fetch user attempts history from Supabase:", err);
+    return {
+      totalTestsAttempted: 0,
+      totalLiveTests: 0,
+      totalPYQs: 0,
+      averageScore: 0,
+      lastActiveDate: user.lastLoginAt || user.createdAt,
+      accountCreatedAt: user.createdAt,
+      status: user.status || "active",
+      attemptsCount: 0,
+      history: [],
+    };
   }
-
-  const avgScore = attemptsCount > 0 ? Math.round(totalScoreSum / attemptsCount) : 0;
-
-  return {
-    totalTestsAttempted: attemptsCount,
-    totalLiveTests: 0,
-    totalPYQs: 0,
-    averageScore: avgScore,
-    lastActiveDate: user.lastLoginAt || user.createdAt,
-    accountCreatedAt: user.createdAt,
-    status: user.status || "active",
-    attemptsCount,
-    history: historyItems,
-  };
 }
 
 export async function getAdminDashboardMetrics(): Promise<{

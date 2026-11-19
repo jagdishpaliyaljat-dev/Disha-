@@ -86,10 +86,11 @@ export async function formatBatchQuestionsWithAI(rawText: string): Promise<Forma
 Text to parse:
 ${rawText}`;
         const aiResponse = await executeAICompletion({
-          messages: [{ role: "user", content: prompt }],
+          prompt,
           provider: creds.provider,
           apiKey: creds.apiKey,
           model: creds.provider === "gemini" ? "gemini-2.5-flash-lite" : undefined,
+          jsonMode: true,
         });
 
         const jsonMatch = aiResponse.match(/\[\s*\{[\s\S]*\}\s*\]/);

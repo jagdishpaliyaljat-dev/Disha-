@@ -401,13 +401,15 @@ export async function submitLiveTestSubmission(submission: LiveTestSubmission): 
         submitted_at: submission.submittedAt,
       });
 
-      const { count } = await supabase
-        .from("live_test_submissions")
-        .select("*", { count: "exact", head: true })
-        .eq("test_id", submission.testId);
+      if (isUserAdmin(loadUserProfile())) {
+        const { count } = await supabase
+          .from("live_test_submissions")
+          .select("*", { count: "exact", head: true })
+          .eq("test_id", submission.testId);
 
-      if (typeof count === "number") {
-        await supabase.from("live_tests").update({ participant_count: count }).eq("id", submission.testId);
+        if (typeof count === "number") {
+          await supabase.from("live_tests").update({ participant_count: count }).eq("id", submission.testId);
+        }
       }
     } catch (err) {
       console.warn("[LiveTestStorage] Supabase submission sync error:", err);

@@ -8,6 +8,7 @@ import {
 } from "../components/news/ArticleTable";
 import { generateSlug } from "./seoHelper";
 import { updateSitemapFileOnServer } from "./sitemapGenerator";
+import { supabase, isSupabaseConfigured } from "../lib/supabase";
 
 const LOCAL_ARTICLES_KEY = "disha2020_news_articles_v2";
 const LEGACY_LOCAL_ARTICLES_KEY = "quizpro_news_articles_v2";
@@ -278,6 +279,88 @@ export function normalizeArticle(raw: any): NewsArticle {
   };
 }
 
+export function mapRowToArticle(r: any): NewsArticle {
+  return normalizeArticle({
+    id: r.id,
+    slug: r.slug,
+    title: r.title,
+    subtitle: r.subtitle || undefined,
+    subjectName: r.subject_name || undefined,
+    chapterName: r.chapter_name || undefined,
+    topicName: r.topic_name || undefined,
+    hindiTitle: r.hindi_title || undefined,
+    excerpt: r.excerpt || "",
+    content: r.content || "",
+    blocks: Array.isArray(r.blocks) ? r.blocks : [],
+    category: r.category || "General",
+    tags: Array.isArray(r.tags) ? r.tags : [],
+    language: r.language || "Both",
+    coverImageUrl: r.cover_image_url || undefined,
+    authorName: r.author_name || "Disha 20-20 Team",
+    authorBio: r.author_bio || undefined,
+    authorPhotoUrl: r.author_photo_url || undefined,
+    status: r.status || "draft",
+    scheduledFor: r.scheduled_for || undefined,
+    isFeatured: Boolean(r.is_featured),
+    isPinned: Boolean(r.is_pinned),
+    pinnedAt: r.pinned_at || undefined,
+    styleVariant: r.style_variant || "default",
+    layoutConfig: r.layout_config || undefined,
+    focusKeyword: r.focus_keyword || undefined,
+    canonicalUrl: r.canonical_url || undefined,
+    ogImageUrl: r.og_image_url || undefined,
+    publishedAt: r.published_at || undefined,
+    views: Number(r.views) || 0,
+    seoTitle: r.seo_title || undefined,
+    seoDescription: r.seo_description || undefined,
+    seoKeywords: Array.isArray(r.seo_keywords) ? r.seo_keywords : [],
+    faqs: Array.isArray(r.faqs) ? r.faqs : [],
+    createdAt: r.created_at || new Date().toISOString(),
+    updatedAt: r.updated_at || new Date().toISOString(),
+  });
+}
+
+export function mapArticleToRow(a: NewsArticle): any {
+  return {
+    id: a.id,
+    slug: a.slug,
+    title: a.title,
+    subtitle: a.subtitle || null,
+    subject_name: a.subjectName || null,
+    chapter_name: a.chapterName || null,
+    topic_name: a.topicName || null,
+    hindi_title: a.hindiTitle || null,
+    excerpt: a.excerpt || "",
+    content: a.content || "",
+    blocks: a.blocks || [],
+    category: a.category || "General",
+    tags: a.tags || [],
+    language: a.language || "Both",
+    cover_image_url: a.coverImageUrl || null,
+    author_name: a.authorName || "Disha 20-20 Team",
+    author_bio: a.authorBio || null,
+    author_photo_url: a.authorPhotoUrl || null,
+    status: a.status || "draft",
+    scheduled_for: a.scheduledFor || null,
+    is_featured: Boolean(a.isFeatured),
+    is_pinned: Boolean(a.isPinned),
+    pinned_at: a.pinnedAt || null,
+    style_variant: a.styleVariant || "default",
+    layout_config: a.layoutConfig || {},
+    focus_keyword: a.focusKeyword || null,
+    canonical_url: a.canonicalUrl || null,
+    og_image_url: a.ogImageUrl || null,
+    published_at: a.publishedAt || (a.status === "published" ? new Date().toISOString() : null),
+    views: a.views || 0,
+    seo_title: a.seoTitle || null,
+    seo_description: a.seoDescription || null,
+    seo_keywords: a.seoKeywords || [],
+    faqs: a.faqs || [],
+    created_at: a.createdAt || new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  };
+}
+
 export async function fetchBlocksForArticle(articleId: string): Promise<ArticleBlock[]> {
   const local = getLocalArticles();
   const found = local.find(a => a.id === articleId);
@@ -322,6 +405,27 @@ export async function fetchPublishedArticles(): Promise<NewsArticle[]> {
   DEFAULT_ARTICLES.filter(a => !deletedIds.has(a.id)).map(normalizeArticle).forEach(a => map.set(a.id, a));
   getLocalArticles().forEach(a => map.set(a.id, a));
 
+  if (isSupabaseConfigured()) {
+    try {
+      const { data, error } = await supabase
+        .from("news_articles")
+        .select("*")
+        .eq("status", "published")
+        .order("created_at", { ascending: false });
+
+      if (!error && Array.isArray(data)) {
+        data.forEach((r) => {
+          const art = mapRowToArticle(r);
+          if (!deletedIds.has(art.id)) {
+            map.set(art.id, art);
+          }
+        });
+      }
+    } catch (err) {
+      console.warn("[ArticleStorage] Cloud fetch published notice:", err);
+    }
+  }
+
   const nowTime = Date.now();
   const combined = Array.from(map.values()).filter(a => {
     if (deletedIds.has(a.id)) return false;
@@ -349,7 +453,25 @@ export async function fetchArticleBySlug(slug: string): Promise<NewsArticle | nu
   const deletedIds = new Set(getDeletedArticleIds());
   const local = getLocalArticles();
   const found = local.find(a => (a.slug.toLowerCase() === cleanSlug || a.id.toLowerCase() === cleanSlug) && !deletedIds.has(a.id));
-  return found ? normalizeArticle(found) : null;
+  if (found) return normalizeArticle(found);
+
+  if (isSupabaseConfigured()) {
+    try {
+      const { data, error } = await supabase
+        .from("news_articles")
+        .select("*")
+        .or(`slug.eq.${cleanSlug},id.eq.${cleanSlug}`)
+        .maybeSingle();
+
+      if (!error && data && !deletedIds.has(data.id)) {
+        return mapRowToArticle(data);
+      }
+    } catch (err) {
+      console.warn("[ArticleStorage] Cloud fetch slug notice:", err);
+    }
+  }
+
+  return null;
 }
 
 /**
@@ -360,7 +482,32 @@ export async function fetchAllArticlesAdmin(): Promise<NewsArticle[]> {
   if (!isUserAdmin(profile)) {
     throw new Error("Unauthorized: Admin privilege required.");
   }
-  return getLocalArticles();
+
+  const deletedIds = new Set(getDeletedArticleIds());
+  const map = new Map<string, NewsArticle>();
+  getLocalArticles().forEach(a => map.set(a.id, a));
+
+  if (isSupabaseConfigured()) {
+    try {
+      const { data, error } = await supabase
+        .from("news_articles")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (!error && Array.isArray(data)) {
+        data.forEach((r) => {
+          const art = mapRowToArticle(r);
+          if (!deletedIds.has(art.id)) {
+            map.set(art.id, art);
+          }
+        });
+      }
+    } catch (err) {
+      console.warn("[ArticleStorage] Cloud fetch admin notice:", err);
+    }
+  }
+
+  return Array.from(map.values()).filter(a => !deletedIds.has(a.id));
 }
 
 /**
@@ -454,6 +601,18 @@ export async function saveArticleAdmin(
   const local = getLocalArticles();
   const updatedLocal = [fullArticle, ...local.filter(a => a.id !== id && a.slug !== slug)];
   saveLocalArticles(updatedLocal);
+
+  if (isSupabaseConfigured()) {
+    try {
+      const row = mapArticleToRow(fullArticle);
+      const { error } = await supabase.from("news_articles").upsert(row);
+      if (error) {
+        console.warn("[ArticleStorage] Cloud upsert notice:", error.message);
+      }
+    } catch (cloudErr) {
+      console.warn("[ArticleStorage] Cloud save exception:", cloudErr);
+    }
+  }
 
   if (onProgress) onProgress({ stage: "metadata", currentBatch: 1, totalBatches: 1, percent: 100 });
 
@@ -573,6 +732,17 @@ export async function deleteArticleAdmin(id: string): Promise<void> {
   addDeletedArticleId(id);
   const local = getLocalArticles().filter(a => a.id !== id);
   saveLocalArticles(local);
+
+  if (isSupabaseConfigured()) {
+    try {
+      const { error } = await supabase.from("news_articles").delete().eq("id", id);
+      if (error) {
+        console.warn("[ArticleStorage] Cloud delete notice:", error.message);
+      }
+    } catch (cloudErr) {
+      console.warn("[ArticleStorage] Cloud delete exception:", cloudErr);
+    }
+  }
 
   if (typeof window !== "undefined") {
     window.dispatchEvent(new CustomEvent("disha2020_articles_updated", { detail: { deletedId: id } }));

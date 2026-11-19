@@ -1582,21 +1582,19 @@ export async function syncUserProfileToSupabase(profile: any): Promise<boolean> 
   }
 
   try {
-    // Only attempt profile write if an active authenticated Supabase session exists matching the UID
+    // If an active session exists matching the UID, allow potential admin privileges if authorized
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session?.user || session.user.id !== uid) {
-      return false;
-    }
+    const hasValidSession = Boolean(session?.user && session.user.id === uid);
 
     // Prevent privilege escalation: verify super admin or existing persistent admin role in database
     const { isSuperAdmin } = await import("./userProfileStorage");
-    const userEmail = (session.user.email || profile.email || "").trim().toLowerCase();
+    const userEmail = (session?.user?.email || profile.email || "").trim().toLowerCase();
     const isSuper = isSuperAdmin(userEmail) || isSuperAdmin(uid);
 
     let assignedRole: "admin" | "student" = "student";
-    if (isSuper) {
+    if (isSuper && hasValidSession) {
       assignedRole = "admin";
-    } else {
+    } else if (hasValidSession) {
       // Check existing row in profiles table so we never demote an admin promoted by Super Admin!
       const { data: existingRow } = await supabase
         .from("profiles")
@@ -1605,17 +1603,20 @@ export async function syncUserProfileToSupabase(profile: any): Promise<boolean> 
         .maybeSingle();
 
       if (existingRow?.role === "admin" || profile.role === "admin") {
-        assignedRole = (existingRow?.role === "admin" || profile.role === "admin") ? "admin" : "student";
+        assignedRole = "admin";
       } else {
         assignedRole = "student";
       }
+    } else {
+      // Unauthenticated / guest student profiles are strictly assigned 'student' role
+      assignedRole = "student";
     }
 
     const { error } = await supabase.from("profiles").upsert({
       id: uid,
-      email: profile.email || session.user.email || null,
-      display_name: profile.name || profile.displayName || session.user.user_metadata?.full_name || "Student",
-      photo_url: profile.photoURL || session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture || null,
+      email: profile.email || session?.user?.email || null,
+      display_name: profile.name || profile.displayName || session?.user?.user_metadata?.full_name || "Student",
+      photo_url: profile.photoURL || session?.user?.user_metadata?.avatar_url || session?.user?.user_metadata?.picture || null,
       role: assignedRole,
       status: profile.status || "active",
       updated_at: new Date().toISOString()

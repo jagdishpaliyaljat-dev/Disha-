@@ -1138,16 +1138,20 @@ export default function App() {
     trackPageView(path, title, { isUserAdmin: isAdmin, isLoggedIn: isAuthenticated }).catch(() => {});
   }, [activeTab, isAdmin, isAuthenticated]);
 
-  // Sync profile to Supabase on boot or change when authenticated
+  // Sync profile to Supabase on boot or change for all users (student, guest, admin)
   React.useEffect(() => {
-    if (isAuthenticated && userProfile) {
-      import('./utils/supabaseSyncService').then(({ syncUserProfileToSupabase }) => {
+    if (userProfile && userProfile.id) {
+      Promise.all([
+        import('./utils/supabaseSyncService'),
+        import('./utils/userManagementStorage'),
+      ]).then(([{ syncUserProfileToSupabase }, { registerUserToDirectory }]) => {
         syncUserProfileToSupabase(userProfile).catch(err => {
           console.warn("Background profile sync note:", err?.message || err);
         });
+        registerUserToDirectory(userProfile).catch(() => {});
       }).catch(() => {});
     }
-  }, [isAuthenticated, userProfile]);
+  }, [userProfile, isAuthenticated]);
 
   const handleStartSession = (session: MCQSession) => {
     if (Array.isArray(session.extraQuestions) && session.extraQuestions.length > 0) {

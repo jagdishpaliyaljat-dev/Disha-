@@ -34,8 +34,8 @@ import { ExportDataWidget } from "./ExportDataWidget";
 import { QuickActionsWidget } from "./QuickActionsWidget";
 import { SupabaseHealthPanel } from "./SupabaseHealthPanel";
 import { getTotalDisplayCount } from "../../utils/questionsStorage";
-import { getAIUsageSummary } from "../../utils/aiUsageTracker";
-import { getBattleAnalyticsSummary } from "../../utils/battleTracker";
+import { getAIUsageSummary, fetchLiveAIUsageSummary, AIUsageSummary } from "../../utils/aiUsageTracker";
+import { getBattleAnalyticsSummary, fetchLiveBattleAnalyticsSummary, BattleAnalyticsSummary, initGlobalBattleMonitor } from "../../utils/battleTracker";
 
 interface AdminDashboardSectionProps {
   onNavigateSection: (section: "dashboard" | "users" | "banners" | "curriculum" | "health" | "ai-api" | "analytics" | "news" | "messages" | "tests" | "battle") => void;
@@ -59,6 +59,8 @@ export const AdminDashboardSection: React.FC<AdminDashboardSectionProps> = ({
   const [refreshTrigger, setRefreshTrigger] = React.useState<number>(0);
   const [loading, setLoading] = React.useState(() => cachedUsers.length === 0 && cachedBanners.length === 0);
   const [refreshing, setRefreshing] = React.useState(false);
+  const [aiSummary, setAiSummary] = React.useState<AIUsageSummary>(() => getAIUsageSummary("7days"));
+  const [battleSummary, setBattleSummary] = React.useState<BattleAnalyticsSummary>(() => getBattleAnalyticsSummary());
   const [healthStatus, setHealthStatus] = React.useState<{ success: boolean; latencyMs: number; error?: string } | null>(null);
   const [isCheckingHealth, setIsCheckingHealth] = React.useState(false);
   const [healthCooldown, setHealthCooldown] = React.useState(0);
@@ -72,10 +74,12 @@ export const AdminDashboardSection: React.FC<AdminDashboardSectionProps> = ({
     }
 
     try {
-      const [usersRes, bannersRes, userCountsRes] = await Promise.allSettled([
+      const [usersRes, bannersRes, userCountsRes, aiRes, battleRes] = await Promise.allSettled([
         fetchRegisteredUsers(),
         fetchAllBanners(),
         fetchRegisteredUserCounts(),
+        fetchLiveAIUsageSummary("7days"),
+        fetchLiveBattleAnalyticsSummary(),
       ]);
       if (usersRes.status === "fulfilled") {
         setUsers(usersRes.value.users);
@@ -85,6 +89,12 @@ export const AdminDashboardSection: React.FC<AdminDashboardSectionProps> = ({
       }
       if (userCountsRes.status === "fulfilled" && userCountsRes.value.totalRegistered > 0) {
         setTotalUserCount(userCountsRes.value.totalRegistered);
+      }
+      if (aiRes.status === "fulfilled") {
+        setAiSummary(aiRes.value);
+      }
+      if (battleRes.status === "fulfilled") {
+        setBattleSummary(battleRes.value);
       }
     } catch (err) {
       console.warn("Failed to load dashboard metrics", err);
@@ -118,6 +128,12 @@ export const AdminDashboardSection: React.FC<AdminDashboardSectionProps> = ({
 
   React.useEffect(() => {
     loadData();
+    const unsubBattle = initGlobalBattleMonitor(() => {
+      fetchLiveBattleAnalyticsSummary().then(setBattleSummary).catch(() => {});
+    });
+    return () => {
+      unsubBattle();
+    };
   }, []);
 
   const storeQuestionCount = React.useMemo(() => getTotalDisplayCount(questionsStore), [questionsStore]);
@@ -125,8 +141,6 @@ export const AdminDashboardSection: React.FC<AdminDashboardSectionProps> = ({
   const effectiveUserCount = Math.max(users.length, totalUserCount);
   const activeBannersCount = React.useMemo(() => banners.filter(b => b.isActive !== false).length, [banners]);
   const recentUsers = React.useMemo(() => users.slice(0, 5), [users]);
-  const aiSummary = React.useMemo(() => getAIUsageSummary("7days"), [refreshTrigger]);
-  const battleSummary = React.useMemo(() => getBattleAnalyticsSummary(), [refreshTrigger]);
 
   const quickMetricCards = [
     {

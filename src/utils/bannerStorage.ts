@@ -1,4 +1,5 @@
 import { AppBanner } from "../types";
+import { supabase, isSupabaseConfigured } from "../lib/supabase";
 
 const LOCAL_BANNERS_KEY = "disha2020_banners_v2";
 const LEGACY_LOCAL_BANNERS_KEY = "quizpro_banners_v2";
@@ -27,9 +28,45 @@ export function normalizeBanner(raw: any, idx = 0): AppBanner {
     isActive: legacy.isActive !== undefined ? Boolean(legacy.isActive) : true,
     order: typeof legacy.order === "number"
       ? legacy.order
-      : (typeof legacy.priority === "number" ? legacy.priority : idx),
-    createdAt: legacy.createdAt || new Date().toISOString(),
-    updatedAt: legacy.updatedAt,
+      : (typeof legacy.priority === "number" ? legacy.priority : (typeof legacy.display_order === "number" ? legacy.display_order : idx)),
+    createdAt: legacy.createdAt || legacy.created_at || new Date().toISOString(),
+    updatedAt: legacy.updatedAt || legacy.updated_at,
+  };
+}
+
+export function mapRowToBanner(row: any): AppBanner {
+  return normalizeBanner({
+    id: row.id,
+    title: row.title || "",
+    subtitle: row.subtitle || "",
+    badge: row.badge || "",
+    color: row.color || "from-[#800020] to-[#3B0613]",
+    iconName: row.icon_name || "Image",
+    actionLabel: row.action_label || "",
+    actionTab: row.action_tab || undefined,
+    imageUrl: row.image_url || undefined,
+    isActive: row.is_active !== undefined ? Boolean(row.is_active) : true,
+    order: typeof row.display_order === "number" ? row.display_order : 0,
+    createdAt: row.created_at || new Date().toISOString(),
+    updatedAt: row.updated_at || undefined,
+  });
+}
+
+export function mapBannerToRow(banner: AppBanner): any {
+  return {
+    id: banner.id,
+    title: banner.title || "",
+    subtitle: banner.subtitle || "",
+    badge: banner.badge || "",
+    color: banner.color || "from-[#800020] to-[#3B0613]",
+    icon_name: banner.iconName || "Image",
+    action_label: banner.actionLabel || "",
+    action_tab: banner.actionTab || null,
+    image_url: banner.imageUrl || null,
+    is_active: banner.isActive !== false,
+    display_order: typeof banner.order === "number" ? banner.order : 0,
+    created_at: banner.createdAt || new Date().toISOString(),
+    updated_at: new Date().toISOString(),
   };
 }
 
@@ -86,12 +123,34 @@ export function clearDeletedBannerIds(): void {
   try {
     if (typeof window === "undefined" || typeof localStorage === "undefined") return;
     localStorage.removeItem(DELETED_BANNERS_KEY);
+    localStorage.removeItem(LEGACY_DELETED_BANNERS_KEY);
   } catch {}
 }
 
 export async function fetchActiveBanners(): Promise<AppBanner[]> {
   const local = getLocalBanners();
   const deleted = new Set(getDeletedBannerIds());
+
+  if (isSupabaseConfigured()) {
+    try {
+      const { data, error } = await supabase
+        .from("banners")
+        .select("*")
+        .eq("is_active", true)
+        .order("display_order", { ascending: true });
+
+      if (!error && Array.isArray(data)) {
+        const cloudBanners = data.map(mapRowToBanner).filter((b) => !deleted.has(b.id));
+        if (cloudBanners.length > 0 || data.length === 0) {
+          setLocalBanners(cloudBanners);
+          return cloudBanners;
+        }
+      }
+    } catch (err) {
+      console.warn("[BannerStorage] Error fetching active banners from cloud:", err);
+    }
+  }
+
   return local
     .filter((b) => b.isActive !== false && !deleted.has(b.id))
     .sort((a, b) => (a.order || 0) - (b.order || 0));
@@ -100,6 +159,24 @@ export async function fetchActiveBanners(): Promise<AppBanner[]> {
 export async function fetchAllBanners(): Promise<AppBanner[]> {
   const local = getLocalBanners();
   const deleted = new Set(getDeletedBannerIds());
+
+  if (isSupabaseConfigured()) {
+    try {
+      const { data, error } = await supabase
+        .from("banners")
+        .select("*")
+        .order("display_order", { ascending: true });
+
+      if (!error && Array.isArray(data)) {
+        const cloudBanners = data.map(mapRowToBanner).filter((b) => !deleted.has(b.id));
+        setLocalBanners(cloudBanners);
+        return cloudBanners;
+      }
+    } catch (err) {
+      console.warn("[BannerStorage] Error fetching all banners from cloud:", err);
+    }
+  }
+
   return local
     .filter((b) => !deleted.has(b.id))
     .sort((a, b) => (a.order || 0) - (b.order || 0));
@@ -164,6 +241,19 @@ export async function saveBanner(banner: Partial<AppBanner>): Promise<string> {
   if (idx >= 0) updatedList[idx] = completeBanner;
 
   setLocalBanners(updatedList);
+
+  if (isSupabaseConfigured()) {
+    try {
+      const row = mapBannerToRow(completeBanner);
+      const { error } = await supabase.from("banners").upsert(row);
+      if (error) {
+        console.warn("[BannerStorage] Cloud upsert notice:", error.message);
+      }
+    } catch (cloudErr) {
+      console.warn("[BannerStorage] Cloud save exception:", cloudErr);
+    }
+  }
+
   return bannerId;
 }
 
@@ -172,6 +262,17 @@ export async function deleteBanner(bannerId: string): Promise<void> {
   const updated = current.filter((b) => b.id !== bannerId);
   setLocalBanners(updated);
   addDeletedBannerId(bannerId);
+
+  if (isSupabaseConfigured()) {
+    try {
+      const { error } = await supabase.from("banners").delete().eq("id", bannerId);
+      if (error) {
+        console.warn("[BannerStorage] Cloud delete notice:", error.message);
+      }
+    } catch (cloudErr) {
+      console.warn("[BannerStorage] Cloud delete exception:", cloudErr);
+    }
+  }
 }
 
 export function subscribeToActiveBanners(callback: (banners: AppBanner[]) => void): () => void {
@@ -181,5 +282,37 @@ export function subscribeToActiveBanners(callback: (banners: AppBanner[]) => voi
     .filter((b) => b.isActive !== false && !deleted.has(b.id))
     .sort((a, b) => (a.order || 0) - (b.order || 0));
   callback(active);
-  return () => {};
+
+  // Fetch fresh from cloud asynchronously
+  fetchActiveBanners()
+    .then((fresh) => {
+      callback(fresh);
+    })
+    .catch(() => {});
+
+  let channel: any = null;
+  if (isSupabaseConfigured()) {
+    try {
+      channel = supabase
+        .channel("public:banners_changes")
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "banners" },
+          () => {
+            fetchActiveBanners().then((fresh) => callback(fresh)).catch(() => {});
+          }
+        )
+        .subscribe();
+    } catch (err) {
+      console.warn("[BannerStorage] Realtime subscription error:", err);
+    }
+  }
+
+  return () => {
+    if (channel) {
+      try {
+        supabase.removeChannel(channel);
+      } catch (_) {}
+    }
+  };
 }
