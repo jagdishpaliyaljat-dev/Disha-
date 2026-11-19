@@ -92,3 +92,57 @@ $$;
 -- Grant execution to authenticated users
 GRANT EXECUTE ON FUNCTION public.promote_user_to_admin(uuid, text) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.promote_user_to_admin(uuid, text) TO anon;
+
+-- 3. Trigger to prevent any client or non-superadmin from altering or downgrading profiles.role
+CREATE OR REPLACE FUNCTION public.protect_profiles_role()
+RETURNS TRIGGER AS $$
+DECLARE
+  v_caller_email text;
+  v_is_super boolean;
+BEGIN
+  IF TG_OP = 'UPDATE' THEN
+    IF NEW.role IS NOT DISTINCT FROM OLD.role THEN
+      RETURN NEW;
+    END IF;
+
+    IF current_user = 'postgres' THEN
+      RETURN NEW;
+    END IF;
+
+    v_caller_email := LOWER(COALESCE(auth.jwt() ->> 'email', auth.jwt() -> 'user_metadata' ->> 'email', ''));
+    
+    v_is_super := (
+      (auth.jwt() -> 'app_metadata' ->> 'role' = 'super_admin') OR
+      (v_caller_email IN (
+        'jagdishpaliyaljat@gmail.com',
+        'jagdishpaliyaljat2003@gmail.com',
+        'zdpaliyal@gmail.com',
+        'kamleshchoudhary96022@gmail.com',
+        'disha2020prep@gmail.com'
+      ))
+    );
+
+    IF NOT v_is_super THEN
+      NEW.role := OLD.role;
+    END IF;
+  END IF;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS trg_protect_profiles_role ON public.profiles;
+CREATE TRIGGER trg_protect_profiles_role
+BEFORE UPDATE ON public.profiles
+FOR EACH ROW
+EXECUTE FUNCTION public.protect_profiles_role();
+
+-- 4. Enable Supabase Realtime publication on public.profiles
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_publication WHERE pubname = 'supabase_realtime') THEN
+    CREATE PUBLICATION supabase_realtime;
+  END IF;
+END $$;
+
+ALTER PUBLICATION supabase_realtime ADD TABLE public.profiles;
