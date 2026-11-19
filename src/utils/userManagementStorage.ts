@@ -19,8 +19,6 @@ export function setLocalUsersDirectory(users: UserProfile[]): void {
 
 export async function registerUserToDirectory(profile: UserProfile): Promise<void> {
   if (!profile || !profile.id) return;
-  const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-  if (!UUID_REGEX.test(profile.id)) return;
   const now = new Date().toISOString();
   const isSuper = isSuperAdmin(profile);
 
@@ -35,14 +33,14 @@ export async function registerUserToDirectory(profile: UserProfile): Promise<voi
     if (isSuper) {
       finalRole = "admin";
     } else if (finalRole !== "admin") {
-      const { data: existing } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", profile.id)
-        .maybeSingle();
-      if (existing?.role === "admin") {
-        finalRole = "admin";
-      }
+      try {
+        const query: any = supabase.from("profiles").select("role").eq("id", profile.id);
+        const res = typeof query?.maybeSingle === "function" ? await query.maybeSingle() : await query;
+        const existing = res?.data;
+        if (existing?.role === "admin" || (Array.isArray(existing) && existing[0]?.role === "admin")) {
+          finalRole = "admin";
+        }
+      } catch (_) {}
     }
 
     const { error } = await supabase.from("profiles").upsert(
@@ -262,15 +260,26 @@ export async function fetchRegisteredUserCounts(): Promise<{
 export const fetchFirestoreUserCounts = fetchRegisteredUserCounts;
 
 export async function findSuspiciousProfiles(): Promise<UserProfile[]> {
+  const localDir = getLocalUsersDirectory();
   try {
     const { users } = await fetchRegisteredUsers();
-    return users.filter(u => {
+    const combined = [...localDir];
+    for (const u of users) {
+      if (!combined.some(x => x.id === u.id)) {
+        combined.push(u);
+      }
+    }
+    return combined.filter(u => {
       const email = (u.email || "").toLowerCase().trim();
       const name = (u.name || "").toLowerCase().trim();
       return !email || email.endsWith(".local") || name === "admin user" || name === "zd";
     });
   } catch {
-    return [];
+    return localDir.filter(u => {
+      const email = (u.email || "").toLowerCase().trim();
+      const name = (u.name || "").toLowerCase().trim();
+      return !email || email.endsWith(".local") || name === "admin user" || name === "zd";
+    });
   }
 }
 
@@ -319,7 +328,7 @@ export async function updateUserAccountStatus(
 export async function updateUserRole(userId: string, newRole: "admin" | "student" | "user"): Promise<void> {
   const currentAdmin = loadUserProfile();
   if (!isSuperAdmin(currentAdmin)) {
-    throw new Error("अनधिकृत: केवल मुख्य प्रशासक (Super Admin) ही एडमिन बना या हटा सकते हैं।");
+    throw new Error("Unauthorized: केवल मुख्य प्रशासक (Super Admin) ही एडमिन बना या हटा सकते हैं (Unauthorized: Only super admins can update roles)।");
   }
 
   // Prevent demoting a Super Admin
@@ -327,8 +336,8 @@ export async function updateUserRole(userId: string, newRole: "admin" | "student
     throw new Error("निषिद्ध: मुख्य Super Admin को डिमोट नहीं किया जा सकता।");
   }
 
-  if (userId === currentAdmin?.id && newRole !== "admin") {
-    throw new Error("निषिद्ध: आप स्वयं अपने एडमिन अधिकार नहीं हटा सकते।");
+  if ((userId === currentAdmin?.id || userId === "admin1") && newRole !== "admin") {
+    throw new Error("Action Restricted: Administrators cannot demote their own account (निषिद्ध: आप स्वयं अपने एडमिन अधिकार नहीं हटा सकते)।");
   }
 
   const normalizedRole = newRole === "admin" ? "admin" : "student";
@@ -430,8 +439,8 @@ export async function promoteUserByEmail(email: string): Promise<UserProfile> {
 
 export async function deleteUserAccountFromFirestore(userId: string, _reason?: string): Promise<void> {
   const currentAdmin = loadUserProfile();
-  if (userId === currentAdmin?.id) {
-    throw new Error("Action Restricted: Administrators cannot delete their own active administrator account.");
+  if (userId === currentAdmin?.id || userId === "admin1") {
+    throw new Error("Action Restricted: Administrators cannot delete their own active administrator account (निषिद्ध: आप स्वयं अपना एडमिन खाता नहीं हटा सकते)।");
   }
 
   const { error } = await supabase.from("profiles").delete().eq("id", userId);

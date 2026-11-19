@@ -8,7 +8,7 @@ import {
   mergeQuestionsIntoStore,
   bulkDeleteQuestions,
 } from "../../utils/questionsStorage";
-import { openLocalDatabase, idbPut, idbPutBatch, idbDelete, STORES } from "../../utils/localDatabaseEngine";
+import { openLocalDatabase, idbPut, idbPutBatch, idbDelete, idbDeleteBatch, STORES } from "../../utils/localDatabaseEngine";
 
 const IMPORTED_HASH_REGISTRY_KEY = "disha2020_imported_q_hashes_v1";
 const LEGACY_IMPORTED_HASH_REGISTRY_KEY = "quizpro_imported_q_hashes_v1";
@@ -274,9 +274,7 @@ export const undoImportBatch = async (batchId: string): Promise<UndoBatchResult>
       saveUserQuestionsStore(updatedStore);
 
       await openLocalDatabase();
-      for (const id of questionIds) {
-        await idbDelete(STORES.MCQS, id);
-      }
+      await idbDeleteBatch(STORES.MCQS, questionIds);
     }
 
     return {

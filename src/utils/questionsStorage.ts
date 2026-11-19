@@ -485,22 +485,27 @@ export function saveUserQuestionsStore(store: UserQuestionsStore): void {
 
   try {
     dispatchStoreUpdated(store);
+    // For localStorage: keep curriculum metadata lean and cap questions cache to avoid QuotaExceededError
+    // IndexedDB above already persists the complete unconstrained set of questions
+    const maxLocalQuestions = 150;
+    const storeForLocalStorage = {
+      ...cleanStore,
+      cloudCacheQuestions: (cleanStore.cloudCacheQuestions || []).slice(0, maxLocalQuestions).map(q => {
+        const copy: any = { ...q };
+        if (copy.imageUrl && typeof copy.imageUrl === "string" && copy.imageUrl.length > 25 * 1024) {
+          delete copy.imageUrl;
+        }
+        if (copy.image && typeof copy.image === "object" && copy.image.dataUrl && copy.image.dataUrl.length > 25 * 1024) {
+          copy.image = { ...copy.image, dataUrl: "" };
+        }
+        return copy as Question;
+      }),
+    };
+
     safeSetLocalStorageItem(
       USER_QUESTIONS_KEY,
-      JSON.stringify(cleanStore),
-      () => {
-        const leanCache = (cleanStore.cloudCacheQuestions || []).map(q => {
-          const copy: any = { ...q };
-          if (copy.imageUrl && typeof copy.imageUrl === "string" && copy.imageUrl.length > 50 * 1024) {
-            delete copy.imageUrl;
-          }
-          if (copy.image && typeof copy.image === "object" && copy.image.dataUrl && copy.image.dataUrl.length > 50 * 1024) {
-            copy.image = { ...copy.image, dataUrl: "" };
-          }
-          return copy as Question;
-        });
-        return JSON.stringify({ ...cleanStore, cloudCacheQuestions: leanCache });
-      }
+      JSON.stringify(storeForLocalStorage),
+      () => JSON.stringify({ ...cleanStore, cloudCacheQuestions: [] })
     );
     recordLocalChange();
   } catch (e) {

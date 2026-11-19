@@ -99,9 +99,8 @@ export function loadUserProfile(): UserProfile | null {
       ...parsed,
     };
 
-    // Ensure profile always has a valid UUID format for PostgreSQL compatibility
-    const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-    if (!profile.id || !UUID_REGEX.test(profile.id)) {
+    // Ensure profile has an ID; for anonymous guests or unassigned IDs, provide a persistent UUID
+    if (!profile.id || profile.id === "student_default") {
       profile.id = generatePersistentGuestUUID();
       try {
         safeSetLocalStorageItem(USER_PROFILE_KEY, JSON.stringify(profile));
@@ -157,16 +156,18 @@ export function clearUserProfile(): void {
 }
 
 export function isUserAdmin(profileOrRole?: UserProfile | string | null): boolean {
+  if (profileOrRole === undefined) {
+    const stored = loadUserProfile();
+    return Boolean(stored && (isSuperAdmin(stored) || stored.role === "admin"));
+  }
   if (!profileOrRole) return false;
   const normalize = (s: string) => s.trim().toLowerCase();
 
-  // 1. If passed a string (email or UID or "admin")
+  // 1. If passed a string (email or UID or role string)
   if (typeof profileOrRole === "string") {
     const cleaned = normalize(profileOrRole);
     if (cleaned === "admin") return true;
     if (isSuperAdmin(cleaned)) return true;
-    
-    // Check if stored local profile matches
     try {
       const stored = loadUserProfile();
       if (stored?.role === "admin") {
@@ -183,12 +184,6 @@ export function isUserAdmin(profileOrRole?: UserProfile | string | null): boolea
     if (profileOrRole.role === "admin") return true;
     return false;
   }
-
-  // 3. Fallback: check stored local profile
-  try {
-    const stored = loadUserProfile();
-    if (stored && (isSuperAdmin(stored) || stored.role === "admin")) return true;
-  } catch {}
 
   return false;
 }

@@ -121,7 +121,6 @@ export function isTestOrMockId(id?: string | null): boolean {
   }
 
   if (
-    trimmed === "sub_raj_hist" ||
     trimmed === "chap_raj_sources" ||
     trimmed === "chap_raj_1857" ||
     trimmed === "top_inscriptions" ||
@@ -154,7 +153,7 @@ export function isTestOrMockId(id?: string | null): boolean {
     return true;
   }
 
-  if (lower === "subj_general_hindi" || lower === "subj_raj_polity" || lower === "sub_raj_hist") {
+  if (lower === "subj_general_hindi" || lower === "subj_raj_polity") {
     return true;
   }
 

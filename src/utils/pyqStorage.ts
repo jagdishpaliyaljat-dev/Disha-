@@ -235,10 +235,16 @@ export async function fetchPYQPapers(): Promise<PYQPaper[]> {
 
       if (!error && Array.isArray(data)) {
         const cloudPapers = data.map(mapRowToPYQPaper).filter((p) => !deletedIds.has(p.id));
-        if (cloudPapers.length > 0 || data.length === 0) {
-          saveLocalPYQPapers(cloudPapers);
-          return cloudPapers;
+        const mergedMap = new Map<string, PYQPaper>();
+        for (const lp of localList) {
+          if (!deletedIds.has(lp.id)) mergedMap.set(lp.id, lp);
         }
+        for (const cp of cloudPapers) {
+          mergedMap.set(cp.id, cp);
+        }
+        const mergedList = Array.from(mergedMap.values());
+        saveLocalPYQPapers(mergedList);
+        return mergedList;
       }
     } catch (err) {
       console.warn("[PYQStorage] Error fetching PYQ papers from cloud:", err);

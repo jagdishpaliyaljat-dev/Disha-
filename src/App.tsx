@@ -1119,6 +1119,24 @@ export default function App() {
       }, 1000);
     };
 
+    // Supabase Realtime channel to automatically synchronize changes when admin publishes new items
+    let realtimeChannel: any = null;
+    import("./lib/supabase").then(({ supabase, isSupabaseConfigured }) => {
+      if (!isSubscribed || !isSupabaseConfigured() || !supabase) return;
+
+      try {
+        realtimeChannel = supabase
+          .channel("public:curriculum_realtime_stream")
+          .on("postgres_changes", { event: "*", schema: "public", table: "subjects" }, () => handleCurriculumSynced())
+          .on("postgres_changes", { event: "*", schema: "public", table: "chapters" }, () => handleCurriculumSynced())
+          .on("postgres_changes", { event: "*", schema: "public", table: "topics" }, () => handleCurriculumSynced())
+          .on("postgres_changes", { event: "*", schema: "public", table: "questions" }, () => handleCurriculumSynced())
+          .subscribe();
+      } catch (err) {
+        console.warn("[App] Realtime curriculum subscription notice:", err);
+      }
+    }).catch(() => {});
+
     window.addEventListener("disha2020_curriculum_synced", handleCurriculumSynced);
     window.addEventListener("quizpro_curriculum_synced", handleCurriculumSynced);
     return () => {
@@ -1126,6 +1144,11 @@ export default function App() {
       clearTimeout(syncThrottleTimeout);
       window.removeEventListener("disha2020_curriculum_synced", handleCurriculumSynced);
       window.removeEventListener("quizpro_curriculum_synced", handleCurriculumSynced);
+      if (realtimeChannel) {
+        import("./lib/supabase").then(({ supabase }) => {
+          try { supabase.removeChannel(realtimeChannel); } catch {}
+        }).catch(() => {});
+      }
     };
   }, [setQuestionsStore]);
 
