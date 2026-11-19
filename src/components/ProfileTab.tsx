@@ -191,17 +191,17 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
       {/* ─────────────────────────────────────────────────────────────
           1. TOP HERITAGE HEADER & ASPIRANT HERO CARD
       ───────────────────────────────────────────────────────────── */}
-      <header className="px-3.5 sm:px-6 pt-3.5 sm:pt-4 pb-6 sm:pb-8 bg-white dark:bg-[#1F2330] border-b border-[#E8D9C0] dark:border-[#31374A] relative overflow-hidden shrink-0 shadow-xs">
+      <header className="px-3 sm:px-5 pt-3 sm:pt-3.5 pb-4 sm:pb-5 bg-white dark:bg-[#1F2330] border-b border-[#E8D9C0] dark:border-[#31374A] relative overflow-hidden shrink-0 shadow-xs">
         {/* Heritage Royal Strip */}
-        <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-[#800020] via-[#F47B20] to-[#C99A45]" />
+        <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-[#800020] via-[#F47B20] to-[#C99A45]" />
         
         {/* Ambient Glows */}
-        <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-bl from-[#800020]/15 via-[#F47B20]/10 to-transparent rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-20 -left-10 w-60 h-60 bg-[#C99A45]/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-[#800020]/15 via-[#F47B20]/10 to-transparent rounded-full blur-2xl pointer-events-none" />
+        <div className="absolute -bottom-16 -left-8 w-48 h-48 bg-[#C99A45]/15 rounded-full blur-2xl pointer-events-none" />
 
-        <div className="max-w-4xl mx-auto relative z-10 space-y-4">
+        <div className="max-w-4xl mx-auto relative z-10 space-y-3">
           {/* Top Brand Identity Bar */}
-          <div className="flex items-center justify-between gap-2 pb-3 border-b border-[#E8D9C0]/70 dark:border-[#31374A]">
+          <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-[#E8D9C0]/70 dark:border-[#31374A]">
             <AppLogo size="sm" variant="horizontal" showTagline={true} />
             <div className="flex items-center gap-1.5 sm:gap-2">
               <button
@@ -209,17 +209,17 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                   triggerHaptic("light");
                   onUpdateSettings({ darkMode: !settings.darkMode });
                 }}
-                className="h-8 sm:h-9 px-2.5 sm:px-3 rounded-xl bg-[#FFF9EF] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center gap-1.5 text-xs font-black text-[#171923] dark:text-[#FFF9EF] hover:border-[#800020] dark:hover:border-[#C99A45] active:scale-95 transition-all cursor-pointer shadow-2xs"
+                className="h-7.5 sm:h-8.5 px-2.5 sm:px-3 rounded-lg sm:rounded-xl bg-[#FFF9EF] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center gap-1.5 text-[11px] sm:text-xs font-black text-[#171923] dark:text-[#FFF9EF] hover:border-[#800020] dark:hover:border-[#C99A45] active:scale-95 transition-all cursor-pointer shadow-2xs"
                 aria-label="Toggle Theme"
               >
                 {settings.darkMode ? (
                   <>
-                    <Sun size={14} className="text-[#C99A45]" />
+                    <Sun size={13} className="text-[#C99A45]" />
                     <span className="hidden sm:inline">Light</span>
                   </>
                 ) : (
                   <>
-                    <Moon size={14} className="text-[#800020]" />
+                    <Moon size={13} className="text-[#800020]" />
                     <span className="hidden sm:inline">Dark</span>
                   </>
                 )}
@@ -229,28 +229,28 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                   triggerHaptic("light");
                   setShowSettingsModal(true);
                 }}
-                className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center text-[#800020] dark:text-[#C99A45] shadow-2xs hover:border-[#800020] dark:hover:border-[#C99A45] active:scale-90 transition-all cursor-pointer"
+                className="w-7.5 h-7.5 sm:w-8.5 sm:h-8.5 rounded-lg sm:rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center text-[#800020] dark:text-[#C99A45] shadow-2xs hover:border-[#800020] dark:hover:border-[#C99A45] active:scale-90 transition-all cursor-pointer"
                 aria-label="App Settings"
                 title="App Settings"
               >
-                <Settings size={16} />
+                <Settings size={15} />
               </button>
             </div>
           </div>
 
-          {/* Aspirant Hero Card */}
+          {/* Aspirant Hero Card (20% More Compact) */}
           <motion.div
-            initial={{ opacity: 0, y: 8 }}
+            initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 bg-gradient-to-b from-[#FFF9EF] to-white dark:from-[#171923] dark:to-[#1F2330] p-4 sm:p-5 rounded-3xl border border-[#E8D9C0] dark:border-[#31374A] shadow-sm relative overflow-hidden"
+            className="flex flex-col sm:flex-row items-center sm:items-start gap-3 sm:gap-4.5 bg-gradient-to-b from-[#FFF9EF] to-white dark:from-[#171923] dark:to-[#1F2330] p-3 sm:p-4 rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] shadow-xs relative overflow-hidden"
           >
             {/* Royal Corner Accent */}
-            <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-[#C99A45]/15 to-transparent rounded-bl-full pointer-events-none" />
+            <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-[#C99A45]/15 to-transparent rounded-bl-full pointer-events-none" />
 
             {/* Avatar with Triple-Hue Royal Ring */}
             <div className="relative shrink-0">
-              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl p-1 bg-gradient-to-tr from-[#800020] via-[#F47B20] to-[#C99A45] shadow-md">
-                <div className="w-full h-full rounded-[22px] border-2 border-white dark:border-[#1F2330] overflow-hidden bg-[#FFF9EF] dark:bg-[#171923] flex items-center justify-center">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl p-0.5 sm:p-1 bg-gradient-to-tr from-[#800020] via-[#F47B20] to-[#C99A45] shadow-sm">
+                <div className="w-full h-full rounded-[14px] sm:rounded-[18px] border border-white dark:border-[#1F2330] overflow-hidden bg-[#FFF9EF] dark:bg-[#171923] flex items-center justify-center">
                   {activeProfile?.photoURL ? (
                     <img
                       src={activeProfile.photoURL}
@@ -275,60 +275,60 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                   triggerHaptic("light");
                   setShowEditProfileModal(true);
                 }}
-                className="absolute -bottom-1.5 -right-1.5 w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-gradient-to-r from-[#800020] to-[#5E0017] dark:from-[#F47B20] dark:to-[#E06A14] text-white flex items-center justify-center shadow-md border-2 border-white dark:border-[#1F2330] active:scale-90 transition-transform cursor-pointer"
+                className="absolute -bottom-1 -right-1 w-6 h-6 sm:w-6.5 sm:h-6.5 rounded-lg bg-gradient-to-r from-[#800020] to-[#5E0017] dark:from-[#F47B20] dark:to-[#E06A14] text-white flex items-center justify-center shadow-sm border border-white dark:border-[#1F2330] active:scale-90 transition-transform cursor-pointer"
                 aria-label="Edit Profile"
                 title="Edit Profile"
               >
-                <Edit2 size={12} />
+                <Edit2 size={10} />
               </button>
             </div>
 
             {/* Aspirant Details */}
-            <div className="flex-1 text-center sm:text-left min-w-0 space-y-2">
+            <div className="flex-1 text-center sm:text-left min-w-0 space-y-1.5">
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-1.5">
                 {isAdmin ? (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-[#C99A45]/20 to-[#C99A45]/30 text-[#800020] dark:text-[#C99A45] border border-[#C99A45]/40 text-[10px] font-black uppercase tracking-wider">
-                    <Crown size={11} className="text-[#C99A45]" />
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-[#C99A45]/20 to-[#C99A45]/30 text-[#800020] dark:text-[#C99A45] border border-[#C99A45]/40 text-[9px] font-black uppercase tracking-wider">
+                    <Crown size={10} className="text-[#C99A45]" />
                     <span>Admin</span>
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] border border-[#800020]/20 dark:border-[#F47B20]/30 text-[10px] font-black uppercase tracking-wider">
-                    <Award size={11} />
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] border border-[#800020]/20 dark:border-[#F47B20]/30 text-[9px] font-black uppercase tracking-wider">
+                    <Award size={10} />
                     <span>Aspirant</span>
                   </span>
                 )}
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#F7EFE2] dark:bg-[#252A3A] text-slate-700 dark:text-[#E8D9C0] text-[10px] font-black border border-[#E8D9C0] dark:border-[#31374A]">
-                  <Zap size={10} className="text-[#C99A45]" />
+                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-[#F7EFE2] dark:bg-[#252A3A] text-slate-700 dark:text-[#E8D9C0] text-[9px] font-black border border-[#E8D9C0] dark:border-[#31374A]">
+                  <Zap size={9} className="text-[#C99A45]" />
                   <span>LVL {currentLevel}</span>
                 </span>
               </div>
 
               <div>
-                <h2 className="text-lg sm:text-2xl font-black text-[#171923] dark:text-[#FFF9EF] tracking-tight truncate leading-tight">
+                <h2 className="text-base sm:text-xl font-black text-[#171923] dark:text-[#FFF9EF] tracking-tight truncate leading-tight">
                   {userName}
                 </h2>
                 {activeProfile?.email && (
-                  <div className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-500 dark:text-[#E8D9C0]/70 mt-0.5">
-                    <Mail size={11} />
+                  <div className="inline-flex items-center gap-1 text-[10px] font-semibold text-slate-500 dark:text-[#E8D9C0]/70 mt-0.5">
+                    <Mail size={10} />
                     <span className="truncate">{activeProfile.email}</span>
-                    <CheckCircle2 size={11} className="text-emerald-500 shrink-0" />
+                    <CheckCircle2 size={10} className="text-emerald-500 shrink-0" />
                   </div>
                 )}
               </div>
 
               {/* Target Exam Badge */}
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] text-xs font-black text-[#800020] dark:text-[#C99A45] shadow-2xs">
-                <Target size={13} className="text-[#F47B20]" />
+              <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-white dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] text-[11px] font-black text-[#800020] dark:text-[#C99A45] shadow-2xs">
+                <Target size={11} className="text-[#F47B20]" />
                 <span className="truncate">{activeProfile?.targetExam || "RPSC RAS Pre & Competitive Exams"}</span>
               </div>
 
               {/* Level & XP Progress Bar */}
-              <div className="pt-1 max-w-sm mx-auto sm:mx-0">
-                <div className="flex items-center justify-between text-[10px] font-bold text-slate-500 dark:text-[#E8D9C0]/80 mb-1">
+              <div className="pt-0.5 max-w-xs mx-auto sm:mx-0">
+                <div className="flex items-center justify-between text-[9px] font-bold text-slate-500 dark:text-[#E8D9C0]/80 mb-0.5">
                   <span>Level {currentLevel}</span>
                   <span className="font-mono">{remainingForNextLevel} Qs to Next Level</span>
                 </div>
-                <div className="w-full h-2 rounded-full bg-[#E8D9C0]/60 dark:bg-[#31374A] overflow-hidden">
+                <div className="w-full h-1.5 rounded-full bg-[#E8D9C0]/60 dark:bg-[#31374A] overflow-hidden">
                   <div
                     className="h-full rounded-full bg-gradient-to-r from-[#800020] via-[#F47B20] to-[#C99A45] transition-all duration-500"
                     style={{ width: `${levelProgressPercent}%` }}
@@ -337,13 +337,13 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
               </div>
 
               {/* CTA Buttons */}
-              <div className="pt-1 flex flex-wrap items-center justify-center sm:justify-start gap-2">
+              <div className="pt-0.5 flex flex-wrap items-center justify-center sm:justify-start gap-1.5">
                 {!isAuthenticated ? (
                   <button
                     onClick={onOpenLogin}
-                    className="px-4 py-2 bg-gradient-to-r from-[#800020] via-[#5E0017] to-[#800020] hover:opacity-95 text-white rounded-xl text-xs font-black shadow-md border border-[#C99A45]/30 transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer"
+                    className="px-3.5 py-1.5 bg-gradient-to-r from-[#800020] via-[#5E0017] to-[#800020] hover:opacity-95 text-white rounded-lg sm:rounded-xl text-[11px] font-black shadow-sm border border-[#C99A45]/30 transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer"
                   >
-                    <LogIn size={13} />
+                    <LogIn size={11} />
                     <span>Sign In with Google</span>
                   </button>
                 ) : (
@@ -352,9 +352,9 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                       triggerHaptic("light");
                       setShowEditProfileModal(true);
                     }}
-                    className="px-3.5 py-1.5 bg-[#FFF9EF] dark:bg-[#252A3A] hover:border-[#800020] dark:hover:border-[#C99A45] text-[#171923] dark:text-[#FFF9EF] border border-[#E8D9C0] dark:border-[#31374A] rounded-xl text-xs font-black transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                    className="px-3 py-1 bg-[#FFF9EF] dark:bg-[#252A3A] hover:border-[#800020] dark:hover:border-[#C99A45] text-[#171923] dark:text-[#FFF9EF] border border-[#E8D9C0] dark:border-[#31374A] rounded-lg sm:rounded-xl text-[11px] font-black transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer shadow-2xs"
                   >
-                    <Edit2 size={12} className="text-[#800020] dark:text-[#C99A45]" />
+                    <Edit2 size={11} className="text-[#800020] dark:text-[#C99A45]" />
                     <span>Edit Profile</span>
                   </button>
                 )}
