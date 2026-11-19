@@ -716,9 +716,19 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
               <span>Start Battle ({players.length} Players)</span>
             </button>
             {!canStart ? (
-              <p className="text-center text-xs text-stone-500 mt-2">
-                Need at least 1 more player or tap + Add Bot to launch.
-              </p>
+              <div className="mt-2.5 flex flex-col items-center gap-1.5">
+                <p className="text-center text-xs text-stone-500">
+                  Waiting for a friend to join, or add an AI opponent to test immediately:
+                </p>
+                <button
+                  type="button"
+                  onClick={onAddBot}
+                  className="px-4 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs flex items-center gap-1.5 shadow-2xs transition active:scale-95 cursor-pointer"
+                >
+                  <Bot className="w-3.5 h-3.5" />
+                  <span>+ Add AI Opponent & Play Now</span>
+                </button>
+              </div>
             ) : (
               <p className="text-center text-[11px] text-stone-500 mt-1.5">
                 {roomConfig.timePerQuestionSec || 10}s per question • {roomConfig.questionCount} questions • {readyCount}/{players.length} ready

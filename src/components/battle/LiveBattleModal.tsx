@@ -136,9 +136,12 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
   const roundTimerRef = useRef<NodeJS.Timeout | null>(null);
   const revealTimerRef = useRef<NodeJS.Timeout | null>(null);
   const botAnswerTimersRef = useRef<{ [botId: string]: NodeJS.Timeout }>({});
+  const joinRetryTimerRef = useRef<NodeJS.Timeout | null>(null);
   const roundStartTimeRef = useRef<number>(Date.now());
   const playersRef = useRef<BattlePlayer[]>(players);
   playersRef.current = players;
+  const roomConfigRef = useRef<BattleRoomConfig>(roomConfig);
+  roomConfigRef.current = roomConfig;
 
   const isHost = roomConfig.hostId === myPlayerId;
 
@@ -156,10 +159,13 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
               return [...prev, newPlayer];
             });
             // If I am the host, broadcast ROOM_STATE_SYNC so new players who join via link receive settings
-            if (managerRef.current) {
+            if (managerRef.current && (roomConfigRef.current.hostId === myPlayerId || isHost)) {
+              const currentList = playersRef.current.some((p) => p.id === newPlayer.id)
+                ? playersRef.current
+                : [...playersRef.current, newPlayer];
               managerRef.current.broadcastEvent("ROOM_STATE_SYNC", {
-                config: roomConfig,
-                players: [...players, newPlayer],
+                config: roomConfigRef.current,
+                players: currentList,
               });
             }
           }
@@ -168,7 +174,15 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
 
         case "ROOM_STATE_SYNC": {
           const { config: syncedConfig, players: syncedPlayers } = event.payload;
-          if (syncedConfig) setRoomConfig(syncedConfig);
+          if (syncedConfig) {
+            setRoomConfig(syncedConfig);
+            roomConfigRef.current = syncedConfig;
+            // Stop join retry interval once host responds
+            if (joinRetryTimerRef.current) {
+              clearInterval(joinRetryTimerRef.current);
+              joinRetryTimerRef.current = null;
+            }
+          }
           if (Array.isArray(syncedPlayers)) {
             setPlayers((prev) => {
               const map = new Map<string, BattlePlayer>();
@@ -312,6 +326,10 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
       }
       if (roundTimerRef.current) clearInterval(roundTimerRef.current);
       if (revealTimerRef.current) clearTimeout(revealTimerRef.current);
+      if (joinRetryTimerRef.current) {
+        clearInterval(joinRetryTimerRef.current);
+        joinRetryTimerRef.current = null;
+      }
       Object.values(botAnswerTimersRef.current).forEach((t) => clearTimeout(t));
       botAnswerTimersRef.current = {};
     };
@@ -447,9 +465,25 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
     manager.connect();
     managerRef.current = manager;
 
-    setTimeout(() => {
-      manager.broadcastEvent("JOIN", { player: joinerPlayer });
-    }, 500);
+    // Broadcast JOIN event immediately (queued if subscription in progress)
+    manager.broadcastEvent("JOIN", { player: joinerPlayer });
+
+    // Retry JOIN every 1200ms up to 5 times until roomConfig hostId is synced
+    if (joinRetryTimerRef.current) clearInterval(joinRetryTimerRef.current);
+    let attempts = 0;
+    joinRetryTimerRef.current = setInterval(() => {
+      attempts++;
+      if (attempts >= 6 || (roomConfigRef.current && roomConfigRef.current.hostId)) {
+        if (joinRetryTimerRef.current) {
+          clearInterval(joinRetryTimerRef.current);
+          joinRetryTimerRef.current = null;
+        }
+        return;
+      }
+      if (managerRef.current) {
+        managerRef.current.broadcastEvent("JOIN", { player: joinerPlayer });
+      }
+    }, 1200);
 
     setPhase("lobby");
   };

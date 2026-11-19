@@ -30,6 +30,7 @@ import {
   LiveBattleRoomRecord,
   BattleAnalyticsSummary,
   getBattleAnalyticsSummary,
+  fetchLiveBattleAnalyticsSummary,
   initGlobalBattleMonitor,
   clearBattleHistory,
   trackBattleRoomCreated,
@@ -54,17 +55,24 @@ export const LiveBattleDashboard: React.FC<LiveBattleDashboardProps> = () => {
   const [activeSubTab, setActiveSubTab] = useState<"live" | "history" | "analytics">("live");
   const [lastRefreshedAt, setLastRefreshedAt] = useState<Date>(new Date());
 
-  // Function to refresh metrics
-  const refreshData = useCallback(() => {
+  // Function to refresh metrics from Supabase Cloud
+  const refreshData = useCallback(async () => {
     setIsRefreshing(true);
     try {
-      const data = getBattleAnalyticsSummary();
+      const data = await fetchLiveBattleAnalyticsSummary();
       setSummary(data);
       setLastRefreshedAt(new Date());
+    } catch {
+      setSummary(getBattleAnalyticsSummary());
     } finally {
-      setTimeout(() => setIsRefreshing(false), 400);
+      setTimeout(() => setIsRefreshing(false), 300);
     }
   }, []);
+
+  // Fetch initial cloud data on mount
+  useEffect(() => {
+    refreshData();
+  }, [refreshData]);
 
   // Connect to global Realtime battle monitor
   useEffect(() => {

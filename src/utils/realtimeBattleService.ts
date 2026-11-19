@@ -642,14 +642,17 @@ export function getBattleQuestions(
     }
   }
 
-  let pool: BattleQuestion[] = [...filteredFallback];
-  if (allCombinedQuestions.length > 0) {
-    pool = [...pool, ...allCombinedQuestions];
+  // Fallback if pool is empty
+  if (pool.length === 0) {
+    pool = [...FALLBACK_BATTLE_QUESTIONS];
   }
 
   // Ensure enough questions in pool
-  while (pool.length < count && pool.length > 0) {
-    pool = [...pool, ...pool.map((q) => ({ ...q, id: `${q.id}_c` }))];
+  let cycles = 0;
+  while (pool.length < count && pool.length > 0 && cycles < 10) {
+    cycles++;
+    const cloned = pool.map((q, idx) => ({ ...q, id: `${q.id}_c${cycles}_${idx}` }));
+    pool = [...pool, ...cloned];
   }
 
   const shuffled = shuffleArray(pool);
@@ -717,6 +720,7 @@ export class RealtimeBattleManager {
   private onEventCallback: (event: BattleEventMessage) => void;
   private onPresenceCallback?: (players: BattlePlayer[]) => void;
   private isConnected: boolean = false;
+  private outgoingQueue: BattleEventMessage[] = [];
 
   constructor(
     roomCode: string,
@@ -770,10 +774,25 @@ export class RealtimeBattleManager {
       });
     }
 
-    // Subscribe and track self
+    // Subscribe and track self + flush queued events
     this.channel.subscribe(async (status: string) => {
       if (status === "SUBSCRIBED") {
         this.isConnected = true;
+        // Flush any events that were queued before connection established
+        while (this.outgoingQueue.length > 0) {
+          const queued = this.outgoingQueue.shift();
+          if (queued && this.channel) {
+            try {
+              await this.channel.send({
+                type: "broadcast",
+                event: "battle_event",
+                payload: queued,
+              });
+            } catch (e) {
+              console.warn("Failed to broadcast queued battle event:", e);
+            }
+          }
+        }
         try {
           await this.channel.track({
             player: this.myPlayer,
@@ -809,6 +828,9 @@ export class RealtimeBattleManager {
       } catch (err) {
         console.warn("Failed to broadcast battle event:", err);
       }
+    } else {
+      // Queue event so it broadcasts as soon as channel is SUBSCRIBED
+      this.outgoingQueue.push(eventMessage);
     }
   }
 
@@ -829,6 +851,7 @@ export class RealtimeBattleManager {
 
   // Leave room and unsubscribe
   public disconnect(): void {
+    this.outgoingQueue = [];
     if (this.channel) {
       try {
         this.channel.unsubscribe();

@@ -34,6 +34,7 @@ import {
   recordAIUsage,
   AIUsageRecord,
   AIUsageSummary,
+  fetchLiveAIUsageSummary,
 } from "../../utils/aiUsageTracker";
 import { getActiveAICredentials } from "../../utils/aiTutorService";
 import { executeAICompletion } from "../../utils/aiProviderService";
@@ -42,6 +43,7 @@ import { triggerHaptic, playClickSound } from "../../utils/audioFeedback";
 export const DishaAIDashboard: React.FC = () => {
   const [timeframe, setTimeframe] = useState<"today" | "7days" | "30days" | "all">("7days");
   const [summary, setSummary] = useState<AIUsageSummary>(() => getAIUsageSummary("7days"));
+  const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedLog, setSelectedLog] = useState<AIUsageRecord | null>(null);
   const [isTestingLive, setIsTestingLive] = useState(false);
@@ -55,9 +57,18 @@ export const DishaAIDashboard: React.FC = () => {
   } | null>(null);
   const [copiedNotification, setCopiedNotification] = useState(false);
 
-  // Refresh summary when timeframe changes
-  const refreshData = () => {
-    setSummary(getAIUsageSummary(timeframe));
+  // Refresh summary when timeframe changes or manually clicked
+  const refreshData = async () => {
+    setIsLoading(true);
+    try {
+      const liveSummary = await fetchLiveAIUsageSummary(timeframe);
+      setSummary(liveSummary);
+    } catch (err) {
+      console.warn("Failed to fetch live AI telemetry from Supabase, fallback to local:", err);
+      setSummary(getAIUsageSummary(timeframe));
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -148,7 +159,7 @@ export const DishaAIDashboard: React.FC = () => {
   // Handle CSV Export
   const handleExportCsv = () => {
     triggerHaptic("light");
-    exportAITelemetryCsv(getAIUsageRecords(timeframe));
+    exportAITelemetryCsv(summary.recentLogs.length > 0 ? summary.recentLogs : getAIUsageRecords(timeframe));
   };
 
   // Handle Clear Logs
@@ -220,7 +231,7 @@ export const DishaAIDashboard: React.FC = () => {
             className="w-9 h-9 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 text-slate-600 dark:text-slate-300 flex items-center justify-center transition-all active:scale-95 cursor-pointer shadow-2xs"
             title="Refresh Telemetry"
           >
-            <RefreshCw className="w-4 h-4" />
+            <RefreshCw className={`w-4 h-4 ${isLoading ? "animate-spin text-[#800020]" : ""}`} />
           </button>
 
           {/* Export CSV */}

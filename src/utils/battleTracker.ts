@@ -276,6 +276,39 @@ async function broadcastRoomEvent(record: LiveBattleRoomRecord): Promise<void> {
 }
 
 /**
+ * Asynchronously persist battle room state to Supabase Cloud
+ */
+async function syncBattleRecordToCloud(record: LiveBattleRoomRecord): Promise<void> {
+  if (!isSupabaseConfigured()) return;
+  try {
+    await supabase.from("battle_telemetry").upsert({
+      id: record.id,
+      room_code: record.roomCode,
+      host_id: record.hostId,
+      host_name: record.hostName,
+      host_avatar: record.hostAvatar,
+      status: record.status,
+      question_count: record.questionCount,
+      time_per_question_sec: record.timePerQuestionSec,
+      category: record.category,
+      active_player_count: record.activePlayerCount,
+      total_player_count: record.totalPlayerCount,
+      players: record.players,
+      winner_name: record.winnerName || null,
+      winner_score: record.winnerScore || null,
+      winner_avatar: record.winnerAvatar || null,
+      winner_accuracy: record.winnerAccuracy || null,
+      created_at: record.createdAt,
+      started_at: record.startedAt || null,
+      ended_at: record.endedAt || null,
+      last_heartbeat: record.lastHeartbeat || Date.now(),
+    });
+  } catch (err) {
+    console.warn("Failed to sync battle room to Supabase:", err);
+  }
+}
+
+/**
  * Track room created (called when host creates a room)
  */
 export function trackBattleRoomCreated(params: {
@@ -314,6 +347,7 @@ export function trackBattleRoomCreated(params: {
   const updated = [newRecord, ...filtered];
   saveStoredBattleRecords(updated);
   broadcastRoomEvent(newRecord);
+  syncBattleRecordToCloud(newRecord);
 
   // Broadcast presence ping
   try {
@@ -364,6 +398,7 @@ export function trackBattleRoomStarted(
   const updated = current.map((r) => (r.roomCode === roomCode ? updatedRoom : r));
   saveStoredBattleRecords(updated);
   broadcastRoomEvent(updatedRoom);
+  syncBattleRecordToCloud(updatedRoom);
 }
 
 /**
@@ -396,6 +431,7 @@ export function trackBattleRoomHeartbeat(
 
   const updated = current.map((r) => (r.roomCode === roomCode ? updatedRoom : r));
   saveStoredBattleRecords(updated);
+  syncBattleRecordToCloud(updatedRoom);
 }
 
 /**
@@ -441,6 +477,7 @@ export function trackBattleRoomEnded(
   const updated = current.map((r) => (r.roomCode === roomCode ? updatedRoom : r));
   saveStoredBattleRecords(updated);
   broadcastRoomEvent(updatedRoom);
+  syncBattleRecordToCloud(updatedRoom);
 }
 
 /**
@@ -461,13 +498,13 @@ export function trackBattleRoomAbandoned(roomCode: string): void {
   const updated = current.map((r) => (r.roomCode === roomCode ? updatedRoom : r));
   saveStoredBattleRecords(updated);
   broadcastRoomEvent(updatedRoom);
+  syncBattleRecordToCloud(updatedRoom);
 }
 
 /**
- * Compute real-time analytics summary for the Admin Panel
+ * Compute real-time analytics summary from records array
  */
-export function getBattleAnalyticsSummary(): BattleAnalyticsSummary {
-  const records = loadStoredBattleRecords();
+export function computeBattleSummaryFromRecords(records: LiveBattleRoomRecord[]): BattleAnalyticsSummary {
   const now = Date.now();
   const LIVE_TIMEOUT_MS = 60 * 1000; // Room considered live if heartbeat received in last 60s
 
@@ -549,6 +586,68 @@ export function getBattleAnalyticsSummary(): BattleAnalyticsSummary {
     recentBattles: records.slice(0, 50),
     activeLiveRooms,
   };
+}
+
+/**
+ * Compute real-time analytics summary from localStorage
+ */
+export function getBattleAnalyticsSummary(): BattleAnalyticsSummary {
+  const records = loadStoredBattleRecords();
+  return computeBattleSummaryFromRecords(records);
+}
+
+/**
+ * Fetch live battle analytics directly from Supabase Cloud table
+ */
+export async function fetchLiveBattleAnalyticsSummary(): Promise<BattleAnalyticsSummary> {
+  if (isSupabaseConfigured()) {
+    try {
+      const { data, error } = await supabase
+        .from("battle_telemetry")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(100);
+
+      if (!error && Array.isArray(data) && data.length > 0) {
+        const cloudRecords: LiveBattleRoomRecord[] = data.map((r: any) => ({
+          id: r.id,
+          roomCode: r.room_code,
+          hostId: r.host_id || "",
+          hostName: r.host_name || "Host",
+          hostAvatar: r.host_avatar || "👑",
+          status: r.status || "completed",
+          questionCount: r.question_count || 30,
+          timePerQuestionSec: r.time_per_question_sec || 10,
+          category: r.category || "all",
+          activePlayerCount: r.active_player_count || 0,
+          totalPlayerCount: r.total_player_count || (Array.isArray(r.players) ? r.players.length : 1),
+          players: Array.isArray(r.players) ? r.players : [],
+          winnerName: r.winner_name || undefined,
+          winnerScore: r.winner_score || undefined,
+          winnerAvatar: r.winner_avatar || undefined,
+          winnerAccuracy: r.winner_accuracy || undefined,
+          createdAt: r.created_at || new Date().toISOString(),
+          startedAt: r.started_at || undefined,
+          endedAt: r.ended_at || undefined,
+          lastHeartbeat: typeof r.last_heartbeat === "number" ? r.last_heartbeat : (r.created_at ? new Date(r.created_at).getTime() : Date.now()),
+        }));
+
+        const localRecords = loadStoredBattleRecords();
+        const mergedMap = new Map<string, LiveBattleRoomRecord>();
+        localRecords.forEach((lr) => mergedMap.set(lr.id, lr));
+        cloudRecords.forEach((cr) => mergedMap.set(cr.id, cr));
+
+        const allRecords = Array.from(mergedMap.values()).sort(
+          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+        saveStoredBattleRecords(allRecords);
+        return computeBattleSummaryFromRecords(allRecords);
+      }
+    } catch (err) {
+      console.warn("fetchLiveBattleAnalyticsSummary error, fallback to local:", err);
+    }
+  }
+  return getBattleAnalyticsSummary();
 }
 
 /**

@@ -161,7 +161,7 @@ export function mapRowToUserProfile(row: any): UserProfile {
     streakDays: row.streak_days || 0,
     loginCount: 1,
     createdAt: row.created_at || new Date().toISOString(),
-    lastLoginAt: row.updated_at || row.created_at || new Date().toISOString(),
+    lastLoginAt: row.last_sign_in_at || row.last_login_at || row.updated_at || row.created_at || new Date().toISOString(),
   };
 }
 
@@ -173,23 +173,6 @@ export function mapRowToUserProfile(row: any): UserProfile {
  * classic "load more returns page 1 again" bug.
  */
 export async function fetchRegisteredUsers(lastDoc?: any, pageSize = 50): Promise<{ users: UserProfile[]; lastVisible: any; hasMore: boolean }> {
-  let profile = loadUserProfile();
-  let isAdmin = isUserAdmin(profile);
-
-  if (!isAdmin) {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const email = (session?.user?.email || "").trim().toLowerCase();
-      if (email && (ADMIN_EMAILS.includes(email) || ADMIN_UIDS.includes(session?.user?.id || ""))) {
-        isAdmin = true;
-      }
-    } catch {}
-  }
-
-  if (!isAdmin) {
-    return { users: getLocalUsersDirectory(), lastVisible: null, hasMore: false };
-  }
-
   const safePageSize = Math.max(1, Math.floor(pageSize));
   const offset = typeof lastDoc === "number"
     ? Math.max(0, lastDoc)

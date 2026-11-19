@@ -1,4 +1,5 @@
 import { loadUserProfile } from "./userProfileStorage";
+import { supabase, isSupabaseConfigured } from "../lib/supabase";
 
 export interface AIUsageRecord {
   id: string;
@@ -238,6 +239,42 @@ export function recordAIUsage(record: {
     console.warn("[aiUsageTracker] Failed to save log:", err);
   }
 
+  // Asynchronously sync to Supabase Cloud ai_telemetry table
+  if (isSupabaseConfigured()) {
+    try {
+      supabase
+        .from("ai_telemetry")
+        .insert({
+          id: newLog.id,
+          user_id: newLog.userId,
+          user_name: newLog.userName,
+          provider: newLog.provider,
+          model: newLog.model,
+          query_type: newLog.queryType,
+          input_messages: newLog.inputMessages,
+          output_messages: newLog.outputMessages,
+          input_chars: newLog.inputChars,
+          output_chars: newLog.outputChars,
+          input_tokens: newLog.inputTokens,
+          output_tokens: newLog.outputTokens,
+          total_tokens: newLog.totalTokens,
+          latency_ms: newLog.latencyMs,
+          status: newLog.status,
+          error_message: newLog.errorMessage || null,
+          prompt_snippet: newLog.promptSnippet,
+          response_snippet: newLog.responseSnippet,
+          estimated_cost_usd: newLog.estimatedCostUsd,
+          created_at: newLog.timestamp,
+        })
+        .then(({ error }) => {
+          if (error) console.warn("[aiUsageTracker] Supabase note:", error.message);
+        })
+        .catch(() => {});
+    } catch {
+      // Ignore background telemetry push errors
+    }
+  }
+
   return newLog;
 }
 
@@ -427,6 +464,226 @@ export function clearAIUsageRecords(): void {
       localStorage.removeItem(STORAGE_KEY);
     }
   } catch {}
+}
+
+/**
+ * Fetch live AI usage summary directly from Supabase Cloud telemetry table
+ */
+export async function fetchLiveAIUsageSummary(
+  timeframe: "today" | "7days" | "30days" | "all" = "all"
+): Promise<AIUsageSummary> {
+  if (isSupabaseConfigured()) {
+    try {
+      let query = supabase
+        .from("ai_telemetry")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(500);
+
+      const now = new Date();
+      if (timeframe === "today") {
+        const cutoff = new Date();
+        cutoff.setHours(0, 0, 0, 0);
+        query = query.gte("created_at", cutoff.toISOString());
+      } else if (timeframe === "7days") {
+        const cutoff = new Date();
+        cutoff.setDate(now.getDate() - 7);
+        query = query.gte("created_at", cutoff.toISOString());
+      } else if (timeframe === "30days") {
+        const cutoff = new Date();
+        cutoff.setDate(now.getDate() - 30);
+        query = query.gte("created_at", cutoff.toISOString());
+      }
+
+      const { data, error } = await query;
+      if (!error && Array.isArray(data) && data.length > 0) {
+        const cloudLogs: AIUsageRecord[] = data.map((r: any) => ({
+          id: r.id,
+          timestamp: r.created_at,
+          userId: r.user_id || "anonymous",
+          userName: r.user_name || "Student",
+          provider: r.provider || "gemini",
+          model: r.model || "gemini-3.5-flash-lite",
+          queryType: r.query_type || "doubt",
+          inputMessages: r.input_messages || 1,
+          outputMessages: r.output_messages || 1,
+          inputChars: r.input_chars || 0,
+          outputChars: r.output_chars || 0,
+          inputTokens: r.input_tokens || 0,
+          outputTokens: r.output_tokens || 0,
+          totalTokens: r.total_tokens || 0,
+          latencyMs: r.latency_ms || 0,
+          status: r.status || "success",
+          errorMessage: r.error_message || undefined,
+          promptSnippet: r.prompt_snippet || "",
+          responseSnippet: r.response_snippet || "",
+          estimatedCostUsd: Number(r.estimated_cost_usd) || 0,
+        }));
+
+        // Merge with local logs to prevent missing any offline records
+        const local = loadRawLogs();
+        const cloudIds = new Set(cloudLogs.map((l) => l.id));
+        const merged = [...cloudLogs, ...local.filter((l) => !cloudIds.has(l.id))];
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(merged.slice(0, 500)));
+        } catch {}
+        return computeSummaryFromLogs(merged, timeframe);
+      }
+    } catch (err) {
+      console.warn("[aiUsageTracker] Cloud fetch note:", err);
+    }
+  }
+  return getAIUsageSummary(timeframe);
+}
+
+function computeSummaryFromLogs(
+  logs: AIUsageRecord[],
+  timeframe: "today" | "7days" | "30days" | "all"
+): AIUsageSummary {
+  let filteredLogs = logs;
+  if (timeframe !== "all") {
+    const now = new Date();
+    let cutoff = new Date();
+    if (timeframe === "today") {
+      cutoff.setHours(0, 0, 0, 0);
+    } else if (timeframe === "7days") {
+      cutoff.setDate(now.getDate() - 7);
+    } else if (timeframe === "30days") {
+      cutoff.setDate(now.getDate() - 30);
+    }
+    filteredLogs = logs.filter((l) => new Date(l.timestamp) >= cutoff);
+  }
+
+  let totalInputMessages = 0;
+  let totalOutputMessages = 0;
+  let totalInputTokens = 0;
+  let totalOutputTokens = 0;
+  let totalLatency = 0;
+  let totalCostUsd = 0;
+  let successCount = 0;
+  let errorCount = 0;
+
+  const modelBreakdown: AIUsageSummary["modelBreakdown"] = {};
+  const providerBreakdown: AIUsageSummary["providerBreakdown"] = {};
+  const queryTypeBreakdown: AIUsageSummary["queryTypeBreakdown"] = {};
+  const dailyMap = new Map<
+    string,
+    {
+      inputTokens: number;
+      outputTokens: number;
+      totalTokens: number;
+      inputMessages: number;
+      outputMessages: number;
+      costUsd: number;
+    }
+  >();
+
+  filteredLogs.forEach((log) => {
+    totalInputMessages += log.inputMessages || 1;
+    totalOutputMessages += log.outputMessages || (log.status === "success" ? 1 : 0);
+    totalInputTokens += log.inputTokens || 0;
+    totalOutputTokens += log.outputTokens || 0;
+    totalLatency += log.latencyMs || 0;
+    totalCostUsd += log.estimatedCostUsd || 0;
+
+    if (log.status === "success") {
+      successCount++;
+    } else {
+      errorCount++;
+    }
+
+    const m = log.model || "gemini-3.5-flash-lite";
+    if (!modelBreakdown[m]) {
+      modelBreakdown[m] = { count: 0, inputTokens: 0, outputTokens: 0, totalTokens: 0, costUsd: 0 };
+    }
+    modelBreakdown[m].count++;
+    modelBreakdown[m].inputTokens += log.inputTokens || 0;
+    modelBreakdown[m].outputTokens += log.outputTokens || 0;
+    modelBreakdown[m].totalTokens += log.totalTokens || 0;
+    modelBreakdown[m].costUsd += log.estimatedCostUsd || 0;
+
+    const p = log.provider || "gemini";
+    if (!providerBreakdown[p]) {
+      providerBreakdown[p] = { count: 0, totalTokens: 0 };
+    }
+    providerBreakdown[p].count++;
+    providerBreakdown[p].totalTokens += log.totalTokens || 0;
+
+    const qt = log.queryType || "doubt";
+    if (!queryTypeBreakdown[qt]) {
+      queryTypeBreakdown[qt] = { count: 0, totalTokens: 0 };
+    }
+    queryTypeBreakdown[qt].count++;
+    queryTypeBreakdown[qt].totalTokens += log.totalTokens || 0;
+
+    const dateStr = log.timestamp.split("T")[0] || "Today";
+    if (!dailyMap.has(dateStr)) {
+      dailyMap.set(dateStr, {
+        inputTokens: 0,
+        outputTokens: 0,
+        totalTokens: 0,
+        inputMessages: 0,
+        outputMessages: 0,
+        costUsd: 0,
+      });
+    }
+    const d = dailyMap.get(dateStr)!;
+    d.inputTokens += log.inputTokens || 0;
+    d.outputTokens += log.outputTokens || 0;
+    d.totalTokens += log.totalTokens || 0;
+    d.inputMessages += log.inputMessages || 1;
+    d.outputMessages += log.outputMessages || (log.status === "success" ? 1 : 0);
+    d.costUsd += log.estimatedCostUsd || 0;
+  });
+
+  const totalTokens = totalInputTokens + totalOutputTokens;
+  const totalCalls = filteredLogs.length;
+  const avgLatencyMs = totalCalls > 0 ? Math.round(totalLatency / totalCalls) : 0;
+  const successRate = totalCalls > 0 ? Number(((successCount / totalCalls) * 100).toFixed(1)) : 100;
+  const totalCostInr = Number((totalCostUsd * USD_TO_INR).toFixed(2));
+
+  let activeModel = "gemini-3.5-flash-lite";
+  let maxModelCount = -1;
+  Object.entries(modelBreakdown).forEach(([mName, val]) => {
+    if (val.count > maxModelCount) {
+      maxModelCount = val.count;
+      activeModel = mName;
+    }
+  });
+
+  const dailyHistory = Array.from(dailyMap.entries())
+    .map(([date, val]) => {
+      const parts = date.split("-");
+      const displayDate = parts.length === 3 ? `${parts[2]}/${parts[1]}` : date;
+      return {
+        date,
+        displayDate,
+        ...val,
+      };
+    })
+    .sort((a, b) => a.date.localeCompare(b.date));
+
+  return {
+    totalInputMessages,
+    totalOutputMessages,
+    totalMessages: totalInputMessages + totalOutputMessages,
+    totalInputTokens,
+    totalOutputTokens,
+    totalTokens,
+    totalCostUsd: Number(totalCostUsd.toFixed(4)),
+    totalCostInr,
+    avgLatencyMs,
+    successCount,
+    errorCount,
+    successRate,
+    activeModel,
+    activeProvider: "gemini",
+    modelBreakdown,
+    providerBreakdown,
+    queryTypeBreakdown,
+    dailyHistory,
+    recentLogs: filteredLogs.slice(0, 50),
+  };
 }
 
 /**

@@ -9,12 +9,16 @@ const USER_PROFILE_KEY = "economic_survey_user_profile_v1";
 
 export const ADMIN_EMAILS = [
   "jagdishpaliyaljat@gmail.com",
+  "jagdishpaliyaljat2003@gmail.com",
   "zdpaliyal@gmail.com",
   "kamleshchoudhary96022@gmail.com",
   "disha2020prep@gmail.com",
 ];
 
-export const ADMIN_UIDS: string[] = [];
+export const ADMIN_UIDS: string[] = [
+  "9a821db5-5257-42b2-af8a-7f9369b7937f",
+  "62971883-2873-4134-852d-8fe17b22c0a7",
+];
 
 export const DEFAULT_USER_PROFILE: UserProfile = {
   id: "student_default",
@@ -45,10 +49,11 @@ export function loadUserProfile(): UserProfile | null {
       ...parsed,
     };
     
-    // Check hardcoded super admins
+    // Check super admins
     const isActuallyAdmin = Boolean(
       (profile.email && ADMIN_EMAILS.includes(profile.email.trim().toLowerCase())) || 
-      (profile.id && ADMIN_UIDS.includes(profile.id))
+      (profile.id && ADMIN_UIDS.includes(profile.id)) ||
+      parsed.role === "admin"
     );
     
     if (isActuallyAdmin) {
@@ -109,10 +114,11 @@ export function isUserAdmin(profileOrRole?: UserProfile | string | null): boolea
     const email = profileOrRole.email ? normalize(profileOrRole.email) : null;
     if (email && ADMIN_EMAILS.includes(email)) return true;
     if (profileOrRole.id && ADMIN_UIDS.includes(profileOrRole.id)) return true;
+    if (profileOrRole.role === "admin") return true;
     return false;
   }
 
-  // 3. Fallback: check stored local profile by verified email/UID only (never trust client role string)
+  // 3. Fallback: check stored local profile
   try {
     const stored = loadUserProfile();
     if (stored?.email) {
@@ -120,6 +126,7 @@ export function isUserAdmin(profileOrRole?: UserProfile | string | null): boolea
       if (ADMIN_EMAILS.includes(email)) return true;
     }
     if (stored?.id && ADMIN_UIDS.includes(stored.id)) return true;
+    if (stored?.role === "admin") return true;
   } catch {}
 
   return false;
