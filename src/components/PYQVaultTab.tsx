@@ -217,15 +217,21 @@ export const PYQVaultTab: React.FC<PYQVaultTabProps> = ({
     }
   };
 
-  // Handler to Export PDF
+  // Handler to Export or View PDF
   const handleExportPDF = (paper: PYQPaper) => {
+    triggerHaptic("light");
+    playClickSound();
+
+    if (paper.pdfUrl) {
+      window.open(paper.pdfUrl, "_blank", "noopener,noreferrer");
+      return;
+    }
+
     const rawList = Array.isArray(paper.questions) ? paper.questions : [];
     if (rawList.length === 0) {
       alert("No questions available in this paper for PDF export.");
       return;
     }
-    triggerHaptic("light");
-    playClickSound();
 
     const sanitized = rawList.map((q: any, idx: number) => ({
       ...q,

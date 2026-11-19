@@ -91,7 +91,7 @@ export async function syncCurriculumAuthoritative(options?: { force?: boolean })
     try {
       const qSubs = supabase.from("subjects").select("id, name, hindi_name, description, icon, color, order_index").order("order_index", { ascending: true });
       const qChaps = supabase.from("chapters").select("id, subject_id, name, hindi_name, order_index").order("order_index", { ascending: true });
-      const qTops = supabase.from("topics").select("id, chapter_id, subject_id, name, hindi_name, order_index").order("order_index", { ascending: true });
+      const qTops = supabase.from("topics").select("id, chapter_id, subject_id, name, hindi_name, order_index, video_url, video_duration, video_title, pdf_url, pdf_title, guide_summary").order("order_index", { ascending: true });
       // Bounded initial question seed (supports full question bank ingestion)
       const qQuestionsBuilder = supabase.from("questions").select("id, question, options, correct_answer, explanation, subject_id, chapter_id, topic_id, exam, year, level, created_at");
       const qQuestions = typeof (qQuestionsBuilder as any)?.limit === 'function' ? (qQuestionsBuilder as any).limit(5000) : qQuestionsBuilder;
@@ -260,6 +260,12 @@ export async function syncCurriculumAuthoritative(options?: { force?: boolean })
           questionCount: topicQuestionCounts[t.id] || 0,
           questions: [],
           isUserAdded: false,
+          videoUrl: t.video_url || undefined,
+          videoDuration: t.video_duration || undefined,
+          videoTitle: t.video_title || undefined,
+          pdfUrl: t.pdf_url || undefined,
+          pdfTitle: t.pdf_title || undefined,
+          guideSummary: t.guide_summary || undefined,
         });
         result.topicsCount++;
       }
@@ -363,7 +369,7 @@ export async function fetchFullAuthoritativeCurriculum(options?: { force?: boole
       const [sRes, cRes, tRes, qRes] = await Promise.all([
         supabase.from("subjects").select("id,name,hindi_name,description,icon,color,order_index").order("order_index", { ascending: true }),
         supabase.from("chapters").select("id,subject_id,name,hindi_name,order_index").order("order_index", { ascending: true }),
-        supabase.from("topics").select("id,chapter_id,subject_id,name,hindi_name,order_index").order("order_index", { ascending: true }),
+        supabase.from("topics").select("id,chapter_id,subject_id,name,hindi_name,order_index,video_url,video_duration,video_title,pdf_url,pdf_title,guide_summary").order("order_index", { ascending: true }),
         supabase.from("questions").select("id,question,options,correct_answer,explanation,subject_id,chapter_id,topic_id,exam,year,level,created_at").order("created_at", { ascending: false }).limit(1000),
       ]);
       if (sRes.data && sRes.data.length > 0) {
@@ -398,6 +404,12 @@ export async function fetchFullAuthoritativeCurriculum(options?: { force?: boole
           questionCount: 0,
           questions: [],
           isUserAdded: false,
+          videoUrl: t.video_url || undefined,
+          videoDuration: t.video_duration || undefined,
+          videoTitle: t.video_title || undefined,
+          pdfUrl: t.pdf_url || undefined,
+          pdfTitle: t.pdf_title || undefined,
+          guideSummary: t.guide_summary || undefined,
         }));
         const directQs: Question[] = (qRes.data || []).map(q => ({
           id: q.id,
