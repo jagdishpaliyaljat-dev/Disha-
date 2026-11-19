@@ -170,7 +170,7 @@ export const MapQuizRunner: React.FC<MapQuizRunnerProps> = ({
             Map Quiz Complete! 🏆
           </h3>
           <p className="text-[11px] text-[#52576A] dark:text-[#929AB0]">
-            Rajasthan 50 Districts Geography Scorecard
+            Rajasthan 41 Districts Geography Scorecard
           </p>
         </div>
 

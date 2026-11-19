@@ -19,8 +19,8 @@ import {
  * test MCQs, mock data, sample quizzes, and stress-test artifacts.
  */
 
-const CLEAN_SLATE_VERSION_KEY = "disha2020_clean_slate_zero_mock_v8_0";
-const CURRENT_CLEAN_SLATE_VERSION = "8.0.0";
+const CLEAN_SLATE_VERSION_KEY = "disha2020_clean_slate_zero_mock_v9_0";
+const CURRENT_CLEAN_SLATE_VERSION = "9.0.0";
 
 // Only legacy mock/sample array keys — NEVER reset genuine student progress, bookmarks, or auth
 const KEYS_TO_RESET_TO_EMPTY = [
@@ -112,12 +112,25 @@ export function isTestOrMockId(id?: string | null): boolean {
     trimmed.startsWith("reg_test_") ||
     trimmed.startsWith("reg_") ||
     trimmed.startsWith("usr-q-custom-topic-1794149994193-jxf0o-") ||
-    trimmed.startsWith("usr-q-gen-")
+    trimmed.startsWith("usr-q-gen-") ||
+    trimmed.startsWith("q_pilot_") ||
+    trimmed.startsWith("usr-q-topic_c60f80e6") ||
+    trimmed.startsWith("usr-q-topic_7eef8754")
   ) {
     return true;
   }
 
   if (
+    trimmed === "sub_raj_hist" ||
+    trimmed === "chap_raj_sources" ||
+    trimmed === "chap_raj_1857" ||
+    trimmed === "top_inscriptions" ||
+    trimmed === "top_coins" ||
+    trimmed === "top_cantonments" ||
+    trimmed === "top_auwa" ||
+    trimmed === "topic_c60f80e6-a72b-4b8c-9740-75aa1fb73126" ||
+    trimmed === "topic_7eef8754-fc32-47cd-8140-65c144f2183e" ||
+    trimmed === "custom-topic-1794931449581-8mm21" ||
     trimmed === "subj-1794149966275-03yvv" ||
     trimmed === "custom-ch-1794149979635-03auk" ||
     trimmed === "custom-topic-1794149994193-jxf0o" ||
@@ -141,7 +154,7 @@ export function isTestOrMockId(id?: string | null): boolean {
     return true;
   }
 
-  if (lower === "subj_general_hindi" || lower === "subj_raj_polity") {
+  if (lower === "subj_general_hindi" || lower === "subj_raj_polity" || lower === "sub_raj_hist") {
     return true;
   }
 
@@ -514,7 +527,7 @@ export function ensureCleanSlateOnStartup(): void {
 
     // Mark clean slate version as applied
     localStorage.setItem(CLEAN_SLATE_VERSION_KEY, CURRENT_CLEAN_SLATE_VERSION);
-    console.log("[CleanSlate] 8.0.0 applied successfully: Zero-mock clean slate verified.");
+    console.log("[CleanSlate] 9.0.0 applied successfully: Zero-mock clean slate verified.");
   } catch (e) {
     console.error("[CleanSlate] Startup verification failed:", e);
   }

@@ -495,7 +495,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
                   <span className="text-xs sm:text-sm font-black tracking-tight text-white flex items-center gap-1">
-                    <span>राजस्थान नया नक्शा (50 ज़िले व 10 संभाग)</span>
+                    <span>राजस्थान नया नक्शा (41 ज़िले व 7 संभाग)</span>
                   </span>
                   <span className="px-1.5 py-0.2 rounded-md bg-[#FFF9EF] text-[#800020] text-[9px] font-black uppercase tracking-wider">
                     नया भूगोल 2026

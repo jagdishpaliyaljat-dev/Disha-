@@ -4,7 +4,7 @@ import {
   FolderPlus, PlusCircle, Database, LayoutGrid, Settings, ShieldCheck, 
   Upload, Sparkles, Menu, ChevronRight, ChevronLeft, HardDrive, Activity, Cpu, RefreshCw, Newspaper,
   Trophy, CheckCircle2, ListFilter, ChevronDown, Trash2, AlertCircle, Building2,
-  FileCode, Archive, LogOut, ArrowRight, Timer, FileText, FileSpreadsheet, Home, Bot
+  FileCode, Archive, LogOut, ArrowRight, Timer, FileText, FileSpreadsheet, Home, Bot, Swords
 } from "lucide-react";
 import { Subject, Chapter, UserQuestionsStore, UserProfile } from "../types";
 import { ConfirmDialog } from "./admin/ConfirmDialog";
@@ -66,6 +66,7 @@ const ExcelCsvQuestionImporter = adminSafeLazy<any>(() => import("./admin/ExcelC
 const BulkQuestionDeleteModal = adminSafeLazy<any>(() => import("./admin/BulkQuestionDeleteModal"), "BulkQuestionDeleteModal");
 const QuestionReportDesk = adminSafeLazy<any>(() => import("./admin/QuestionReportDesk"), "QuestionReportDesk");
 const MeritListPdfModal = adminSafeLazy<any>(() => import("./admin/MeritListPdfModal"), "MeritListPdfModal");
+const LiveBattleDashboard = adminSafeLazy<any>(() => import("./admin/LiveBattleDashboard"), "LiveBattleDashboard");
 
 interface AdminTabProps {
   userProfile: UserProfile | null;
@@ -127,6 +128,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
   const [subTabUsers, setSubTabUsers] = React.useState<"directory" | "messages" | "reports" | "notifications">("directory");
   const [subTabSupabase, setSubTabSupabase] = React.useState<"overview" | "explorer" | "diagnostics" | "report" | "audit" | "sync">("overview");
   const [subTabAI, setSubTabAI] = React.useState<"dashboard" | "configs">("dashboard");
+  const [subTabTests, setSubTabTests] = React.useState<"mock" | "battle">("mock");
 
   const [selectedUserForDetails, setSelectedUserForDetails] = React.useState<UserProfile | null>(null);
   const [showQATestRunner, setShowQATestRunner] = React.useState(false);
@@ -260,6 +262,45 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
   const [deleteNotification, setDeleteNotification] = React.useState<{ type: "success" | "error"; message: string } | null>(null);
   const [topToast, setTopToast] = React.useState<AdminToastPayload | null>(null);
   const [syllabusViewTab, setSyllabusViewTab] = React.useState<"subjects" | "chapters">("subjects");
+  const [isPullingLiveSupabase, setIsPullingLiveSupabase] = React.useState(false);
+
+  // ── Authoritative Live Sync with Supabase on Admin Tab Mount & Request ──
+  const pullLiveSupabaseData = React.useCallback(async (notify = false) => {
+    try {
+      setIsPullingLiveSupabase(true);
+      const { fetchFullAuthoritativeCurriculum } = await import("../utils/supabaseSyncService");
+      const { subjects, chapters, topics, questions } = await fetchFullAuthoritativeCurriculum({ force: true });
+      if (props.onStoreUpdated && subjects) {
+        props.onStoreUpdated({
+          ...props.questionsStore,
+          customSubjects: subjects,
+          customChapters: chapters,
+          customTopics: topics,
+          cloudCacheQuestions: questions || [],
+        });
+      }
+      if (notify) {
+        triggerAdminToast({
+          message: `Supabase Live Sync: ${subjects?.length || 0} Subjects, ${chapters?.length || 0} Chapters, ${questions?.length || 0} Questions`,
+          type: "success",
+        });
+      }
+    } catch (err: any) {
+      console.warn("[AdminTab] Live Supabase pull note:", err);
+      if (notify) {
+        triggerAdminToast({
+          message: `Supabase Sync Note: ${err?.message || "Using active cache"}`,
+          type: "error",
+        });
+      }
+    } finally {
+      setIsPullingLiveSupabase(false);
+    }
+  }, [props.onStoreUpdated, props.questionsStore]);
+
+  React.useEffect(() => {
+    pullLiveSupabaseData(false);
+  }, []);
 
   React.useEffect(() => {
     const handleToastEvent = (e: Event) => {
@@ -430,6 +471,12 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
       case "live-tests":
       case "pyq":
         setActiveGroup("tests");
+        setSubTabTests("mock");
+        break;
+      case "battle":
+      case "live-battle":
+        setActiveGroup("tests");
+        setSubTabTests("battle");
         break;
       case "users":
         setActiveGroup("users");
@@ -819,9 +866,9 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
 
           <div className="flex items-center gap-1 sm:gap-3 shrink-0">
             <button
-              onClick={handleSyncInit}
-              className={`p-2 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors ${isSyncing ? "animate-spin text-blue-600" : ""}`}
-              title="Cloud Sync"
+              onClick={() => pullLiveSupabaseData(true)}
+              className={`p-2 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer ${isPullingLiveSupabase ? "animate-spin text-blue-600" : ""}`}
+              title="Supabase Live Sync (Pull latest data from Supabase)"
             >
               <RefreshCw className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
             </button>
@@ -1344,160 +1391,233 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
               <div className="space-y-5 sm:space-y-6">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
                   <div className="space-y-0.5">
-                    <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">Exam Series & PYQs</h2>
-                    <p className="text-xs sm:text-sm text-slate-500 font-medium">Historical papers and live mock schedules.</p>
+                    <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">Exam Series & Live Battle</h2>
+                    <p className="text-xs sm:text-sm text-slate-500 font-medium">Historical papers, live mock schedules, and real-time quiz battles.</p>
                   </div>
-                  <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                  <div className="flex items-center p-1 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs self-start sm:self-auto">
                     <button
-                      onClick={() => setShowMeritListModal(true)}
-                      className="px-3.5 py-2 bg-gradient-to-r from-amber-600 via-orange-600 to-amber-700 hover:from-amber-700 hover:to-orange-800 text-white text-xs font-black rounded-xl shadow-md flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
-                      title="Generate official merit list PDF and Telegram / WhatsApp announcement"
+                      onClick={() => setSubTabTests("mock")}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                        subTabTests === "mock"
+                          ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs"
+                          : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                      }`}
                     >
-                      <Trophy className="w-3.5 h-3.5" />
-                      <span>Merit List & Telegram</span>
+                      <Timer className="w-3.5 h-3.5" />
+                      <span>Mock & PYQs</span>
                     </button>
                     <button
-                      onClick={() => setShowCoachingHierarchyModal(true)}
-                      className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
+                      onClick={() => setSubTabTests("battle")}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                        subTabTests === "battle"
+                          ? "bg-gradient-to-r from-amber-600 to-[#800020] text-white shadow-xs font-extrabold"
+                          : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                      }`}
                     >
-                      <Building2 className="w-3.5 h-3.5" />
-                      <span>Coaching Hierarchy</span>
-                    </button>
-                    <button
-                      onClick={props.onShowManagePYQVault}
-                      className="px-3 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
-                    >
-                      <PlusCircle className="w-3.5 h-3.5" />
-                      <span>+ PYQ Paper</span>
-                    </button>
-                    <button
-                      onClick={props.onShowManageLiveTests}
-                      className="px-3 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
-                    >
-                      <PlusCircle className="w-3.5 h-3.5" />
-                      <span>+ Live Test</span>
+                      <Swords className="w-3.5 h-3.5 text-amber-400" />
+                      <span>Live Battle Monitor</span>
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                     </button>
                   </div>
                 </div>
 
-                {/* Responsive Test Management Card Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                  {/* 1. Live Mock Tests Overview Card */}
-                  <div className="bg-white dark:bg-[#111A2E] rounded-3xl p-5 sm:p-6 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between hover:border-rose-300 dark:hover:border-rose-900/50 transition-all group">
-                    <div className="space-y-4">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                          <Timer className="w-5.5 h-5.5 sm:w-6 sm:h-6" />
-                        </div>
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 border border-rose-200/60 dark:border-rose-800/40">
-                          <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
-                          {testsStats.liveActiveCount} Active
-                        </span>
-                      </div>
-
-                      <div>
-                        <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                          Live Mock Tests
-                        </h3>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                          Full-length timed examinations with state percentile scoring, RPSC 5th-option compliance, and live ranks.
-                        </p>
-                      </div>
-
-                      <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs">
-                        <span className="text-slate-500 dark:text-slate-400 font-medium">Total Test Series:</span>
-                        <span className="font-bold text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">
-                          {testsStats.liveTestsTotal} {testsStats.liveTestsTotal === 1 ? "Test" : "Tests"}
-                        </span>
-                      </div>
+                {subTabTests === "battle" ? (
+                  <React.Suspense fallback={<AdminSectionLoader type="cards" title="Loading Live Battle Telemetry..." />}>
+                    <LiveBattleDashboard />
+                  </React.Suspense>
+                ) : (
+                  <>
+                    <div className="flex flex-wrap items-center justify-end gap-1.5 sm:gap-2">
+                      <button
+                        onClick={() => setShowMeritListModal(true)}
+                        className="px-3.5 py-2 bg-gradient-to-r from-amber-600 via-orange-600 to-amber-700 hover:from-amber-700 hover:to-orange-800 text-white text-xs font-black rounded-xl shadow-md flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
+                        title="Generate official merit list PDF and Telegram / WhatsApp announcement"
+                      >
+                        <Trophy className="w-3.5 h-3.5" />
+                        <span>Merit List & Telegram</span>
+                      </button>
+                      <button
+                        onClick={() => setShowCoachingHierarchyModal(true)}
+                        className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
+                      >
+                        <Building2 className="w-3.5 h-3.5" />
+                        <span>Coaching Hierarchy</span>
+                      </button>
+                      <button
+                        onClick={props.onShowManagePYQVault}
+                        className="px-3 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
+                      >
+                        <PlusCircle className="w-3.5 h-3.5" />
+                        <span>+ PYQ Paper</span>
+                      </button>
+                      <button
+                        onClick={props.onShowManageLiveTests}
+                        className="px-3 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
+                      >
+                        <PlusCircle className="w-3.5 h-3.5" />
+                        <span>+ Live Test</span>
+                      </button>
                     </div>
 
-                    <button
-                      onClick={props.onShowManageLiveTests}
-                      className="w-full mt-5 py-2.5 sm:py-3 px-4 bg-rose-600 hover:bg-rose-700 active:scale-98 text-white rounded-2xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer"
-                    >
-                      <span>Manage Live Tests</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
-                  </div>
+                    {/* Responsive Test Management Card Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                      {/* 1. Live Mock Tests Overview Card */}
+                      <div className="bg-white dark:bg-[#111A2E] rounded-3xl p-5 sm:p-6 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between hover:border-rose-300 dark:hover:border-rose-900/50 transition-all group">
+                        <div className="space-y-4">
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                              <Timer className="w-5.5 h-5.5 sm:w-6 sm:h-6" />
+                            </div>
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 border border-rose-200/60 dark:border-rose-800/40">
+                              <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
+                              {testsStats.liveActiveCount} Active
+                            </span>
+                          </div>
 
-                  {/* 2. Previous Year Papers (PYQ Vault) Overview Card */}
-                  <div className="bg-white dark:bg-[#111A2E] rounded-3xl p-5 sm:p-6 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between hover:border-amber-300 dark:hover:border-amber-900/50 transition-all group">
-                    <div className="space-y-4">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                          <FileText className="w-5.5 h-5.5 sm:w-6 sm:h-6" />
+                          <div>
+                            <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                              Live Mock Tests
+                            </h3>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                              Full-length timed examinations with state percentile scoring, RPSC 5th-option compliance, and live ranks.
+                            </p>
+                          </div>
+
+                          <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs">
+                            <span className="text-slate-500 dark:text-slate-400 font-medium">Total Test Series:</span>
+                            <span className="font-bold text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">
+                              {testsStats.liveTestsTotal} {testsStats.liveTestsTotal === 1 ? "Test" : "Tests"}
+                            </span>
+                          </div>
                         </div>
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/40">
-                          <Archive className="w-3.5 h-3.5" />
-                          {testsStats.pyqPapersTotal} Papers
-                        </span>
+
+                        <button
+                          onClick={props.onShowManageLiveTests}
+                          className="w-full mt-5 py-2.5 sm:py-3 px-4 bg-rose-600 hover:bg-rose-700 active:scale-98 text-white rounded-2xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer"
+                        >
+                          <span>Manage Live Tests</span>
+                          <ArrowRight className="w-4 h-4" />
+                        </button>
                       </div>
 
-                      <div>
-                        <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                          PYQ Paper Vault
-                        </h3>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                          Official past question papers indexed by examination, commission, year, and subject with authentic answer keys.
-                        </p>
+                      {/* 2. Previous Year Papers (PYQ Vault) Overview Card */}
+                      <div className="bg-white dark:bg-[#111A2E] rounded-3xl p-5 sm:p-6 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between hover:border-amber-300 dark:hover:border-amber-900/50 transition-all group">
+                        <div className="space-y-4">
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                              <FileText className="w-5.5 h-5.5 sm:w-6 sm:h-6" />
+                            </div>
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/40">
+                              <Archive className="w-3.5 h-3.5" />
+                              {testsStats.pyqPapersTotal} Papers
+                            </span>
+                          </div>
+
+                          <div>
+                            <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                              PYQ Paper Vault
+                            </h3>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                              Official past question papers indexed by examination, commission, year, and subject with authentic answer keys.
+                            </p>
+                          </div>
+
+                          <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs">
+                            <span className="text-slate-500 dark:text-slate-400 font-medium">Archived MCQs:</span>
+                            <span className="font-bold text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">
+                              {testsStats.pyqQuestionsTotal.toLocaleString()} Questions
+                            </span>
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={props.onShowManagePYQVault}
+                          className="w-full mt-5 py-2.5 sm:py-3 px-4 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 active:scale-98 text-white rounded-2xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer"
+                        >
+                          <span>Open PYQ Vault</span>
+                          <ArrowRight className="w-4 h-4" />
+                        </button>
                       </div>
 
-                      <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs">
-                        <span className="text-slate-500 dark:text-slate-400 font-medium">Archived MCQs:</span>
-                        <span className="font-bold text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">
-                          {testsStats.pyqQuestionsTotal.toLocaleString()} Questions
-                        </span>
+                      {/* 3. Live Quiz Battle Arena Card */}
+                      <div className="bg-white dark:bg-[#111A2E] rounded-3xl p-5 sm:p-6 border-2 border-amber-500/40 dark:border-amber-500/30 shadow-xs flex flex-col justify-between hover:border-amber-400 transition-all group">
+                        <div className="space-y-4">
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-amber-400/20 to-[#800020]/20 text-[#800020] dark:text-amber-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                              <Swords className="w-5.5 h-5.5 sm:w-6 sm:h-6" />
+                            </div>
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-black bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/40">
+                              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                              Live Realtime
+                            </span>
+                          </div>
+
+                          <div>
+                            <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                              Live Quiz Battle Telemetry
+                            </h3>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                              सक्रिय बैटल रूम्स, वर्तमान में लाइव खेल रहे छात्र और सम्पूर्ण मैच इतिहास का लाइव मॉनिटर।
+                            </p>
+                          </div>
+
+                          <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs">
+                            <span className="text-slate-500 dark:text-slate-400 font-medium">Realtime Engine:</span>
+                            <span className="font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-md">
+                              Supabase Live Monitor
+                            </span>
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={() => setSubTabTests("battle")}
+                          className="w-full mt-5 py-2.5 sm:py-3 px-4 bg-gradient-to-r from-amber-600 via-[#800020] to-rose-700 hover:brightness-110 active:scale-98 text-white rounded-2xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer"
+                        >
+                          <span>Open Battle Telemetry</span>
+                          <ArrowRight className="w-4 h-4" />
+                        </button>
+                      </div>
+
+                      {/* 4. Coaching Hierarchy & Batches Overview Card */}
+                      <div className="bg-white dark:bg-[#111A2E] rounded-3xl p-5 sm:p-6 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between hover:border-blue-300 dark:hover:border-blue-900/50 transition-all group">
+                        <div className="space-y-4">
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                              <Building2 className="w-5.5 h-5.5 sm:w-6 sm:h-6" />
+                            </div>
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200/60 dark:border-blue-800/40">
+                              Multi-Tenant
+                            </span>
+                          </div>
+
+                          <div>
+                            <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                              Coaching & Batches
+                            </h3>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                              Manage coaching partner institutions, branch centers, and private batches to restrict exclusive test schedules.
+                            </p>
+                          </div>
+
+                          <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs">
+                            <span className="text-slate-500 dark:text-slate-400 font-medium">Access Control:</span>
+                            <span className="font-bold text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">
+                              Batch Gated
+                            </span>
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={() => setShowCoachingHierarchyModal(true)}
+                          className="w-full mt-5 py-2.5 sm:py-3 px-4 bg-blue-600 hover:bg-blue-700 active:scale-98 text-white rounded-2xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer"
+                        >
+                          <span>Configure Hierarchy</span>
+                          <ArrowRight className="w-4 h-4" />
+                        </button>
                       </div>
                     </div>
-
-                    <button
-                      onClick={props.onShowManagePYQVault}
-                      className="w-full mt-5 py-2.5 sm:py-3 px-4 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 active:scale-98 text-white rounded-2xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer"
-                    >
-                      <span>Open PYQ Vault</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
-                  </div>
-
-                  {/* 3. Coaching Hierarchy & Batches Overview Card */}
-                  <div className="bg-white dark:bg-[#111A2E] rounded-3xl p-5 sm:p-6 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between hover:border-blue-300 dark:hover:border-blue-900/50 transition-all group">
-                    <div className="space-y-4">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                          <Building2 className="w-5.5 h-5.5 sm:w-6 sm:h-6" />
-                        </div>
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200/60 dark:border-blue-800/40">
-                          Multi-Tenant
-                        </span>
-                      </div>
-
-                      <div>
-                        <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                          Coaching & Batches
-                        </h3>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                          Manage coaching partner institutions, branch centers, and private batches to restrict exclusive test schedules.
-                        </p>
-                      </div>
-
-                      <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs">
-                        <span className="text-slate-500 dark:text-slate-400 font-medium">Access Control:</span>
-                        <span className="font-bold text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">
-                          Batch Gated
-                        </span>
-                      </div>
-                    </div>
-
-                    <button
-                      onClick={() => setShowCoachingHierarchyModal(true)}
-                      className="w-full mt-5 py-2.5 sm:py-3 px-4 bg-blue-600 hover:bg-blue-700 active:scale-98 text-white rounded-2xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer"
-                    >
-                      <span>Configure Hierarchy</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
+                  </>
+                )}
               </div>
             )}
 

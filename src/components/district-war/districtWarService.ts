@@ -1,4 +1,8 @@
-import { RAJASTHAN_50_DISTRICTS, RAJASTHAN_DISTRICTS_LIST } from "../rajasthan-map/data/districtsData";
+import {
+  RAJASTHAN_41_DISTRICTS,
+  RAJASTHAN_DISTRICTS_LIST,
+  SCRAPPED_DISTRICTS_MAPPING,
+} from "../rajasthan-map/data/districtsData";
 import { DistrictWarScore, WarLeagueTab, DistrictWarEvent, UserDistrictAffiliation } from "./types";
 import { triggerHaptic, playSuccessSound } from "../../utils/audioFeedback";
 
@@ -7,7 +11,7 @@ const USER_POINTS_KEY = "disha_user_district_points";
 const WAR_SCORES_KEY = "disha_district_war_scores_v2";
 const WAR_EVENTS_KEY = "disha_district_war_events_v2";
 
-// Baseline seeds to ensure instant, vibrant competition across all 50 districts
+// Baseline seeds to ensure instant, vibrant competition across all 41 districts
 const INITIAL_BASELINE_WEIGHTS: Record<string, { points: number; warriors: number }> = {
   sikar: { points: 54200, warriors: 1420 },
   jodhpur: { points: 51850, warriors: 1390 },
@@ -28,21 +32,12 @@ const INITIAL_BASELINE_WEIGHTS: Record<string, { points: number; warriors: numbe
   bhilwara: { points: 28300, warriors: 710 },
   didwana_kuchaman: { points: 27900, warriors: 680 },
   beawar: { points: 26500, warriors: 650 },
-  anupgarh: { points: 25800, warriors: 480 }, // high efficiency
   balotra: { points: 25100, warriors: 510 },
   phalodi: { points: 24600, warriors: 490 },
-  neem_ka_thana: { points: 24200, warriors: 530 },
   kotputli_behror: { points: 23800, warriors: 560 },
   deeg: { points: 22900, warriors: 470 },
-  dudu: { points: 22400, warriors: 380 }, // top efficiency (avg points per warrior)
   khairthal_tijara: { points: 21800, warriors: 460 },
-  sanchor: { points: 21200, warriors: 410 },
   salumbar: { points: 20600, warriors: 390 },
-  shahpura: { points: 19800, warriors: 400 },
-  gangapur_city: { points: 19400, warriors: 420 },
-  kekri: { points: 18900, warriors: 390 },
-  jodhpur_rural: { points: 18200, warriors: 450 },
-  jaipur_rural: { points: 17900, warriors: 470 },
   dausa: { points: 17400, warriors: 440 },
   tonk: { points: 16800, warriors: 420 },
   sawai_madhopur: { points: 16200, warriors: 410 },
@@ -83,7 +78,14 @@ export const districtWarService = {
   // ================= USER DISTRICT AFFILIATION =================
   getUserHomeDistrict(): string | null {
     try {
-      return localStorage.getItem(USER_DISTRICT_KEY);
+      const saved = localStorage.getItem(USER_DISTRICT_KEY);
+      if (!saved) return null;
+      if (SCRAPPED_DISTRICTS_MAPPING[saved]) {
+        const remapped = SCRAPPED_DISTRICTS_MAPPING[saved];
+        localStorage.setItem(USER_DISTRICT_KEY, remapped);
+        return remapped;
+      }
+      return saved;
     } catch {
       return null;
     }
@@ -105,7 +107,7 @@ export const districtWarService = {
   getUserContribution(): UserDistrictAffiliation | null {
     const districtId = this.getUserHomeDistrict();
     if (!districtId) return null;
-    const district = RAJASTHAN_50_DISTRICTS[districtId];
+    const district = RAJASTHAN_41_DISTRICTS[districtId];
     if (!district) return null;
 
     let points = 50;
@@ -161,7 +163,7 @@ export const districtWarService = {
   getDistrictRank(districtId: string, league: WarLeagueTab = "total"): number {
     const board = this.getLeaderboard(league);
     const found = board.find((b) => b.districtId === districtId);
-    return found ? found.rank : 50;
+    return found ? found.rank : 41;
   },
 
   getTopThree(league: WarLeagueTab = "total"): DistrictWarScore[] {
@@ -174,7 +176,7 @@ export const districtWarService = {
     const districtId = this.getUserHomeDistrict();
     if (!districtId) return;
 
-    const district = RAJASTHAN_50_DISTRICTS[districtId];
+    const district = RAJASTHAN_41_DISTRICTS[districtId];
     if (!district) return;
 
     // 1. Update District Score
@@ -234,7 +236,7 @@ export const districtWarService = {
         districtNameHindi: "Nagaur",
         warriorName: "Rakesh Bishnoi",
         pointsEarned: 20,
-        actionText: "Solved Rajasthan 50-District Map Quiz with 100% accuracy",
+        actionText: "Solved Rajasthan 41-District Map Quiz with 100% accuracy",
         timestamp: Date.now() - 1000 * 60 * 5,
       },
       {
@@ -248,8 +250,8 @@ export const districtWarService = {
       },
       {
         id: "e4",
-        districtId: "dudu",
-        districtNameHindi: "Dudu",
+        districtId: "balotra",
+        districtNameHindi: "Balotra",
         warriorName: "Suresh Verma",
         pointsEarned: 30,
         actionText: "Scored 20/20 in REET PYQ Test",
@@ -270,14 +272,14 @@ export const districtWarService = {
   // ================= VIRAL WHATSAPP SHARE GENERATOR =================
   getWhatsAppShareUrl(targetDistrictId?: string): string {
     const districtId = targetDistrictId || this.getUserHomeDistrict() || "sikar";
-    const district = RAJASTHAN_50_DISTRICTS[districtId];
+    const district = RAJASTHAN_41_DISTRICTS[districtId];
     const distName = district ? (district.nameEnglish || district.nameHindi) : "Rajasthan";
     const rank = this.getDistrictRank(districtId, "total");
 
     let message = "";
     if (rank <= 3) {
       message = `👑 *Proud Moment! Our ${distName} district is currently ranked #${rank} in Rajasthan!* 🚩\n\n` +
-        `⚔️ *The ${distName} army is leading in Disha 20-20's 'Rajasthan 50 District War'!*\n\n` +
+        `⚔️ *The ${distName} army is leading in Disha 20-20's 'Rajasthan 41 District War'!*\n\n` +
         `Join now, practice tests, and keep our district at #1:\n` +
         `👉 https://disha2020.app/war?district=${districtId}\n\n` +
         `#Disha2020 #${distName}Warriors #RajasthanGK`;

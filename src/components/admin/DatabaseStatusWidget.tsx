@@ -44,8 +44,8 @@ export const DatabaseStatusWidget: React.FC<DatabaseStatusWidgetProps> = ({
           supabase.from("subjects").select("*", { count: "exact", head: true }),
           supabase.from("chapters").select("*", { count: "exact", head: true }),
           supabase.from("topics").select("*", { count: "exact", head: true }),
-          supabase.from("questions").select("*", { count: "exact", head: true }).not("topic_id", "is", null),
-          supabase.from("questions").select("*", { count: "exact", head: true }).not("year", "is", null).not("topic_id", "is", null),
+          supabase.from("questions").select("*", { count: "exact", head: true }),
+          supabase.from("questions").select("*", { count: "exact", head: true }).not("year", "is", null),
         ]);
 
         const getCount = (res: PromiseSettledResult<any>) => {
@@ -59,16 +59,7 @@ export const DatabaseStatusWidget: React.FC<DatabaseStatusWidgetProps> = ({
         const cCount = getCount(chapRes);
         const tCount = getCount(topRes);
         const qCount = getCount(qRes);
-        let pCount = getCount(pyqRes);
-
-        // Also check if any dedicated local PYQ papers have additional archived questions
-        try {
-          const localPapers = loadLocalPYQPapers();
-          const localPaperQuestions = localPapers.reduce((sum, p) => sum + (p.questions?.length || 0), 0);
-          if (localPaperQuestions > (pCount || 0)) {
-            pCount = localPaperQuestions;
-          }
-        } catch {}
+        const pCount = getCount(pyqRes);
 
         if (sCount !== null || cCount !== null || tCount !== null || qCount !== null) {
           resolvedCounts = {

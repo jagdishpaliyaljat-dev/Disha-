@@ -151,6 +151,15 @@ export async function syncCurriculumAuthoritative(options?: { force?: boolean })
           updatedAt: q.created_at,
         });
       }
+      // Authoritative Reconcile MCQs: Prune any local MCQs not present on server or marked as mock
+      const serverQuestionIds = new Set(serverQuestions.map((q: any) => q.id));
+      const localMCQs = await idbGetAll<any>(STORES.MCQS);
+      for (const q of localMCQs) {
+        if (!q || !q.id || !serverQuestionIds.has(q.id) || deletedQSet.has(q.id) || (typeof q.id === "string" && (q.id.startsWith("q_pilot_") || q.id.startsWith("usr-q-topic_c60f80e6") || q.id.startsWith("usr-q-topic_7eef8754")))) {
+          await idbDelete(STORES.MCQS, q.id);
+        }
+      }
+
       if (mcqsToBatch.length > 0) {
         await idbPutBatch(STORES.MCQS, mcqsToBatch);
       }
@@ -162,20 +171,14 @@ export async function syncCurriculumAuthoritative(options?: { force?: boolean })
       // 1. Reconcile Subjects
       const localSubjects = await idbGetAll<Subject>(STORES.SUBJECTS);
       for (const s of localSubjects) {
-        const isUserItem = s.isUserAdded === true || String(s.id).startsWith("subj-");
-        const isQATest = s.id.startsWith('qa-') || s.id.startsWith('qa_');
-        if (isUserItem || isQATest) {
-          result.preservedDrafts++;
-          continue; // NEVER delete user-added subjects!
-        }
-        if (!serverSubjIds.has(s.id) || deletedSubSet.has(s.id)) {
+        if (!serverSubjIds.has(s.id) || deletedSubSet.has(s.id) || s.id === "sub_raj_hist") {
           await idbDelete(STORES.SUBJECTS, s.id);
           result.prunedSubjects++;
         }
       }
       const subjectsToBatch: Subject[] = [];
       for (const s of serverSubjects) {
-        if (deletedSubSet.has(s.id)) continue; // Respect local deletion
+        if (deletedSubSet.has(s.id) || s.id === "sub_raj_hist") continue; // Respect local deletion
         subjectsToBatch.push({
           id: s.id,
           name: s.name,
@@ -196,20 +199,14 @@ export async function syncCurriculumAuthoritative(options?: { force?: boolean })
       // 2. Reconcile Chapters
       const localChapters = await idbGetAll<Chapter>(STORES.CHAPTERS);
       for (const c of localChapters) {
-        const isUserItem = c.isUserAdded === true || String(c.id).startsWith("custom-ch-");
-        const isQATest = c.id.startsWith('qa-') || c.id.startsWith('qa_');
-        if (isUserItem || isQATest) {
-          result.preservedDrafts++;
-          continue; // NEVER delete user-added chapters!
-        }
-        if (!serverChapIds.has(c.id) || deletedChapSet.has(c.id)) {
+        if (!serverChapIds.has(c.id) || deletedChapSet.has(c.id) || c.id === "chap_raj_sources" || c.id === "chap_raj_1857") {
           await idbDelete(STORES.CHAPTERS, c.id);
           result.prunedChapters++;
         }
       }
       const chaptersToBatch: Chapter[] = [];
       for (const c of serverChapters) {
-        if (deletedChapSet.has(c.id)) continue; // Respect local deletion
+        if (deletedChapSet.has(c.id) || c.id === "chap_raj_sources" || c.id === "chap_raj_1857") continue; // Respect local deletion
         chaptersToBatch.push({
           id: c.id,
           subjectId: c.subject_id,
@@ -229,13 +226,7 @@ export async function syncCurriculumAuthoritative(options?: { force?: boolean })
       // 3. Reconcile Topics
       const localTopics = await idbGetAll<Topic>(STORES.TOPICS);
       for (const t of localTopics) {
-        const isUserItem = t.isUserAdded === true || String(t.id).startsWith("custom-topic-");
-        const isQATest = t.id.startsWith('qa-') || t.id.startsWith('qa_');
-        if (isUserItem || isQATest) {
-          result.preservedDrafts++;
-          continue; // NEVER delete user-added topics!
-        }
-        if (!serverTopIds.has(t.id) || deletedTopSet.has(t.id)) {
+        if (!serverTopIds.has(t.id) || deletedTopSet.has(t.id) || t.id.startsWith("top_") || t.name === "X" || t.name === "MCQ 01") {
           await idbDelete(STORES.TOPICS, t.id);
           result.prunedTopics++;
         }

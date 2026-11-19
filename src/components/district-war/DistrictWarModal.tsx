@@ -315,7 +315,7 @@ export const DistrictWarModal: React.FC<DistrictWarModalProps> = ({
             <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" />
             <input
               type="text"
-              placeholder="50 ज़िले खोजें (उदा. सीकर, जोधपुर)..."
+              placeholder="41 ज़िले खोजें (उदा. सीकर, जोधपुर)..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-8 pr-7 py-1.5 bg-white dark:bg-[#1A1D2C] text-xs rounded-xl border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-white placeholder-stone-400 focus:outline-hidden focus:border-[#C99A45] transition-colors"
@@ -347,7 +347,7 @@ export const DistrictWarModal: React.FC<DistrictWarModalProps> = ({
                 : "bg-white dark:bg-[#1A1D2C] text-stone-600 dark:text-stone-300 border border-stone-200 dark:border-stone-700"
             }`}
           >
-            सभी 10 संभाग (50 ज़िले)
+            सभी 7 संभाग (41 ज़िले)
           </button>
           {RAJASTHAN_DIVISIONS_LIST.map((div) => {
             const isSelected = selectedDivision === div.id;
@@ -674,7 +674,7 @@ export const DistrictWarModal: React.FC<DistrictWarModalProps> = ({
                   ⚔️ महासंग्राम क्या है?
                 </h4>
                 <p className="leading-relaxed text-[11.5px]">
-                  यह राजस्थान के सभी 50 ज़िलों के अभ्यर्थियों का वास्तविक समय का ज्ञान युद्ध है। ऐप में आप जो भी सही अभ्यास करते हैं, उससे आपके गृह ज़िले को वॉर अंक मिलते हैं!
+                  यह राजस्थान के सभी 41 ज़िलों के अभ्यर्थियों का वास्तविक समय का ज्ञान युद्ध है। ऐप में आप जो भी सही अभ्यास करते हैं, उससे आपके गृह ज़िले को वॉर अंक मिलते हैं!
                 </p>
               </div>
 

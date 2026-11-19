@@ -1871,7 +1871,7 @@ export default function App() {
 
       {isRajasthanMapOpen && (
         <OverlayErrorBoundary
-          viewName="Rajasthan 50 Districts Map"
+          viewName="Rajasthan 41 Districts Map"
           onClose={() => setIsRajasthanMapOpen(false)}
         >
           <RajasthanMapModal

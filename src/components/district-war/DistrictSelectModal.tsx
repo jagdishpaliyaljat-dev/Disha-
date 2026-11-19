@@ -66,7 +66,7 @@ export const DistrictSelectModal: React.FC<DistrictSelectModalProps> = ({
                 अपनी ज़िला सेना चुनें (Select Army)
               </h3>
               <p className="text-[10px] sm:text-[11px] text-amber-200/90 font-medium truncate">
-                राजस्थान के 50 ज़िलों में से अपना गृह ज़िला चुनें • पाएं +50 वेलकम बोनस
+                राजस्थान के 41 ज़िलों में से अपना गृह ज़िला चुनें • पाएं +50 वेलकम बोनस
               </p>
             </div>
           </div>
@@ -89,7 +89,7 @@ export const DistrictSelectModal: React.FC<DistrictSelectModalProps> = ({
             <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" />
             <input
               type="text"
-              placeholder="50 ज़िले खोजें (उदा. सीकर, जोधपुर, दूदू)..."
+              placeholder="41 ज़िले खोजें (उदा. सीकर, जोधपुर, बालोतरा)..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-8 pr-7 py-2 bg-white dark:bg-[#11131C] text-xs sm:text-sm rounded-xl border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-white placeholder-stone-400 focus:outline-hidden focus:border-[#C99A45] transition-colors"
@@ -120,7 +120,7 @@ export const DistrictSelectModal: React.FC<DistrictSelectModalProps> = ({
                   : "bg-white dark:bg-stone-800 text-stone-600 dark:text-stone-300 border border-stone-200 dark:border-stone-700"
               }`}
             >
-              सभी संभाग (50)
+              सभी संभाग (41)
             </button>
             {RAJASTHAN_DIVISIONS_LIST.map((div) => {
               const isSelected = selectedDivision === div.id;
@@ -151,7 +151,7 @@ export const DistrictSelectModal: React.FC<DistrictSelectModalProps> = ({
           </div>
         </div>
 
-        {/* 50 Districts List */}
+        {/* 41 Districts List */}
         <div className="flex-1 overflow-y-auto p-3 space-y-1.5 min-h-[240px] overscroll-contain">
           {filteredDistricts.length === 0 ? (
             <div className="py-12 text-center text-xs text-stone-400">

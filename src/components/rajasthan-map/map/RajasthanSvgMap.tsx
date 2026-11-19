@@ -303,7 +303,7 @@ export const RajasthanSvgMap: React.FC<RajasthanSvgMapProps> = ({
       {/* ================= MAP TITLE & STATS PILL (Top Right) ================= */}
       <div className="absolute top-3 right-3 z-10 hidden sm:flex items-center gap-2 pointer-events-none">
         <div className="bg-white/90 dark:bg-[#1E222D]/90 backdrop-blur-md px-3 py-1 rounded-full border border-[#C99A45]/30 shadow-xs text-[10px] font-black text-[#52576A] dark:text-stone-300">
-          <span className="text-[#800020] dark:text-[#F47B20] font-black">50 Districts</span> • 10 Divisions
+          <span className="text-[#800020] dark:text-[#F47B20] font-black">41 Districts</span> • 7 Divisions
         </div>
       </div>
 
@@ -390,7 +390,7 @@ export const RajasthanSvgMap: React.FC<RajasthanSvgMapProps> = ({
             strokeLinejoin="round"
           />
 
-          {/* 2. Authentic Geographic Polygonal Districts Layer (All 50 Districts) */}
+          {/* 2. Authentic Geographic Polygonal Districts Layer (All 41 Districts) */}
           <g id="rajasthan-districts-polygons">
             {districtsList.map((district) => {
               const pathD = DISTRICT_SVG_PATHS[district.id];

@@ -5,10 +5,7 @@ export type DivisionId =
   | "udaipur"
   | "bikaner"
   | "kota"
-  | "bharatpur"
-  | "sikar"
-  | "pali"
-  | "banswara";
+  | "bharatpur";
 
 export interface DivisionInfo {
   id: DivisionId;

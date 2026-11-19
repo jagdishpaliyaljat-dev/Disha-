@@ -19,7 +19,8 @@ import {
   Database,
   Trophy,
   ArrowUpRight,
-  Bot
+  Bot,
+  Swords
 } from "lucide-react";
 import { UserProfile, AppBanner, UserQuestionsStore } from "../../types";
 import { fetchRegisteredUsers, getLocalUsersDirectory, fetchRegisteredUserCounts } from "../../utils/userManagementStorage";
@@ -34,9 +35,10 @@ import { QuickActionsWidget } from "./QuickActionsWidget";
 import { SupabaseHealthPanel } from "./SupabaseHealthPanel";
 import { getTotalDisplayCount } from "../../utils/questionsStorage";
 import { getAIUsageSummary } from "../../utils/aiUsageTracker";
+import { getBattleAnalyticsSummary } from "../../utils/battleTracker";
 
 interface AdminDashboardSectionProps {
-  onNavigateSection: (section: "dashboard" | "users" | "banners" | "curriculum" | "health" | "ai-api" | "analytics" | "news" | "messages") => void;
+  onNavigateSection: (section: "dashboard" | "users" | "banners" | "curriculum" | "health" | "ai-api" | "analytics" | "news" | "messages" | "tests" | "battle") => void;
   onSelectUser?: (user: UserProfile) => void;
   onOpenQARunner?: () => void;
   questionsStore: UserQuestionsStore;
@@ -124,6 +126,7 @@ export const AdminDashboardSection: React.FC<AdminDashboardSectionProps> = ({
   const activeBannersCount = React.useMemo(() => banners.filter(b => b.isActive !== false).length, [banners]);
   const recentUsers = React.useMemo(() => users.slice(0, 5), [users]);
   const aiSummary = React.useMemo(() => getAIUsageSummary("7days"), [refreshTrigger]);
+  const battleSummary = React.useMemo(() => getBattleAnalyticsSummary(), [refreshTrigger]);
 
   const quickMetricCards = [
     {
@@ -308,6 +311,53 @@ export const AdminDashboardSection: React.FC<AdminDashboardSectionProps> = ({
                 className="w-full py-2.5 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-600 hover:brightness-110 text-white text-xs font-black transition-all active:scale-95 cursor-pointer shadow-md flex items-center justify-center gap-1.5"
               >
                 <span>Open Disha AI Dashboard</span>
+                <ArrowUpRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* Live Quiz Battle Telemetry Snapshot Card */}
+          <div className="bg-gradient-to-br from-amber-950 via-[#800020] to-rose-950 rounded-3xl p-5 text-white border border-amber-500/30 shadow-xl relative overflow-hidden">
+            <div className="absolute right-0 top-0 w-32 h-32 bg-amber-500/20 rounded-full blur-2xl pointer-events-none" />
+            <div className="relative space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-white/10 backdrop-blur-md flex items-center justify-center text-amber-300">
+                    <Swords className="w-5 h-5 text-amber-300" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-black text-white">Live Battle Telemetry</h4>
+                    <span className="text-[10px] text-amber-200/80 font-mono">Real-time Student PvP</span>
+                  </div>
+                </div>
+                <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  {battleSummary.liveNowPlayersCount} Live Now
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 text-center text-xs font-mono pt-1">
+                <div className="p-2.5 rounded-2xl bg-white/5 border border-white/10">
+                  <span className="text-[9px] uppercase tracking-wider text-slate-300 block mb-0.5">Active Rooms</span>
+                  <span className="text-lg font-black text-amber-300 tabular-nums block">{battleSummary.liveNowRoomsCount}</span>
+                </div>
+                <div className="p-2.5 rounded-2xl bg-white/5 border border-white/10">
+                  <span className="text-[9px] uppercase tracking-wider text-slate-300 block mb-0.5">Total Battles</span>
+                  <span className="text-lg font-black text-white tabular-nums block">{battleSummary.totalBattlesPlayed}</span>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between text-[11px] pt-1 text-slate-300 font-medium">
+                <span>Today: <strong className="text-emerald-400 font-mono">+{battleSummary.todayBattlesCount} matches</strong></span>
+                <span>Avg Accuracy: <strong className="text-white font-mono">{battleSummary.avgAccuracyPercent}%</strong></span>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => onNavigateSection("battle")}
+                className="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:brightness-110 text-stone-950 text-xs font-black transition-all active:scale-95 cursor-pointer shadow-md flex items-center justify-center gap-1.5"
+              >
+                <span>Open Live Battle Monitor</span>
                 <ArrowUpRight className="w-4 h-4" />
               </button>
             </div>

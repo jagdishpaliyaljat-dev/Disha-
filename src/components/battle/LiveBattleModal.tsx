@@ -49,6 +49,13 @@ import {
   playTickSound,
   triggerHaptic,
 } from "../../utils/audioFeedback";
+import {
+  trackBattleRoomCreated,
+  trackBattleRoomStarted,
+  trackBattleRoomHeartbeat,
+  trackBattleRoomEnded,
+  trackBattleRoomAbandoned,
+} from "../../utils/battleTracker";
 import { BattleLobbyView } from "./BattleLobbyView";
 import { BattleArenaView } from "./BattleArenaView";
 import { BattlePodiumView } from "./BattlePodiumView";
@@ -378,6 +385,17 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
     manager.connect();
     managerRef.current = manager;
 
+    // Track active room creation in battle telemetry
+    try {
+      trackBattleRoomCreated({
+        roomCode: code,
+        config,
+        hostPlayer,
+      });
+    } catch (e) {
+      console.warn("Battle room tracking error:", e);
+    }
+
     setPhase("lobby");
   };
 
@@ -530,6 +548,10 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
       });
     }
 
+    try {
+      trackBattleRoomStarted(roomConfig.roomCode, playersRef.current);
+    } catch {}
+
     setPhase("countdown");
     setCountdownNum(3);
   };
@@ -621,10 +643,18 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
       if (currentQuestionIndex + 1 < questions.length) {
         setCurrentQuestionIndex((prev) => prev + 1);
       } else {
+        const currentPlayers = playersRef.current;
+        const sorted = [...currentPlayers].sort((a, b) => b.score - a.score);
+        const winner = sorted[0] || currentPlayers[0];
+        if (winner && roomConfig.roomCode) {
+          try {
+            trackBattleRoomEnded(roomConfig.roomCode, currentPlayers, winner, questions.length);
+          } catch {}
+        }
         setPhase("podium");
       }
     }, 3500);
-  }, [questions, currentQuestionIndex, selectedOption, roomConfig.timePerQuestionSec]);
+  }, [questions, currentQuestionIndex, selectedOption, roomConfig.timePerQuestionSec, roomConfig.roomCode]);
 
   // Round progression and timer effect
   useEffect(() => {
@@ -635,6 +665,11 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
     setIsRevealing(false);
     setTimeRemainingSec(roomConfig.timePerQuestionSec);
     roundStartTimeRef.current = Date.now();
+
+    // Send heartbeat to live battle monitor
+    try {
+      trackBattleRoomHeartbeat(roomConfig.roomCode, playersRef.current);
+    } catch {}
 
     // Start round clock
     if (roundTimerRef.current) clearInterval(roundTimerRef.current);

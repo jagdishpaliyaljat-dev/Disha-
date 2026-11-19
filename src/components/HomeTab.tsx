@@ -480,7 +480,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
         </section>
 
 
-        {/* 3.6 RAJASTHAN 50 DISTRICTS ATLAS & MAP QUIZ */}
+        {/* 3.6 RAJASTHAN 41 DISTRICTS ATLAS & MAP QUIZ */}
         <section>
           <motion.div
             whileTap={{ scale: 0.99 }}
@@ -495,17 +495,17 @@ export const HomeTab: React.FC<HomeTabProps> = ({
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
                   <h3 className="text-xs sm:text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] leading-tight">
-                    Rajasthan 50 Districts
+                    Rajasthan 41 Districts
                   </h3>
                   <span className="px-1.5 py-0.5 rounded-md bg-[#15803D]/10 text-[#15803D] dark:text-[#22C55E] text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider">
-                    New Map
+                    7 Divisions
                   </span>
                   <span className="px-1.5 py-0.5 rounded-md bg-[#C99A45]/15 text-[#946B1E] dark:text-[#C99A45] text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider">
                     Map Quiz
                   </span>
                 </div>
                 <p className="text-[10px] sm:text-[11px] font-medium text-[#52576A] dark:text-[#929AB0] truncate leading-tight">
-                  Interactive atlas, 2023 reorganization, forts, minerals &amp; quiz
+                  नवीनतम 41 ज़िले व 7 संभाग पुनर्गठन स्वरूप, इतिहास, भूगोल व क्विज़
                 </p>
               </div>
             </div>

@@ -136,14 +136,14 @@ export const RajasthanMapModal: React.FC<RajasthanMapModalProps> = ({
                   id="rajasthan-map-title"
                   className="text-xs sm:text-base font-black text-[#800020] dark:text-[#F47B20] tracking-tight truncate leading-tight"
                 >
-                  राजस्थान 50 ज़िला मानचित्र
+                  राजस्थान 41 ज़िला मानचित्र
                 </h2>
                 <span className="hidden xs:inline-block px-1.5 py-0.2 rounded-full bg-[#F47B20]/15 text-[#C85A0A] dark:text-[#F47B20] text-[9px] font-black uppercase">
                   2026 अद्यतित
                 </span>
               </div>
               <p className="text-[10px] text-[#52576A] dark:text-[#929AB0] font-medium truncate hidden sm:block">
-                10 संभाग • 50 ज़िले • राम लुभाया समिति पुनर्गठन (नवीनतम भौगोलिक स्वरूप)
+                7 संभाग • 41 ज़िले • नवीनतम प्रशासनिक पुनर्गठन स्वरूप
               </p>
             </div>
           </div>
@@ -408,7 +408,7 @@ export const RajasthanMapModal: React.FC<RajasthanMapModalProps> = ({
                 <div className="w-12 h-1 bg-white/40 rounded-full mx-auto mb-2" />
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="font-black text-sm">राजस्थान 50 ज़िला सूची (All 50 Districts)</h3>
+                    <h3 className="font-black text-sm">राजस्थान 41 ज़िला सूची (All 41 Districts)</h3>
                     <p className="text-[10px] text-[#FFF9EF]/80">
                       मानचित्र पर देखने व अध्ययन हेतु किसी भी ज़िले पर टैप करें
                     </p>
