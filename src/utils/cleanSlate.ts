@@ -19,15 +19,33 @@ import {
  * test MCQs, mock data, sample quizzes, and stress-test artifacts.
  */
 
-const CLEAN_SLATE_VERSION_KEY = "disha2020_clean_slate_zero_mock_v10_0";
-const CURRENT_CLEAN_SLATE_VERSION = "10.0.0";
+const CLEAN_SLATE_VERSION_KEY = "disha2020_clean_slate_zero_mock_v12_0";
+const CURRENT_CLEAN_SLATE_VERSION = "12.0.0";
 
-// Only legacy mock/sample array keys — NEVER reset genuine student progress, bookmarks, or auth
+// Complete clean slate keys reset to empty arrays on startup
 const KEYS_TO_RESET_TO_EMPTY = [
   "disha2020_admin_audit_logs_v1",
   "quizpro_admin_audit_logs_v1",
   "remix_rajprep_exam_analyses_v1",
   "economic_survey_notifications_v1",
+  "disha2020_notifications_v1",
+  "disha2020_banners_v2",
+  "quizpro_banners_v2",
+  "disha2020_news_articles_v2",
+  "quizpro_news_articles_v2",
+  "disha2020_deleted_banners_v1",
+  "quizpro_deleted_banners_v1",
+  "disha2020_deleted_articles_v1",
+  "quizpro_deleted_articles_v1",
+  "remix_rajprep_deleted_live_tests_v1",
+  "remix_rajprep_deleted_pyq_papers_v1",
+  "remix_rajprep_live_tests_v1",
+  "remix_rajprep_live_submissions_v1",
+  "remix_rajprep_pyq_papers_v2",
+  "remix_rajprep_pyq_attempts_v2",
+  "remix_rajprep_exam_categories_v1",
+  "disha_custom_coaching_nodes_v1",
+  "disha_deleted_coaching_node_ids_v1",
 ];
 
 const OBSOLETE_LEGACY_KEYS = [
@@ -513,24 +531,36 @@ export function ensureCleanSlateOnStartup(): void {
       }
     } catch {}
 
-    // 4. Sanitize User Questions Store in localStorage
+    // 4. Reset User Questions Store in localStorage to 100% clean blank state
     const USER_QUESTIONS_KEY = "economic_survey_user_questions_v2";
+    const EMPTY_STORE: UserQuestionsStore = {
+      customSubjects: [],
+      customChapters: [],
+      customTopics: [],
+      customQuestions: [],
+      cloudCacheQuestions: [],
+      editedSubjects: {},
+      editedChapters: {},
+      editedTopics: {},
+      editedQuestions: {},
+      deletedSubjectIds: [],
+      deletedChapterIds: [],
+      deletedTopicIds: [],
+      deletedQuestionIds: [],
+    };
+    localStorage.setItem(USER_QUESTIONS_KEY, JSON.stringify(EMPTY_STORE));
+
+    // 5. Purge Cached IndexedDB Databases
     try {
-      const rawStore = localStorage.getItem(USER_QUESTIONS_KEY);
-      if (rawStore) {
-        const parsed = JSON.parse(rawStore);
-        if (parsed && typeof parsed === "object") {
-          const { sanitized, changed } = sanitizeUserQuestionsStore(parsed);
-          if (changed) {
-            localStorage.setItem(USER_QUESTIONS_KEY, JSON.stringify(sanitized));
-          }
-        }
+      if (typeof window !== "undefined" && window.indexedDB) {
+        window.indexedDB.deleteDatabase("disha2020-db-v5");
+        window.indexedDB.deleteDatabase("quizpro-db-v5");
       }
     } catch {}
 
     // Mark clean slate version as applied
     localStorage.setItem(CLEAN_SLATE_VERSION_KEY, CURRENT_CLEAN_SLATE_VERSION);
-    console.log("[CleanSlate] 9.0.0 applied successfully: Zero-mock clean slate verified.");
+    console.log("[CleanSlate] 12.0.0 applied successfully: Zero-mock clean slate verified.");
   } catch (e) {
     console.error("[CleanSlate] Startup verification failed:", e);
   }
