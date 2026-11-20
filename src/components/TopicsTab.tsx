@@ -53,22 +53,6 @@ import {
   getTopicSecondaryTitle,
 } from "../utils/curriculumUtils";
 
-function extractYoutubeId(url?: string): string | null {
-  if (!url) return null;
-  const regExp = /(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
-  const match = url.match(regExp);
-  return match && match[1] ? match[1] : null;
-}
-
-function getDrivePreviewUrl(url?: string): string | null {
-  if (!url) return null;
-  const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
-  if (match && match[1]) {
-    return `https://drive.google.com/file/d/${match[1]}/preview`;
-  }
-  return url;
-}
-
 interface TopicsTabProps {
   progressStore: ProgressStore;
   subjects: Subject[];
@@ -811,9 +795,6 @@ function TopicDetailView({
 }: TopicDetailViewProps) {
   const [isFetching, setIsFetching] = React.useState(false);
   const [activeFolderTab, setActiveFolderTab] = React.useState<"all" | "video" | "pdf" | "test">("all");
-
-  const youtubeId = extractYoutubeId(topic.videoUrl);
-  const drivePreview = getDrivePreviewUrl(topic.pdfUrl);
 
   const isCompleteQ = (q: any): q is Question =>
     Boolean(q && (q.text || (q as any).question) && Array.isArray(q.options) && q.options.length >= 2);
