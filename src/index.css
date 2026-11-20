@@ -69,13 +69,13 @@
 @layer utilities {
   /* Safe Area & Mobile Notch Inset Helpers */
   .safe-area-pt {
-    padding-top: max(env(safe-area-inset-top, 0px), 8px);
+    padding-top: max(env(safe-area-inset-top, 0px), 12px);
   }
   .safe-area-pb {
-    padding-bottom: max(env(safe-area-inset-bottom, 0px), 8px);
+    padding-bottom: max(env(safe-area-inset-bottom, 0px), 12px);
   }
   .safe-header-top {
-    padding-top: calc(10px + env(safe-area-inset-top, 0px));
+    padding-top: max(env(safe-area-inset-top, 0px), 12px);
   }
 
   .font-hindi {

@@ -22,7 +22,7 @@ export const ADMIN_UIDS: string[] = [
 
 export const DEFAULT_USER_PROFILE: UserProfile = {
   id: "student_default",
-  name: "Student",
+  name: "Guest Aspirant",
   email: "",
   role: "student",
   targetExam: "Competitive Exams & General Studies",
@@ -30,6 +30,16 @@ export const DEFAULT_USER_PROFILE: UserProfile = {
   streakDays: 0,
   createdAt: new Date().toISOString(),
 };
+
+export function isProfileAuthenticated(p: UserProfile | null): boolean {
+  return Boolean(
+    p &&
+    typeof p.email === "string" &&
+    p.email.trim().length > 0 &&
+    !p.email.includes("student_default") &&
+    p.id !== "student_default"
+  );
+}
 
 let inMemoryProfile: UserProfile | null = null;
 

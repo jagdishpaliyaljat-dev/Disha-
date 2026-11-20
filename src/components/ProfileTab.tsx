@@ -113,7 +113,9 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
     }
   }, [activeProfile, settings.dailyGoal]);
 
-  const userName = activeProfile?.name || (!isAuthenticated ? "Guest Student" : "Aspirant");
+  const userName = !isAuthenticated 
+    ? "Guest Aspirant (अतिथि छात्र)" 
+    : (activeProfile?.name && activeProfile.name !== "Student" && activeProfile.name !== "Guest Aspirant" ? activeProfile.name : (activeProfile?.email?.split('@')[0] || "Aspirant"));
   const isAdmin = isUserAdmin(activeProfile);
 
   // ─────────────────────────────────────────────────────────────
@@ -291,6 +293,11 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                     <Crown size={10} className="text-[#C99A45]" />
                     <span>Admin</span>
                   </span>
+                ) : !isAuthenticated ? (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 text-[9px] font-black uppercase tracking-wider">
+                    <Award size={10} />
+                    <span>Guest Mode (गेस्ट)</span>
+                  </span>
                 ) : (
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] border border-[#800020]/20 dark:border-[#F47B20]/30 text-[9px] font-black uppercase tracking-wider">
                     <Award size={10} />
@@ -344,7 +351,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                     className="px-3.5 py-1.5 bg-gradient-to-r from-[#800020] via-[#5E0017] to-[#800020] hover:opacity-95 text-white rounded-lg sm:rounded-xl text-[11px] font-black shadow-sm border border-[#C99A45]/30 transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer"
                   >
                     <LogIn size={11} />
-                    <span>Sign In with Google</span>
+                    <span>लॉगिन करें (Sign In)</span>
                   </button>
                 ) : (
                   <button
@@ -373,6 +380,36 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
         animate="show"
         className="px-3.5 sm:px-6 pt-5 space-y-5 max-w-4xl mx-auto w-full"
       >
+        {!isAuthenticated && (
+          <motion.div
+            variants={itemVariants}
+            className="p-4 rounded-2xl bg-gradient-to-r from-[#FFF9EF] via-white to-[#F7EFE2] dark:from-[#252A3A] dark:to-[#1F2330] border-2 border-[#800020]/30 dark:border-[#C99A45]/40 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-[#800020]/10 dark:bg-[#C99A45]/20 flex items-center justify-center text-[#800020] dark:text-[#C99A45] shrink-0">
+                <LogIn size={20} />
+              </div>
+              <div>
+                <h3 className="font-black text-sm text-[#171923] dark:text-[#FFF9EF]">
+                  आप अभी गेस्ट मोड में हैं (Guest Mode)
+                </h3>
+                <p className="text-xs text-slate-600 dark:text-[#E8D9C0]/80 mt-0.5">
+                  अपनी परीक्षा प्रगति, टेस्ट स्कोर और बुकमार्क सुरक्षित रखने के लिए अपने अकाउंट से लॉगिन करें।
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                triggerHaptic("medium");
+                onOpenLogin?.();
+              }}
+              className="w-full sm:w-auto px-4 py-2 bg-gradient-to-r from-[#800020] to-[#5E0017] hover:opacity-95 text-white rounded-xl text-xs font-black shadow-sm active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0"
+            >
+              <LogIn size={13} />
+              <span>लॉगिन करें (Sign In)</span>
+            </button>
+          </motion.div>
+        )}
         {isAdmin && (
           <motion.div
             variants={itemVariants}

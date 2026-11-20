@@ -47,7 +47,7 @@ import { NotFoundView } from './components/NotFoundView';
 import { useNavigation } from './hooks/useNavigation';
 import { useCurriculumManager } from './hooks/useCurriculumManager';
 import { useAppFeatures } from './utils/featureControlService';
-import { loadUserProfile, saveUserProfile, isUserAdmin } from './utils/userProfileStorage';
+import { loadUserProfile, saveUserProfile, isUserAdmin, isProfileAuthenticated } from './utils/userProfileStorage';
 import { resolvePathToNavigationState, buildCanonicalPath, isKnownTab } from './utils/routeNavigation';
 import { prefetchCoreRoutes } from './utils/routePrefetcher';
 import { loadSettingsFromStorage, saveSettingsToStorage, loadProgressFromStorage, saveProgressToStorage, recordStudyAnswerToHistory, loadStudyHistoryFromStorage, saveStudyHistoryToStorage, mergeRealtimeProgressDelta } from './utils/storage';
@@ -241,7 +241,7 @@ export default function App() {
   const isInitialMountRef = React.useRef(true);
 
   const [userProfile, setUserProfile] = React.useState<UserProfile | null>(() => loadUserProfile());
-  const [isAuthenticated, setIsAuthenticated] = React.useState<boolean>(() => !!userProfile);
+  const [isAuthenticated, setIsAuthenticated] = React.useState<boolean>(() => isProfileAuthenticated(userProfile));
   const [settings, setSettings] = React.useState<AppSettings>(() => loadSettingsFromStorage());
   const [isAuthReady, setIsAuthReady] = React.useState(false);
   const { isEnabled: isFeatureEnabled } = useAppFeatures();
@@ -913,15 +913,45 @@ export default function App() {
               });
             }
           } catch {}
+
+          // If running in mobile browser and this was a fresh OAuth redirect with tokens:
+          try {
+            const { isNativePlatform, isMobileBrowser, getAppDeepLinkFromSession } = await import('./utils/mobileAuthService');
+            if (!isNativePlatform() && isMobileBrowser() && session?.access_token && session?.refresh_token) {
+              const hashHasTokens = typeof window !== 'undefined' && (
+                window.location.hash.includes('access_token=') ||
+                window.location.search.includes('code=')
+              );
+              if (hashHasTokens) {
+                const deepLink = getAppDeepLinkFromSession(session.access_token, session.refresh_token);
+                // Attempt automatic handover to the installed Disha 20-20 App
+                window.location.href = deepLink;
+              }
+            }
+          } catch {}
         } else {
           // Restore local cached profile if user was previously in guest/offline mode
           const currentProfile = loadUserProfile();
-          if (currentProfile && currentProfile.id !== "student_default") {
+          if (currentProfile && isProfileAuthenticated(currentProfile)) {
             setUserProfile(currentProfile);
             setIsAuthenticated(true);
+          } else {
+            setUserProfile(currentProfile);
+            setIsAuthenticated(false);
           }
         }
       };
+
+      // Native Capacitor Deep Link Listener & Cold-Start check
+      let cleanupDeepLink = () => {};
+      import('./utils/mobileAuthService').then(({ registerMobileDeepLinkListener, checkLaunchUrlForAuth }) => {
+        cleanupDeepLink = registerMobileDeepLinkListener((session) => {
+          processSession(session).catch(() => {});
+        });
+        checkLaunchUrlForAuth((session) => {
+          processSession(session).catch(() => {});
+        });
+      }).catch(() => {});
 
       supabase.auth.getSession().then(({ data: { session } }) => {
         processSession(session).catch(() => {});
@@ -934,6 +964,7 @@ export default function App() {
       });
 
       unsub = () => {
+        try { cleanupDeepLink(); } catch {}
         subscription?.unsubscribe();
       };
     }).catch(() => {
@@ -1494,6 +1525,7 @@ export default function App() {
         <ToastNotificationContainer toasts={toasts} onDismiss={handleDismissToast} />
         <PWAUpdateToast />
         <OfflineIndicator />
+        <MobileAppReturnBanner userName={userProfile?.name} />
         <Analytics />
       </OverlayErrorBoundary>
 
