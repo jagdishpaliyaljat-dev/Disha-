@@ -89,22 +89,22 @@ describe("AIMessageRenderer", () => {
 import { formatFriendlyAIError } from "../src/utils/aiTutorService";
 
 describe("formatFriendlyAIError", () => {
-  it("converts exact user 404 gemini-1.5-flash error into clean Hindi message", () => {
+  it("converts exact user 404 gemini-1.5-flash error into clean message", () => {
     const rawError = new Error(
       '{"error":{"code":404,"message":"models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.","status":"NOT_FOUND"}}'
     );
     const result = formatFriendlyAIError(rawError);
-    expect(result.message).toContain("गूगल ने पुराने मॉडल को बंद कर दिया है");
+    expect(result.message).toContain("The selected AI model was updated");
     expect(result.message).toContain("gemini-2.0-flash");
     expect(result.message).not.toContain('{"error":{"code":404');
   });
 
-  it("converts exact user 'no longer available' error into clean Hindi message", () => {
+  it("converts exact user 'no longer available' error into clean message", () => {
     const rawError = new Error(
       "This model models/gemini-2.5-flash is no longer available. Please update your code to use models/gemini-2.0-flash for the latest features and improvements."
     );
     const result = formatFriendlyAIError(rawError);
-    expect(result.message).toContain("गूगल ने पुराने मॉडल को बंद कर दिया है");
+    expect(result.message).toContain("The selected AI model was updated");
     expect(result.message).toContain("gemini-2.0-flash");
     expect(result.message).not.toContain("This model");
   });
@@ -113,21 +113,21 @@ describe("formatFriendlyAIError", () => {
     const rawError = new Error("API_KEY_INVALID: User api key is invalid or revoked.");
     const result = formatFriendlyAIError(rawError);
     expect(result.isApiKeyIssue).toBe(true);
-    expect(result.message).toContain("API Key अमान्य (Invalid) है");
+    expect(result.message).toContain("The entered API Key is invalid or lacks permission");
   });
 
   it("handles quota exceeded / 429 gracefully", () => {
     const rawError = new Error("RESOURCE_EXHAUSTED: Rate limit exceeded (429)");
     const result = formatFriendlyAIError(rawError);
     expect(result.isApiKeyIssue).toBe(true);
-    expect(result.message).toContain("दैनिक मुफ़्त सीमा (Rate Limit / Quota) पूरी हो चुकी है");
+    expect(result.message).toContain("rate limit or daily quota has been reached");
   });
 
   it("handles NO_API_KEY clearly", () => {
     const rawError = new Error("NO_API_KEY");
     const result = formatFriendlyAIError(rawError);
     expect(result.isApiKeyIssue).toBe(true);
-    expect(result.message).toContain("Google Gemini या OpenRouter API Key जोड़ें");
+    expect(result.message).toContain("please add your Google Gemini or OpenRouter API Key in Settings");
   });
 });
 

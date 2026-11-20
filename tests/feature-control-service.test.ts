@@ -13,14 +13,13 @@ describe("Feature Control Service", () => {
     localStorage.clear();
   });
 
-  it("should have all 10 default features initialized and enabled", () => {
+  it("should have all 9 default features initialized and enabled", () => {
     const features = getLocalAppFeatures();
     const keys = Object.keys(features) as FeatureKey[];
 
-    expect(keys.length).toBe(10);
+    expect(keys.length).toBe(9);
     expect(keys).toContain("disha_ai");
     expect(keys).toContain("live_battle");
-    expect(keys).toContain("video_classes");
     expect(keys).toContain("live_tests");
     expect(keys).toContain("pyq_vault");
     expect(keys).toContain("custom_test");
@@ -31,7 +30,6 @@ describe("Feature Control Service", () => {
 
     expect(isAppFeatureEnabled("disha_ai")).toBe(true);
     expect(isAppFeatureEnabled("live_battle")).toBe(true);
-    expect(isAppFeatureEnabled("video_classes")).toBe(true);
   });
 
   it("should toggle a feature state and update local check", async () => {
