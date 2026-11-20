@@ -45,6 +45,10 @@ const OBSOLETE_LEGACY_KEYS = [
   "econ-multilingual-2024",
   "remix_rajprep_legacy_sub_state",
   "cached_curriculum_v1",
+  "disha_user_home_district",
+  "disha_user_district_points",
+  "disha_district_war_scores_v2",
+  "disha_district_war_events_v2",
 ];
 
 const DUMMY_KEYWORDS = [

@@ -54,6 +54,7 @@ import {
   LayoutDashboard,
   RotateCcw,
   BarChart3,
+  Scan,
 } from "lucide-react";
 import { BannerSlides } from "./BannerSlides";
 import { AppLogo } from "./AppLogo";
@@ -113,6 +114,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
   onSelectSubject,
   onShowAddSubject,
   onNavigateTab,
+  onOpenExamAnalyzer,
   onOpenApiSettings,
   onOpenLiveBattle,
   onToggleDarkMode,
@@ -435,100 +437,88 @@ export const HomeTab: React.FC<HomeTabProps> = ({
           </section>
         </div>
 
-        {/* 3.5 AI WEAKNESS RADAR & STUDENT REPORT CARD */}
-        <section>
-          <motion.div
-            whileTap={{ scale: 0.99 }}
-            onClick={() => onNavigateTab?.("analytics")}
-            className="w-full bg-white dark:bg-[#1A1D2B] border border-[#E8D9C0] dark:border-[#31374A] hover:border-[#800020] dark:hover:border-[#C99A45] rounded-2xl p-3.5 sm:p-4 shadow-xs flex items-center justify-between text-left transition-all cursor-pointer group select-none"
-          >
-            <div className="flex items-center gap-3 min-w-0 flex-1">
-              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-[#800020]/10 dark:bg-[#800020]/25 text-[#800020] dark:text-[#F47B20] border border-[#800020]/20 flex items-center justify-center shrink-0 shadow-xs">
-                <Target className="w-5.5 h-5.5 sm:w-6 sm:h-6" />
-              </div>
+        {/* 3.5 SMART PRACTICE & EXAM TOOLS */}
+        <section className="space-y-2.5">
+          <div className="flex items-center justify-between px-0.5">
+            <h2 className="text-xs sm:text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] flex items-center gap-1.5">
+              <Brain className="w-4 h-4 text-[#800020] dark:text-[#F47B20]" />
+              <span>स्मार्ट अभ्यास व परीक्षा टूल्स</span>
+            </h2>
+            <span className="text-[10px] font-bold text-[#C85A0A] dark:text-[#F47B20] uppercase tracking-wider">
+              Smart Lab
+            </span>
+          </div>
 
-              <div className="min-w-0 flex-1">
-                <h3 className="text-[13.5px] sm:text-[15.5px] font-black text-[#171923] dark:text-[#FFF9EF] leading-snug tracking-tight truncate">
-                  AI डायग्नोज़ रडार
-                </h3>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-1 shrink-0 pl-2">
-              <div className="w-8 h-8 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] text-[#800020] dark:text-[#F47B20] flex items-center justify-center group-hover:translate-x-1 transition-transform">
-                <ChevronRight className="w-4 h-4" />
-              </div>
-            </div>
-          </motion.div>
-        </section>
-
-        {/* 3.6 REALTIME LIVE BATTLE */}
-        <section>
-          <motion.div
-            whileTap={{ scale: 0.99 }}
-            onClick={() => onOpenLiveBattle?.()}
-            className="w-full bg-white dark:bg-[#1A1D2B] border border-[#E8D9C0] dark:border-[#31374A] hover:border-[#F47B20] dark:hover:border-[#C99A45] rounded-2xl p-3.5 sm:p-4 shadow-xs flex items-center justify-between text-left transition-all cursor-pointer group select-none"
-          >
-            <div className="flex items-center gap-3 min-w-0 flex-1">
-              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-[#F47B20]/10 dark:bg-[#F47B20]/25 text-[#C85A0A] dark:text-[#F47B20] border border-[#F47B20]/20 flex items-center justify-center shrink-0 shadow-xs">
-                <Swords className="w-5.5 h-5.5 sm:w-6 sm:h-6" />
-              </div>
-
-              <div className="min-w-0 flex-1">
-                <h3 className="text-[13.5px] sm:text-[15.5px] font-black text-[#171923] dark:text-[#FFF9EF] leading-snug tracking-tight truncate">
-                  1v1 लाइव बैटल
-                </h3>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-1 shrink-0 pl-2">
-              <div className="w-8 h-8 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] text-[#C85A0A] dark:text-[#F47B20] flex items-center justify-center group-hover:translate-x-1 transition-transform">
-                <ChevronRight className="w-4 h-4" />
-              </div>
-            </div>
-          </motion.div>
-        </section>
-
-        {/* 4. AI ENGINE SETUP CARD */}
-        <section>
-          <motion.button
-            type="button"
-            whileTap={{ scale: 0.99 }}
-            onClick={() => onOpenApiSettings?.()}
-            aria-label="Open AI API Key Settings"
-            className="w-full group bg-white dark:bg-[#1F2330] hover:bg-[#FFFDF9] dark:hover:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] rounded-xl sm:rounded-2xl p-3 sm:p-3.5 shadow-xs hover:border-[#C99A45] flex items-center justify-between text-left transition-all cursor-pointer"
-          >
-            <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
-              <div className="relative w-8.5 h-8.5 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-[#C99A45]/15 border border-[#C99A45]/30 text-[#946B1E] dark:text-[#E5BC6B] flex items-center justify-center shrink-0">
-                <Key className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
-              </div>
-
-              <div className="min-w-0 flex-1 pr-1.5 sm:pr-2">
-                <div className="flex items-center gap-1 sm:gap-1.5 mb-0.5 text-[9.5px] sm:text-[10.5px] font-bold">
-                  <span className="uppercase tracking-wider text-[#C85A0A] dark:text-[#F47B20]">
-                    AI Engine Setup
-                  </span>
-                  <span className="text-[#C99A45]" aria-hidden="true">·</span>
-                  <span className="text-[#52576A] dark:text-[#CBD2E1] truncate">
-                    {settings.aiMode === "personal_keys" ? "Personal Keys" : "Platform AI"}
-                  </span>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-2.5">
+            {/* 1v1 Live Battle */}
+            <motion.button
+              type="button"
+              whileTap={{ scale: 0.98 }}
+              onClick={() => onOpenLiveBattle?.()}
+              className="w-full bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] hover:border-[#F47B20] rounded-xl sm:rounded-2xl p-3 sm:p-3.5 shadow-xs flex items-center sm:flex-col sm:items-start justify-between text-left transition-all cursor-pointer group select-none"
+            >
+              <div className="flex items-center sm:flex-col sm:items-start gap-2.5 min-w-0 flex-1">
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#F47B20]/10 dark:bg-[#F47B20]/25 text-[#C85A0A] dark:text-[#F47B20] border border-[#F47B20]/20 flex items-center justify-center shrink-0">
+                  <Swords className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
                 </div>
-                <h3 className="text-xs sm:text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] truncate">
-                  AI Source &amp; Personal Keys
-                </h3>
-                <p className="text-[10px] sm:text-[11px] font-medium text-[#52576A] dark:text-[#929AB0] truncate mt-0.5">
-                  {settings.aiMode === "personal_keys"
-                    ? `${settings.personalAiKeys?.length || 1} personal key(s) configured`
-                    : "Tap to configure Gemini API or personal keys"}
-                </p>
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-xs sm:text-[13px] font-extrabold text-[#171923] dark:text-[#FFF9EF] truncate">
+                    1v1 लाइव बैटल
+                  </h3>
+                  <p className="text-[10px] sm:text-[10.5px] text-[#52576A] dark:text-[#929AB0] truncate mt-0.5">
+                    साथियों के साथ लाइव मुकाबला
+                  </p>
+                </div>
               </div>
-            </div>
+              <ChevronRight className="w-4 h-4 text-[#52576A] dark:text-[#929AB0] sm:hidden shrink-0" />
+            </motion.button>
 
-            <div className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] text-[#171923] dark:text-[#FFF9EF] group-hover:bg-[#800020] group-hover:text-white dark:group-hover:bg-[#F47B20] text-[11px] sm:text-xs font-extrabold transition-all shrink-0">
-              <span className="hidden sm:inline">Manage</span>
-              <Settings className="w-3.5 h-3.5" />
-            </div>
-          </motion.button>
+            {/* AI Weakness Radar */}
+            <motion.button
+              type="button"
+              whileTap={{ scale: 0.98 }}
+              onClick={() => onNavigateTab?.("analytics")}
+              className="w-full bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] hover:border-[#800020] rounded-xl sm:rounded-2xl p-3 sm:p-3.5 shadow-xs flex items-center sm:flex-col sm:items-start justify-between text-left transition-all cursor-pointer group select-none"
+            >
+              <div className="flex items-center sm:flex-col sm:items-start gap-2.5 min-w-0 flex-1">
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#800020]/10 dark:bg-[#800020]/25 text-[#800020] dark:text-[#F47B20] border border-[#800020]/20 flex items-center justify-center shrink-0">
+                  <Target className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-xs sm:text-[13px] font-extrabold text-[#171923] dark:text-[#FFF9EF] truncate">
+                    AI डायग्नोज़ रडार
+                  </h3>
+                  <p className="text-[10px] sm:text-[10.5px] text-[#52576A] dark:text-[#929AB0] truncate mt-0.5">
+                    कमजोर विषय पहचानें व सुधारें
+                  </p>
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-[#52576A] dark:text-[#929AB0] sm:hidden shrink-0" />
+            </motion.button>
+
+            {/* Paper Scanner & OMR Analyzer */}
+            <motion.button
+              type="button"
+              whileTap={{ scale: 0.98 }}
+              onClick={() => onOpenExamAnalyzer?.()}
+              className="w-full bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] hover:border-[#C99A45] rounded-xl sm:rounded-2xl p-3 sm:p-3.5 shadow-xs flex items-center sm:flex-col sm:items-start justify-between text-left transition-all cursor-pointer group select-none"
+            >
+              <div className="flex items-center sm:flex-col sm:items-start gap-2.5 min-w-0 flex-1">
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#C99A45]/15 dark:bg-[#C99A45]/25 text-[#946B1E] dark:text-[#E5BC6B] border border-[#C99A45]/25 flex items-center justify-center shrink-0">
+                  <Scan className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-xs sm:text-[13px] font-extrabold text-[#171923] dark:text-[#FFF9EF] truncate">
+                    पेपर व OMR स्कैनर
+                  </h3>
+                  <p className="text-[10px] sm:text-[10.5px] text-[#52576A] dark:text-[#929AB0] truncate mt-0.5">
+                    प्रश्न पत्र या OMR स्कैन करें
+                  </p>
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-[#52576A] dark:text-[#929AB0] sm:hidden shrink-0" />
+            </motion.button>
+          </div>
         </section>
       </main>
 
@@ -728,9 +718,11 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                 {/* 4. Resources & Support */}
                 <div className="space-y-1">
                   <h4 className="text-[10px] font-extrabold text-[#787D91] dark:text-[#929AB0] uppercase tracking-[0.18em] px-2.5 mb-1.5">
-                    Resources &amp; Support
+                    Resources &amp; Tools
                   </h4>
                   {[
+                    { label: "Paper Scanner / OMR", icon: Scan, action: () => onOpenExamAnalyzer?.() },
+                    { label: "AI Engine Settings", icon: Key, action: () => onOpenApiSettings?.() },
                     { label: "Exam News & Guides", icon: Newspaper, tab: "news" },
                     { label: "About DISHA 20-20", icon: Info, tab: "about" },
                     { label: "Help & Support", icon: HelpCircle, tab: "contact" },
@@ -738,7 +730,11 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                     <button
                       key={item.label}
                       onClick={() => {
-                        onNavigateTab?.(item.tab as ActiveTab);
+                        if (item.action) {
+                          item.action();
+                        } else if (item.tab) {
+                          onNavigateTab?.(item.tab as ActiveTab);
+                        }
                         setIsMenuOpen(false);
                       }}
                       className="group w-full min-h-[42px] flex items-center gap-3 px-2.5 py-1.5 rounded-xl hover:bg-white/90 dark:hover:bg-[#1F2330] border border-transparent hover:border-[#E8D9C0]/70 dark:hover:border-[#31374A] hover:shadow-[0_1px_4px_rgba(0,0,0,0.02)] transition-all duration-150 cursor-pointer"
