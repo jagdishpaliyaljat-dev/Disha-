@@ -92,15 +92,15 @@ describe("Realtime Battle Service Tests", () => {
     const info = getBattleShareInfo("849201", 10);
     expect(info.url).toContain("battle=849201");
     expect(info.text).toContain("849201");
-    expect(info.text).toContain("10 सेकंड");
-    expect(info.text).toContain("सभी दोस्त");
+    expect(info.text).toContain("10 seconds");
+    expect(info.text).toContain("friends");
     expect(info.whatsappUrl).toContain("https://api.whatsapp.com/send?text=");
   });
 
   it("should instantiate RealtimeBattleManager and handle safe disconnect", () => {
     const mockPlayer: BattlePlayer = {
       id: "test_player_1",
-      name: "परीक्षक",
+      name: "Tester",
       avatar: "🦁",
       isHost: true,
       isReady: true,

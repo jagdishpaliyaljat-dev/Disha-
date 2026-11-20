@@ -96,7 +96,7 @@ export const DishaAIDashboard: React.FC = () => {
     playClickSound();
 
     const creds = getActiveAICredentials();
-    const prompt = "राजस्थान की राजधानी क्या है और इसे गुलाबी नगरी क्यों कहते हैं? संक्षेप में 2 पंक्तियों में बताएं।";
+    const prompt = "What is the capital of India and why is it culturally significant? Explain briefly in 2 lines.";
     const startTime = Date.now();
 
     try {

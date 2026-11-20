@@ -122,7 +122,7 @@ export const RecentActivityWidget: React.FC<RecentActivityWidgetProps> = ({ refr
       
       {loading ? (
         <ContentLoader
-          message="लाइव गतिविधि लोड हो रही है..."
+          message="Loading live activity..."
           minHeight="min-h-[120px]"
           size="sm"
         />

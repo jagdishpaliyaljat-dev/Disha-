@@ -363,8 +363,8 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
         });
         triggerAdminToast(
           "delete",
-          "विषय Supabase से हटाया गया",
-          `विषय "${title}" को Supabase से हटा दिया गया है और यह यूजर ऐप से तुरंत रिमूव हो चुका है।`
+          "Subject Deleted from Supabase",
+          `Subject "${title}" has been removed from Supabase and is immediately removed from the student app.`
         );
       } else {
         if (props.onDeleteChapter) {
@@ -381,12 +381,12 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
         }
         setDeleteNotification({
           type: "success",
-          message: `अध्याय "${title}" Supabase से हटा दिया गया है।`
+          message: `Chapter "${title}" has been deleted from Supabase.`
         });
         triggerAdminToast(
           "delete",
-          "अध्याय Supabase से हटाया गया",
-          `अध्याय "${title}" को Supabase से हटा दिया गया है और यह यूजर ऐप से तुरंत रिमूव हो चुका है।`
+          "Chapter Deleted from Supabase",
+          `Chapter "${title}" has been removed from Supabase and is immediately removed from the student app.`
         );
       }
       setTimeout(() => setDeleteNotification(null), 3500);
@@ -1565,7 +1565,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                               Live Quiz Battle Telemetry
                             </h3>
                             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                              सक्रिय बैटल रूम्स, वर्तमान में लाइव खेल रहे छात्र और सम्पूर्ण मैच इतिहास का लाइव मॉनिटर।
+                              Live monitor for active battle rooms, currently playing students, and complete match history.
                             </p>
                           </div>
 
@@ -1821,7 +1821,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                       <span>Application Settings &amp; Feature Control</span>
                     </h2>
                     <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-                      यूज़र ऐप के फ़ीचर्स नियंत्रित करें, डेटाबेस बैकअप लें और सिस्टम डायग्नोस्टिक्स चलाएं।
+                      Control student app feature toggles, manage database backups, and run diagnostics.
                     </p>
                   </div>
                   <div className="flex items-center p-1 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xs overflow-x-auto max-w-full no-scrollbar self-start sm:self-auto">
@@ -1834,7 +1834,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                       }`}
                     >
                       <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
-                      <span>यूज़र ऐप फ़ीचर्स (Toggles)</span>
+                      <span>App Feature Toggles</span>
                     </button>
                     <button
                       onClick={() => setSubTabSettings("maintenance")}
@@ -1845,7 +1845,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                       }`}
                     >
                       <Settings className="w-3.5 h-3.5" />
-                      <span>सिस्टम बैकअप व मेंटेनेंस</span>
+                      <span>Backup & Maintenance</span>
                     </button>
                   </div>
                 </div>

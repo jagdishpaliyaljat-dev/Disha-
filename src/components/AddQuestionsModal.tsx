@@ -580,7 +580,7 @@ export const AddQuestionsModal: React.FC<AddQuestionsModalProps> = ({
       const formattedBlocks = questions.map((res, i) => {
         const qNum = `Q${i + 1}.`;
         if (res.assertion && res.reason) {
-          return `${qNum} अभिकथन (A): ${res.assertion}\n\nकारण (R): ${res.reason}\n\nA. ${res.options[0]}\nB. ${res.options[1]}\nC. ${res.options[2]}\nD. ${res.options[3]}\n\nAnswer: ${["A", "B", "C", "D"][res.correctIndex]}\n\n${res.explanation ? `Explanation: ${res.explanation}` : ""}`.trim();
+          return `${qNum} Assertion (A): ${res.assertion}\n\nReason (R): ${res.reason}\n\nA. ${res.options[0]}\nB. ${res.options[1]}\nC. ${res.options[2]}\nD. ${res.options[3]}\n\nAnswer: ${["A", "B", "C", "D"][res.correctIndex]}\n\n${res.explanation ? `Explanation: ${res.explanation}` : ""}`.trim();
         }
         if (res.statements && res.statements.length > 0) {
           const stmts = res.statements.map((s, si) => `(${si + 1}) ${s}`).join("\n");
@@ -1279,7 +1279,7 @@ export const AddQuestionsModal: React.FC<AddQuestionsModalProps> = ({
       if (toImport.length === 0) {
         setParseError(
           duplicateIds.size > 0
-            ? "सभी प्रश्न पहले से डेटाबेस में मौजूद हैं या डुप्लीकेट हैं (समानता >=90%)। डाटाबेस को सुरक्षित रखते हुए डुप्लीकेट प्रश्न छोड़ दिए गए।"
+            ? "All questions already exist in the database or are duplicates (similarity >=90%). To preserve database integrity, duplicate questions were skipped."
             : "No valid questions selected to import. Please check and fix any errors."
         );
         setBulkSaveErrorCode("all-duplicates");
@@ -1682,26 +1682,26 @@ export const AddQuestionsModal: React.FC<AddQuestionsModalProps> = ({
 
   // Sample templates helpers
   const handleInsertSampleText = () => {
-    const sample = `Q1. राजस्थान में वृद्धजनों के लिए शुरू किए गए डे-केयर सेंटर्स 'भक्त श्रवण कुमार कल्याण सेवा आश्रम' के संदर्भ में निम्नलिखित कथनों पर विचार कीजिए:
-कथन 1: यह केंद्र 60 वर्ष से अधिक आयु के पुरुषों तथा 55 वर्ष से अधिक आयु की महिलाओं के लिए शुरू किए गए हैं।
-कथन 2: वर्तमान में राज्य में ऐसे 10 डे-केयर सेंटर शुरू किए गए हैं, जहाँ चिकित्सा, प्रौढ़ शिक्षा, अल्पाहार, प्रवचन एवं धार्मिक भ्रमण की सुविधा दी जाती है।
-उपर्युक्त में से कौन-सा/से कथन सत्य है/हैं?
-A केवल 1
-B केवल 2
-C 1 और 2 दोनों
-D न तो 1 और न ही 2
+    const sample = `Q1. Consider the following statements regarding the Day-Care Centers 'Bhakt Shravan Kumar Kalyan Seva Ashram':
+Statement 1: These centers are initiated for men aged 60+ and women aged 55+.
+Statement 2: Currently 10 day-care centers are operational in the state, offering medical checkups, adult education, and religious tours.
+Which of the above statements is/are correct?
+A Only 1
+B Only 2
+C Both 1 and 2
+D Neither 1 nor 2
 Answer: C
-Explanation: दोनों कथन सत्य हैं। राज्य सरकार द्वारा वरिष्ठ नागरिकों के सम्मानपूर्वक दिन व्यतीत करने हेतु 10 'भक्त श्रवण कुमार कल्याण सेवा आश्रम' (डे-केयर सेंटर) संचालित किए जा रहे हैं, जिसमें 60+ पुरुष और 55+ महिलाएं पात्र हैं। यहाँ उन्हें स्वास्थ्य जांच, हल्का नाश्ता, सत्संग-प्रवचन और धार्मिक यात्राओं की सुविधाएं निःशुल्क उपलब्ध कराई जाती हैं।
+Explanation: Both statements are correct. The state government operates 10 Bhakt Shravan Kumar day-care centers for senior citizens, providing free healthcare, snacks, and religious pilgrimage facilities.
 
-Q2. राजस्थान में कृषि के संदर्भ में निम्नलिखित कथनों पर विचार कीजिए:
-1. इंदिरा गांधी नहर परियोजना सतलुज और ब्यास नदियों के संगम पर स्थित हरिके बैराज से निकलती है।
-2. चंबल घाटी परियोजना राजस्थान तथा मध्य प्रदेश की संयुक्त बहुउद्देशीय परियोजना है।
-A केवल 1
-B केवल 2
-C 1 और 2 दोनों
-D न तो 1 और न ही 2
+Q2. Consider the following statements regarding major river valley projects:
+1. The Indira Gandhi Canal originates from the Harike Barrage at the confluence of the Satluj and Beas rivers.
+2. The Chambal Valley Project is a joint multipurpose project between Rajasthan and Madhya Pradesh.
+A Only 1
+B Only 2
+C Both 1 and 2
+D Neither 1 nor 2
 Answer: C
-Explanation: दोनों कथन सही हैं। इंदिरा गांधी नहर हरिके बैराज से निकलती है और चंबल परियोजना राजस्थान व MP की संयुक्त परियोजना है।`;
+Explanation: Both statements are true. Indira Gandhi Canal originates from Harike Barrage, and Chambal project is a joint venture of Rajasthan and MP.`;
     setPasteText(sample);
   };
 
@@ -2890,10 +2890,10 @@ Format B: { "testId": "...", "questions": [ { "question": "...", "options": { "A
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-black text-amber-900 dark:text-amber-200">
-                      ⚠️ 90%+ समानता वाले डुप्लीकेट प्रश्न: {duplicateIds.size} प्रश्न डेटाबेस या पेस्ट बैच में पहले से मौजूद हैं!
+                      ⚠️ 90%+ Similarity Duplicate Questions: {duplicateIds.size} questions already exist in the database or paste batch!
                     </p>
                     <p className="text-[11px] text-amber-700 dark:text-amber-400 mt-0.5 font-medium">
-                      सिस्टम ने डुप्लीकेट प्रश्नों को चिन्हित कर लिया है ताकि बार-बार एक ही प्रश्न डेटाबेस में न जुड़े। आप इन्हें फ़िल्टर कर सकते हैं या एक-क्लिक में हटा सकते हैं।
+                      The system flagged duplicate questions to prevent redundant entries in the database. You can filter them or remove them in one click.
                     </p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
@@ -2902,12 +2902,12 @@ Format B: { "testId": "...", "questions": [ { "question": "...", "options": { "A
                       onClick={() => setFilterMode("duplicates")}
                       className="px-2.5 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer shadow-xs active:scale-95"
                     >
-                      डुप्लीकेट देखें ({duplicateIds.size})
+                      View Duplicates ({duplicateIds.size})
                     </button>
                     <button
                       type="button"
                       onClick={() => {
-                        if (window.confirm(`क्या आप सभी ${duplicateIds.size} डुप्लीकेट प्रश्नों को इस इम्पोर्ट लिस्ट से हटाना चाहते हैं?`)) {
+                        if (window.confirm(`Are you sure you want to remove all ${duplicateIds.size} duplicate questions from this import list?`)) {
                           setDraftQuestions((prev) => (prev || []).filter((q) => !duplicateIds.has(q.tempId)));
                         }
                       }}
@@ -2915,7 +2915,7 @@ Format B: { "testId": "...", "questions": [ { "question": "...", "options": { "A
                       title="Remove all duplicate questions from this import batch"
                     >
                       <Trash2 className="w-3 h-3" />
-                      <span>सभी हटाएं</span>
+                      <span>Remove All</span>
                     </button>
                   </div>
                 </div>
@@ -3312,14 +3312,14 @@ Format B: { "testId": "...", "questions": [ { "question": "...", "options": { "A
                                 }`}
                                 title={
                                   dupeInfo
-                                    ? `${dupeInfo.percentage}% समानता (${dupeInfo.isBatchInternal ? "पेस्ट बैच में मौजूद" : "डेटाबेस में मौजूद"}): "${dupeInfo.matchedText.slice(0, 100)}..."`
+                                    ? `${dupeInfo.percentage}% similarity (${dupeInfo.isBatchInternal ? "in paste batch" : "in database"}): "${dupeInfo.matchedText.slice(0, 100)}..."`
                                     : "Duplicate question detected"
                                 }
                               >
                                 <AlertTriangle className="w-3 h-3" />
                                 <span>
                                   {dupeInfo
-                                    ? `${dupeInfo.percentage}% डुप्लीकेट (${dupeInfo.isBatchInternal ? "बैच" : "DB"})`
+                                    ? `${dupeInfo.percentage}% Duplicate (${dupeInfo.isBatchInternal ? "Batch" : "DB"})`
                                     : "Duplicate in DB"}
                                 </span>
                               </span>

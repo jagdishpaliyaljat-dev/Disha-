@@ -40,39 +40,39 @@ export const REPORT_EVENT_NAME = "disha_question_reported";
 
 export const ISSUE_TYPE_LABELS: Record<QuestionIssueType, { hi: string; en: string; description: string }> = {
   wrong_answer: {
-    hi: "गलत उत्तर कुंजी (Wrong Answer Key)",
+    hi: "Wrong Answer Key",
     en: "Wrong Answer Key",
-    description: "दिए गए उत्तर में त्रुटि है, सही उत्तर दूसरा विकल्प है।",
+    description: "The marked correct option is incorrect; another option is the right answer.",
   },
   typo: {
-    hi: "प्रश्न में अशुद्धि / टाइपिंग एरर (Typo / Misprint)",
+    hi: "Typo / Misprint",
     en: "Typo / Misprint",
-    description: "प्रश्न की भाषा, वर्तनी या टाइपिंग में मिसप्रिंटिंग है।",
+    description: "Typographical, spelling, or formatting error in question wording.",
   },
   incomplete_options: {
-    hi: "अपूर्ण या गलत विकल्प (Incomplete / Duplicate Options)",
+    hi: "Incomplete / Duplicate Options",
     en: "Incomplete / Duplicate Options",
-    description: "विकल्प आधे-अधूरे हैं, गायब हैं या दो विकल्प एक जैसे हैं।",
+    description: "Options are truncated, missing, or identical copies.",
   },
   wrong_explanation: {
-    hi: "व्याख्या में त्रुटि (Inaccurate Explanation)",
+    hi: "Inaccurate Explanation",
     en: "Inaccurate Explanation",
-    description: "प्रश्न की व्याख्या/सॉल्यूशन में तथ्य गलत या भ्रामक हैं।",
+    description: "Explanation or solution contains incorrect or misleading facts.",
   },
   ambiguous: {
-    hi: "द्वयर्थी / अस्पष्ट प्रश्न (Ambiguous Question)",
+    hi: "Ambiguous Question",
     en: "Ambiguous Question",
-    description: "प्रश्न की भाषा स्पष्ट नहीं है या कई उत्तर संभव प्रतीत होते हैं।",
+    description: "Question phrasing is unclear or allows multiple valid answers.",
   },
   outdated: {
-    hi: "पुराना / अप्रचलित तथ्य (Outdated Fact / Current Affairs)",
+    hi: "Outdated Fact",
     en: "Outdated Fact",
-    description: "नवीनतम आंकड़ों, नियमों या संशोधन के अनुसार तथ्य बदल चुका है।",
+    description: "Facts have changed according to recent data, amendments, or rules.",
   },
   other: {
-    hi: "अन्य आपत्ति / दावा (Other Issue)",
+    hi: "Other Issue",
     en: "Other Issue",
-    description: "प्रश्न में किसी अन्य प्रकार की समस्या या आपत्ति है।",
+    description: "Other problem or objection regarding this question.",
   },
 };
 
@@ -169,7 +169,7 @@ export async function submitQuestionReport(input: SubmitReportInput): Promise<{
       return {
         success: false,
         report: {} as QuestionReport,
-        error: "प्रश्न और टिप्पणी प्रदान करना आवश्यक है।",
+        error: "Question ID and student comment are required.",
       };
     }
 
@@ -177,7 +177,7 @@ export async function submitQuestionReport(input: SubmitReportInput): Promise<{
       return {
         success: false,
         report: {} as QuestionReport,
-        error: "आपत्ति विवरण 3,000 अक्षरों से अधिक लंबा नहीं हो सकता।",
+        error: "Objection description cannot exceed 3,000 characters.",
       };
     }
 
@@ -191,7 +191,7 @@ export async function submitQuestionReport(input: SubmitReportInput): Promise<{
       subjectName: input.subjectName,
       chapterName: input.chapterName,
       topicName: input.topicName,
-      studentName: input.studentName?.trim() || "विद्यार्थी (Aspirant)",
+      studentName: input.studentName?.trim() || "Aspirant",
       studentEmail: input.studentEmail?.trim() || "",
       studentUid: input.studentUid,
       issueType: input.issueType,
@@ -223,8 +223,8 @@ export async function submitQuestionReport(input: SubmitReportInput): Promise<{
     // 4. Trigger top-center notification
     triggerAdminToast(
       "success",
-      "आपत्ति सफलतापूर्वक दर्ज की गई!",
-      "आपकी रिपोर्ट सबमिट हो चुकी है। विषय विशेषज्ञ टीम इसका शीघ्र सत्यापन करेगी।",
+      "Objection Submitted Successfully!",
+      "Your report has been submitted. The subject matter expert team will review it shortly.",
       { category: "Question Report", itemName: `QID: ${input.questionId.slice(0, 8)}` }
     );
 
@@ -266,7 +266,7 @@ export async function submitQuestionReport(input: SubmitReportInput): Promise<{
     return {
       success: false,
       report: {} as QuestionReport,
-      error: err?.message || "रिपोर्ट सबमिट करने में त्रुटि हुई",
+      error: err?.message || "Failed to submit objection report",
     };
   }
 }

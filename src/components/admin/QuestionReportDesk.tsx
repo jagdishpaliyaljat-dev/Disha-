@@ -95,16 +95,16 @@ export const QuestionReportDesk: React.FC<QuestionReportDeskProps> = ({
     setReports(prev => prev.map(r => r.id === reportId ? { ...r, status } : r));
     triggerAdminToast(
       status === "resolved" ? "success" : "info",
-      status === "resolved" ? "आपत्ति निस्तारित (Resolved)" : "आपत्ति निरस्त (Dismissed)",
-      `रिपोर्ट ID: ${reportId} को ${status === "resolved" ? "सफलतापूर्वक हल" : "खारिज"} कर दिया गया है।`
+      status === "resolved" ? "Objection Resolved" : "Objection Dismissed",
+      `Report ID: ${reportId} has been ${status === "resolved" ? "successfully resolved" : "dismissed"}.`
     );
   };
 
   const handleDeleteReport = async (reportId: string) => {
-    if (!confirm("क्या आप इस आपत्ति को हटाना चाहते हैं?")) return;
+    if (!confirm("Are you sure you want to delete this objection report?")) return;
     await deleteReport(reportId);
     setReports(prev => prev.filter(r => r.id !== reportId));
-    triggerAdminToast("delete", "आपत्ति हटाई गई", `रिपोर्ट ${reportId} सुरक्षित हटा दी गई।`);
+    triggerAdminToast("delete", "Objection Deleted", `Report ${reportId} has been safely removed.`);
   };
 
   const handleOpenFixModal = (report: QuestionReport) => {
@@ -112,9 +112,9 @@ export const QuestionReportDesk: React.FC<QuestionReportDeskProps> = ({
     const targetQ = questions.find(q => q.id === report.questionId) || {
       id: report.questionId,
       text: report.questionText,
-      options: ["विकल्प A", "विकल्प B", "विकल्प C", "विकल्प D", "अनुत्तरित प्रश्न"],
+      options: ["Option A", "Option B", "Option C", "Option D", "Unanswered"],
       correctIndex: 0,
-      explanation: "विस्तृत व्याख्या...",
+      explanation: "Detailed explanation...",
       chapterId: "",
       topicId: ""
     } as Question;
@@ -175,7 +175,7 @@ export const QuestionReportDesk: React.FC<QuestionReportDeskProps> = ({
           <div>
             <div className="flex items-center gap-2">
               <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-white">
-                Student Objection & Doubt Desk (आपत्ति केंद्र)
+                Student Objection & Doubt Desk
               </h3>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-500 text-white">
                 {pendingCount} Pending
@@ -358,7 +358,7 @@ export const QuestionReportDesk: React.FC<QuestionReportDeskProps> = ({
 
             <div>
               <label className="block text-xs font-bold text-slate-500 mb-1.5">
-                Correct Option (सही उत्तर चुनें)
+                Select Correct Option
               </label>
               <div className="space-y-1.5">
                 {fixQuestion.options.map((opt, idx) => (
@@ -386,7 +386,7 @@ export const QuestionReportDesk: React.FC<QuestionReportDeskProps> = ({
 
             <div>
               <label className="block text-xs font-bold text-slate-500 mb-1">
-                Detailed Explanation (व्याख्या सुधारें)
+                Detailed Explanation
               </label>
               <textarea
                 value={fixExplanation}

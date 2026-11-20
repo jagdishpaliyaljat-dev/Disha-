@@ -707,13 +707,13 @@ export function getBattleShareInfo(roomCode: string, timePerQuestionSec: number 
   const battleUrl = `${origin}/?battle=${roomCode}`;
   const text = `⚔️ *Live Quiz Battle Invitation!*
 
-राजस्थान GK लाइव मुकाबला! 🏆
-(डायरेक्ट लिंक: सभी दोस्त तुरंत जुड़ सकते हैं 👥)
+Live GK Battle Arena! 🏆
+(Direct Link: Invite friends to join instantly 👥)
 
 🔑 Room Code: *${roomCode}*
-⏱️ समय: *${timePerQuestionSec} सेकंड (${timePerQuestionSec} seconds per question)*
+⏱️ Timer: *${timePerQuestionSec} seconds per question*
 
-👉 सीधे बैटल एरिना में शामिल होने के लिए लिंक दबाएं:
+👉 Click the link to enter the battle arena directly:
 ${battleUrl}`;
   const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
 

@@ -1585,7 +1585,7 @@ export const AIImportModal: React.FC<AIImportModalProps> = ({
         className="w-full py-3.5 rounded-2xl flex items-center justify-center gap-2 font-black text-sm transition-all active:scale-[0.98] disabled:opacity-50 shadow-[0_4px_16px_rgba(244,123,32,0.35)] bg-gradient-to-r from-[#F47B20] to-[#E06716] hover:brightness-105 border border-[#C99A45]/40 text-white cursor-pointer"
       >
         {loading ? <InlineSpinner size="sm" /> : <Icon className="w-5 h-5" />}
-        <span>{loading ? "प्रक्रिया जारी है..." : label}</span>
+        <span>{loading ? "Processing..." : label}</span>
       </button>
     </div>
   );
@@ -1882,7 +1882,7 @@ export const AIImportModal: React.FC<AIImportModalProps> = ({
                       <button
                         type="button"
                         onClick={() => {
-                          const sample = `Question: भारत में पंचायती राज व्यवस्था किस संविधान संशोधन से संबंधित है?\n\nA. 42वां संशोधन\nB. 44वां संशोधन\nC. 73वां संशोधन\nD. 74वां संशोधन\n\nAnswer: C\n\nExplanation: 73वें संविधान संशोधन द्वारा पंचायती राज संस्थाओं को संवैधानिक दर्जा दिया गया।\n\nSubject: भारतीय राजव्यवस्था\nChapter: पंचायती राज\nTopic: 73वां संविधान संशोधन\n\nExam: CET 12th Level\nYear: 2023\n\nExam: Patwari\nYear: 2021\n\nQuestion: विश्व पर्यावरण दिवस कब मनाया जाता है?\n\nA. 5 जून\nB. 22 अप्रैल\nC. 16 सितंबर\nD. 1 दिसंबर\n\nAnswer: A\n\nExplanation: 5 जून को विश्व पर्यावरण दिवस मनाया जाता है।`;
+                          const sample = `Question: Which Constitutional Amendment Act gave constitutional status to Panchayati Raj institutions in India?\n\nA. 42nd Amendment\nB. 44th Amendment\nC. 73rd Amendment\nD. 74th Amendment\n\nAnswer: C\n\nExplanation: The 73rd Constitutional Amendment Act, 1992 granted constitutional status to Panchayati Raj institutions.\n\nSubject: Indian Polity\nChapter: Panchayati Raj\nTopic: 73rd Constitutional Amendment\n\nExam: CET 12th Level\nYear: 2023\n\nExam: Patwari\nYear: 2021\n\nQuestion: When is World Environment Day celebrated globally?\n\nA. June 5\nB. April 22\nC. September 16\nD. December 1\n\nAnswer: A\n\nExplanation: World Environment Day is celebrated annually on June 5.`;
                           setPasteText(sample);
                         }}
                         className="px-3 py-1.5 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 text-xs font-black flex items-center gap-1.5 hover:bg-blue-100 transition-all cursor-pointer"
@@ -1905,7 +1905,7 @@ export const AIImportModal: React.FC<AIImportModalProps> = ({
                     <textarea
                       value={pasteText}
                       onChange={(e) => setPasteText(e.target.value)}
-                      placeholder={`Paste standard or numbered MCQs with multiple exams...\n\nExample:\nQuestion: भारत में पंचायती राज व्यवस्था किस संशोधन से संबंधित है?\nA. 42वां\nB. 73वां\nAnswer: B\nExam: CET 12th Level\nYear: 2023\nExam: Patwari\nYear: 2021`}
+                      placeholder={`Paste standard or numbered MCQs with multiple exams...\n\nExample:\nQuestion: Which Constitutional Amendment Act is related to Panchayati Raj in India?\nA. 42nd\nB. 73rd\nAnswer: B\nExam: CET 12th Level\nYear: 2023\nExam: Patwari\nYear: 2021`}
                       className="w-full h-64 p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-900 dark:text-white leading-relaxed focus:ring-2 focus:ring-blue-500/20 outline-none resize-none font-mono"
                     />
                     {pasteText && (
@@ -1953,13 +1953,13 @@ export const AIImportModal: React.FC<AIImportModalProps> = ({
                             questions: [
                               {
                                 type: "single_correct",
-                                question: "भारत में पंचायती राज व्यवस्था किस संविधान संशोधन से संबंधित है?",
-                                options: ["42वां संशोधन", "44वां संशोधन", "73वां संशोधन", "74वां संशोधन"],
+                                question: "Which Constitutional Amendment Act gave constitutional status to Panchayati Raj institutions in India?",
+                                options: ["42nd Amendment", "44th Amendment", "73rd Amendment", "74th Amendment"],
                                 answer: "C",
-                                explanation: "73वें संविधान संशोधन द्वारा पंचायती राज संस्थाओं को संवैधानिक दर्जा दिया गया।",
-                                subject: "भारतीय राजव्यवस्था",
-                                chapter: "पंचायती राज",
-                                topic: "73वां संविधान संशोधन"
+                                explanation: "The 73rd Constitutional Amendment Act, 1992 granted constitutional status to Panchayati Raj institutions.",
+                                subject: "Indian Polity",
+                                chapter: "Panchayati Raj",
+                                topic: "73rd Constitutional Amendment"
                               }
                             ]
                           }, null, 2);
@@ -2251,7 +2251,7 @@ export const AIImportModal: React.FC<AIImportModalProps> = ({
                 className="w-full py-4 rounded-2xl flex items-center justify-center gap-2 font-black text-sm text-white bg-gradient-to-r from-[#F47B20] to-[#E06716] hover:brightness-105 border border-[#C99A45]/40 transition-all shadow-[0_4px_16px_rgba(244,123,32,0.35)] active:scale-[0.98] disabled:opacity-50 cursor-pointer"
               >
                 {isAiProcessing ? <InlineSpinner size="sm" /> : <Sparkles className="w-5 h-5 text-[#FFF9EF]" />}
-                <span>{isAiProcessing ? (processingStatus || "प्रश्नों का विश्लेषण जारी है...") : "प्रश्नों का पूर्वावलोकन व विश्लेषण करें →"}</span>
+                <span>{isAiProcessing ? (processingStatus || "Analyzing questions with AI...") : "Preview & Analyze Questions →"}</span>
               </button>
               )}
             </motion.div>
@@ -2921,8 +2921,8 @@ export const AIImportModal: React.FC<AIImportModalProps> = ({
                     {isCommitting ? <InlineSpinner size="sm" /> : <Check className="w-5 h-5" />}
                     <span>
                       {isCommitting
-                        ? (commitProgressText ? `डेटाबेस में सुरक्षित किया जा रहा है (${commitProgressText})...` : "डेटाबेस में सुरक्षित किया जा रहा है...")
-                        : `डेटाबेस में ${selectedCount} प्रश्न सुरक्षित करें`}
+                        ? (commitProgressText ? `Saving to Database (${commitProgressText})...` : "Saving to Database...")
+                        : `Save ${selectedCount} Questions to Database`}
                     </span>
                   </button>
                 </div>

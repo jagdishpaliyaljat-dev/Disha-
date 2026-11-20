@@ -325,7 +325,7 @@ export const McqDuplicateScannerWidget: React.FC = () => {
                                     type="button"
                                     onClick={async (e) => {
                                       e.stopPropagation();
-                                      if (!window.confirm(`क्या आप इस डुप्लीकेट प्रति (ID: ${item.docId}) को हटाना चाहते हैं?`)) return;
+                                      if (!window.confirm(`Are you sure you want to delete this duplicate copy (ID: ${item.docId})?`)) return;
                                       const { deleteQuestionFromSupabase } = await import("../../utils/supabaseSyncService");
                                       await deleteQuestionFromSupabase(item.docId);
                                       handleRunScan();

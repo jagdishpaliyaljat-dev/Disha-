@@ -686,7 +686,7 @@ https://disha2020.in
         </div>
       </section>
 
-      {/* 3. AI GURU DIRECT DIAGNOSTIC REMARKS ("तेरी कमियां कहां पर है") */}
+      {/* 3. AI GURU DIRECT DIAGNOSTIC REMARKS ("Unvarnished Diagnostic Insights") */}
       <section className="bg-white dark:bg-[#1F2330] rounded-3xl p-5 sm:p-6 border border-[#E8D9C0] dark:border-[#31374A] shadow-xs space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -743,7 +743,7 @@ https://disha2020.in
         </div>
       </section>
 
-      {/* 4. THE CORE WEAKNESS RADAR (कमजोरियों का रडार - EXACT TOPICS & FLAW REASONS) */}
+      {/* 4. THE CORE WEAKNESS RADAR (EXACT TOPICS & FLAW REASONS) */}
       <section className="bg-white dark:bg-[#1F2330] rounded-3xl p-5 sm:p-6 border border-[#E8D9C0] dark:border-[#31374A] shadow-xs space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>

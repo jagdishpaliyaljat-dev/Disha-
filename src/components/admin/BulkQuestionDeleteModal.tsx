@@ -449,7 +449,7 @@ export const BulkQuestionDeleteModal: React.FC<BulkQuestionDeleteModalProps> = (
                   Bulk Delete Questions
                 </h2>
                 <span className="px-2 py-0.5 rounded-md bg-rose-100 dark:bg-rose-950/70 text-rose-700 dark:text-rose-300 text-[10px] font-extrabold uppercase tracking-wider">
-                  बल्क डिलीट
+                  Bulk Delete
                 </span>
               </div>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">
@@ -941,7 +941,7 @@ export const BulkQuestionDeleteModal: React.FC<BulkQuestionDeleteModalProps> = (
                 className="flex-1 py-2.5 bg-rose-600 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer hover:bg-rose-700"
               >
                 {isDeleting ? <InlineSpinner size="xs" /> : <Trash2 className="w-4 h-4" />}
-                <span>{isDeleting ? "हटाया जा रहा है..." : "Yes, Delete"}</span>
+                <span>{isDeleting ? "Deleting..." : "Yes, Delete"}</span>
               </button>
             </div>
           </div>
@@ -1028,7 +1028,7 @@ export const BulkQuestionDeleteModal: React.FC<BulkQuestionDeleteModalProps> = (
                 {isDeleting ? (
                   <>
                     <InlineSpinner size="xs" />
-                    <span>हटाया जा रहा है...</span>
+                    <span>Deleting...</span>
                   </>
                 ) : (
                   <>

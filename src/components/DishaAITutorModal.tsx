@@ -459,10 +459,10 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
               <div className="p-3.5 bg-white dark:bg-[#111622] border border-[#E8D9C0] dark:border-[#263045] rounded-2xl rounded-bl-xs shadow-xs space-y-1">
                 <div className="flex items-center gap-2 text-[13.5px] font-black text-[#C99A45]">
                   <InlineSpinner size="xs" />
-                  <span>DISHA AI उत्तर तैयार कर रहा है...</span>
+                  <span>DISHA AI is generating response...</span>
                 </div>
                 <p className="text-[12px] text-[#6F768A] dark:text-[#9AA2B8]">
-                  परीक्षा-उन्मुख अवधारणाओं और तथ्यों का सटीक विश्लेषण जारी है...
+                  Analyzing exam concepts and key facts...
                 </p>
               </div>
             </div>

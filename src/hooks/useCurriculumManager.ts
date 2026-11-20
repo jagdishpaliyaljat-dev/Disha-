@@ -85,8 +85,8 @@ export const useCurriculumManager = (
         addToast('success', 'Backend Sync Success', res.message);
         triggerAdminToast(
           'delete',
-          'विषय Supabase से हटाया गया',
-          'विषय को Supabase से हटा दिया गया है और यह यूजर ऐप से तुरंत रिमूव हो चुका है।'
+          'Subject Removed from Supabase',
+          'The subject has been removed from Supabase and is immediately updated in the student app.'
         );
       } else {
         addToast('info', 'Deleted Locally', res.message);
@@ -159,8 +159,8 @@ export const useCurriculumManager = (
         addToast('success', 'Backend Sync Success', res.message);
         triggerAdminToast(
           'delete',
-          'अध्याय Supabase से हटाया गया',
-          'अध्याय को Supabase से हटा दिया गया है और यह यूजर ऐप से तुरंत रिमूव हो चुका है।'
+          'Chapter Removed from Supabase',
+          'The chapter has been removed from Supabase and is immediately updated in the student app.'
         );
       } else {
         addToast('info', 'Deleted Locally', res.message);
@@ -275,8 +275,8 @@ export const useCurriculumManager = (
         addToast('success', 'Backend Sync Success', res.message);
         triggerAdminToast(
           'delete',
-          'टॉपिक Supabase से हटाया गया',
-          'टॉपिक को Supabase से हटा दिया गया है और यह यूजर ऐप से तुरंत रिमूव हो चुका है।'
+          'Topic Removed from Supabase',
+          'The topic has been removed from Supabase and is immediately updated in the student app.'
         );
       } else {
         addToast('info', 'Deleted Locally', res.message);

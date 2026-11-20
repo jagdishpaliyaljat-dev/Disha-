@@ -328,16 +328,16 @@ export async function updateUserAccountStatus(
 export async function updateUserRole(userId: string, newRole: "admin" | "student" | "user"): Promise<void> {
   const currentAdmin = loadUserProfile();
   if (!isSuperAdmin(currentAdmin)) {
-    throw new Error("अनधिकृत: केवल मुख्य प्रशासक (Super Admin) ही एडमिन बना या हटा सकते हैं (Unauthorized: Only super admins can update roles)।");
+    throw new Error("Unauthorized: Only super administrators can update user roles.");
   }
 
   // Prevent demoting a Super Admin
   if (isSuperAdmin(userId) && newRole !== "admin") {
-    throw new Error("निषिद्ध: मुख्य Super Admin को डिमोट नहीं किया जा सकता।");
+    throw new Error("Forbidden: The primary Super Admin cannot be demoted.");
   }
 
   if ((userId === currentAdmin?.id || userId === "admin1") && newRole !== "admin") {
-    throw new Error("Action Restricted: Administrators cannot demote their own account (निषिद्ध: आप स्वयं अपने एडमिन अधिकार नहीं हटा सकते)।");
+    throw new Error("Action Restricted: Administrators cannot demote their own account.");
   }
 
   const normalizedRole = newRole === "admin" ? "admin" : "student";
@@ -364,7 +364,7 @@ export async function updateUserRole(userId: string, newRole: "admin" | "student
       .eq("id", userId);
 
     if (error) {
-      throw new Error(`Supabase में यूज़र रोल अपडेट विफल: ${error.message}`);
+      throw new Error(`Failed to update user role in Supabase: ${error.message}`);
     }
   }
 
@@ -377,7 +377,7 @@ export async function updateUserRole(userId: string, newRole: "admin" | "student
 
   try {
     const targetUser = localUsers.find((u) => u.id === userId) || ({ id: userId, name: "User", email: "" } as any);
-    await logAdminAction("update_role", targetUser, `यूज़र रोल को ${normalizedRole === "admin" ? "Admin" : "Student"} में अपडेट किया गया`);
+    await logAdminAction("update_role", targetUser, `Updated user role to ${normalizedRole === "admin" ? "Admin" : "Student"}`);
   } catch (e) {
     console.warn("Audit logging for role change failed:", e);
   }
@@ -389,11 +389,11 @@ export async function updateUserRole(userId: string, newRole: "admin" | "student
 export async function promoteUserByEmail(email: string): Promise<UserProfile> {
   const currentAdmin = loadUserProfile();
   if (!isSuperAdmin(currentAdmin)) {
-    throw new Error("अनधिकृत: केवल मुख्य प्रशासक (Super Admin) ही नए एडमिन बना सकते हैं।");
+    throw new Error("Unauthorized: Only super administrators can promote new admins.");
   }
   const cleanEmail = email.trim().toLowerCase();
   if (!cleanEmail || !cleanEmail.includes("@")) {
-    throw new Error("कृपया एक मान्य ईमेल पता दर्ज करें।");
+    throw new Error("Please enter a valid email address.");
   }
 
   // Check if target is already in local directory
@@ -412,10 +412,10 @@ export async function promoteUserByEmail(email: string): Promise<UserProfile> {
       .maybeSingle();
 
     if (error) {
-      throw new Error(`डेटाबेस त्रुटि: ${error.message}`);
+      throw new Error(`Database error: ${error.message}`);
     }
     if (!data) {
-      throw new Error(`ईमेल "${cleanEmail}" वाला कोई छात्र नहीं मिला। पहले उस यूज़र को ऐप में एक बार लॉगिन करना होगा।`);
+      throw new Error(`No user found with email "${cleanEmail}". The user must register or sign in to the app first.`);
     }
     targetUserId = data.id;
   }
@@ -440,7 +440,7 @@ export async function promoteUserByEmail(email: string): Promise<UserProfile> {
 export async function deleteUserAccountFromFirestore(userId: string, _reason?: string): Promise<void> {
   const currentAdmin = loadUserProfile();
   if (userId === currentAdmin?.id || userId === "admin1") {
-    throw new Error("Action Restricted: Administrators cannot delete their own active administrator account (निषिद्ध: आप स्वयं अपना एडमिन खाता नहीं हटा सकते)।");
+    throw new Error("Action Restricted: Administrators cannot delete their own active administrator account.");
   }
 
   const { error } = await supabase.from("profiles").delete().eq("id", userId);

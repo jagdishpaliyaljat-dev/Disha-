@@ -372,7 +372,7 @@ export const ArticleSEOControlPanel: React.FC<ArticleSEOControlPanelProps> = ({
               ) : (
                 <Sparkles className="w-4 h-4 text-[#FFF9EF] animate-pulse" />
               )}
-              <span>{aiLoading ? "AI विश्लेषण जारी है..." : "AI Auto-Optimize"}</span>
+              <span>{aiLoading ? "AI Optimizing..." : "AI Auto-Optimize"}</span>
             </button>
           )}
         </div>

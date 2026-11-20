@@ -143,7 +143,6 @@ function safeLazy<T extends React.ComponentType<any>>(
 
 const HomeTab = safeLazy<typeof import('./components/HomeTab').HomeTab>(() => import('./components/HomeTab'), 'HomeTab');
 const TopicsTab = safeLazy<typeof import('./components/TopicsTab').TopicsTab>(() => import('./components/TopicsTab'), 'TopicsTab');
-const VideoClassesTab = safeLazy<typeof import('./components/VideoClassesTab').VideoClassesTab>(() => import('./components/VideoClassesTab'), 'VideoClassesTab');
 const ProfileTab = safeLazy<typeof import('./components/ProfileTab').ProfileTab>(() => import('./components/ProfileTab'), 'ProfileTab');
 const AdminTab = safeLazy<typeof import('./components/AdminTab').AdminTab>(() => import('./components/AdminTab'), 'AdminTab');
 const PYQVaultTab = safeLazy<typeof import('./components/PYQVaultTab').PYQVaultTab>(() => import('./components/PYQVaultTab'), 'PYQVaultTab');
@@ -248,9 +247,6 @@ export default function App() {
 
   // Guard disabled features: redirect to home if current tab is disabled by admin
   React.useEffect(() => {
-    if (activeTab === 'videos' && !isFeatureEnabled('video_classes')) {
-      setActiveTab('home');
-    }
     if (activeTab === 'live_tests' && !isFeatureEnabled('live_tests')) {
       setActiveTab('home');
     }
@@ -1716,38 +1712,6 @@ export default function App() {
             onEditTopic={(topic: Topic) => handleEditTopic(topic)}
             onBack={() => {
               // Hierarchical state-aware back navigation
-              if (selectedTopicId) {
-                setSelectedTopicId(null);
-              } else if (selectedChapterId) {
-                setSelectedChapterId(null);
-              } else if (selectedSubjectId) {
-                setSelectedSubjectId(null);
-              } else if (typeof window !== 'undefined' && window.history.length > 1) {
-                window.history.back();
-              } else {
-                setActiveTab('home');
-              }
-            }}
-          />
-        )}
-
-        {activeTab === 'videos' && (
-          <TopicsTab
-            progressStore={progressStore}
-            subjects={combinedSubjects}
-            chapters={combinedChapters}
-            questionsStore={questionsStore}
-            selectedSubjectId={selectedSubjectId}
-            onSelectSubject={(subId: string | null) => setSelectedSubjectId(subId)}
-            selectedChapterId={selectedChapterId}
-            onSelectChapter={(chapId: string | null) => setSelectedChapterId(chapId)}
-            selectedTopicId={selectedTopicId}
-            onSelectTopic={(topId: string | null) => setSelectedTopicId(topId)}
-            onStartSession={handleStartSession}
-            onOpenPDFExport={() => setIsPDFOpen(true)}
-            isAdmin={isAdmin}
-            onEditTopic={(topic: Topic) => handleEditTopic(topic)}
-            onBack={() => {
               if (selectedTopicId) {
                 setSelectedTopicId(null);
               } else if (selectedChapterId) {

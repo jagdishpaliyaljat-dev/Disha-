@@ -151,8 +151,8 @@ export async function triggerLocalNotification(
           renotify: true,
           data: { url, timestamp: Date.now() },
           actions: actions || [
-            { action: "open_app", title: "🚀 ऐप खोलें" },
-            { action: "dismiss", title: "हटाएं" },
+            { action: "open_app", title: "🚀 Open App" },
+            { action: "dismiss", title: "Dismiss" },
           ],
         };
         await registration.showNotification(title, notifOptions);
@@ -207,8 +207,8 @@ export function setupDailyStudyNotificationTimer(
     if (currentHour === targetHour && currentMin === targetMin && lastTriggerDate !== todayStr) {
       localStorage.setItem("disha_last_study_reminder_date", todayStr);
       triggerLocalNotification({
-        title: "📚 DISHA 20-20 — अध्ययन का समय!",
-        body: "आज का 20 प्रश्नों का राजस्थान सामान्य ज्ञान अभ्यास पूरा करें और अपनी रैंक सुधारें।",
+        title: "📚 DISHA 20-20 — Study Time!",
+        body: "Complete today's 20-question practice test and boost your leaderboard rank.",
         url: "/",
         tag: "daily-study-reminder",
       });

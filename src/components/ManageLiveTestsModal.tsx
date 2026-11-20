@@ -189,8 +189,8 @@ export const ManageLiveTestsModal: React.FC<ManageLiveTestsModalProps> = ({
       setToastMessage({ type: "success", msg: "Live Test saved successfully!" });
       triggerDatabaseSavedToast({
         type: "add",
-        title: "लाइव टेस्ट Supabase में लाइव हुआ!",
-        message: `लाइव टेस्ट "${testToSave.title}" Supabase में सुरक्षित पब्लिश हो गया है और यूजर ऐप में लाइव उपलब्ध है।`,
+        title: "Live Test Published to Supabase!",
+        message: `Live test "${testToSave.title}" has been successfully published to Supabase and is now live in the student app.`,
         itemName: testToSave.title,
       });
       setTimeout(() => setToastMessage(null), 5000);
@@ -216,8 +216,8 @@ export const ManageLiveTestsModal: React.FC<ManageLiveTestsModalProps> = ({
       setToastMessage({ type: "success", msg: "Live Test deleted successfully!" });
       triggerAdminToast(
         "delete",
-        "लाइव टेस्ट Supabase से हटाया गया",
-        "लाइव टेस्ट को Supabase डेटाबेस से हटा दिया गया है और यूजर ऐप से तुरंत रिमूव हो चुका है।"
+        "Live Test Removed from Supabase",
+        "The live test has been deleted from Supabase database and immediately removed from the student app."
       );
       setTimeout(() => setToastMessage(null), 5000);
     } catch (err: any) {

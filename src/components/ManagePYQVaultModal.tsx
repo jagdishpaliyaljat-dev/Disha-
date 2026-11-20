@@ -247,8 +247,8 @@ export const ManagePYQVaultModal: React.FC<ManagePYQVaultModalProps> = ({
       setToastMessage({ type: "success", msg: "Saved successfully!" });
       triggerDatabaseSavedToast({
         type: "add",
-        title: "PYQ पेपर Supabase में लाइव हुआ!",
-        message: `विगत वर्ष पेपर "${paperToSave.title}" Supabase में सुरक्षित पब्लिश हो गया है और यूजर ऐप में लाइव उपलब्ध है।`,
+        title: "PYQ Paper Published to Supabase!",
+        message: `Previous year paper "${paperToSave.title}" has been successfully published to Supabase and is now live in the student app.`,
         itemName: paperToSave.title,
       });
       setTimeout(() => setToastMessage(null), 5000);
@@ -277,8 +277,8 @@ export const ManagePYQVaultModal: React.FC<ManagePYQVaultModalProps> = ({
       setToastMessage({ type: "success", msg: "PYQ Paper deleted successfully!" });
       triggerAdminToast(
         "delete",
-        "PYQ पेपर Supabase से हटाया गया",
-        "PYQ पेपर को Supabase डेटाबेस से हटा दिया गया है और यह यूजर ऐप से तुरंत रिमूव हो चुका है।"
+        "PYQ Paper Removed from Supabase",
+        "The PYQ paper has been deleted from Supabase database and immediately removed from the student app."
       );
       setTimeout(() => setToastMessage(null), 5000);
     } catch (err: any) {

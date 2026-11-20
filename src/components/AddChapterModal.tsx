@@ -20,7 +20,7 @@ export const AddChapterModal: React.FC<AddChapterModalProps> = ({
 }) => {
   const normalizedSubjects = useMemo(() => {
     if (subjects && subjects.length > 0) return subjects;
-    return [{ id: "sub_raj_hist", name: "Rajasthan History", hindiName: "राजस्थान का इतिहास" }];
+    return [{ id: "sub_raj_hist", name: "Rajasthan History", hindiName: "Rajasthan History" }];
   }, [subjects]);
 
   const [subjectId, setSubjectId] = useState<string>(initialSubjectId || normalizedSubjects[0]?.id || "sub_raj_hist");

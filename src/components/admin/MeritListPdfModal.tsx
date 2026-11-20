@@ -45,23 +45,23 @@ export const MeritListPdfModal: React.FC<MeritListPdfModalProps> = ({
 
   // Mock / real test candidates for the merit list
   const candidates: MeritListCandidate[] = React.useMemo(() => [
-    { rank: 1, name: "विकास बिश्नोई (जोधपुर)", rollNo: "D20-8491", score: 132.5, totalMarks: 200, correct: 105, incorrect: 18, unattempted: 27, percentile: 99.8, timeSpentMinutes: 112 },
-    { rank: 2, name: "प्रिया चौधरी (जयपुर)", rollNo: "D20-3120", score: 128.0, totalMarks: 200, correct: 102, incorrect: 22, unattempted: 26, percentile: 99.2, timeSpentMinutes: 108 },
-    { rank: 3, name: "रोहित मीणा (दौसा)", rollNo: "D20-5642", score: 124.5, totalMarks: 200, correct: 98, incorrect: 19, unattempted: 33, percentile: 98.7, timeSpentMinutes: 115 },
-    { rank: 4, name: "अमित कुमावत (सीकर)", rollNo: "D20-7719", score: 121.0, totalMarks: 200, correct: 96, incorrect: 24, unattempted: 30, percentile: 97.9, timeSpentMinutes: 119 },
-    { rank: 5, name: "पूजा शेखावत (झुंझुनूं)", rollNo: "D20-1944", score: 118.5, totalMarks: 200, correct: 94, incorrect: 25, unattempted: 31, percentile: 97.1, timeSpentMinutes: 114 },
-    { rank: 6, name: "मनोज जाट (नागौर)", rollNo: "D20-4389", score: 115.0, totalMarks: 200, correct: 92, incorrect: 28, unattempted: 30, percentile: 96.4, timeSpentMinutes: 118 },
-    { rank: 7, name: "सुरेश शर्मा (कोटा)", rollNo: "D20-6621", score: 112.5, totalMarks: 200, correct: 90, incorrect: 29, unattempted: 31, percentile: 95.8, timeSpentMinutes: 120 },
-    { rank: 8, name: "दीपक गुर्जर (अलवर)", rollNo: "D20-9012", score: 110.0, totalMarks: 200, correct: 88, incorrect: 30, unattempted: 32, percentile: 95.0, timeSpentMinutes: 117 }
+    { rank: 1, name: "Vikas Bishnoi (Jodhpur)", rollNo: "D20-8491", score: 132.5, totalMarks: 200, correct: 105, incorrect: 18, unattempted: 27, percentile: 99.8, timeSpentMinutes: 112 },
+    { rank: 2, name: "Priya Choudhary (Jaipur)", rollNo: "D20-3120", score: 128.0, totalMarks: 200, correct: 102, incorrect: 22, unattempted: 26, percentile: 99.2, timeSpentMinutes: 108 },
+    { rank: 3, name: "Rohit Meena (Dausa)", rollNo: "D20-5642", score: 124.5, totalMarks: 200, correct: 98, incorrect: 19, unattempted: 33, percentile: 98.7, timeSpentMinutes: 115 },
+    { rank: 4, name: "Amit Kumawat (Sikar)", rollNo: "D20-7719", score: 121.0, totalMarks: 200, correct: 96, incorrect: 24, unattempted: 30, percentile: 97.9, timeSpentMinutes: 119 },
+    { rank: 5, name: "Pooja Shekhawat (Jhunjhunu)", rollNo: "D20-1944", score: 118.5, totalMarks: 200, correct: 94, incorrect: 25, unattempted: 31, percentile: 97.1, timeSpentMinutes: 114 },
+    { rank: 6, name: "Manoj Jat (Nagaur)", rollNo: "D20-4389", score: 115.0, totalMarks: 200, correct: 92, incorrect: 28, unattempted: 30, percentile: 96.4, timeSpentMinutes: 118 },
+    { rank: 7, name: "Suresh Sharma (Kota)", rollNo: "D20-6621", score: 112.5, totalMarks: 200, correct: 90, incorrect: 29, unattempted: 31, percentile: 95.8, timeSpentMinutes: 120 },
+    { rank: 8, name: "Deepak Gurjar (Alwar)", rollNo: "D20-9012", score: 110.0, totalMarks: 200, correct: 88, incorrect: 30, unattempted: 32, percentile: 95.0, timeSpentMinutes: 117 }
   ], []);
 
   // Telegram / WhatsApp post text
   const sharePostText = React.useMemo(() => {
     return `🏆 *DISHA 20-20 — LIVE MOCK TEST RESULT DECLARED!* 🏆
 
-📝 *परीक्षा:* ${testTitle}
-📅 *दिनांक:* ${new Date().toLocaleDateString("hi-IN")}
-👥 *कुल सम्मिलित अभ्यर्थी:* 1,420+
+📝 *Exam:* ${testTitle}
+📅 *Date:* ${new Date().toLocaleDateString("en-US")}
+👥 *Total Candidates:* 1,420+
 
 🥇 *Rank 1:* ${candidates[0].name} — ${candidates[0].score}/200 (${candidates[0].percentile}%ile)
 🥈 *Rank 2:* ${candidates[1].name} — ${candidates[1].score}/200 (${candidates[1].percentile}%ile)
@@ -69,10 +69,10 @@ export const MeritListPdfModal: React.FC<MeritListPdfModalProps> = ({
 🎖️ *Rank 4:* ${candidates[3].name} — ${candidates[3].score}/200
 🎖️ *Rank 5:* ${candidates[4].name} — ${candidates[4].score}/200
 
-📊 *अपना व्यक्तिगत स्कोरकार्ड व स्टेट रैंक देखें:*
+📊 *View your personal scorecard & state rank:*
 👉 https://disha-2020.vercel.app/tests
 
-🎯 *DISHA 20-20 (दिशा 20-20) — सही दिशा, सटीक तैयारी*`;
+🎯 *DISHA 20-20 — Right Direction, Precise Preparation*`;
   }, [testTitle, candidates]);
 
   const handleCopyPost = () => {

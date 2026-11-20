@@ -262,7 +262,7 @@ export function normalizeArticle(raw: any): NewsArticle {
     tags: Array.isArray(raw.tags) ? raw.tags : [],
     coverImageUrl: raw.coverImageUrl || raw.coverImage || raw.featuredImage || "",
     authorName: !raw.authorName || raw.authorName === "QuizPro Editorial Team" ? "DISHA 20-20 Editorial Team" : raw.authorName,
-    authorBio: !raw.authorBio || raw.authorBio.includes("QuizPro") ? "Senior Education Analyst & Competitive Exam Specialist at DISHA 20-20 (दिशा 20-20)." : raw.authorBio,
+    authorBio: !raw.authorBio || raw.authorBio.includes("QuizPro") ? "Senior Education Analyst & Competitive Exam Specialist at DISHA 20-20." : raw.authorBio,
     authorPhotoUrl: raw.authorPhotoUrl && !raw.authorPhotoUrl.includes("unsplash.com") ? raw.authorPhotoUrl : "",
     status: raw.status || "published",
     isPinned: Boolean(raw.isPinned),

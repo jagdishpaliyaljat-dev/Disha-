@@ -121,13 +121,13 @@ export function getActiveAICredentials(): {
   };
 }
 
-const SYSTEM_PROMPT_STUDY_TUTOR = `आप "दिशा AI साथी (Disha AI Tutor)" हैं—DISHA 20-20 प्रतियोगी परीक्षा तैयारी ऐप के विशेषज्ञ, प्रेरक और मित्रवत डिजिटल शिक्षक (Expert Mentor)।
-आपकी भूमिका:
-1. छात्रों को राजस्थान व भारत की प्रतियोगी परीक्षाओं (UPSC, RPSC RAS, REET, Patwar, Police, CET, SSC) के लिए सरल, प्रामाणिक और रोचक हिंदी में मार्गदर्शन देना।
-2. हमेशा स्पष्ट, बिंदुवार (Bullet Points) और आसानी से याद रहने वाले उत्तर देना।
-3. परीक्षा उपयोगी महत्वपूर्ण तथ्य (High-Yield Facts) और याद रखने की शॉर्ट ट्रिक्स (Memory Mnemonics) साझा करना।
-4. छात्र का मनोबल बढ़ाना (Positive & Encouraging Tone)।
-5. उत्तर साफ सुथरे Markdown फॉर्मेट में दें (जैसे हेडिंग्स, बोल्ड शब्द, और बुलेट पॉइंट्स)।`;
+const SYSTEM_PROMPT_STUDY_TUTOR = `You are "Disha AI Tutor"—the expert, motivating, and friendly digital mentor of the DISHA 20-20 Competitive Exam Preparation App.
+Your Role:
+1. Provide clear, authoritative, and engaging academic guidance for competitive examinations (UPSC, State PSC, REET, Police, CET, SSC, etc.) in English.
+2. Always deliver structured, bullet-point answers that are easy to retain and memorize.
+3. Highlight high-yield exam facts and helpful memory mnemonics.
+4. Maintain a positive, inspiring, and encouraging tone.
+5. Format answers neatly in clean Markdown (headings, bold keywords, numbered and bulleted lists).`;
 
 /**
  * Ask a general study, syllabus, or doubt question to Disha AI Tutor
@@ -150,8 +150,8 @@ export async function askDishaAITutor(
   // Format context with recent history
   let fullPrompt = userPrompt;
   if (chatHistory.length > 0) {
-    const recent = chatHistory.slice(-4).map(m => `${m.role === 'user' ? 'छात्र' : 'दिशा AI'}: ${m.content}`).join("\n");
-    fullPrompt = `पिछले संवाद:\n${recent}\n\nछात्र का नया सवाल:\n${userPrompt}`;
+    const recent = chatHistory.slice(-4).map(m => `${m.role === 'user' ? 'Student' : 'Disha AI'}: ${m.content}`).join("\n");
+    fullPrompt = `Previous Conversation:\n${recent}\n\nStudent's New Question:\n${userPrompt}`;
   }
 
   const startTime = Date.now();
@@ -213,23 +213,23 @@ export async function explainQuestionWithAI(question: Question): Promise<string>
   }
 
   const correctIdx = typeof question.correctIndex === "number" ? question.correctIndex : (question.correct_answer ?? 0);
-  const correctOptionText = question.options[correctIdx] || "विकल्प " + (correctIdx + 1);
+  const correctOptionText = question.options[correctIdx] || "Option " + (correctIdx + 1);
   const optionsList = question.options.map((opt, idx) => `(${String.fromCharCode(65 + idx)}) ${opt}`).join("\n");
 
-  const prompt = `कृपया इस प्रतियोगी परीक्षा प्रश्न का विस्तृत और शैक्षणिक विश्लेषण (In-depth Academic Breakdown) करें:
+  const prompt = `Please provide an in-depth academic breakdown of this competitive examination question:
 
-प्रश्न: ${qText}
-विकल्प:
+Question: ${qText}
+Options:
 ${optionsList}
 
-आधिकारिक सही उत्तर: विकल्प ${String.fromCharCode(65 + correctIdx)} (${correctOptionText})
-${question.explanation ? `मौजूदा व्याख्या: ${question.explanation}` : ""}
+Official Correct Answer: Option ${String.fromCharCode(65 + correctIdx)} (${correctOptionText})
+${question.explanation ? `Existing Explanation: ${question.explanation}` : ""}
 
-कृपया उत्तर को अनिवार्य रूप से इन 4 भागों में संरचित करें:
-1. 🎯 **सही उत्तर का कारण**: अवधारणा और ऐतिहासिक/वैज्ञानिक पृष्ठभूमि सहित 2-3 पंक्तियों में सरल हिंदी में समझाएं।
-2. ❌ **बाकी विकल्प क्यों गलत हैं (Elimination)**: प्रत्येक गलत विकल्प (A, B, C, D) के गलत होने का विशिष्ट ऐतिहासिक/तथ्यात्मक कारण बताएं।
-3. 💡 **परीक्षा उपयोगी महत्वपूर्ण तथ्य (Key Facts)**: इस विषय से संबंधित 2-3 ऐसे बिंदु बताएं जो आगामी परीक्षाओं में पूछे जा सकते हैं।
-4. 🧠 **याद रखने की ट्रिक (Memory Tip)**: इस तथ्य को लंबे समय तक याद रखने का आसान सूत्र या ट्रिक।`;
+Structure your response into these 4 essential sections:
+1. 🎯 **Core Concept & Answer Rationale**: Explain the fundamental concept and background in 2-3 clear lines.
+2. ❌ **Option Elimination (Why others are incorrect)**: Detail the exact factual or historical reason why each other option (A, B, C, D) is wrong.
+3. 💡 **High-Yield Exam Facts**: Provide 2-3 high-frequency facts related to this topic that are likely to appear in upcoming exams.
+4. 🧠 **Memory Tip & Mnemonic**: Share a simple memory trick or mnemonic formula to remember this fact easily.`;
 
   const startTime = Date.now();
   try {
@@ -282,7 +282,7 @@ export function formatFriendlyAIError(err: any): { message: string; isApiKeyIssu
   
   if (rawMsg === "NO_API_KEY") {
     return {
-      message: "नमस्ते! दिशा AI साथी से बात करने के लिए कृपया अपनी Google Gemini या OpenRouter API Key जोड़ें। यह 100% नि:शुल्क है और 1 मिनट में सेट हो जाती है।",
+      message: "Hello! To consult Disha AI Tutor, please add your Google Gemini or OpenRouter API Key in Settings. It is 100% free and takes less than a minute to configure.",
       isApiKeyIssue: true,
     };
   }
@@ -310,7 +310,7 @@ export function formatFriendlyAIError(err: any): { message: string; isApiKeyIssu
     lower.includes("403")
   ) {
     return {
-      message: "दर्ज की गई API Key अमान्य (Invalid) है या उसमें इस सेवा की अनुमति नहीं है। कृपया Settings में जाकर अपनी सही Google Gemini या OpenRouter Key दर्ज करें।",
+      message: "The entered API Key is invalid or lacks permission. Please navigate to Settings to verify your Google Gemini or OpenRouter key.",
       isApiKeyIssue: true,
     };
   }
@@ -322,7 +322,7 @@ export function formatFriendlyAIError(err: any): { message: string; isApiKeyIssu
     lower.includes("429")
   ) {
     return {
-      message: "आपकी API Key की दैनिक मुफ़्त सीमा (Rate Limit / Quota) पूरी हो चुकी है। कृपया कुछ समय बाद पुनः प्रयास करें या Settings में दूसरी API Key जोड़ें।",
+      message: "Your API Key rate limit or daily quota has been reached. Please try again later or add an alternative API Key in Settings.",
       isApiKeyIssue: true,
     };
   }
@@ -334,7 +334,7 @@ export function formatFriendlyAIError(err: any): { message: string; isApiKeyIssu
     lower.includes("failed to fetch")
   ) {
     return {
-      message: "नेटवर्क या सर्वर से जुड़ने में अधिक समय लगा। कृपया अपना इंटरनेट कनेक्शन जांचें और पुनः प्रयास करें।",
+      message: "Network request timed out. Please check your internet connection and try again.",
       isApiKeyIssue: false,
     };
   }
@@ -351,7 +351,7 @@ export function formatFriendlyAIError(err: any): { message: string; isApiKeyIssu
     lower.includes("2.5")
   ) {
     return {
-      message: "गूगल ने पुराने मॉडल को बंद कर दिया है। दिशा ऐप ने स्वतः नवीनतम 'gemini-2.0-flash' मॉडल पर अपडेट कर दिया है। कृपया पुनः प्रश्न पूछें।",
+      message: "The selected AI model was updated. Disha App has automatically switched to the modern 'gemini-2.0-flash' model. Please ask your question again.",
       isApiKeyIssue: false,
     };
   }
@@ -359,15 +359,15 @@ export function formatFriendlyAIError(err: any): { message: string; isApiKeyIssu
   // Sanitize any remaining technical or JSON remnants
   const cleanDisplay = parsedMessage
     .replace(/\{"error":\{.*\}\}/gs, "")
-    .replace(/models\/[a-zA-Z0-9_.-]+/g, "AI मॉडल")
+    .replace(/models\/[a-zA-Z0-9_.-]+/g, "AI model")
     .replace(/for API version [a-zA-Z0-9_.-]+/g, "")
     .replace(/Call ModelService\.[a-zA-Z0-9_.-]+ [^.]+\./g, "")
     .trim();
 
   return {
     message: cleanDisplay
-      ? `माफ़ कीजिए, उत्तर प्राप्त करने में समस्या आई: ${cleanDisplay.slice(0, 160)}। कृपया पुनः प्रयास करें।`
-      : "माफ़ कीजिए, उत्तर प्राप्त करने में समस्या आई। कृपया पुनः प्रयास करें।",
+      ? `Sorry, could not generate response: ${cleanDisplay.slice(0, 160)}. Please try again.`
+      : "Sorry, could not generate response. Please try again.",
     isApiKeyIssue: false,
   };
 }

@@ -30,8 +30,6 @@ import {
   Share2,
   RefreshCw,
   CheckCircle2,
-  Video,
-  Clock,
   ExternalLink,
   Edit3,
   Save,
@@ -39,8 +37,6 @@ import {
   Plus,
 } from "lucide-react";
 import ShareModal, { ShareData } from "./ShareModal";
-import { CoachingVideoPlayer } from "./CoachingVideoPlayer";
-import { InAppPdfViewer } from "./InAppPdfViewer";
 import { buildTopicShareData } from "../utils/shareService";
 import { getSubjectQuestionsCount } from "../utils/questionsStorage";
 import { triggerHaptic, playClickSound } from "../utils/audioFeedback";
@@ -123,207 +119,7 @@ export const TopicsTab: React.FC<TopicsTabProps> = ({
   const [shareData, setShareData] = React.useState<ShareData | null>(null);
   const [internalSelectedTopicId, setInternalSelectedTopicId] = React.useState<string | null>(null);
 
-  // Local overrides for instant UI updates upon editing video/PDF links
-  const [mediaOverrides, setMediaOverrides] = React.useState<Record<string, Partial<Topic>>>({});
 
-  // Editing state for video & PDF (Admin)
-  const [editingTopic, setEditingTopic] = React.useState<Topic | null>(null);
-  const [formVideoUrl, setFormVideoUrl] = React.useState("");
-  const [formVideoTitle, setFormVideoTitle] = React.useState("");
-  const [formVideoDuration, setFormVideoDuration] = React.useState("");
-  const [formPdfUrl, setFormPdfUrl] = React.useState("");
-  const [formPdfTitle, setFormPdfTitle] = React.useState("");
-  const [formSummary, setFormSummary] = React.useState("");
-  const [isSavingMedia, setIsSavingMedia] = React.useState(false);
-
-  const handleOpenEditMedia = (topic: Topic) => {
-    triggerHaptic("light");
-    playClickSound();
-    setEditingTopic(topic);
-    setFormVideoUrl(topic.videoUrl || "");
-    setFormVideoTitle(topic.videoTitle || "");
-    setFormVideoDuration(topic.videoDuration || "");
-    setFormPdfUrl(topic.pdfUrl || "");
-    setFormPdfTitle(topic.pdfTitle || "");
-    setFormSummary(topic.guideSummary || "");
-  };
-
-  const handleSaveMedia = async () => {
-    if (!editingTopic) return;
-    setIsSavingMedia(true);
-    triggerHaptic("medium");
-
-    const updated: Topic = {
-      ...editingTopic,
-      videoUrl: formVideoUrl.trim() || undefined,
-      videoTitle: formVideoTitle.trim() || undefined,
-      videoDuration: formVideoDuration.trim() || undefined,
-      pdfUrl: formPdfUrl.trim() || undefined,
-      pdfTitle: formPdfTitle.trim() || undefined,
-      guideSummary: formSummary.trim() || undefined,
-    };
-
-    setMediaOverrides((prev) => ({
-      ...prev,
-      [editingTopic.id]: updated,
-    }));
-
-    if (onEditTopic) {
-      try {
-        await onEditTopic(updated);
-      } catch (e) {
-        console.warn("Failed to propagate topic update", e);
-      }
-    }
-
-    try {
-      const { saveTopicToSupabase } = await import("../utils/supabaseSyncService");
-      await saveTopicToSupabase(updated);
-    } catch (e) {
-      console.warn("Supabase topic direct save notice:", e);
-    }
-
-    setIsSavingMedia(false);
-    setEditingTopic(null);
-  };
-
-  const renderMediaModal = () => (
-    <AnimatePresence>
-      {editingTopic && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[120] bg-black/60 backdrop-blur-xs flex items-center justify-center p-4"
-        >
-          <motion.div
-            initial={{ scale: 0.95, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.95, opacity: 0 }}
-            className="bg-white dark:bg-[#1E2230] rounded-3xl border border-[#E8D9C0] dark:border-[#31374A] max-w-lg w-full p-5 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto"
-          >
-            <div className="flex items-center justify-between pb-3 border-b border-[#E8D9C0] dark:border-[#31374A]">
-              <div>
-                <h3 className="text-base font-black text-[#171923] dark:text-[#FFF9EF]">
-                  Add / Edit Video &amp; PDF Links
-                </h3>
-                <p className="text-xs text-[#52576A] dark:text-[#929AB0]">
-                  {editingTopic.title || editingTopic.hindiTitle}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setEditingTopic(null)}
-                className="p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="space-y-3.5">
-              <div>
-                <label className="block text-[11px] font-black uppercase text-slate-500 mb-1">
-                  YouTube Video Link / ID
-                </label>
-                <input
-                  type="text"
-                  value={formVideoUrl}
-                  onChange={(e) => setFormVideoUrl(e.target.value)}
-                  placeholder="https://www.youtube.com/watch?v=... or Video ID"
-                  className="w-full h-11 px-3.5 rounded-xl bg-[#FAF5EB] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#800020]/40"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[11px] font-black uppercase text-slate-500 mb-1">
-                    Video Duration
-                  </label>
-                  <input
-                    type="text"
-                    value={formVideoDuration}
-                    onChange={(e) => setFormVideoDuration(e.target.value)}
-                    placeholder="e.g. 24:15 min"
-                    className="w-full h-11 px-3.5 rounded-xl bg-[#FAF5EB] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#800020]/40"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[11px] font-black uppercase text-slate-500 mb-1">
-                    Video Title (Optional)
-                  </label>
-                  <input
-                    type="text"
-                    value={formVideoTitle}
-                    onChange={(e) => setFormVideoTitle(e.target.value)}
-                    placeholder="Lecture Title"
-                    className="w-full h-11 px-3.5 rounded-xl bg-[#FAF5EB] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#800020]/40"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-black uppercase text-slate-500 mb-1">
-                  Google Drive / Direct PDF Link
-                </label>
-                <input
-                  type="text"
-                  value={formPdfUrl}
-                  onChange={(e) => setFormPdfUrl(e.target.value)}
-                  placeholder="https://drive.google.com/file/d/.../view"
-                  className="w-full h-11 px-3.5 rounded-xl bg-[#FAF5EB] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#800020]/40"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-black uppercase text-slate-500 mb-1">
-                  PDF Title (Optional)
-                </label>
-                <input
-                  type="text"
-                  value={formPdfTitle}
-                  onChange={(e) => setFormPdfTitle(e.target.value)}
-                  placeholder="e.g. Handwritten Study Notes Part 1"
-                  className="w-full h-11 px-3.5 rounded-xl bg-[#FAF5EB] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#800020]/40"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-black uppercase text-slate-500 mb-1">
-                  Guide Summary / Key Concepts
-                </label>
-                <textarea
-                  rows={3}
-                  value={formSummary}
-                  onChange={(e) => setFormSummary(e.target.value)}
-                  placeholder="Key study concepts and points displayed below the video..."
-                  className="w-full p-3 rounded-xl bg-[#FAF5EB] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#800020]/40 resize-none"
-                />
-              </div>
-            </div>
-
-            <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-[#E8D9C0] dark:border-[#31374A]">
-              <button
-                type="button"
-                onClick={() => setEditingTopic(null)}
-                className="px-4 py-2 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleSaveMedia}
-                disabled={isSavingMedia}
-                className="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-[#800020] hover:bg-[#600018] dark:bg-[#F47B20] dark:hover:bg-[#d66512] transition-all flex items-center gap-1.5 shadow-md active:scale-95 cursor-pointer disabled:opacity-50"
-              >
-                <Save className="w-4 h-4" />
-                <span>{isSavingMedia ? "Saving..." : "Save Changes"}</span>
-              </button>
-            </div>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
 
   const currentTopicId = selectedTopicId !== undefined ? selectedTopicId : internalSelectedTopicId;
   const handleSelectTopic = onSelectTopic || setInternalSelectedTopicId;
@@ -403,21 +199,16 @@ export const TopicsTab: React.FC<TopicsTabProps> = ({
   // ─────────────────────────────────────────────────────────────
   if (activeTopic && activeChapter) {
     return (
-      <>
-        <TopicDetailView
-          topic={activeTopic}
-          activeChapter={activeChapter}
-          activeSubject={activeSubject}
-          onBack={() => {
-            // Robust hierarchical back: Return to topic list (chapter view)
-            handleSelectTopic(null);
-          }}
-          onStartSession={onStartSession}
-          isAdmin={isAdmin}
-          onOpenEditMedia={handleOpenEditMedia}
-        />
-        {renderMediaModal()}
-      </>
+      <TopicDetailView
+        topic={activeTopic}
+        activeChapter={activeChapter}
+        activeSubject={activeSubject}
+        onBack={() => {
+          // Robust hierarchical back: Return to topic list (chapter view)
+          handleSelectTopic(null);
+        }}
+        onStartSession={onStartSession}
+      />
     );
   }
 
@@ -459,8 +250,6 @@ export const TopicsTab: React.FC<TopicsTabProps> = ({
                   topic={topic}
                   idx={idx}
                   onClickTopic={() => handleSelectTopic(topic.id)}
-                  isAdmin={isAdmin}
-                  onOpenEditMedia={handleOpenEditMedia}
                 />
               ))}
           </div>
@@ -473,7 +262,6 @@ export const TopicsTab: React.FC<TopicsTabProps> = ({
             data={shareData}
           />
         )}
-        {renderMediaModal()}
       </div>
     );
   }
@@ -678,25 +466,18 @@ interface TopicListItemProps {
   topic: Topic;
   idx: number;
   onClickTopic: () => void;
-  isAdmin?: boolean;
-  onOpenEditMedia?: (topic: Topic) => void;
 }
 
 function TopicListItem({
   topic,
   idx,
   onClickTopic,
-  isAdmin = false,
-  onOpenEditMedia,
 }: TopicListItemProps) {
   const topicNum = idx + 1;
   const qCount =
     topic.questions && topic.questions.length > 0
       ? topic.questions.length
       : topic.questionCount || 0;
-
-  const hasVideo = Boolean(topic.videoUrl);
-  const hasPdf = Boolean(topic.pdfUrl);
 
   return (
     <motion.div
@@ -722,25 +503,6 @@ function TopicListItem({
             {topicNum}. {getTopicDisplayName(topic)}
           </h4>
           <div className="flex flex-wrap items-center gap-1.5 mt-1">
-            {topic.videoDuration ? (
-              <span className="text-[10px] font-semibold text-[#52576A] dark:text-[#929AB0] flex items-center gap-0.5">
-                <Clock className="w-3 h-3 text-[#800020] dark:text-[#F47B20]" />
-                {topic.videoDuration}
-              </span>
-            ) : hasVideo ? (
-              <span className="text-[9.5px] font-bold text-[#800020] dark:text-[#F47B20] bg-[#800020]/10 dark:bg-[#F47B20]/15 px-1.5 py-0.5 rounded flex items-center gap-0.5">
-                <Video className="w-3 h-3" />
-                Video
-              </span>
-            ) : null}
-
-            {hasPdf && (
-              <span className="text-[9.5px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-1.5 py-0.5 rounded flex items-center gap-0.5">
-                <FileText className="w-3 h-3" />
-                PDF Notes
-              </span>
-            )}
-
             {qCount > 0 ? (
               <span className="text-[9.5px] font-bold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 px-1.5 py-0.5 rounded">
                 {qCount} Qs
@@ -755,24 +517,11 @@ function TopicListItem({
       </div>
 
       <div className="flex items-center gap-1.5 shrink-0">
-        {isAdmin && onOpenEditMedia && (
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              onOpenEditMedia(topic);
-            }}
-            className="p-1.5 rounded-lg bg-[#FAF5EB] dark:bg-[#262B3D] text-[#800020] dark:text-[#F47B20] hover:bg-[#800020]/15 active:scale-95 transition-all cursor-pointer border border-[#E8D9C0]/50 dark:border-[#31374A]/50"
-            title="Add or edit video and PDF links"
-          >
-            <Edit3 className="w-3.5 h-3.5" />
-          </button>
-        )}
         <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#800020] dark:group-hover:text-[#F47B20] group-hover:translate-x-0.5 transition-all" />
       </div>
     </motion.div>
   );
-};
+}
 
 interface TopicDetailViewProps {
   topic: Topic;
@@ -780,8 +529,6 @@ interface TopicDetailViewProps {
   activeSubject: Subject | null;
   onBack: () => void;
   onStartSession: (session: MCQSession) => void;
-  isAdmin?: boolean;
-  onOpenEditMedia?: (topic: Topic) => void;
 }
 
 function TopicDetailView({
@@ -790,11 +537,8 @@ function TopicDetailView({
   activeSubject,
   onBack,
   onStartSession,
-  isAdmin = false,
-  onOpenEditMedia,
 }: TopicDetailViewProps) {
   const [isFetching, setIsFetching] = React.useState(false);
-  const [activeFolderTab, setActiveFolderTab] = React.useState<"all" | "video" | "pdf" | "test">("all");
 
   const isCompleteQ = (q: any): q is Question =>
     Boolean(q && (q.text || (q as any).question) && Array.isArray(q.options) && q.options.length >= 2);
@@ -936,34 +680,17 @@ function TopicDetailView({
               </h2>
             </div>
           </div>
-
-          {isAdmin && onOpenEditMedia && (
-            <button
-              type="button"
-              onClick={() => onOpenEditMedia(topic)}
-              className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-xl bg-[#800020] text-white hover:bg-[#600018] dark:bg-[#F47B20] transition-all cursor-pointer shadow-xs active:scale-95 shrink-0"
-            >
-              <Edit3 className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Edit Video/PDF</span>
-            </button>
-          )}
         </div>
       </header>
 
-      {/* Main All-In-One Coaching Content */}
+      {/* Main Coaching Content */}
       <main className="flex-1 overflow-y-auto p-3.5 sm:p-6 space-y-4 sm:space-y-5 max-w-4xl mx-auto w-full pb-24">
         {/* Topic Title Card */}
         <div className="bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xs">
           <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
             <span className="inline-block text-[10px] font-black uppercase tracking-wider text-[#800020] dark:text-[#C99A45] bg-[#800020]/10 dark:bg-[#C99A45]/15 px-2.5 py-1 rounded-full">
-              Study Material • Study Desk
+              Topic Practice
             </span>
-            {topic.videoDuration && (
-              <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#52576A] dark:text-[#929AB0] bg-[#FAF5EB] dark:bg-[#262B3D] px-2.5 py-1 rounded-lg">
-                <Clock className="w-3.5 h-3.5 text-[#800020] dark:text-[#F47B20]" />
-                {topic.videoDuration}
-              </span>
-            )}
           </div>
 
           <h1 className="text-lg sm:text-2xl font-black text-[#171923] dark:text-[#FFF9EF] font-hindi leading-snug">
@@ -974,206 +701,81 @@ function TopicDetailView({
               {getTopicSecondaryTitle(topic)}
             </p>
           )}
-
-          {/* Folder / Tab Selector (Coaching Style) */}
-          <div className="flex items-center gap-1.5 sm:gap-2 mt-4 pt-4 border-t border-[#E8D9C0] dark:border-[#31374A] overflow-x-auto no-scrollbar">
-            <button
-              onClick={() => setActiveFolderTab("all")}
-              className={`px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shrink-0 ${
-                activeFolderTab === "all"
-                  ? "bg-[#800020] text-white shadow-xs"
-                  : "bg-[#FAF5EB] dark:bg-[#262B3D] text-[#52576A] dark:text-[#929AB0] hover:bg-[#800020]/10"
-              }`}
-            >
-              📁 All Content
-            </button>
-            <button
-              onClick={() => setActiveFolderTab("video")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shrink-0 ${
-                activeFolderTab === "video"
-                  ? "bg-[#800020] text-white shadow-xs"
-                  : "bg-[#FAF5EB] dark:bg-[#262B3D] text-[#52576A] dark:text-[#929AB0] hover:bg-[#800020]/10"
-              }`}
-            >
-              <Video className="w-4 h-4" />
-              <span>Video {topic.videoUrl ? "✓" : ""}</span>
-            </button>
-            <button
-              onClick={() => setActiveFolderTab("pdf")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shrink-0 ${
-                activeFolderTab === "pdf"
-                  ? "bg-[#800020] text-white shadow-xs"
-                  : "bg-[#FAF5EB] dark:bg-[#262B3D] text-[#52576A] dark:text-[#929AB0] hover:bg-[#800020]/10"
-              }`}
-            >
-              <FileText className="w-4 h-4" />
-              <span>PDF Notes {topic.pdfUrl ? "✓" : ""}</span>
-            </button>
-            <button
-              onClick={() => setActiveFolderTab("test")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shrink-0 ${
-                activeFolderTab === "test"
-                  ? "bg-[#800020] text-white shadow-xs"
-                  : "bg-[#FAF5EB] dark:bg-[#262B3D] text-[#52576A] dark:text-[#929AB0] hover:bg-[#800020]/10"
-              }`}
-            >
-              <Award className="w-4 h-4" />
-              <span>20-20 Test ({questionCount})</span>
-            </button>
-          </div>
         </div>
 
-        {/* FOLDER 1: 🎥 COACHING VIDEO LECTURE */}
-        {(activeFolderTab === "all" || activeFolderTab === "video") && (
-          <div className="bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-xs space-y-3">
-            {topic.videoUrl ? (
-              <CoachingVideoPlayer
-                videoUrl={topic.videoUrl}
-                title={topic.videoTitle || getTopicDisplayName(topic)}
-                duration={topic.videoDuration}
-                subjectName={getSubjectDisplayName(activeSubject)}
-                chapterName={getChapterDisplayName(activeChapter)}
-              />
-            ) : (
-              <div className="p-6 text-center bg-[#FAF5EB] dark:bg-[#262B3D] rounded-xl border border-dashed border-[#E8D9C0] dark:border-[#31374A]">
-                <Video className="w-10 h-10 text-[#800020]/40 dark:text-[#F47B20]/40 mx-auto mb-2" />
-                <p className="text-xs sm:text-sm font-semibold text-[#171923] dark:text-[#FFF9EF] mb-1">
-                  Video lectures for this topic will be available soon.
-                </p>
-                <p className="text-xs text-[#52576A] dark:text-[#929AB0]">
-                  Meanwhile, you can read the study notes below and practice the 20-20 test.
-                </p>
-                {isAdmin && onOpenEditMedia && (
-                  <button
-                    type="button"
-                    onClick={() => onOpenEditMedia(topic)}
-                    className="mt-3 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-[#800020] text-white hover:bg-[#600018] dark:bg-[#F47B20] transition-all cursor-pointer shadow-xs active:scale-95"
-                  >
-                    <Plus className="w-4 h-4" />
-                    <span>+ Add Video Lecture Link</span>
-                  </button>
-                )}
-              </div>
-            )}
+        {/* 20-20 PRACTICE TEST */}
+        <div className="bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xs space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm sm:text-base font-bold text-[#171923] dark:text-[#FFF9EF] flex items-center gap-2">
+              <Award className="w-4.5 h-4.5 text-[#800020] dark:text-[#F47B20]" />
+              <span>20-20 Practice Test Simulation</span>
+            </h2>
+            <span className="text-xs font-bold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 px-2.5 py-1 rounded-lg">
+              High Yield Practice
+            </span>
           </div>
-        )}
 
-        {/* FOLDER 2: 📄 STUDY NOTES & IN-APP PDF VIEWER */}
-        {(activeFolderTab === "all" || activeFolderTab === "pdf") && (
-          <div className="bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-xs space-y-3">
-            {topic.pdfUrl ? (
-              <InAppPdfViewer
-                pdfUrl={topic.pdfUrl}
-                title={topic.pdfTitle || `${getTopicDisplayName(topic)} - Study Notes`}
-                subjectName={getSubjectDisplayName(activeSubject)}
-                chapterName={getChapterDisplayName(activeChapter)}
-              />
-            ) : (
-              <div className="p-6 text-center bg-[#FAF5EB] dark:bg-[#262B3D] rounded-xl border border-dashed border-[#E8D9C0] dark:border-[#31374A]">
-                <FileText className="w-10 h-10 text-[#800020]/40 dark:text-[#F47B20]/40 mx-auto mb-2" />
-                <p className="text-xs sm:text-sm font-semibold text-[#171923] dark:text-[#FFF9EF] mb-1">
-                  PDF study notes are not yet attached to this topic.
-                </p>
-                <p className="text-xs text-[#52576A] dark:text-[#929AB0]">
-                  The instructor will attach notes shortly.
-                </p>
-                {isAdmin && onOpenEditMedia && (
-                  <button
-                    type="button"
-                    onClick={() => onOpenEditMedia(topic)}
-                    className="mt-3 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-[#800020] text-white hover:bg-[#600018] dark:bg-[#F47B20] transition-all cursor-pointer shadow-xs active:scale-95"
-                  >
-                    <Plus className="w-4 h-4" />
-                    <span>+ Add PDF Notes Link</span>
-                  </button>
-                )}
+          <p className="text-xs sm:text-sm text-[#52576A] dark:text-[#929AB0]">
+            This topic contains <strong>{questionCount}</strong> high-yield standard questions, including recent competitive exam PYQs and expected questions.
+          </p>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="p-3.5 rounded-xl bg-[#FAF5EB] dark:bg-[#262B3D] border border-[#E8D9C0] dark:border-[#31374A] flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-[#800020] text-white flex items-center justify-center shrink-0">
+                <HelpCircle className="w-4.5 h-4.5" />
               </div>
-            )}
-          </div>
-        )}
-
-        {/* FOLDER 3: 📝 20-20 PRACTICE TEST */}
-        {(activeFolderTab === "all" || activeFolderTab === "test") && (
-          <div className="bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xs space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm sm:text-base font-bold text-[#171923] dark:text-[#FFF9EF] flex items-center gap-2">
-                <Award className="w-4.5 h-4.5 text-[#800020] dark:text-[#F47B20]" />
-                <span>20-20 Practice Test Simulation</span>
-              </h2>
-              <span className="text-xs font-bold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 px-2.5 py-1 rounded-lg">
-                High Yield Practice
-              </span>
-            </div>
-
-            <p className="text-xs sm:text-sm text-[#52576A] dark:text-[#929AB0]">
-              This topic contains <strong>{questionCount}</strong> high-yield standard questions, including recent competitive exam PYQs and expected questions.
-            </p>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="p-3.5 rounded-xl bg-[#FAF5EB] dark:bg-[#262B3D] border border-[#E8D9C0] dark:border-[#31374A] flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-[#800020] text-white flex items-center justify-center shrink-0">
-                  <HelpCircle className="w-4.5 h-4.5" />
-                </div>
-                <div>
-                  <p className="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400">Total Questions</p>
-                  <p className="text-sm sm:text-base font-black text-[#171923] dark:text-[#FFF9EF] tabular-nums">{questionCount} MCQs</p>
-                </div>
-              </div>
-
-              <div className="p-3.5 rounded-xl bg-[#FAF5EB] dark:bg-[#262B3D] border border-[#E8D9C0] dark:border-[#31374A] flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-[#F47B20] text-white flex items-center justify-center shrink-0">
-                  <Award className="w-4.5 h-4.5" />
-                </div>
-                <div>
-                  <p className="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400">Pattern</p>
-                  <p className="text-sm sm:text-base font-black text-[#171923] dark:text-[#FFF9EF]">20-20 Test</p>
-                </div>
+              <div>
+                <p className="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400">Total Questions</p>
+                <p className="text-sm sm:text-base font-black text-[#171923] dark:text-[#FFF9EF] tabular-nums">{questionCount} MCQs</p>
               </div>
             </div>
 
-            <button
-              onClick={handleStartTopicMCQ}
-              disabled={isFetching}
-              className="w-full py-3.5 px-6 rounded-xl sm:rounded-2xl bg-[#800020] hover:bg-[#600018] text-white font-bold text-sm sm:text-base border border-[#C99A45]/30 shadow-md flex items-center justify-center gap-2.5 transition-all duration-180 active:scale-98 cursor-pointer disabled:opacity-50"
-            >
-              {isFetching ? (
-                <>
-                  <RefreshCw className="w-4.5 h-4.5 animate-spin text-[#C99A45]" />
-                  <span>Loading Test...</span>
-                </>
-              ) : (
-                <>
-                  <Play className="w-4.5 h-4.5 fill-white" />
-                  <span>Start Practice Test ({questionCount} Qs)</span>
-                  <ChevronRight className="w-4 h-4 text-[#C99A45]" />
-                </>
-              )}
-            </button>
+            <div className="p-3.5 rounded-xl bg-[#FAF5EB] dark:bg-[#262B3D] border border-[#E8D9C0] dark:border-[#31374A] flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-[#F47B20] text-white flex items-center justify-center shrink-0">
+                <Award className="w-4.5 h-4.5" />
+              </div>
+              <div>
+                <p className="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400">Pattern</p>
+                <p className="text-sm sm:text-base font-black text-[#171923] dark:text-[#FFF9EF]">20-20 Test</p>
+              </div>
+            </div>
           </div>
-        )}
 
-        {/* SECTION 4: 📌 KEY CONCEPTS & SUMMARY */}
-        {(activeFolderTab === "all" || activeFolderTab === "video") && (
+          <button
+            onClick={handleStartTopicMCQ}
+            disabled={isFetching}
+            className="w-full py-3.5 px-6 rounded-xl sm:rounded-2xl bg-[#800020] hover:bg-[#600018] text-white font-bold text-sm sm:text-base border border-[#C99A45]/30 shadow-md flex items-center justify-center gap-2.5 transition-all duration-180 active:scale-98 cursor-pointer disabled:opacity-50"
+          >
+            {isFetching ? (
+              <>
+                <RefreshCw className="w-4.5 h-4.5 animate-spin text-[#C99A45]" />
+                <span>Loading Test...</span>
+              </>
+            ) : (
+              <>
+                <Play className="w-4.5 h-4.5 fill-white" />
+                <span>Start Practice Test ({questionCount} Qs)</span>
+                <ChevronRight className="w-4 h-4 text-[#C99A45]" />
+              </>
+            )}
+          </button>
+        </div>
+
+        {/* KEY CONCEPTS & SUMMARY */}
+        {(topic.introText || topic.seoDescription) && (
           <div className="bg-[#FAF5EB]/80 dark:bg-[#1E2230] border border-[#E8D9C0] dark:border-[#31374A] rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-xs space-y-2">
             <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-[#800020] dark:text-[#C99A45]">
               <Sparkles className="w-4 h-4 text-[#F47B20]" />
               <span>Key Concepts &amp; Exam Pointers</span>
             </div>
-
-            {topic.guideSummary ? (
-              <div className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-hindi whitespace-pre-line">
-                {topic.guideSummary}
-              </div>
-            ) : (
-              <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-hindi">
-                {topic.introText || topic.seoDescription || `Key examination concepts, definitions, and competitive exam trends for ${topic.title || topic.hindiTitle}.`}
-              </p>
-            )}
+            <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-hindi">
+              {topic.introText || topic.seoDescription}
+            </p>
           </div>
         )}
       </main>
     </div>
   );
-};
+}
 
 export default TopicsTab;

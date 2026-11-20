@@ -179,19 +179,19 @@ const UserDetailView: React.FC<{
               <button
                 disabled
                 className="w-full py-3 bg-amber-50 text-amber-800 border border-amber-200 rounded-lg font-bold text-[11px] uppercase tracking-wider flex items-center justify-center gap-2 cursor-not-allowed"
-                title="मुख्य Super Admin को डिमोट नहीं किया जा सकता"
+                title="The primary Super Admin cannot be demoted"
               >
                 <Crown className="w-3.5 h-3.5 text-amber-600" />
-                <span>Super Admin (सुरक्षित)</span>
+                <span>Super Admin (Protected)</span>
               </button>
             ) : !isViewerSuperAdmin ? (
               <button
                 disabled
                 className="w-full py-3 bg-slate-100 text-slate-400 border border-slate-200 rounded-lg font-bold text-[11px] uppercase tracking-wider flex items-center justify-center gap-2 cursor-not-allowed"
-                title="केवल मुख्य Super Admin ही एडमिन प्रमोट या डिमोट कर सकते हैं"
+                title="Only the Super Admin can promote or demote administrators"
               >
                 <Lock className="w-3.5 h-3.5 text-slate-400" />
-                <span>केवल Super Admin को अधिकार</span>
+                <span>Super Admin Privilege Only</span>
               </button>
             ) : (
               <button 
@@ -389,14 +389,14 @@ export const AdminUserManagementSection: React.FC<AdminUserManagementSectionProp
     if (!currentUserIsSuperAdmin) {
       setNotification({
         type: "error",
-        message: "अनधिकृत: केवल मुख्य प्रशासक (Super Admin) ही एडमिन बना या हटा सकते हैं।",
+        message: "Unauthorized: Only the Super Admin can promote or demote administrators.",
       });
       return;
     }
     if (isSuperAdmin(user) && role !== "admin") {
       setNotification({
         type: "error",
-        message: "निषिद्ध: मुख्य Super Admin को डिमोट नहीं किया जा सकता।",
+        message: "Forbidden: The primary Super Admin cannot be demoted.",
       });
       return;
     }
@@ -408,8 +408,8 @@ export const AdminUserManagementSection: React.FC<AdminUserManagementSectionProp
       setNotification({ 
         type: "success", 
         message: role === "admin" 
-          ? `यूज़र "${user.name || user.email}" को सफलतापूर्वक Admin बना दिया गया!` 
-          : `"${user.name || user.email}" के Admin अधिकार सफलतापूर्वक हटा दिए गए।`
+          ? `User "${user.name || user.email}" was successfully promoted to Admin!` 
+          : `Admin privileges were removed for "${user.name || user.email}".`
       });
       window.dispatchEvent(new CustomEvent("disha2020-user-tier-updated"));
       window.dispatchEvent(new CustomEvent("quizpro-user-tier-updated"));
@@ -426,13 +426,13 @@ export const AdminUserManagementSection: React.FC<AdminUserManagementSectionProp
     if (!currentUserIsSuperAdmin) {
       setNotification({
         type: "error",
-        message: "अनधिकृत: केवल मुख्य प्रशासक (Super Admin) ही नए एडमिन बना सकते हैं।",
+        message: "Unauthorized: Only the Super Admin can promote new administrators.",
       });
       return;
     }
     const clean = emailToPromote.trim().toLowerCase();
     if (!clean || !clean.includes("@")) {
-      setNotification({ type: "error", message: "कृपया एक मान्य ईमेल पता दर्ज करें।" });
+      setNotification({ type: "error", message: "Please enter a valid email address." });
       return;
     }
     setIsPromotingEmail(true);
@@ -447,7 +447,7 @@ export const AdminUserManagementSection: React.FC<AdminUserManagementSectionProp
       });
       setNotification({
         type: "success",
-        message: `ईमेल "${clean}" को सफलतापूर्वक Admin बना दिया गया! अब वह एडमिन के रूप में लॉगिन व कार्य कर सकेगा।`,
+        message: `Email "${clean}" was successfully promoted to Admin! They can now log in and manage the admin panel.`,
       });
       setEmailToPromote("");
       setShowPromoteEmailModal(false);
@@ -455,7 +455,7 @@ export const AdminUserManagementSection: React.FC<AdminUserManagementSectionProp
     } catch (err: any) {
       setNotification({
         type: "error",
-        message: err?.message || "एडमिन प्रमोट करने में त्रुटि आई।",
+        message: err?.message || "Failed to promote admin.",
       });
     } finally {
       setIsPromotingEmail(false);
@@ -593,10 +593,10 @@ export const AdminUserManagementSection: React.FC<AdminUserManagementSectionProp
               <button 
                 onClick={() => setShowPromoteEmailModal(true)} 
                 className="flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 bg-gradient-to-r from-amber-500 to-indigo-600 hover:from-amber-600 hover:to-indigo-700 text-white rounded-lg font-bold text-xs uppercase tracking-wider transition-all active:scale-[0.98] shadow-sm cursor-pointer"
-                title="छात्र को सीधे ईमेल द्वारा Admin प्रमोट करें"
+                title="Promote student to Admin directly via email"
               >
                 <Crown className="w-4 h-4 text-amber-200" />
-                <span>प्रमोट Admin (ईमेल)</span>
+                <span>Promote Admin (Email)</span>
               </button>
             )}
             <button 
@@ -737,7 +737,7 @@ export const AdminUserManagementSection: React.FC<AdminUserManagementSectionProp
                         <Crown className="w-3 h-3 text-amber-600" /> Super Admin
                       </span>
                     ) : !currentUserIsSuperAdmin ? (
-                      <span className="px-2 py-1 rounded text-[9px] font-bold text-slate-400 bg-slate-50 border border-slate-200 flex items-center gap-1 shrink-0" title="केवल Super Admin को अधिकार है">
+                      <span className="px-2 py-1 rounded text-[9px] font-bold text-slate-400 bg-slate-50 border border-slate-200 flex items-center gap-1 shrink-0" title="Super Admin privilege only">
                         <Lock className="w-3 h-3 text-slate-400" /> Protected
                       </span>
                     ) : (
@@ -751,7 +751,7 @@ export const AdminUserManagementSection: React.FC<AdminUserManagementSectionProp
                             ? 'bg-rose-50 text-rose-600 hover:bg-rose-100 border border-rose-200'
                             : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100 border border-indigo-200'
                         }`}
-                        title={user.role === 'admin' ? 'Admin अधिकार हटाएं' : 'Admin प्रमोट करें'}
+                        title={user.role === 'admin' ? 'Remove Admin Privileges' : 'Promote to Admin'}
                       >
                         <ShieldCheck className="w-3 h-3" />
                         <span>{user.role === 'admin' ? 'Demote' : 'Promote'}</span>
@@ -775,7 +775,7 @@ export const AdminUserManagementSection: React.FC<AdminUserManagementSectionProp
             <div className="flex items-center justify-between pb-4 border-b border-slate-100">
               <div className="flex items-center gap-2 text-indigo-600">
                 <Crown className="w-5 h-5 text-amber-500" />
-                <h3 className="text-base font-black text-slate-900">नया Admin प्रमोट करें</h3>
+                <h3 className="text-base font-black text-slate-900">Promote New Administrator</h3>
               </div>
               <button
                 onClick={() => setShowPromoteEmailModal(false)}
@@ -788,7 +788,7 @@ export const AdminUserManagementSection: React.FC<AdminUserManagementSectionProp
             <form onSubmit={handlePromoteByEmail} className="mt-4 space-y-4">
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                  छात्र का ईमेल पता (Email Address)
+                  Student Email Address
                 </label>
                 <input
                   type="email"
@@ -803,12 +803,12 @@ export const AdminUserManagementSection: React.FC<AdminUserManagementSectionProp
               <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-900 text-xs leading-relaxed space-y-1">
                 <p className="font-bold flex items-center gap-1.5">
                   <ShieldAlert className="w-3.5 h-3.5 text-amber-600" />
-                  सुरक्षा एवं अधिकार नियम:
+                  Security &amp; Authorization Rules:
                 </p>
                 <ul className="list-disc pl-4 space-y-0.5 text-[11px] text-amber-800">
-                  <li>केवल <strong>Super Admin</strong> ही नए एडमिन बना या हटा सकते हैं।</li>
-                  <li>सामान्य एडमिन किसी अन्य यूज़र को प्रमोट या डिमोट नहीं कर सकते।</li>
-                  <li>प्रमोट होने के बाद वह यूज़र तुरंत एडमिन पैनल में लॉगिन व कार्य कर सकेगा।</li>
+                  <li>Only <strong>Super Admins</strong> can create or remove administrators.</li>
+                  <li>Standard administrators cannot promote or demote other users.</li>
+                  <li>Once promoted, the user can immediately log in and manage the admin panel.</li>
                 </ul>
               </div>
 
@@ -818,7 +818,7 @@ export const AdminUserManagementSection: React.FC<AdminUserManagementSectionProp
                   onClick={() => setShowPromoteEmailModal(false)}
                   className="px-4 py-2 border border-slate-200 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-50 cursor-pointer"
                 >
-                  रद्द करें
+                  Cancel
                 </button>
                 <button
                   type="submit"
@@ -828,12 +828,12 @@ export const AdminUserManagementSection: React.FC<AdminUserManagementSectionProp
                   {isPromotingEmail ? (
                     <>
                       <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      <span>प्रमोट हो रहा है...</span>
+                      <span>Promoting...</span>
                     </>
                   ) : (
                     <>
                       <ShieldCheck className="w-3.5 h-3.5" />
-                      <span>Admin बनाएं</span>
+                      <span>Make Admin</span>
                     </>
                   )}
                 </button>

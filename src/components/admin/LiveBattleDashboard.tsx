@@ -126,7 +126,7 @@ export const LiveBattleDashboard: React.FC<LiveBattleDashboardProps> = () => {
     const demoRoomCode = `RJ-${randomNum}`;
     const host = {
       id: `host_${randomNum}`,
-      name: "छात्र अभ्यर्थी " + randomNum,
+      name: "Player #" + randomNum,
       avatar: "👑",
       isHost: true,
       isReady: true,
@@ -234,7 +234,7 @@ export const LiveBattleDashboard: React.FC<LiveBattleDashboardProps> = () => {
             </h1>
 
             <p className="text-xs sm:text-sm text-amber-100/90 max-w-2xl font-medium leading-relaxed">
-              वर्तमान में लाइव खेल रहे अभ्यर्थी, सक्रिय बैटल रूम्स, कुल खेली गई बैटल्स और छात्रों के रियल-टाइम स्कोरकार्ड का संपूर्ण एनालिटिक्स।
+              Comprehensive analytics for live active players, battle rooms, total matches played, and student real-time scorecards.
             </p>
           </div>
 
@@ -264,7 +264,7 @@ export const LiveBattleDashboard: React.FC<LiveBattleDashboardProps> = () => {
               title="Refresh telemetry"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? "animate-spin text-amber-300" : ""}`} />
-              <span>रिफ्रेश</span>
+              <span>Refresh</span>
             </button>
 
             {/* Export CSV */}
@@ -287,12 +287,12 @@ export const LiveBattleDashboard: React.FC<LiveBattleDashboardProps> = () => {
 
       {/* 2. Top Metric Cards (Core KPIs) */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        {/* KPI 1: Live Now Players (वर्तमान में लाइव खिलाड़ी) */}
+        {/* KPI 1: Live Now Players */}
         <div className="bg-white dark:bg-[#111A2E] rounded-3xl p-4 sm:p-5 border-2 border-emerald-500/40 dark:border-emerald-500/30 shadow-sm relative overflow-hidden">
           <div className="flex items-start justify-between gap-2">
             <div>
               <span className="text-[11px] sm:text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider block">
-                लाइव खिलाड़ी अभी
+                Active Players Now
               </span>
               <div className="flex items-baseline gap-2 mt-1">
                 <span className="text-2xl sm:text-3xl lg:text-4xl font-black text-emerald-600 dark:text-emerald-400">
@@ -309,16 +309,16 @@ export const LiveBattleDashboard: React.FC<LiveBattleDashboardProps> = () => {
             </div>
           </div>
           <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-2 font-medium">
-            वर्तमान में एक्टिव बैटल रूम्स में उपस्थित
+            Currently participating in active battle rooms
           </p>
         </div>
 
-        {/* KPI 2: Live Active Rooms (सक्रिय रूम्स) */}
+        {/* KPI 2: Live Active Rooms */}
         <div className="bg-white dark:bg-[#111A2E] rounded-3xl p-4 sm:p-5 border border-stone-200 dark:border-stone-800 shadow-sm">
           <div className="flex items-start justify-between gap-2">
             <div>
               <span className="text-[11px] sm:text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider block">
-                सक्रिय लाइव रूम्स
+                Active Live Rooms
               </span>
               <div className="flex items-baseline gap-2 mt-1">
                 <span className="text-2xl sm:text-3xl lg:text-4xl font-black text-rose-600 dark:text-rose-400">
@@ -334,23 +334,23 @@ export const LiveBattleDashboard: React.FC<LiveBattleDashboardProps> = () => {
             </div>
           </div>
           <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-2 font-medium">
-            लॉबी या मैच प्रोग्रेस में चल रहे मुकाबले
+            Contests currently in lobby or in-progress
           </p>
         </div>
 
-        {/* KPI 3: Total Battles Played (कुल खेली गई बैटल) */}
+        {/* KPI 3: Total Battles Played */}
         <div className="bg-white dark:bg-[#111A2E] rounded-3xl p-4 sm:p-5 border border-stone-200 dark:border-stone-800 shadow-sm">
           <div className="flex items-start justify-between gap-2">
             <div>
               <span className="text-[11px] sm:text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider block">
-                कुल खेली गई बैटल
+                Total Battles Played
               </span>
               <div className="flex items-baseline gap-2 mt-1">
                 <span className="text-2xl sm:text-3xl lg:text-4xl font-black text-amber-600 dark:text-amber-400">
                   {summary.totalBattlesPlayed}
                 </span>
                 <span className="text-xs font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 px-1.5 py-0.5 rounded-md">
-                  +{summary.todayBattlesCount} आज
+                  +{summary.todayBattlesCount} today
                 </span>
               </div>
             </div>
@@ -359,23 +359,23 @@ export const LiveBattleDashboard: React.FC<LiveBattleDashboardProps> = () => {
             </div>
           </div>
           <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-2 font-medium">
-            सफलतापूर्वक पूर्ण हुए कुल मुकाबले
+            Total successfully completed battles
           </p>
         </div>
 
-        {/* KPI 4: Total Battle Participants (कुल प्रतिभागी) */}
+        {/* KPI 4: Total Battle Participants */}
         <div className="bg-white dark:bg-[#111A2E] rounded-3xl p-4 sm:p-5 border border-stone-200 dark:border-stone-800 shadow-sm">
           <div className="flex items-start justify-between gap-2">
             <div>
               <span className="text-[11px] sm:text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider block">
-                कुल प्रतिभागी छात्र
+                Total Student Participants
               </span>
               <div className="flex items-baseline gap-2 mt-1">
                 <span className="text-2xl sm:text-3xl lg:text-4xl font-black text-[#800020] dark:text-[#F47B20]">
                   {summary.totalParticipantsCount}
                 </span>
                 <span className="text-[10px] font-bold text-stone-400">
-                  ({summary.avgPlayersPerBattle} / मैच)
+                  ({summary.avgPlayersPerBattle} / match)
                 </span>
               </div>
             </div>
@@ -384,7 +384,7 @@ export const LiveBattleDashboard: React.FC<LiveBattleDashboardProps> = () => {
             </div>
           </div>
           <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-2 font-medium">
-            औसत विजेता एक्यूरेसी: {summary.avgAccuracyPercent}%
+            Average Winner Accuracy: {summary.avgAccuracyPercent}%
           </p>
         </div>
       </div>
@@ -401,7 +401,7 @@ export const LiveBattleDashboard: React.FC<LiveBattleDashboardProps> = () => {
             }`}
           >
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span>लाइव सक्रिय बैटल्स ({summary.activeLiveRooms.length})</span>
+            <span>Live Active Battles ({summary.activeLiveRooms.length})</span>
           </button>
 
           <button
@@ -413,7 +413,7 @@ export const LiveBattleDashboard: React.FC<LiveBattleDashboardProps> = () => {
             }`}
           >
             <Calendar className="w-4 h-4" />
-            <span>मैच इतिहास ({summary.recentBattles.length})</span>
+            <span>Match History ({summary.recentBattles.length})</span>
           </button>
 
           <button
@@ -425,7 +425,7 @@ export const LiveBattleDashboard: React.FC<LiveBattleDashboardProps> = () => {
             }`}
           >
             <TrendingUp className="w-4 h-4" />
-            <span>पैटर्न व एनालिटिक्स</span>
+            <span>Patterns & Analytics</span>
           </button>
         </div>
 
@@ -436,23 +436,23 @@ export const LiveBattleDashboard: React.FC<LiveBattleDashboardProps> = () => {
           title="Simulate a real live battle room to test monitoring"
         >
           <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-          <span>+ टेस्ट लाइव रूम जोड़ें</span>
+          <span>+ Simulate Live Room</span>
         </button>
       </div>
 
-      {/* 4. Sub-Tab 1: Currently Active Live Battles (लाइव सक्रिय रूम्स) */}
+      {/* 4. Sub-Tab 1: Currently Active Live Battles */}
       {activeSubTab === "live" && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-sm sm:text-base font-black text-stone-900 dark:text-white flex items-center gap-2">
-              <span>वर्तमान में एक्टिव रूम्स</span>
+              <span>Currently Active Rooms</span>
               <span className="text-xs font-extrabold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
                 {summary.activeLiveRooms.length} Active
               </span>
             </h2>
 
             <span className="text-xs text-stone-500 font-medium">
-              हर 10 सेकंड में स्वतः रिफ्रेश होता है
+              Auto-refreshes every 10 seconds
             </span>
           </div>
 
@@ -462,10 +462,10 @@ export const LiveBattleDashboard: React.FC<LiveBattleDashboardProps> = () => {
                 <Swords className="w-7 h-7" />
               </div>
               <h3 className="text-base font-bold text-stone-800 dark:text-stone-200">
-                अभी कोई लाइव बैटल सक्रिय नहीं है
+                No live battles currently active
               </h3>
               <p className="text-xs text-stone-500 dark:text-stone-400 max-w-md mx-auto">
-                जैसे ही कोई भी छात्र ऐप में 1v1 या मल्टी-प्लेयर लाइव बैटल शुरू करेगा, वह रूम और सभी खिलाड़ियों की लाइव स्थिति तुरंत यहाँ दिखाई देगी।
+                As soon as students start a 1v1 or multiplayer live battle, the room and player status will appear here immediately.
               </p>
               <div className="pt-2">
                 <button
@@ -473,7 +473,7 @@ export const LiveBattleDashboard: React.FC<LiveBattleDashboardProps> = () => {
                   className="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-stone-950 font-black text-xs rounded-xl shadow-xs transition-all active:scale-95 inline-flex items-center gap-1.5 cursor-pointer"
                 >
                   <Sparkles className="w-4 h-4" />
-                  <span>लाइव टेस्ट बैटल सिमुलेट करें</span>
+                  <span>Simulate Live Battle</span>
                 </button>
               </div>
             </div>
@@ -525,9 +525,9 @@ export const LiveBattleDashboard: React.FC<LiveBattleDashboardProps> = () => {
                             {room.hostName} (Host)
                           </p>
                           <p className="text-[10px] text-stone-500 flex items-center gap-2 mt-0.5 font-medium">
-                            <span>{room.questionCount} प्रश्न</span>
+                            <span>{room.questionCount} Questions</span>
                             <span>•</span>
-                            <span>{room.timePerQuestionSec}s प्रति सवाल</span>
+                            <span>{room.timePerQuestionSec}s per question</span>
                           </p>
                         </div>
                       </div>
@@ -535,7 +535,7 @@ export const LiveBattleDashboard: React.FC<LiveBattleDashboardProps> = () => {
                       {/* Players Strip */}
                       <div>
                         <div className="flex items-center justify-between text-[11px] font-bold text-stone-500 mb-1.5">
-                          <span>सक्रिय खिलाड़ी ({room.players?.length || room.activePlayerCount})</span>
+                          <span>Active Players ({room.players?.length || room.activePlayerCount})</span>
                           <span className="text-emerald-600 font-extrabold">Online</span>
                         </div>
                         <div className="flex items-center gap-1.5 overflow-x-auto py-1">
@@ -571,7 +571,7 @@ export const LiveBattleDashboard: React.FC<LiveBattleDashboardProps> = () => {
         </div>
       )}
 
-      {/* 5. Sub-Tab 2: Battles History (खेली गई बैटल्स का इतिहास) */}
+      {/* 5. Sub-Tab 2: Battles History */}
       {activeSubTab === "history" && (
         <div className="space-y-4">
           {/* Search & Filter Toolbar */}
@@ -580,7 +580,7 @@ export const LiveBattleDashboard: React.FC<LiveBattleDashboardProps> = () => {
               <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" />
               <input
                 type="text"
-                placeholder="रूम कोड, होस्ट या विजेता खोजें..."
+                placeholder="Search room code, host, or winner..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl bg-stone-100 dark:bg-stone-800 border-none focus:outline-none focus:ring-2 focus:ring-[#800020] dark:focus:ring-amber-400 text-stone-900 dark:text-white"
@@ -636,7 +636,7 @@ export const LiveBattleDashboard: React.FC<LiveBattleDashboardProps> = () => {
                   {filteredBattles.length === 0 ? (
                     <tr>
                       <td colSpan={8} className="py-10 text-center text-xs font-bold text-stone-400">
-                        कोई बैटल रिकॉर्ड नहीं मिला।
+                        No battle records found.
                       </td>
                     </tr>
                   ) : (
@@ -662,7 +662,7 @@ export const LiveBattleDashboard: React.FC<LiveBattleDashboardProps> = () => {
                             {battle.questionCount}Q • {battle.timePerQuestionSec}s
                           </td>
                           <td className="py-3 px-4 font-bold text-stone-700 dark:text-stone-200">
-                            {battle.totalPlayerCount} छात्र
+                            {battle.totalPlayerCount} Players
                           </td>
                           <td className="py-3 px-4">
                             {battle.winnerName ? (
@@ -680,7 +680,7 @@ export const LiveBattleDashboard: React.FC<LiveBattleDashboardProps> = () => {
                             )}
                           </td>
                           <td className="py-3 px-4 text-stone-500 whitespace-nowrap">
-                            {new Date(battle.createdAt).toLocaleDateString("hi-IN", {
+                            {new Date(battle.createdAt).toLocaleDateString("en-US", {
                               day: "numeric",
                               month: "short",
                               hour: "2-digit",
@@ -711,7 +711,7 @@ export const LiveBattleDashboard: React.FC<LiveBattleDashboardProps> = () => {
         </div>
       )}
 
-      {/* 6. Sub-Tab 3: Analytics & Patterns (पैटर्न व एनालिटिक्स) */}
+      {/* 6. Sub-Tab 3: Analytics & Patterns */}
       {activeSubTab === "analytics" && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Question Count Preference */}

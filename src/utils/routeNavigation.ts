@@ -15,7 +15,6 @@ export interface ParsedNavState {
 export const KNOWN_TABS: readonly ActiveTab[] = [
   "home",
   "topics",
-  "videos",
   "pyq_vault",
   "live_tests",
   "test_series",
@@ -99,16 +98,6 @@ export function resolvePathToNavigationState(
     cleanPath.startsWith("/topics/")
   ) {
     tab = "topics";
-  }
-  // 4b. Videos / Classes
-  else if (
-    cleanPath === "/videos" ||
-    cleanPath === "/classes" ||
-    cleanPath === "/video-classes" ||
-    cleanPath.startsWith("/videos/") ||
-    cleanPath.startsWith("/classes/")
-  ) {
-    tab = "videos";
   }
   // 5. PYQ Vault
   else if (
@@ -247,7 +236,7 @@ export function buildCanonicalPath(
   }
 
   // 6. Topics with query parameters
-  if (tab === "topics" || tab === "videos") {
+  if (tab === "topics") {
     const params = new URLSearchParams();
     if (subjectId) params.set("subject", subjectId);
     if (chapterId) params.set("chapter", chapterId);

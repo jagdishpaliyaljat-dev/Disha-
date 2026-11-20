@@ -2866,7 +2866,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                     <h4 className="text-sm font-black text-white uppercase tracking-widest">Mastery Keys</h4>
                   </div>
                   <div className="text-[15px] sm:text-[16px] text-slate-100 font-hindi leading-relaxed font-bold">
-                    <RichText text={currentQuestion?.explanation || "व्याख्या उपलब्ध नहीं है।"} enablePronunciation={true} />
+                    <RichText text={currentQuestion?.explanation || "Explanation not available."} enablePronunciation={true} />
                   </div>
                   <div className="pt-3.5 mt-3.5 border-t border-white/10 flex items-center justify-between flex-wrap gap-2.5">
                     <button

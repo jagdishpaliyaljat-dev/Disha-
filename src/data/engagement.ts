@@ -11,7 +11,7 @@ export const ACHIEVEMENTS: Achievement[] = [
   {
     id: 'starter',
     title: 'First Step',
-    hindiTitle: 'पहला कदम',
+    hindiTitle: 'First Step',
     description: 'Solve your first 10 questions',
     icon: '🎯',
     condition: (s) => s.attempted >= 10
@@ -19,7 +19,7 @@ export const ACHIEVEMENTS: Achievement[] = [
   {
     id: 'centurion',
     title: 'Century Maker',
-    hindiTitle: 'शतकवीर',
+    hindiTitle: 'Century Maker',
     description: 'Solve 100 questions',
     icon: '💯',
     condition: (s) => s.attempted >= 100
@@ -27,7 +27,7 @@ export const ACHIEVEMENTS: Achievement[] = [
   {
     id: 'streak_3',
     title: 'Consistency',
-    hindiTitle: 'निरंतरता',
+    hindiTitle: 'Consistency',
     description: 'Maintain a 3-day streak',
     icon: '🔥',
     condition: (s) => s.streak >= 3
@@ -35,7 +35,7 @@ export const ACHIEVEMENTS: Achievement[] = [
   {
     id: 'accuracy_pro',
     title: 'Precision Master',
-    hindiTitle: 'सटीकता मास्टर',
+    hindiTitle: 'Precision Master',
     description: 'Achieve 80%+ accuracy (min 50 Qs)',
     icon: '⭐',
     condition: (s) => s.attempted >= 50 && s.accuracy >= 80
@@ -44,11 +44,11 @@ export const ACHIEVEMENTS: Achievement[] = [
 
 export const MOTIVATIONAL_QUOTES = [
   { text: "Success is not final, failure is not fatal: it is the courage to continue that counts.", author: "Winston Churchill" },
-  { text: "कठिन परिश्रम का कोई विकल्प नहीं है।", author: "Thomas Edison" },
+  { text: "There is no substitute for hard work.", author: "Thomas Edison" },
   { text: "The secret of getting ahead is getting started.", author: "Mark Twain" },
-  { text: "लक्ष्य को पाने के लिए केवल कोशिश नहीं, ज़िद चाहिए।", author: "Unknown" },
+  { text: "To achieve your goal, you need sheer determination, not just attempts.", author: "Unknown" },
   { text: "Don't stop when you're tired. Stop when you're done.", author: "David Goggins" },
-  { text: "विजेता वे नहीं होते जो कभी असफल नहीं होते, बल्कि वे होते हैं जो कभी हार नहीं मानते।", author: "Unknown" }
+  { text: "Winners are not those who never fail, but those who never quit.", author: "Unknown" }
 ];
 
 /**

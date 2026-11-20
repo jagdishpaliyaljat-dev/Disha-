@@ -1274,7 +1274,7 @@ export const HTMLImportMCQModal: React.FC<HTMLImportMCQModalProps> = ({
                       className="px-4 py-2 text-xs font-black text-white bg-gradient-to-r from-[#F47B20] to-[#E06716] hover:brightness-105 border border-[#C99A45]/40 disabled:opacity-50 rounded-xl shadow-[0_3px_12px_rgba(244,123,32,0.3)] flex items-center gap-1.5 transition-all cursor-pointer"
                     >
                       {isParsing ? <InlineSpinner size="xs" /> : <FileCode className="w-3.5 h-3.5" />}
-                      <span>{isParsing ? "HTML विश्लेषण जारी..." : "HTML प्रश्न पार्स करें"}</span>
+                      <span>{isParsing ? "Analyzing HTML..." : "Parse HTML Questions"}</span>
                     </button>
                   </div>
                 </div>
@@ -1616,12 +1616,12 @@ export const HTMLImportMCQModal: React.FC<HTMLImportMCQModalProps> = ({
                 {isCommitting ? (
                   <>
                     <InlineSpinner size="xs" />
-                    <span>डेटाबेस में सुरक्षित हो रहा है...</span>
+                    <span>Saving to database...</span>
                   </>
                 ) : (
                   <>
                     <CheckCircle2 className="w-3.5 h-3.5" />
-                    <span>{selectedTempIds.size} प्रश्न इम्पोर्ट करें</span>
+                    <span>Import {selectedTempIds.size} Question{selectedTempIds.size === 1 ? "" : "s"}</span>
                   </>
                 )}
               </button>

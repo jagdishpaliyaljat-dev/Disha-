@@ -111,7 +111,7 @@ export const AdminBannerManagementSection: React.FC<{ onBannerUpdated?: () => vo
     // BUG-03: Block javascript: and other dangerous protocols
     const proto = trimmed.split(":")[0].toLowerCase();
     if (!["http", "https", "data"].includes(proto)) {
-      setNotification({ type: "error", message: "अमान्य URL! केवल https://, http://, या data: URLs की अनुमति है।" });
+      setNotification({ type: "error", message: "Invalid URL! Only https://, http://, or data: URLs are allowed." });
       setTimeout(() => setNotification(null), 4000);
       return;
     }
@@ -132,8 +132,8 @@ export const AdminBannerManagementSection: React.FC<{ onBannerUpdated?: () => vo
       setNotification({ type: "success", message: "Campaign published." });
       triggerDatabaseSavedToast({
         type: "add",
-        title: "बैनर Supabase में लाइव हुआ!",
-        message: "बैनर Supabase में सुरक्षित पब्लिश हो गया है और यूजर ऐप के होम स्क्रीन पर लाइव है।",
+        title: "Banner Published to Supabase!",
+        message: "Banner has been successfully published to Supabase and is now live on the student app home screen.",
         itemName: currentBanner.title,
       });
       setIsEditing(false);
@@ -158,8 +158,8 @@ export const AdminBannerManagementSection: React.FC<{ onBannerUpdated?: () => vo
       setBanners(prev => prev.map(b => b.id === banner.id ? updated : b));
       triggerDatabaseSavedToast({
         type: "update",
-        title: "बैनर स्थिति अपडेट हुई!",
-        message: `बैनर "${banner.title}" की स्थिति Supabase में लाइव अपडेट कर दी गई है।`,
+        title: "Banner Status Updated!",
+        message: `Status of banner "${banner.title}" has been updated live in Supabase.`,
         itemName: banner.title,
       });
       onBannerUpdated?.();
@@ -202,8 +202,8 @@ export const AdminBannerManagementSection: React.FC<{ onBannerUpdated?: () => vo
       setBanners(prev => prev.filter(b => b.id !== deletingBanner.id));
       triggerAdminToast(
         "delete",
-        "बैनर Supabase से हटाया गया",
-        `बैनर "${deletingBanner.title}" को Supabase से हटा दिया गया है और यह यूजर ऐप से तुरंत रिमूव हो चुका है।`
+        "Banner Removed from Supabase",
+        `Banner "${deletingBanner.title}" has been removed from Supabase and is immediately removed from the student app.`
       );
       setDeletingBanner(null);
       onBannerUpdated?.();

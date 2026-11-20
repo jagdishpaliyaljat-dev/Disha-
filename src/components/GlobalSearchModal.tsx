@@ -134,7 +134,7 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="खोजें: प्रश्न, विषय, 1857 क्रांति, राजस्थान भूगोल, PYQ..."
+            placeholder="Search: Questions, Topics, History, Geography, PYQs..."
             className="flex-1 bg-transparent border-none outline-none text-sm sm:text-base font-semibold text-[#171923] dark:text-white placeholder-slate-400"
           />
           {query && (
@@ -157,10 +157,10 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
         <div className="flex items-center justify-between px-4 py-2 border-b border-[#E8D9C0]/50 dark:border-[#31374A]/50 bg-white/50 dark:bg-[#1E2230]/50 text-xs">
           <div className="flex items-center gap-1.5 overflow-x-auto py-0.5">
             {[
-              { id: "all", label: "सभी (All)" },
-              { id: "question", label: "प्रश्न (MCQs)" },
-              { id: "topic", label: "विषय (Topics)" },
-              { id: "paper", label: "पेपर्स (PYQs)" },
+              { id: "all", label: "All" },
+              { id: "question", label: "Questions (MCQs)" },
+              { id: "topic", label: "Topics" },
+              { id: "paper", label: "Papers (PYQs)" },
             ].map((f) => (
               <button
                 key={f.id}
@@ -180,7 +180,7 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
             <div className="flex items-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 shrink-0 pl-2">
               <Zap className="w-3.5 h-3.5 fill-current" />
               <span>
-                {latency}ms • {results.length} परिणाम
+                {latency}ms • {results.length} Results
               </span>
             </div>
           )}
@@ -191,17 +191,17 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
           {query.trim() && results.length === 0 ? (
             <div className="text-center py-12 px-4 text-slate-400 dark:text-slate-500">
               <Search className="w-8 h-8 mx-auto mb-2 opacity-40" />
-              <p className="text-sm font-semibold">कोई परिणाम नहीं मिला</p>
-              <p className="text-xs mt-1">अन्य कीवर्ड से खोजें या स्पेलिंग जांचें</p>
+              <p className="text-sm font-semibold">No Results Found</p>
+              <p className="text-xs mt-1">Try searching with other keywords or check spelling</p>
             </div>
           ) : !query.trim() ? (
             <div className="py-8 px-4 text-center">
               <Sparkles className="w-8 h-8 text-[#800020] dark:text-amber-400 mx-auto mb-2 opacity-60" />
               <p className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                अल्ट्रा-फास्ट सर्च इंजन (10,000+ MCQs & Topics)
+                Ultra-Fast Search Engine (10,000+ MCQs & Topics)
               </p>
               <p className="text-[11px] text-slate-400 mt-1 max-w-sm mx-auto">
-                राजस्थान इतिहास, भूगोल, कला-संस्कृति, राजव्यवस्था या किसी भी परीक्षा प्रश्न को तुरंत खोजें।
+                Instantly search questions, topics, exams, syllabus chapters, and previous year papers.
               </p>
             </div>
           ) : (
@@ -252,9 +252,9 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
         {/* Footer shortcuts hint */}
         <div className="px-4 py-2 border-t border-[#E8D9C0]/50 dark:border-[#31374A]/50 bg-[#FFFDF9] dark:bg-[#252A3A] text-[11px] text-slate-400 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <span>↑↓ नेविगेट</span>
-            <span>↵ चयन करें</span>
-            <span>Esc बंद करें</span>
+            <span>↑↓ Navigate</span>
+            <span>↵ Select</span>
+            <span>Esc Close</span>
           </div>
           <span className="font-semibold text-[#800020] dark:text-[#E8D9C0]">DISHA 20-20 FastSearch</span>
         </div>

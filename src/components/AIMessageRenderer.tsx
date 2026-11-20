@@ -21,7 +21,7 @@ function renderContentWithMath(child: React.ReactNode): React.ReactNode {
       child.includes("\\(") ||
       child.includes("[image:") ||
       child.includes("[diagram:") ||
-      child.includes("[चित्र:")
+      child.includes("[\u091a\u093f\u0924\u094d\u0930:")
     ) {
       return <RichText content={child} inline />;
     }

@@ -1459,7 +1459,7 @@ export function parseSmartHtml(
       const firstH2 = doc.querySelector("h2");
       const leadStrong = doc.querySelector(".lead strong, p.lead strong, .note strong");
       if (leadStrong && leadStrong.textContent?.trim()) {
-        detectedTitle = `${leadStrong.textContent.trim()} — संपूर्ण गाइड व PYQ`;
+        detectedTitle = `${leadStrong.textContent.trim()} — Complete Exam Guide & PYQ`;
       } else if (firstH2 && firstH2.textContent?.trim()) {
         detectedTitle = firstH2.textContent.trim();
       }
@@ -1480,7 +1480,7 @@ export function parseSmartHtml(
     }
   }
   if (!detectedTitle || detectedTitle === "Untitled Article") {
-    detectedTitle = "राजस्थान भर्ती परीक्षा: संपूर्ण गाइड व PYQ नोट्स";
+    detectedTitle = "Competitive Exam Preparation: Complete Study Guide & PYQ Notes";
   }
 
   // Detect explicit custom excerpt from .lead or .intro

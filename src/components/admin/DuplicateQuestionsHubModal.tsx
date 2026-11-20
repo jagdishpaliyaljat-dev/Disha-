@@ -67,7 +67,7 @@ export const DuplicateQuestionsHubModal: React.FC<DuplicateQuestionsHubModalProp
   // Run the fuzzy duplicate scan
   const handleRunScan = async (selectedThreshold = threshold) => {
     setIsScanning(true);
-    setScanProgress("प्रश्न बैंक से डेटा लोड किया जा रहा है...");
+    setScanProgress("Loading questions data from question bank...");
 
     // Yield to let UI update
     await new Promise((r) => setTimeout(r, 60));
@@ -86,15 +86,15 @@ export const DuplicateQuestionsHubModal: React.FC<DuplicateQuestionsHubModalProp
       }
       triggerAdminToast(
         report.duplicateGroupCount > 0 ? "info" : "success",
-        "स्कैन पूर्ण",
-        `${report.totalScanned} प्रश्नों में से ${report.duplicateGroupCount} डुप्लीकेट समूह (कुल ${report.totalDuplicateCopies} प्रतियां) मिले।`
+        "Scan Completed",
+        `Scanned ${report.totalScanned} questions: found ${report.duplicateGroupCount} duplicate groups (${report.totalDuplicateCopies} copies).`
       );
     } catch (err: any) {
       console.error("Scan error:", err);
       triggerAdminToast(
         "error",
-        "स्कैन विफल",
-        err?.message || "डुप्लीकेट स्कैन में त्रुटि आई।"
+        "Scan Failed",
+        err?.message || "Error occurred during duplicate scan."
       );
     } finally {
       setIsScanning(false);
@@ -111,7 +111,7 @@ export const DuplicateQuestionsHubModal: React.FC<DuplicateQuestionsHubModalProp
 
   // Delete a specific duplicate question
   const handleDeleteDuplicate = async (groupId: string, questionId: string) => {
-    if (!window.confirm("क्या आप वाकई इस डुप्लीकेट प्रश्न को स्थायी रूप से हटाना चाहते हैं?")) {
+    if (!window.confirm("Are you sure you want to permanently delete this duplicate question?")) {
       return;
     }
 
@@ -157,8 +157,8 @@ export const DuplicateQuestionsHubModal: React.FC<DuplicateQuestionsHubModalProp
 
       triggerAdminToast(
         "delete",
-        "डुप्लीकेट हटाया गया",
-        `प्रश्न (ID: ${questionId}) को सफलतापूर्वक हटा दिया गया।`
+        "Duplicate Removed",
+        `Question (ID: ${questionId}) has been successfully deleted.`
       );
 
       if (onQuestionsUpdated) {
@@ -167,8 +167,8 @@ export const DuplicateQuestionsHubModal: React.FC<DuplicateQuestionsHubModalProp
     } catch (err: any) {
       triggerAdminToast(
         "error",
-        "डिलीट विफल",
-        err?.message || "प्रश्न हटाने में त्रुटि आई।"
+        "Delete Failed",
+        err?.message || "Error occurred while deleting question."
       );
     } finally {
       setIsDeleting(null);
@@ -180,7 +180,7 @@ export const DuplicateQuestionsHubModal: React.FC<DuplicateQuestionsHubModalProp
     const dupIds = group.duplicates.map((d) => d.question.id).filter(Boolean);
     if (dupIds.length === 0) return;
 
-    if (!window.confirm(`क्या आप इस समूह की सभी ${dupIds.length} डुप्लीकेट प्रतियों को हटाकर केवल मुख्य प्रश्न रखना चाहते हैं?`)) {
+    if (!window.confirm(`Are you sure you want to delete all ${dupIds.length} duplicate copies in this group and retain only the master question?`)) {
       return;
     }
 
@@ -214,8 +214,8 @@ export const DuplicateQuestionsHubModal: React.FC<DuplicateQuestionsHubModalProp
 
       triggerAdminToast(
         "delete",
-        "समूह साफ किया गया",
-        `${dupIds.length} डुप्लीकेट प्रतियां हटा दी गईं, मुख्य प्रश्न सुरक्षित रखा गया।`
+        "Group Cleaned",
+        `Removed ${dupIds.length} duplicate copies. Master question preserved.`
       );
 
       if (onQuestionsUpdated) {
@@ -224,8 +224,8 @@ export const DuplicateQuestionsHubModal: React.FC<DuplicateQuestionsHubModalProp
     } catch (err: any) {
       triggerAdminToast(
         "error",
-        "त्रुटि",
-        err?.message || "प्रतियां हटाने में त्रुटि आई।"
+        "Error",
+        err?.message || "Error occurred while removing duplicate copies."
       );
     } finally {
       setIsDeleting(null);
@@ -245,7 +245,7 @@ export const DuplicateQuestionsHubModal: React.FC<DuplicateQuestionsHubModalProp
     if (allDupIds.length === 0) return;
 
     const confirmed = window.confirm(
-      `⚠️ क्या आप वाकई पूरे प्रश्न बैंक में से सभी ${allDupIds.length} डुप्लीकेट प्रतियों को हटाना चाहते हैं?\n\nप्रत्येक समूह में से केवल सबसे उत्तम (Canonical) प्रश्न सुरक्षित रहेगा और अन्य सभी प्रतियां हटा दी जाएंगी।`
+      `⚠️ Are you sure you want to permanently remove all ${allDupIds.length} duplicate copies from the entire question bank?\n\nOnly the canonical master question in each group will be kept and all other copies will be purged.`
     );
     if (!confirmed) return;
 
@@ -274,8 +274,8 @@ export const DuplicateQuestionsHubModal: React.FC<DuplicateQuestionsHubModalProp
 
       triggerAdminToast(
         "delete",
-        "सभी डुप्लीकेट साफ",
-        `सफलतापूर्वक कुल ${allDupIds.length} डुप्लीकेट प्रश्नों को हटाया गया।`
+        "All Duplicates Cleared",
+        `Successfully removed ${allDupIds.length} duplicate questions.`
       );
 
       if (onQuestionsUpdated) {
@@ -284,8 +284,8 @@ export const DuplicateQuestionsHubModal: React.FC<DuplicateQuestionsHubModalProp
     } catch (err: any) {
       triggerAdminToast(
         "error",
-        "बल्क डिलीट विफल",
-        err?.message || "बल्क डिलीट में त्रुटि आई।"
+        "Bulk Delete Failed",
+        err?.message || "Error occurred during bulk deletion."
       );
     } finally {
       setIsBulkDeleting(false);
@@ -358,13 +358,13 @@ export const DuplicateQuestionsHubModal: React.FC<DuplicateQuestionsHubModalProp
             <div className="flex items-center gap-2">
               <span className="text-xs font-bold text-slate-600 dark:text-slate-400 flex items-center gap-1">
                 <Sliders className="w-3.5 h-3.5" />
-                समानता थ्रेशोल्ड:
+                Similarity Threshold:
               </span>
               <div className="flex items-center p-0.5 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
                 {[
-                  { label: "90% (मानक)", value: 0.90 },
-                  { label: "95% (सख्त)", value: 0.95 },
-                  { label: "100% (सटीक)", value: 0.999 },
+                  { label: "90% (Standard)", value: 0.90 },
+                  { label: "95% (Strict)", value: 0.95 },
+                  { label: "100% (Exact)", value: 0.999 },
                 ].map((th) => (
                   <button
                     key={th.value}
@@ -393,7 +393,7 @@ export const DuplicateQuestionsHubModal: React.FC<DuplicateQuestionsHubModalProp
                 className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 dark:hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer disabled:opacity-50"
               >
                 <RefreshCw className={`w-3.5 h-3.5 ${isScanning ? "animate-spin" : ""}`} />
-                <span>{isScanning ? "स्कैनिंग..." : "दोबारा स्कैन करें"}</span>
+                <span>{isScanning ? "Scanning..." : "Rescan"}</span>
               </button>
 
               {scanReport && scanReport.totalDuplicateCopies > 0 && (
@@ -406,8 +406,8 @@ export const DuplicateQuestionsHubModal: React.FC<DuplicateQuestionsHubModalProp
                   <Trash2 className="w-3.5 h-3.5" />
                   <span>
                     {isBulkDeleting
-                      ? "सफाई हो रही है..."
-                      : `सभी ${scanReport.totalDuplicateCopies} डुप्लीकेट हटाएं`}
+                      ? "Purging..."
+                      : `Purge All ${scanReport.totalDuplicateCopies} Duplicates`}
                   </span>
                 </button>
               )}
@@ -420,7 +420,7 @@ export const DuplicateQuestionsHubModal: React.FC<DuplicateQuestionsHubModalProp
               <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
-                placeholder="प्रश्न में खोजें..."
+                placeholder="Search in questions..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-8.5 pr-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800/80 text-xs text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-amber-500/20"
@@ -436,7 +436,7 @@ export const DuplicateQuestionsHubModal: React.FC<DuplicateQuestionsHubModalProp
                     : "text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
                 }`}
               >
-                सभी समूह ({scanReport?.duplicateGroupCount || 0})
+                All Groups ({scanReport?.duplicateGroupCount || 0})
               </button>
               <button
                 onClick={() => setFilterBand("exact")}
@@ -446,7 +446,7 @@ export const DuplicateQuestionsHubModal: React.FC<DuplicateQuestionsHubModalProp
                     : "text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
                 }`}
               >
-                100% सटीक
+                100% Exact
               </button>
               <button
                 onClick={() => setFilterBand("95plus")}
@@ -456,7 +456,7 @@ export const DuplicateQuestionsHubModal: React.FC<DuplicateQuestionsHubModalProp
                     : "text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
                 }`}
               >
-                95%+ समानता
+                95%+ Similar
               </button>
               <button
                 onClick={() => setFilterBand("90to95")}
@@ -466,7 +466,7 @@ export const DuplicateQuestionsHubModal: React.FC<DuplicateQuestionsHubModalProp
                     : "text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
                 }`}
               >
-                90-95% समानता
+                90-95% Similar
               </button>
             </div>
           </div>
@@ -480,10 +480,10 @@ export const DuplicateQuestionsHubModal: React.FC<DuplicateQuestionsHubModalProp
               <RefreshCw className="w-5 h-5 text-amber-600 animate-spin shrink-0" />
               <div>
                 <p className="text-xs font-black text-amber-900 dark:text-amber-200">
-                  {scanProgress || "प्रश्न बैंक स्कैन किया जा रहा है..."}
+                  {scanProgress || "Scanning question bank..."}
                 </p>
                 <p className="text-[11px] text-amber-700/80 dark:text-amber-300/80 font-medium">
-                  द्विभाषी बिग्राम और टोकन समानता इंजन द्वारा 90% से ऊपर के डुप्लीकेट क्लस्टर बनाए जा रहे हैं।
+                  Evaluating bigram and token similarity to cluster duplicates above 90% threshold.
                 </p>
               </div>
             </div>
@@ -493,20 +493,20 @@ export const DuplicateQuestionsHubModal: React.FC<DuplicateQuestionsHubModalProp
           {scanReport && (
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 text-center">
-                <span className="text-[10px] font-black uppercase text-slate-400 block">कुल जाँचे गए MCQs</span>
+                <span className="text-[10px] font-black uppercase text-slate-400 block">Total Checked MCQs</span>
                 <span className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white font-mono">
                   {scanReport.totalScanned}
                 </span>
               </div>
               <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 text-center">
-                <span className="text-[10px] font-black uppercase text-slate-400 block">अद्वितीय प्रश्न (Unique)</span>
+                <span className="text-[10px] font-black uppercase text-slate-400 block">Unique Questions</span>
                 <span className="text-xl sm:text-2xl font-black text-emerald-600 dark:text-emerald-400 font-mono">
                   {scanReport.uniqueCount}
                 </span>
               </div>
               <div className="p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200/80 dark:border-amber-900/50 text-center">
                 <span className="text-[10px] font-black uppercase text-amber-700 dark:text-amber-400 block">
-                  डुप्लीकेट समूह (&ge;{Math.round(threshold * 100)}%)
+                  Duplicate Groups (&ge;{Math.round(threshold * 100)}%)
                 </span>
                 <span className="text-xl sm:text-2xl font-black text-amber-600 dark:text-amber-400 font-mono">
                   {scanReport.duplicateGroupCount}
@@ -514,7 +514,7 @@ export const DuplicateQuestionsHubModal: React.FC<DuplicateQuestionsHubModalProp
               </div>
               <div className="p-3.5 rounded-2xl bg-rose-50 dark:bg-rose-950/20 border border-rose-200/80 dark:border-rose-900/50 text-center">
                 <span className="text-[10px] font-black uppercase text-rose-700 dark:text-rose-400 block">
-                  अतिरिक्त डुप्लीकेट प्रतियां
+                  Excess Duplicate Copies
                 </span>
                 <span className="text-xl sm:text-2xl font-black text-rose-600 dark:text-rose-400 font-mono">
                   {scanReport.totalDuplicateCopies}
@@ -529,10 +529,10 @@ export const DuplicateQuestionsHubModal: React.FC<DuplicateQuestionsHubModalProp
               <div className="flex items-center justify-between">
                 <h4 className="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
                   <Layers className="w-3.5 h-3.5 text-amber-500" />
-                  <span>पहचाने गए डुप्लीकेट समूह ({filteredGroups.length})</span>
+                  <span>Identified Duplicate Groups ({filteredGroups.length})</span>
                 </h4>
                 <span className="text-[11px] text-slate-400">
-                  बाईं ओर मुख्य (Canonical) प्रश्न और दाईं ओर डुप्लीकेट प्रतियां
+                  Master (Canonical) question on left, duplicates on right
                 </span>
               </div>
 
@@ -559,8 +559,8 @@ export const DuplicateQuestionsHubModal: React.FC<DuplicateQuestionsHubModalProp
                           }`}
                         >
                           {group.highestSimilarity === 100
-                            ? "100% सटीक मेल"
-                            : `${group.highestSimilarity}% समानता`}
+                            ? "100% Exact Match"
+                            : `${group.highestSimilarity}% Similarity`}
                         </span>
 
                         <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
@@ -570,7 +570,7 @@ export const DuplicateQuestionsHubModal: React.FC<DuplicateQuestionsHubModalProp
 
                       <div className="flex items-center gap-2 shrink-0">
                         <span className="text-xs font-bold text-slate-500">
-                          {group.count} प्रतियां ({group.duplicates.length} डुप्लीकेट)
+                          {group.count} copies ({group.duplicates.length} duplicates)
                         </span>
 
                         <button
@@ -583,7 +583,7 @@ export const DuplicateQuestionsHubModal: React.FC<DuplicateQuestionsHubModalProp
                           title="Keep master question, delete all other duplicate copies"
                         >
                           <Trash2 className="w-3 h-3" />
-                          <span>डुप्लीकेट हटाएं</span>
+                          <span>Remove Duplicates</span>
                         </button>
 
                         <div className="text-slate-400 p-1">
@@ -602,7 +602,7 @@ export const DuplicateQuestionsHubModal: React.FC<DuplicateQuestionsHubModalProp
                             <div className="flex items-center justify-between">
                               <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 text-[10px] font-black uppercase tracking-wider flex items-center gap-1">
                                 <Check className="w-3 h-3" />
-                                मुख्य प्रश्न (Master Copy)
+                                Master Question (Canonical Copy)
                               </span>
                               <span className="text-[10px] font-mono text-slate-400">
                                 ID: {group.canonicalQuestion.id}
@@ -616,7 +616,7 @@ export const DuplicateQuestionsHubModal: React.FC<DuplicateQuestionsHubModalProp
                             {/* Options */}
                             {group.canonicalQuestion.options && group.canonicalQuestion.options.length > 0 && (
                               <div className="space-y-1.5 pt-1">
-                                <span className="text-[10px] font-black uppercase text-slate-400 block">विकल्प:</span>
+                                <span className="text-[10px] font-black uppercase text-slate-400 block">Options:</span>
                                 <div className="grid grid-cols-1 gap-1">
                                   {group.canonicalQuestion.options.map((opt, oIdx) => (
                                     <div
@@ -639,7 +639,7 @@ export const DuplicateQuestionsHubModal: React.FC<DuplicateQuestionsHubModalProp
 
                             {group.canonicalQuestion.explanation && (
                               <div className="p-2.5 rounded-xl bg-white dark:bg-slate-800 text-[11px] text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
-                                <strong className="font-bold text-slate-900 dark:text-white block">व्याख्या:</strong>
+                                <strong className="font-bold text-slate-900 dark:text-white block">Explanation:</strong>
                                 {group.canonicalQuestion.explanation}
                               </div>
                             )}
@@ -648,7 +648,7 @@ export const DuplicateQuestionsHubModal: React.FC<DuplicateQuestionsHubModalProp
                           {/* Duplicates Column */}
                           <div className="space-y-3">
                             <span className="text-xs font-black text-rose-600 dark:text-rose-400 uppercase tracking-wider block">
-                              पहचानी गई डुप्लीकेट प्रतियां ({group.duplicates.length})
+                              Identified Duplicate Copies ({group.duplicates.length})
                             </span>
 
                             {group.duplicates.map((dup, dIdx) => (
@@ -665,7 +665,7 @@ export const DuplicateQuestionsHubModal: React.FC<DuplicateQuestionsHubModalProp
                                           : "bg-amber-100 dark:bg-amber-900/60 text-amber-700 dark:text-amber-300"
                                       }`}
                                     >
-                                      {dup.similarity.percentage}% समानता
+                                      {dup.similarity.percentage}% Similarity
                                     </span>
                                     <span className="text-[10px] text-slate-400 font-mono">
                                       ID: {dup.question.id}
@@ -680,7 +680,7 @@ export const DuplicateQuestionsHubModal: React.FC<DuplicateQuestionsHubModalProp
                                   >
                                     <Trash2 className="w-3 h-3" />
                                     <span>
-                                      {isDeleting === dup.question.id ? "हटाया जा रहा है..." : "डिलीट करें"}
+                                      {isDeleting === dup.question.id ? "Deleting..." : "Delete"}
                                     </span>
                                   </button>
                                 </div>
@@ -708,7 +708,7 @@ export const DuplicateQuestionsHubModal: React.FC<DuplicateQuestionsHubModalProp
                                 )}
 
                                 <div className="text-[10px] text-slate-400 flex items-center gap-2 pt-1 border-t border-slate-100 dark:border-slate-800">
-                                  <span>समानता विश्लेषण: {dup.similarity.reason}</span>
+                                  <span>Similarity Analysis: {dup.similarity.reason}</span>
                                 </div>
                               </div>
                             ))}
@@ -726,10 +726,10 @@ export const DuplicateQuestionsHubModal: React.FC<DuplicateQuestionsHubModalProp
                 <CheckCircle2 className="w-7 h-7" />
               </div>
               <h4 className="text-sm font-black text-slate-900 dark:text-white">
-                शानदार! कोई भी डुप्लीकेट प्रश्न नहीं मिला
+                Great! No Duplicate Questions Found
               </h4>
               <p className="text-xs text-slate-500 max-w-md mx-auto">
-                चुने गए थ्रेशोल्ड ({Math.round(threshold * 100)}% समानता) के तहत प्रश्न बैंक पूरी तरह से स्वच्छ और अद्वितीय है।
+                Under the selected threshold ({Math.round(threshold * 100)}% similarity), the question bank is completely clean and unique.
               </p>
             </div>
           ) : null}
@@ -740,7 +740,7 @@ export const DuplicateQuestionsHubModal: React.FC<DuplicateQuestionsHubModalProp
           <div className="flex items-center gap-2 text-xs text-slate-500">
             <Info className="w-4 h-4 text-amber-500" />
             <span>
-              90% से ऊपर समानता वाले प्रश्नों को तुरंत पहचानें और एक-क्लिक में डाटाबेस से स्वच्छ करें।
+              Identify 90%+ similar questions immediately and clean up the database in 1 click.
             </span>
           </div>
 
@@ -748,7 +748,7 @@ export const DuplicateQuestionsHubModal: React.FC<DuplicateQuestionsHubModalProp
             onClick={onClose}
             className="px-4 py-2 bg-slate-900 dark:bg-slate-700 text-white text-xs font-bold rounded-xl hover:bg-slate-800 transition-colors cursor-pointer"
           >
-            बंद करें (Close)
+            Close
           </button>
         </div>
       </div>

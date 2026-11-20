@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import {
   Sparkles,
   Swords,
-  PlaySquare,
   Trophy,
   FileText,
   Compass,
@@ -37,33 +36,28 @@ interface AdminFeatureControlSectionProps {
 
 const CATEGORY_LABELS: Record<string, { title: string; subtitle: string; icon: any }> = {
   ai: {
-    title: "AI एवं स्मार्ट टूल्स",
-    subtitle: "Disha AI साथी, डाउट सॉल्वर व OMR स्कैनर",
+    title: "AI & Smart Tools",
+    subtitle: "Disha AI Companion, Doubt Solver & OMR Scanner",
     icon: Sparkles,
   },
   battle: {
-    title: "लाइव मुकाबला एवं गेमिंग",
-    subtitle: "1v1 रियल-टाइम लाइव क्विज़ बैटल रूम्स",
+    title: "Live Battle & Gaming",
+    subtitle: "1v1 Real-Time Live Quiz Battle Rooms",
     icon: Swords,
   },
   exam: {
-    title: "लाइव परीक्षाएं व रैंकिंग",
-    subtitle: "शेड्यूल लाइव टेस्ट, टाइमर एवं ऑल-राजस्थान मेरिट",
+    title: "Live Exams & Ranking",
+    subtitle: "Scheduled Live Tests, Timers & State Merit List",
     icon: Trophy,
   },
-  study: {
-    title: "कोचिंग स्टडी डेस्क व वीडियो",
-    subtitle: "वीडियो लेक्चर्स, इन-ऐप पीडीएफ नोट्स और स्टडी सामग्री",
-    icon: PlaySquare,
-  },
   practice: {
-    title: "अभ्यास व प्रश्न बैंक",
-    subtitle: "गत वर्षों के प्रश्न पत्र (PYQ) व 20-20 कस्टम टेस्ट",
+    title: "Practice & Question Bank",
+    subtitle: "Previous Year Papers (PYQ) & 20-20 Custom Tests",
     icon: Compass,
   },
   general: {
-    title: "सामान्य सुविधाएं व एक्सेस कंट्रोल",
-    subtitle: "करंट अफेयर्स, PDF एक्सपोर्ट और अतिथि लॉगिन नियंत्रण",
+    title: "General Features & Access Control",
+    subtitle: "Current Affairs, PDF Exports & Guest Login Control",
     icon: Sliders,
   },
 };
@@ -71,7 +65,6 @@ const CATEGORY_LABELS: Record<string, { title: string; subtitle: string; icon: a
 const FEATURE_ICONS: Record<FeatureKey, any> = {
   disha_ai: Sparkles,
   live_battle: Swords,
-  video_classes: PlaySquare,
   live_tests: Trophy,
   pyq_vault: FileText,
   custom_test: Compass,
@@ -105,10 +98,10 @@ export const AdminFeatureControlSection: React.FC<AdminFeatureControlSectionProp
 
     if (success) {
       showToast(
-        `${features[key]?.hindiName || key} को ${newStatus ? "सक्रिय (ON)" : "अस्थायी रूप से बंद (OFF)"} कर दिया गया है।`
+        `${features[key]?.name || key} has been ${newStatus ? "enabled (ON)" : "temporarily disabled (OFF)"}.`
       );
     } else {
-      showToast("सेटिंग्स अपडेट करने में समस्या आई।", "error");
+      showToast("Failed to update feature settings.", "error");
     }
   };
 
@@ -120,14 +113,14 @@ export const AdminFeatureControlSection: React.FC<AdminFeatureControlSectionProp
     setEditingMsgKey(null);
 
     if (success) {
-      showToast(`मेंटेनेंस संदेश अपडेट हो गया!`);
+      showToast(`Maintenance message updated!`);
     } else {
-      showToast("संदेश सेव नहीं हो सका।", "error");
+      showToast("Failed to save maintenance message.", "error");
     }
   };
 
   const handleEnableAll = async () => {
-    if (!confirm("क्या आप यूज़र ऐप के सभी 10 फ़ीचर्स को एक साथ सक्रिय (ON) करना चाहते हैं?")) return;
+    if (!confirm("Are you sure you want to enable all 10 features for the student app?")) return;
     setIsBulkOperating(true);
     const updated = { ...features };
     (Object.keys(updated) as FeatureKey[]).forEach((k) => {

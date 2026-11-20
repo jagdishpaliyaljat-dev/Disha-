@@ -342,8 +342,8 @@ export const SupabaseDataExplorer: React.FC<SupabaseDataExplorerProps> = ({
         {/* Loading / Error States */}
         {loading && (
           <ContentLoader
-            message="Supabase डेटा लोड हो रहा है..."
-            submessage="तालिका डेटा सुरक्षित रूप से सिंक किया जा रहा है"
+            message="Loading Supabase data..."
+            submessage="Table data is being securely synchronized"
             minHeight="min-h-[220px]"
             size="md"
           />

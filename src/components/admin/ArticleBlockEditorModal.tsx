@@ -164,8 +164,8 @@ export const ArticleBlockEditorModal: React.FC<ArticleBlockEditorModalProps> = (
     const t = art.title?.trim();
     if (t && t !== "Untitled Article" && t !== "Untitled") return t;
     if (art.seoTitle?.trim() && art.seoTitle !== "Untitled Article") return art.seoTitle.trim();
-    if (art.category) return `${art.category} — महत्वपूर्ण परीक्षा गाइड`;
-    return "राजस्थान भर्ती परीक्षा: संपूर्ण गाइड व PYQ नोट्स";
+    if (art.category) return `${art.category} — Complete Exam Guide`;
+    return "Competitive Exam Preparation: Complete Study Guide & Notes";
   };
 
   // Handle Save (Draft or Publish)
@@ -174,7 +174,7 @@ export const ArticleBlockEditorModal: React.FC<ArticleBlockEditorModalProps> = (
       article.title?.trim() && article.title.trim() !== "Untitled Article"
         ? article.title.trim()
         : article.seoTitle?.trim() ||
-          (article.category ? `${article.category} — महत्वपूर्ण परीक्षा गाइड` : "राजस्थान भर्ती परीक्षा: संपूर्ण गाइड व PYQ नोट्स");
+          (article.category ? `${article.category} — Complete Exam Guide` : "Competitive Exam Preparation: Complete Study Guide & Notes");
 
     const toSave: Partial<NewsArticle> = {
       ...article,
@@ -236,7 +236,7 @@ export const ArticleBlockEditorModal: React.FC<ArticleBlockEditorModalProps> = (
               type="text"
               value={article.title || ""}
               onChange={(e) => setArticle((prev) => ({ ...prev, title: e.target.value }))}
-              placeholder="Post Title / लेख का शीर्षक दर्ज करें..."
+              placeholder="Post Title: Enter article headline..."
               className="w-full bg-transparent text-base sm:text-lg font-bold text-[#171923] dark:text-[#FFF9EF] placeholder-[#8C93A8] focus:outline-hidden"
             />
           </div>
@@ -429,7 +429,7 @@ export const ArticleBlockEditorModal: React.FC<ArticleBlockEditorModalProps> = (
               type="button"
               onClick={() =>
                 insertHtmlSnippet(
-                  `<div style="background: rgba(128, 0, 32, 0.06); border-left: 4px solid #800020; padding: 14px 18px; border-radius: 8px; margin: 16px 0;">\n  <strong>महत्वपूर्ण सूचना:</strong> यहाँ अपना महत्वपूर्ण संदेश दर्ज करें।\n</div>\n`
+                  `<div style="background: rgba(128, 0, 32, 0.06); border-left: 4px solid #800020; padding: 14px 18px; border-radius: 8px; margin: 16px 0;">\n  <strong>Important Note:</strong> Enter your key announcement or note here.\n</div>\n`
                 )
               }
               className="px-2 py-1 rounded-md bg-white dark:bg-[#202534] border border-[#E8D9C0] dark:border-[#31374A] flex items-center gap-1 font-bold hover:bg-[#800020] hover:text-white transition-colors"
@@ -481,7 +481,7 @@ export const ArticleBlockEditorModal: React.FC<ArticleBlockEditorModalProps> = (
               type="button"
               onClick={() =>
                 insertHtmlSnippet(
-                  `<a href="/practice" style="display: inline-block; background-color: #800020; color: #ffffff; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; margin: 16px 0;">निःशुल्क टेस्ट शुरू करें →</a>\n`
+                  `<a href="/practice" style="display: inline-block; background-color: #800020; color: #ffffff; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; margin: 16px 0;">Start Practice Test →</a>\n`
                 )
               }
               className="px-2 py-1 rounded-md bg-white dark:bg-[#202534] border border-[#E8D9C0] dark:border-[#31374A] font-bold hover:bg-[#800020] hover:text-white transition-colors"
@@ -529,7 +529,7 @@ export const ArticleBlockEditorModal: React.FC<ArticleBlockEditorModalProps> = (
                   value={article.content || ""}
                   onChange={(e) => setArticle((prev) => ({ ...prev, content: e.target.value }))}
                   onKeyDown={handleKeyDown}
-                  placeholder="<h2>लेख का शीर्षक</h2>&#10;<p>यहाँ अपना कच्चा HTML या CSS कोड पेस्ट करें...</p>&#10;<style>&#10;  .custom-box { background: #fdf; }&#10;</style>"
+                  placeholder="<h2>Article Headline</h2>&#10;<p>Paste your raw HTML or CSS code here...</p>&#10;<style>&#10;  .custom-box { background: #fdf; }&#10;</style>"
                   spellCheck={false}
                   className="flex-1 w-full p-4 font-mono text-sm leading-relaxed text-[#171923] dark:text-[#E2E8F0] bg-white dark:bg-[#181B26] border border-[#E8D9C0] dark:border-[#2D3345] rounded-xl focus:outline-hidden focus:border-[#800020] dark:focus:border-[#F47B20] resize-none shadow-inner"
                 />

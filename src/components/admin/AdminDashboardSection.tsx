@@ -241,8 +241,8 @@ export const AdminDashboardSection: React.FC<AdminDashboardSectionProps> = ({
             <div className="p-3">
               {loading ? (
                 <ContentLoader
-                  message="विद्यार्थी डायरेक्टरी लोड हो रही है..."
-                  submessage="सक्रिय पंजीकृत अभ्यर्थी डेटा सिंक जारी"
+                  message="Loading student directory..."
+                  submessage="Syncing active registered student data"
                   minHeight="min-h-[140px]"
                   size="sm"
                 />

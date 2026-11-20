@@ -147,14 +147,14 @@ export const QATestRunnerModal: React.FC<QATestRunnerModalProps> = ({ isOpen, on
     const id1 = addLog("C", suite, "Universal MCQ Parser with 5 Options & KaTeX Math Formulae", "running", "functional");
     const t1 = Date.now();
     try {
-      const sample = `Q1. यदि \\frac{d}{dx}[f(x)] = 4x^3 - \\frac{3}{x^4} हो तो f(x) ज्ञात कीजिए।
+      const sample = `Q1. If \\frac{d}{dx}[f(x)] = 4x^3 - \\frac{3}{x^4}, find f(x).
 (A) x^4 + \\frac{1}{x^3} + C
 (B) x^3 + \\frac{1}{x^4} + C
 (C) x^4 - \\frac{1}{x^3} + C
 (D) x^3 - \\frac{1}{x^4} + C
-(E) अनुत्तरित प्रश्न (Question not attempted)
+(E) Question not attempted
 Answer: A
-Explanation: समाकलन करने पर: $\\int (4x^3 - 3x^{-4}) dx = x^4 + x^{-3} + C$`;
+Explanation: On integrating: $\\int (4x^3 - 3x^{-4}) dx = x^4 + x^{-3} + C$`;
 
       const result = parseRawMcqText(sample);
       if (result.questions.length !== 1) {
@@ -181,7 +181,7 @@ Explanation: समाकलन करने पर: $\\int (4x^3 - 3x^{-4}) dx 
 (B) Fe_2O_3
 (C) FeO
 (D) NaOH
-(E) अनुत्तरित प्रश्न
+(E) Question not attempted
 Answer: A`;
       const result = parseRawMcqText(chemSample);
       if (result.questions.length < 1) {
@@ -210,7 +210,7 @@ Answer: A`;
       const { error: sErr } = await supabase.from("subjects").insert([{
         id: testSubjectId,
         name: "QA Automated Test Subject",
-        hindi_name: "क्यूए ऑटोमेटेड विषय",
+        hindi_name: "QA Automated Subject",
         order_index: 9999
       }]);
       if (sErr) throw sErr;
@@ -220,7 +220,7 @@ Answer: A`;
         id: testChapterId,
         subject_id: testSubjectId,
         name: "QA Test Chapter",
-        hindi_name: "क्यूए अध्याय",
+        hindi_name: "QA Test Chapter",
         order_index: 1
       }]);
       if (cErr) throw cErr;
@@ -231,7 +231,7 @@ Answer: A`;
         chapter_id: testChapterId,
         subject_id: testSubjectId,
         name: "QA Test Topic",
-        hindi_name: "क्यूए टॉपिक",
+        hindi_name: "QA Test Topic",
         order_index: 1
       }]);
       if (topErr) throw topErr;
@@ -243,7 +243,7 @@ Answer: A`;
         chapter_id: testChapterId,
         topic_id: testTopicId,
         question: "What is 2 + 2 in QA verification?",
-        options: ["3", "4", "5", "6", "अनुत्तरित प्रश्न"],
+        options: ["3", "4", "5", "6", "Question not attempted"],
         correct_answer: 1,
         explanation: "2 + 2 = 4"
       }]);

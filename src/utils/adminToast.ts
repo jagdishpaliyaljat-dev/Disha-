@@ -32,12 +32,12 @@ export function triggerDatabaseSavedToast(payload?: DatabaseSavedEventPayload | 
   const type = detail.type || "add";
   const defaultTitle =
     type === "delete"
-      ? "डेटा हटाया गया (Live)"
-      : "डेटा लाइव सेव हो गया";
+      ? "Data Removed (Live)"
+      : "Data Saved Live";
   const defaultMessage =
     type === "delete"
-      ? "यूजर ऐप से हटा दिया गया है।"
-      : "यूजर ऐप में तुरंत लाइव उपलब्ध है।";
+      ? "Removed from student app immediately."
+      : "Immediately live in student app.";
 
   const eventDetail: AdminToastPayload = {
     title: detail.title || defaultTitle,

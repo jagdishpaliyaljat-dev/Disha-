@@ -4,7 +4,6 @@ import { supabase, isSupabaseConfigured } from "../lib/supabase";
 export type FeatureKey =
   | "disha_ai"
   | "live_battle"
-  | "video_classes"
   | "live_tests"
   | "pyq_vault"
   | "custom_test"
@@ -13,7 +12,7 @@ export type FeatureKey =
   | "pdf_export"
   | "guest_mode";
 
-export type FeatureCategory = "ai" | "battle" | "study" | "exam" | "practice" | "general";
+export type FeatureCategory = "ai" | "battle" | "exam" | "practice" | "general";
 
 export interface AppFeatureItem {
   key: FeatureKey;
@@ -30,8 +29,8 @@ export const DEFAULT_APP_FEATURES: Record<FeatureKey, AppFeatureItem> = {
   disha_ai: {
     key: "disha_ai",
     name: "Disha AI Companion",
-    hindiName: "दिशा AI साथी व डाउट सॉल्वर",
-    description: "फ्लोटिंग AI बटन, वॉइस चैटबॉट और व्याख्या जनरेटर",
+    hindiName: "Disha AI Companion & Doubt Solver",
+    description: "Floating AI button, voice chatbot and explanation generator",
     category: "ai",
     enabled: true,
     iconName: "Sparkles",
@@ -39,26 +38,17 @@ export const DEFAULT_APP_FEATURES: Record<FeatureKey, AppFeatureItem> = {
   live_battle: {
     key: "live_battle",
     name: "1v1 Quiz Battle",
-    hindiName: "1v1 लाइव क्विज़ मुकाबला",
-    description: "साथियों के साथ रियल-टाइम मल्टीप्लेयर क्विज़ बैटल",
+    hindiName: "1v1 Live Quiz Battle",
+    description: "Real-time multiplayer quiz battles with peers",
     category: "battle",
     enabled: true,
     iconName: "Swords",
   },
-  video_classes: {
-    key: "video_classes",
-    name: "Coaching Study Desk & Videos",
-    hindiName: "वीडियो कक्षाएं एवं स्टडी डेस्क",
-    description: "कोचिंग वीडियो लेक्चर्स और इन-ऐप पीडीएफ नोट्स",
-    category: "study",
-    enabled: true,
-    iconName: "PlaySquare",
-  },
   live_tests: {
     key: "live_tests",
     name: "Live Mock Tests",
-    hindiName: "लाइव टेस्ट एवं ऑल-राजस्थान रैंक",
-    description: "निर्धारित समय पर लाइव मॉक टेस्ट और राज्यस्तरीय मेरिट लिस्ट",
+    hindiName: "Live Mock Tests & All-Rajasthan Rank",
+    description: "Scheduled live mock tests and state-level rank list",
     category: "exam",
     enabled: true,
     iconName: "Trophy",
@@ -66,8 +56,8 @@ export const DEFAULT_APP_FEATURES: Record<FeatureKey, AppFeatureItem> = {
   pyq_vault: {
     key: "pyq_vault",
     name: "PYQ Vault",
-    hindiName: "गत वर्षों के प्रश्न पत्र",
-    description: "RPSC व RSMSSB के पिछले वर्षों के आधिकारिक पेपर्स",
+    hindiName: "Previous Year Question Papers",
+    description: "Official previous year examination papers",
     category: "practice",
     enabled: true,
     iconName: "FileText",
@@ -75,8 +65,8 @@ export const DEFAULT_APP_FEATURES: Record<FeatureKey, AppFeatureItem> = {
   custom_test: {
     key: "custom_test",
     name: "20-20 Custom Test Builder",
-    hindiName: "20-20 स्मार्ट कस्टम टेस्ट",
-    description: "विषय और प्रश्नों की संख्या चुनकर स्वयं का टेस्ट बनाएं",
+    hindiName: "20-20 Smart Custom Test",
+    description: "Create custom tests by choosing subjects and question count",
     category: "practice",
     enabled: true,
     iconName: "Compass",
@@ -84,8 +74,8 @@ export const DEFAULT_APP_FEATURES: Record<FeatureKey, AppFeatureItem> = {
   news_articles: {
     key: "news_articles",
     name: "Exam News & Current Affairs",
-    hindiName: "समसामयिकी एवं सरकारी विज्ञप्तियां",
-    description: "नवीनतम परीक्षा सूचनाएं, विज्ञप्तियां व करंट अफेयर्स",
+    hindiName: "Exam News & Official Circulars",
+    description: "Latest exam notifications, announcements, and current affairs",
     category: "general",
     enabled: true,
     iconName: "Newspaper",
@@ -93,8 +83,8 @@ export const DEFAULT_APP_FEATURES: Record<FeatureKey, AppFeatureItem> = {
   omr_scanner: {
     key: "omr_scanner",
     name: "Paper & OMR Scanner",
-    hindiName: "पेपर व OMR स्कैनर",
-    description: "कैमरे या गैलरी से प्रश्न पत्र और OMR शीट स्कैन व विश्लेषण",
+    hindiName: "Paper & OMR Scanner",
+    description: "Camera and gallery question paper and OMR sheet scanning",
     category: "ai",
     enabled: true,
     iconName: "Scan",
@@ -102,8 +92,8 @@ export const DEFAULT_APP_FEATURES: Record<FeatureKey, AppFeatureItem> = {
   pdf_export: {
     key: "pdf_export",
     name: "PDF Download & Export",
-    hindiName: "PDF डाउनलोड व एक्सपोर्ट",
-    description: "प्रश्न बैंक और टेस्ट का प्रिंट-फ्रेंडली PDF डाउनलोड",
+    hindiName: "PDF Download & Export",
+    description: "Print-friendly PDF downloads of question banks and tests",
     category: "general",
     enabled: true,
     iconName: "Download",
@@ -111,8 +101,8 @@ export const DEFAULT_APP_FEATURES: Record<FeatureKey, AppFeatureItem> = {
   guest_mode: {
     key: "guest_mode",
     name: "Guest Practice Mode",
-    hindiName: "अतिथि अभ्यास मोड",
-    description: "बिना लॉगिन तुरंत अभ्यास शुरू करने की अनुमति",
+    hindiName: "Guest Practice Mode",
+    description: "Allow instant practice without logging in",
     category: "general",
     enabled: true,
     iconName: "UserCheck",

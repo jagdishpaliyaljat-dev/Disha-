@@ -92,7 +92,7 @@ export const ExcelCsvQuestionImporter: React.FC<ExcelCsvQuestionImporterProps> =
       setSelectedTopicId("new_topic");
       setIsCustomTopic(true);
       if (!newTopicName && selectedChapter) {
-        setNewTopicName(`${selectedChapter.hindiTitle || selectedChapter.title} - टॉपिक 1`);
+        setNewTopicName(`${selectedChapter.title || selectedChapter.hindiTitle} - Topic 1`);
       }
     }
   }, [availableTopics, selectedChapter]);
@@ -101,9 +101,9 @@ export const ExcelCsvQuestionImporter: React.FC<ExcelCsvQuestionImporterProps> =
   const handleDownloadSample = () => {
     const csvContent = 
 `Question,Option A,Option B,Option C,Option D,Option E,Correct Answer,Explanation,Difficulty,Topic
-"राजस्थान के किस दुर्ग को 'यूनेस्को विश्व धरोहर' में शामिल किया गया है?","आमेर दुर्ग","तारागढ़ दुर्ग","मेहरानगढ़ दुर्ग","लोहागढ़ दुर्ग","अनुत्तरित प्रश्न","A","आमेर, कुंभलगढ़, गागरोन, जैसलमेर, रणथंभौर और चित्तौड़गढ़ दुर्ग को 2013 में यूनेस्को सूची में शामिल किया गया था।","medium","राजस्थान के प्रमुख दुर्ग"
-"राजस्थान की कौन-सी नदी 'अर्जुन की गंगा' कहलाती है?","बाणगंगा","कोठारी","बेड़च","रूपारेल","अनुत्तरित प्रश्न","A","बाणगंगा नदी का उद्गम बैराठ की पहाड़ियों से होता है, इसे अर्जुन की गंगा भी कहा जाता है।","easy","राजस्थान की नदियां"
-"1857 की क्रांति के समय कोटा के पॉलिटिकल एजेंट कौन थे?","मेजर बर्टन","कैप्टन हीथकोट","कर्नल होम्स","कैप्टन शॉवर्स","अनुत्तरित प्रश्न","1","कोटा में क्रांति के समय पॉलिटिकल एजेंट मेजर बर्टन थे।","medium","1857 की क्रांति"`;
+"Which fort in Rajasthan is included in the UNESCO World Heritage list?","Amer Fort","Taragarh Fort","Mehrangarh Fort","Lohagarh Fort","Question not attempted","A","Amer, Kumbhalgarh, Gagron, Jaisalmer, Ranthambore, and Chittorgarh forts were inscribed on the UNESCO list in 2013.","medium","Major Historical Forts"
+"Which river is popularly referred to as 'Arjun\\'s Ganga'?","Banganga","Kothari","Bedach","Ruparel","Question not attempted","A","The Banganga river originates from Bairath hills and is also called Arjun\\'s Ganga.","easy","Major Rivers & Drainage"
+"Who served as the Political Agent of Kota during the 1857 revolt?","Major Burton","Captain Heathcote","Colonel Holmes","Captain Showers","Question not attempted","A","Major Burton was the political agent in Kota during the 1857 uprising.","medium","1857 Revolution"`;
 
     const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
@@ -287,7 +287,7 @@ export const ExcelCsvQuestionImporter: React.FC<ExcelCsvQuestionImporterProps> =
         questionText: qText,
         options: opts,
         correctIndex: correct >= 0 ? correct : 0,
-        explanation: explanation || "व्याख्या उपलब्ध नहीं है।",
+        explanation: explanation || "Explanation not available.",
         difficulty,
         rowTopic,
         status,
@@ -306,12 +306,12 @@ export const ExcelCsvQuestionImporter: React.FC<ExcelCsvQuestionImporterProps> =
     const validExtensions = [".csv", ".tsv", ".txt"];
     const fileExt = file.name.substring(file.name.lastIndexOf(".")).toLowerCase();
     if (!validExtensions.includes(fileExt)) {
-      setStatusMessage("अमान्य फ़ाइल प्रकार! कृपया केवल .csv, .tsv या .txt फ़ाइल ही अपलोड करें (Only .csv, .tsv, .txt supported).");
+      setStatusMessage("Invalid file type! Please upload only .csv, .tsv, or .txt files.");
       return;
     }
 
     if (file.size > 15 * 1024 * 1024) {
-      setStatusMessage("फ़ाइल बहुत बड़ी है (अधिकतम सीमा: 15 MB)। कृपया फ़ाइल का आकार कम करें।");
+      setStatusMessage("File is too large (maximum limit: 15 MB). Please reduce file size.");
       return;
     }
 
@@ -374,7 +374,7 @@ export const ExcelCsvQuestionImporter: React.FC<ExcelCsvQuestionImporterProps> =
 
     // Handle new topic creation
     if (isCustomTopic || selectedTopicId === "new_topic") {
-      const topicTitle = newTopicName.trim() || `${selectedChapter?.hindiTitle || selectedChapter?.title || "अध्याय"} - नया टॉपिक`;
+      const topicTitle = newTopicName.trim() || `${selectedChapter?.title || selectedChapter?.hindiTitle || "Chapter"} - New Topic`;
       finalTopicId = `topic-${Date.now()}`;
       newCreatedTopic = {
         id: finalTopicId,
@@ -446,7 +446,7 @@ export const ExcelCsvQuestionImporter: React.FC<ExcelCsvQuestionImporterProps> =
             {/* Column 1: Subject */}
             <div>
               <label className="block text-[11px] font-black uppercase tracking-wider text-slate-500 mb-1.5 flex items-center justify-between">
-                <span>1. Target Subject (विषय)</span>
+                <span>1. Target Subject</span>
               </label>
               <select
                 value={selectedSubjectId}
@@ -454,7 +454,7 @@ export const ExcelCsvQuestionImporter: React.FC<ExcelCsvQuestionImporterProps> =
                 className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-slate-200 focus:outline-hidden focus:ring-2 focus:ring-emerald-500 cursor-pointer"
               >
                 {subjects.map(s => (
-                  <option key={s.id} value={s.id}>{s.hindiName || s.name}</option>
+                  <option key={s.id} value={s.id}>{s.name || s.hindiName}</option>
                 ))}
               </select>
             </div>
@@ -462,7 +462,7 @@ export const ExcelCsvQuestionImporter: React.FC<ExcelCsvQuestionImporterProps> =
             {/* Column 2: Chapter */}
             <div>
               <label className="block text-[11px] font-black uppercase tracking-wider text-slate-500 mb-1.5 flex items-center justify-between">
-                <span>2. Target Chapter (अध्याय)</span>
+                <span>2. Target Chapter</span>
                 <span className="text-emerald-600 font-bold">{availableChapters.length}</span>
               </label>
               <select
@@ -471,7 +471,7 @@ export const ExcelCsvQuestionImporter: React.FC<ExcelCsvQuestionImporterProps> =
                 className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-slate-200 focus:outline-hidden focus:ring-2 focus:ring-emerald-500 cursor-pointer"
               >
                 {availableChapters.map(c => (
-                  <option key={c.id} value={c.id}>{c.hindiTitle || c.title}</option>
+                  <option key={c.id} value={c.id}>{c.title || c.hindiTitle}</option>
                 ))}
               </select>
             </div>
@@ -480,7 +480,7 @@ export const ExcelCsvQuestionImporter: React.FC<ExcelCsvQuestionImporterProps> =
             <div>
               <div className="flex items-center justify-between mb-1.5">
                 <label className="block text-[11px] font-black uppercase tracking-wider text-slate-500">
-                  3. Target Topic (टॉपिक)
+                  3. Target Topic
                 </label>
                 <button
                   type="button"
@@ -513,9 +513,9 @@ export const ExcelCsvQuestionImporter: React.FC<ExcelCsvQuestionImporterProps> =
                   className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-slate-200 focus:outline-hidden focus:ring-2 focus:ring-emerald-500 cursor-pointer"
                 >
                   {availableTopics.map(t => (
-                    <option key={t.id} value={t.id}>{t.hindiTitle || t.title}</option>
+                    <option key={t.id} value={t.id}>{t.title || t.hindiTitle}</option>
                   ))}
-                  <option value="new_topic">+ नया टॉपिक बनाएँ (Create New Topic)...</option>
+                  <option value="new_topic">+ Create New Topic...</option>
                 </select>
               ) : (
                 <div>
@@ -523,7 +523,7 @@ export const ExcelCsvQuestionImporter: React.FC<ExcelCsvQuestionImporterProps> =
                     type="text"
                     value={newTopicName}
                     onChange={(e) => setNewTopicName(e.target.value)}
-                    placeholder="नया टॉपिक नाम (उदा. राजस्थान के प्रमुख मेले)..."
+                    placeholder="New Topic Name (e.g. Major Rivers & Lakes)..."
                     className="w-full px-3 py-2 bg-emerald-50/50 dark:bg-emerald-950/20 border-2 border-emerald-500/50 rounded-xl text-xs font-bold text-slate-800 dark:text-slate-200 focus:outline-hidden focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
