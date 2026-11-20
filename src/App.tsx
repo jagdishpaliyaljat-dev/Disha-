@@ -37,6 +37,7 @@ import { DishaAITutorModal, FloatingAIAssistant } from './components/DishaAITuto
 import { OfflineIndicator } from './components/OfflineIndicator';
 import { ToastNotificationContainer, ToastMessage } from './components/ToastNotification';
 import { PWAUpdateToast } from './components/PWAUpdateToast';
+import { MobileAppReturnBanner } from './components/MobileAppReturnBanner';
 import { BrandSplashAndOnboarding } from './components/BrandSplashAndOnboarding';
 import { ContentLoader } from './components/ui/LoadingScreen';
 import { AdminErrorBoundary } from './components/admin/AdminErrorBoundary';

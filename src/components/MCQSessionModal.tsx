@@ -1673,7 +1673,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
         className="fixed inset-0 z-[100] bg-[#FFF9EF] dark:bg-[#120E10] flex flex-col w-full"
       >
         {/* Sticky Header for Result Page */}
-        <header className="sticky top-0 z-[110] bg-[#FFF9EF]/90 dark:bg-[#120E10]/90 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#2D2226] px-4 py-3 flex items-center justify-between shrink-0">
+        <header className="sticky top-0 z-[110] bg-[#FFF9EF]/90 dark:bg-[#120E10]/90 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#2D2226] px-4 pt-[calc(10px+env(safe-area-inset-top,0px))] pb-3 flex items-center justify-between shrink-0">
           <button
             onClick={onClose}
             className="w-10 h-10 rounded-xl bg-white dark:bg-[#1C1518] border border-[#E8D9C0] dark:border-[#2D2226] text-[#800020] dark:text-[#E5B869] flex items-center justify-center transition-all active:scale-90 shadow-sm cursor-pointer"
@@ -2381,7 +2381,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
         id="mcq-setup-screen"
       >
         {/* Sticky Header */}
-        <header className="sticky top-0 z-20 bg-white/95 dark:bg-[#1F2330]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] px-4 py-3 flex items-center justify-between">
+        <header className="sticky top-0 z-20 bg-white/95 dark:bg-[#1F2330]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] px-4 pt-[calc(10px+env(safe-area-inset-top,0px))] pb-3 flex items-center justify-between">
           <button
             onClick={onClose}
             className="w-10 h-10 rounded-2xl bg-[#F7EFE2] dark:bg-[#252A3A] text-[#171923] dark:text-[#FFF9EF] flex items-center justify-center transition-all active:scale-90 cursor-pointer border border-[#E8D9C0] dark:border-[#31374A]"
@@ -2619,42 +2619,43 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
         >
       <div className="w-full max-w-3xl mx-auto flex flex-col h-full relative overflow-hidden bg-[#FFF9EF] dark:bg-[#171923]">
         {/* Sticky Header */}
-        <header className="sticky top-0 z-50 bg-white/95 dark:bg-[#1F2330]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] px-3 py-2.5 flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-2 min-w-0">
+        <header className="sticky top-0 z-50 bg-white/95 dark:bg-[#1F2330]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] px-2.5 sm:px-3 pt-[calc(10px+env(safe-area-inset-top,0px))] pb-2.5 flex items-center justify-between gap-1.5 shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1 mr-1">
             <button
               onClick={onClose}
-              className="w-10 h-10 rounded-2xl bg-[#F7EFE2] dark:bg-[#252A3A] text-[#171923] dark:text-[#FFF9EF] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center shrink-0 active:scale-90 transition-transform cursor-pointer"
+              className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-[#F7EFE2] dark:bg-[#252A3A] text-[#171923] dark:text-[#FFF9EF] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center shrink-0 active:scale-90 transition-transform cursor-pointer"
               title="Exit Practice"
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
             </button>
-            <div className="flex flex-col min-w-0">
-              <h2 className="text-[13px] font-black text-[#171923] dark:text-[#FFF9EF] truncate max-w-[120px] sm:max-w-xs leading-none font-hindi">
+            <div className="flex flex-col min-w-0 flex-1">
+              <h2 className="text-xs sm:text-[13px] font-black text-[#171923] dark:text-[#FFF9EF] truncate leading-tight font-hindi">
                 {displayTitle}
               </h2>
-              <span className="text-[9px] font-black text-[#800020] dark:text-[#F47B20] uppercase tracking-widest mt-1">
+              <span className="text-[9px] font-bold text-[#800020] dark:text-[#F47B20] uppercase tracking-wider whitespace-nowrap truncate mt-0.5">
                 {isTestMode ? "Exam Session" : "DISHA 20-20 Practice"}
               </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A]">
-              <Clock className="w-3.5 h-3.5 text-[#800020] dark:text-[#F47B20]" />
-              <span className="text-xs font-black text-[#171923] dark:text-[#FFF9EF] font-mono tabular-nums">
+          <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+            <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg sm:rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A]">
+              <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#800020] dark:text-[#F47B20]" />
+              <span className="text-[11px] sm:text-xs font-black text-[#171923] dark:text-[#FFF9EF] font-mono tabular-nums">
                 {formatTime(elapsedSeconds)}
               </span>
             </div>
 
             <button
               onClick={() => setShowPalette(!showPalette)}
-              className={`w-9 h-9 rounded-xl border flex items-center justify-center transition-all active:scale-90 cursor-pointer ${
+              className={`w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl border flex items-center justify-center transition-all active:scale-90 cursor-pointer ${
                 showPalette
                   ? "bg-[#800020] border-[#800020] text-white shadow-lg shadow-[#800020]/25"
                   : "bg-white dark:bg-[#252A3A] border-[#E8D9C0] dark:border-[#31374A] text-[#52576A] dark:text-[#CBD2E1]"
               }`}
+              title="Question Palette"
             >
-              <Grid className="w-4.5 h-4.5" />
+              <Grid className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
             </button>
 
             <button
@@ -2685,10 +2686,10 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                 }
                 setShareData(sharePayload);
               }}
-              className="w-9 h-9 rounded-xl border bg-white dark:bg-[#252A3A] border-[#E8D9C0] dark:border-[#31374A] text-[#800020] dark:text-[#F47B20] flex items-center justify-center active:scale-90 transition-transform cursor-pointer"
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl border bg-white dark:bg-[#252A3A] border-[#E8D9C0] dark:border-[#31374A] text-[#800020] dark:text-[#F47B20] flex items-center justify-center active:scale-90 transition-transform cursor-pointer"
               title="Share Practice"
             >
-              <Share2 className="w-4.5 h-4.5" />
+              <Share2 className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
             </button>
 
             <button
@@ -2699,22 +2700,23 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                   setShowReportModal(true);
                 }
               }}
-              className="w-9 h-9 rounded-xl border bg-white dark:bg-[#252A3A] border-[#E8D9C0] dark:border-[#31374A] text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/20 flex items-center justify-center active:scale-90 transition-transform cursor-pointer"
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl border bg-white dark:bg-[#252A3A] border-[#E8D9C0] dark:border-[#31374A] text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/20 flex items-center justify-center active:scale-90 transition-transform cursor-pointer"
               title="Report Question / Raise Objection"
               aria-label="Report Question"
             >
-              <Flag className="w-4.5 h-4.5" />
+              <Flag className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
             </button>
 
             <button
               onClick={() => currentQuestion && onToggleBookmark(currentQuestion.id)}
-              className={`w-9 h-9 rounded-xl border flex items-center justify-center transition-all active:scale-90 cursor-pointer ${
+              className={`w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl border flex items-center justify-center transition-all active:scale-90 cursor-pointer ${
                 isBookmarked
                   ? "bg-[#C99A45] border-[#C99A45] text-white shadow-lg shadow-[#C99A45]/25"
                   : "bg-white dark:bg-[#252A3A] border-[#E8D9C0] dark:border-[#31374A] text-[#52576A] dark:text-[#CBD2E1]"
               }`}
+              title="Bookmark Question"
             >
-              <Bookmark className={`w-4.5 h-4.5 ${isBookmarked ? 'fill-current' : ''}`} />
+              <Bookmark className={`w-4 h-4 sm:w-4.5 sm:h-4.5 ${isBookmarked ? 'fill-current' : ''}`} />
             </button>
           </div>
         </header>
@@ -3419,7 +3421,7 @@ function RedesignedLiveAndPYQTestView({
       id="live-pyq-test-viewport"
     >
       {/* 1. STICKY EXAM HEADER */}
-      <header className="sticky top-0 z-30 bg-white/95 dark:bg-[#1F2330]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] px-4 py-2.5 flex items-center justify-between shrink-0 shadow-2xs">
+      <header className="sticky top-0 z-30 bg-white/95 dark:bg-[#1F2330]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] px-3 sm:px-4 pt-[calc(10px+env(safe-area-inset-top,0px))] pb-2.5 flex items-center justify-between shrink-0 shadow-2xs">
         <div className="flex items-center gap-2.5 min-w-0">
           <button
             onClick={() => setShowExitConfirm(true)}
@@ -3999,7 +4001,7 @@ const RedesignedTestInstructionsView: React.FC<RedesignedTestInstructionsViewPro
       id="test-instructions-screen"
     >
       {/* Sticky Header */}
-      <header className="sticky top-0 z-20 bg-white/95 dark:bg-[#1F2330]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] px-4 py-3 flex items-center justify-between">
+      <header className="sticky top-0 z-20 bg-white/95 dark:bg-[#1F2330]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] px-4 pt-[calc(10px+env(safe-area-inset-top,0px))] pb-3 flex items-center justify-between">
         <button
           onClick={onClose}
           className="w-10 h-10 rounded-2xl bg-[#F7EFE2] dark:bg-[#252A3A] text-[#171923] dark:text-[#FFF9EF] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center transition-all active:scale-90 cursor-pointer"
@@ -4270,7 +4272,7 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
       className="fixed inset-0 z-[100] bg-[#FFF9EF] dark:bg-[#120E10] flex flex-col w-full"
     >
       {/* Sticky Header for Result Page */}
-      <header className="sticky top-0 z-[110] bg-[#FFF9EF]/90 dark:bg-[#120E10]/90 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#2D2226] px-4 py-3 flex items-center justify-between shrink-0">
+      <header className="sticky top-0 z-[110] bg-[#FFF9EF]/90 dark:bg-[#120E10]/90 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#2D2226] px-4 pt-[calc(10px+env(safe-area-inset-top,0px))] pb-3 flex items-center justify-between shrink-0">
         <button
           onClick={onClose}
           className="w-10 h-10 rounded-xl bg-white dark:bg-[#1C1518] border border-[#E8D9C0] dark:border-[#2D2226] text-[#800020] dark:text-[#E5B869] flex items-center justify-center transition-all active:scale-90 shadow-sm cursor-pointer"

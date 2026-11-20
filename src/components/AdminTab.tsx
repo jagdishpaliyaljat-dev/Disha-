@@ -19,6 +19,7 @@ import { getDeletedBannerIds } from "../utils/bannerStorage";
 import { triggerAdminToast, AdminToastPayload } from "../utils/adminToast";
 import { supabase } from "../lib/supabase";
 import { AdminQuotaAlert } from "./admin/AdminQuotaAlert";
+import { getOAuthRedirectUrl, openOAuthBrowser } from "../utils/mobileAuthService";
 
 // Resilient lazy loader helper for admin subcomponents compatible with React 19
 function adminSafeLazy<T extends React.ComponentType<any>>(
@@ -1190,10 +1191,14 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                 <button
                   onClick={async () => {
                     try {
-                      await supabase.auth.signInWithOAuth({
+                      const redirectTo = getOAuthRedirectUrl();
+                      const { data, error } = await supabase.auth.signInWithOAuth({
                         provider: "google",
-                        options: { redirectTo: window.location.origin }
+                        options: { redirectTo }
                       });
+                      if (data?.url) {
+                        await openOAuthBrowser(data.url);
+                      }
                     } catch (e: any) {
                       console.warn("OAuth sign-in error:", e);
                     }

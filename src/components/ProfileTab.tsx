@@ -191,7 +191,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
       {/* ─────────────────────────────────────────────────────────────
           1. TOP HERITAGE HEADER & ASPIRANT HERO CARD
       ───────────────────────────────────────────────────────────── */}
-      <header className="px-3 sm:px-5 pt-3 sm:pt-3.5 pb-4 sm:pb-5 bg-white dark:bg-[#1F2330] border-b border-[#E8D9C0] dark:border-[#31374A] relative overflow-hidden shrink-0 shadow-xs">
+      <header className="px-3 sm:px-5 pt-[calc(12px+env(safe-area-inset-top,0px))] pb-4 sm:pb-5 bg-white dark:bg-[#1F2330] border-b border-[#E8D9C0] dark:border-[#31374A] relative overflow-hidden shrink-0 shadow-xs">
         {/* Heritage Royal Strip */}
         <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-[#800020] via-[#F47B20] to-[#C99A45]" />
         

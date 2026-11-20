@@ -18,6 +18,11 @@ import { UserProfile } from "../types";
 import { supabase, isSupabaseConfigured } from "../lib/supabase";
 import { AppLogo } from "./AppLogo";
 import { productionMonitor } from "../utils/productionMonitoring";
+import {
+  getOAuthRedirectUrl,
+  openOAuthBrowser,
+  registerMobileDeepLinkListener,
+} from "../utils/mobileAuthService";
 
 interface LoginPageProps {
   onLoginSuccess: (profile: UserProfile) => void;
@@ -132,11 +137,49 @@ export function LoginPage({ onLoginSuccess, onClose }: LoginPageProps) {
       }
     } catch (err: any) {
       console.warn("Email auth error:", err);
-      setConfigNotice(err?.message || "लॉगिन करने में त्रुटि हुई। कृपया पुनः प्रयास करें।");
+      setConfigNotice(err?.message || "Authentication failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
+
+  // Listen for mobile deep links if Google login completes in external browser
+  React.useEffect(() => {
+    const cleanup = registerMobileDeepLinkListener(async (session) => {
+      if (session?.user) {
+        setSuccessNotice("Login successful! Syncing profile...");
+        try {
+          const { fetchUserProfileFromSupabase } = await import("../utils/supabaseSyncService");
+          const remote = await fetchUserProfileFromSupabase(session.user.id);
+          const { isSuperAdmin } = await import("../utils/userProfileStorage");
+          const isSuper = isSuperAdmin(session.user.email) || isSuperAdmin(session.user.id);
+          const authoritativeRole = (isSuper || remote?.role === "admin") ? "admin" : "student";
+
+          const profile: UserProfile = {
+            id: session.user.id,
+            email: session.user.email || "",
+            name: remote?.name || session.user.user_metadata?.full_name || session.user.user_metadata?.name || "Student",
+            role: authoritativeRole,
+            status: "active",
+            createdAt: remote?.createdAt || session.user.created_at || new Date().toISOString(),
+          };
+          onLoginSuccess(profile);
+        } catch {
+          const profile: UserProfile = {
+            id: session.user.id,
+            email: session.user.email || "",
+            name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || "Student",
+            role: "student",
+            status: "active",
+            createdAt: session.user.created_at || new Date().toISOString(),
+          };
+          onLoginSuccess(profile);
+        }
+      }
+    });
+
+    return cleanup;
+  }, [onLoginSuccess]);
 
   // Supabase Google Login
   const handleGoogleLogin = async () => {
@@ -147,14 +190,16 @@ export function LoginPage({ onLoginSuccess, onClose }: LoginPageProps) {
 
     try {
       if (isSupabaseConfigured()) {
-        const redirectOrigin = typeof window !== "undefined" && window.location.origin.startsWith("http")
-          ? window.location.origin
-          : "https://disha-2020.vercel.app";
+        const redirectTo = getOAuthRedirectUrl();
 
         const { data, error } = await supabase.auth.signInWithOAuth({
           provider: "google",
           options: {
-            redirectTo: redirectOrigin,
+            redirectTo,
+            queryParams: {
+              access_type: "offline",
+              prompt: "consent",
+            },
           },
         });
 
@@ -168,11 +213,7 @@ export function LoginPage({ onLoginSuccess, onClose }: LoginPageProps) {
             setConfigNotice(`Authentication notice: ${error.message}`);
           }
         } else if (data?.url) {
-          if (typeof window !== "undefined" && (window as any).Capacitor?.isNativePlatform?.()) {
-            window.open(data.url, "_system");
-          } else {
-            window.location.href = data.url;
-          }
+          await openOAuthBrowser(data.url);
           return;
         }
       } else {
