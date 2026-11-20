@@ -181,8 +181,8 @@ export const CoachingHierarchySection: React.FC<CoachingHierarchySectionProps> =
           {seriesTests.length === 0 ? (
             <div className="p-8 text-center text-sm text-stone-500 dark:text-stone-400">
               <BookOpen size={28} className="mx-auto mb-2 text-stone-400 opacity-70" />
-              <p className="font-bold">इस टेस्ट सीरीज में अभी कोई टेस्ट उपलब्ध नहीं है।</p>
-              <p className="text-xs mt-1">कृपया जल्द ही पुनः जांचें।</p>
+              <p className="font-bold">No tests available in this series yet.</p>
+              <p className="text-xs mt-1">Please check back soon.</p>
             </div>
           ) : (
             seriesTests.map((test, index) => {
@@ -204,23 +204,23 @@ export const CoachingHierarchySection: React.FC<CoachingHierarchySectionProps> =
                       </span>
                       <span className="px-2 py-0.5 rounded-md bg-[#C99A45]/15 text-[#800020] dark:text-[#C99A45] text-[9.5px] font-black flex items-center gap-1 border border-[#C99A45]/30">
                         <ShieldCheck size={11} className="text-[#C99A45]" />
-                        Option E नियम
+                        Option E Rule
                       </span>
                       {sub && (
                         <span className="px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 text-[9.5px] font-black border border-emerald-300 dark:border-emerald-800">
-                          सम्पन्न: {sub.score}/{sub.totalMarks} ({sub.accuracy.toFixed(0)}%)
+                          Completed: {sub.score}/{sub.totalMarks} ({sub.accuracy.toFixed(0)}%)
                         </span>
                       )}
                     </div>
-                    <h3 className="text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] font-hindi leading-snug">
+                    <h3 className="text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] leading-snug">
                       {test.title}
                     </h3>
                     <div className="flex items-center gap-3 text-[11px] font-bold text-stone-500 dark:text-stone-400 font-mono tabular-nums">
-                      <span>{qCount} प्रश्न</span>
+                      <span>{qCount} Questions</span>
                       <span>•</span>
-                      <span>{duration} मिनट</span>
+                      <span>{duration} Mins</span>
                       <span>•</span>
-                      <span>{marks} अंक</span>
+                      <span>{marks} Marks</span>
                       <span>•</span>
                       <span className="text-[#991B1B] dark:text-[#F47B20]">Neg: {negMark}</span>
                     </div>
@@ -232,7 +232,7 @@ export const CoachingHierarchySection: React.FC<CoachingHierarchySectionProps> =
                       className="w-full sm:w-auto px-4 py-2 rounded-xl bg-gradient-to-r from-[#800020] via-[#5E0017] to-[#800020] hover:brightness-110 active:scale-95 text-[#FFF9EF] text-xs font-black flex items-center justify-center gap-2 border border-[#C99A45]/40 shadow-sm transition-all cursor-pointer"
                     >
                       <Play size={13} fill="currentColor" className="text-[#C99A45]" />
-                      <span>{sub ? "पुनः अभ्यास करें" : "टेस्ट शुरू करें"}</span>
+                      <span>{sub ? "Re-attempt Test" : "Start Test"}</span>
                     </button>
                   </div>
                 </div>
@@ -263,13 +263,13 @@ export const CoachingHierarchySection: React.FC<CoachingHierarchySectionProps> =
               <span className="text-[10px] font-bold text-stone-500 dark:text-stone-400 block truncate">
                 {selectedCoaching.name}
               </span>
-              <h2 className="text-sm font-black text-[#171923] dark:text-[#FFF9EF] truncate font-hindi">
-                {selectedExam.examName} — टेस्ट सीरीज पैकेज
+              <h2 className="text-sm font-black text-[#171923] dark:text-[#FFF9EF] truncate">
+                {selectedExam.examName} — Test Series Packages
               </h2>
             </div>
           </div>
           <span className="px-2.5 py-1 rounded-lg bg-[#800020]/10 dark:bg-[#C99A45]/15 text-[#800020] dark:text-[#C99A45] text-[10px] font-black shrink-0 border border-[#800020]/20 dark:border-[#C99A45]/30">
-            {orderedSeriesList.length} सीरीज
+            {orderedSeriesList.length} Series
           </span>
         </header>
 
@@ -277,7 +277,7 @@ export const CoachingHierarchySection: React.FC<CoachingHierarchySectionProps> =
           {orderedSeriesList.length === 0 ? (
             <div className="col-span-full p-8 text-center text-sm text-stone-500 dark:text-stone-400">
               <Layers size={28} className="mx-auto mb-2 text-stone-400 opacity-70" />
-              <p className="font-bold">इस परीक्षा के लिए अभी कोई टेस्ट सीरीज उपलब्ध नहीं है।</p>
+              <p className="font-bold">No test series available for this exam yet.</p>
             </div>
           ) : (
             orderedSeriesList.map((series, index) => (
@@ -296,13 +296,13 @@ export const CoachingHierarchySection: React.FC<CoachingHierarchySectionProps> =
                   </div>
                   <div className="min-w-0">
                     <span className="text-[10px] font-bold text-stone-400 dark:text-stone-500 uppercase tracking-wider block">
-                      पैकेज #{index + 1}
+                      Package #{index + 1}
                     </span>
-                    <h3 className="text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] truncate font-hindi group-hover:text-[#800020] dark:group-hover:text-[#C99A45] transition-colors">
+                    <h3 className="text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] truncate group-hover:text-[#800020] dark:group-hover:text-[#C99A45] transition-colors">
                       {series.seriesName}
                     </h3>
                     <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5 line-clamp-1">
-                      {series.description || "संपूर्ण सिलेबस व विषयवार मॉक टेस्ट्स"}
+                      {series.description || "Comprehensive syllabus and topic-wise mock tests"}
                     </p>
                   </div>
                 </div>
@@ -334,10 +334,10 @@ export const CoachingHierarchySection: React.FC<CoachingHierarchySectionProps> =
             </button>
             <div className="min-w-0">
               <span className="text-[10px] font-bold text-stone-500 dark:text-stone-400 block truncate">
-                कोचिंग संस्थान
+                Coaching Institutes
               </span>
-              <h2 className="text-sm font-black text-[#171923] dark:text-[#FFF9EF] truncate font-hindi">
-                {selectedCoaching.name} — उपलब्ध परीक्षाएं
+              <h2 className="text-sm font-black text-[#171923] dark:text-[#FFF9EF] truncate">
+                {selectedCoaching.name} — Available Exams
               </h2>
             </div>
           </div>
@@ -350,7 +350,7 @@ export const CoachingHierarchySection: React.FC<CoachingHierarchySectionProps> =
           {orderedExams.length === 0 ? (
             <div className="col-span-full p-8 text-center text-sm text-stone-500 dark:text-stone-400">
               <Award size={28} className="mx-auto mb-2 text-stone-400 opacity-70" />
-              <p className="font-bold">इस संस्थान के लिए अभी कोई परीक्षा कॉन्फ़िगर नहीं है।</p>
+              <p className="font-bold">No exams configured for this institute yet.</p>
             </div>
           ) : (
             orderedExams.map((exam, index) => (
@@ -369,13 +369,13 @@ export const CoachingHierarchySection: React.FC<CoachingHierarchySectionProps> =
                   </div>
                   <div className="min-w-0">
                     <span className="text-[10px] font-bold text-stone-400 dark:text-stone-500 uppercase tracking-wider block">
-                      परीक्षा #{index + 1}
+                      Exam #{index + 1}
                     </span>
-                    <h3 className="text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] truncate font-hindi group-hover:text-[#800020] dark:group-hover:text-[#C99A45] transition-colors">
+                    <h3 className="text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] truncate group-hover:text-[#800020] dark:group-hover:text-[#C99A45] transition-colors">
                       {exam.examName}
                     </h3>
                     <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">
-                      RPSC / RSMSSB परीक्षा पैटर्न
+                      Standard Exam Pattern
                     </p>
                   </div>
                 </div>
@@ -402,15 +402,15 @@ export const CoachingHierarchySection: React.FC<CoachingHierarchySectionProps> =
           </div>
           <div>
             <h2 className="text-sm font-black text-[#171923] dark:text-[#FFF9EF] leading-tight">
-              प्रतिष्ठित कोचिंग टेस्ट सीरीज
+              Premier Coaching Test Series
             </h2>
             <p className="text-[10px] font-bold text-stone-500 dark:text-stone-400 mt-0.5">
-              राजस्थान के अग्रणी कोचिंग संस्थानों द्वारा प्रमाणित मॉक टेस्ट
+              Verified mock tests crafted by leading educational institutions
             </p>
           </div>
         </div>
         <span className="px-2.5 py-1 rounded-lg bg-[#800020]/10 dark:bg-[#C99A45]/15 text-[#800020] dark:text-[#C99A45] text-[10px] font-black shrink-0 border border-[#800020]/20 dark:border-[#C99A45]/30">
-          {orderedCoachings.length} संस्थान
+          {orderedCoachings.length} Institutes
         </span>
       </header>
 
@@ -418,7 +418,7 @@ export const CoachingHierarchySection: React.FC<CoachingHierarchySectionProps> =
         {orderedCoachings.length === 0 ? (
           <div className="col-span-full p-8 text-center text-sm text-stone-500 dark:text-stone-400">
             <Building2 size={28} className="mx-auto mb-2 text-stone-400 opacity-70" />
-            <p className="font-bold">अभी कोई कोचिंग संस्थान उपलब्ध नहीं है।</p>
+            <p className="font-bold">No coaching institutes available currently.</p>
           </div>
         ) : (
           orderedCoachings.map((coaching, index) => (
@@ -439,13 +439,13 @@ export const CoachingHierarchySection: React.FC<CoachingHierarchySectionProps> =
                 </div>
                 <div className="min-w-0">
                   <span className="text-[9.5px] font-black text-[#C99A45] uppercase tracking-wider block">
-                    संस्थान #{index + 1}
+                    Institute #{index + 1}
                   </span>
-                  <h3 className="text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] truncate font-hindi group-hover:text-[#800020] dark:group-hover:text-[#C99A45] transition-colors">
+                  <h3 className="text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] truncate group-hover:text-[#800020] dark:group-hover:text-[#C99A45] transition-colors">
                     {coaching.name}
                   </h3>
                   <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5 line-clamp-1">
-                    {coaching.description || "सत्यापित परीक्षा टेस्ट सीरीज व मॉक पेपर्स"}
+                    {coaching.description || "Verified examination test series and mock papers"}
                   </p>
                 </div>
               </div>

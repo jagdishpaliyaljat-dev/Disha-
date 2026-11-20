@@ -460,7 +460,7 @@ export const PYQVaultTab: React.FC<PYQVaultTabProps> = ({
                       ) : (
                          <Play size={14} fill="currentColor" />
                       )}
-                      <span className="uppercase tracking-wider">{fetchingPaperId === paper.id ? "लोडिंग..." : "Exam"}</span>
+                      <span className="uppercase tracking-wider">{fetchingPaperId === paper.id ? "Loading..." : "Exam"}</span>
                     </button>
 
                     <button

@@ -59,10 +59,6 @@ export class RouteErrorBoundary extends React.Component<
           <h2 className="text-xl sm:text-2xl font-extrabold text-[#171923] dark:text-[#FFF9EF] tracking-tight">
             Section Temporarily Unavailable
           </h2>
-          <p className="text-sm font-bold text-[#C99A45] mt-1 font-hindi">
-            यह अनुभाग अस्थायी रूप से अनुपलब्ध है
-          </p>
-
           <p className="text-xs sm:text-sm text-[#52576A] dark:text-[#CBD2E1] mt-3 leading-relaxed">
             An unexpected error occurred while loading this section. Your progress and saved data remain completely safe.
           </p>
@@ -74,7 +70,7 @@ export class RouteErrorBoundary extends React.Component<
               className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#F47B20] to-[#E06716] hover:brightness-105 text-white font-black text-xs uppercase tracking-wider shadow-[0_4px_14px_rgba(244,123,32,0.35)] border border-[#C99A45]/40 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-2"
             >
               <RotateCcw className="w-4 h-4" />
-              <span>Retry / पुनः प्रयास करें</span>
+              <span>Retry</span>
             </button>
 
             <button
@@ -83,7 +79,7 @@ export class RouteErrorBoundary extends React.Component<
               className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] hover:bg-[#EFE3CF] dark:hover:bg-[#31374A] border border-[#E8D9C0] dark:border-[#31374A] text-[#171923] dark:text-[#FFF9EF] font-bold text-xs uppercase tracking-wider active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-2"
             >
               <Home className="w-4 h-4" />
-              <span>Home / मुख्य पृष्ठ</span>
+              <span>Home</span>
             </button>
           </div>
         </div>

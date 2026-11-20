@@ -29,41 +29,41 @@ interface BrandSplashAndOnboardingProps {
 const ONBOARDING_SLIDES = [
   {
     id: "direction",
-    kicker: "01 · सही दिशा (RIGHT DIRECTION)",
-    title: "राजस्थान एवं भारतीय प्रतियोगी परीक्षा पाठ्यक्रम",
-    subtitle: "व्यवस्थित पाठ्यक्रम एवं अध्यायवार MCQ अभ्यास",
+    kicker: "01 · RIGHT DIRECTION",
+    title: "Competitive Examination Curriculum",
+    subtitle: "Structured Syllabus & Chapter-Wise MCQ Practice",
     description:
-      "RAS, REET, पटवार, 1st Grade, CET एवं RPSC भर्ती परीक्षाओं के लिए विषयवार अध्याय, प्रामाणिक 20-20 रिवीज़न सेट्स और विस्तृत व्याख्याएं।",
+      "Subject-wise chapters, authentic 20-20 revision question sets, and comprehensive explanations tailored for RAS, REET, Patwar, 1st Grade, CET, and state recruitment examinations.",
     icon: Compass,
     highlights: [
-      "विषय, अध्याय व टॉपिक स्तर पर सटीक प्रगति ट्रैकिंग",
-      "एकाग्रता-संवर्धित विज्ञापनों से मुक्त पठन अनुभव",
+      "Precise progress tracking across subjects, chapters, and topics",
+      "Distraction-free, focus-enhanced ad-free learning experience",
     ],
   },
   {
     id: "practice",
-    kicker: "02 · सटीक तैयारी (ACCURATE PRACTICE)",
-    title: "लाइव मॉक टेस्ट एवं आधिकारिक PYQ वॉल्ट",
-    subtitle: "वास्तविक परीक्षा सिमुलेशन व विगत वर्ष प्रश्न",
+    kicker: "02 · ACCURATE PRACTICE",
+    title: "Live Mock Tests & Official PYQ Vault",
+    subtitle: "Real Exam Simulation & Past Year Question Papers",
     description:
-      "RPSC के नवीनतम 5-विकल्प (Option E) व 1/3 नेगेटिव मार्किंग नियमों के साथ आधिकारिक विगत वर्ष पेपर्स हल करें और अपनी राज्य रैंक जांचें।",
+      "Solve official past year exam papers featuring latest 5-option (Option E) format with 1/3rd negative marking rules and assess your state merit rank.",
     icon: Trophy,
     highlights: [
-      "वास्तविक परीक्षा समयबद्धता व RPSC नेगेटिव मार्किंग",
-      "विगत 20 वर्षों के 10,000+ हल प्रश्न त्वरित व्याख्या सहित",
+      "Real-time exam timing with official negative marking criteria",
+      "10,000+ solved questions from the past 20 years with verified explanations",
     ],
   },
   {
     id: "analysis",
-    kicker: "03 · स्मार्ट विश्लेषण (SMART ANALYTICS)",
-    title: "मिस्टेक बैंक एवं स्पेसड रिपीटीशन",
-    subtitle: "त्रुटि निवारण व गहन प्रदर्शन विश्लेषण",
+    kicker: "03 · SMART ANALYTICS",
+    title: "Mistake Bank & Spaced Repetition",
+    subtitle: "Error Elimination & Deep Diagnostic Performance Analytics",
     description:
-      "प्रत्येक गलत प्रश्न स्वतः आपके व्यक्तिगत मिस्टेक बैंक में दर्ज होता है, जिसे 3 → 7 → 21 → 45 दिन के वैज्ञानिक स्पेसड रिपीटीशन चक्र से पक्का किया जाता है।",
+      "Every incorrectly answered question is automatically saved to your personal Mistake Bank, reinforced via the scientific 3 → 7 → 21 → 45 day spaced repetition revision cycle.",
     icon: BarChart3,
     highlights: [
-      "दिन 3 → 7 → 21 → 45 स्पेसड रिपीटीशन रिवीज़न चक्र",
-      "7-दिवसीय एक्यूरेसी ट्रेंड्स व परीक्षा तत्परता स्कोर",
+      "Day 3 → 7 → 21 → 45 spaced repetition mastery cycles",
+      "7-day accuracy trends and comprehensive exam readiness score",
     ],
   },
 ];
@@ -155,7 +155,7 @@ export const BrandSplashAndOnboarding: React.FC<BrandSplashAndOnboardingProps> =
             onClick={dismissSplash}
             className="fixed inset-0 z-[120] bg-[#0A0D15] text-[#FFF9EF] flex flex-col items-center justify-center p-6 select-none cursor-pointer overflow-hidden"
             role="status"
-            aria-label="दिशा 20-20 लोड हो रहा है"
+            aria-label="Loading DISHA 20-20"
           >
             {/* 1. Next-Level Minimalist Ambient Lighting (Color Theory 60-30-10) */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -210,11 +210,11 @@ export const BrandSplashAndOnboarding: React.FC<BrandSplashAndOnboardingProps> =
                 </span>
               </div>
 
-              {/* Hindi Brand Name & Category Badge */}
+              {/* Brand Name & Category Badge */}
               <div className="mt-2 flex items-center gap-2 text-xs font-black text-[#C99A45] tracking-[0.2em] uppercase">
-                <span>दिशा 20-20</span>
+                <span>DISHA 20-20</span>
                 <span className="text-[7px] opacity-60">◆</span>
-                <span className="text-[#FFF9EF]/90">भर्ती परीक्षा विशेषांक</span>
+                <span className="text-[#FFF9EF]/90">Exam Preparation Special Edition</span>
               </div>
 
               {/* Minimalist Divider */}
@@ -224,12 +224,12 @@ export const BrandSplashAndOnboarding: React.FC<BrandSplashAndOnboardingProps> =
                 <div className="w-10 sm:w-14 h-px bg-gradient-to-l from-transparent to-[#C99A45]/50" />
               </div>
 
-              {/* Official Bilingual Tagline */}
+              {/* Official Tagline */}
               <p className="text-sm sm:text-base font-bold text-[#FFF9EF] tracking-wide leading-snug">
-                "सही दिशा, सटीक तैयारी"
+                "Right Direction • Precision Learning"
               </p>
               <p className="text-[11px] font-medium text-[#C99A45]/90 mt-0.5 tracking-wider">
-                Right Direction • Accurate Preparation
+                Precision Learning • Accurate Preparation
               </p>
 
               {/* Target Exams Pill */}
@@ -287,7 +287,7 @@ export const BrandSplashAndOnboarding: React.FC<BrandSplashAndOnboardingProps> =
                   onClick={completeOnboarding}
                   className="px-3 py-1.5 rounded-xl text-xs font-bold text-[#52576A] dark:text-[#CBD2E1] hover:bg-[#F7EFE2] dark:hover:bg-[#1D2538] transition-colors cursor-pointer flex items-center gap-1"
                 >
-                  <span>स्किप (Skip)</span>
+                  <span>Skip</span>
                   <X className="w-3.5 h-3.5" />
                 </button>
               </div>
@@ -358,7 +358,7 @@ export const BrandSplashAndOnboarding: React.FC<BrandSplashAndOnboardingProps> =
                       }}
                       className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#F47B20] to-[#E06716] hover:brightness-105 text-white text-xs font-black flex items-center gap-1.5 shadow-[0_4px_14px_rgba(244,123,32,0.35)] border border-[#C99A45]/30 active:scale-95 transition-all cursor-pointer"
                     >
-                      <span>आगे बढ़ें (Next)</span>
+                      <span>Next</span>
                       <ArrowRight className="w-4 h-4" />
                     </button>
                   ) : (
@@ -368,7 +368,7 @@ export const BrandSplashAndOnboarding: React.FC<BrandSplashAndOnboardingProps> =
                       className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#F47B20] to-[#E06716] hover:brightness-105 text-white text-xs font-black flex items-center gap-1.5 shadow-[0_4px_16px_rgba(244,123,32,0.4)] border border-[#C99A45]/30 active:scale-95 transition-all cursor-pointer"
                     >
                       <BookOpen className="w-4 h-4" />
-                      <span>अभ्यास शुरू करें</span>
+                      <span>Start Practice</span>
                     </button>
                   )}
                 </div>

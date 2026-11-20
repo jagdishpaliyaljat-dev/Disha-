@@ -991,9 +991,9 @@ export default function App() {
           if (authoritativeRole === "admin" && userProfile.role !== "admin") {
             try {
               const { showAdminToast } = await import('./utils/adminToast');
-              showAdminToast("बधाई! आपको Admin अधिकार प्राप्त हो गए हैं। Admin Panel अब सक्रिय है।", "success");
+              showAdminToast("Congratulations! You have been granted Admin privileges. Admin Panel is now active.", "success");
             } catch {
-              alert("बधाई! आपको Admin अधिकार प्राप्त हो गए हैं। Admin Panel अब सक्रिय है।");
+              alert("Congratulations! You have been granted Admin privileges. Admin Panel is now active.");
             }
           }
         } catch (e) {
@@ -1636,14 +1636,14 @@ export default function App() {
               </div>
               <div className="space-y-2">
                 <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
-                  खाता निलंबित (Account Suspended)
+                  Account Suspended
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-                  आपका विद्यार्थी खाता प्रशासनिक समीक्षा अथवा सुरक्षा नीति के तहत निलंबित कर दिया गया है। आप वर्तमान में क्विज़, लाइव टेस्ट अथवा AI सेवाओं का उपयोग नहीं कर सकते।
+                  Your student account has been suspended under administrative review or security policy. You cannot currently access quizzes, live tests, or AI services.
                 </p>
               </div>
               <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400 space-y-1.5 text-left">
-                <p className="font-semibold text-slate-700 dark:text-slate-300">सहायता एवं अपील हेतु संपर्क करें:</p>
+                <p className="font-semibold text-slate-700 dark:text-slate-300">Contact for Support & Appeals:</p>
                 <p className="font-mono text-indigo-600 dark:text-indigo-400 select-all">disha2020prep@gmail.com</p>
               </div>
               <button
@@ -1652,13 +1652,13 @@ export default function App() {
                 className="px-6 py-2.5 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-bold hover:opacity-90 transition-all cursor-pointer inline-flex items-center gap-2 shadow-md"
               >
                 <LogOut className="w-4 h-4" />
-                <span>साइन आउट करें</span>
+                <span>Sign Out</span>
               </button>
             </div>
           </div>
         ) : (
         <RouteErrorBoundary tabName={activeTab} onNavigateHome={() => setActiveTab('home')}>
-        <React.Suspense fallback={<ContentLoader message="सामग्री लोड हो रही है..." submessage="सही दिशा • सटीक तैयारी" minHeight="min-h-[60vh]" />}>
+        <React.Suspense fallback={<ContentLoader message="Loading content..." submessage="DISHA 20-20 • Precision Learning" minHeight="min-h-[60vh]" />}>
         {activeTab === 'home' && (
           <HomeTab
             progressStore={progressStore}

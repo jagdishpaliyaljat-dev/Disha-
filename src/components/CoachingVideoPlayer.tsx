@@ -215,7 +215,7 @@ export const CoachingVideoPlayer: React.FC<CoachingVideoPlayerProps> = ({
             {/* Course & LMS Tag */}
             <div className="relative z-10 flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/15 backdrop-blur-md text-[10.5px] font-extrabold text-[#F47B20] uppercase tracking-wider mb-3 shadow-md">
               <Shield className="w-3.5 h-3.5 text-[#F47B20]" />
-              <span>दिशा 20-20 डिजिटल क्लासरूम • Secure Player</span>
+              <span>DISHA 20-20 Digital Classroom • Secure Player</span>
             </div>
 
             <h3 className="relative z-10 text-base sm:text-xl font-black text-white font-hindi max-w-lg mb-1 drop-shadow-md">
@@ -238,7 +238,7 @@ export const CoachingVideoPlayer: React.FC<CoachingVideoPlayerProps> = ({
 
             {duration && (
               <span className="relative z-10 mt-3.5 text-xs font-semibold text-slate-400 bg-black/40 px-3 py-1 rounded-lg border border-white/10">
-                कुल अवधि: {duration}
+                Duration: {duration}
               </span>
             )}
           </div>
@@ -354,7 +354,7 @@ export const CoachingVideoPlayer: React.FC<CoachingVideoPlayerProps> = ({
                 type="button"
                 onClick={() => handleSkip(-10)}
                 className="p-1 rounded-lg hover:bg-white/20 transition-all cursor-pointer"
-                title="10s पीछे"
+                title="10s Backward"
               >
                 <RotateCcw className="w-4 h-4" />
               </button>
@@ -363,7 +363,7 @@ export const CoachingVideoPlayer: React.FC<CoachingVideoPlayerProps> = ({
                 type="button"
                 onClick={() => handleSkip(10)}
                 className="p-1 rounded-lg hover:bg-white/20 transition-all cursor-pointer"
-                title="10s आगे"
+                title="10s Forward"
               >
                 <RotateCw className="w-4 h-4" />
               </button>

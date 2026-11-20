@@ -384,13 +384,13 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
               </div>
               <div className="min-w-0">
                 <div className="font-black text-sm sm:text-base flex items-center gap-2 flex-wrap text-white">
-                  <span>प्रशासक पोर्टल सक्रिय</span>
+                  <span>Administrator Portal Active</span>
                   <span className="text-[10px] bg-[#C99A45] text-[#171923] px-2 py-0.5 rounded-full font-black tracking-wider uppercase">
                     Admin Access
                   </span>
                 </div>
                 <p className="text-xs text-[#FFF9EF]/80 truncate mt-0.5">
-                  पाठ्यक्रम, प्रश्न बैंक, और लाइव टेस्ट प्रबंधित करें
+                  Manage curriculum, question banks, and live tests
                 </p>
               </div>
             </div>
@@ -401,7 +401,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
               }}
               className="px-4 py-2 bg-[#C99A45] hover:bg-[#d4a853] active:scale-95 text-[#171923] text-xs font-black rounded-xl transition-all shrink-0 cursor-pointer shadow-md flex items-center gap-1.5"
             >
-              <span>एडमिन पैनल</span>
+              <span>Admin Panel</span>
               <ChevronRight size={14} />
             </button>
           </motion.div>

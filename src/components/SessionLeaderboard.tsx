@@ -286,8 +286,8 @@ export const SessionLeaderboard: React.FC<SessionLeaderboardProps> = ({
       {/* Leaderboard Table / Rows */}
       {loading ? (
         <ContentLoader
-          message="अभ्यर्थी रैंकिंग लोड हो रही है..."
-          submessage="DISHA 20-20 • सटीक मेरिट गणना जारी"
+          message="Loading Candidate Rankings..."
+          submessage="DISHA 20-20 • Precise Merit Calculation in Progress"
           minHeight="min-h-[160px]"
           size="sm"
         />

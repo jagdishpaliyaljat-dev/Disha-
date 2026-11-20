@@ -346,7 +346,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
               whileTap={{ scale: 0.98 }}
               onClick={() => {
                 if (!isEnabled("live_tests")) {
-                  alert(features.live_tests?.maintenanceMessage || "लाइव टेस्ट सुविधा एडमिन द्वारा अस्थायी रूप से बंद है।");
+                  alert(features.live_tests?.maintenanceMessage || "Live test feature is temporarily disabled by admin.");
                   return;
                 }
                 onNavigateTab?.("live_tests");
@@ -372,7 +372,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                   Live Tests
                 </h3>
                 <p className="text-[10px] sm:text-[11px] font-medium text-[#52576A] dark:text-[#929AB0] mt-0.5 truncate leading-tight">
-                  {isEnabled("live_tests") ? "Mock exams & rankings" : "अस्थायी बंद (Maintenance)"}
+                  {isEnabled("live_tests") ? "Mock exams & rankings" : "Temporarily Closed (Maintenance)"}
                 </p>
               </div>
             </motion.button>
@@ -382,7 +382,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
               whileTap={{ scale: 0.98 }}
               onClick={() => {
                 if (!isEnabled("pyq_vault")) {
-                  alert(features.pyq_vault?.maintenanceMessage || "गत वर्षों के प्रश्न पत्र (PYQ) सुविधा एडमिन द्वारा अस्थायी रूप से बंद है।");
+                  alert(features.pyq_vault?.maintenanceMessage || "Previous Year Papers (PYQ) feature is temporarily disabled by admin.");
                   return;
                 }
                 onNavigateTab?.("pyq_vault");
@@ -408,7 +408,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                   PYQ Vault
                 </h3>
                 <p className="text-[10px] sm:text-[11px] font-medium text-[#52576A] dark:text-[#929AB0] mt-0.5 truncate leading-tight">
-                  {isEnabled("pyq_vault") ? "Previous year papers" : "अस्थायी बंद"}
+                  {isEnabled("pyq_vault") ? "Previous year papers" : "Temporarily Closed"}
                 </p>
               </div>
             </motion.button>
@@ -418,7 +418,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
               whileTap={{ scale: 0.98 }}
               onClick={() => {
                 if (!isEnabled("custom_test")) {
-                  alert(features.custom_test?.maintenanceMessage || "कस्टम टेस्ट सुविधा एडमिन द्वारा अस्थायी रूप से बंद है।");
+                  alert(features.custom_test?.maintenanceMessage || "Custom test feature is temporarily disabled by admin.");
                   return;
                 }
                 setShowCreateTestModal(true);
@@ -444,7 +444,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                   Custom Test
                 </h3>
                 <p className="text-[10px] sm:text-[11px] font-medium text-[#52576A] dark:text-[#929AB0] mt-0.5 truncate leading-tight">
-                  {isEnabled("custom_test") ? "Select subjects & count" : "अस्थायी बंद"}
+                  {isEnabled("custom_test") ? "Select subjects & count" : "Temporarily Closed"}
                 </p>
               </div>
             </motion.button>
@@ -494,7 +494,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
               whileTap={{ scale: 0.98 }}
               onClick={() => {
                 if (!isEnabled("live_battle")) {
-                  alert(features.live_battle?.maintenanceMessage || "1v1 लाइव क्विज़ बैटल सुविधा एडमिन द्वारा अस्थायी रूप से बंद है।");
+                  alert(features.live_battle?.maintenanceMessage || "1v1 Live Quiz Battle feature is temporarily disabled by admin.");
                   return;
                 }
                 onOpenLiveBattle?.();
@@ -520,12 +520,12 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                     </h3>
                     {!isEnabled("live_battle") && (
                       <span className="text-[9px] px-1.5 py-0.2 rounded bg-rose-100 dark:bg-rose-950 text-rose-600 font-bold">
-                        अस्थायी बंद
+                        Temporarily Closed
                       </span>
                     )}
                   </div>
                   <p className="text-[10px] sm:text-[10.5px] text-[#52576A] dark:text-[#929AB0] truncate mt-0.5">
-                    {isEnabled("live_battle") ? "Real-time match with peers" : (features.live_battle?.maintenanceMessage || "मेंटेनेंस के लिए बंद")}
+                    {isEnabled("live_battle") ? "Real-time match with peers" : (features.live_battle?.maintenanceMessage || "Closed for Maintenance")}
                   </p>
                 </div>
               </div>
@@ -561,7 +561,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
               whileTap={{ scale: 0.98 }}
               onClick={() => {
                 if (!isEnabled("omr_scanner")) {
-                  alert(features.omr_scanner?.maintenanceMessage || "पेपर व OMR स्कैनर सुविधा एडमिन द्वारा अस्थायी रूप से बंद है।");
+                  alert(features.omr_scanner?.maintenanceMessage || "Paper & OMR Scanner feature is temporarily disabled by admin.");
                   return;
                 }
                 onOpenExamAnalyzer?.();
@@ -587,12 +587,12 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                     </h3>
                     {!isEnabled("omr_scanner") && (
                       <span className="text-[9px] px-1.5 py-0.2 rounded bg-rose-100 dark:bg-rose-950 text-rose-600 font-bold">
-                        अस्थायी बंद
+                        Temporarily Closed
                       </span>
                     )}
                   </div>
                   <p className="text-[10px] sm:text-[10.5px] text-[#52576A] dark:text-[#929AB0] truncate mt-0.5">
-                    {isEnabled("omr_scanner") ? "Scan question paper or OMR sheet" : (features.omr_scanner?.maintenanceMessage || "मेंटेनेंस के लिए बंद")}
+                    {isEnabled("omr_scanner") ? "Scan question paper or OMR sheet" : (features.omr_scanner?.maintenanceMessage || "Closed for Maintenance")}
                   </p>
                 </div>
               </div>

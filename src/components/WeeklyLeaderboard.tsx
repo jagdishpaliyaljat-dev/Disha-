@@ -137,8 +137,8 @@ const WeeklyLeaderboard: React.FC<WeeklyLeaderboardProps> = ({
       <div className="p-3 space-y-1.5">
         {loading ? (
           <ContentLoader
-            message="रैंकिंग अपडेट हो रही है..."
-            submessage="राज्य स्तरीय प्रतियोगी रैंकिंग सिंक जारी"
+            message="Updating Rankings..."
+            submessage="Statewide Competitive Ranking Sync in Progress"
             minHeight="min-h-[160px]"
             size="sm"
           />

@@ -140,9 +140,9 @@ export const NewsPage: React.FC<NewsPageProps> = ({
       return art.seoTitle.trim();
     }
     if (art.category) {
-      return `${art.category} — महत्वपूर्ण परीक्षा गाइड व PYQ विश्लेषण`;
+      return `${art.category} — High-Yield Exam Guide & PYQ Analysis`;
     }
-    return "राजस्थान भर्ती परीक्षा: संपूर्ण गाइड व PYQ नोट्स";
+    return "Competitive Examination: Comprehensive Guide & PYQ Notes";
   };
 
   useEffect(() => {
@@ -376,8 +376,8 @@ export const NewsPage: React.FC<NewsPageProps> = ({
     const origin = typeof window !== "undefined" ? window.location.origin : SITE_CONFIG.domain;
     const fullUrl = `${origin}/news/${targetArt.slug}`;
     const title = getDisplayArticleTitle(targetArt);
-    const excerpt = targetArt.excerpt || "राजस्थान प्रतियोगी परीक्षाओं की तैयारी के लिए महत्वपूर्ण नोट्स व PYQ गाइड।";
-    const text = `📚 *${title}*\n\n${excerpt}\n\n👉 *यहाँ पूरा पढ़ें:* ${fullUrl}\n\n_DISHA 20-20 (दिशा 20-20) · सही दिशा, सटीक तैयारी_`;
+    const excerpt = targetArt.excerpt || "High-yield study notes and past year questions guide for competitive exams.";
+    const text = `📚 *${title}*\n\n${excerpt}\n\n👉 *Read full article here:* ${fullUrl}\n\n_DISHA 20-20 · Precision Learning_`;
     const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
     if (typeof window !== "undefined") {
       window.open(waUrl, "_blank", "noopener,noreferrer");
@@ -1367,17 +1367,17 @@ export const NewsPage: React.FC<NewsPageProps> = ({
             <span>⭐ DISHA 20-20 Exam Prep Companion</span>
           </div>
           <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight">
-            महत्वपूर्ण अभ्यास प्रश्न एवं PYQ टेस्ट सीरीज़
+            High-Yield Practice Questions & PYQ Test Series
           </h3>
           <p className="text-xs sm:text-[13px] text-[#FFF9EF]/85 max-w-lg leading-relaxed">
-            राजस्थान भर्ती परीक्षाओं के टॉपिक-वाइज़ पिछले वर्षों के हल प्रश्न (PYQ) और लाइव मॉक टेस्ट का निशुल्क अभ्यास करें।
+            Practice topic-wise previous year solved questions (PYQs) and live mock tests for competitive examinations for free.
           </p>
         </div>
         <button
           onClick={onNavigateHome}
           className="w-full sm:w-auto px-6 py-2.5 bg-[#800020] hover:bg-[#5E0017] text-white font-semibold rounded-xl text-xs sm:text-sm transition-all duration-180 border border-[#C99A45]/50 shadow-md active:scale-95 cursor-pointer shrink-0 flex items-center justify-center gap-2 whitespace-nowrap group"
         >
-          <span>अभ्यास शुरू करें</span>
+          <span>Start Practice</span>
           <span className="text-[#C99A45] group-hover:translate-x-1 transition-transform">→</span>
         </button>
       </div>
@@ -1399,10 +1399,10 @@ export const NewsPage: React.FC<NewsPageProps> = ({
     if (singleLoading) {
       return (
         <FullScreenLoader
-          message="लेख लोड हो रहा है..."
-          submessage="DISHA 20-20 • परीक्षा विशेषांक एवं आधिकारिक विश्लेषण"
+          message="Loading article..."
+          submessage="DISHA 20-20 • Special Edition & Analysis"
           onCancel={handleBackToList}
-          cancelLabel="समाचार सूची पर लौटें (Back)"
+          cancelLabel="Back to News"
         />
       );
     }
@@ -1544,17 +1544,17 @@ export const NewsPage: React.FC<NewsPageProps> = ({
               <span className="text-[#E8D9C0] dark:text-[#31374A]">·</span>
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 text-[10.5px] font-bold">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span>100% सत्यापित एवं अपडेटेड</span>
+                <span>100% Verified & Updated</span>
               </span>
             </div>
 
-            <h1 className="text-2xl sm:text-4xl lg:text-[42px] font-black text-[#171923] dark:text-[#FFF9EF] leading-[1.22] tracking-tight font-hindi">
+            <h1 className="text-2xl sm:text-4xl lg:text-[42px] font-black text-[#171923] dark:text-[#FFF9EF] leading-[1.22] tracking-tight">
               {getDisplayArticleTitle(activeArticle)}
             </h1>
 
             {activeArticle.excerpt && (
               <div className="p-4 sm:p-5 rounded-2xl bg-[#F7EFE2]/80 dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A]">
-                <p className="text-base sm:text-lg font-medium text-[#171923] dark:text-[#FFF9EF]/90 leading-relaxed font-hindi">
+                <p className="text-base sm:text-lg font-medium text-[#171923] dark:text-[#FFF9EF]/90 leading-relaxed">
                   {activeArticle.excerpt}
                 </p>
               </div>
@@ -1604,7 +1604,7 @@ export const NewsPage: React.FC<NewsPageProps> = ({
                   title="Share on WhatsApp"
                 >
                   <Send className="w-3.5 h-3.5" />
-                  <span>WhatsApp शेयर</span>
+                  <span>Share on WhatsApp</span>
                 </button>
               </div>
             </div>
@@ -1921,7 +1921,7 @@ export const NewsPage: React.FC<NewsPageProps> = ({
               onClick={onNavigateHome}
               className="flex-1 h-11 px-3 rounded-xl bg-[#800020] hover:bg-[#5E0017] dark:bg-[#800020] dark:hover:bg-[#650019] text-white font-semibold text-xs border border-[#C99A45]/40 shadow-sm active:scale-95 cursor-pointer flex items-center justify-center gap-1.5 group truncate"
             >
-              <span className="truncate">अभ्यास करें</span>
+              <span className="truncate">Practice Now</span>
               <ChevronRight className="w-4 h-4 text-[#C99A45] group-hover:translate-x-0.5 transition-transform shrink-0" />
             </button>
           </div>

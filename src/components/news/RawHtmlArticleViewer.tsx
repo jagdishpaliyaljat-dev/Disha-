@@ -96,7 +96,7 @@ export const RawHtmlArticleViewer: React.FC<RawHtmlArticleViewerProps> = ({
 
           const hint = document.createElement("div");
           hint.className = "rx-table-scroll-hint";
-          hint.innerHTML = `<span>↔</span> टेबल स्क्रॉल करें · Swipe table`;
+          hint.innerHTML = `<span>↔</span> Swipe table horizontally`;
 
           const inner = document.createElement("div");
           inner.className = "rx-table-inner-scroll";
@@ -197,7 +197,7 @@ export const RawHtmlArticleViewer: React.FC<RawHtmlArticleViewerProps> = ({
                 .trim();
               answerHtml = rawHtmlAnswer;
             } else {
-              question = `सवाल ${faqIndex}`;
+              question = `Question ${faqIndex}`;
               answerHtml = current.innerHTML;
             }
 

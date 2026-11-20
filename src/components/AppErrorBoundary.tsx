@@ -105,7 +105,7 @@ export class AppErrorBoundary extends React.Component<AppErrorBoundaryProps, App
       };
       if (navigator?.clipboard?.writeText) {
         await navigator.clipboard.writeText(JSON.stringify(report, null, 2));
-        alert("Diagnostic report copied to clipboard. / डायग्नोस्टिक रिपोर्ट क्लिपबोर्ड पर कॉपी हो गई।");
+        alert("Diagnostic report copied to clipboard.");
       }
     } catch {}
   };
@@ -172,13 +172,13 @@ export class AppErrorBoundary extends React.Component<AppErrorBoundaryProps, App
             <div className="space-y-2">
               <h1 className="text-lg sm:text-xl font-black text-[#171923] dark:text-[#FFF9EF] tracking-tight">
                 {isChunk
-                  ? "ऐप अपडेट उपलब्ध है (Update Ready)"
-                  : this.props.fallbackTitle || "दिशा 20-20 — स्वतः मरम्मत (Auto-Repair)"}
+                  ? "App Update Ready"
+                  : this.props.fallbackTitle || "DISHA 20-20 — System Auto-Repair"}
               </h1>
-              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-hindi">
+              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                 {isChunk
-                  ? "दिशा 20-20 का नया और तेज़ वर्शन लाइव है। नीचे 1-क्लिक रिपेयर बटन दबाकर तुरंत लॉन्च करें।"
-                  : "अस्थायी व्यू एरर पकड़ा गया। आपका अभ्यास, बुकमार्क और प्रोफाइल डेटा 100% सुरक्षित है।"}
+                  ? "A newer, faster version of DISHA 20-20 is live. Tap the 1-Tap Auto-Repair button below to reload immediately."
+                  : "A temporary view rendering error was caught. Your practice progress, bookmarks, and profile data are 100% safe."}
               </p>
               {this.state.errorEventId && (
                 <div className="pt-1">
@@ -195,7 +195,7 @@ export class AppErrorBoundary extends React.Component<AppErrorBoundaryProps, App
                 onClick={this.handleSelfHealingRecovery}
                 className="w-full py-3.5 px-4 bg-gradient-to-r from-[#F47B20] to-[#E06716] hover:brightness-105 text-white font-black rounded-xl text-xs shadow-[0_4px_16px_rgba(244,123,32,0.35)] border border-[#C99A45]/40 transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-2"
               >
-                <span>🚀 1-क्लिक स्वतः मरम्मत और खोलें (1-Tap Auto-Repair & Launch)</span>
+                <span>🚀 1-Tap Auto-Repair & Launch</span>
               </button>
 
               <div className="flex flex-col sm:flex-row items-center gap-2.5">
@@ -204,14 +204,14 @@ export class AppErrorBoundary extends React.Component<AppErrorBoundaryProps, App
                   onClick={this.handleGoHome}
                   className="w-full sm:flex-1 py-2.5 px-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold transition-all active:scale-95 cursor-pointer"
                 >
-                  मुख्य पृष्ठ (Home)
+                  Home
                 </button>
                 <button
                   type="button"
                   onClick={this.handleReload}
                   className="w-full sm:flex-1 py-2.5 px-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold transition-all active:scale-95 cursor-pointer"
                 >
-                  पुनः लोड (Reload)
+                  Reload
                 </button>
               </div>
             </div>
@@ -225,7 +225,7 @@ export class AppErrorBoundary extends React.Component<AppErrorBoundaryProps, App
                     onClick={() => this.setState((prev) => ({ showDetails: !prev.showDetails }))}
                     className="text-[10px] font-bold text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 underline cursor-pointer"
                   >
-                    {this.state.showDetails ? "विवरण छुपाएं (Hide Details)" : "त्रुटि विवरण देखें (Show Error Details)"}
+                    {this.state.showDetails ? "Hide Error Details" : "Show Error Details"}
                   </button>
                   {this.state.showDetails && (
                     <button
@@ -233,7 +233,7 @@ export class AppErrorBoundary extends React.Component<AppErrorBoundaryProps, App
                       onClick={this.handleCopyDiagnostics}
                       className="text-[10px] font-bold text-[#800020] dark:text-[#F47B20] hover:underline cursor-pointer"
                     >
-                      कॉपी करें (Copy Report)
+                      Copy Report
                     </button>
                   )}
                 </div>

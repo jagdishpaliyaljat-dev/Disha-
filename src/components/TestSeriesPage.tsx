@@ -301,7 +301,7 @@ export const TestSeriesPage: React.FC<TestSeriesPageProps> = ({
             {seriesTests.length === 0 ? (
               <div className="p-10 text-center bg-white dark:bg-[#1F2330] rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] text-stone-500 dark:text-stone-400">
                 <BookOpen size={28} className="mx-auto mb-2 text-stone-400 opacity-70" />
-                <p className="font-bold">इस टेस्ट सीरीज में अभी कोई टेस्ट उपलब्ध नहीं है।</p>
+                <p className="font-bold">No tests are available in this test series yet.</p>
               </div>
             ) : (
               seriesTests.map((test, index) => {
@@ -323,23 +323,23 @@ export const TestSeriesPage: React.FC<TestSeriesPageProps> = ({
                         </span>
                         <span className="px-2 py-0.5 rounded-md bg-[#C99A45]/15 text-[#800020] dark:text-[#C99A45] text-[9.5px] font-black flex items-center gap-1 border border-[#C99A45]/30">
                           <ShieldCheck size={11} className="text-[#C99A45]" />
-                          Option E नियम
+                          Option E Rule
                         </span>
                         {sub && (
                           <span className="px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 text-[9.5px] font-black border border-emerald-300 dark:border-emerald-800">
-                            सम्पन्न: {sub.score}/{sub.totalMarks} ({sub.accuracy.toFixed(0)}%)
+                            Completed: {sub.score}/{sub.totalMarks} ({sub.accuracy.toFixed(0)}%)
                           </span>
                         )}
                       </div>
-                      <h3 className="text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] font-hindi leading-snug">
+                      <h3 className="text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] leading-snug">
                         {test.title}
                       </h3>
                       <div className="flex items-center gap-3 text-[11px] font-bold text-stone-500 dark:text-stone-400 font-mono tabular-nums">
-                        <span>{qCount} प्रश्न</span>
+                        <span>{qCount} Questions</span>
                         <span>•</span>
-                        <span>{duration} मिनट</span>
+                        <span>{duration} Mins</span>
                         <span>•</span>
-                        <span>{marks} अंक</span>
+                        <span>{marks} Marks</span>
                         <span>•</span>
                         <span className="text-[#991B1B] dark:text-[#F47B20]">Neg: {negMark}</span>
                       </div>
@@ -355,7 +355,7 @@ export const TestSeriesPage: React.FC<TestSeriesPageProps> = ({
                         ) : (
                           <Play size={13} fill="currentColor" className="text-[#C99A45]" />
                         )}
-                        <span>{sub ? "पुनः अभ्यास करें" : "टेस्ट शुरू करें"}</span>
+                        <span>{sub ? "Re-attempt Test" : "Start Test"}</span>
                       </button>
                     </div>
                   </div>
@@ -386,7 +386,7 @@ export const TestSeriesPage: React.FC<TestSeriesPageProps> = ({
               </div>
             </div>
             <span className="px-2.5 py-1 rounded-lg bg-[#800020]/10 dark:bg-[#C99A45]/15 text-[#800020] dark:text-[#C99A45] text-[10px] font-black shrink-0 border border-[#800020]/20 dark:border-[#C99A45]/30">
-              {orderedSeriesList.length} सीरीज़
+              {orderedSeriesList.length} Series
             </span>
           </header>
 
@@ -394,7 +394,7 @@ export const TestSeriesPage: React.FC<TestSeriesPageProps> = ({
             {orderedSeriesList.length === 0 ? (
               <div className="col-span-full p-8 text-center text-sm text-stone-500 dark:text-stone-400 bg-white dark:bg-[#1F2330] rounded-2xl border border-[#E8D9C0] dark:border-[#31374A]">
                 <Layers size={28} className="mx-auto mb-2 text-stone-400 opacity-70" />
-                <p className="font-bold">इस परीक्षा के लिए अभी कोई टेस्ट सीरीज उपलब्ध नहीं है।</p>
+                <p className="font-bold">No test series is currently available for this exam.</p>
               </div>
             ) : (
               orderedSeriesList.map((series, index) => (
@@ -413,13 +413,13 @@ export const TestSeriesPage: React.FC<TestSeriesPageProps> = ({
                     </div>
                     <div className="min-w-0">
                       <span className="text-[10px] font-bold text-stone-400 dark:text-stone-500 uppercase tracking-wider block">
-                        सीरीज़ पैकेज #{index + 1}
+                        Series Package #{index + 1}
                       </span>
-                      <h3 className="text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] truncate font-hindi group-hover:text-[#800020] dark:group-hover:text-[#C99A45] transition-colors">
+                      <h3 className="text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] truncate group-hover:text-[#800020] dark:group-hover:text-[#C99A45] transition-colors">
                         {series.seriesName}
                       </h3>
                       <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5 line-clamp-1">
-                        {series.description || "संपूर्ण सिलेबस व विषयवार मॉक टेस्ट्स"}
+                        {series.description || "Comprehensive syllabus and topic-wise mock tests"}
                       </p>
                     </div>
                   </div>
@@ -445,9 +445,9 @@ export const TestSeriesPage: React.FC<TestSeriesPageProps> = ({
               </button>
               <div className="min-w-0">
                 <span className="text-[10px] font-bold text-stone-500 dark:text-stone-400 block truncate">
-                  कोचिंग संस्थान
+                  Coaching Institutes
                 </span>
-                <h1 className="text-sm sm:text-base font-black text-[#171923] dark:text-[#FFF9EF] truncate font-hindi">
+                <h1 className="text-sm sm:text-base font-black text-[#171923] dark:text-[#FFF9EF] truncate">
                   {activeCoaching?.name || "Exams"}
                 </h1>
               </div>
@@ -461,7 +461,7 @@ export const TestSeriesPage: React.FC<TestSeriesPageProps> = ({
             {orderedExams.length === 0 ? (
               <div className="col-span-full p-8 text-center text-sm text-stone-500 dark:text-stone-400 bg-white dark:bg-[#1F2330] rounded-2xl border border-[#E8D9C0] dark:border-[#31374A]">
                 <Award size={28} className="mx-auto mb-2 text-stone-400 opacity-70" />
-                <p className="font-bold">इस संस्थान के लिए अभी कोई परीक्षा उपलब्ध नहीं है।</p>
+                <p className="font-bold">No exams are currently available for this institute.</p>
               </div>
             ) : (
               orderedExams.map((exam, index) => (
@@ -480,13 +480,13 @@ export const TestSeriesPage: React.FC<TestSeriesPageProps> = ({
                     </div>
                     <div className="min-w-0">
                       <span className="text-[10px] font-bold text-stone-400 dark:text-stone-500 uppercase tracking-wider block">
-                        परीक्षा #{index + 1}
+                        Exam #{index + 1}
                       </span>
-                      <h3 className="text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] truncate font-hindi group-hover:text-[#800020] dark:group-hover:text-[#C99A45] transition-colors">
+                      <h3 className="text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] truncate group-hover:text-[#800020] dark:group-hover:text-[#C99A45] transition-colors">
                         {exam.examName}
                       </h3>
                       <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">
-                        RPSC / RSMSSB परीक्षा पैटर्न
+                        Official Exam Pattern
                       </p>
                     </div>
                   </div>
@@ -517,15 +517,15 @@ export const TestSeriesPage: React.FC<TestSeriesPageProps> = ({
               )}
               <div>
                 <h1 className="text-sm sm:text-base font-black text-[#171923] dark:text-[#FFF9EF] leading-tight">
-                  प्रतिष्ठित कोचिंग टेस्ट सीरीज
+                  Premier Coaching Test Series
                 </h1>
                 <p className="text-[10px] font-bold text-stone-500 dark:text-stone-400 mt-0.5">
-                  राजस्थान के शीर्ष संस्थानों द्वारा निर्मित प्रामाणिक परीक्षा टेस्ट्स
+                  Verified mock tests crafted by leading educational institutions
                 </p>
               </div>
             </div>
             <span className="px-2.5 py-1 rounded-lg bg-[#800020]/10 dark:bg-[#C99A45]/15 text-[#800020] dark:text-[#C99A45] text-[10px] font-black shrink-0 border border-[#800020]/20 dark:border-[#C99A45]/30">
-              {orderedCoachings.length} संस्थान
+              {orderedCoachings.length} Institutes
             </span>
           </header>
 
@@ -533,7 +533,7 @@ export const TestSeriesPage: React.FC<TestSeriesPageProps> = ({
             {orderedCoachings.length === 0 ? (
               <div className="col-span-full p-8 text-center text-sm text-stone-500 dark:text-stone-400 bg-white dark:bg-[#1F2330] rounded-2xl border border-[#E8D9C0] dark:border-[#31374A]">
                 <Building2 size={28} className="mx-auto mb-2 text-stone-400 opacity-70" />
-                <p className="font-bold">अभी कोई कोचिंग संस्थान उपलब्ध नहीं है।</p>
+                <p className="font-bold">No coaching institutes available currently.</p>
               </div>
             ) : (
               orderedCoachings.map((coaching, index) => (
@@ -554,13 +554,13 @@ export const TestSeriesPage: React.FC<TestSeriesPageProps> = ({
                     </div>
                     <div className="min-w-0">
                       <span className="text-[9.5px] font-black text-[#C99A45] uppercase tracking-wider block">
-                        संस्थान #{index + 1}
+                        Institute #{index + 1}
                       </span>
-                      <h3 className="text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] truncate font-hindi group-hover:text-[#800020] dark:group-hover:text-[#C99A45] transition-colors">
+                      <h3 className="text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] truncate group-hover:text-[#800020] dark:group-hover:text-[#C99A45] transition-colors">
                         {coaching.name}
                       </h3>
                       <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5 line-clamp-1">
-                        {coaching.description || "सत्यापित परीक्षा टेस्ट सीरीज व मॉक पेपर्स"}
+                        {coaching.description || "Verified examination test series and mock papers"}
                       </p>
                     </div>
                   </div>

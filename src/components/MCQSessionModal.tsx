@@ -2594,16 +2594,16 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
           <AlertCircle className="w-8 h-8" />
         </div>
         <h3 className="text-lg font-black text-slate-900 dark:text-white mb-2">
-          इस सत्र में कोई प्रश्न उपलब्ध नहीं हैं
+          No Questions Available in This Session
         </h3>
         <p className="text-sm text-slate-500 dark:text-slate-400 max-w-sm mb-6">
-          कृपया कोई अन्य अध्याय या विषय चुनें, या व्यवस्थापक से संपर्क करें।
+          Please select another chapter or topic, or contact an administrator.
         </p>
         <button
           onClick={onClose}
           className="px-6 py-2.5 rounded-xl bg-[#800020] text-white font-bold text-sm shadow-md active:scale-95 transition-transform cursor-pointer"
         >
-          वापस जाएं (Go Back)
+          Go Back
         </button>
       </div>
     );

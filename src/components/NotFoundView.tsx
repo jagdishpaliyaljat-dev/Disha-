@@ -30,13 +30,10 @@ export const NotFoundView: React.FC<NotFoundViewProps> = ({
         </span>
       </div>
 
-      {/* Bilingual Headlines */}
+      {/* Headlines */}
       <h1 className="text-2xl sm:text-3xl font-extrabold text-[#171923] dark:text-[#FFF9EF] tracking-tight">
         Page Not Found
       </h1>
-      <p className="text-base sm:text-lg font-bold text-[#800020] dark:text-[#C99A45] mt-1 font-hindi">
-        पृष्ठ उपलब्ध नहीं है
-      </p>
 
       {/* Description */}
       <p className="text-xs sm:text-sm text-[#52576A] dark:text-[#CBD2E1] mt-3 max-w-md leading-relaxed">
@@ -56,7 +53,7 @@ export const NotFoundView: React.FC<NotFoundViewProps> = ({
           className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-[#800020] hover:bg-[#600018] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] text-white font-bold text-sm tracking-wide shadow-lg shadow-[#800020]/20 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-2"
         >
           <Home className="w-4 h-4" />
-          <span>Go to Home / मुख्य पृष्ठ</span>
+          <span>Go to Home</span>
         </button>
 
         {typeof window !== "undefined" && window.history.length > 1 && (
@@ -66,7 +63,7 @@ export const NotFoundView: React.FC<NotFoundViewProps> = ({
             className="w-full sm:w-auto px-5 py-3 rounded-2xl bg-[#F7EFE2] dark:bg-[#252A3A] hover:bg-[#EFE3CF] dark:hover:bg-[#31374A] border border-[#E8D9C0] dark:border-[#31374A] text-[#171923] dark:text-[#FFF9EF] font-bold text-sm active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-2"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span>Go Back / पीछे जाएं</span>
+            <span>Go Back</span>
           </button>
         )}
       </div>
@@ -74,7 +71,7 @@ export const NotFoundView: React.FC<NotFoundViewProps> = ({
       {/* Quick Navigation Directory */}
       <div className="mt-10 pt-8 border-t border-[#E8D9C0] dark:border-[#31374A] w-full">
         <p className="text-[11px] font-bold text-[#800020] dark:text-[#C99A45] uppercase tracking-wider mb-4">
-          Quick Links / महत्वपूर्ण अनुभाग
+          Quick Links
         </p>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
@@ -85,7 +82,7 @@ export const NotFoundView: React.FC<NotFoundViewProps> = ({
           >
             <BookOpen className="w-4 h-4 text-[#800020] dark:text-[#F47B20] mb-1.5 group-hover:scale-110 transition-transform" />
             <div className="text-xs font-bold text-[#171923] dark:text-[#FFF9EF]">Subjects</div>
-            <div className="text-[10px] text-[#52576A] dark:text-[#929AB0] font-hindi">विषय सूची</div>
+            <div className="text-[10px] text-[#52576A] dark:text-[#929AB0]">Course Index</div>
           </button>
 
           <button
@@ -95,7 +92,7 @@ export const NotFoundView: React.FC<NotFoundViewProps> = ({
           >
             <Trophy className="w-4 h-4 text-[#800020] dark:text-[#F47B20] mb-1.5 group-hover:scale-110 transition-transform" />
             <div className="text-xs font-bold text-[#171923] dark:text-[#FFF9EF]">Live Tests</div>
-            <div className="text-[10px] text-[#52576A] dark:text-[#929AB0] font-hindi">मॉक टेस्ट</div>
+            <div className="text-[10px] text-[#52576A] dark:text-[#929AB0]">Mock Exams</div>
           </button>
 
           <button
@@ -105,7 +102,7 @@ export const NotFoundView: React.FC<NotFoundViewProps> = ({
           >
             <Archive className="w-4 h-4 text-[#800020] dark:text-[#F47B20] mb-1.5 group-hover:scale-110 transition-transform" />
             <div className="text-xs font-bold text-[#171923] dark:text-[#FFF9EF]">PYQ Vault</div>
-            <div className="text-[10px] text-[#52576A] dark:text-[#929AB0] font-hindi">पुराने प्रश्न</div>
+            <div className="text-[10px] text-[#52576A] dark:text-[#929AB0]">Past Papers</div>
           </button>
 
           <button
@@ -115,7 +112,7 @@ export const NotFoundView: React.FC<NotFoundViewProps> = ({
           >
             <User className="w-4 h-4 text-[#800020] dark:text-[#F47B20] mb-1.5 group-hover:scale-110 transition-transform" />
             <div className="text-xs font-bold text-[#171923] dark:text-[#FFF9EF]">Profile</div>
-            <div className="text-[10px] text-[#52576A] dark:text-[#929AB0] font-hindi">विद्यार्थी प्रोफ़ाइल</div>
+            <div className="text-[10px] text-[#52576A] dark:text-[#929AB0]">Student Profile</div>
           </button>
         </div>
       </div>

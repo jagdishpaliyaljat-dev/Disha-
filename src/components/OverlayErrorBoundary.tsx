@@ -68,8 +68,8 @@ export class OverlayErrorBoundary extends React.Component<
               <h3 className="text-base sm:text-lg font-black text-[#171923] dark:text-[#FFF9EF]">
                 {this.props.viewName} Encountered an Issue
               </h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 font-hindi leading-relaxed">
-                यह दृश्य अस्थायी रूप से लोड नहीं हो सका। आपके अभ्यास रिकॉर्ड और बुकमार्क पूरी तरह सुरक्षित हैं।
+              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                This view could not be loaded temporarily. Your practice records and bookmarks are completely safe.
               </p>
             </div>
 
@@ -80,7 +80,7 @@ export class OverlayErrorBoundary extends React.Component<
                 className="w-full sm:flex-1 py-3 px-4 bg-[#800020] hover:bg-[#600018] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] text-white rounded-xl text-xs font-bold transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-1.5"
               >
                 <X className="w-4 h-4" />
-                <span>Return to Study / वापस जाएं</span>
+                <span>Return to Study</span>
               </button>
 
               <button
@@ -89,7 +89,7 @@ export class OverlayErrorBoundary extends React.Component<
                 className="w-full sm:flex-1 py-3 px-4 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-1.5"
               >
                 <RotateCcw className="w-4 h-4" />
-                <span>Retry / पुनः प्रयास</span>
+                <span>Retry</span>
               </button>
             </div>
 
