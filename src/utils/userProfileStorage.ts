@@ -119,6 +119,19 @@ export function loadUserProfile(): UserProfile | null {
       ...parsed,
     };
 
+    // Auto-clean legacy mock data:
+    // If the profile has no email or an unauthenticated email, and its name is "Student",
+    // migrate it immediately to "Guest Aspirant" so users aren't confused by mock data.
+    if (!profile.email || !profile.email.trim() || profile.email.includes("student_default")) {
+      profile.email = "";
+      if (profile.name === "Student" || !profile.name) {
+        profile.name = "Guest Aspirant";
+        try {
+          safeSetLocalStorageItem(USER_PROFILE_KEY, JSON.stringify(profile));
+        } catch (_) {}
+      }
+    }
+
     // Ensure profile has an ID; for anonymous guests or unassigned IDs, provide a persistent UUID
     if (!profile.id || profile.id === "student_default") {
       profile.id = generatePersistentGuestUUID();

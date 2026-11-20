@@ -277,7 +277,7 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
       id="tests-hub-mobile-view"
     >
       {/* ── 1. PAGE HEADER ────────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-30 bg-[#FFF9EF]/95 dark:bg-[#1F2330]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] shadow-[0_2px_12px_rgba(23,25,35,0.03)] px-3.5 sm:px-4 pt-[calc(10px+env(safe-area-inset-top,0px))] pb-2.5 sm:pb-3 transition-colors">
+      <header className="sticky top-0 z-30 bg-[#FFF9EF]/95 dark:bg-[#1F2330]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] shadow-[0_2px_12px_rgba(23,25,35,0.03)] px-3.5 sm:px-4 pt-[max(34px,calc(10px+env(safe-area-inset-top,0px)))] sm:pt-2.5 pb-2.5 sm:pb-3 transition-colors">
         <div className="flex items-center justify-between gap-3 max-w-4xl mx-auto w-full">
           {/* Back & Title */}
           <div className="flex items-center gap-2.5 min-w-0">

@@ -198,7 +198,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
       id="home-container"
     >
       {/* 1. COMPACT BRAND HEADER (Mobile) */}
-      <header className="px-2.5 sm:px-5 pt-[max(12px,calc(8px+env(safe-area-inset-top,0px)))] pb-2 bg-[#FFF9EF]/95 dark:bg-[#171923]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] sticky top-0 z-40 select-none md:hidden w-full max-w-full overflow-hidden">
+      <header className="px-2.5 sm:px-5 pt-[max(34px,calc(8px+env(safe-area-inset-top,0px)))] sm:pt-2 pb-2 bg-[#FFF9EF]/95 dark:bg-[#171923]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] sticky top-0 z-40 select-none md:hidden w-full max-w-full overflow-hidden">
         <div className="max-w-5xl mx-auto flex items-center justify-between gap-1.5 sm:gap-2">
           {/* Left Brand Identity: Drawer Trigger + Non-wrapping Logo */}
           <div className="flex items-center gap-1.5 sm:gap-2.5 min-w-0 shrink-0">
