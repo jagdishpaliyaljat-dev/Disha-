@@ -39,6 +39,8 @@ import {
   Plus,
 } from "lucide-react";
 import ShareModal, { ShareData } from "./ShareModal";
+import { CoachingVideoPlayer } from "./CoachingVideoPlayer";
+import { InAppPdfViewer } from "./InAppPdfViewer";
 import { buildTopicShareData } from "../utils/shareService";
 import { getSubjectQuestionsCount } from "../utils/questionsStorage";
 import { triggerHaptic, playClickSound } from "../utils/audioFeedback";
@@ -692,23 +694,17 @@ interface TopicListItemProps {
   topic: Topic;
   idx: number;
   onClickTopic: () => void;
-}
-
-interface TopicListItemProps {
-  topic: Topic;
-  idx: number;
-  onClickTopic: () => void;
   isAdmin?: boolean;
   onOpenEditMedia?: (topic: Topic) => void;
 }
 
-const TopicListItem: React.FC<TopicListItemProps> = ({
+function TopicListItem({
   topic,
   idx,
   onClickTopic,
   isAdmin = false,
   onOpenEditMedia,
-}) => {
+}: TopicListItemProps) {
   const topicNum = idx + 1;
   const qCount =
     topic.questions && topic.questions.length > 0
@@ -804,7 +800,7 @@ interface TopicDetailViewProps {
   onOpenEditMedia?: (topic: Topic) => void;
 }
 
-const TopicDetailView: React.FC<TopicDetailViewProps> = ({
+function TopicDetailView({
   topic,
   activeChapter,
   activeSubject,
@@ -812,7 +808,7 @@ const TopicDetailView: React.FC<TopicDetailViewProps> = ({
   onStartSession,
   isAdmin = false,
   onOpenEditMedia,
-}) => {
+}: TopicDetailViewProps) {
   const [isFetching, setIsFetching] = React.useState(false);
   const [activeFolderTab, setActiveFolderTab] = React.useState<"all" | "video" | "pdf" | "test">("all");
 
@@ -1046,47 +1042,17 @@ const TopicDetailView: React.FC<TopicDetailViewProps> = ({
           </div>
         </div>
 
-        {/* FOLDER 1: 🎥 VIDEO LECTURE */}
+        {/* FOLDER 1: 🎥 COACHING VIDEO LECTURE */}
         {(activeFolderTab === "all" || activeFolderTab === "video") && (
           <div className="bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-xs space-y-3">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm sm:text-base font-bold text-[#171923] dark:text-[#FFF9EF] flex items-center gap-2">
-                <Video className="w-4.5 h-4.5 text-[#800020] dark:text-[#F47B20]" />
-                <span>{topic.videoTitle || "वीडियो क्लास लेक्चर (Video Lecture)"}</span>
-              </h2>
-              {topic.videoDuration && (
-                <span className="text-[11px] font-bold text-[#800020] dark:text-[#F47B20] bg-[#800020]/10 dark:bg-[#F47B20]/15 px-2 py-0.5 rounded-full">
-                  {topic.videoDuration}
-                </span>
-              )}
-            </div>
-
-            {youtubeId ? (
-              <div className="w-full aspect-video rounded-xl sm:rounded-2xl overflow-hidden border border-[#E8D9C0] dark:border-[#31374A] bg-black shadow-inner">
-                <iframe
-                  src={`https://www.youtube-nocookie.com/embed/${youtubeId}?rel=0&modestbranding=1`}
-                  title={topic.videoTitle || topic.title}
-                  className="w-full h-full border-0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              </div>
-            ) : topic.videoUrl ? (
-              <div className="p-4 rounded-xl bg-[#FAF5EB] dark:bg-[#262B3D] flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-bold text-[#171923] dark:text-[#FFF9EF]">वीडियो लिंक उपलब्ध है</p>
-                  <p className="text-[11px] text-slate-500 truncate max-w-xs">{topic.videoUrl}</p>
-                </div>
-                <a
-                  href={topic.videoUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-3 py-1.5 rounded-xl bg-[#800020] text-white text-xs font-bold flex items-center gap-1"
-                >
-                  <span>देखें</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </a>
-              </div>
+            {topic.videoUrl ? (
+              <CoachingVideoPlayer
+                videoUrl={topic.videoUrl}
+                title={topic.videoTitle || getTopicDisplayName(topic)}
+                duration={topic.videoDuration}
+                subjectName={getSubjectDisplayName(activeSubject)}
+                chapterName={getChapterDisplayName(activeChapter)}
+              />
             ) : (
               <div className="p-6 text-center bg-[#FAF5EB] dark:bg-[#262B3D] rounded-xl border border-dashed border-[#E8D9C0] dark:border-[#31374A]">
                 <Video className="w-10 h-10 text-[#800020]/40 dark:text-[#F47B20]/40 mx-auto mb-2" />
@@ -1111,37 +1077,16 @@ const TopicDetailView: React.FC<TopicDetailViewProps> = ({
           </div>
         )}
 
-        {/* FOLDER 2: 📄 STUDY NOTES & PDF HANDOUT */}
+        {/* FOLDER 2: 📄 STUDY NOTES & IN-APP PDF VIEWER */}
         {(activeFolderTab === "all" || activeFolderTab === "pdf") && (
           <div className="bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-xs space-y-3">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm sm:text-base font-bold text-[#171923] dark:text-[#FFF9EF] flex items-center gap-2">
-                <FileText className="w-4.5 h-4.5 text-[#800020] dark:text-[#F47B20]" />
-                <span>{topic.pdfTitle || "हस्तलिखित नोट्स व अध्ययन सामग्री (PDF Notes)"}</span>
-              </h2>
-
-              {topic.pdfUrl && (
-                <a
-                  href={topic.pdfUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-xs font-bold text-[#800020] dark:text-[#F47B20] hover:underline"
-                >
-                  <span>Drive में खोलें</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </a>
-              )}
-            </div>
-
-            {drivePreview ? (
-              <div className="w-full h-[500px] rounded-xl sm:rounded-2xl overflow-hidden border border-[#E8D9C0] dark:border-[#31374A] bg-[#FAF5EB] dark:bg-[#171923]">
-                <iframe
-                  src={drivePreview}
-                  title="PDF Notes"
-                  className="w-full h-full border-0"
-                  allow="autoplay"
-                />
-              </div>
+            {topic.pdfUrl ? (
+              <InAppPdfViewer
+                pdfUrl={topic.pdfUrl}
+                title={topic.pdfTitle || `${getTopicDisplayName(topic)} - हस्तलिखित नोट्स`}
+                subjectName={getSubjectDisplayName(activeSubject)}
+                chapterName={getChapterDisplayName(activeChapter)}
+              />
             ) : (
               <div className="p-6 text-center bg-[#FAF5EB] dark:bg-[#262B3D] rounded-xl border border-dashed border-[#E8D9C0] dark:border-[#31374A]">
                 <FileText className="w-10 h-10 text-[#800020]/40 dark:text-[#F47B20]/40 mx-auto mb-2" />

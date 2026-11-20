@@ -30,26 +30,19 @@ export async function fetchAvailableGeminiModels(apiKey: string): Promise<string
 export const PROVIDER_RECOMMENDED_MODELS: Record<AIProvider, AIModelDefinition[]> = {
   cliproxy: [
     {
-      id: "gemini-3.5-flash-lite",
-      name: "gemini-3.5-flash-lite",
-      displayName: "Gemini 3.5 Flash-Lite (Pro 5-Account Rotation)",
+      id: "gemini-2.0-flash",
+      name: "gemini-2.0-flash",
+      displayName: "Gemini 2.0 Flash (Fastest)",
       provider: "cliproxy",
       description: "Auto-rotates across 5 Antigravity Pro accounts. Zero quota errors and 5x capacity.",
       recommended: true,
     },
     {
-      id: "gemini-3.8-flash-high",
-      name: "gemini-3.8-flash-high",
-      displayName: "Gemini 3.8 Flash High",
+      id: "gemini-1.5-flash",
+      name: "gemini-1.5-flash",
+      displayName: "Gemini 1.5 Flash (Universal Fallback)",
       provider: "cliproxy",
-      description: "Flagship 3.8 Flash model with Antigravity OAuth rotation.",
-    },
-    {
-      id: "gemini-3.8-flash-tiered",
-      name: "gemini-3.8-flash-tiered",
-      displayName: "Gemini 3.8 Flash Tiered",
-      provider: "cliproxy",
-      description: "Ultra-fast tiered flash model with Antigravity OAuth rotation.",
+      description: "Universal production model with high capacity.",
     },
     {
       id: "openrouter/free",
@@ -61,38 +54,31 @@ export const PROVIDER_RECOMMENDED_MODELS: Record<AIProvider, AIModelDefinition[]
   ],
   gemini: [
     {
-      id: "gemini-3.5-flash-lite",
-      name: "gemini-3.5-flash-lite",
-      displayName: "Gemini 3.5 Flash-Lite (Recommended - Lowest Latency)",
+      id: "gemini-2.0-flash",
+      name: "gemini-2.0-flash",
+      displayName: "Gemini 2.0 Flash (Recommended - Lowest Latency)",
       provider: "gemini",
-      description: "Official Google AI Studio ultra-fast model for exams, live chat, and instant explanation",
+      description: "Official Google AI ultra-fast model for exams, live chat, and instant explanation",
       recommended: true,
     },
     {
-      id: "gemini-3.8-flash",
-      name: "gemini-3.8-flash",
-      displayName: "Gemini 3.8 Flash (Flagship Flash)",
+      id: "gemini-1.5-flash",
+      name: "gemini-1.5-flash",
+      displayName: "Gemini 1.5 Flash (Universal Fallback)",
       provider: "gemini",
-      description: "Flagship Gemini Flash generation with advanced reasoning and precision",
+      description: "Standard production model with universal availability and free tier quota",
     },
     {
-      id: "gemini-3.1-flash-lite",
-      name: "gemini-3.1-flash-lite",
-      displayName: "Gemini 3.1 Flash Lite",
+      id: "gemini-2.0-flash-lite",
+      name: "gemini-2.0-flash-lite",
+      displayName: "Gemini 2.0 Flash Lite",
       provider: "gemini",
       description: "Lightweight, ultra-fast model for instant explanations and rapid chat",
     },
     {
-      id: "gemini-2.5-flash",
-      name: "gemini-2.5-flash",
-      displayName: "Gemini 2.5 Flash",
-      provider: "gemini",
-      description: "High-capacity multimodal reasoning model",
-    },
-    {
-      id: "gemini-2.5-pro",
-      name: "gemini-2.5-pro",
-      displayName: "Gemini 2.5 Pro (Deep Context & STEM)",
+      id: "gemini-1.5-pro",
+      name: "gemini-1.5-pro",
+      displayName: "Gemini 1.5 Pro (Deep Context & STEM)",
       provider: "gemini",
       description: "Advanced reasoning model for complex STEM and mathematical exams",
     },
@@ -379,8 +365,8 @@ export async function testAIKeyConnection({
       }
 
       case "gemini": {
-        const initialCandidate = (!selectedModel || selectedModel === "default" || selectedModel.includes("1.5") || selectedModel.includes("2.5") || selectedModel === "gemini-flash-latest")
-          ? "gemini-3.5-flash-lite"
+        const initialCandidate = (!selectedModel || selectedModel === "default" || selectedModel.includes("3.5") || selectedModel.includes("3.8") || selectedModel === "gemini-flash-latest")
+          ? "gemini-2.0-flash"
           : selectedModel;
         
         const runTestFetch = async (modelName: string, timeoutMs: number = CONNECTIVITY_TIMEOUT) => {
@@ -400,14 +386,11 @@ export async function testAIKeyConnection({
 
         const candidatesToTry = Array.from(new Set([
           initialCandidate,
-          "gemini-3.5-flash-lite",
-          "gemini-3.8-flash",
-          "gemini-3.1-flash-lite",
-          "gemini-flash-latest",
-          "gemini-2.5-flash",
-          "gemini-2.5-flash-lite",
-          "gemini-2.0-flash"
-        ])).filter(m => m && !m.includes("1.5") && !m.includes("1.0"));
+          "gemini-2.0-flash",
+          "gemini-1.5-flash",
+          "gemini-2.0-flash-lite",
+          "gemini-1.5-pro"
+        ])).filter(Boolean);
 
         let response: Response | null = null;
         let activeModel = initialCandidate;
@@ -862,20 +845,17 @@ export async function executeAICompletion({
           if (systemPrompt) config.systemInstruction = systemPrompt;
           if (jsonMode) config.responseMimeType = "application/json";
 
-          const rawTarget = (!currentModel || currentModel === "default" || currentModel.includes("1.5") || currentModel.includes("2.5") || currentModel === "gemini-flash-latest")
-            ? "gemini-3.5-flash-lite"
+          const rawTarget = (!currentModel || currentModel === "default" || currentModel.includes("3.5") || currentModel.includes("3.8") || currentModel === "gemini-flash-latest")
+            ? "gemini-2.0-flash"
             : currentModel;
 
           const modelsToTry = Array.from(new Set([
             rawTarget,
-            "gemini-3.5-flash-lite",
-            "gemini-3.8-flash",
-            "gemini-3.1-flash-lite",
-            "gemini-flash-latest",
-            "gemini-2.5-flash",
-            "gemini-2.5-flash-lite",
-            "gemini-2.0-flash"
-          ])).filter(m => m && !m.includes("1.5") && !m.includes("1.0"));
+            "gemini-2.0-flash",
+            "gemini-1.5-flash",
+            "gemini-2.0-flash-lite",
+            "gemini-1.5-pro"
+          ])).filter(Boolean);
 
           let lastErr: any = null;
           for (let i = 0; i < modelsToTry.length; i++) {
