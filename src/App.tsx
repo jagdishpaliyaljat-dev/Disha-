@@ -45,6 +45,7 @@ import { OverlayErrorBoundary } from './components/OverlayErrorBoundary';
 import { NotFoundView } from './components/NotFoundView';
 import { useNavigation } from './hooks/useNavigation';
 import { useCurriculumManager } from './hooks/useCurriculumManager';
+import { useAppFeatures } from './utils/featureControlService';
 import { loadUserProfile, saveUserProfile, isUserAdmin } from './utils/userProfileStorage';
 import { resolvePathToNavigationState, buildCanonicalPath, isKnownTab } from './utils/routeNavigation';
 import { prefetchCoreRoutes } from './utils/routePrefetcher';
@@ -243,6 +244,17 @@ export default function App() {
   const [isAuthenticated, setIsAuthenticated] = React.useState<boolean>(() => !!userProfile);
   const [settings, setSettings] = React.useState<AppSettings>(() => loadSettingsFromStorage());
   const [isAuthReady, setIsAuthReady] = React.useState(false);
+  const { isEnabled: isFeatureEnabled } = useAppFeatures();
+
+  // Guard disabled features: redirect to home if current tab is disabled by admin
+  React.useEffect(() => {
+    if (activeTab === 'videos' && !isFeatureEnabled('video_classes')) {
+      setActiveTab('home');
+    }
+    if (activeTab === 'live_tests' && !isFeatureEnabled('live_tests')) {
+      setActiveTab('home');
+    }
+  }, [activeTab, isFeatureEnabled, setActiveTab]);
 
   const [notifications, setNotifications] = React.useState<AppNotification[]>(() => loadNotifications());
   const unreadNotificationsCount = React.useMemo(() => {
@@ -2001,8 +2013,8 @@ export default function App() {
         </OverlayErrorBoundary>
       )}
 
-      {/* Floating AI Assistant (Student view only; hidden in Admin and active test sessions) */}
-      {activeTab !== 'admin' && !isUserBlocked && (
+      {/* Floating AI Assistant (Student view only; hidden in Admin, active test sessions, or when disabled) */}
+      {activeTab !== 'admin' && !isUserBlocked && isFeatureEnabled('disha_ai') && (
         <FloatingAIAssistant
           onOpen={() => {
             setAiTutorContextQuestion(null);
@@ -2013,7 +2025,7 @@ export default function App() {
       )}
 
       {/* Disha AI Tutor Drawer / Modal */}
-      {isAITutorOpen && !isUserBlocked && (
+      {isAITutorOpen && !isUserBlocked && isFeatureEnabled('disha_ai') && (
         <DishaAITutorModal
           isOpen={isAITutorOpen}
           onClose={() => {
@@ -2072,7 +2084,7 @@ export default function App() {
         </OverlayErrorBoundary>
       )}
 
-      {isPDFOpen && (
+      {isPDFOpen && isFeatureEnabled('pdf_export') && (
         <OverlayErrorBoundary viewName="PDF Export Modal" onClose={() => setIsPDFOpen(false)}>
           <PDFExportModal
             subjects={combinedSubjects}
@@ -2117,7 +2129,7 @@ export default function App() {
         </OverlayErrorBoundary>
       )}
 
-      {isLiveBattleOpen && !isUserBlocked && (
+      {isLiveBattleOpen && !isUserBlocked && isFeatureEnabled('live_battle') && (
         <OverlayErrorBoundary
           viewName="Live Quiz Battle"
           onClose={() => setIsLiveBattleOpen(false)}

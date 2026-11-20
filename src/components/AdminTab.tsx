@@ -58,6 +58,7 @@ const AIApiManagementSection = adminSafeLazy<any>(() => import("./admin/AIApiMan
 const ExportDataWidget = adminSafeLazy<any>(() => import("./admin/ExportDataWidget"), "ExportDataWidget");
 const BackupRestoreSection = adminSafeLazy<any>(() => import("./admin/BackupRestoreSection"), "BackupRestoreSection");
 const AuditLogWidget = adminSafeLazy<any>(() => import("./admin/AuditLogWidget"), "AuditLogWidget");
+const AdminFeatureControlSection = adminSafeLazy<any>(() => import("./admin/AdminFeatureControlSection"), "AdminFeatureControlSection");
 const SyncProgressModal = adminSafeLazy<any>(() => import("./admin/SyncProgressModal"), "SyncProgressModal");
 const SyncConfirmationModal = adminSafeLazy<any>(() => import("./admin/SyncConfirmationModal"), "SyncConfirmationModal");
 const QATestRunnerModal = adminSafeLazy<any>(() => import("./QATestRunnerModal"), "QATestRunnerModal");
@@ -130,6 +131,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
   const [subTabSupabase, setSubTabSupabase] = React.useState<"overview" | "explorer" | "diagnostics" | "report" | "audit" | "sync">("overview");
   const [subTabAI, setSubTabAI] = React.useState<"dashboard" | "configs">("dashboard");
   const [subTabTests, setSubTabTests] = React.useState<"mock" | "battle">("mock");
+  const [subTabSettings, setSubTabSettings] = React.useState<"features" | "maintenance">("features");
 
   const [selectedUserForDetails, setSelectedUserForDetails] = React.useState<UserProfile | null>(null);
   const [showQATestRunner, setShowQATestRunner] = React.useState(false);
@@ -1812,48 +1814,74 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
             {/* Settings Section */}
             {activeGroup === "settings" && (
               <div className="space-y-6">
-                <div className="bg-white dark:bg-[#111A2E] p-4 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-2xl bg-slate-500/10 text-slate-600 dark:text-slate-300 flex items-center justify-center shrink-0">
-                      <Settings className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h2 className="text-base font-black text-slate-900 dark:text-white">
-                        Group 9: Application Settings & Maintenance
-                      </h2>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                        Database backup exports, system audit trail & QA debug suite
-                      </p>
-                    </div>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+                  <div>
+                    <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                      <Settings className="w-5 h-5 text-[#800020] dark:text-amber-400" />
+                      <span>Application Settings &amp; Feature Control</span>
+                    </h2>
+                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+                      यूज़र ऐप के फ़ीचर्स नियंत्रित करें, डेटाबेस बैकअप लें और सिस्टम डायग्नोस्टिक्स चलाएं।
+                    </p>
+                  </div>
+                  <div className="flex items-center p-1 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xs overflow-x-auto max-w-full no-scrollbar self-start sm:self-auto">
+                    <button
+                      onClick={() => setSubTabSettings("features")}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
+                        subTabSettings === "features"
+                          ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs"
+                          : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                      }`}
+                    >
+                      <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
+                      <span>यूज़र ऐप फ़ीचर्स (Toggles)</span>
+                    </button>
+                    <button
+                      onClick={() => setSubTabSettings("maintenance")}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
+                        subTabSettings === "maintenance"
+                          ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs"
+                          : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                      }`}
+                    >
+                      <Settings className="w-3.5 h-3.5" />
+                      <span>सिस्टम बैकअप व मेंटेनेंस</span>
+                    </button>
                   </div>
                 </div>
 
-                <React.Suspense fallback={<AdminSectionLoader type="list" title="Loading Settings..." />}>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-3">
-                      <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest px-1">Backup & Registry</h3>
-                      <ExportDataWidget questionsStore={props.questionsStore} />
-                    </div>
+                {subTabSettings === "features" ? (
+                  <React.Suspense fallback={<AdminSectionLoader type="cards" title="Loading Feature Controls..." />}>
+                    <AdminFeatureControlSection adminEmail={cloudAuthState.userEmail || props.userProfile?.email || "admin"} />
+                  </React.Suspense>
+                ) : (
+                  <React.Suspense fallback={<AdminSectionLoader type="list" title="Loading Settings..." />}>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-3">
+                        <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest px-1">Backup &amp; Registry</h3>
+                        <ExportDataWidget questionsStore={props.questionsStore} />
+                      </div>
 
-                    <div className="space-y-3">
-                      <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest px-1">QA Debug Suite</h3>
-                      <div className="p-4 bg-white dark:bg-[#111A2E] rounded-3xl border border-slate-200/80 dark:border-slate-800 space-y-3">
-                        <p className="text-xs text-slate-500 font-medium">
-                          Execute automated QA tests for questions, parser verification, and performance benchmarks.
-                        </p>
-                        <button
-                          onClick={() => setShowQATestRunner(true)}
-                          className="w-full py-3 px-4 bg-slate-900 dark:bg-slate-800 text-white rounded-2xl text-xs font-black flex items-center justify-center gap-2 active:scale-95 transition-all shadow-md"
-                        >
-                          <Terminal className="w-4 h-4 text-emerald-400" />
-                          <span>Launch Automated QA Runner</span>
-                        </button>
+                      <div className="space-y-3">
+                        <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest px-1">QA Debug Suite</h3>
+                        <div className="p-4 bg-white dark:bg-[#111A2E] rounded-3xl border border-slate-200/80 dark:border-slate-800 space-y-3">
+                          <p className="text-xs text-slate-500 font-medium">
+                            Execute automated QA tests for questions, parser verification, and performance benchmarks.
+                          </p>
+                          <button
+                            onClick={() => setShowQATestRunner(true)}
+                            className="w-full py-3 px-4 bg-slate-900 dark:bg-slate-800 text-white rounded-2xl text-xs font-black flex items-center justify-center gap-2 active:scale-95 transition-all shadow-md cursor-pointer"
+                          >
+                            <Terminal className="w-4 h-4 text-emerald-400" />
+                            <span>Launch Automated QA Runner</span>
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <AuditLogWidget />
-                </React.Suspense>
+                    <AuditLogWidget />
+                  </React.Suspense>
+                )}
               </div>
             )}
 

@@ -205,10 +205,10 @@ export const TopicsTab: React.FC<TopicsTabProps> = ({
             <div className="flex items-center justify-between pb-3 border-b border-[#E8D9C0] dark:border-[#31374A]">
               <div>
                 <h3 className="text-base font-black text-[#171923] dark:text-[#FFF9EF]">
-                  वीडियो व PDF लिंक जोड़ें / बदलें
+                  Add / Edit Video &amp; PDF Links
                 </h3>
                 <p className="text-xs text-[#52576A] dark:text-[#929AB0]">
-                  {editingTopic.hindiTitle || editingTopic.title}
+                  {editingTopic.title || editingTopic.hindiTitle}
                 </p>
               </div>
               <button
@@ -229,7 +229,7 @@ export const TopicsTab: React.FC<TopicsTabProps> = ({
                   type="text"
                   value={formVideoUrl}
                   onChange={(e) => setFormVideoUrl(e.target.value)}
-                  placeholder="https://www.youtube.com/watch?v=... या Video ID"
+                  placeholder="https://www.youtube.com/watch?v=... or Video ID"
                   className="w-full h-11 px-3.5 rounded-xl bg-[#FAF5EB] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#800020]/40"
                 />
               </div>
@@ -243,7 +243,7 @@ export const TopicsTab: React.FC<TopicsTabProps> = ({
                     type="text"
                     value={formVideoDuration}
                     onChange={(e) => setFormVideoDuration(e.target.value)}
-                    placeholder="उदा. 24:15 min"
+                    placeholder="e.g. 24:15 min"
                     className="w-full h-11 px-3.5 rounded-xl bg-[#FAF5EB] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#800020]/40"
                   />
                 </div>
@@ -255,7 +255,7 @@ export const TopicsTab: React.FC<TopicsTabProps> = ({
                     type="text"
                     value={formVideoTitle}
                     onChange={(e) => setFormVideoTitle(e.target.value)}
-                    placeholder="लेक्चर का शीर्षक"
+                    placeholder="Lecture Title"
                     className="w-full h-11 px-3.5 rounded-xl bg-[#FAF5EB] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#800020]/40"
                   />
                 </div>
@@ -282,7 +282,7 @@ export const TopicsTab: React.FC<TopicsTabProps> = ({
                   type="text"
                   value={formPdfTitle}
                   onChange={(e) => setFormPdfTitle(e.target.value)}
-                  placeholder="उदा. हस्तलिखित नोट्स भाग 1"
+                  placeholder="e.g. Handwritten Study Notes Part 1"
                   className="w-full h-11 px-3.5 rounded-xl bg-[#FAF5EB] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#800020]/40"
                 />
               </div>
@@ -295,7 +295,7 @@ export const TopicsTab: React.FC<TopicsTabProps> = ({
                   rows={3}
                   value={formSummary}
                   onChange={(e) => setFormSummary(e.target.value)}
-                  placeholder="मुख्य अध्ययन बिंदु जो छात्रों को वीडियो के नीचे दिखेंगे..."
+                  placeholder="Key study concepts and points displayed below the video..."
                   className="w-full p-3 rounded-xl bg-[#FAF5EB] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#800020]/40 resize-none"
                 />
               </div>
@@ -307,7 +307,7 @@ export const TopicsTab: React.FC<TopicsTabProps> = ({
                 onClick={() => setEditingTopic(null)}
                 className="px-4 py-2 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer"
               >
-                रद्द करें
+                Cancel
               </button>
               <button
                 type="button"
@@ -316,7 +316,7 @@ export const TopicsTab: React.FC<TopicsTabProps> = ({
                 className="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-[#800020] hover:bg-[#600018] dark:bg-[#F47B20] dark:hover:bg-[#d66512] transition-all flex items-center gap-1.5 shadow-md active:scale-95 cursor-pointer disabled:opacity-50"
               >
                 <Save className="w-4 h-4" />
-                <span>{isSavingMedia ? "सेव हो रहा है..." : "सेव करें (Save)"}</span>
+                <span>{isSavingMedia ? "Saving..." : "Save Changes"}</span>
               </button>
             </div>
           </motion.div>
@@ -730,14 +730,14 @@ function TopicListItem({
             ) : hasVideo ? (
               <span className="text-[9.5px] font-bold text-[#800020] dark:text-[#F47B20] bg-[#800020]/10 dark:bg-[#F47B20]/15 px-1.5 py-0.5 rounded flex items-center gap-0.5">
                 <Video className="w-3 h-3" />
-                वीडियो
+                Video
               </span>
             ) : null}
 
             {hasPdf && (
               <span className="text-[9.5px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-1.5 py-0.5 rounded flex items-center gap-0.5">
                 <FileText className="w-3 h-3" />
-                PDF नोट्स
+                PDF Notes
               </span>
             )}
 
@@ -763,7 +763,7 @@ function TopicListItem({
               onOpenEditMedia(topic);
             }}
             className="p-1.5 rounded-lg bg-[#FAF5EB] dark:bg-[#262B3D] text-[#800020] dark:text-[#F47B20] hover:bg-[#800020]/15 active:scale-95 transition-all cursor-pointer border border-[#E8D9C0]/50 dark:border-[#31374A]/50"
-            title="वीडियो व PDF लिंक जोड़ें या बदलें"
+            title="Add or edit video and PDF links"
           >
             <Edit3 className="w-3.5 h-3.5" />
           </button>
@@ -923,7 +923,7 @@ function TopicDetailView({
             <button
               onClick={onBack}
               className="w-9 h-9 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center text-[#171923] dark:text-[#FFF9EF] active:scale-95 transition-all cursor-pointer shrink-0"
-              title="पीछे जाएं"
+              title="Go Back"
             >
               <ArrowLeft className="w-4 h-4" />
             </button>
@@ -944,7 +944,7 @@ function TopicDetailView({
               className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-xl bg-[#800020] text-white hover:bg-[#600018] dark:bg-[#F47B20] transition-all cursor-pointer shadow-xs active:scale-95 shrink-0"
             >
               <Edit3 className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">वीडियो/PDF बदलें</span>
+              <span className="hidden sm:inline">Edit Video/PDF</span>
             </button>
           )}
         </div>
@@ -956,7 +956,7 @@ function TopicDetailView({
         <div className="bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xs">
           <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
             <span className="inline-block text-[10px] font-black uppercase tracking-wider text-[#800020] dark:text-[#C99A45] bg-[#800020]/10 dark:bg-[#C99A45]/15 px-2.5 py-1 rounded-full">
-              विषय अध्ययन सामग्री • Study Desk
+              Study Material • Study Desk
             </span>
             {topic.videoDuration && (
               <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#52576A] dark:text-[#929AB0] bg-[#FAF5EB] dark:bg-[#262B3D] px-2.5 py-1 rounded-lg">
@@ -985,7 +985,7 @@ function TopicDetailView({
                   : "bg-[#FAF5EB] dark:bg-[#262B3D] text-[#52576A] dark:text-[#929AB0] hover:bg-[#800020]/10"
               }`}
             >
-              📁 सभी (All Content)
+              📁 All Content
             </button>
             <button
               onClick={() => setActiveFolderTab("video")}
@@ -996,7 +996,7 @@ function TopicDetailView({
               }`}
             >
               <Video className="w-4 h-4" />
-              <span>वीडियो {topic.videoUrl ? "✓" : ""}</span>
+              <span>Video {topic.videoUrl ? "✓" : ""}</span>
             </button>
             <button
               onClick={() => setActiveFolderTab("pdf")}
@@ -1007,7 +1007,7 @@ function TopicDetailView({
               }`}
             >
               <FileText className="w-4 h-4" />
-              <span>PDF नोट्स {topic.pdfUrl ? "✓" : ""}</span>
+              <span>PDF Notes {topic.pdfUrl ? "✓" : ""}</span>
             </button>
             <button
               onClick={() => setActiveFolderTab("test")}
@@ -1018,7 +1018,7 @@ function TopicDetailView({
               }`}
             >
               <Award className="w-4 h-4" />
-              <span>20-20 टेस्ट ({questionCount})</span>
+              <span>20-20 Test ({questionCount})</span>
             </button>
           </div>
         </div>
@@ -1038,10 +1038,10 @@ function TopicDetailView({
               <div className="p-6 text-center bg-[#FAF5EB] dark:bg-[#262B3D] rounded-xl border border-dashed border-[#E8D9C0] dark:border-[#31374A]">
                 <Video className="w-10 h-10 text-[#800020]/40 dark:text-[#F47B20]/40 mx-auto mb-2" />
                 <p className="text-xs sm:text-sm font-semibold text-[#171923] dark:text-[#FFF9EF] mb-1">
-                  इस टॉपिक की वीडियो क्लास जल्द ही अपडेट की जाएगी।
+                  Video lectures for this topic will be available soon.
                 </p>
                 <p className="text-xs text-[#52576A] dark:text-[#929AB0]">
-                  तब तक आप नीचे दिए गए PDF नोट्स पढ़ सकते हैं और 20-20 टेस्ट का अभ्यास कर सकते हैं।
+                  Meanwhile, you can read the study notes below and practice the 20-20 test.
                 </p>
                 {isAdmin && onOpenEditMedia && (
                   <button
@@ -1050,7 +1050,7 @@ function TopicDetailView({
                     className="mt-3 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-[#800020] text-white hover:bg-[#600018] dark:bg-[#F47B20] transition-all cursor-pointer shadow-xs active:scale-95"
                   >
                     <Plus className="w-4 h-4" />
-                    <span>+ वीडियो क्लास लिंक जोड़ें</span>
+                    <span>+ Add Video Lecture Link</span>
                   </button>
                 )}
               </div>
@@ -1064,7 +1064,7 @@ function TopicDetailView({
             {topic.pdfUrl ? (
               <InAppPdfViewer
                 pdfUrl={topic.pdfUrl}
-                title={topic.pdfTitle || `${getTopicDisplayName(topic)} - हस्तलिखित नोट्स`}
+                title={topic.pdfTitle || `${getTopicDisplayName(topic)} - Study Notes`}
                 subjectName={getSubjectDisplayName(activeSubject)}
                 chapterName={getChapterDisplayName(activeChapter)}
               />
@@ -1072,10 +1072,10 @@ function TopicDetailView({
               <div className="p-6 text-center bg-[#FAF5EB] dark:bg-[#262B3D] rounded-xl border border-dashed border-[#E8D9C0] dark:border-[#31374A]">
                 <FileText className="w-10 h-10 text-[#800020]/40 dark:text-[#F47B20]/40 mx-auto mb-2" />
                 <p className="text-xs sm:text-sm font-semibold text-[#171923] dark:text-[#FFF9EF] mb-1">
-                  इस टॉपिक के लिए अभी PDF लिंक उपलब्ध नहीं है।
+                  PDF study notes are not yet attached to this topic.
                 </p>
                 <p className="text-xs text-[#52576A] dark:text-[#929AB0]">
-                  एडमिन जल्द ही इस टॉपिक के अध्ययन नोट्स संलग्न करेगा।
+                  The instructor will attach notes shortly.
                 </p>
                 {isAdmin && onOpenEditMedia && (
                   <button
@@ -1084,7 +1084,7 @@ function TopicDetailView({
                     className="mt-3 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-[#800020] text-white hover:bg-[#600018] dark:bg-[#F47B20] transition-all cursor-pointer shadow-xs active:scale-95"
                   >
                     <Plus className="w-4 h-4" />
-                    <span>+ PDF नोट्स लिंक जोड़ें</span>
+                    <span>+ Add PDF Notes Link</span>
                   </button>
                 )}
               </div>
@@ -1098,7 +1098,7 @@ function TopicDetailView({
             <div className="flex items-center justify-between">
               <h2 className="text-sm sm:text-base font-bold text-[#171923] dark:text-[#FFF9EF] flex items-center gap-2">
                 <Award className="w-4.5 h-4.5 text-[#800020] dark:text-[#F47B20]" />
-                <span>20-20 टेस्ट सिम्युलेशन (Topic MCQs Test)</span>
+                <span>20-20 Practice Test Simulation</span>
               </h2>
               <span className="text-xs font-bold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 px-2.5 py-1 rounded-lg">
                 High Yield Practice
@@ -1106,7 +1106,7 @@ function TopicDetailView({
             </div>
 
             <p className="text-xs sm:text-sm text-[#52576A] dark:text-[#929AB0]">
-              इस टॉपिक में कुल <strong>{questionCount}</strong> मानक प्रश्न हैं, जिसमें RPSC व RSMSSB विगत परीक्षाओं के PYQ और परीक्षा-उन्मुख सम्भावित प्रश्न शामिल हैं।
+              This topic contains <strong>{questionCount}</strong> high-yield standard questions, including recent competitive exam PYQs and expected questions.
             </p>
 
             <div className="grid grid-cols-2 gap-3">
@@ -1115,7 +1115,7 @@ function TopicDetailView({
                   <HelpCircle className="w-4.5 h-4.5" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400">कुल प्रश्न</p>
+                  <p className="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400">Total Questions</p>
                   <p className="text-sm sm:text-base font-black text-[#171923] dark:text-[#FFF9EF] tabular-nums">{questionCount} MCQs</p>
                 </div>
               </div>
@@ -1125,8 +1125,8 @@ function TopicDetailView({
                   <Award className="w-4.5 h-4.5" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400">मार्किंग</p>
-                  <p className="text-sm sm:text-base font-black text-[#171923] dark:text-[#FFF9EF]">20-20 टेस्ट</p>
+                  <p className="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400">Pattern</p>
+                  <p className="text-sm sm:text-base font-black text-[#171923] dark:text-[#FFF9EF]">20-20 Test</p>
                 </div>
               </div>
             </div>
@@ -1139,12 +1139,12 @@ function TopicDetailView({
               {isFetching ? (
                 <>
                   <RefreshCw className="w-4.5 h-4.5 animate-spin text-[#C99A45]" />
-                  <span>टेस्ट लोड हो रहा है...</span>
+                  <span>Loading Test...</span>
                 </>
               ) : (
                 <>
                   <Play className="w-4.5 h-4.5 fill-white" />
-                  <span>अभ्यास टेस्ट शुरू करें ({questionCount} प्रश्न)</span>
+                  <span>Start Practice Test ({questionCount} Qs)</span>
                   <ChevronRight className="w-4 h-4 text-[#C99A45]" />
                 </>
               )}
@@ -1157,7 +1157,7 @@ function TopicDetailView({
           <div className="bg-[#FAF5EB]/80 dark:bg-[#1E2230] border border-[#E8D9C0] dark:border-[#31374A] rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-xs space-y-2">
             <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-[#800020] dark:text-[#C99A45]">
               <Sparkles className="w-4 h-4 text-[#F47B20]" />
-              <span>मुख्य अध्ययन बिंदु (Key Concepts & Exam Pointers)</span>
+              <span>Key Concepts &amp; Exam Pointers</span>
             </div>
 
             {topic.guideSummary ? (
@@ -1166,7 +1166,7 @@ function TopicDetailView({
               </div>
             ) : (
               <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-hindi">
-                {topic.introText || topic.seoDescription || `इस टॉपिक में ${topic.hindiTitle || topic.title} से संबंधित महत्वपूर्ण बिंदु, परिभाषाएं और विगत परीक्षाओं के ट्रेंड शामिल हैं।`}
+                {topic.introText || topic.seoDescription || `Key examination concepts, definitions, and competitive exam trends for ${topic.title || topic.hindiTitle}.`}
               </p>
             )}
           </div>

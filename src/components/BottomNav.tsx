@@ -3,6 +3,8 @@ import { ActiveTab } from "../types";
 import { Home, BookOpen, User, Trophy, ShieldCheck, PlaySquare } from "lucide-react";
 import { triggerHaptic, playClickSound } from "../utils/audioFeedback";
 
+import { useAppFeatures } from "../utils/featureControlService";
+
 interface BottomNavProps {
   activeTab: ActiveTab;
   onChangeTab: (tab: ActiveTab) => void;
@@ -16,12 +18,20 @@ export const BottomNav: React.FC<BottomNavProps> = ({
   onChangeTab,
   isAdmin = false,
 }) => {
-  const items = [
+  const { isEnabled } = useAppFeatures();
+
+  const items: { id: ActiveTab; label: string; icon: any; hasLiveIndicator?: boolean }[] = [
     { id: "home" as ActiveTab, label: "Home", icon: Home },
     { id: "topics" as ActiveTab, label: "Subjects", icon: BookOpen },
-    { id: "videos" as ActiveTab, label: "Videos", icon: PlaySquare },
-    { id: "live_tests" as ActiveTab, label: "Tests", icon: Trophy, hasLiveIndicator: true },
   ];
+
+  if (isEnabled("video_classes")) {
+    items.push({ id: "videos" as ActiveTab, label: "Videos", icon: PlaySquare });
+  }
+
+  if (isEnabled("live_tests")) {
+    items.push({ id: "live_tests" as ActiveTab, label: "Tests", icon: Trophy, hasLiveIndicator: true });
+  }
 
   if (isAdmin) {
     items.push({ id: "admin" as ActiveTab, label: "Admin", icon: ShieldCheck });

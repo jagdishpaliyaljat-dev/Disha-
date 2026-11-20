@@ -18,11 +18,11 @@ export interface FullScreenLoaderProps {
  * - 10% Intentional Accent: Kesariya / Saffron (#F47B20) strictly for focal glow tips, active indicator, and action buttons
  */
 export const FullScreenLoader: React.FC<FullScreenLoaderProps> = ({
-  message = "अध्याय सामग्री लोड हो रही है...",
-  submessage = "सही दिशा • सटीक तैयारी",
+  message = "Loading chapter content...",
+  submessage = "DISHA 20-20 • Precision Learning",
   showLogo = true,
   onCancel,
-  cancelLabel = "वापस जाएं (Back)",
+  cancelLabel = "Go Back",
 }) => {
   return (
     <div
@@ -143,7 +143,7 @@ export interface ContentLoaderProps {
  * Ideal for Suspense fallbacks, tab transitions, and async data fetches
  */
 export const ContentLoader: React.FC<ContentLoaderProps> = ({
-  message = "सामग्री लोड हो रही है...",
+  message = "Loading content...",
   submessage,
   minHeight = "min-h-[260px]",
   className = "",

@@ -15,6 +15,7 @@ import {
   Subject,
 } from "../types";
 import { loadUserProfile, isUserAdmin } from "../utils/userProfileStorage";
+import { useAppFeatures } from "../utils/featureControlService";
 import {
   CHAPTERS_DATA,
   ALL_QUESTIONS,
@@ -189,6 +190,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
   const currentUserProfile = userProfile || loadUserProfile();
   const userName = currentUserProfile?.name || "Scholar";
   const isAdmin = isUserAdmin(currentUserProfile);
+  const { features, isEnabled } = useAppFeatures();
 
   return (
     <div
@@ -342,15 +344,27 @@ export const HomeTab: React.FC<HomeTabProps> = ({
             {/* Live Mock Tests */}
             <motion.button
               whileTap={{ scale: 0.98 }}
-              onClick={() => onNavigateTab?.("live_tests")}
-              className="bg-white dark:bg-[#1F2330] p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] hover:border-[#800020] dark:hover:border-[#F47B20] shadow-xs flex flex-col justify-between min-h-[104px] sm:min-h-[116px] text-left transition-all cursor-pointer group"
+              onClick={() => {
+                if (!isEnabled("live_tests")) {
+                  alert(features.live_tests?.maintenanceMessage || "लाइव टेस्ट सुविधा एडमिन द्वारा अस्थायी रूप से बंद है।");
+                  return;
+                }
+                onNavigateTab?.("live_tests");
+              }}
+              className={`bg-white dark:bg-[#1F2330] p-3 sm:p-4 rounded-xl sm:rounded-2xl border shadow-xs flex flex-col justify-between min-h-[104px] sm:min-h-[116px] text-left transition-all cursor-pointer group ${
+                isEnabled("live_tests")
+                  ? "border-[#E8D9C0] dark:border-[#31374A] hover:border-[#800020] dark:hover:border-[#F47B20]"
+                  : "border-slate-300 dark:border-slate-800 opacity-60"
+              }`}
             >
               <div className="flex items-center justify-between w-full">
                 <div className="w-8.5 h-8.5 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-[#800020]/10 dark:bg-[#800020]/30 text-[#800020] dark:text-[#F47B20] flex items-center justify-center shrink-0">
                   <Flame className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
                 </div>
-                <span className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider text-[#F47B20]">
-                  ● LIVE
+                <span className={`text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider ${
+                  isEnabled("live_tests") ? "text-[#F47B20]" : "text-slate-400"
+                }`}>
+                  {isEnabled("live_tests") ? "● LIVE" : "PAUSED"}
                 </span>
               </div>
               <div className="mt-2 sm:mt-3">
@@ -358,7 +372,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                   Live Tests
                 </h3>
                 <p className="text-[10px] sm:text-[11px] font-medium text-[#52576A] dark:text-[#929AB0] mt-0.5 truncate leading-tight">
-                  Mock exams &amp; rankings
+                  {isEnabled("live_tests") ? "Mock exams & rankings" : "अस्थायी बंद (Maintenance)"}
                 </p>
               </div>
             </motion.button>
@@ -366,15 +380,27 @@ export const HomeTab: React.FC<HomeTabProps> = ({
             {/* PYQ Vault */}
             <motion.button
               whileTap={{ scale: 0.98 }}
-              onClick={() => onNavigateTab?.("pyq_vault")}
-              className="bg-white dark:bg-[#1F2330] p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] hover:border-[#800020] dark:hover:border-[#F47B20] shadow-xs flex flex-col justify-between min-h-[104px] sm:min-h-[116px] text-left transition-all cursor-pointer group"
+              onClick={() => {
+                if (!isEnabled("pyq_vault")) {
+                  alert(features.pyq_vault?.maintenanceMessage || "गत वर्षों के प्रश्न पत्र (PYQ) सुविधा एडमिन द्वारा अस्थायी रूप से बंद है।");
+                  return;
+                }
+                onNavigateTab?.("pyq_vault");
+              }}
+              className={`bg-white dark:bg-[#1F2330] p-3 sm:p-4 rounded-xl sm:rounded-2xl border shadow-xs flex flex-col justify-between min-h-[104px] sm:min-h-[116px] text-left transition-all cursor-pointer group ${
+                isEnabled("pyq_vault")
+                  ? "border-[#E8D9C0] dark:border-[#31374A] hover:border-[#800020] dark:hover:border-[#F47B20]"
+                  : "border-slate-300 dark:border-slate-800 opacity-60"
+              }`}
             >
               <div className="flex items-center justify-between w-full">
                 <div className="w-8.5 h-8.5 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-[#C99A45]/15 text-[#946B1E] dark:text-[#E5BC6B] flex items-center justify-center shrink-0">
                   <FileText className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
                 </div>
-                <span className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider text-[#946B1E] dark:text-[#C99A45]">
-                  OFFICIAL
+                <span className={`text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider ${
+                  isEnabled("pyq_vault") ? "text-[#946B1E] dark:text-[#C99A45]" : "text-slate-400"
+                }`}>
+                  {isEnabled("pyq_vault") ? "OFFICIAL" : "PAUSED"}
                 </span>
               </div>
               <div className="mt-2 sm:mt-3">
@@ -382,7 +408,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                   PYQ Vault
                 </h3>
                 <p className="text-[10px] sm:text-[11px] font-medium text-[#52576A] dark:text-[#929AB0] mt-0.5 truncate leading-tight">
-                  Previous year papers
+                  {isEnabled("pyq_vault") ? "Previous year papers" : "अस्थायी बंद"}
                 </p>
               </div>
             </motion.button>
@@ -390,15 +416,27 @@ export const HomeTab: React.FC<HomeTabProps> = ({
             {/* Custom 20-20 Test */}
             <motion.button
               whileTap={{ scale: 0.98 }}
-              onClick={() => setShowCreateTestModal(true)}
-              className="bg-white dark:bg-[#1F2330] p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] hover:border-[#800020] dark:hover:border-[#F47B20] shadow-xs flex flex-col justify-between min-h-[104px] sm:min-h-[116px] text-left transition-all cursor-pointer group"
+              onClick={() => {
+                if (!isEnabled("custom_test")) {
+                  alert(features.custom_test?.maintenanceMessage || "कस्टम टेस्ट सुविधा एडमिन द्वारा अस्थायी रूप से बंद है।");
+                  return;
+                }
+                setShowCreateTestModal(true);
+              }}
+              className={`bg-white dark:bg-[#1F2330] p-3 sm:p-4 rounded-xl sm:rounded-2xl border shadow-xs flex flex-col justify-between min-h-[104px] sm:min-h-[116px] text-left transition-all cursor-pointer group ${
+                isEnabled("custom_test")
+                  ? "border-[#E8D9C0] dark:border-[#31374A] hover:border-[#800020] dark:hover:border-[#F47B20]"
+                  : "border-slate-300 dark:border-slate-800 opacity-60"
+              }`}
             >
               <div className="flex items-center justify-between w-full">
                 <div className="w-8.5 h-8.5 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-[#F47B20]/12 text-[#C85A0A] dark:text-[#F47B20] flex items-center justify-center shrink-0">
                   <Compass className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
                 </div>
-                <span className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider text-[#C85A0A] dark:text-[#F47B20]">
-                  20-20 SET
+                <span className={`text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider ${
+                  isEnabled("custom_test") ? "text-[#C85A0A] dark:text-[#F47B20]" : "text-slate-400"
+                }`}>
+                  {isEnabled("custom_test") ? "20-20 SET" : "PAUSED"}
                 </span>
               </div>
               <div className="mt-2 sm:mt-3">
@@ -406,7 +444,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                   Custom Test
                 </h3>
                 <p className="text-[10px] sm:text-[11px] font-medium text-[#52576A] dark:text-[#929AB0] mt-0.5 truncate leading-tight">
-                  Select subjects &amp; count
+                  {isEnabled("custom_test") ? "Select subjects & count" : "अस्थायी बंद"}
                 </p>
               </div>
             </motion.button>
@@ -442,7 +480,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
           <div className="flex items-center justify-between px-0.5">
             <h2 className="text-xs sm:text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] flex items-center gap-1.5">
               <Brain className="w-4 h-4 text-[#800020] dark:text-[#F47B20]" />
-              <span>स्मार्ट अभ्यास व परीक्षा टूल्स</span>
+              <span>Smart Practice &amp; Exam Tools</span>
             </h2>
             <span className="text-[10px] font-bold text-[#C85A0A] dark:text-[#F47B20] uppercase tracking-wider">
               Smart Lab
@@ -454,19 +492,40 @@ export const HomeTab: React.FC<HomeTabProps> = ({
             <motion.button
               type="button"
               whileTap={{ scale: 0.98 }}
-              onClick={() => onOpenLiveBattle?.()}
-              className="w-full bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] hover:border-[#F47B20] rounded-xl sm:rounded-2xl p-3 sm:p-3.5 shadow-xs flex items-center sm:flex-col sm:items-start justify-between text-left transition-all cursor-pointer group select-none"
+              onClick={() => {
+                if (!isEnabled("live_battle")) {
+                  alert(features.live_battle?.maintenanceMessage || "1v1 लाइव क्विज़ बैटल सुविधा एडमिन द्वारा अस्थायी रूप से बंद है।");
+                  return;
+                }
+                onOpenLiveBattle?.();
+              }}
+              className={`w-full bg-white dark:bg-[#1F2330] border rounded-xl sm:rounded-2xl p-3 sm:p-3.5 shadow-xs flex items-center sm:flex-col sm:items-start justify-between text-left transition-all cursor-pointer group select-none ${
+                isEnabled("live_battle")
+                  ? "border-[#E8D9C0] dark:border-[#31374A] hover:border-[#F47B20]"
+                  : "border-slate-300 dark:border-slate-800 opacity-60"
+              }`}
             >
               <div className="flex items-center sm:flex-col sm:items-start gap-2.5 min-w-0 flex-1">
-                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#F47B20]/10 dark:bg-[#F47B20]/25 text-[#C85A0A] dark:text-[#F47B20] border border-[#F47B20]/20 flex items-center justify-center shrink-0">
+                <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 border ${
+                  isEnabled("live_battle")
+                    ? "bg-[#F47B20]/10 dark:bg-[#F47B20]/25 text-[#C85A0A] dark:text-[#F47B20] border-[#F47B20]/20"
+                    : "bg-slate-200 dark:bg-slate-800 text-slate-400 border-slate-300 dark:border-slate-700"
+                }`}>
                   <Swords className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <h3 className="text-xs sm:text-[13px] font-extrabold text-[#171923] dark:text-[#FFF9EF] truncate">
-                    1v1 लाइव बैटल
-                  </h3>
+                  <div className="flex items-center gap-1.5">
+                    <h3 className="text-xs sm:text-[13px] font-extrabold text-[#171923] dark:text-[#FFF9EF] truncate">
+                      1v1 Live Quiz Battle
+                    </h3>
+                    {!isEnabled("live_battle") && (
+                      <span className="text-[9px] px-1.5 py-0.2 rounded bg-rose-100 dark:bg-rose-950 text-rose-600 font-bold">
+                        अस्थायी बंद
+                      </span>
+                    )}
+                  </div>
                   <p className="text-[10px] sm:text-[10.5px] text-[#52576A] dark:text-[#929AB0] truncate mt-0.5">
-                    साथियों के साथ लाइव मुकाबला
+                    {isEnabled("live_battle") ? "Real-time match with peers" : (features.live_battle?.maintenanceMessage || "मेंटेनेंस के लिए बंद")}
                   </p>
                 </div>
               </div>
@@ -486,10 +545,10 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                 </div>
                 <div className="min-w-0 flex-1">
                   <h3 className="text-xs sm:text-[13px] font-extrabold text-[#171923] dark:text-[#FFF9EF] truncate">
-                    AI डायग्नोज़ रडार
+                    AI Diagnosis Radar
                   </h3>
                   <p className="text-[10px] sm:text-[10.5px] text-[#52576A] dark:text-[#929AB0] truncate mt-0.5">
-                    कमजोर विषय पहचानें व सुधारें
+                    Identify &amp; strengthen weak topics
                   </p>
                 </div>
               </div>
@@ -500,19 +559,40 @@ export const HomeTab: React.FC<HomeTabProps> = ({
             <motion.button
               type="button"
               whileTap={{ scale: 0.98 }}
-              onClick={() => onOpenExamAnalyzer?.()}
-              className="w-full bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] hover:border-[#C99A45] rounded-xl sm:rounded-2xl p-3 sm:p-3.5 shadow-xs flex items-center sm:flex-col sm:items-start justify-between text-left transition-all cursor-pointer group select-none"
+              onClick={() => {
+                if (!isEnabled("omr_scanner")) {
+                  alert(features.omr_scanner?.maintenanceMessage || "पेपर व OMR स्कैनर सुविधा एडमिन द्वारा अस्थायी रूप से बंद है।");
+                  return;
+                }
+                onOpenExamAnalyzer?.();
+              }}
+              className={`w-full bg-white dark:bg-[#1F2330] border rounded-xl sm:rounded-2xl p-3 sm:p-3.5 shadow-xs flex items-center sm:flex-col sm:items-start justify-between text-left transition-all cursor-pointer group select-none ${
+                isEnabled("omr_scanner")
+                  ? "border-[#E8D9C0] dark:border-[#31374A] hover:border-[#C99A45]"
+                  : "border-slate-300 dark:border-slate-800 opacity-60"
+              }`}
             >
               <div className="flex items-center sm:flex-col sm:items-start gap-2.5 min-w-0 flex-1">
-                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#C99A45]/15 dark:bg-[#C99A45]/25 text-[#946B1E] dark:text-[#E5BC6B] border border-[#C99A45]/25 flex items-center justify-center shrink-0">
+                <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 border ${
+                  isEnabled("omr_scanner")
+                    ? "bg-[#C99A45]/15 dark:bg-[#C99A45]/25 text-[#946B1E] dark:text-[#E5BC6B] border-[#C99A45]/25"
+                    : "bg-slate-200 dark:bg-slate-800 text-slate-400 border-slate-300 dark:border-slate-700"
+                }`}>
                   <Scan className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <h3 className="text-xs sm:text-[13px] font-extrabold text-[#171923] dark:text-[#FFF9EF] truncate">
-                    पेपर व OMR स्कैनर
-                  </h3>
+                  <div className="flex items-center gap-1.5">
+                    <h3 className="text-xs sm:text-[13px] font-extrabold text-[#171923] dark:text-[#FFF9EF] truncate">
+                      Paper &amp; OMR Scanner
+                    </h3>
+                    {!isEnabled("omr_scanner") && (
+                      <span className="text-[9px] px-1.5 py-0.2 rounded bg-rose-100 dark:bg-rose-950 text-rose-600 font-bold">
+                        अस्थायी बंद
+                      </span>
+                    )}
+                  </div>
                   <p className="text-[10px] sm:text-[10.5px] text-[#52576A] dark:text-[#929AB0] truncate mt-0.5">
-                    प्रश्न पत्र या OMR स्कैन करें
+                    {isEnabled("omr_scanner") ? "Scan question paper or OMR sheet" : (features.omr_scanner?.maintenanceMessage || "मेंटेनेंस के लिए बंद")}
                   </p>
                 </div>
               </div>
