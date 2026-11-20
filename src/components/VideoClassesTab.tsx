@@ -35,7 +35,6 @@ import {
   getTopicDisplayName,
   getTopicSecondaryTitle,
 } from "../utils/curriculumUtils";
-import { SAMPLE_VIDEO_SUBJECTS, SAMPLE_VIDEO_CHAPTERS } from "../data/sampleVideoClasses";
 
 interface VideoClassesTabProps {
   subjects: Subject[];
@@ -296,28 +295,13 @@ export const VideoClassesTab: React.FC<VideoClassesTabProps> = ({
     </AnimatePresence>
   );
 
-  // Merge provided subjects with sample video classes so demo data is always available
+  // Strictly real curriculum data from store/cloud (Zero mock/sample data)
   const effectiveSubjects = useMemo(() => {
-    const list = [...SAMPLE_VIDEO_SUBJECTS];
-    if (subjects && subjects.length > 0) {
-      subjects.forEach((s) => {
-        if (!list.some((demo) => demo.id === s.id)) {
-          list.push(s);
-        }
-      });
-    }
-    return list;
+    return subjects || [];
   }, [subjects]);
 
   const effectiveChapters = useMemo(() => {
-    const list = [...SAMPLE_VIDEO_CHAPTERS];
-    if (chapters && chapters.length > 0) {
-      chapters.forEach((c) => {
-        if (!list.some((demo) => demo.id === c.id)) {
-          list.push(c);
-        }
-      });
-    }
+    const list = chapters || [];
     // Apply local media overrides
     return list.map((c) => ({
       ...c,
@@ -935,8 +919,21 @@ export const VideoClassesTab: React.FC<VideoClassesTabProps> = ({
             <span className="text-[11px] font-normal lowercase">{effectiveSubjects.length} उपलब्ध</span>
           </h2>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-            {effectiveSubjects.map((sub, idx) => {
+          {effectiveSubjects.length === 0 ? (
+            <div className="text-center py-14 px-4 bg-white dark:bg-[#1E2230] rounded-3xl border border-[#E8D9C0] dark:border-[#31374A] shadow-xs">
+              <div className="w-16 h-16 rounded-2xl bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] flex items-center justify-center mx-auto mb-3.5 shadow-inner">
+                <Video className="w-8 h-8" />
+              </div>
+              <h3 className="text-base sm:text-lg font-black text-[#171923] dark:text-[#FFF9EF] mb-1">
+                क्लीन स्लेट: कोई वीडियो क्लास अभी उपलब्ध नहीं है
+              </h3>
+              <p className="text-xs sm:text-sm text-[#52576A] dark:text-[#929AB0] max-w-md mx-auto leading-relaxed">
+                सभी सैंपल और मॉक डेटा पूरी तरह हटा दिए गए हैं। अब आप एडमिन पैनल (Manage Syllabus या Add Topic) से अपनी वास्तविक वीडियो कक्षाएं और PDF नोट्स अपलोड कर सकते हैं।
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              {effectiveSubjects.map((sub, idx) => {
               const stats = subjectStats[sub.id] || { totalTopics: 0, videoCount: 0, pdfCount: 0 };
               return (
                 <motion.div
@@ -983,8 +980,9 @@ export const VideoClassesTab: React.FC<VideoClassesTabProps> = ({
               );
             })}
           </div>
-        </div>
-      )}
+        )}
+      </div>
+    )}
 
       {/* Render Media Modal */}
       {renderMediaModal()}

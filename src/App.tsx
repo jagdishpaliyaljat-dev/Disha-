@@ -9,6 +9,7 @@ import {
   MCQSession,
   Subject,
   Chapter,
+  Topic,
   Question,
   QuestionProgress,
   ProgressStore,
@@ -177,9 +178,7 @@ const ManageLiveTestsModal = safeLazy<typeof import('./components/ManageLiveTest
 const TestSeriesPage = safeLazy<typeof import('./components/TestSeriesPage').TestSeriesPage>(() => import('./components/TestSeriesPage'), 'TestSeriesPage');
 const HTMLImportMCQModal = safeLazy<typeof import('./components/admin/HTMLImportMCQModal').HTMLImportMCQModal>(() => import('./components/admin/HTMLImportMCQModal'), 'HTMLImportMCQModal');
 const GlobalSearchModal = safeLazy<typeof import('./components/GlobalSearchModal').GlobalSearchModal>(() => import('./components/GlobalSearchModal'), 'GlobalSearchModal');
-const RajasthanMapModal = safeLazy<typeof import('./components/rajasthan-map/RajasthanMapModal').RajasthanMapModal>(() => import('./components/rajasthan-map/RajasthanMapModal'), 'RajasthanMapModal');
 const LiveBattleModal = safeLazy<typeof import('./components/battle/LiveBattleModal').LiveBattleModal>(() => import('./components/battle/LiveBattleModal'), 'LiveBattleModal');
-const DistrictWarModal = safeLazy<typeof import('./components/district-war/DistrictWarModal').DistrictWarModal>(() => import('./components/district-war/DistrictWarModal'), 'DistrictWarModal');
 
 export default function App() {
   const initialNavState = React.useMemo(() => {
@@ -429,9 +428,7 @@ export default function App() {
   const [isFullExamOpen, setIsFullExamOpen] = React.useState(false);
   const [isCustomTestOpen, setIsCustomTestOpen] = React.useState(false);
   const [isExamAnalyzerOpen, setIsExamAnalyzerOpen] = React.useState(false);
-  const [isRajasthanMapOpen, setIsRajasthanMapOpen] = React.useState(false);
   const [isLiveBattleOpen, setIsLiveBattleOpen] = React.useState(false);
-  const [isDistrictWarOpen, setIsDistrictWarOpen] = React.useState(false);
   const [battleInitialRoomCode, setBattleInitialRoomCode] = React.useState<string>("");
   const [isAITutorOpen, setIsAITutorOpen] = React.useState(false);
   const [aiTutorContextQuestion, setAiTutorContextQuestion] = React.useState<Question | null>(null);
@@ -565,8 +562,8 @@ export default function App() {
 
   const isAnyModalOpen = Boolean(
     isAITutorOpen || isLoginOpen || isSettingsOpen || isApiSettingsOpen || isPDFOpen ||
-    isFullExamOpen || isCustomTestOpen || isExamAnalyzerOpen || isRajasthanMapOpen ||
-    isLiveBattleOpen || isDistrictWarOpen || isAddSubjectOpen || isAddChapterOpen ||
+    isFullExamOpen || isCustomTestOpen || isExamAnalyzerOpen ||
+    isLiveBattleOpen || isAddSubjectOpen || isAddChapterOpen ||
     isAddTopicOpen || isAddQuestionsOpen || isManageSyllabusOpen || isManageQuestionsOpen ||
     isManageCategoriesOpen || isManagePYQVaultOpen || isManageLiveTestsOpen ||
     isAIImportOpen || isHTMLImportOpen || isGlobalSearchOpen

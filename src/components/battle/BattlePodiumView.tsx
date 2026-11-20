@@ -13,7 +13,6 @@ import {
 } from "lucide-react";
 import type { BattlePlayer } from "./types";
 import { playVictoryFanfare, triggerHaptic, playClickSound } from "../../utils/audioFeedback";
-import { districtWarService } from "../district-war/districtWarService";
 import { BattleAvatar } from "./BattleAvatar";
 
 interface BattlePodiumViewProps {
@@ -40,13 +39,6 @@ export const BattlePodiumView: React.FC<BattlePodiumViewProps> = ({
   useEffect(() => {
     playVictoryFanfare();
     triggerHaptic("success");
-
-    // Award District War Points
-    if (isMeWinner) {
-      districtWarService.addDistrictWarPoints(50, "Glorious victory in 1v1 Live Battle!");
-    } else {
-      districtWarService.addDistrictWarPoints(20, "Participated in 1v1 Live Battle");
-    }
 
     // Confetti cannon blast
     try {

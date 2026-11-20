@@ -48,7 +48,6 @@ import {
   Plus,
   Compass,
   Target,
-  Map,
   Swords,
   User,
   HelpCircle,
@@ -64,7 +63,6 @@ import { subscribeToActiveBanners, getLocalBanners } from "../utils/bannerStorag
 const CreateTestModal = React.lazy(() => import("./CreateTestModal"));
 const ShareModal = React.lazy(() => import("./ShareModal"));
 const WeeklyLeaderboard = React.lazy(() => import("./WeeklyLeaderboard"));
-import { DistrictWarHomeWidget } from "./district-war/DistrictWarHomeWidget";
 
 interface HomeTabProps {
   progressStore: ProgressStore;
@@ -92,9 +90,7 @@ interface HomeTabProps {
   onOpenFullExam?: () => void;
   onOpenExamAnalyzer?: () => void;
   onOpenApiSettings?: () => void;
-  onOpenRajasthanMap?: () => void;
   onOpenLiveBattle?: () => void;
-  onOpenDistrictWar?: () => void;
   onToggleDarkMode?: () => void;
   onLogout?: () => void;
 }
@@ -118,9 +114,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
   onShowAddSubject,
   onNavigateTab,
   onOpenApiSettings,
-  onOpenRajasthanMap,
   onOpenLiveBattle,
-  onOpenDistrictWar,
   onToggleDarkMode,
   onLogout,
 }) => {
@@ -468,34 +462,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
           </motion.div>
         </section>
 
-        {/* 3.6 RAJASTHAN DISTRICT MAP */}
-        <section>
-          <motion.div
-            whileTap={{ scale: 0.99 }}
-            onClick={() => onOpenRajasthanMap?.()}
-            className="w-full bg-white dark:bg-[#1A1D2B] border border-[#E8D9C0] dark:border-[#31374A] hover:border-[#15803D] dark:hover:border-[#22C55E] rounded-2xl p-3.5 sm:p-4 shadow-xs flex items-center justify-between text-left transition-all cursor-pointer group select-none"
-          >
-            <div className="flex items-center gap-3 min-w-0 flex-1">
-              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-[#15803D]/10 dark:bg-[#22C55E]/20 text-[#15803D] dark:text-[#22C55E] border border-[#15803D]/20 flex items-center justify-center shrink-0 shadow-xs">
-                <Map className="w-5.5 h-5.5 sm:w-6 sm:h-6" />
-              </div>
-
-              <div className="min-w-0 flex-1">
-                <h3 className="text-[13.5px] sm:text-[15.5px] font-black text-[#171923] dark:text-[#FFF9EF] leading-snug tracking-tight truncate">
-                  राजस्थान ज़िला मैप
-                </h3>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-1 shrink-0 pl-2">
-              <div className="w-8 h-8 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] text-[#15803D] dark:text-[#22C55E] flex items-center justify-center group-hover:translate-x-1 transition-transform">
-                <ChevronRight className="w-4 h-4" />
-              </div>
-            </div>
-          </motion.div>
-        </section>
-
-        {/* 3.7 REALTIME LIVE BATTLE */}
+        {/* 3.6 REALTIME LIVE BATTLE */}
         <section>
           <motion.div
             whileTap={{ scale: 0.99 }}
@@ -520,12 +487,6 @@ export const HomeTab: React.FC<HomeTabProps> = ({
               </div>
             </div>
           </motion.div>
-        </section>
-
-
-        {/* 3.8 RAJASTHAN 50 DISTRICT WAR LEADERBOARD */}
-        <section>
-          <DistrictWarHomeWidget onOpenWar={() => onOpenDistrictWar?.()} />
         </section>
 
         {/* 4. AI ENGINE SETUP CARD */}
@@ -704,8 +665,6 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                     Competitive &amp; Interactive
                   </h4>
                   {[
-                    { label: "District War", icon: Swords, action: () => onOpenDistrictWar?.() },
-                    { label: "Rajasthan Map & Quiz", icon: Map, action: () => onOpenRajasthanMap?.() },
                     { label: "Live Quiz Battle", icon: Target, action: () => onOpenLiveBattle?.() },
                     { label: "Weekly Leaderboard", icon: Trophy, action: () => setShowLeaderboard(true) },
                   ].map((item) => (

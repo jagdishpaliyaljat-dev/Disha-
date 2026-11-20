@@ -19,8 +19,8 @@ import {
  * test MCQs, mock data, sample quizzes, and stress-test artifacts.
  */
 
-const CLEAN_SLATE_VERSION_KEY = "disha2020_clean_slate_zero_mock_v9_0";
-const CURRENT_CLEAN_SLATE_VERSION = "9.0.0";
+const CLEAN_SLATE_VERSION_KEY = "disha2020_clean_slate_zero_mock_v10_0";
+const CURRENT_CLEAN_SLATE_VERSION = "10.0.0";
 
 // Only legacy mock/sample array keys — NEVER reset genuine student progress, bookmarks, or auth
 const KEYS_TO_RESET_TO_EMPTY = [
