@@ -110,7 +110,7 @@ describe('Admin Promotion & Super Admin Security Architecture', () => {
 
       await expect(
         updateUserRole('target-student-1', 'admin')
-      ).rejects.toThrow(/अनधिकृत: केवल मुख्य प्रशासक/);
+      ).rejects.toThrow(/Unauthorized: Only super administrators can update user roles/i);
     });
 
     it('blocks regular admin or student from demoting an existing user', async () => {
@@ -124,7 +124,7 @@ describe('Admin Promotion & Super Admin Security Architecture', () => {
 
       await expect(
         updateUserRole('target-admin-1', 'student')
-      ).rejects.toThrow(/अनधिकृत: केवल मुख्य प्रशासक/);
+      ).rejects.toThrow(/Unauthorized: Only super administrators can update user roles/i);
     });
 
     it('strictly forbids demoting a Super Admin', async () => {
@@ -138,7 +138,7 @@ describe('Admin Promotion & Super Admin Security Architecture', () => {
 
       await expect(
         updateUserRole(ADMIN_UIDS[1], 'student')
-      ).rejects.toThrow(/निषिद्ध: मुख्य Super Admin को डिमोट नहीं किया जा सकता/);
+      ).rejects.toThrow(/Forbidden: The primary Super Admin cannot be demoted/i);
     });
 
     it('validates email format in promoteUserByEmail', async () => {
@@ -152,7 +152,7 @@ describe('Admin Promotion & Super Admin Security Architecture', () => {
 
       await expect(
         promoteUserByEmail('not-an-email')
-      ).rejects.toThrow(/मान्य ईमेल/);
+      ).rejects.toThrow(/Please enter a valid email address/i);
     });
   });
 });
