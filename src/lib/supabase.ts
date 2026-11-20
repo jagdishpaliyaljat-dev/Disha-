@@ -11,8 +11,11 @@ const getEnvVar = (key: string): string => {
   return '';
 };
 
-export const SUPABASE_URL = getEnvVar('VITE_SUPABASE_URL');
-export const SUPABASE_ANON_KEY = getEnvVar('VITE_SUPABASE_ANON_KEY');
+const DEFAULT_SUPABASE_URL = 'https://eaidivceejkdqsshlraj.supabase.co';
+const DEFAULT_SUPABASE_ANON_KEY = 'sb_publishable_HSl8o7bm-TQMIFbEnbp7TA_TfBfiv_0';
+
+export const SUPABASE_URL = getEnvVar('VITE_SUPABASE_URL') || DEFAULT_SUPABASE_URL;
+export const SUPABASE_ANON_KEY = getEnvVar('VITE_SUPABASE_ANON_KEY') || DEFAULT_SUPABASE_ANON_KEY;
 
 export const isSupabaseConfigured = (): boolean => {
   return Boolean(
