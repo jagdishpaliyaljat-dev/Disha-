@@ -146,28 +146,13 @@ export const TopicsTab: React.FC<TopicsTabProps> = ({
 
   const activeChapter = React.useMemo(() => {
     if (!selectedChapterId) return null;
-    const ch = chapters.find((c) => c.id === selectedChapterId) || null;
-    if (!ch) return null;
-    // Apply local media overrides to topics
-    return {
-      ...ch,
-      topics: (ch.topics || []).map((t) => {
-        if (mediaOverrides[t.id]) {
-          return { ...t, ...mediaOverrides[t.id] };
-        }
-        return t;
-      }),
-    };
-  }, [chapters, selectedChapterId, mediaOverrides]);
+    return chapters.find((c) => c.id === selectedChapterId) || null;
+  }, [chapters, selectedChapterId]);
 
   const activeTopic = React.useMemo(() => {
     if (!currentTopicId || !activeChapter) return null;
-    const base = (activeChapter.topics || []).find((t) => t.id === currentTopicId) || null;
-    if (base && mediaOverrides[base.id]) {
-      return { ...base, ...mediaOverrides[base.id] };
-    }
-    return base;
-  }, [currentTopicId, activeChapter, mediaOverrides]);
+    return (activeChapter.topics || []).find((t) => t.id === currentTopicId) || null;
+  }, [currentTopicId, activeChapter]);
 
   const getSubjectStats = (subjectId: string) => {
     const sNorm = subjectId.toLowerCase().replace(/[-_]/g, "").trim();
