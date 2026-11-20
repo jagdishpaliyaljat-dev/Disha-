@@ -627,9 +627,7 @@ export default function App() {
       if (isFullExamOpen) { setIsFullExamOpen(false); return; }
       if (isCustomTestOpen) { setIsCustomTestOpen(false); return; }
       if (isExamAnalyzerOpen) { setIsExamAnalyzerOpen(false); return; }
-      if (isRajasthanMapOpen) { setIsRajasthanMapOpen(false); return; }
       if (isLiveBattleOpen) { setIsLiveBattleOpen(false); return; }
-      if (isDistrictWarOpen) { setIsDistrictWarOpen(false); return; }
       if (isAddSubjectOpen) { setIsAddSubjectOpen(false); return; }
       if (isAddChapterOpen) { setIsAddChapterOpen(false); return; }
       if (isAddTopicOpen) { setIsAddTopicOpen(false); return; }
@@ -665,7 +663,7 @@ export default function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, [
     activeSession, isLoginOpen, isSettingsOpen, isApiSettingsOpen, isPDFOpen, isFullExamOpen,
-    isCustomTestOpen, isExamAnalyzerOpen, isRajasthanMapOpen, isLiveBattleOpen, isDistrictWarOpen, isAddSubjectOpen, isAddChapterOpen,
+    isCustomTestOpen, isExamAnalyzerOpen, isLiveBattleOpen, isAddSubjectOpen, isAddChapterOpen,
     isAddTopicOpen, isAddQuestionsOpen, isManageSyllabusOpen, isManageQuestionsOpen,
     isManageCategoriesOpen, isManagePYQVaultOpen, isManageLiveTestsOpen,
     isAIImportOpen, isHTMLImportOpen
@@ -1515,7 +1513,6 @@ export default function App() {
               {[
                 { id: 'home' as ActiveTab, label: 'Home', icon: Home },
                 { id: 'topics' as ActiveTab, label: 'Subjects', icon: BookOpen },
-                { id: 'videos' as ActiveTab, label: 'Videos', icon: Video },
                 { id: 'live_tests' as ActiveTab, label: 'Tests', icon: Trophy },
                 { id: 'analyzer' as ActiveTab, label: 'Scan', icon: Scan },
                 { id: 'analytics' as ActiveTab, label: 'Analytics', icon: BarChart2 },
@@ -1680,12 +1677,10 @@ export default function App() {
             onOpenFullExam={() => setIsFullExamOpen(true)}
             onOpenExamAnalyzer={() => setIsExamAnalyzerOpen(true)}
             onOpenApiSettings={() => setIsApiSettingsOpen(true)}
-            onOpenRajasthanMap={() => setIsRajasthanMapOpen(true)}
             onOpenLiveBattle={() => {
               setBattleInitialRoomCode('');
               setIsLiveBattleOpen(true);
             }}
-            onOpenDistrictWar={() => setIsDistrictWarOpen(true)}
             onToggleDarkMode={() => setSettings(prev => ({ ...prev, darkMode: !prev.darkMode }))}
             onLogout={handleLogout}
           />
@@ -1705,6 +1700,8 @@ export default function App() {
             onSelectTopic={(topId: string | null) => setSelectedTopicId(topId)}
             onStartSession={handleStartSession}
             onOpenPDFExport={() => setIsPDFOpen(true)}
+            isAdmin={isAdmin}
+            onEditTopic={(topic: Topic) => handleEditTopic(topic)}
             onBack={() => {
               // Hierarchical state-aware back navigation
               if (selectedTopicId) {
@@ -1723,16 +1720,19 @@ export default function App() {
         )}
 
         {activeTab === 'videos' && (
-          <VideoClassesTab
+          <TopicsTab
+            progressStore={progressStore}
             subjects={combinedSubjects}
             chapters={combinedChapters}
-            progressStore={progressStore}
+            questionsStore={questionsStore}
             selectedSubjectId={selectedSubjectId}
             onSelectSubject={(subId: string | null) => setSelectedSubjectId(subId)}
             selectedChapterId={selectedChapterId}
             onSelectChapter={(chapId: string | null) => setSelectedChapterId(chapId)}
             selectedTopicId={selectedTopicId}
             onSelectTopic={(topId: string | null) => setSelectedTopicId(topId)}
+            onStartSession={handleStartSession}
+            onOpenPDFExport={() => setIsPDFOpen(true)}
             isAdmin={isAdmin}
             onEditTopic={(topic: Topic) => handleEditTopic(topic)}
             onBack={() => {
@@ -2117,18 +2117,6 @@ export default function App() {
         </OverlayErrorBoundary>
       )}
 
-      {isRajasthanMapOpen && (
-        <OverlayErrorBoundary
-          viewName="Rajasthan 41 Districts Map"
-          onClose={() => setIsRajasthanMapOpen(false)}
-        >
-          <RajasthanMapModal
-            isOpen={isRajasthanMapOpen}
-            onClose={() => setIsRajasthanMapOpen(false)}
-          />
-        </OverlayErrorBoundary>
-      )}
-
       {isLiveBattleOpen && !isUserBlocked && (
         <OverlayErrorBoundary
           viewName="Live Quiz Battle"
@@ -2138,22 +2126,6 @@ export default function App() {
             isOpen={isLiveBattleOpen}
             initialRoomCode={battleInitialRoomCode}
             onClose={() => setIsLiveBattleOpen(false)}
-          />
-        </OverlayErrorBoundary>
-      )}
-
-      {isDistrictWarOpen && (
-        <OverlayErrorBoundary
-          viewName="District War Leaderboard"
-          onClose={() => setIsDistrictWarOpen(false)}
-        >
-          <DistrictWarModal
-            isOpen={isDistrictWarOpen}
-            onClose={() => setIsDistrictWarOpen(false)}
-            onOpenMap={() => {
-              setIsDistrictWarOpen(false);
-              setIsRajasthanMapOpen(true);
-            }}
           />
         </OverlayErrorBoundary>
       )}
