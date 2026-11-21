@@ -216,10 +216,12 @@ export const ChapterDetailView: React.FC<ChapterDetailViewProps> = ({
       </div>
 
       <main className="p-4 grid grid-cols-1 md:grid-cols-2 gap-2.5 max-w-3xl mx-auto w-full">
-        {(chapter.topics || []).map((topic, index) => {
-          if (!topic) return null;
-          const topicNum = topic.number || index + 1;
-          const qCount =
+        {[...(chapter.topics || [])]
+          .sort((a, b) => (a.number || 0) - (b.number || 0) || (a.title || "").localeCompare(b.title || ""))
+          .map((topic, index) => {
+            if (!topic) return null;
+            const topicNum = index + 1;
+            const qCount =
             Array.isArray(topic.questions) && topic.questions.length > 0
               ? topic.questions.length
               : typeof topic.questionCount === "number"

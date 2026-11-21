@@ -6,14 +6,14 @@
 
 **India's most advanced Rajasthan competitive exam preparation ecosystem**
 
-[![Version](https://img.shields.io/badge/version-1.0.19-blue?style=for-the-badge)](https://github.com/jagdishpaliyaljat-dev/Disha-Android-App/releases/tag/v1.0.19)
+[![Version](https://img.shields.io/badge/version-1.0.20-blue?style=for-the-badge)](https://github.com/jagdishpaliyaljat-dev/Disha-Android-App/releases/tag/v1.0.20)
 [![Build](https://img.shields.io/github/actions/workflow/status/jagdishpaliyaljat-dev/Disha-Android-App/build-apk.yml?branch=main&style=for-the-badge&label=APK%20Build)](https://github.com/jagdishpaliyaljat-dev/Disha-Android-App/actions)
 [![Live App](https://img.shields.io/badge/Live%20App-disha--2020.vercel.app-green?style=for-the-badge)](https://disha-2020.vercel.app)
 [![License](https://img.shields.io/badge/License-Proprietary-red?style=for-the-badge)](#license)
 
 > DISHA 20-20 is a full-stack, offline-first Progressive Web App and Android application built for serious aspirants preparing for RPSC RAS, Rajasthan GK, Police Constable, and Patwari exams — featuring live tests, AI tutoring, real-time battle mode, spaced repetition, PYQ vault, and state-wide merit rankings.
 
-[📱 Download APK](https://github.com/jagdishpaliyaljat-dev/Disha-Android-App/releases/tag/v1.0.19) · [🌐 Live Web App](https://disha-2020.vercel.app) · [📖 Docs](./docs/) · [🐛 Issues](https://github.com/jagdishpaliyaljat-dev/Disha-Android-App/issues)
+[📱 Download APK](https://github.com/jagdishpaliyaljat-dev/Disha-Android-App/releases/tag/v1.0.20) · [🌐 Live Web App](https://disha-2020.vercel.app) · [📖 Docs](./docs/) · [🐛 Issues](https://github.com/jagdishpaliyaljat-dev/Disha-Android-App/issues)
 
 </div>
 
@@ -351,6 +351,7 @@ The app uses a versioned **Clean Slate** system (`src/utils/cleanSlate.ts`) that
 
 | Version | Date | Highlights |
 |---------|------|------------|
+| **v1.0.20** | Nov 2026 | 🏷️ Curriculum UI Serial Number Deduplication (Resolved repeating serial numbers in Chapter & Topic list cards, standardized `stripLeadingSerial` resolver, deterministic sorting) |
 | **v1.0.19** | Nov 2026 | ⚡ Ultra-Fast AI Tutor & Real-Time Live Streaming (Switched to ultra-low-latency `gemini-flash-lite-latest` & `gemini-3.5-flash-lite`, sub-second token streaming, zero high-demand lag) |
 | **v1.0.18** | Nov 2026 | 🤖 Global Gemini AI Integration & Universal Disha AI Tutor (Always active, zero key prompts for students, auto-upgraded to `gemini-flash-latest`) |
 | **v1.0.17** | Nov 2026 | 🚨 In-House Supabase Crash Reporting Engine, real-time telemetry dashboard & offline queue (Zero 3rd-party setup) |

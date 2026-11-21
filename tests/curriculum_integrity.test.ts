@@ -9,7 +9,8 @@ import {
 import { 
   getSubjectDisplayName, 
   getChapterDisplayName, 
-  getTopicDisplayName 
+  getTopicDisplayName,
+  stripLeadingSerial
 } from "../src/utils/curriculumUtils";
 import { Subject, Chapter, Topic, Question, UserQuestionsStore } from "../src/types";
 import { describe, test, expect } from "vitest";
@@ -136,5 +137,33 @@ export function runCurriculumIntegrityChecks(): void {
 describe("Curriculum Integrity Test Suite", () => {
   test("runCurriculumIntegrityChecks executes without errors", () => {
     expect(() => runCurriculumIntegrityChecks()).not.toThrow();
+  });
+
+  test("stripLeadingSerial removes redundant serial numbers and prefixes", () => {
+    expect(stripLeadingSerial("1. राजस्थान का भूगोल")).toBe("राजस्थान का भूगोल");
+    expect(stripLeadingSerial("1. 1. राजस्थान का भूगोल")).toBe("राजस्थान का भूगोल");
+    expect(stripLeadingSerial("Chapter 1: राजस्थान का भूगोल")).toBe("राजस्थान का भूगोल");
+    expect(stripLeadingSerial("अध्याय 1 - राजस्थान का भूगोल")).toBe("राजस्थान का भूगोल");
+    expect(stripLeadingSerial("01. राजस्थान का भूगोल")).toBe("राजस्थान का भूगोल");
+    expect(stripLeadingSerial("1 - राजस्थान का भूगोल")).toBe("राजस्थान का भूगोल");
+    expect(stripLeadingSerial("1) राजस्थान का भूगोल")).toBe("राजस्थान का भूगोल");
+    expect(stripLeadingSerial("Topic 1: स्थिति एवं विस्तार")).toBe("स्थिति एवं विस्तार");
+    expect(stripLeadingSerial("1. स्थिति एवं विस्तार")).toBe("स्थिति एवं विस्तार");
+    expect(stripLeadingSerial("2024 Current Affairs")).toBe("2024 Current Affairs");
+    expect(stripLeadingSerial("1857 की क्रांति")).toBe("1857 की क्रांति");
+  });
+
+  test("getChapterDisplayName and getTopicDisplayName strip repeated leading numbers", () => {
+    const ch: Partial<Chapter> = {
+      title: "1. 1. विलोम शब्द",
+      hindiTitle: "1. विलोम शब्द"
+    };
+    expect(getChapterDisplayName(ch)).toBe("विलोम शब्द");
+
+    const top: Partial<Topic> = {
+      title: "Topic 2: पर्यायवाची शब्द",
+      hindiTitle: "2. पर्यायवाची शब्द"
+    };
+    expect(getTopicDisplayName(top)).toBe("पर्यायवाची शब्द");
   });
 });

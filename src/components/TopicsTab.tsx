@@ -138,10 +138,14 @@ export const TopicsTab: React.FC<TopicsTabProps> = ({
     );
     const sSlugNorm = targetSubject?.slug ? targetSubject.slug.toLowerCase().replace(/[-_]/g, "").trim() : "";
 
-    return chapters.filter((c) => {
+    const chs = chapters.filter((c) => {
       const cSubNorm = (c.subjectId || "").toLowerCase().replace(/[-_]/g, "").trim();
       return cSubNorm === sNorm || (sSlugNorm && cSubNorm === sSlugNorm);
     });
+
+    return [...chs].sort(
+      (a, b) => (a.number || 0) - (b.number || 0) || (a.title || "").localeCompare(b.title || "")
+    );
   }, [chapters, selectedSubjectId, subjects]);
 
   const activeChapter = React.useMemo(() => {
@@ -219,7 +223,7 @@ export const TopicsTab: React.FC<TopicsTabProps> = ({
                 {activeSubject?.name || "Subject"} · Chapter {activeChapter.number || 1}
               </p>
               <h2 className="text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] truncate font-hindi">
-                {activeChapter.title || activeChapter.hindiTitle}
+                {getChapterDisplayName(activeChapter)}
               </h2>
             </div>
           </div>
@@ -227,8 +231,8 @@ export const TopicsTab: React.FC<TopicsTabProps> = ({
 
         <main className="flex-1 overflow-y-auto px-4 pt-4 pb-20 max-w-4xl mx-auto w-full">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-            {(activeChapter.topics || [])
-              .sort((a, b) => (a.number || 0) - (b.number || 0))
+            {[...(activeChapter.topics || [])]
+              .sort((a, b) => (a.number || 0) - (b.number || 0) || (a.title || "").localeCompare(b.title || ""))
               .map((topic, idx) => (
                 <TopicListItem
                   key={`${topic.id || 'topic'}-${idx}`}
@@ -307,7 +311,7 @@ export const TopicsTab: React.FC<TopicsTabProps> = ({
                   </div>
                   <div className="min-w-0 flex-1">
                     <h4 className="text-sm font-bold text-[#171923] dark:text-[#FFF9EF] group-hover:text-[#800020] dark:group-hover:text-[#F47B20] transition-colors font-hindi truncate">
-                      {chNum}. {getChapterDisplayName(chapter)}
+                      {getChapterDisplayName(chapter)}
                     </h4>
                     <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mt-0.5 tabular-nums">
                       {(chapter.topics || []).length} Topics · {chQuestionCount} {chQuestionCount === 1 ? "Question" : "Questions"}
@@ -485,7 +489,7 @@ function TopicListItem({
         </div>
         <div className="min-w-0 flex-1">
           <h4 className="text-sm font-bold text-[#171923] dark:text-[#FFF9EF] group-hover:text-[#800020] dark:group-hover:text-[#F47B20] transition-colors font-hindi truncate">
-            {topicNum}. {getTopicDisplayName(topic)}
+            {getTopicDisplayName(topic)}
           </h4>
           <div className="flex flex-wrap items-center gap-1.5 mt-1">
             {qCount > 0 ? (
