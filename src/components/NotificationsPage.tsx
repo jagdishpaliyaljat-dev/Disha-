@@ -71,7 +71,7 @@ export const NotificationsPage: React.FC<NotificationsPageProps> = ({
   const handleTestPush = async () => {
     setIsTestingPush(true);
     const ok = await triggerLocalNotification({
-      title: "DISHA 20-20 — Test Alert",
+      title: "Disha PYQ — Test Alert",
       body: "Background push notification service is active!",
       url: "/",
       tag: "test-push",

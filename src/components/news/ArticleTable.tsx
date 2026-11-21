@@ -155,7 +155,7 @@ export const ArticleTable: React.FC<ArticleTableProps> = ({
 
       <div className="px-3.5 py-1.5 bg-[#F8FAFC] dark:bg-[#161E2E] border-t border-[#E2E8F0] dark:border-[#27354F] flex items-center justify-between text-[10px] text-[#64748B] dark:text-[#94A3B8] tabular-nums">
         <span>{rows.length} {rows.length === 1 ? "Row" : "Rows"}</span>
-        <span className="hidden sm:inline font-semibold text-[#102F65] dark:text-[#C8962E]">DISHA 20-20 Exam Research Table</span>
+        <span className="hidden sm:inline font-semibold text-[#7045D8] dark:text-[#A78BFA]">Disha PYQ Exam Research Table</span>
       </div>
     </div>
   );

@@ -180,7 +180,7 @@ export const ArticleSectionReorderDnd: React.FC<ArticleSectionReorderDndProps> =
       case "cta":
         return {
           title: "Call to Action (CTA)",
-          sub: block.ctaText || "DISHA 20-20 Test Series & Practice Quiz",
+          sub: block.ctaText || "Disha PYQ Test Series & Practice Quiz",
           badge: "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20",
           icon: <Send className="w-4 h-4 text-rose-600" />,
           border: "border-l-4 border-l-rose-600",

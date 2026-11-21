@@ -248,7 +248,7 @@ export const SessionLeaderboard: React.FC<SessionLeaderboardProps> = ({
       {loading ? (
         <ContentLoader
           message="Loading Candidate Rankings..."
-          submessage="DISHA 20-20 • Precise Merit Calculation in Progress"
+          submessage="Disha PYQ • Precise Merit Calculation in Progress"
           minHeight="min-h-[160px]"
           size="sm"
         />

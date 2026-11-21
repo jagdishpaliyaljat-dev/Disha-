@@ -395,7 +395,7 @@ export const AdminDashboardSection: React.FC<AdminDashboardSectionProps> = ({
               </div>
               
               <div>
-                <h4 className="text-lg font-black font-display">DISHA 20-20 Admin Engine</h4>
+                <h4 className="text-lg font-black font-display">Disha PYQ Admin Engine</h4>
                 <p className="text-xs text-slate-400 font-medium">Enterprise Management Platform</p>
               </div>
 

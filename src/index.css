@@ -7,41 +7,47 @@
   --font-hindi: 'Hind', 'Mukta', 'Plus Jakarta Sans', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  --color-disha-maroon: #800020;
-  --color-disha-maroon-deep: #5E0017;
-  --color-disha-saffron: #F47B20;
-  --color-disha-ivory: #FFF9EF;
-  --color-disha-charcoal: #171923;
-  --color-disha-gold: #C99A45;
+  --color-disha-purple: #7045D8;
+  --color-disha-purple-light: #A78BFA;
+  --color-disha-bg-dark: #171329;
+  --color-disha-bg-light: #F4F1FA;
+  --color-disha-white: #FFFFFF;
+
+  --color-disha-maroon: #7045D8;
+  --color-disha-maroon-deep: #5528B8;
+  --color-disha-saffron: #A78BFA;
+  --color-disha-ivory: #F4F1FA;
+  --color-disha-charcoal: #171329;
+  --color-disha-gold: #A78BFA;
 }
 
 @layer base {
   :root {
     color-scheme: light;
-    --disha-bg-canvas: #FFF9EF;
+    --disha-bg-canvas: #F4F1FA;
     --disha-bg-surface: #FFFFFF;
-    --disha-bg-subtle: #F7EFE2;
-    --disha-border-subtle: #E8D9C0;
-    --disha-text-primary: #171923;
-    --disha-text-secondary: #52576A;
-    --disha-text-muted: #787D91;
-    --disha-accent-primary: #800020;
-    --disha-accent-secondary: #F47B20;
-    --disha-accent-gold: #C99A45;
+    --disha-bg-subtle: #ECE6F8;
+    --disha-border-subtle: #E2DCF0;
+    --disha-text-primary: #171329;
+    --disha-text-secondary: #5E5873;
+    --disha-text-muted: #8A84A3;
+    --disha-accent-primary: #7045D8;
+    --disha-accent-secondary: #A78BFA;
+    --disha-accent-gold: #A78BFA;
   }
 
   :root.dark {
     color-scheme: dark;
-    --disha-bg-canvas: #171923;
-    --disha-bg-surface: #1F2330;
-    --disha-bg-subtle: #252A3A;
-    --disha-border-subtle: #31374A;
-    --disha-text-primary: #FFF9EF;
-    --disha-text-secondary: #CBD2E1;
-    --disha-text-muted: #929AB0;
-    --disha-accent-primary: #F47B20;
-    --disha-accent-secondary: #C99A45;
-    --disha-accent-gold: #C99A45;
+    --disha-bg-canvas: #171329;
+    --disha-bg-surface: #201B38;
+    --disha-bg-subtle: #292348;
+    --disha-border-subtle: #362E5B;
+    --disha-text-primary: #FFFFFF;
+    --disha-text-secondary: #D4CEE8;
+    --disha-text-muted: #A39DBE;
+    --disha-accent-primary: #7045D8;
+    --disha-accent-secondary: #A78BFA;
+    --disha-accent-gold: #A78BFA;
   }
 
   html,

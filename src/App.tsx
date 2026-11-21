@@ -323,7 +323,7 @@ export default function App() {
             if (Notification.permission === "default") {
               const perm = await Notification.requestPermission();
               if (perm === "granted") {
-                new Notification("DISHA 20-20 — Welcome!", {
+                new Notification("Disha PYQ — Welcome!", {
                   body: "You will now receive important exam updates, daily study reminders, and live test alerts.",
                   icon: "/favicon.svg"
                 });
@@ -1202,7 +1202,7 @@ export default function App() {
   // Track page views dynamically on activeTab navigation
   React.useEffect(() => {
     const path = activeTab === 'home' ? '/' : `/${activeTab}`;
-    const title = `DISHA 20-20 — ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}`;
+    const title = `Disha PYQ — ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}`;
     trackPageView(path, title, { isUserAdmin: isAdmin, isLoggedIn: isAuthenticated }).catch(() => {});
   }, [activeTab, isAdmin, isAuthenticated]);
 
@@ -1524,7 +1524,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FFF9EF] dark:bg-[#171923] text-[#171923] dark:text-[#FFF9EF] flex flex-col font-sans selection:bg-[#800020] selection:text-white w-full max-w-full overflow-x-hidden">
+    <div className="min-h-screen bg-[#F4F1FA] dark:bg-[#171329] text-[#171329] dark:text-[#FFFFFF] flex flex-col font-sans selection:bg-[#7045D8] selection:text-white w-full max-w-full overflow-x-hidden">
       <OverlayErrorBoundary viewName="System Overlays" fallbackComponent={null}>
         <BrandSplashAndOnboarding />
         <ToastNotificationContainer toasts={toasts} onDismiss={handleDismissToast} />
@@ -1536,7 +1536,7 @@ export default function App() {
 
       {/* Desktop Top Navigation Header */}
       <OverlayErrorBoundary viewName="Desktop Navigation Header" fallbackComponent={null}>
-        <header className="hidden md:block sticky top-0 z-40 bg-[#FFF9EF]/95 dark:bg-[#171923]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] select-none shadow-xs">
+        <header className="hidden md:block sticky top-0 z-40 bg-[#F4F1FA]/95 dark:bg-[#171329]/95 backdrop-blur-md border-b border-[#E2DCF0] dark:border-[#362E5B] select-none shadow-xs">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
             {/* Brand Logo */}
             <div
@@ -1544,13 +1544,13 @@ export default function App() {
               className="flex items-center gap-2 cursor-pointer transition-transform hover:scale-[1.02] shrink-0"
               role="button"
               tabIndex={0}
-              aria-label="DISHA 20-20 Home"
+              aria-label="Disha PYQ Home"
             >
-              <span className="text-lg font-black tracking-wider text-[#171923] dark:text-[#FFF9EF] uppercase font-serif whitespace-nowrap">
+              <span className="text-lg font-black tracking-tight text-[#171329] dark:text-[#FFFFFF] uppercase whitespace-nowrap">
                 DISHA
               </span>
-              <span className="px-2 py-0.5 rounded-lg bg-gradient-to-r from-[#F47B20] to-[#E06A12] text-white font-black text-xs tracking-tight shadow-xs whitespace-nowrap">
-                20-20
+              <span className="px-2.5 py-0.5 rounded-lg bg-gradient-to-r from-[#7045D8] to-[#A78BFA] text-white font-black text-xs tracking-wide shadow-xs whitespace-nowrap">
+                PYQ
               </span>
             </div>
 
@@ -1692,7 +1692,7 @@ export default function App() {
           </div>
         ) : (
         <RouteErrorBoundary tabName={activeTab} onNavigateHome={() => setActiveTab('home')}>
-        <React.Suspense fallback={<ContentLoader message="Loading content..." submessage="DISHA 20-20 • Precision Learning" minHeight="min-h-[60vh]" />}>
+        <React.Suspense fallback={<ContentLoader message="Loading content..." submessage="Disha PYQ • Precision Learning" minHeight="min-h-[60vh]" />}>
         {activeTab === 'home' && (
           <HomeTab
             progressStore={progressStore}

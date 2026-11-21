@@ -273,8 +273,8 @@ export const TopicsTab: React.FC<TopicsTabProps> = ({
               <ArrowLeft className="w-4 h-4" />
             </button>
             <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-bold text-[#800020] dark:text-[#C99A45] uppercase tracking-wider truncate">
-                DISHA 20-20 Syllabus
+              <p className="text-[10px] font-bold text-[#7045D8] dark:text-[#A78BFA] uppercase tracking-wider truncate">
+                Disha PYQ Syllabus
               </p>
               <h2 className="text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] truncate font-hindi">
                 {getSubjectDisplayName(activeSubject)}

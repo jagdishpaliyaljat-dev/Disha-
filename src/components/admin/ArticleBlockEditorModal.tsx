@@ -584,7 +584,7 @@ export const ArticleBlockEditorModal: React.FC<ArticleBlockEditorModalProps> = (
                   </div>
 
                   <span className="text-xs text-[#8C93A8]">
-                    Exact live rendering as seen in Disha 20-20 App
+                    Exact live rendering as seen in Disha PYQ App
                   </span>
                 </div>
 

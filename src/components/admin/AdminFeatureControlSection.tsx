@@ -52,7 +52,7 @@ const CATEGORY_LABELS: Record<string, { title: string; subtitle: string; icon: a
   },
   practice: {
     title: "Practice & Question Bank",
-    subtitle: "Previous Year Papers (PYQ) & 20-20 Custom Tests",
+    subtitle: "Previous Year Papers (PYQ) & Disha PYQ Custom Tests",
     icon: Compass,
   },
   general: {

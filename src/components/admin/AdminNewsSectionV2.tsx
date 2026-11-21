@@ -231,7 +231,7 @@ export function AdminNewsSection({
       blocks: [],
       status: "published",
       coverImageUrl: "https://images.unsplash.com/photo-1457369804613-52c61a468e7d?auto=format&fit=crop&w=1200&q=80",
-      authorName: "DISHA 20-20 Editorial",
+      authorName: "Disha PYQ Editorial",
       tags: [],
       faqs: [],
     });
@@ -1214,7 +1214,7 @@ export function AdminNewsSection({
       <ConfirmDialog
         isOpen={isConfirmRefreshAllOpen}
         title="Refresh All Article Dates"
-        message="Are you sure you want to update publication dates for all published articles to today? This will refresh SEO freshness signals and show today's date across DISHA 20-20."
+        message="Are you sure you want to update publication dates for all published articles to today? This will refresh SEO freshness signals and show today's date across Disha PYQ."
         confirmText="Refresh All Dates"
         cancelText="Cancel"
         isDeleting={false}

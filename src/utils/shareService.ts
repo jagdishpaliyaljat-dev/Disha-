@@ -93,7 +93,7 @@ export function parseShareUrl(
 export function buildPYQShareData(paper: PYQPaper): ShareData {
   const url = getShareUrl("pyq", paper.id);
   const title = paper.title || `${paper.examBoard} ${paper.paperYear} PYQ Paper`;
-  const text = `Solve authentic ${paper.examBoard || "Official"} ${paper.paperYear || ""} Previous Year Question Paper on DISHA 20-20 with verified answer key & explanations.`;
+  const text = `Solve authentic ${paper.examBoard || "Official"} ${paper.paperYear || ""} Previous Year Question Paper on Disha PYQ with verified answer key & explanations.`;
   return {
     title,
     text,
@@ -108,7 +108,7 @@ export function buildPYQShareData(paper: PYQPaper): ShareData {
 export function buildLiveTestShareData(test: LiveTest): ShareData {
   const url = getShareUrl("livetest", test.id);
   const title = test.title || "Live Mock Exam";
-  const text = `Attempt live mock test for ${test.examCategory || "Competitive Exams"} on DISHA 20-20 with instant score analysis and state ranking.`;
+  const text = `Attempt live mock test for ${test.examCategory || "Competitive Exams"} on Disha PYQ with instant score analysis and state ranking.`;
   return {
     title,
     text,
@@ -123,7 +123,7 @@ export function buildLiveTestShareData(test: LiveTest): ShareData {
 export function buildChapterShareData(chapter: Chapter, subjectName?: string): ShareData {
   const url = getShareUrl("chapter", chapter.id);
   const title = chapter.title || "Chapter MCQs Practice";
-  const text = `Practice bilingual multiple-choice questions for ${chapter.title} (${subjectName || "DISHA 20-20"}) with instant explanations.`;
+  const text = `Practice bilingual multiple-choice questions for ${chapter.title} (${subjectName || "Disha PYQ"}) with instant explanations.`;
   return {
     title,
     text,
@@ -138,7 +138,7 @@ export function buildChapterShareData(chapter: Chapter, subjectName?: string): S
 export function buildNewsShareData(article: NewsArticle): ShareData {
   const url = getShareUrl("news", article.slug || article.id);
   const title = article.title;
-  const text = article.excerpt || "Read verified exam notifications and study strategies on DISHA 20-20.";
+  const text = article.excerpt || "Read verified exam notifications and study strategies on Disha PYQ.";
   return {
     title,
     text,
@@ -153,7 +153,7 @@ export function buildNewsShareData(article: NewsArticle): ShareData {
 export function buildTopicShareData(topic: Topic, subjectName?: string): ShareData {
   const url = getShareUrl("topic", topic.id);
   const title = topic.title || "Topic MCQs Practice";
-  const text = `Attempt specialized practice quiz on ${topic.title} (${subjectName || "DISHA 20-20"}) with conceptual notes and instant result analysis.`;
+  const text = `Attempt specialized practice quiz on ${topic.title} (${subjectName || "Disha PYQ"}) with conceptual notes and instant result analysis.`;
   return {
     title,
     text,
@@ -169,7 +169,7 @@ export function buildCustomTestShareData(testTitle: string, testId: string): Sha
   const url = getShareUrl("test", testId);
   return {
     title: testTitle || "Practice MCQ Test",
-    text: `Take this timed practice test "${testTitle}" on DISHA 20-20.`,
+    text: `Take this timed practice test "${testTitle}" on Disha PYQ.`,
     url,
     category: "Mock Test",
   };

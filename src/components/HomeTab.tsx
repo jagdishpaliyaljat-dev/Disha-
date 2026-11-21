@@ -210,11 +210,11 @@ export const HomeTab: React.FC<HomeTabProps> = ({
               <Menu className="w-5 h-5" />
             </button>
             <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 whitespace-nowrap select-none">
-              <span className="text-base sm:text-lg font-black tracking-wider text-[#171923] dark:text-[#FFF9EF] uppercase font-serif whitespace-nowrap shrink-0">
+              <span className="text-base sm:text-lg font-black tracking-tight text-[#171329] dark:text-[#FFFFFF] uppercase whitespace-nowrap shrink-0">
                 DISHA
               </span>
-              <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-lg bg-gradient-to-r from-[#F47B20] to-[#E06A12] text-white font-black text-xs tracking-tight shadow-xs whitespace-nowrap shrink-0 leading-none">
-                20-20
+              <span className="inline-flex items-center justify-center px-2.5 py-0.5 rounded-lg bg-gradient-to-r from-[#7045D8] to-[#A78BFA] text-white font-black text-xs tracking-wide shadow-xs whitespace-nowrap shrink-0 leading-none">
+                PYQ
               </span>
             </div>
           </div>
@@ -248,8 +248,8 @@ export const HomeTab: React.FC<HomeTabProps> = ({
             {!isAuthenticated ? (
               <button
                 onClick={onOpenLogin}
-                className="flex items-center gap-1.5 h-10 px-3 rounded-xl bg-[#800020] hover:bg-[#5E0017] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] text-white text-xs font-black shadow-xs transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap"
-                aria-label="Login to DISHA 20-20"
+                className="flex items-center gap-1.5 h-10 px-3 rounded-xl bg-[#7045D8] hover:bg-[#5E0017] dark:bg-[#7045D8] text-white text-xs font-black shadow-xs transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap"
+                aria-label="Login to Disha PYQ"
               >
                 <LogIn className="w-3.5 h-3.5 shrink-0" />
                 <span>Sign In</span>
@@ -436,7 +436,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                 <span className={`text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider ${
                   isEnabled("custom_test") ? "text-[#C85A0A] dark:text-[#F47B20]" : "text-slate-400"
                 }`}>
-                  {isEnabled("custom_test") ? "20-20 SET" : "PAUSED"}
+                  {isEnabled("custom_test") ? "PYQ SET" : "PAUSED"}
                 </span>
               </div>
               <div className="mt-2 sm:mt-3">
@@ -804,7 +804,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                     { label: "Paper Scanner / OMR", icon: Scan, action: () => onOpenExamAnalyzer?.() },
                     { label: "AI Engine Settings", icon: Key, action: () => onOpenApiSettings?.() },
                     { label: "Exam News & Guides", icon: Newspaper, tab: "news" },
-                    { label: "About DISHA 20-20", icon: Info, tab: "about" },
+                    { label: "About Disha PYQ", icon: Info, tab: "about" },
                     { label: "Help & Support", icon: HelpCircle, tab: "contact" },
                   ].map((item) => (
                     <button
@@ -864,7 +864,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                   className="w-full flex items-center justify-between p-2 rounded-xl hover:bg-white dark:hover:bg-[#252A3A] transition-all cursor-pointer"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-xl bg-white dark:bg-[#171923] text-[#800020] dark:text-[#F47B20] flex items-center justify-center shadow-2xs">
+                    <div className="w-8 h-8 rounded-xl bg-white dark:bg-[#171923] text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center shadow-2xs">
                       {settings.darkMode ? <Moon size={15} /> : <Sun size={15} />}
                     </div>
                     <span className="text-xs font-bold text-[#171923] dark:text-[#FFF9EF]">
@@ -873,7 +873,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                   </div>
                   <div
                     className={`w-10 h-5 rounded-full relative p-0.5 transition-colors ${
-                      settings.darkMode ? "bg-[#F47B20]" : "bg-[#D5C3A5]"
+                      settings.darkMode ? "bg-[#7045D8]" : "bg-[#D5C3A5]"
                     }`}
                   >
                     <div
@@ -890,10 +890,10 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                       onOpenLogin?.();
                       setIsMenuOpen(false);
                     }}
-                    className="w-full py-3 rounded-xl bg-[#800020] dark:bg-[#F47B20] text-white text-xs font-extrabold uppercase tracking-wider flex items-center justify-center gap-2 active:scale-95 transition-transform cursor-pointer"
+                    className="w-full py-3 rounded-xl bg-[#7045D8] hover:bg-[#5528B8] text-white text-xs font-extrabold uppercase tracking-wider flex items-center justify-center gap-2 active:scale-95 transition-transform cursor-pointer"
                   >
                     <LogIn size={15} />
-                    <span>Sign in to DISHA 20-20</span>
+                    <span>Sign in to Disha PYQ</span>
                   </button>
                 ) : (
                   <button
@@ -908,9 +908,9 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                   </button>
                 )}
 
-                <div className="flex items-center justify-between px-1 text-[10px] font-bold text-[#52576A] dark:text-[#929AB0]">
-                  <span>DISHA 20-20</span>
-                  <span>Right Direction, Accurate Preparation</span>
+                <div className="flex items-center justify-between px-1 text-[10px] font-bold text-[#5E5873] dark:text-[#A39DBE]">
+                  <span>Disha PYQ</span>
+                  <span>Previous Year Questions • Precision Prep</span>
                 </div>
               </div>
             </motion.div>
@@ -965,8 +965,8 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                     <h3 className="text-base font-extrabold text-[#171923] dark:text-[#FFF9EF]">
                       Weekly Rankings
                     </h3>
-                    <p className="text-[10.5px] font-bold text-[#52576A] dark:text-[#929AB0] uppercase tracking-wider">
-                      DISHA 20-20 Top Aspirants
+                    <p className="text-[10.5px] font-bold text-[#5E5873] dark:text-[#A39DBE] uppercase tracking-wider">
+                      Disha PYQ Top Aspirants
                     </p>
                   </div>
                 </div>

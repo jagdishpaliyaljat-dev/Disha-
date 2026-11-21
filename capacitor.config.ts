@@ -2,7 +2,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.disha2020.examprep',
-  appName: 'Disha 20-20',
+  appName: 'Disha PYQ',
   webDir: 'dist',
   server: {
     androidScheme: 'https'
@@ -15,7 +15,7 @@ const config: CapacitorConfig = {
     SplashScreen: {
       launchShowDuration: 0,
       launchAutoHide: true,
-      backgroundColor: "#FFF9EF",
+      backgroundColor: "#171329",
       androidScaleType: "CENTER_CROP",
       showSpinner: false
     },

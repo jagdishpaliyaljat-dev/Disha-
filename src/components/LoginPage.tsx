@@ -140,16 +140,16 @@ export function LoginPage({ onLoginSuccess, onClose }: LoginPageProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] bg-[#FFF9EF] dark:bg-[#171923] text-[#171923] dark:text-[#FFF9EF] flex flex-col justify-between overflow-y-auto overflow-x-hidden selection:bg-[#800020] selection:text-white">
+    <div className="fixed inset-0 z-[100] bg-[#F4F1FA] dark:bg-[#171329] text-[#171329] dark:text-[#FFFFFF] flex flex-col justify-between overflow-y-auto overflow-x-hidden selection:bg-[#7045D8] selection:text-white">
       {/* Top Bar */}
       <div className="w-full max-w-md mx-auto pt-4 px-5 flex justify-between items-center shrink-0 z-20">
-        <span className="text-[11px] font-extrabold text-[#52576A] dark:text-[#929AB0] uppercase tracking-wider">
-          DISHA 20-20 Account
+        <span className="text-[11px] font-extrabold text-[#5E5873] dark:text-[#A39DBE] uppercase tracking-wider">
+          Disha PYQ Account
         </span>
         {onClose && (
           <button
             onClick={onClose}
-            className="min-h-[38px] px-3 py-1.5 rounded-xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] text-[#171923] dark:text-[#FFF9EF] transition-all shadow-2xs cursor-pointer text-xs font-bold flex items-center gap-1"
+            className="min-h-[38px] px-3 py-1.5 rounded-xl bg-white dark:bg-[#201B38] border border-[#E2DCF0] dark:border-[#362E5B] text-[#171329] dark:text-[#FFFFFF] transition-all shadow-2xs cursor-pointer text-xs font-bold flex items-center gap-1"
           >
             <span>Close</span>
             <X className="w-3.5 h-3.5" />
@@ -164,23 +164,23 @@ export function LoginPage({ onLoginSuccess, onClose }: LoginPageProps) {
         {/* 4 Highlight Modules */}
         <div className="w-full grid grid-cols-2 gap-2">
           {[
-            { icon: BookOpen, label: "MCQ Practice", sub: "Chapter-wise" },
+            { icon: BookOpen, label: "PYQ Practice", sub: "Subject & Chapter" },
             { icon: Trophy, label: "Live Mock Tests", sub: "State Ranks" },
-            { icon: FileText, label: "Official PYQ Vault", sub: "2013-2024" },
+            { icon: FileText, label: "Official PYQ Vault", sub: "Authentic Papers" },
             { icon: BarChart2, label: "Smart Analytics", sub: "Weak Topics" },
           ].map((feat) => (
             <div
               key={feat.label}
-              className="bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-xl p-2.5 flex items-center gap-2 shadow-2xs"
+              className="bg-white dark:bg-[#201B38] border border-[#E2DCF0] dark:border-[#362E5B] rounded-xl p-2.5 flex items-center gap-2 shadow-2xs"
             >
-              <div className="w-8 h-8 rounded-lg bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] flex items-center justify-center shrink-0">
+              <div className="w-8 h-8 rounded-lg bg-[#7045D8]/10 dark:bg-[#A78BFA]/15 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center shrink-0">
                 <feat.icon className="w-4 h-4" />
               </div>
               <div className="min-w-0">
-                <p className="text-xs font-extrabold text-[#171923] dark:text-[#FFF9EF] truncate">
+                <p className="text-xs font-extrabold text-[#171329] dark:text-[#FFFFFF] truncate">
                   {feat.label}
                 </p>
-                <p className="text-[10px] font-medium text-[#52576A] dark:text-[#929AB0] truncate">
+                <p className="text-[10px] font-medium text-[#5E5873] dark:text-[#A39DBE] truncate">
                   {feat.sub}
                 </p>
               </div>
@@ -190,13 +190,13 @@ export function LoginPage({ onLoginSuccess, onClose }: LoginPageProps) {
       </main>
 
       {/* Bottom Sign-In Card: Exclusively Google Sign-In */}
-      <footer className="w-full max-w-md mx-auto bg-white dark:bg-[#1F2330] rounded-t-3xl px-5 sm:px-6 pt-6 pb-6 shadow-[0_-10px_30px_rgba(23,25,35,0.06)] border-t border-[#E8D9C0] dark:border-[#31374A] space-y-4 shrink-0 z-30">
+      <footer className="w-full max-w-md mx-auto bg-white dark:bg-[#201B38] rounded-t-3xl px-5 sm:px-6 pt-6 pb-6 shadow-[0_-10px_30px_rgba(23,19,41,0.08)] border-t border-[#E2DCF0] dark:border-[#362E5B] space-y-4 shrink-0 z-30">
         <div className="text-center space-y-1">
-          <h1 className="text-lg sm:text-xl font-extrabold text-[#171923] dark:text-[#FFF9EF] tracking-tight">
-            Welcome to DISHA <span className="text-[#F47B20]">20-20</span>
+          <h1 className="text-lg sm:text-xl font-extrabold text-[#171329] dark:text-[#FFFFFF] tracking-tight">
+            Welcome to DISHA <span className="text-[#A78BFA]">PYQ</span>
           </h1>
-          <p className="text-xs text-[#52576A] dark:text-[#CBD2E1] font-medium">
-            Sign in with Google to sync bookmarks, test results & study progress
+          <p className="text-xs text-[#5E5873] dark:text-[#D4CEE8] font-medium">
+            Sign in with Google to sync bookmarks, test results &amp; PYQ progress
           </p>
         </div>
 

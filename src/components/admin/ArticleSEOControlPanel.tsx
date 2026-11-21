@@ -253,12 +253,12 @@ export const ArticleSEOControlPanel: React.FC<ArticleSEOControlPanelProps> = ({
    * Generate SEO Defaults from title & first paragraph
    */
   const handleGenerateSeoDefaults = () => {
-    const rawTitle = article.title?.trim() || "DISHA 20-20 Exam Notes & Study Guide";
+    const rawTitle = article.title?.trim() || "Disha PYQ Exam Notes & Study Guide";
     let proposedTitle = rawTitle;
 
     // 1. Proposed Meta Title (Target: 30-60 chars)
     if (proposedTitle.length < 40 && !proposedTitle.toLowerCase().includes("disha")) {
-      proposedTitle = `${proposedTitle} — DISHA 20-20 Exam Prep`;
+      proposedTitle = `${proposedTitle} — Disha PYQ Exam Prep`;
     }
     if (proposedTitle.length > 60) {
       proposedTitle = proposedTitle.substring(0, 57).trim() + "...";
@@ -295,11 +295,11 @@ export const ArticleSEOControlPanel: React.FC<ArticleSEOControlPanelProps> = ({
       const lastSpace = truncated.lastIndexOf(" ");
       proposedDesc = (lastSpace > 80 ? truncated.substring(0, lastSpace) : truncated).trim() + "...";
     } else if (proposedDesc.length < 100 && proposedDesc.length > 0) {
-      proposedDesc = `${proposedDesc} Practice bilingual MCQs and study guides on DISHA 20-20.`;
+      proposedDesc = `${proposedDesc} Practice bilingual MCQs and study guides on Disha PYQ.`;
     }
 
     if (!proposedDesc) {
-      proposedDesc = `Read comprehensive exam analysis for ${rawTitle}. Practice bilingual MCQs and revision notes on DISHA 20-20.`;
+      proposedDesc = `Read comprehensive exam analysis for ${rawTitle}. Practice bilingual MCQs and revision notes on Disha PYQ.`;
     }
 
     // 3. Proposed Slug (if missing)
@@ -528,7 +528,7 @@ export const ArticleSEOControlPanel: React.FC<ArticleSEOControlPanelProps> = ({
                 type="text"
                 value={article.authorName || ""}
                 onChange={e => onChange({ ...article, authorName: e.target.value })}
-                placeholder="Author Name (e.g. DISHA 20-20 Editorial Team)"
+                placeholder="Author Name (e.g. Disha PYQ Editorial Team)"
                 className="px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold"
               />
               <input
@@ -656,7 +656,7 @@ export const ArticleSEOControlPanel: React.FC<ArticleSEOControlPanelProps> = ({
                   D
                 </div>
                 <div className="truncate min-w-0">
-                  <span className="font-bold text-slate-800 dark:text-slate-200">DISHA 20-20 Exam Prep</span>
+                  <span className="font-bold text-slate-800 dark:text-slate-200">Disha PYQ Exam Prep</span>
                   <span className="text-slate-400 font-mono text-[10px] ml-1">
                     https://disha2020.in › news › {slug || "article-url-slug"}
                   </span>

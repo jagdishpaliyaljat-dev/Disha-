@@ -435,7 +435,7 @@ export const StudentAIReportCard: React.FC<StudentAIReportCardProps> = ({
       ? criticalWeakList.slice(0, 3).map((w, i) => `${i + 1}. ${w.name} (${w.accuracy}% Accuracy - ${w.wrong} Wrong)`).join("\n")
       : "No critical weaknesses • Good balance";
 
-    const reportCardText = `📋 *Disha 20-20 — Student AI Diagnostic & Progress Report Card*
+    const reportCardText = `📋 *Disha PYQ — Student AI Diagnostic & Progress Report Card*
 ━━━━━━━━━━━━━━━━━━
 👤 Aspirant: ${studentName}
 🎯 Target Exam: ${examTarget}
@@ -462,7 +462,7 @@ https://disha2020.in
     if (navigator.share) {
       try {
         await navigator.share({
-          title: "Disha 20-20 Student AI Report Card",
+          title: "Disha PYQ Student AI Report Card",
           text: reportCardText,
         });
         return;
@@ -485,16 +485,16 @@ https://disha2020.in
       {/* 1. REPORT CARD OFFICIAL HEADER */}
       <section className="bg-white dark:bg-[#1F2330] rounded-3xl p-5 sm:p-6 border border-[#E8D9C0] dark:border-[#31374A] shadow-xs relative overflow-hidden">
         {/* Glow */}
-        <div className="absolute top-0 right-0 w-56 h-56 bg-gradient-to-bl from-[#800020]/15 via-[#F47B20]/10 to-transparent rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-0 right-0 w-56 h-56 bg-gradient-to-bl from-[#7045D8]/15 via-[#A78BFA]/10 to-transparent rounded-full blur-3xl pointer-events-none" />
 
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10 border-b border-[#E8D9C0] dark:border-[#31374A] pb-4">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#800020] to-[#F47B20] text-white flex items-center justify-center font-black shadow-md shadow-[#800020]/20 shrink-0">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#7045D8] to-[#A78BFA] text-white flex items-center justify-center font-black shadow-md shadow-[#7045D8]/20 shrink-0">
               <Award className="w-6 h-6" />
             </div>
             <div>
-              <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] mb-1">
-                <span>DISHA 20-20 AI Diagnostic Audit</span>
+              <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-[#7045D8]/10 dark:bg-[#A78BFA]/15 text-[#7045D8] dark:text-[#A78BFA] mb-1">
+                <span>Disha PYQ AI Diagnostic Audit</span>
               </div>
               <h2 className="text-lg sm:text-xl font-black text-[#171923] dark:text-[#FFF9EF] tracking-tight">
                 Student AI Report Card & Weakness Radar
@@ -1010,7 +1010,7 @@ https://disha2020.in
               </span>
             </div>
             <p className="text-[10px] text-[#52576A] dark:text-[#CBD2E1] font-medium mt-1">
-              Portion of Disha 20-20 question bank completed
+              Portion of Disha PYQ question bank completed
             </p>
           </div>
           <button

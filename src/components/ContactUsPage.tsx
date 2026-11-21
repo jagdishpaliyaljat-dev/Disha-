@@ -57,7 +57,7 @@ const HELP_CATEGORIES: {
   {
     title: "General Inquiries",
     subject: "General Inquiry",
-    desc: "Have questions about DISHA 20-20 or its available features? Send us your message.",
+    desc: "Have questions about Disha PYQ or its available features? Send us your message.",
     icon: HelpCircle,
     iconColor: "text-[#800020] dark:text-[#F47B20]",
     bg: "bg-[#800020]/10 dark:bg-[#F47B20]/15",
@@ -81,7 +81,7 @@ const HELP_CATEGORIES: {
   {
     title: "Suggestions and Feedback",
     subject: "Feedback and Suggestions",
-    desc: "Have an idea that could improve DISHA 20-20? We welcome constructive feedback and suggestions.",
+    desc: "Have an idea that could improve Disha PYQ? We welcome constructive feedback and suggestions.",
     icon: Sparkles,
     iconColor: "text-[#C99A45]",
     bg: "bg-[#C99A45]/15 dark:bg-[#C99A45]/25",
@@ -250,9 +250,9 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
             <AppLogo size="sm" />
             <div className="flex flex-col">
               <span className="text-sm font-black text-[#171923] dark:text-[#FFF9EF] leading-tight tracking-tight">
-                DISHA <span className="text-[#F47B20]">20-20</span>
+                DISHA <span className="text-[#7045D8] dark:text-[#A78BFA]">PYQ</span>
               </span>
-              <span className="text-[9px] font-bold text-[#800020] dark:text-[#F47B20] uppercase tracking-widest">
+              <span className="text-[9px] font-bold text-[#7045D8] dark:text-[#A78BFA] uppercase tracking-widest">
                 Support
               </span>
             </div>
@@ -280,14 +280,14 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
 
           <div className="max-w-xl mx-auto space-y-2 text-sm text-[#52576A] dark:text-[#CBD2E1] leading-relaxed font-medium">
             <p>
-              Have a question, suggestion, or issue while using DISHA 20-20? We'd love to hear from you.
+              Have a question, suggestion, or issue while using Disha PYQ? We'd love to hear from you.
             </p>
             <p>
               Whether you need technical assistance, want to report an incorrect question, or have
               suggestions to improve our platform, please contact us using the form below.
             </p>
             <p className="text-xs text-[#787D91] dark:text-[#929AB0] font-semibold pt-1">
-              Our goal is to provide a smooth and helpful learning experience for every DISHA 20-20 user.
+              Our goal is to provide a smooth and helpful learning experience for every Disha PYQ user.
             </p>
           </div>
         </div>
@@ -378,7 +378,7 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
                     Message Submitted Successfully
                   </h3>
                   <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-200 leading-relaxed">
-                    Thank you for contacting DISHA 20-20. Your message has been received.
+                    Thank you for contacting Disha PYQ. Your message has been received.
                   </p>
                 </div>
               </div>
@@ -643,12 +643,12 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
               id="contact-info-heading"
               className="text-base font-black text-[#071b49] dark:text-white"
             >
-              DISHA 20-20 Contact Information
+              Disha PYQ Contact Information
             </h2>
           </div>
 
           <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
-            You can also connect with DISHA 20-20 through our official website and verified support channel:
+            You can also connect with Disha PYQ through our official website and verified support channel:
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
@@ -716,7 +716,7 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
 
           <div className="pt-2 text-[11px] text-slate-400 dark:text-slate-500 leading-normal">
             <p>
-              Note: DISHA 20-20 is an independent online learning and MCQ practice platform. All technical and question queries submitted through the form or official support email are reviewed by our team.
+              Note: Disha PYQ is an independent online learning and MCQ practice platform. All technical and question queries submitted through the form or official support email are reviewed by our team.
             </p>
           </div>
         </section>
@@ -783,7 +783,7 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
           </div>
 
           <p className="text-[10px] text-slate-400 dark:text-slate-500">
-            © 2026 DISHA 20-20. All rights reserved. Online MCQ Practice Platform.
+            © 2026 Disha PYQ. All rights reserved. Online MCQ Practice Platform.
           </p>
         </footer>
       </main>

@@ -335,8 +335,8 @@ export const PaperUploadSection: React.FC<PaperUploadSectionProps> = ({
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-black uppercase tracking-wider text-[#800020] dark:text-[#E8D9C0] bg-[#800020]/10 dark:bg-[#800020]/30 px-2 py-0.5 rounded-md border border-[#800020]/20">
-                DISHA 20-20 AI VISION
+              <span className="text-[10px] font-black uppercase tracking-wider text-[#7045D8] dark:text-[#A78BFA] bg-[#7045D8]/10 dark:bg-[#7045D8]/20 px-2 py-0.5 rounded-md border border-[#7045D8]/20">
+                DISHA PYQ AI VISION
               </span>
               <span className="hidden sm:inline-block text-[10px] font-semibold text-[#8C7A68] dark:text-[#A39887]">
                 OCR 2.0
@@ -346,7 +346,7 @@ export const PaperUploadSection: React.FC<PaperUploadSectionProps> = ({
               Exam Paper Analyzer
             </h2>
             <p className="text-[11px] text-[#6E6254] dark:text-[#A39887] leading-tight">
-              Scan exam pages to cross-match questions with your 20-20 Question Bank.
+              Scan exam pages to cross-match questions with your Disha PYQ Question Bank.
             </p>
           </div>
         </div>
@@ -782,7 +782,7 @@ export const PaperUploadSection: React.FC<PaperUploadSectionProps> = ({
                 <span>Intelligent Question Matching</span>
               </div>
               <p className="text-[10px] text-[#6E6254] dark:text-[#A39887] leading-relaxed">
-                Matches questions via full text, Hindi/English terminology, options, and key concepts against DISHA 20-20 verified PYQ archives.
+                Matches questions via full text, Hindi/English terminology, options, and key concepts against Disha PYQ verified PYQ archives.
               </p>
             </div>
           </div>

@@ -30,21 +30,21 @@ export function generateExamAnalysisPDF(analysis: ExamPaperAnalysis): void {
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
     doc.setTextColor(120, 120, 120);
-    doc.text(`DISHA 20-20 | Exam Analysis: ${analysis.examName} (${analysis.paperYear})`, margin, y);
+    doc.text(`Disha PYQ | Exam Analysis: ${analysis.examName} (${analysis.paperYear})`, margin, y);
     y += 4;
-    doc.setDrawColor(232, 217, 192);
+    doc.setDrawColor(227, 222, 242);
     doc.line(margin, y, pageWidth - margin, y);
     y += 6;
   }
 
   // 1. Cover / Top Header
-  doc.setFillColor(128, 0, 32); // DISHA 20-20 Royal Maroon (#800020)
+  doc.setFillColor(112, 69, 216); // Disha PYQ Royal Purple (#7045D8)
   doc.rect(margin, y, contentWidth, 26, "F");
 
   doc.setFont("helvetica", "bold");
   doc.setFontSize(14);
-  doc.setTextColor(255, 249, 239);
-  doc.text("DISHA 20-20 • EXAMINATION PAPER MATCHING REPORT", margin + 6, y + 9);
+  doc.setTextColor(255, 255, 255);
+  doc.text("DISHA PYQ • EXAMINATION PAPER MATCHING REPORT", margin + 6, y + 9);
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
@@ -184,7 +184,7 @@ export function generateExamAnalysisPDF(analysis: ExamPaperAnalysis): void {
       doc.setFont("helvetica", "italic");
       doc.setFontSize(7.5);
       doc.setTextColor(148, 163, 184);
-      doc.text("No reliable match found in DISHA 20-20 Question Bank.", margin + 3, y + 17);
+      doc.text("No reliable match found in Disha PYQ Question Bank.", margin + 3, y + 17);
     }
 
     // Explanation / differences line
@@ -193,7 +193,7 @@ export function generateExamAnalysisPDF(analysis: ExamPaperAnalysis): void {
     doc.setTextColor(100, 116, 139);
     const expl = q.meaningfulDifferences && q.meaningfulDifferences.length > 0
       ? `Differences: ${q.meaningfulDifferences.join("; ")}`
-      : q.matchExplanation || "Evaluated by DISHA 20-20 AI Matcher.";
+      : q.matchExplanation || "Evaluated by Disha PYQ AI Matcher.";
     const explLines = doc.splitTextToSize(expl, contentWidth - 6);
     doc.text(explLines[0] || "", margin + 3, y + 24);
 
@@ -206,11 +206,11 @@ export function generateExamAnalysisPDF(analysis: ExamPaperAnalysis): void {
   doc.setFontSize(7);
   doc.setTextColor(148, 163, 184);
   doc.text(
-    "DISHA 20-20 — Right Direction, Accurate Preparation | This report compares actual exam questions with questions in your Question Bank.",
+    "Disha PYQ — Previous Year Questions & Precision Learning | This report compares actual exam questions with questions in your Question Bank.",
     margin,
     pageHeight - 8
   );
 
-  const filename = `DISHA_20_20_Analysis_${analysis.examName.replace(/\s+/g, "_")}_${analysis.paperYear}.pdf`;
+  const filename = `Disha_PYQ_Analysis_${analysis.examName.replace(/\s+/g, "_")}_${analysis.paperYear}.pdf`;
   doc.save(filename);
 }

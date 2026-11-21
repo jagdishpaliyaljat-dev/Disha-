@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Disha 20-20</string>
-    <string name="title_activity_main">Disha 20-20</string>
+    <string name="app_name">Disha PYQ</string>
+    <string name="title_activity_main">Disha PYQ</string>
     <string name="package_name">com.disha2020.examprep</string>
     <string name="custom_url_scheme">com.disha2020.examprep</string>
 </resources>

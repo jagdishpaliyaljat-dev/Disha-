@@ -147,8 +147,8 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
   const handleShareInvite = () => {
     triggerHaptic("light");
     setShareData({
-      title: "DISHA 20-20 — Rajasthan Exam Preparation Platform",
-      text: `Hello! I am preparing for ${activeProfile.targetExam || "Rajasthan Competitive Exams"} on DISHA 20-20. It features topic-wise MCQs, official PYQs, and live mock tests with Option E. Join now:`,
+      title: "Disha PYQ — Competitive Exam Preparation & Previous Year Questions",
+      text: `Hello! I am preparing for ${activeProfile.targetExam || "Rajasthan & National Competitive Exams"} on Disha PYQ. It features authentic PYQs, chapter-wise practice, and live mock tests with Option E. Join now:`,
       url: typeof window !== "undefined" ? window.location.origin : "https://disha2020.in",
       category: "Study Group Invite",
     });
@@ -672,11 +672,11 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
 
         {/* Footer Brand Banner */}
         <motion.section variants={itemVariants} className="text-center pt-2 pb-6 space-y-1">
-          <p className="text-[11px] font-black text-[#800020] dark:text-[#C99A45] uppercase tracking-widest">
-            DISHA 20-20 • Right Direction, Accurate Preparation
+          <p className="text-[11px] font-black text-[#7045D8] dark:text-[#A78BFA] uppercase tracking-widest">
+            Disha PYQ • Previous Year Questions & Precision Learning
           </p>
-          <p className="text-[10px] font-bold text-slate-400 dark:text-slate-600">
-            RPSC • RSMSSB • REET • CET • RAS • Rajasthan Exam Specialist
+          <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500">
+            RPSC • RSMSSB • REET • CET • RAS • Competitive Exam Specialist
           </p>
         </motion.section>
       </motion.main>
@@ -950,7 +950,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
 
             <div className="space-y-3 text-xs text-slate-600 dark:text-[#CBD2E1] leading-relaxed">
               <p>
-                <strong>DISHA 20-20</strong> is a dedicated smart preparation platform for all Rajasthan competitive exams (RPSC RAS, SI, REET, CET, Patwar, etc.).
+                <strong>Disha PYQ</strong> is a dedicated smart preparation and previous year questions practice platform for all competitive exams (RPSC RAS, SI, REET, CET, Patwar, etc.).
               </p>
 
               <div className="space-y-2 bg-[#FFF9EF] dark:bg-[#171923] p-3.5 rounded-2xl border border-[#E8D9C0] dark:border-[#31374A]">

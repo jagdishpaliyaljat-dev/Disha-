@@ -85,9 +85,9 @@ export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({
             <AppLogo size="sm" />
             <div className="flex flex-col">
               <span className="text-sm font-black text-[#171923] dark:text-[#FFF9EF] leading-tight tracking-tight">
-                DISHA <span className="text-[#F47B20]">20-20</span>
+                DISHA <span className="text-[#7045D8] dark:text-[#A78BFA]">PYQ</span>
               </span>
-              <span className="text-[10px] text-[#800020] dark:text-[#F47B20] font-semibold leading-none">Privacy Policy</span>
+              <span className="text-[10px] text-[#7045D8] dark:text-[#A78BFA] font-semibold leading-none">Privacy Policy</span>
             </div>
           </div>
         </div>
@@ -125,10 +125,10 @@ export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({
 
           <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/70 dark:border-slate-800 space-y-2.5">
             <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-200 leading-relaxed font-medium">
-              Welcome to DISHA 20-20. We respect your privacy and are committed to protecting your personal information. This Privacy Policy explains how DISHA 20-20 collects, uses, stores, and protects information when you access or use our website and services.
+              Welcome to Disha PYQ. We respect your privacy and are committed to protecting your personal information. This Privacy Policy explains how Disha PYQ collects, uses, stores, and protects information when you access or use our website and services.
             </p>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-              By using DISHA 20-20, you acknowledge that you have read this Privacy Policy.
+              By using Disha PYQ, you acknowledge that you have read this Privacy Policy.
             </p>
           </div>
 
@@ -172,7 +172,7 @@ export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({
           </div>
 
           <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-            Depending on how you use DISHA 20-20 and which features are available, we may collect the following categories of information:
+            Depending on how you use Disha PYQ and which features are available, we may collect the following categories of information:
           </p>
 
           <div className="space-y-3.5 pt-1">
@@ -302,7 +302,7 @@ export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({
 
           <div className="space-y-3 text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
             <p>
-              If DISHA 20-20 offers account registration or login, we may process the information needed to authenticate users and maintain their accounts.
+              If Disha PYQ offers account registration or login, we may process the information needed to authenticate users and maintain their accounts.
             </p>
             <p>
               If third-party authentication services are enabled, those services may process information according to their own privacy policies.
@@ -331,7 +331,7 @@ export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({
           </div>
 
           <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-            DISHA 20-20 and its service providers may use cookies, local storage, or similar technologies where necessary to:
+            Disha PYQ and its service providers may use cookies, local storage, or similar technologies where necessary to:
           </p>
 
           <ul className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 space-y-1.5 pl-5 list-disc">
@@ -393,7 +393,7 @@ export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({
 
           <div className="p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/70 dark:border-emerald-800/60 text-emerald-900 dark:text-emerald-200 text-xs sm:text-sm font-bold flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-            <span>DISHA 20-20 does not sell your personal information.</span>
+            <span>Disha PYQ does not sell your personal information.</span>
           </div>
 
           <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
@@ -416,7 +416,7 @@ export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({
             <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/70 dark:border-slate-800 text-xs sm:text-sm space-y-1">
               <strong className="text-slate-900 dark:text-white">Protection of Rights:</strong>
               <p className="text-slate-600 dark:text-slate-300">
-                To enforce our policies, protect user safety, investigate suspected fraud or abuse, or protect the rights and property of DISHA 20-20.
+                To enforce our policies, protect user safety, investigate suspected fraud or abuse, or protect the rights and property of Disha PYQ.
               </p>
             </div>
             <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/70 dark:border-slate-800 text-xs sm:text-sm space-y-1">
@@ -546,7 +546,7 @@ export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({
 
           <div className="space-y-3 text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
             <p>
-              DISHA 20-20 is designed for general student use, including individuals preparing for competitive examinations. We do not knowingly collect personal information directly from children under 13 (or the applicable minimum age in your jurisdiction) without required parental consent.
+              Disha PYQ is designed for general student use, including individuals preparing for competitive examinations. We do not knowingly collect personal information directly from children under 13 (or the applicable minimum age in your jurisdiction) without required parental consent.
             </p>
             <p>
               If you believe a child has provided personal information without appropriate consent, please contact us so we can take suitable action.
@@ -625,7 +625,7 @@ export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({
           </p>
 
           <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/70 dark:border-slate-800 space-y-2.5 text-xs sm:text-sm">
-            <div className="font-bold text-slate-900 dark:text-white text-sm">DISHA 20-20</div>
+            <div className="font-bold text-slate-900 dark:text-white text-sm">Disha PYQ</div>
             <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
               <span className="text-slate-400 w-24 shrink-0 font-medium">Website:</span>
               <a
@@ -664,7 +664,7 @@ export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({
           </div>
 
           <p className="text-xs text-slate-500 dark:text-slate-400 italic pt-1">
-            By using DISHA 20-20, you agree to the terms described in this Privacy Policy.
+            By using Disha PYQ, you agree to the terms described in this Privacy Policy.
           </p>
         </section>
 
@@ -736,7 +736,7 @@ export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({
           </div>
 
           <p className="text-[10px] text-slate-400 dark:text-slate-500">
-            © 2026 DISHA 20-20. All rights reserved. Online MCQ Practice Platform.
+            © 2026 Disha PYQ. All rights reserved. Online MCQ Practice Platform.
           </p>
         </footer>
       </main>

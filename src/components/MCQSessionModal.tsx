@@ -3473,7 +3473,7 @@ function RedesignedLiveAndPYQTestView({
               } else {
                 sharePayload = {
                   title: session.title,
-                  text: "Practice this test on DISHA 20-20!",
+                  text: "Practice this test on Disha PYQ!",
                   url: getShareUrl("test", session.testId || session.title),
                   category: "Mock Test",
                 };
@@ -4008,7 +4008,7 @@ const RedesignedTestInstructionsView: React.FC<RedesignedTestInstructionsViewPro
           <h1 className="text-sm font-black text-[#171923] dark:text-[#FFF9EF] truncate font-hindi">
             {session.title}
           </h1>
-          <p className="text-[10px] font-bold text-[#800020] dark:text-[#F47B20] uppercase tracking-widest">DISHA 20-20 Examination</p>
+          <p className="text-[10px] font-bold text-[#7045D8] dark:text-[#A78BFA] uppercase tracking-widest">Disha PYQ Examination</p>
         </div>
         <div className="w-10" />
       </header>
@@ -4235,8 +4235,8 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
   };
 
   const handleShareResult = () => {
-    const title = `🎯 I scored ${scorePercent}% (${obtainedMarks}/${maxMarks}) in "${session.title}" on DISHA 20-20!`;
-    const text = `Accuracy: ${accuracy}% | Correct: ${totalCorrect}/${totalQuestions} | Option E: ${totalUnattemptedE} | Time: ${formatTime(elapsedSeconds)}.\nPractice this quiz and official PYQs with explanations on DISHA 20-20:`;
+    const title = `🎯 I scored ${scorePercent}% (${obtainedMarks}/${maxMarks}) in "${session.title}" on Disha PYQ!`;
+    const text = `Accuracy: ${accuracy}% | Correct: ${totalCorrect}/${totalQuestions} | Option E: ${totalUnattemptedE} | Time: ${formatTime(elapsedSeconds)}.\nPractice this quiz and official PYQs with explanations on Disha PYQ:`;
     setShareData({
       title,
       text,

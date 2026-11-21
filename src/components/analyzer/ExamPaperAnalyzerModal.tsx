@@ -431,8 +431,8 @@ export const ExamPaperAnalyzerModal: React.FC<ExamPaperAnalyzerModalProps> = ({
                 <h1 className="text-sm font-black text-[#171923] dark:text-[#FFF9EF] leading-tight">
                   AI Exam Paper Analyzer
                 </h1>
-                <span className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-[#800020] text-[#FFF9EF] border border-[#C99A45]/30">
-                  DISHA 20-20
+                <span className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-[#7045D8] text-[#FFFFFF] border border-[#A78BFA]/30">
+                  Disha PYQ
                 </span>
               </div>
               <p className="text-[10px] font-medium text-[#6E6254] dark:text-[#A39887]">
@@ -522,7 +522,7 @@ export const ExamPaperAnalyzerModal: React.FC<ExamPaperAnalyzerModalProps> = ({
             <InlineSpinner size="md" />
             <div>
               <p className="text-xs font-bold text-[#171923] dark:text-[#FFF9EF]">{extractionProgress}</p>
-              <p className="text-[11px] text-[#6F768A] dark:text-[#9AA2B8]">Processing Hindi & English text with DISHA 20-20 Vision OCR...</p>
+              <p className="text-[11px] text-[#6F768A] dark:text-[#9AA2B8]">Processing Hindi & English text with Disha PYQ Vision OCR...</p>
             </div>
           </div>
         )}

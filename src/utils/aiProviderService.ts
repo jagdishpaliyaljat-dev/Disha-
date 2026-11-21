@@ -699,7 +699,7 @@ export async function testAIKeyConnection({
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${cleanKey}`,
                 "HTTP-Referer": "https://disha-2020.vercel.app",
-                "X-Title": "DISHA 20-20",
+                "X-Title": "Disha PYQ",
               },
               body: JSON.stringify({
                 model: modelToUse,
@@ -1084,7 +1084,7 @@ export async function executeAICompletion({
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${currentKey}`,
                 "HTTP-Referer": "https://disha-2020.vercel.app",
-                "X-Title": "DISHA 20-20",
+                "X-Title": "Disha PYQ",
               },
               body: JSON.stringify(body),
             }),

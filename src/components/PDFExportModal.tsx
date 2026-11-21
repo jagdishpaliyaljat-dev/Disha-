@@ -370,8 +370,8 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
               <div className="min-w-0">
                 <h2 className="text-base sm:text-lg font-black tracking-tight text-white flex items-center gap-2 flex-wrap">
                   <span>Download Your PDF</span>
-                  <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-[#F47B20] text-white shrink-0 shadow-xs">
-                    DISHA 20-20
+                  <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-[#7045D8] text-white shrink-0 shadow-xs">
+                    Disha PYQ
                   </span>
                 </h2>
                 <p className="text-xs text-[#F7EFE2]/90 truncate font-medium">
@@ -1048,7 +1048,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
                 }}
               >
                 <iframe
-                  title="DISHA 20-20 Live PDF Preview"
+                  title="Disha PYQ Live PDF Preview"
                   srcDoc={generatedHTML}
                   className="w-full h-full border-none min-h-[900px]"
                 />

@@ -460,7 +460,7 @@ export const normalizeQuestion = (raw: any): MCQImportQuestion => {
     (Array.isArray(raw.answer) && raw.answer.length > 1) ||
     (Array.isArray(raw.answers) && raw.options && raw.answers.length > 1)
   ) {
-    unsupportedReason = "Multiple Correct Options (MSQ) detected; DISHA 20-20 requires Single Correct Option MCQs.";
+    unsupportedReason = "Multiple Correct Options (MSQ) detected; Disha PYQ requires Single Correct Option MCQs.";
   } else if (/subjective|descriptive|essay|short_answer|long_answer|written/i.test(rawTypeStr)) {
     unsupportedReason = `Subjective/Descriptive question type ("${rawTypeStr}") is not supported.`;
   } else if (/drag_drop|audio|video|hotspot|matrix_complex/i.test(rawTypeStr)) {

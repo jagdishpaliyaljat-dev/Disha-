@@ -562,7 +562,7 @@ export function generateDisha2020PDFHTML(
 ): string {
   const subjectHeaderName = meta.subjectTitle || "GENERAL STUDIES";
   const topicOrSubName = meta.topicTitle || meta.chapterTitle || "Practice Question Paper";
-  const documentHeaderTitle = meta.customTitle || meta.testTitle || "DISHA 20-20 • PRACTICE PAPER";
+  const documentHeaderTitle = meta.customTitle || meta.testTitle || "Disha PYQ • PRACTICE PAPER";
   const totalMarks = meta.maxMarks || (questions.length * 2);
   const durationMins = meta.durationMinutes || 60;
   const optionLetters = ["A", "B", "C", "D"];
@@ -601,34 +601,30 @@ export function generateDisha2020PDFHTML(
         <div class="cover-top-header">
           <div class="dot-grid-pattern">
             <svg width="44" height="32" viewBox="0 0 44 32">
-              <circle cx="6" cy="6" r="2.5" fill="#E8D9C0"/>
-              <circle cx="18" cy="6" r="2.5" fill="#E8D9C0"/>
-              <circle cx="30" cy="6" r="2.5" fill="#E8D9C0"/>
-              <circle cx="6" cy="18" r="2.5" fill="#C99A45"/>
-              <circle cx="18" cy="18" r="2.5" fill="#C99A45"/>
-              <circle cx="30" cy="18" r="2.5" fill="#C99A45"/>
+              <circle cx="6" cy="6" r="2.5" fill="#E3DEF2"/>
+              <circle cx="18" cy="6" r="2.5" fill="#E3DEF2"/>
+              <circle cx="30" cy="6" r="2.5" fill="#E3DEF2"/>
+              <circle cx="6" cy="18" r="2.5" fill="#7045D8"/>
+              <circle cx="18" cy="18" r="2.5" fill="#7045D8"/>
+              <circle cx="30" cy="18" r="2.5" fill="#7045D8"/>
             </svg>
           </div>
 
           <div class="cover-logo-center">
             <div class="cover-logo-icon">
               <svg viewBox="0 0 200 200" class="logo-svg">
-                <circle cx="100" cy="95" r="52" fill="#FFF3E0" stroke="#C99A45" stroke-width="5" />
-                <path d="M 55 95 C 85 52, 130 50, 155 68" fill="none" stroke="#F47B20" stroke-width="14" stroke-linecap="round" />
-                <polygon points="145,48 175,68 145,88" fill="#F47B20" />
-                <rect x="48" y="108" width="104" height="36" rx="12" fill="#800020" />
-                <text x="100" y="133" text-anchor="middle" fill="#FFF9EF" font-size="24" font-weight="900" font-family="Plus Jakarta Sans, sans-serif">20-20</text>
-                <path d="M 35 162 Q 68 146 100 166 Q 132 146 165 162" fill="none" stroke="#F47B20" stroke-width="7" stroke-linecap="round" />
-                <path d="M 30 174 Q 65 156 100 178 Q 135 156 170 174" fill="none" stroke="#800020" stroke-width="8" stroke-linecap="round" />
+                <circle cx="100" cy="95" r="52" fill="#F4F1FA" stroke="#7045D8" stroke-width="5" />
+                <rect x="48" y="80" width="104" height="42" rx="12" fill="#7045D8" />
+                <text x="100" y="108" text-anchor="middle" fill="#FFFFFF" font-size="22" font-weight="900" font-family="Plus Jakarta Sans, sans-serif">PYQ</text>
               </svg>
             </div>
-            <div class="cover-brand-name">DISHA <span style="color:#F47B20;">20-20</span></div>
+            <div class="cover-brand-name">DISHA <span style="color:#7045D8;">PYQ</span></div>
           </div>
 
           <div class="cover-top-stack">
-            <span>Right Direction</span>
-            <span>Accurate Preparation</span>
-            <span>DISHA 20-20</span>
+            <span>Previous Year Questions</span>
+            <span>Precision Learning</span>
+            <span>Disha PYQ</span>
           </div>
         </div>
 
@@ -702,7 +698,7 @@ export function generateDisha2020PDFHTML(
             <path d="M0,110 L500,110 L500,85 C300,105 180,60 0,95 Z" fill="#800020" />
           </svg>
           <div class="cover-footer-content-row">
-            <div class="cover-foot-tag">DISHA 20-20 • Right Direction, Accurate Preparation</div>
+            <div class="cover-foot-tag">Disha PYQ • Previous Year Questions & Precision Learning</div>
             <div class="cover-foot-num">${coverPageNumberStr}</div>
           </div>
         </div>
@@ -821,7 +817,7 @@ export function generateDisha2020PDFHTML(
           </main>
 
           <footer class="paper-footer">
-            <span>DISHA 20-20 • Right Direction, Accurate Preparation</span>
+            <span>Disha PYQ • Previous Year Questions & Precision Learning</span>
             <span class="footer-page-num">${pageNumberStr}</span>
           </footer>
         </section>
@@ -870,11 +866,10 @@ export function generateDisha2020PDFHTML(
         <header class="paper-top-header">
           <div class="logo-wrapper">
             <svg viewBox="0 0 200 200" class="header-logo-svg">
-              <circle cx="100" cy="95" r="52" fill="#FFF3E0" stroke="#C99A45" stroke-width="6" />
-              <path d="M 55 95 C 85 52, 130 50, 155 68" fill="none" stroke="#F47B20" stroke-width="16" stroke-linecap="round" />
-              <rect x="48" y="108" width="104" height="38" rx="12" fill="#800020" />
+              <circle cx="100" cy="95" r="52" fill="#F4F1FA" stroke="#7045D8" stroke-width="6" />
+              <rect x="48" y="80" width="104" height="42" rx="12" fill="#7045D8" />
             </svg>
-            <div class="header-brand-name">DISHA <span style="color:#F47B20;">20-20</span></div>
+            <div class="header-brand-name">DISHA <span style="color:#7045D8;">PYQ</span></div>
           </div>
           <div class="header-right-title">
             <div class="hdr-main-title">RESPONSE SHEET (OMR)</div>
@@ -910,7 +905,7 @@ export function generateDisha2020PDFHTML(
         </div>
 
         <footer class="paper-footer">
-          <span>DISHA 20-20 • Official Response Sheet</span>
+          <span>Disha PYQ • Official Response Sheet</span>
           <span class="footer-page-num">${pageNumberStr}</span>
         </footer>
       </section>
@@ -956,11 +951,10 @@ export function generateDisha2020PDFHTML(
         <header class="paper-top-header">
           <div class="logo-wrapper">
             <svg viewBox="0 0 200 200" class="header-logo-svg">
-              <circle cx="100" cy="95" r="52" fill="#FFF3E0" stroke="#C99A45" stroke-width="6" />
-              <path d="M 55 95 C 85 52, 130 50, 155 68" fill="none" stroke="#F47B20" stroke-width="16" stroke-linecap="round" />
-              <rect x="48" y="108" width="104" height="38" rx="12" fill="#800020" />
+              <circle cx="100" cy="95" r="52" fill="#F4F1FA" stroke="#7045D8" stroke-width="6" />
+              <rect x="48" y="80" width="104" height="42" rx="12" fill="#7045D8" />
             </svg>
-            <div class="header-brand-name">DISHA <span style="color:#F47B20;">20-20</span></div>
+            <div class="header-brand-name">DISHA <span style="color:#7045D8;">PYQ</span></div>
           </div>
           <div class="header-right-title">
             <div class="hdr-main-title">OFFICIAL ANSWER KEY</div>
@@ -987,7 +981,7 @@ export function generateDisha2020PDFHTML(
         </main>
 
         <footer class="paper-footer">
-          <span>DISHA 20-20 • Verified Answer Key</span>
+          <span>Disha PYQ • Verified Answer Key</span>
           <span class="footer-page-num">${pageNumberStr}</span>
         </footer>
       </section>
@@ -998,7 +992,7 @@ export function generateDisha2020PDFHTML(
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>${escapeHTML(documentHeaderTitle)} - DISHA 20-20 PDF</title>
+  <title>${escapeHTML(documentHeaderTitle)} - Disha PYQ PDF</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1781,7 +1775,7 @@ export async function exportQuestionsToPDF(config: {
   }));
 
   const html = generateDisha2020PDFHTML(safeQuestions, {
-    subjectTitle: config.title || "DISHA 20-20 Practice Paper",
+    subjectTitle: config.title || "Disha PYQ Practice Paper",
     chapterTitle: config.subtitle || "",
     filterType: config.filterType || "all",
     format: config.includeExplanations ? "detailed_solutions" : "question_paper",

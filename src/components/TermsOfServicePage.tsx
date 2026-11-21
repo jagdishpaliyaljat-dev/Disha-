@@ -48,7 +48,7 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
   const [activeSectionId, setActiveSectionId] = useState<string>("");
 
   const sections = [
-    { id: "about-disha", num: "01", title: "About DISHA 20-20", icon: BookOpen },
+    { id: "about-disha", num: "01", title: "About Disha PYQ", icon: BookOpen },
     { id: "eligibility", num: "02", title: "Eligibility & User Responsibilities", icon: UserCheck },
     { id: "educational-disclaimer", num: "03", title: "Educational Purpose & Disclaimer", icon: AlertTriangle },
     { id: "user-accounts", num: "04", title: "User Accounts", icon: Lock },
@@ -97,9 +97,9 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
             <AppLogo size="sm" />
             <div className="flex flex-col">
               <span className="text-sm font-black text-[#171923] dark:text-[#FFF9EF] leading-tight tracking-tight">
-                DISHA <span className="text-[#F47B20]">20-20</span>
+                DISHA <span className="text-[#7045D8] dark:text-[#A78BFA]">PYQ</span>
               </span>
-              <span className="text-[10px] text-[#800020] dark:text-[#F47B20] font-semibold leading-none">Terms of Service</span>
+              <span className="text-[10px] text-[#7045D8] dark:text-[#A78BFA] font-semibold leading-none">Terms of Service</span>
             </div>
           </div>
         </div>
@@ -138,11 +138,11 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
 
           <div className="p-4 bg-slate-50 dark:bg-slate-900/60 rounded-2xl border border-slate-200/60 dark:border-slate-800/60 text-xs sm:text-sm text-slate-700 dark:text-slate-200 leading-relaxed space-y-2.5">
             <p>
-              <strong>Welcome to DISHA 20-20.</strong> These Terms of Service (&quot;Terms&quot;) govern your access to and use of the DISHA 20-20 website, available at{" "}
+              <strong>Welcome to Disha PYQ.</strong> These Terms of Service (&quot;Terms&quot;) govern your access to and use of the Disha PYQ website, available at{" "}
               <a href="https://disha2020.in" className="text-blue-600 dark:text-blue-400 underline font-semibold">https://disha2020.in</a>, and the educational services, multiple-choice questions, and mock test features provided through the platform.
             </p>
             <p className="font-medium text-slate-900 dark:text-slate-100">
-              By accessing or using DISHA 20-20, you agree to these Terms. If you do not agree, please discontinue using the platform.
+              By accessing or using Disha PYQ, you agree to these Terms. If you do not agree, please discontinue using the platform.
             </p>
           </div>
 
@@ -182,7 +182,7 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
           </div>
         </div>
 
-        {/* Section 1: About DISHA 20-20 */}
+        {/* Section 1: About Disha PYQ */}
         <section
           id="about-disha"
           className="bg-white dark:bg-[#111A2E] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
@@ -191,13 +191,13 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
             <span className="px-2.5 py-0.5 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-xs font-black">01</span>
             <BookOpen className="w-5 h-5" />
             <h2 className="text-lg sm:text-xl font-black tracking-tight text-slate-900 dark:text-white">
-              1. About DISHA 20-20
+              1. About Disha PYQ
             </h2>
           </div>
 
           <div className="space-y-3 text-xs sm:text-sm text-slate-700 dark:text-slate-200 leading-relaxed">
             <p>
-              DISHA 20-20 is an online educational platform designed to help users practice multiple-choice questions (MCQs), take available mock tests, review answers, and improve their subject knowledge.
+              Disha PYQ is an online educational platform designed to help users practice multiple-choice questions (MCQs), take available mock tests, review answers, and improve their subject knowledge.
             </p>
             <p>
               The features available to each user may depend on the current functionality of the platform.
@@ -206,7 +206,7 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
               <div className="flex items-start gap-2.5">
                 <ShieldAlert className="w-4 h-4 shrink-0 mt-0.5 text-amber-700 dark:text-amber-400" />
                 <p className="text-xs sm:text-sm">
-                  <strong>Independent Platform Notice:</strong> DISHA 20-20 is an independent educational platform and is not affiliated with or endorsed by any government authority, examination board, or recruitment organization unless explicitly stated.
+                  <strong>Independent Platform Notice:</strong> Disha PYQ is an independent educational platform and is not affiliated with or endorsed by any government authority, examination board, or recruitment organization unless explicitly stated.
                 </p>
               </div>
             </div>
@@ -228,7 +228,7 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
 
           <div className="space-y-3 text-xs sm:text-sm text-slate-700 dark:text-slate-200 leading-relaxed">
             <p className="font-semibold text-slate-900 dark:text-slate-100">
-              By using DISHA 20-20, you agree that:
+              By using Disha PYQ, you agree that:
             </p>
             <ul className="space-y-2.5 pl-1">
               {[
@@ -267,7 +267,7 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
 
           <div className="space-y-3 text-xs sm:text-sm text-slate-700 dark:text-slate-200 leading-relaxed">
             <p>
-              DISHA 20-20 is intended to support learning, practice, revision, and self-assessment.
+              Disha PYQ is intended to support learning, practice, revision, and self-assessment.
             </p>
             <p>
               Our questions, explanations, mock tests, and other educational materials are provided for informational and educational purposes.
@@ -283,7 +283,7 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
                 Users should independently verify important information using authoritative sources, especially when preparing for competitive examinations.
               </p>
               <p className="text-xs sm:text-sm font-bold text-amber-950 dark:text-amber-100">
-                DISHA 20-20 does not guarantee exam qualification, selection, employment, admission, or any particular academic result.
+                Disha PYQ does not guarantee exam qualification, selection, employment, admission, or any particular academic result.
               </p>
             </div>
           </div>
@@ -380,13 +380,13 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
 
           <div className="space-y-3 text-xs sm:text-sm text-slate-700 dark:text-slate-200 leading-relaxed">
             <p>
-              The platform, including its software, layout, user interface design, logo, branding, text, MCQ test structures, and materials, is protected by intellectual property rights owned by DISHA 20-20 or used under lawful authorization.
+              The platform, including its software, layout, user interface design, logo, branding, text, MCQ test structures, and materials, is protected by intellectual property rights owned by Disha PYQ or used under lawful authorization.
             </p>
             <p>
-              Subject to your compliance with these Terms, DISHA 20-20 grants you a limited, non-exclusive, non-transferable, and revocable license to access and use the platform for your personal, non-commercial educational practice.
+              Subject to your compliance with these Terms, Disha PYQ grants you a limited, non-exclusive, non-transferable, and revocable license to access and use the platform for your personal, non-commercial educational practice.
             </p>
             <div className="p-3.5 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-200/60 dark:border-slate-800/60 text-xs">
-              <strong>Restrictions:</strong> Except as expressly permitted, you must not copy, reproduce, modify, distribute, sell, publish, or create derivative works from platform content without prior written permission from DISHA 20-20.
+              <strong>Restrictions:</strong> Except as expressly permitted, you must not copy, reproduce, modify, distribute, sell, publish, or create derivative works from platform content without prior written permission from Disha PYQ.
             </div>
           </div>
         </section>
@@ -406,7 +406,7 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
 
           <div className="space-y-3 text-xs sm:text-sm text-slate-700 dark:text-slate-200 leading-relaxed">
             <p>
-              If you submit questions, corrections, feedback, suggestions, or comments to DISHA 20-20, you grant us a perpetual, worldwide, non-exclusive, royalty-free license to use, adapt, publish, and implement your suggestions to improve the platform.
+              If you submit questions, corrections, feedback, suggestions, or comments to Disha PYQ, you grant us a perpetual, worldwide, non-exclusive, royalty-free license to use, adapt, publish, and implement your suggestions to improve the platform.
             </p>
             <p>
               You confirm that any content or suggestion you submit does not violate the intellectual property or legal rights of any third party.
@@ -432,7 +432,7 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
               Practice tests, scoring metrics, test timers, wrong answer reviews, and performance reports are designed strictly for personal study and self-assessment purposes.
             </p>
             <p>
-              Scoring on DISHA 20-20 reflects your performance on simulated practice questions and does not guarantee or determine official exam results, merit percentiles, or qualification cutoffs.
+              Scoring on Disha PYQ reflects your performance on simulated practice questions and does not guarantee or determine official exam results, merit percentiles, or qualification cutoffs.
             </p>
             <p>
               We reserve the right to add, update, revise, or retire questions and test categories at any time to maintain curriculum quality and accuracy.
@@ -456,7 +456,7 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
 
           <div className="space-y-3 text-xs sm:text-sm text-slate-700 dark:text-slate-200 leading-relaxed">
             <p>
-              DISHA 20-20 may contain links to external websites, third-party authentication services, or study references that are not operated or controlled by DISHA 20-20.
+              Disha PYQ may contain links to external websites, third-party authentication services, or study references that are not operated or controlled by Disha PYQ.
             </p>
             <p>
               We do not endorse and are not responsible for the content, privacy policies, practices, or availability of any third-party websites or services. Accessing third-party resources is entirely at your own discretion and risk.
@@ -509,7 +509,7 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
                 &quot;As Is&quot; and &quot;As Available&quot; Basis:
               </p>
               <p>
-                To the maximum extent permitted by applicable law, DISHA 20-20 and its services are provided on an &quot;AS IS&quot; and &quot;AS AVAILABLE&quot; basis without warranties of any kind, whether express, implied, statutory, or otherwise.
+                To the maximum extent permitted by applicable law, Disha PYQ and its services are provided on an &quot;AS IS&quot; and &quot;AS AVAILABLE&quot; basis without warranties of any kind, whether express, implied, statutory, or otherwise.
               </p>
               <p>
                 We disclaim all warranties, including but not limited to implied warranties of merchantability, fitness for a particular purpose, and non-infringement.
@@ -533,10 +533,10 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
 
           <div className="space-y-3 text-xs sm:text-sm text-slate-700 dark:text-slate-200 leading-relaxed">
             <p>
-              To the maximum extent permitted by applicable law, DISHA 20-20, its operators, affiliates, and representatives shall not be liable for any indirect, incidental, consequential, special, or exemplary damages, or any loss of profits, data, opportunities, or academic outcomes arising out of your access to or use of the platform.
+              To the maximum extent permitted by applicable law, Disha PYQ, its operators, affiliates, and representatives shall not be liable for any indirect, incidental, consequential, special, or exemplary damages, or any loss of profits, data, opportunities, or academic outcomes arising out of your access to or use of the platform.
             </p>
             <p>
-              Where liability cannot be excluded by law, DISHA 20-20&apos;s aggregate liability for all claims arising out of these Terms or use of the platform shall be limited to INR 500 / USD 10.
+              Where liability cannot be excluded by law, Disha PYQ&apos;s aggregate liability for all claims arising out of these Terms or use of the platform shall be limited to INR 500 / USD 10.
             </p>
           </div>
         </section>
@@ -556,7 +556,7 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
 
           <div className="space-y-3 text-xs sm:text-sm text-slate-700 dark:text-slate-200 leading-relaxed">
             <p>
-              You agree to defend, indemnify, and hold harmless DISHA 20-20, its operators, and team members from and against any claims, damages, liabilities, costs, or expenses (including reasonable legal fees) arising from:
+              You agree to defend, indemnify, and hold harmless Disha PYQ, its operators, and team members from and against any claims, damages, liabilities, costs, or expenses (including reasonable legal fees) arising from:
             </p>
             <ul className="space-y-2 pl-1">
               <li className="flex items-start gap-2">
@@ -593,7 +593,7 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
               These Terms shall be governed by and interpreted in accordance with the applicable laws of India, without regard to its conflict of law provisions.
             </p>
             <p>
-              Any disputes arising from or relating to these Terms or DISHA 20-20 services shall first be addressed through good-faith mutual discussion. If unresolved, the competent courts having jurisdiction over the platform operator shall have exclusive jurisdiction.
+              Any disputes arising from or relating to these Terms or Disha PYQ services shall first be addressed through good-faith mutual discussion. If unresolved, the competent courts having jurisdiction over the platform operator shall have exclusive jurisdiction.
             </p>
           </div>
         </section>
@@ -613,7 +613,7 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
 
           <div className="space-y-3 text-xs sm:text-sm text-slate-700 dark:text-slate-200 leading-relaxed">
             <p>
-              DISHA 20-20 reserves the right to revise or update these Terms of Service at any time.
+              Disha PYQ reserves the right to revise or update these Terms of Service at any time.
             </p>
             <p>
               When changes are made, we will update the &quot;Last Updated&quot; date at the top of this page. Your continued use of the platform after revised Terms become effective constitutes your acceptance of the updated Terms.
@@ -692,7 +692,7 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
               Ready to Prepare for Your Exams?
             </h2>
             <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">
-              Start practicing multiple-choice questions, take simulated mock tests, and review performance analytics on DISHA 20-20.
+              Start practicing multiple-choice questions, take simulated mock tests, and review performance analytics on Disha PYQ.
             </p>
           </div>
 
@@ -769,7 +769,7 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
           </div>
 
           <p className="text-[10px] text-slate-400 dark:text-slate-500">
-            © 2026 DISHA 20-20. All rights reserved. Online MCQ Practice Platform.
+            © 2026 Disha PYQ. All rights reserved. Online MCQ Practice Platform.
           </p>
         </footer>
       </main>

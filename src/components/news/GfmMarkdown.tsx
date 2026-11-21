@@ -101,7 +101,7 @@ export const GfmMarkdown: React.FC<GfmMarkdownProps> = ({
                 </table>
               </div>
               <div className="px-3.5 py-1.5 bg-[#FFF9EF] dark:bg-[#171923] border-t border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-between text-[10px] text-[#52576A] dark:text-[#CBD2E1]">
-                <span className="font-semibold text-[#800020] dark:text-[#C99A45]">DISHA 20-20 Exam Research Table</span>
+                <span className="font-semibold text-[#7045D8] dark:text-[#A78BFA]">Disha PYQ Exam Research Table</span>
                 <span className="hidden sm:inline">Swipe horizontally on mobile ↔</span>
               </div>
             </div>

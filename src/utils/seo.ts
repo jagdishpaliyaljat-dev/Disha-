@@ -106,7 +106,7 @@ export function updateDocumentHead(meta: SEOMetadata): void {
   if (meta.ogType === "article" && meta.articleData) {
     setMeta("property", "article:published_time", meta.articleData.publishedTime);
     setMeta("property", "article:modified_time", meta.articleData.modifiedTime);
-    setMeta("property", "article:author", meta.articleData.author || "DISHA 20-20 Editorial Team");
+    setMeta("property", "article:author", meta.articleData.author || "Disha PYQ Editorial Team");
     setMeta("property", "article:section", meta.articleData.section || "Education");
     if (meta.articleData.tags && meta.articleData.tags.length > 0) {
       setMeta("property", "article:tag", meta.articleData.tags.join(", "));

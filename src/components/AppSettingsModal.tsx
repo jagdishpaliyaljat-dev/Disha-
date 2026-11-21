@@ -57,7 +57,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
             <AppLogo size="sm" variant="icon" />
             <div>
               <h3 className="text-base font-black text-[#171923] dark:text-[#FFF9EF]">
-                DISHA 20-20 Settings
+                Disha PYQ Settings
               </h3>
               <p className="text-[10px] font-bold text-[#52576A] dark:text-[#CBD2E1] uppercase tracking-wider">
                 Practice & Display Preferences
@@ -268,7 +268,7 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
                 </div>
                 <div>
                   <span className="text-sm font-bold text-[#171923] dark:text-[#FFF9EF] block">Personal Gemini Key (Optional)</span>
-                  <span className="text-[10px] text-[#52576A] dark:text-[#CBD2E1] font-medium leading-tight block">Leave blank to use the built-in DISHA 20-20 platform engine.</span>
+                  <span className="text-[10px] text-[#52576A] dark:text-[#CBD2E1] font-medium leading-tight block">Leave blank to use the built-in Disha PYQ platform engine.</span>
                 </div>
               </div>
               <div className="space-y-2 pt-1">
@@ -283,18 +283,18 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
                       useCustomApiKey: val.trim().length > 0
                     });
                   }}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#E8D9C0] dark:border-[#31374A] bg-[#FFF9EF] dark:bg-[#171923] text-[#171923] dark:text-[#FFF9EF] text-xs font-mono focus:outline-none focus:ring-2 focus:ring-[#800020] dark:focus:ring-[#F47B20]"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#E8D9C0] dark:border-[#31374A] bg-[#FFF9EF] dark:bg-[#171923] text-[#171923] dark:text-[#FFF9EF] text-xs font-mono focus:outline-none focus:ring-2 focus:ring-[#7045D8] dark:focus:ring-[#A78BFA]"
                 />
                 <div className="flex items-center justify-between pt-1">
                   <p className="text-[10px] font-bold text-[#787D91] dark:text-[#929AB0]">
-                    {settings.geminiApiKey ? "✓ Custom API key configured." : "Using DISHA 20-20 default server key."}
+                    {settings.geminiApiKey ? "✓ Custom API key configured." : "Using Disha PYQ default server key."}
                   </p>
                   {settings.geminiApiKey && (
                     <div className="flex items-center gap-2">
                       <span className="text-[9px] font-bold text-[#52576A] dark:text-[#CBD2E1] uppercase">Use Key:</span>
                       <button 
                         onClick={() => updateSetting({ useCustomApiKey: !settings.useCustomApiKey })}
-                        className={`w-8 h-4.5 rounded-full transition-all relative p-0.5 cursor-pointer ${settings.useCustomApiKey ? 'bg-[#F47B20]' : 'bg-[#E8D9C0] dark:bg-[#31374A]'}`}
+                        className={`w-8 h-4.5 rounded-full transition-all relative p-0.5 cursor-pointer ${settings.useCustomApiKey ? 'bg-[#7045D8]' : 'bg-[#E8D9C0] dark:bg-[#31374A]'}`}
                       >
                         <div className={`w-3.5 h-3.5 rounded-full bg-white shadow-xs transition-transform ${settings.useCustomApiKey ? 'translate-x-3.5' : 'translate-x-0'}`} />
                       </button>
@@ -306,8 +306,8 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
           </div>
           
           <div className="text-center pb-2">
-            <p className="text-[10px] font-black text-[#800020] dark:text-[#C99A45] uppercase tracking-[0.2em]">
-              DISHA 20-20 • Right Direction, Accurate Preparation
+            <p className="text-[10px] font-black text-[#7045D8] dark:text-[#A78BFA] uppercase tracking-[0.2em]">
+              Disha PYQ • Previous Year Questions & Precision Learning
             </p>
           </div>
         </div>

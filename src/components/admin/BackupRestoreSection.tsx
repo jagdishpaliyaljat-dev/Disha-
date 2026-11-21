@@ -960,7 +960,7 @@ export const BackupRestoreSection: React.FC<BackupRestoreSectionProps> = ({ user
                 Upload Backup ZIP Archive
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                Drag and drop your DISHA 20-20 backup ZIP or click to browse
+                Drag and drop your Disha PYQ backup ZIP or click to browse
               </p>
             </div>
 

@@ -104,10 +104,10 @@ A1: Yes, the question paper is bilingual (English and Hindi). Candidates can att
 Q2: What is considered a safe score in the Preliminary exam?
 A2: A score between 85 to 95 marks for the General category is considered safe, depending on paper difficulty.
 
-Q3: What study materials are available on DISHA 20-20?
-A3: DISHA 20-20 offers chapter-wise MCQs, previous year solved question papers, and topic-wise live test series.
+Q3: What study materials are available on Disha PYQ?
+A3: Disha PYQ offers chapter-wise MCQs, authentic previous year solved question papers, and topic-wise live test series.
 
-Attempt DISHA 20-20 Full Mock Test and evaluate your state rank today!`;
+Attempt Disha PYQ Full Mock Test and evaluate your state rank today!`;
 
 export const SmartArticleImportModal: React.FC<SmartArticleImportModalProps> = ({
   isOpen,
@@ -1254,7 +1254,7 @@ export const SmartArticleImportModal: React.FC<SmartArticleImportModalProps> = (
                             <div className="p-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white flex items-center justify-between gap-3">
                               <div>
                                 <h5 className="text-xs sm:text-sm font-black">{block.ctaText || "Start Practicing"}</h5>
-                                <p className="text-[10px] text-blue-100 mt-0.5">DISHA 20-20 Online Mock Test Series</p>
+                                <p className="text-[10px] text-blue-100 mt-0.5">Disha PYQ Online Mock Test Series</p>
                               </div>
                               <span className="px-3 py-1.5 rounded-lg bg-white/20 hover:bg-white/30 text-xs font-black uppercase tracking-wider transition-colors shrink-0">
                                 Practice Now

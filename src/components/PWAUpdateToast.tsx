@@ -30,7 +30,7 @@ const PWAUpdateToastInner: React.FC = () => {
       </div>
       <div className="flex-1 min-w-0">
         <h4 className="text-xs font-black uppercase tracking-wider text-blue-400">Update Available</h4>
-        <p className="text-xs text-slate-300 mt-0.5 truncate">A new version of DISHA 20-20 is ready.</p>
+        <p className="text-xs text-slate-300 mt-0.5 truncate">A new version of Disha PYQ is ready.</p>
       </div>
       <div className="flex items-center gap-2 shrink-0">
         <button

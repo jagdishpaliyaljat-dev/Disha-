@@ -23,7 +23,6 @@ export const AppLogo: React.FC<AppLogoProps> = ({
   className = "",
   showText = true,
   showTagline = false,
-  showHindi = false,
 }) => {
   const effectiveTheme: LogoTheme =
     theme ??
@@ -40,31 +39,31 @@ export const AppLogo: React.FC<AppLogoProps> = ({
 
   const titleClasses =
     effectiveTheme === "light"
-      ? "text-[#171923]"
+      ? "text-[#171329]"
       : effectiveTheme === "dark"
-      ? "text-[#FFF9EF]"
-      : "text-[#171923] dark:text-[#FFF9EF]";
+      ? "text-[#FFFFFF]"
+      : "text-[#171329] dark:text-[#FFFFFF]";
 
-  const maroonWordClasses =
+  const brandWordClasses =
     effectiveTheme === "light"
-      ? "text-[#800020]"
+      ? "text-[#171329]"
       : effectiveTheme === "dark"
-      ? "text-[#FFF9EF]"
-      : "text-[#800020] dark:text-[#FFF9EF]";
+      ? "text-[#FFFFFF]"
+      : "text-[#171329] dark:text-[#FFFFFF]";
 
   const subClasses =
     effectiveTheme === "light"
-      ? "text-[#52576A]"
+      ? "text-[#5E5873]"
       : effectiveTheme === "dark"
-      ? "text-[#CBD2E1]"
-      : "text-[#52576A] dark:text-[#CBD2E1]";
+      ? "text-[#A39DBE]"
+      : "text-[#5E5873] dark:text-[#A39DBE]";
 
-  const renderMark = (mode: "emblem" | "tile") => {
+  const renderMark = () => {
     return (
       <img
         src="/brand-logo.png"
-        alt="DISHA 20-20 Logo"
-        className="w-full h-full object-contain"
+        alt="Disha PYQ Logo"
+        className="w-full h-full object-contain filter drop-shadow-xs"
       />
     );
   };
@@ -72,7 +71,7 @@ export const AppLogo: React.FC<AppLogoProps> = ({
   if (variant === "icon" || variant === "symbol" || !showText) {
     return (
       <div className={`inline-flex items-center justify-center shrink-0 select-none ${sizeMap[size]} ${className}`}>
-        {renderMark(variant === "icon" ? "tile" : "emblem")}
+        {renderMark()}
       </div>
     );
   }
@@ -81,26 +80,26 @@ export const AppLogo: React.FC<AppLogoProps> = ({
     return (
       <div className={`inline-flex flex-col items-center text-center select-none ${className}`}>
         <div className={`${sizeMap[size]} shrink-0 mb-2 shadow-sm rounded-2xl overflow-hidden`}>
-          {renderMark("tile")}
+          {renderMark()}
         </div>
-        <div className="flex items-baseline gap-1.5 leading-none shrink-0 whitespace-nowrap">
+        <div className="flex items-center gap-2 leading-none shrink-0 whitespace-nowrap">
           <span
-            className={`font-black tracking-tight shrink-0 whitespace-nowrap ${maroonWordClasses} ${
+            className={`font-black tracking-tight shrink-0 whitespace-nowrap ${brandWordClasses} ${
               size === "hero" ? "text-3xl sm:text-4xl" : size === "xl" ? "text-2xl" : "text-xl"
             }`}
           >
             DISHA
           </span>
-          <span className="inline-flex items-center px-2 py-0.5 rounded-lg bg-[#F47B20] text-white font-extrabold tracking-tight text-sm sm:text-base shadow-xs shrink-0 whitespace-nowrap">
-            20-20
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-lg bg-gradient-to-r from-[#F47B20] to-[#E06A12] text-white font-black tracking-wide text-sm sm:text-base shadow-xs shrink-0 whitespace-nowrap">
+            PYQ
           </span>
         </div>
-        <div className={`mt-1 text-xs font-extrabold tracking-[0.14em] uppercase shrink-0 whitespace-nowrap ${titleClasses}`}>
-          PREPARATION PLATFORM
+        <div className={`mt-1.5 text-[11px] font-extrabold tracking-[0.16em] uppercase shrink-0 whitespace-nowrap ${titleClasses}`}>
+          PREVIOUS YEAR QUESTIONS
         </div>
         {showTagline && (
           <p className={`text-[11px] font-medium mt-1 truncate ${subClasses}`}>
-            Right Direction, Accurate Preparation
+            Previous Year Questions • Precision Learning
           </p>
         )}
       </div>
@@ -111,12 +110,12 @@ export const AppLogo: React.FC<AppLogoProps> = ({
   return (
     <div className={`inline-flex items-center gap-2.5 select-none min-w-0 shrink-0 whitespace-nowrap ${className}`}>
       <div className={`${sizeMap[size]} shrink-0 flex items-center justify-center`}>
-        {renderMark("tile")}
+        {renderMark()}
       </div>
       <div className="flex flex-col min-w-0 shrink-0">
         <div className="flex items-center gap-1.5 leading-none shrink-0 whitespace-nowrap">
           <span
-            className={`font-extrabold tracking-tight shrink-0 whitespace-nowrap ${titleClasses} ${
+            className={`font-black tracking-tight shrink-0 whitespace-nowrap ${titleClasses} ${
               size === "hero"
                 ? "text-2xl"
                 : size === "xl"
@@ -126,12 +125,15 @@ export const AppLogo: React.FC<AppLogoProps> = ({
                 : "text-[15px] sm:text-base"
             }`}
           >
-            DISHA <span className="text-[#F47B20] shrink-0 whitespace-nowrap">20-20</span>
+            DISHA
+          </span>
+          <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-gradient-to-r from-[#F47B20] to-[#E06A12] text-white font-black text-xs tracking-wide shadow-2xs whitespace-nowrap">
+            PYQ
           </span>
         </div>
         {showTagline && (
           <span className={`text-[10px] font-semibold tracking-wide truncate mt-0.5 ${subClasses}`}>
-            Right Direction, Accurate Preparation
+            Previous Year Questions • Precision Learning
           </span>
         )}
       </div>

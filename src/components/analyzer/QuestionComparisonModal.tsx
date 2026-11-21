@@ -119,7 +119,7 @@ export const QuestionComparisonModal: React.FC<QuestionComparisonModalProps> = (
               </span>
               <div>
                 <h3 className="text-sm font-black text-[#171923] dark:text-[#FFF9EF]">
-                  Exam Question vs DISHA 20-20 Question Bank
+                  Exam Question vs Disha PYQ Question Bank
                 </h3>
                 <p className="text-[11px] font-medium tabular-nums text-[#6E6254] dark:text-[#A39887]">
                   Source Page: {questionMatch.sourcePageNumber} • Score: {questionMatch.matchScore}%
@@ -159,7 +159,7 @@ export const QuestionComparisonModal: React.FC<QuestionComparisonModalProps> = (
                   </span>
                 </div>
                 <p className="text-[11.5px] leading-relaxed opacity-95">
-                  {questionMatch.matchExplanation || "Evaluated by DISHA 20-20 AI Question Matcher."}
+                  {questionMatch.matchExplanation || "Evaluated by Disha PYQ AI Question Matcher."}
                 </p>
               </div>
             </div>
@@ -216,7 +216,7 @@ export const QuestionComparisonModal: React.FC<QuestionComparisonModalProps> = (
               <div className="p-3.5 rounded-2xl bg-white dark:bg-[#252A3A] border-2 border-[#C99A45]/60 dark:border-[#F47B20]/40 space-y-2.5">
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-black uppercase text-[#800020] dark:text-[#F47B20] tracking-wider">
-                    DISHA 20-20 Question Bank Match
+                    Disha PYQ Question Bank Match
                   </span>
                   {questionMatch.bestMatchQuestionId && (
                     <span className="text-[10px] font-mono text-[#800020] dark:text-[#F47B20]">

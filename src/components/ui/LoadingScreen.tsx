@@ -19,7 +19,7 @@ export interface FullScreenLoaderProps {
  */
 export const FullScreenLoader: React.FC<FullScreenLoaderProps> = ({
   message = "Loading chapter content...",
-  submessage = "DISHA 20-20 • Precision Learning",
+  submessage = "Disha PYQ • Previous Year Questions & Precision Learning",
   showLogo = true,
   onCancel,
   cancelLabel = "Go Back",
@@ -28,18 +28,18 @@ export const FullScreenLoader: React.FC<FullScreenLoaderProps> = ({
     <div
       role="status"
       aria-live="polite"
-      className="fixed inset-0 z-[100] flex flex-col items-center justify-center p-6 select-none bg-[#FAF7F2] dark:bg-[#0D111A] text-[#171923] dark:text-[#FFF9EF] transition-colors duration-300 overflow-hidden"
+      className="fixed inset-0 z-[100] flex flex-col items-center justify-center p-6 select-none bg-[#F4F1FA] dark:bg-[#171329] text-[#171329] dark:text-[#F4F1FA] transition-colors duration-300 overflow-hidden"
     >
       {/* 1. Subtle Ambient Background Glow (Minimalist & Non-intrusive) */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {/* Soft Gold Radial Halo */}
+        {/* Soft Purple Radial Halo */}
         <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 sm:w-96 h-72 sm:h-96 rounded-full bg-[#C99A45]/10 dark:bg-[#C99A45]/8 blur-3xl pointer-events-none animate-pulse"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 sm:w-96 h-72 sm:h-96 rounded-full bg-[#7045D8]/10 dark:bg-[#7045D8]/15 blur-3xl pointer-events-none animate-pulse"
           style={{ animationDuration: "4s" }}
         />
-        {/* Subtle Warm Saffron Micro-Aura (Carefully Restrained) */}
+        {/* Subtle Warm Secondary Purple Micro-Aura */}
         <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 sm:w-64 h-48 sm:h-64 rounded-full bg-[#F47B20]/6 dark:bg-[#F47B20]/5 blur-2xl pointer-events-none"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 sm:w-64 h-48 sm:h-64 rounded-full bg-[#A78BFA]/10 dark:bg-[#A78BFA]/10 blur-2xl pointer-events-none"
         />
       </div>
 
@@ -47,18 +47,18 @@ export const FullScreenLoader: React.FC<FullScreenLoaderProps> = ({
       <div className="relative z-10 flex flex-col items-center text-center max-w-xs sm:max-w-sm">
         {/* Dual-Ring Precision Spinner with Center Emblem */}
         <div className="relative mb-6 flex items-center justify-center">
-          {/* Outer Golden Orbit Ring */}
+          {/* Outer Purple Orbit Ring */}
           <motion.div
-            className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border border-[#C99A45]/20 dark:border-[#C99A45]/25"
-            style={{ borderTopColor: "#C99A45", borderRightColor: "#F47B20" }}
+            className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border border-[#7045D8]/20 dark:border-[#7045D8]/30"
+            style={{ borderTopColor: "#7045D8", borderRightColor: "#A78BFA" }}
             animate={{ rotate: 360 }}
             transition={{ repeat: Infinity, duration: 1.8, ease: "linear" }}
           />
 
           {/* Inner Counter-Orbit Subtle Ring */}
           <motion.div
-            className="absolute w-14 h-14 sm:w-16 sm:h-16 rounded-full border border-[#C99A45]/15 dark:border-[#C99A45]/20"
-            style={{ borderBottomColor: "#C99A45", borderLeftColor: "transparent" }}
+            className="absolute w-14 h-14 sm:w-16 sm:h-16 rounded-full border border-[#A78BFA]/20 dark:border-[#A78BFA]/25"
+            style={{ borderBottomColor: "#7045D8", borderLeftColor: "transparent" }}
             animate={{ rotate: -360 }}
             transition={{ repeat: Infinity, duration: 2.6, ease: "linear" }}
           />
@@ -66,16 +66,16 @@ export const FullScreenLoader: React.FC<FullScreenLoaderProps> = ({
           {/* Center Brand Emblem or Icon */}
           <div className="absolute inset-0 flex items-center justify-center">
             {showLogo ? (
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-white/80 dark:bg-[#151B28]/90 backdrop-blur-md border border-[#C99A45]/30 shadow-[0_4px_16px_rgba(201,154,69,0.15)] flex items-center justify-center p-2">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-white/90 dark:bg-[#1E1938]/90 backdrop-blur-md border border-[#7045D8]/30 shadow-[0_4px_16px_rgba(112,69,216,0.15)] flex items-center justify-center p-2">
                 <img
                   src="/brand-logo.png"
-                  alt="DISHA 20-20"
+                  alt="Disha PYQ"
                   className="w-full h-full object-contain filter drop-shadow-xs"
                 />
               </div>
             ) : (
-              <div className="w-9 h-9 rounded-full bg-[#C99A45]/10 dark:bg-[#C99A45]/20 border border-[#C99A45]/40 flex items-center justify-center">
-                <Sparkles className="w-4 h-4 text-[#F47B20]" />
+              <div className="w-9 h-9 rounded-full bg-[#7045D8]/10 dark:bg-[#7045D8]/20 border border-[#7045D8]/40 flex items-center justify-center">
+                <Sparkles className="w-4 h-4 text-[#A78BFA]" />
               </div>
             )}
           </div>
@@ -83,11 +83,11 @@ export const FullScreenLoader: React.FC<FullScreenLoaderProps> = ({
 
         {/* Brand Kicker / Status */}
         <div className="flex items-center gap-2 mb-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#F47B20] animate-ping" />
-          <span className="text-[11px] font-black uppercase tracking-[0.2em] text-[#C99A45]">
-            DISHA 20-20
+          <span className="w-1.5 h-1.5 rounded-full bg-[#7045D8] animate-ping" />
+          <span className="text-[11px] font-black uppercase tracking-[0.2em] text-[#7045D8] dark:text-[#A78BFA]">
+            Disha PYQ
           </span>
-          <span className="text-[#C99A45]/50 text-[10px]">✦</span>
+          <span className="text-[#A78BFA]/50 text-[10px]">✦</span>
           <span className="text-[10px] font-bold text-[#8A8F9E] dark:text-[#A4ABC0] tracking-wider uppercase">
             LIVE SYNC
           </span>

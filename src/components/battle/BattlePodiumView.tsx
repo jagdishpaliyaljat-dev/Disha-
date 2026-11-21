@@ -79,11 +79,11 @@ export const BattlePodiumView: React.FC<BattlePodiumViewProps> = ({
     const myRank = rankedPlayers.findIndex((p) => p.id === myPlayerId) + 1;
     const myPlayer = rankedPlayers.find((p) => p.id === myPlayerId);
 
-    const text = `🏆 *Disha 20-20 Live Battle Result*\n\n` +
+    const text = `🏆 *Disha PYQ Live Battle Result*\n\n` +
       `Winner: ${winner.avatar} ${winner.name} (${winner.score} pts)\n` +
       `My Rank: #${myRank} / ${rankedPlayers.length} players ${myPlayer?.avatar} (${myPlayer?.score} pts)\n` +
       `Accuracy: ${myPlayer?.correctCount || 0}/${totalQuestions} correct (10s per question ⚡)\n\n` +
-      `Can you beat me? Play Live Battle now in Disha 20-20 app! ⚔️`;
+      `Can you beat me? Play Live Battle now in Disha PYQ app! ⚔️`;
 
     const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
     window.open(whatsappUrl, "_blank", "noopener,noreferrer");

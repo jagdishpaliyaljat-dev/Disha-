@@ -943,7 +943,7 @@ export function getSampleHtmlMCQs(): string {
   <meta name="topic" content="एकीकरण के चरण">
 </head>
 <body>
-  <h1>DISHA 20-20 (दिशा 20-20) HTML Import MCQ Sample Paper</h1>
+  <h1>Disha PYQ (दिशा PYQ) HTML Import MCQ Sample Paper</h1>
 
   <!-- Question 1: Standard Direct MCQ -->
   <div class="question" data-correct="true">

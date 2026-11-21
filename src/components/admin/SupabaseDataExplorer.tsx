@@ -229,7 +229,7 @@ export const SupabaseDataExplorer: React.FC<SupabaseDataExplorerProps> = ({
               </span>
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              Direct table inspection, live row counts, and record management for DISHA 20-20.
+              Direct table inspection, live row counts, and record management for Disha PYQ.
             </p>
           </div>
         </div>

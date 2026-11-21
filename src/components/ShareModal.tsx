@@ -27,7 +27,7 @@ const ShareModal: React.FC<ShareModalProps> = ({
   if (!isOpen) return null;
 
   const shareUrl = data.url || (typeof window !== "undefined" ? window.location.href : "https://disha2020.in");
-  const shareTitle = data.title || "DISHA 20-20 Exam Prep";
+  const shareTitle = data.title || "Disha PYQ Exam Prep";
   const shareText = data.text ? `${data.text}\n\n` : "";
   const fullShareMessage = `${shareTitle}\n${shareText}Check it out here: ${shareUrl}`;
 
@@ -86,7 +86,7 @@ const ShareModal: React.FC<ShareModalProps> = ({
   };
 
   const shareToTwitter = () => {
-    const twText = encodeURIComponent(`${shareTitle} — Practice on DISHA 20-20!`);
+    const twText = encodeURIComponent(`${shareTitle} — Practice on Disha PYQ!`);
     const twUrl = encodeURIComponent(shareUrl);
     openShareLink(`https://twitter.com/intent/tweet?text=${twText}&url=${twUrl}`);
   };
@@ -150,7 +150,7 @@ const ShareModal: React.FC<ShareModalProps> = ({
             <div className="p-3.5 rounded-2xl bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A]">
               <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-[#800020] dark:text-[#F47B20] mb-1">
                 <Sparkles className="w-3 h-3" />
-                <span>{data.category || "DISHA 20-20 Practice"}</span>
+                <span>{data.category || "Disha PYQ Practice"}</span>
               </div>
               <h4 className="text-xs sm:text-sm font-bold text-[#171923] dark:text-[#FFF9EF] leading-snug line-clamp-2 font-hindi">
                 {shareTitle}

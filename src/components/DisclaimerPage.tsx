@@ -84,9 +84,9 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
             <AppLogo size="sm" />
             <div className="flex flex-col">
               <span className="text-sm font-black text-[#171923] dark:text-[#FFF9EF] leading-tight tracking-tight">
-                DISHA <span className="text-[#F47B20]">20-20</span>
+                DISHA <span className="text-[#7045D8] dark:text-[#A78BFA]">PYQ</span>
               </span>
-              <span className="text-[10px] text-[#800020] dark:text-[#F47B20] font-semibold leading-none">Disclaimer</span>
+              <span className="text-[10px] text-[#7045D8] dark:text-[#A78BFA] font-semibold leading-none">Disclaimer</span>
             </div>
           </div>
         </div>
@@ -121,11 +121,11 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
             <div className="p-4 rounded-[28px] bg-white dark:bg-[#111927] border-2 border-dashed border-slate-200 dark:border-slate-800 text-left space-y-2">
               <span className="text-[10px] font-black uppercase tracking-widest text-[#1E5BF0] block">Quick Summary</span>
               <p className="text-xs font-bold leading-normal">
-                DISHA 20-20 is an independent platform for educational practice and MCQ revision. We are NOT a government entity. All content is for self-study purposes only.
+                Disha PYQ is an independent platform for educational practice and MCQ revision. We are NOT a government entity. All content is for self-study purposes only.
               </p>
             </div>
             <p>
-              Welcome to DISHA 20-20. The information and educational materials available on{" "}
+              Welcome to Disha PYQ. The information and educational materials available on{" "}
               <a
                 href="https://disha2020.in"
                 target="_blank"
@@ -194,13 +194,13 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
 
             <div className="space-y-3 text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
               <p>
-                DISHA 20-20 is an independent educational practice platform designed to help users improve their knowledge through multiple-choice questions (MCQs), practice tests, revision activities, and other available learning resources.
+                Disha PYQ is an independent educational practice platform designed to help users improve their knowledge through multiple-choice questions (MCQs), practice tests, revision activities, and other available learning resources.
               </p>
               <p>
-                The content provided on DISHA 20-20 is intended to support self-study and examination preparation.
+                The content provided on Disha PYQ is intended to support self-study and examination preparation.
               </p>
               <p>
-                DISHA 20-20 does not replace official examination notifications, prescribed syllabi, authoritative publications, professional guidance, or other official information sources.
+                Disha PYQ does not replace official examination notifications, prescribed syllabi, authoritative publications, professional guidance, or other official information sources.
               </p>
               <p className="p-3 bg-amber-50 dark:bg-amber-950/30 rounded-2xl border border-amber-200/60 dark:border-amber-800/50 text-amber-900 dark:text-amber-200 text-xs font-semibold">
                 Note: Users should independently verify important information before relying on it for official or examination purposes.
@@ -279,7 +279,7 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
 
             <div className="space-y-3 text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
               <p>
-                DISHA 20-20 provides tools and resources to support learning and practice.
+                Disha PYQ provides tools and resources to support learning and practice.
               </p>
               <p>
                 Your examination results depend on various factors, including your preparation, understanding, practice, examination conditions, and applicable selection criteria.
@@ -299,7 +299,7 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
               </div>
 
               <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-                Use DISHA 20-20 as a supplementary learning resource and prepare according to the official syllabus and examination requirements.
+                Use Disha PYQ as a supplementary learning resource and prepare according to the official syllabus and examination requirements.
               </p>
             </div>
           </section>
@@ -325,10 +325,10 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
 
             <div className="space-y-3 text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
               <p className="font-bold text-slate-800 dark:text-slate-100">
-                DISHA 20-20 is an independent educational platform.
+                Disha PYQ is an independent educational platform.
               </p>
               <p>
-                Unless explicitly stated and verifiably established, DISHA 20-20 is not affiliated with, sponsored by, or endorsed by any government department, public service commission, examination board, recruitment agency, or other official authority.
+                Unless explicitly stated and verifiably established, Disha PYQ is not affiliated with, sponsored by, or endorsed by any government department, public service commission, examination board, recruitment agency, or other official authority.
               </p>
               <p>
                 References to examinations, organizations, recruitment processes, or educational institutions are provided strictly for identification and educational purposes.
@@ -360,7 +360,7 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
 
             <div className="space-y-3 text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
               <p>
-                MCQs, answer keys, explanations, mock tests, and practice exercises available on DISHA 20-20 are intended to help users assess their knowledge.
+                MCQs, answer keys, explanations, mock tests, and practice exercises available on Disha PYQ are intended to help users assess their knowledge.
               </p>
               <p>
                 Practice questions may not represent the exact format, difficulty level, question distribution, or content of an actual examination.
@@ -427,7 +427,7 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
 
             <div className="space-y-3 text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
               <p>
-                DISHA 20-20 may contain links to external websites, resources, or services for additional information.
+                Disha PYQ may contain links to external websites, resources, or services for additional information.
               </p>
               <p>
                 These external resources are operated by third parties and may be governed by their own policies and terms.
@@ -462,7 +462,7 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
 
             <div className="space-y-3 text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
               <p>
-                DISHA 20-20's original branding, software, design, and original educational materials may be protected by applicable intellectual property laws.
+                Disha PYQ's original branding, software, design, and original educational materials may be protected by applicable intellectual property laws.
               </p>
               <p>
                 Third-party names, trademarks, logos, publications, and other materials belong to their respective owners.
@@ -471,7 +471,7 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
                 Any use of third-party material on the platform is subject to applicable legal requirements and the relevant rights of its owners.
               </p>
               <p>
-                If you believe that material on DISHA 20-20 infringes your intellectual property rights, please contact us with sufficient information to identify the material and explain your concern. We will review legitimate reports and take appropriate action where warranted.
+                If you believe that material on Disha PYQ infringes your intellectual property rights, please contact us with sufficient information to identify the material and explain your concern. We will review legitimate reports and take appropriate action where warranted.
               </p>
             </div>
           </section>
@@ -500,7 +500,7 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
                 We aim to provide a reliable and accessible learning platform. However, we cannot guarantee uninterrupted or error-free access.
               </p>
               <p>
-                DISHA 20-20 may occasionally experience maintenance, service interruptions, technical errors, connectivity problems, or other disruptions.
+                Disha PYQ may occasionally experience maintenance, service interruptions, technical errors, connectivity problems, or other disruptions.
               </p>
               <p>
                 Features, content, and services may change as the platform develops.
@@ -532,13 +532,13 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
 
             <div className="space-y-3 text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
               <p>
-                DISHA 20-20 and its operators are not responsible for decisions made solely on the basis of information obtained from the platform without appropriate verification.
+                Disha PYQ and its operators are not responsible for decisions made solely on the basis of information obtained from the platform without appropriate verification.
               </p>
               <p>
                 Users are responsible for evaluating the suitability of educational materials for their individual learning requirements.
               </p>
               <p>
-                To the extent permitted by applicable law, DISHA 20-20 disclaims responsibility for losses arising from reliance on inaccurate, incomplete, or outdated educational information.
+                To the extent permitted by applicable law, Disha PYQ disclaims responsibility for losses arising from reliance on inaccurate, incomplete, or outdated educational information.
               </p>
               <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
                 Nothing in this Disclaimer excludes or limits any rights, warranties, or liabilities that cannot lawfully be excluded or limited under applicable law.
@@ -567,7 +567,7 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
 
             <div className="space-y-3 text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
               <p>
-                The collection and use of personal information through DISHA 20-20 are described in our Privacy Policy.
+                The collection and use of personal information through Disha PYQ are described in our Privacy Policy.
               </p>
               <p>
                 Please review our Privacy Policy for information about data collection, storage, use, security, and applicable privacy rights.
@@ -749,7 +749,7 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
           </div>
 
           <p className="text-[10px] text-slate-400 dark:text-slate-500">
-            © 2026 DISHA 20-20. All rights reserved. Online MCQ Practice Platform.
+            © 2026 Disha PYQ. All rights reserved. Online MCQ Practice Platform.
           </p>
         </footer>
       </main>

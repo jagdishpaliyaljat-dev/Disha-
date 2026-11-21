@@ -204,9 +204,9 @@ export const NewsPage: React.FC<NewsPageProps> = ({
     if (!selectedSlug) {
       setActiveArticle(null);
       updateSEOHead({
-        title: "Exam News, Economic Analysis & Preparation Guides — DISHA 20-20",
+        title: "Exam News, Economic Analysis & Preparation Guides — Disha PYQ",
         description:
-          "Stay updated with Rajasthan Economic Survey highlights, RPSC RAS exam strategies, notification updates, and preparation guides on DISHA 20-20.",
+          "Stay updated with Rajasthan Economic Survey highlights, RPSC RAS exam strategies, notification updates, and preparation guides on Disha PYQ.",
         canonicalUrl:
           typeof window !== "undefined"
             ? `${window.location.origin}/news`
@@ -234,10 +234,10 @@ export const NewsPage: React.FC<NewsPageProps> = ({
               image: [art.coverImageUrl || `${origin}/logo.svg`],
               datePublished: art.publishedAt || art.createdAt,
               dateModified: art.updatedAt || art.publishedAt || art.createdAt,
-              author: [{ "@type": "Person", name: art.authorName || "DISHA 20-20 Editorial Team" }],
+              author: [{ "@type": "Person", name: art.authorName || "Disha PYQ Editorial Team" }],
               publisher: {
                 "@type": "Organization",
-                name: "DISHA 20-20",
+                name: "Disha PYQ",
                 logo: { "@type": "ImageObject", url: `${origin}/logo.svg` },
               },
               mainEntityOfPage: { "@type": "WebPage", "@id": fullUrl },
@@ -290,20 +290,20 @@ export const NewsPage: React.FC<NewsPageProps> = ({
           }
 
           updateSEOHead({
-            title: art.seoTitle ? `${art.seoTitle} | DISHA 20-20` : `${art.title} — DISHA 20-20 Editorial`,
+            title: art.seoTitle ? `${art.seoTitle} | Disha PYQ` : `${art.title} — Disha PYQ Editorial`,
             description: art.seoDescription || art.excerpt || art.title,
             canonicalUrl: fullUrl,
             ogType: "article",
             ogImage: art.coverImageUrl,
             publishedAt: art.publishedAt || art.createdAt,
             modifiedAt: art.updatedAt || art.publishedAt || art.createdAt,
-            authorName: art.authorName || "DISHA 20-20 Editorial Team",
+            authorName: art.authorName || "Disha PYQ Editorial Team",
             category: art.category,
             jsonLdSchemas,
           });
         } else {
           updateSEOHead({
-            title: "Article Not Found | DISHA 20-20",
+            title: "Article Not Found | Disha PYQ",
             description: "The requested article could not be found or may have been unlisted.",
             canonicalUrl: `${origin}/news`,
             ogType: "website",
@@ -342,9 +342,9 @@ export const NewsPage: React.FC<NewsPageProps> = ({
     const fullUrl = `${origin}/news/${targetArt.slug}`;
     setShareData({
       title: targetArt.title,
-      text: targetArt.excerpt || "Read the complete update and preparation guide on DISHA 20-20.",
+      text: targetArt.excerpt || "Read the complete update and preparation guide on Disha PYQ.",
       url: fullUrl,
-      category: targetArt.category || "DISHA 20-20 Exam Guide",
+      category: targetArt.category || "Disha PYQ Exam Guide",
     });
   };
 
@@ -359,7 +359,7 @@ export const NewsPage: React.FC<NewsPageProps> = ({
       try {
         await navigator.share({
           title: targetArt.title,
-          text: targetArt.excerpt || "Read this complete update and preparation guide on DISHA 20-20.",
+          text: targetArt.excerpt || "Read this complete update and preparation guide on Disha PYQ.",
           url: fullUrl,
         });
         return;
@@ -377,7 +377,7 @@ export const NewsPage: React.FC<NewsPageProps> = ({
     const fullUrl = `${origin}/news/${targetArt.slug}`;
     const title = getDisplayArticleTitle(targetArt);
     const excerpt = targetArt.excerpt || "High-yield study notes and past year questions guide for competitive exams.";
-    const text = `📚 *${title}*\n\n${excerpt}\n\n👉 *Read full article here:* ${fullUrl}\n\n_DISHA 20-20 · Precision Learning_`;
+    const text = `📚 *${title}*\n\n${excerpt}\n\n👉 *Read full article here:* ${fullUrl}\n\n_Disha PYQ · Precision Learning_`;
     const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
     if (typeof window !== "undefined") {
       window.open(waUrl, "_blank", "noopener,noreferrer");
@@ -961,13 +961,13 @@ export const NewsPage: React.FC<NewsPageProps> = ({
               </div>
               <div>
                 <span className="text-[10px] font-black uppercase tracking-wider text-[#800020] dark:text-[#F47B20]">
-                  DISHA 20-20 · Related Quiz Topic
+                  Disha PYQ · Related Quiz Topic
                 </span>
                 <h4 className="text-sm sm:text-base font-extrabold text-[#171923] dark:text-[#FFF9EF] mt-0.5">
                   {blk.relatedQuizTopicTitle || "Practice Related Questions"}
                 </h4>
                 <p className="text-xs text-[#52576A] dark:text-[#CBD2E1] mt-0.5">
-                  Practice free MCQs with detailed explanations &amp; timer on DISHA 20-20
+                  Practice free MCQs with detailed explanations &amp; timer on Disha PYQ
                 </p>
               </div>
             </div>
@@ -990,13 +990,13 @@ export const NewsPage: React.FC<NewsPageProps> = ({
             <div className="absolute top-0 right-0 w-48 h-48 bg-[#C99A45]/15 rounded-full blur-2xl pointer-events-none" />
             <div className="space-y-1.5 text-center sm:text-left relative z-10">
               <span className="inline-block text-[10px] font-black uppercase tracking-wider text-[#C99A45]">
-                DISHA 20-20 · Free Mock Simulation
+                Disha PYQ · Free Mock Simulation
               </span>
               <h4 className="text-base sm:text-lg font-black text-white">
                 {blk.ctaText || "Test Your Preparation Level"}
               </h4>
               <p className="text-xs text-[#FFF9EF]/80 max-w-md">
-                Practice topic-wise MCQs with official timer, negative marking, and instant answers on DISHA 20-20.
+                Practice topic-wise MCQs with official timer, negative marking, and instant answers on Disha PYQ.
               </p>
             </div>
             <button
@@ -1239,7 +1239,7 @@ export const NewsPage: React.FC<NewsPageProps> = ({
                   />
                 ) : (
                   <div className="w-36 h-48 rounded-xl bg-gradient-to-br from-[#800020] to-[#4A0012] border border-[#C99A45]/40 text-white p-4 flex flex-col justify-between shadow-md">
-                    <span className="text-[9px] font-black uppercase tracking-wider text-[#C99A45]">DISHA 20-20</span>
+                    <span className="text-[9px] font-black uppercase tracking-wider text-[#C99A45]">Disha PYQ</span>
                     <BookOpen className="w-8 h-8 text-[#F47B20] mx-auto" />
                     <span className="text-[11px] font-bold leading-snug line-clamp-2 text-center">{title}</span>
                   </div>
@@ -1295,7 +1295,7 @@ export const NewsPage: React.FC<NewsPageProps> = ({
                 <div className="pt-2 flex items-center justify-between gap-3 flex-wrap">
                   <div className="text-[11px] text-[#52576A] dark:text-[#CBD2E1] flex items-center gap-1">
                     <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>Verified Recommendation by DISHA 20-20 Editorial</span>
+                    <span>Verified Recommendation by Disha PYQ Editorial</span>
                   </div>
                   <a
                     href={url}
@@ -1337,9 +1337,9 @@ export const NewsPage: React.FC<NewsPageProps> = ({
             <span className="truncate max-w-[200px] sm:max-w-none">{categoryBadge}</span>
           </div>
           {/* Balanced branding pill */}
-          <div className="px-3 py-1 rounded-full bg-black/25 backdrop-blur-md border border-[#C99A45]/30 text-[#FFF9EF] font-bold flex items-center gap-1.5 text-xs shadow-xs shrink-0">
+          <div className="px-3 py-1 rounded-full bg-black/25 backdrop-blur-md border border-[#A78BFA]/30 text-[#FFF9EF] font-bold flex items-center gap-1.5 text-xs shadow-xs shrink-0">
             <span>DISHA</span>
-            <span className="text-[#C99A45]">20-20</span>
+            <span className="text-[#A78BFA]">PYQ</span>
           </div>
         </div>
 
@@ -1348,7 +1348,7 @@ export const NewsPage: React.FC<NewsPageProps> = ({
             {displayTitle}
           </h2>
           <p className="text-xs sm:text-sm text-[#FFF9EF]/80 font-medium">
-            DISHA 20-20 Expert Research &amp; Exam Analysis · Right Direction, Accurate Preparation
+            Disha PYQ Expert Research &amp; Exam Analysis · Previous Year Questions &amp; Precision Learning
           </p>
         </div>
       </div>
@@ -1364,7 +1364,7 @@ export const NewsPage: React.FC<NewsPageProps> = ({
       <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-5">
         <div className="space-y-1.5 text-center sm:text-left">
           <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/10 text-[10.5px] font-bold uppercase tracking-wider text-[#FCD34D] border border-[#C99A45]/30">
-            <span>⭐ DISHA 20-20 Exam Prep Companion</span>
+            <span>⭐ Disha PYQ Exam Prep Companion</span>
           </div>
           <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight">
             High-Yield Practice Questions & PYQ Test Series
@@ -1400,7 +1400,7 @@ export const NewsPage: React.FC<NewsPageProps> = ({
       return (
         <FullScreenLoader
           message="Loading article..."
-          submessage="DISHA 20-20 • Special Edition & Analysis"
+          submessage="Disha PYQ • Special Edition & Analysis"
           onCancel={handleBackToList}
           cancelLabel="Back to News"
         />
@@ -1467,7 +1467,7 @@ export const NewsPage: React.FC<NewsPageProps> = ({
                 <span>Exam News &amp; Guides</span>
               </button>
               <span className="hidden sm:inline-block text-[11px] font-black text-[#800020] dark:text-[#C99A45] truncate">
-                DISHA 20-20 · Right Direction, Accurate Preparation
+                Disha PYQ · Right Direction, Accurate Preparation
               </span>
             </div>
 
@@ -1577,10 +1577,10 @@ export const NewsPage: React.FC<NewsPageProps> = ({
                 )}
                 <div>
                   <p className="font-black text-[#171923] dark:text-[#FFF9EF] text-xs sm:text-sm">
-                    {activeArticle.authorName || "DISHA 20-20 Editorial Team"}
+                    {activeArticle.authorName || "Disha PYQ Editorial Team"}
                   </p>
                   <p className="text-[11px] text-[#52576A] dark:text-[#CBD2E1] font-medium">
-                    DISHA 20-20 · Senior Exam Research Analyst
+                    Disha PYQ · Senior Exam Research Analyst
                   </p>
                 </div>
               </div>
@@ -1774,7 +1774,7 @@ export const NewsPage: React.FC<NewsPageProps> = ({
                       </div>
                     </div>
                     <span className="hidden sm:inline-block text-[11px] font-black uppercase tracking-wider text-[#800020] dark:text-[#C99A45]">
-                      DISHA 20-20 · Editor's Pick
+                      Disha PYQ · Editor's Pick
                     </span>
                   </div>
 
@@ -1800,7 +1800,7 @@ export const NewsPage: React.FC<NewsPageProps> = ({
                             <div className="w-full h-24 rounded-xl overflow-hidden bg-gradient-to-br from-[#800020] via-[#5E0017] to-[#2A000B] border border-[#C99A45]/30 p-3 flex items-center justify-between text-white">
                               <div className="space-y-0.5 min-w-0">
                                 <span className="text-[9px] font-black uppercase tracking-wider text-[#C99A45] block">
-                                  DISHA 20-20 · {relArt.category}
+                                  Disha PYQ · {relArt.category}
                                 </span>
                                 <span className="text-xs font-black text-[#FFF9EF] line-clamp-1">
                                   {relArt.title}
@@ -1858,14 +1858,14 @@ export const NewsPage: React.FC<NewsPageProps> = ({
                 )}
                 <div className="space-y-1 text-xs">
                   <span className="text-[10px] uppercase font-black tracking-wider text-[#800020] dark:text-[#F47B20]">
-                    Written by · DISHA 20-20
+                    Written by · Disha PYQ
                   </span>
                   <h4 className="text-sm font-black text-[#171923] dark:text-[#FFF9EF]">
-                    {activeArticle.authorName || "DISHA 20-20 Editorial Team"}
+                    {activeArticle.authorName || "Disha PYQ Editorial Team"}
                   </h4>
                   <p className="text-[#52576A] dark:text-[#CBD2E1] leading-relaxed">
                     {activeArticle.authorBio ||
-                      "Senior Exam Research Analyst & Competitive Exam Content Specialist at DISHA 20-20."}
+                      "Senior Exam Research Analyst & Competitive Exam Content Specialist at Disha PYQ."}
                   </p>
                 </div>
               </div>
@@ -1880,7 +1880,7 @@ export const NewsPage: React.FC<NewsPageProps> = ({
                         Get Real-Time Exam Updates on Telegram
                       </h4>
                       <p className="text-xs text-[#52576A] dark:text-[#CBD2E1] font-medium">
-                        Join our official DISHA 20-20 channel for daily PDFs and notifications.
+                        Join our official Disha PYQ channel for daily PDFs and notifications.
                       </p>
                     </div>
                   </div>
@@ -1983,11 +1983,11 @@ export const NewsPage: React.FC<NewsPageProps> = ({
                   Exam News &amp; Preparation Guides
                 </h1>
                 <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-md text-[9.5px] font-black uppercase tracking-wider bg-[#F47B20] text-white shrink-0">
-                  DISHA 20-20
+                  Disha PYQ
                 </span>
               </div>
               <p className="text-[11px] font-semibold text-[#FFF9EF]/80 truncate">
-                DISHA 20-20 · Exam News, Economic Review &amp; Strategy Guides
+                Disha PYQ · Exam News, Economic Review &amp; Strategy Guides
               </p>
             </div>
           </div>
@@ -2088,7 +2088,7 @@ export const NewsPage: React.FC<NewsPageProps> = ({
                 <div className="w-full h-full min-h-[220px] bg-gradient-to-br from-[#800020] via-[#5E0017] to-[#2A000B] flex flex-col items-center justify-center text-white p-6 text-center gap-2">
                   <Compass className="w-12 h-12 text-[#F47B20]" />
                   <span className="text-xs font-black uppercase tracking-wider text-[#C99A45]">
-                    DISHA 20-20 · Right Direction, Accurate Preparation
+                    Disha PYQ · Right Direction, Accurate Preparation
                   </span>
                 </div>
               )}
@@ -2184,7 +2184,7 @@ export const NewsPage: React.FC<NewsPageProps> = ({
                       <div className="flex items-center justify-between gap-2">
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#F47B20] text-white text-[9px] font-black uppercase tracking-wider">
                           <Compass className="w-3 h-3" />
-                          <span>DISHA 20-20</span>
+                          <span>Disha PYQ</span>
                         </span>
                         <span className="text-[9.5px] font-black uppercase tracking-wider text-[#C99A45] truncate max-w-[140px]">
                           {article.category}

@@ -82,9 +82,9 @@ export const ExtractionReviewSection: React.FC<ExtractionReviewSectionProps> = (
       {/* Top Banner */}
       <div className="bg-white dark:bg-[#1F2330] rounded-3xl p-4 sm:p-5 border border-[#E8D9C0] dark:border-[#31374A] shadow-xs flex items-center justify-between gap-3">
         <div>
-          <span className="text-[10px] font-black uppercase text-[#800020] dark:text-[#F47B20] tracking-wider flex items-center gap-1">
-            <FileCheck className="w-3.5 h-3.5 text-[#F47B20]" />
-            DISHA 20-20 • OCR Extraction Review
+          <span className="text-[10px] font-black uppercase text-[#7045D8] dark:text-[#A78BFA] tracking-wider flex items-center gap-1">
+            <FileCheck className="w-3.5 h-3.5 text-[#7045D8] dark:text-[#A78BFA]" />
+            Disha PYQ • OCR Extraction Review
           </span>
           <h2 className="text-base sm:text-lg font-black text-[#171923] dark:text-[#FFF9EF] mt-0.5 tabular-nums">
             Review Extracted Questions ({questions.length})

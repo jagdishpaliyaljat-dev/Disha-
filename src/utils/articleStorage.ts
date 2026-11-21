@@ -261,8 +261,8 @@ export function normalizeArticle(raw: any): NewsArticle {
     category: raw.category || "General",
     tags: Array.isArray(raw.tags) ? raw.tags : [],
     coverImageUrl: raw.coverImageUrl || raw.coverImage || raw.featuredImage || "",
-    authorName: !raw.authorName || raw.authorName === "QuizPro Editorial Team" ? "DISHA 20-20 Editorial Team" : raw.authorName,
-    authorBio: !raw.authorBio || raw.authorBio.includes("QuizPro") ? "Senior Education Analyst & Competitive Exam Specialist at DISHA 20-20." : raw.authorBio,
+    authorName: !raw.authorName || raw.authorName === "QuizPro Editorial Team" ? "Disha PYQ Editorial Team" : raw.authorName,
+    authorBio: !raw.authorBio || raw.authorBio.includes("QuizPro") ? "Senior Education Analyst & Competitive Exam Specialist at Disha PYQ." : raw.authorBio,
     authorPhotoUrl: raw.authorPhotoUrl && !raw.authorPhotoUrl.includes("unsplash.com") ? raw.authorPhotoUrl : "",
     status: raw.status || "published",
     isPinned: Boolean(raw.isPinned),
@@ -296,7 +296,7 @@ export function mapRowToArticle(r: any): NewsArticle {
     tags: Array.isArray(r.tags) ? r.tags : [],
     language: r.language || "Both",
     coverImageUrl: r.cover_image_url || undefined,
-    authorName: r.author_name || "Disha 20-20 Team",
+    authorName: r.author_name || "Disha PYQ Team",
     authorBio: r.author_bio || undefined,
     authorPhotoUrl: r.author_photo_url || undefined,
     status: r.status || "draft",
@@ -337,7 +337,7 @@ export function mapArticleToRow(a: NewsArticle): any {
     tags: a.tags || [],
     language: a.language || "Both",
     cover_image_url: a.coverImageUrl || null,
-    author_name: a.authorName || "Disha 20-20 Team",
+    author_name: a.authorName || "Disha PYQ Team",
     author_bio: a.authorBio || null,
     author_photo_url: a.authorPhotoUrl || null,
     status: a.status || "draft",
@@ -578,7 +578,7 @@ export async function saveArticleAdmin(
 
   const autoSeoDescription = article.seoDescription?.trim()
     ? article.seoDescription.trim()
-    : (article.excerpt?.trim() || plainTextExcerpt || "Read latest exam updates and study guide on DISHA 20-20.");
+    : (article.excerpt?.trim() || plainTextExcerpt || "Read latest exam updates and study guide on Disha PYQ.");
 
   const rawBlocks = Array.isArray(article.blocks) ? article.blocks : [];
 

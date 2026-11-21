@@ -618,7 +618,7 @@ export function generateArticleJsonLd(article: Partial<NewsArticle>): Record<str
       "isPartOf": {
         "@type": "WebSite",
         "@id": `${siteUrl}#website`,
-        "name": "DISHA 20-20 Exam Prep",
+        "name": "Disha PYQ Exam Prep",
         "url": siteUrl
       },
       "headline": article.title || "Exam Preparation Guide",
@@ -634,11 +634,11 @@ export function generateArticleJsonLd(article: Partial<NewsArticle>): Record<str
       ],
       "author": {
         "@type": "Person",
-        "name": article.authorName || "DISHA 20-20 Editorial Team"
+        "name": article.authorName || "Disha PYQ Editorial Team"
       },
       "publisher": {
         "@type": "Organization",
-        "name": "DISHA 20-20 Exam Prep",
+        "name": "Disha PYQ Exam Prep",
         "url": siteUrl,
         "logo": {
           "@type": "ImageObject",
@@ -1301,7 +1301,7 @@ export function parseSmartText(
     blocks.push({
       id: `blk_cta_auto_${Date.now()}`,
       type: "cta",
-      ctaText: `Attempt DISHA 20-20 Full Mock Test & Chapter MCQs for ${detectedTitle.split(":")[0]}`,
+      ctaText: `Attempt Disha PYQ Full Mock Test & Chapter MCQs for ${detectedTitle.split(":")[0]}`,
       ctaUrl: "/live_tests"
     });
     ctaDetected = true;
@@ -1332,7 +1332,7 @@ export function parseSmartText(
   }
   let seoDescription = excerpt;
   if (seoDescription.length < 110) {
-    seoDescription = `${detectedTitle}. Check official syllabus, important exam dates, key points, eligibility criteria, and preparation strategy on DISHA 20-20.`;
+    seoDescription = `${detectedTitle}. Check official syllabus, important exam dates, key points, eligibility criteria, and preparation strategy on Disha PYQ.`;
   }
   if (seoDescription.length > 160) {
     seoDescription = seoDescription.substring(0, 157) + "...";
@@ -1348,7 +1348,7 @@ export function parseSmartText(
     content: fullExtractedContent,
     blocks: finalBlocks,
     status: "published",
-    authorName: "DISHA 20-20 Editorial Team",
+    authorName: "Disha PYQ Editorial Team",
     focusKeyword: kwResult.focusKeyword,
     seoTitle,
     seoDescription,
@@ -1761,7 +1761,7 @@ export function parseSmartHtml(
     content: cleanHtml || rawHtml,
     blocks: finalBlocks,
     status: "published",
-    authorName: "DISHA 20-20 Editorial Team",
+    authorName: "Disha PYQ Editorial Team",
     focusKeyword: kwResult.focusKeyword,
     seoTitle: `${detectedTitle} | Complete Guide`,
     seoDescription: excerpt,

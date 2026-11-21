@@ -81,7 +81,7 @@ export function updateSEOHead(options: SEOOptions) {
   setMeta("property", "og:type", options.ogType || "website");
   setMeta("property", "og:url", fullUrl);
   setMeta("property", "og:image", defaultImage);
-  setMeta("property", "og:site_name", "DISHA 20-20");
+  setMeta("property", "og:site_name", "Disha PYQ");
   setMeta("property", "og:locale", "en_IN");
   setMeta("property", "og:locale:alternate", "en_US");
 

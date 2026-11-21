@@ -90,7 +90,7 @@ export function initSentry(): void {
     ],
   });
 
-  console.info(`[Sentry] Initialized — DISHA 20-20 v${APP_VERSION}`);
+  console.info(`[Sentry] Initialized — Disha PYQ v${APP_VERSION}`);
 }
 
 /**

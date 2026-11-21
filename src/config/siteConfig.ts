@@ -5,10 +5,10 @@
 
 export const SITE_CONFIG = {
   domain: "https://disha2020.in",
-  siteName: "DISHA 20-20",
-  hindiName: "DISHA 20-20",
-  tagline: "Right Direction, Accurate Preparation",
-  englishTagline: "Right Direction. Precision Prep.",
+  siteName: "Disha PYQ",
+  hindiName: "दिशा PYQ",
+  tagline: "Previous Year Questions & Precision Learning",
+  englishTagline: "Previous Year Questions & Precision Learning",
   googleSiteVerification: process.env.VITE_GOOGLE_SITE_VERIFICATION || "",
   gaMeasurementId: process.env.VITE_GA_MEASUREMENT_ID || "G-9B8SS6TRQK",
   telegramChannelUrl: process.env.VITE_TELEGRAM_CHANNEL_URL || "https://t.me/disha2020_official",

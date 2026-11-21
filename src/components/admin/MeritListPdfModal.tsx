@@ -71,11 +71,11 @@ export const MeritListPdfModal: React.FC<MeritListPdfModalProps> = ({
   // Telegram / WhatsApp post text
   const sharePostText = React.useMemo(() => {
     if (candidates.length === 0) {
-      return `📢 *DISHA 20-20 — LIVE TEST MERIT LIST NOTICE* 📢\n\n📝 *Exam:* ${testTitle}\n📅 *Date:* ${new Date().toLocaleDateString("en-US")}\n\nNo verified candidate submissions recorded yet. Merit ranking will update automatically when submissions are recorded.\n\n👉 Attempt test: https://disha-2020.vercel.app/tests`;
+      return `📢 *DISHA PYQ — LIVE TEST MERIT LIST NOTICE* 📢\n\n📝 *Exam:* ${testTitle}\n📅 *Date:* ${new Date().toLocaleDateString("en-US")}\n\nNo verified candidate submissions recorded yet. Merit ranking will update automatically when submissions are recorded.\n\n👉 Attempt test: https://disha-2020.vercel.app/tests`;
     }
-    return `🏆 *DISHA 20-20 — LIVE TEST RESULT DECLARED!* 🏆\n\n📝 *Exam:* ${testTitle}\n📅 *Date:* ${new Date().toLocaleDateString("en-US")}\n👥 *Total Candidates:* ${candidates.length}\n\n` +
+    return `🏆 *DISHA PYQ — LIVE TEST RESULT DECLARED!* 🏆\n\n📝 *Exam:* ${testTitle}\n📅 *Date:* ${new Date().toLocaleDateString("en-US")}\n👥 *Total Candidates:* ${candidates.length}\n\n` +
       candidates.slice(0, 5).map((c) => `🏅 *Rank ${c.rank}:* ${c.name} — ${c.score}/${c.totalMarks} (${c.percentile}%ile)`).join("\n") +
-      `\n\n📊 *View your personal scorecard & state rank:*\n👉 https://disha-2020.vercel.app/tests\n\n🎯 *DISHA 20-20 — Right Direction, Precise Preparation*`;
+      `\n\n📊 *View your personal scorecard & state rank:*\n👉 https://disha-2020.vercel.app/tests\n\n🎯 *Disha PYQ — Previous Year Questions & Precision Learning*`;
   }, [testTitle, candidates]);
 
   const handleCopyPost = () => {
@@ -104,7 +104,7 @@ export const MeritListPdfModal: React.FC<MeritListPdfModalProps> = ({
 
       doc.setTextColor(255, 255, 255);
       doc.setFontSize(18);
-      doc.text("DISHA 20-20 (DIRECTIONS 20-20)", 105, 14, { align: "center" });
+      doc.text("DISHA PYQ (PREVIOUS YEAR QUESTIONS)", 105, 14, { align: "center" });
 
       doc.setFontSize(10);
       doc.text("OFFICIAL STATE LEVEL MERIT LIST & RESULT SCORECARD", 105, 22, { align: "center" });
@@ -167,9 +167,9 @@ export const MeritListPdfModal: React.FC<MeritListPdfModalProps> = ({
 
       doc.setFontSize(8);
       doc.setTextColor(148, 163, 184);
-      doc.text("DISHA 20-20 Examination Engine — https://disha-2020.vercel.app", 105, footerY, { align: "center" });
+      doc.text("Disha PYQ Examination Engine — https://disha-2020.vercel.app", 105, footerY, { align: "center" });
 
-      doc.save(`DISHA_2020_Merit_List_${Date.now()}.pdf`);
+      doc.save(`Disha_PYQ_Merit_List_${Date.now()}.pdf`);
     } catch (err: any) {
       alert("PDF Error: " + err.message);
     } finally {

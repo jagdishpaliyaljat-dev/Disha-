@@ -207,8 +207,8 @@ export function setupDailyStudyNotificationTimer(
     if (currentHour === targetHour && currentMin === targetMin && lastTriggerDate !== todayStr) {
       localStorage.setItem("disha_last_study_reminder_date", todayStr);
       triggerLocalNotification({
-        title: "📚 DISHA 20-20 — Study Time!",
-        body: "Complete today's 20-question practice test and boost your leaderboard rank.",
+        title: "📚 Disha PYQ — Study Time!",
+        body: "Complete today's practice test and boost your leaderboard rank.",
         url: "/",
         tag: "daily-study-reminder",
       });
