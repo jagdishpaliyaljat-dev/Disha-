@@ -1,6 +1,7 @@
 import * as React from "react";
 import { productionMonitor } from "../utils/productionMonitoring";
 import { captureSentryError } from "../utils/sentryInit";
+import { reportCrashToSupabase } from "../services/crashReportingService";
 import {
   safeGetSessionStorageItem,
   safeSetSessionStorageItem,
@@ -59,6 +60,19 @@ export class AppErrorBoundary extends React.Component<AppErrorBoundaryProps, App
         componentStack: errorInfo?.componentStack,
         errorEventId: entryId,
       });
+    } catch (_) {}
+
+    try {
+      reportCrashToSupabase({
+        error,
+        category: "REACT_ERROR",
+        severity: "CRITICAL",
+        componentName: "RootAppBoundary",
+        metadata: {
+          errorEventId: entryId,
+          componentStack: errorInfo?.componentStack?.slice(0, 1000),
+        },
+      }).catch(() => {});
     } catch (_) {}
 
     // Auto-healing recovery: If this is the first unexpected view error in the session,

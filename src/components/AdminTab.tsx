@@ -54,6 +54,7 @@ const SupabaseHealthPanel = adminSafeLazy<any>(() => import("./admin/SupabaseHea
 const SyncHealthMonitorPanel = adminSafeLazy<any>(() => import("./admin/SyncHealthMonitorPanel"), "SyncHealthMonitorPanel");
 const AdminDiagnosticsSection = adminSafeLazy<any>(() => import("./admin/AdminDiagnosticsSection"), "AdminDiagnosticsSection");
 const DiagnosticReport = adminSafeLazy<any>(() => import("./admin/DiagnosticReport"), "DiagnosticReport");
+const CrashReportsSection = adminSafeLazy<any>(() => import("./admin/CrashReportsSection"), "CrashReportsSection");
 const DishaAIDashboard = adminSafeLazy<any>(() => import("./admin/DishaAIDashboard"), "DishaAIDashboard");
 const AIApiManagementSection = adminSafeLazy<any>(() => import("./admin/AIApiManagementSection"), "AIApiManagementSection");
 const ExportDataWidget = adminSafeLazy<any>(() => import("./admin/ExportDataWidget"), "ExportDataWidget");
@@ -106,6 +107,7 @@ export type AdminGroupSection =
   | "users"
   | "supabase"
   | "diagnostics"
+  | "crashes"
   | "integrations"
   | "backup"
   | "settings";
@@ -795,6 +797,12 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
           title: "Supabase Cloud",
           icon: HardDrive,
           badge: "PG",
+        },
+        {
+          id: "crashes" as AdminGroupSection,
+          title: "Crash Reports",
+          icon: ShieldAlert,
+          badge: "Live",
         },
         {
           id: "integrations" as AdminGroupSection,
@@ -1761,6 +1769,13 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
             {activeGroup === "diagnostics" && (
               <React.Suspense fallback={<AdminSectionLoader type="cards" title="Loading Diagnostics Report..." />}>
                 <DiagnosticReport userProfile={props.userProfile} />
+              </React.Suspense>
+            )}
+
+            {/* Live Crash & Telemetry Reports Section */}
+            {activeGroup === "crashes" && (
+              <React.Suspense fallback={<AdminSectionLoader type="cards" title="Loading Live Crash Reports..." />}>
+                <CrashReportsSection />
               </React.Suspense>
             )}
 

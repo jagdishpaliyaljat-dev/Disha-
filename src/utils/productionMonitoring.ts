@@ -328,6 +328,21 @@ class ProductionMonitoringService {
 
     this.persistToStorage();
     this.notifyListeners();
+
+    if (severity === "CRITICAL" || severity === "HIGH") {
+      try {
+        import("../services/crashReportingService").then(({ reportCrashToSupabase }) => {
+          reportCrashToSupabase({
+            error,
+            category: category as any,
+            severity: severity as any,
+            componentName: context?.component,
+            metadata: context,
+          }).catch(() => {});
+        }).catch(() => {});
+      } catch {}
+    }
+
     return entry;
   }
 
