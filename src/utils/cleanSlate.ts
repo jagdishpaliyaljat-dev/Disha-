@@ -19,8 +19,8 @@ import {
  * test MCQs, mock data, sample quizzes, and stress-test artifacts.
  */
 
-const CLEAN_SLATE_VERSION_KEY = "disha2020_clean_slate_zero_mock_v12_0";
-const CURRENT_CLEAN_SLATE_VERSION = "12.0.0";
+const CLEAN_SLATE_VERSION_KEY = "disha2020_clean_slate_zero_mock_v13_0";
+const CURRENT_CLEAN_SLATE_VERSION = "13.0.0";
 
 // Complete clean slate keys reset to empty arrays on startup
 const KEYS_TO_RESET_TO_EMPTY = [
@@ -46,6 +46,12 @@ const KEYS_TO_RESET_TO_EMPTY = [
   "remix_rajprep_exam_categories_v1",
   "disha_custom_coaching_nodes_v1",
   "disha_deleted_coaching_node_ids_v1",
+  "disha2020_coaching_list",
+  "quizpro_coaching_list",
+  "disha2020_coaching_exams",
+  "quizpro_coaching_exams",
+  "disha2020_coaching_series",
+  "quizpro_coaching_series",
 ];
 
 const OBSOLETE_LEGACY_KEYS = [
@@ -137,7 +143,9 @@ export function isTestOrMockId(id?: string | null): boolean {
     trimmed.startsWith("usr-q-gen-") ||
     trimmed.startsWith("q_pilot_") ||
     trimmed.startsWith("usr-q-topic_c60f80e6") ||
-    trimmed.startsWith("usr-q-topic_7eef8754")
+    trimmed.startsWith("usr-q-topic_7eef8754") ||
+    trimmed.startsWith("bm_usr_") ||
+    trimmed.startsWith("benchmark_")
   ) {
     return true;
   }
@@ -474,7 +482,13 @@ export function purgeObsoleteKeys(): void {
         k.startsWith("disha2020_test_") ||
         k.startsWith("disha2020_mock_") ||
         k.startsWith("quizpro_test_") ||
-        k.startsWith("quizpro_mock_")
+        k.startsWith("quizpro_mock_") ||
+        k.startsWith("disha2020_lb_") ||
+        k.startsWith("quizpro_lb_") ||
+        k.startsWith("disha2020_weekly_lb_") ||
+        k.startsWith("quizpro_weekly_lb_") ||
+        k.startsWith("bm_usr_") ||
+        k.startsWith("benchmark_")
       )) {
         keysToRemove.push(k);
       }

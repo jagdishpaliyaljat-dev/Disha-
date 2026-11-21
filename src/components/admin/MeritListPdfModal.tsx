@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { jsPDF } from "jspdf";
 import { LiveTest, PYQPaper } from "../../types";
+import { loadLocalLiveSubmissions } from "../../utils/liveTestStorage";
 
 interface MeritListCandidate {
   rank: number;
@@ -36,43 +37,45 @@ interface MeritListPdfModalProps {
 }
 
 export const MeritListPdfModal: React.FC<MeritListPdfModalProps> = ({
-  testTitle = "RPSC RAS Prelims Full Mock Test - 01",
+  testTitle = "RPSC RAS Prelims Examination",
   totalQuestions = 150,
   onClose
 }) => {
   const [copied, setCopied] = React.useState(false);
   const [isGeneratingPdf, setIsGeneratingPdf] = React.useState(false);
 
-  // Mock / real test candidates for the merit list
-  const candidates: MeritListCandidate[] = React.useMemo(() => [
-    { rank: 1, name: "Vikas Bishnoi (Jodhpur)", rollNo: "D20-8491", score: 132.5, totalMarks: 200, correct: 105, incorrect: 18, unattempted: 27, percentile: 99.8, timeSpentMinutes: 112 },
-    { rank: 2, name: "Priya Choudhary (Jaipur)", rollNo: "D20-3120", score: 128.0, totalMarks: 200, correct: 102, incorrect: 22, unattempted: 26, percentile: 99.2, timeSpentMinutes: 108 },
-    { rank: 3, name: "Rohit Meena (Dausa)", rollNo: "D20-5642", score: 124.5, totalMarks: 200, correct: 98, incorrect: 19, unattempted: 33, percentile: 98.7, timeSpentMinutes: 115 },
-    { rank: 4, name: "Amit Kumawat (Sikar)", rollNo: "D20-7719", score: 121.0, totalMarks: 200, correct: 96, incorrect: 24, unattempted: 30, percentile: 97.9, timeSpentMinutes: 119 },
-    { rank: 5, name: "Pooja Shekhawat (Jhunjhunu)", rollNo: "D20-1944", score: 118.5, totalMarks: 200, correct: 94, incorrect: 25, unattempted: 31, percentile: 97.1, timeSpentMinutes: 114 },
-    { rank: 6, name: "Manoj Jat (Nagaur)", rollNo: "D20-4389", score: 115.0, totalMarks: 200, correct: 92, incorrect: 28, unattempted: 30, percentile: 96.4, timeSpentMinutes: 118 },
-    { rank: 7, name: "Suresh Sharma (Kota)", rollNo: "D20-6621", score: 112.5, totalMarks: 200, correct: 90, incorrect: 29, unattempted: 31, percentile: 95.8, timeSpentMinutes: 120 },
-    { rank: 8, name: "Deepak Gurjar (Alwar)", rollNo: "D20-9012", score: 110.0, totalMarks: 200, correct: 88, incorrect: 30, unattempted: 32, percentile: 95.0, timeSpentMinutes: 117 }
-  ], []);
+  // Derive authentic candidates from real live test submissions
+  const candidates: MeritListCandidate[] = React.useMemo(() => {
+    try {
+      const subs = loadLocalLiveSubmissions();
+      const matched = subs.filter((s) => !testTitle || s.testTitle === testTitle || testTitle.includes(s.testTitle));
+      const sorted = [...(matched.length > 0 ? matched : subs)].sort((a, b) => b.score - a.score || a.timeSpentSeconds - b.timeSpentSeconds);
+      if (sorted.length > 0) {
+        return sorted.map((s, idx) => ({
+          rank: idx + 1,
+          name: s.userName || "Verified Aspirant",
+          rollNo: `D20-${String(1000 + idx)}`,
+          score: s.score,
+          totalMarks: s.totalMarks || 200,
+          correct: Math.round((s.score / (s.totalMarks || 200)) * totalQuestions),
+          incorrect: 0,
+          unattempted: Math.max(0, totalQuestions - Math.round((s.score / (s.totalMarks || 200)) * totalQuestions)),
+          percentile: Math.max(50, Math.round((1 - idx / sorted.length) * 1000) / 10),
+          timeSpentMinutes: Math.round((s.timeSpentSeconds || 0) / 60),
+        }));
+      }
+    } catch {}
+    return [];
+  }, [testTitle, totalQuestions]);
 
   // Telegram / WhatsApp post text
   const sharePostText = React.useMemo(() => {
-    return `🏆 *DISHA 20-20 — LIVE MOCK TEST RESULT DECLARED!* 🏆
-
-📝 *Exam:* ${testTitle}
-📅 *Date:* ${new Date().toLocaleDateString("en-US")}
-👥 *Total Candidates:* 1,420+
-
-🥇 *Rank 1:* ${candidates[0].name} — ${candidates[0].score}/200 (${candidates[0].percentile}%ile)
-🥈 *Rank 2:* ${candidates[1].name} — ${candidates[1].score}/200 (${candidates[1].percentile}%ile)
-🥉 *Rank 3:* ${candidates[2].name} — ${candidates[2].score}/200 (${candidates[2].percentile}%ile)
-🎖️ *Rank 4:* ${candidates[3].name} — ${candidates[3].score}/200
-🎖️ *Rank 5:* ${candidates[4].name} — ${candidates[4].score}/200
-
-📊 *View your personal scorecard & state rank:*
-👉 https://disha-2020.vercel.app/tests
-
-🎯 *DISHA 20-20 — Right Direction, Precise Preparation*`;
+    if (candidates.length === 0) {
+      return `📢 *DISHA 20-20 — LIVE TEST MERIT LIST NOTICE* 📢\n\n📝 *Exam:* ${testTitle}\n📅 *Date:* ${new Date().toLocaleDateString("en-US")}\n\nNo verified candidate submissions recorded yet. Merit ranking will update automatically when submissions are recorded.\n\n👉 Attempt test: https://disha-2020.vercel.app/tests`;
+    }
+    return `🏆 *DISHA 20-20 — LIVE TEST RESULT DECLARED!* 🏆\n\n📝 *Exam:* ${testTitle}\n📅 *Date:* ${new Date().toLocaleDateString("en-US")}\n👥 *Total Candidates:* ${candidates.length}\n\n` +
+      candidates.slice(0, 5).map((c) => `🏅 *Rank ${c.rank}:* ${c.name} — ${c.score}/${c.totalMarks} (${c.percentile}%ile)`).join("\n") +
+      `\n\n📊 *View your personal scorecard & state rank:*\n👉 https://disha-2020.vercel.app/tests\n\n🎯 *DISHA 20-20 — Right Direction, Precise Preparation*`;
   }, [testTitle, candidates]);
 
   const handleCopyPost = () => {
@@ -258,30 +261,36 @@ export const MeritListPdfModal: React.FC<MeritListPdfModalProps> = ({
             />
           </div>
 
-          {/* Live Mock Ranking Preview */}
+          {/* Live Ranking Preview */}
           <div className="space-y-2">
             <div className="text-xs font-black uppercase tracking-wider text-slate-500">
               State Top Rankers Preview
             </div>
-            <div className="divide-y divide-slate-100 dark:divide-slate-800 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden">
-              {candidates.slice(0, 4).map((c) => (
-                <div key={c.rank} className="p-3 bg-white dark:bg-slate-900 flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-2.5">
-                    <span className="w-6 h-6 rounded-full bg-amber-500/10 text-amber-600 font-black flex items-center justify-center text-[11px]">
-                      #{c.rank}
-                    </span>
-                    <div>
-                      <div className="font-bold text-slate-900 dark:text-white">{c.name}</div>
-                      <div className="text-[10px] text-slate-400">{c.rollNo}</div>
+            {candidates.length === 0 ? (
+              <div className="p-4 text-center bg-slate-50 dark:bg-slate-800/50 border border-dashed border-slate-200 dark:border-slate-700 rounded-2xl text-xs text-slate-500">
+                No candidate test submissions recorded yet.
+              </div>
+            ) : (
+              <div className="divide-y divide-slate-100 dark:divide-slate-800 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden">
+                {candidates.slice(0, 4).map((c) => (
+                  <div key={c.rank} className="p-3 bg-white dark:bg-slate-900 flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-2.5">
+                      <span className="w-6 h-6 rounded-full bg-amber-500/10 text-amber-600 font-black flex items-center justify-center text-[11px]">
+                        #{c.rank}
+                      </span>
+                      <div>
+                        <div className="font-bold text-slate-900 dark:text-white">{c.name}</div>
+                        <div className="text-[10px] text-slate-400">{c.rollNo}</div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-black text-blue-600 dark:text-blue-400">{c.score} / {c.totalMarks}</div>
+                      <div className="text-[10px] text-emerald-500 font-bold">{c.percentile}%ile</div>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className="font-black text-blue-600 dark:text-blue-400">{c.score} / 200</div>
-                    <div className="text-[10px] text-emerald-500 font-bold">{c.percentile}%ile</div>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 

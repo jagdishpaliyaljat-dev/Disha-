@@ -31,18 +31,6 @@ interface SessionLeaderboardProps {
   className?: string;
 }
 
-// Realistic Aspirant Benchmarks for competitive feel
-const BENCHMARK_ASPIRANTS = [
-  { name: "Priya Sharma", photo: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100", scoreOffset: 0, timeOffset: -12 },
-  { name: "Aditya Verma", photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100", scoreOffset: -1, timeOffset: 5 },
-  { name: "Rohan Kumar", photo: "", scoreOffset: -1, timeOffset: 14 },
-  { name: "Sneha Patel", photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100", scoreOffset: -2, timeOffset: -5 },
-  { name: "Ankit Raj", photo: "", scoreOffset: -2, timeOffset: 8 },
-  { name: "Vikram Meena", photo: "", scoreOffset: -3, timeOffset: -20 },
-  { name: "Divya Choudhary", photo: "", scoreOffset: -3, timeOffset: 3 },
-  { name: "Sandeep Yadav", photo: "", scoreOffset: -4, timeOffset: 10 },
-];
-
 export const SessionLeaderboard: React.FC<SessionLeaderboardProps> = ({
   testId,
   testTitle,
@@ -104,33 +92,6 @@ export const SessionLeaderboard: React.FC<SessionLeaderboardProps> = ({
       // Check if user entry is in cloudEntries
       if (!cloudEntries.some((e) => e.userId === currentUserId)) {
         cloudEntries.push(myEntry);
-      }
-
-      // Generate benchmark peers if fewer than 6 participants
-      if (cloudEntries.length < 6) {
-        BENCHMARK_ASPIRANTS.forEach((b, idx) => {
-          const fakeUserId = `bm_usr_${idx}_${cleanTestId}`;
-          if (!cloudEntries.some((e) => e.userId === fakeUserId)) {
-            const calculatedScore = Math.max(0, Math.min(maxScore, currentScore + b.scoreOffset));
-            const calculatedAccuracy = maxScore > 0 ? Math.round((calculatedScore / maxScore) * 100) : 75;
-            const calculatedTime = Math.max(15, timeSpentSeconds + b.timeOffset);
-
-            cloudEntries.push({
-              id: fakeUserId,
-              testId: cleanTestId,
-              testTitle,
-              userId: fakeUserId,
-              userName: b.name,
-              userPhoto: b.photo,
-              score: calculatedScore,
-              maxScore,
-              accuracy: calculatedAccuracy,
-              timeSpentSeconds: calculatedTime,
-              submittedAt: new Date(Date.now() - (idx + 1) * 3600000).toISOString(),
-              isCurrentUser: false,
-            });
-          }
-        });
       }
 
       // Sort by score DESC, then timeSpentSeconds ASC

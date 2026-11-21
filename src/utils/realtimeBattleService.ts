@@ -486,7 +486,7 @@ export interface GetBattleQuestionsOptions {
 }
 
 // Internal helper to convert any app question format to BattleQuestion
-function formatToBattleQuestion(raw: any, fallbackIdPrefix = "q"): BattleQuestion {
+export function formatToBattleQuestion(raw: any, fallbackIdPrefix = "q"): BattleQuestion {
   return {
     id: raw.id || `${fallbackIdPrefix}_${Math.random().toString(36).substring(2, 7)}`,
     text: raw.text || raw.question || "",

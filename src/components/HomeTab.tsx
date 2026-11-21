@@ -372,7 +372,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                   Live Tests
                 </h3>
                 <p className="text-[10px] sm:text-[11px] font-medium text-[#52576A] dark:text-[#929AB0] mt-0.5 truncate leading-tight">
-                  {isEnabled("live_tests") ? "Mock exams & rankings" : "Temporarily Closed (Maintenance)"}
+                  {isEnabled("live_tests") ? "Real-time tests & rankings" : "Temporarily Closed (Maintenance)"}
                 </p>
               </div>
             </motion.button>
@@ -702,7 +702,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                   {[
                     { label: "Dashboard", icon: LayoutDashboard, tab: "home" },
                     { label: "Subjects & Syllabus", icon: BookOpen, tab: "topics" },
-                    { label: "Live Mock Tests", icon: Zap, tab: "live_tests" },
+                    { label: "Live Tests", icon: Zap, tab: "live_tests" },
                     { label: "PYQ Vault", icon: FileText, tab: "pyq_vault" },
                     { label: "Mistake Bank", icon: RotateCcw, tab: "wrong" },
                   ].map((item) => (

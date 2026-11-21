@@ -126,11 +126,8 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
     return submissions.find((s) => s.testId === testId);
   };
 
-  // Derive Global Leaderboard Entries
+  // Derive Global Leaderboard Entries (Purely authentic submissions, zero mock benchmarks)
   const leaderboardEntries = React.useMemo(() => {
-    const activeTest = tests.find((t) => t.id === leaderboardFilterTestId);
-    const targetMaxMarks = activeTest?.totalMarks || 200;
-
     const realEntries = submissions
       .filter((s) => leaderboardFilterTestId === "all" || s.testId === leaderboardFilterTestId)
       .map((s) => ({
@@ -144,34 +141,13 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
         isCurrentUser: userProfile?.id ? s.userId === userProfile.id : true,
       }));
 
-    const benchmarks = [
-      { name: "Priya Sharma", scorePct: 0.94, acc: 96, timeMin: 52 },
-      { name: "Aditya Verma", scorePct: 0.91, acc: 93, timeMin: 58 },
-      { name: "Rohan Kumar", scorePct: 0.88, acc: 90, timeMin: 64 },
-      { name: "Sneha Patel", scorePct: 0.85, acc: 88, timeMin: 60 },
-      { name: "Ankit Raj", scorePct: 0.82, acc: 86, timeMin: 72 },
-      { name: "Vikram Meena", scorePct: 0.79, acc: 84, timeMin: 69 },
-      { name: "Divya Choudhary", scorePct: 0.76, acc: 81, timeMin: 75 },
-      { name: "Sandeep Yadav", scorePct: 0.73, acc: 79, timeMin: 80 },
-    ].map((b, idx) => ({
-      id: `benchmark_${idx}`,
-      userName: b.name,
-      testTitle: activeTest?.title || "All-India Mock Series",
-      score: Math.round(targetMaxMarks * b.scorePct),
-      totalMarks: targetMaxMarks,
-      accuracy: b.acc,
-      timeSpentSeconds: b.timeMin * 60,
-      isCurrentUser: false,
-    }));
+    realEntries.sort((a, b) => b.score - a.score || a.timeSpentSeconds - b.timeSpentSeconds);
 
-    const combined = [...realEntries, ...benchmarks];
-    combined.sort((a, b) => b.score - a.score || a.timeSpentSeconds - b.timeSpentSeconds);
-
-    return combined.map((entry, index) => ({
+    return realEntries.map((entry, index) => ({
       ...entry,
       rank: index + 1,
     }));
-  }, [submissions, leaderboardFilterTestId, tests, userProfile?.id]);
+  }, [submissions, leaderboardFilterTestId, userProfile?.id]);
 
   // Start Exam Session with question resolution
   const handleStartLiveTest = async (test: LiveTest) => {
@@ -295,7 +271,7 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <h1 className="text-sm sm:text-base font-black text-[#171923] dark:text-[#FFF9EF] leading-tight truncate tracking-tight">
-                  Live Tests &amp; Mocks
+                  Live Tests &amp; Test Series
                 </h1>
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#800020]/10 dark:bg-[#C99A45]/15 border border-[#800020]/25 dark:border-[#C99A45]/30 text-[9.5px] font-black text-[#800020] dark:text-[#F47B20] shrink-0">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#991B1B] animate-pulse" />
@@ -775,122 +751,139 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
               </select>
             </div>
 
-            {/* Podium for Top 3 */}
-            {leaderboardEntries.length >= 3 && (
-              <div className="bg-gradient-to-b from-[#800020]/15 via-[#C99A45]/10 to-transparent dark:from-[#800020]/30 p-4 rounded-2xl border border-[#C99A45]/40 shadow-sm">
-                <div className="flex items-end justify-center gap-2 pt-2 pb-1">
-                  {/* Rank 2 - Silver */}
-                  <div className="flex-1 max-w-[95px] flex flex-col items-center">
-                    <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 border-2 border-slate-300 dark:border-slate-500 flex items-center justify-center font-black text-slate-700 dark:text-slate-200 text-xs shadow-md relative">
-                      <Medal size={15} className="text-slate-500 absolute -top-2 -left-1" />
-                      {leaderboardEntries[1].userName.charAt(0)}
-                    </div>
-                    <span className="text-[10.5px] font-black text-[#171923] dark:text-[#FFF9EF] mt-1 truncate max-w-full text-center">
-                      {leaderboardEntries[1].userName}
-                    </span>
-                    <span className="text-[9.5px] font-black text-stone-500 dark:text-stone-400 tabular-nums">
-                      {leaderboardEntries[1].score} pts
-                    </span>
-                    <div className="w-full bg-slate-200 dark:bg-slate-700/80 rounded-t-xl h-11 mt-1.5 flex items-center justify-center font-black text-slate-700 dark:text-slate-200 text-xs tabular-nums">
-                      #2
-                    </div>
-                  </div>
-
-                  {/* Rank 1 - Gold (Elevated) */}
-                  <div className="flex-1 max-w-[105px] flex flex-col items-center -mt-3">
-                    <div className="w-12 h-12 rounded-full bg-[#C99A45]/25 border-2 border-[#C99A45] flex items-center justify-center font-black text-[#800020] dark:text-[#C99A45] text-sm shadow-lg relative">
-                      <Trophy size={17} className="text-[#C99A45] absolute -top-2.5 left-1/2 -translate-x-1/2" />
-                      {leaderboardEntries[0].userName.charAt(0)}
-                    </div>
-                    <span className="text-[11px] font-black text-[#171923] dark:text-[#FFF9EF] mt-1 truncate max-w-full text-center">
-                      {leaderboardEntries[0].userName}
-                    </span>
-                    <span className="text-[10px] font-black text-[#800020] dark:text-[#C99A45] tabular-nums">
-                      {leaderboardEntries[0].score} pts
-                    </span>
-                    <div className="w-full bg-gradient-to-t from-[#B8860B] to-[#C99A45] rounded-t-2xl h-16 mt-1.5 flex flex-col items-center justify-center font-black text-[#171923] text-xs shadow-md tabular-nums">
-                      <span>#1</span>
-                      <span className="text-[8px] font-black uppercase tracking-wider">TOPPER</span>
-                    </div>
-                  </div>
-
-                  {/* Rank 3 - Bronze */}
-                  <div className="flex-1 max-w-[95px] flex flex-col items-center">
-                    <div className="w-10 h-10 rounded-full bg-amber-700/20 border-2 border-amber-600/60 flex items-center justify-center font-black text-amber-700 dark:text-amber-400 text-xs shadow-md relative">
-                      <Award size={15} className="text-amber-600 absolute -top-2 -right-1" />
-                      {leaderboardEntries[2].userName.charAt(0)}
-                    </div>
-                    <span className="text-[10.5px] font-black text-[#171923] dark:text-[#FFF9EF] mt-1 truncate max-w-full text-center">
-                      {leaderboardEntries[2].userName}
-                    </span>
-                    <span className="text-[9.5px] font-black text-stone-500 dark:text-stone-400 tabular-nums">
-                      {leaderboardEntries[2].score} pts
-                    </span>
-                    <div className="w-full bg-amber-700/20 dark:bg-amber-900/40 rounded-t-xl h-9 mt-1.5 flex items-center justify-center font-black text-[#800020] dark:text-amber-300 text-xs tabular-nums">
-                      #3
-                    </div>
-                  </div>
+            {/* Empty State vs Standings */}
+            {leaderboardEntries.length === 0 ? (
+              <div className="p-8 text-center bg-white dark:bg-[#1F2330] rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] flex flex-col items-center shadow-xs">
+                <div className="w-12 h-12 rounded-2xl bg-[#800020]/10 dark:bg-[#C99A45]/15 flex items-center justify-center text-[#800020] dark:text-[#C99A45] mb-2.5 border border-[#800020]/15 dark:border-[#C99A45]/30">
+                  <Trophy size={22} />
                 </div>
+                <h3 className="font-black text-sm text-[#171923] dark:text-[#FFF9EF] mb-1">
+                  No Test Attempts Yet
+                </h3>
+                <p className="text-stone-500 dark:text-stone-400 text-xs max-w-xs leading-relaxed">
+                  Attempt a live test to establish your verified score and view official state-wide merit rankings.
+                </p>
               </div>
-            )}
+            ) : (
+              <>
+                {/* Podium for Top 3 */}
+                {leaderboardEntries.length >= 3 && (
+                  <div className="bg-gradient-to-b from-[#800020]/15 via-[#C99A45]/10 to-transparent dark:from-[#800020]/30 p-4 rounded-2xl border border-[#C99A45]/40 shadow-sm">
+                    <div className="flex items-end justify-center gap-2 pt-2 pb-1">
+                      {/* Rank 2 - Silver */}
+                      <div className="flex-1 max-w-[95px] flex flex-col items-center">
+                        <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 border-2 border-slate-300 dark:border-slate-500 flex items-center justify-center font-black text-slate-700 dark:text-slate-200 text-xs shadow-md relative">
+                          <Medal size={15} className="text-slate-500 absolute -top-2 -left-1" />
+                          {leaderboardEntries[1].userName.charAt(0)}
+                        </div>
+                        <span className="text-[10.5px] font-black text-[#171923] dark:text-[#FFF9EF] mt-1 truncate max-w-full text-center">
+                          {leaderboardEntries[1].userName}
+                        </span>
+                        <span className="text-[9.5px] font-black text-stone-500 dark:text-stone-400 tabular-nums">
+                          {leaderboardEntries[1].score} pts
+                        </span>
+                        <div className="w-full bg-slate-200 dark:bg-slate-700/80 rounded-t-xl h-11 mt-1.5 flex items-center justify-center font-black text-slate-700 dark:text-slate-200 text-xs tabular-nums">
+                          #2
+                        </div>
+                      </div>
 
-            {/* Standings List */}
-            <div className="space-y-1.5">
-              <h3 className="text-[10px] font-black uppercase tracking-wider text-stone-500 dark:text-stone-400 px-1">
-                Full Merit Standings
-              </h3>
+                      {/* Rank 1 - Gold (Elevated) */}
+                      <div className="flex-1 max-w-[105px] flex flex-col items-center -mt-3">
+                        <div className="w-12 h-12 rounded-full bg-[#C99A45]/25 border-2 border-[#C99A45] flex items-center justify-center font-black text-[#800020] dark:text-[#C99A45] text-sm shadow-lg relative">
+                          <Trophy size={17} className="text-[#C99A45] absolute -top-2.5 left-1/2 -translate-x-1/2" />
+                          {leaderboardEntries[0].userName.charAt(0)}
+                        </div>
+                        <span className="text-[11px] font-black text-[#171923] dark:text-[#FFF9EF] mt-1 truncate max-w-full text-center">
+                          {leaderboardEntries[0].userName}
+                        </span>
+                        <span className="text-[10px] font-black text-[#800020] dark:text-[#C99A45] tabular-nums">
+                          {leaderboardEntries[0].score} pts
+                        </span>
+                        <div className="w-full bg-gradient-to-t from-[#B8860B] to-[#C99A45] rounded-t-2xl h-16 mt-1.5 flex flex-col items-center justify-center font-black text-[#171923] text-xs shadow-md tabular-nums">
+                          <span>#1</span>
+                          <span className="text-[8px] font-black uppercase tracking-wider">TOPPER</span>
+                        </div>
+                      </div>
 
-              {leaderboardEntries.map((entry) => (
-                <article
-                  key={entry.id}
-                  className={`p-2.5 sm:p-3 rounded-2xl border transition-all flex items-center justify-between gap-3 ${
-                    entry.isCurrentUser
-                      ? "bg-[#800020]/10 dark:bg-[#800020]/25 border-[#800020]/50 dark:border-[#C99A45]/50 shadow-xs"
-                      : "bg-white dark:bg-[#1F2330] border-[#E8D9C0] dark:border-[#31374A] shadow-xs"
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <div
-                      className={`w-7 h-7 rounded-xl flex items-center justify-center font-black text-xs shrink-0 tabular-nums ${
-                        entry.rank === 1
-                          ? "bg-[#C99A45] text-[#171923]"
-                          : entry.rank === 2
-                          ? "bg-slate-300 text-slate-800 dark:bg-slate-600 dark:text-white"
-                          : entry.rank === 3
-                          ? "bg-amber-700/30 text-amber-900 dark:text-amber-200"
-                          : "bg-[#F7EFE2] dark:bg-[#252A3A] text-stone-600 dark:text-stone-300"
+                      {/* Rank 3 - Bronze */}
+                      <div className="flex-1 max-w-[95px] flex flex-col items-center">
+                        <div className="w-10 h-10 rounded-full bg-amber-700/20 border-2 border-amber-600/60 flex items-center justify-center font-black text-amber-700 dark:text-amber-400 text-xs shadow-md relative">
+                          <Award size={15} className="text-amber-600 absolute -top-2 -right-1" />
+                          {leaderboardEntries[2].userName.charAt(0)}
+                        </div>
+                        <span className="text-[10.5px] font-black text-[#171923] dark:text-[#FFF9EF] mt-1 truncate max-w-full text-center">
+                          {leaderboardEntries[2].userName}
+                        </span>
+                        <span className="text-[9.5px] font-black text-stone-500 dark:text-stone-400 tabular-nums">
+                          {leaderboardEntries[2].score} pts
+                        </span>
+                        <div className="w-full bg-amber-700/20 dark:bg-amber-900/40 rounded-t-xl h-9 mt-1.5 flex items-center justify-center font-black text-[#800020] dark:text-amber-300 text-xs tabular-nums">
+                          #3
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Standings List */}
+                <div className="space-y-1.5">
+                  <h3 className="text-[10px] font-black uppercase tracking-wider text-stone-500 dark:text-stone-400 px-1">
+                    Full Merit Standings
+                  </h3>
+
+                  {leaderboardEntries.map((entry) => (
+                    <article
+                      key={entry.id}
+                      className={`p-2.5 sm:p-3 rounded-2xl border transition-all flex items-center justify-between gap-3 ${
+                        entry.isCurrentUser
+                          ? "bg-[#800020]/10 dark:bg-[#800020]/25 border-[#800020]/50 dark:border-[#C99A45]/50 shadow-xs"
+                          : "bg-white dark:bg-[#1F2330] border-[#E8D9C0] dark:border-[#31374A] shadow-xs"
                       }`}
                     >
-                      #{entry.rank}
-                    </div>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <p className="text-xs font-black text-[#171923] dark:text-[#FFF9EF] truncate">
-                          {entry.userName}
-                        </p>
-                        {entry.isCurrentUser && (
-                          <span className="text-[8px] font-black uppercase px-1.5 py-0.2 rounded bg-[#800020] text-[#FFF9EF] border border-[#C99A45]/30">
-                            YOU
-                          </span>
-                        )}
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div
+                          className={`w-7 h-7 rounded-xl flex items-center justify-center font-black text-xs shrink-0 tabular-nums ${
+                            entry.rank === 1
+                              ? "bg-[#C99A45] text-[#171923]"
+                              : entry.rank === 2
+                              ? "bg-slate-300 text-slate-800 dark:bg-slate-600 dark:text-white"
+                              : entry.rank === 3
+                              ? "bg-amber-700/30 text-amber-900 dark:text-amber-200"
+                              : "bg-[#F7EFE2] dark:bg-[#252A3A] text-stone-600 dark:text-stone-300"
+                          }`}
+                        >
+                          #{entry.rank}
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <p className="text-xs font-black text-[#171923] dark:text-[#FFF9EF] truncate">
+                              {entry.userName}
+                            </p>
+                            {entry.isCurrentUser && (
+                              <span className="text-[8px] font-black uppercase px-1.5 py-0.2 rounded bg-[#800020] text-[#FFF9EF] border border-[#C99A45]/30">
+                                YOU
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[10px] text-stone-500 dark:text-stone-400 truncate">
+                            {entry.testTitle}
+                          </p>
+                        </div>
                       </div>
-                      <p className="text-[10px] text-stone-500 dark:text-stone-400 truncate">
-                        {entry.testTitle}
-                      </p>
-                    </div>
-                  </div>
 
-                  <div className="text-right shrink-0">
-                    <p className="text-xs font-black text-[#171923] dark:text-[#FFF9EF] tabular-nums">
-                      {entry.score} pts
-                    </p>
-                    <p className="text-[9px] text-emerald-700 dark:text-emerald-400 font-black tabular-nums">
-                      {entry.accuracy}% Acc
-                    </p>
-                  </div>
-                </article>
-              ))}
-            </div>
+                      <div className="text-right shrink-0">
+                        <p className="text-xs font-black text-[#171923] dark:text-[#FFF9EF] tabular-nums">
+                          {entry.score} pts
+                        </p>
+                        <p className="text-[9px] text-emerald-700 dark:text-emerald-400 font-black tabular-nums">
+                          {entry.accuracy}% Acc
+                        </p>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         )}
       </main>

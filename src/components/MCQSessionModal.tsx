@@ -4038,7 +4038,7 @@ const RedesignedTestInstructionsView: React.FC<RedesignedTestInstructionsViewPro
                 </div>
                 <div>
                   <h3 className="text-sm font-black leading-tight">
-                    {pyqDetails ? `${pyqDetails.examBoard} ${pyqDetails.paperYear}` : "Live Mock Session"}
+                    {pyqDetails ? `${pyqDetails.examBoard} ${pyqDetails.paperYear}` : "Live Exam Session"}
                   </h3>
                   <p className="text-[11px] text-[#FFF9EF]/80 font-bold uppercase tracking-wider mt-0.5">
                     {pyqDetails?.category || liveDetails?.examCategory || "Official Content"}
@@ -4377,7 +4377,7 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
               {session.title}
             </h1>
             <p className="text-[11px] font-bold text-[#718096] dark:text-[#9E8E95] uppercase tracking-widest">
-              {isLive ? "Official Live Mock Results" : "Official Past Paper Results"}
+              {isLive ? "Official Live Examination Results" : "Official Past Paper Results"}
             </p>
           </div>
 

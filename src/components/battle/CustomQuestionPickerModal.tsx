@@ -13,7 +13,9 @@ import type { BattleQuestion } from "./types";
 import {
   getUserCustomQuestionsList,
   FALLBACK_BATTLE_QUESTIONS,
+  formatToBattleQuestion,
 } from "../../utils/realtimeBattleService";
+import { getCombinedChapters, getCombinedQuestions } from "../../utils/questionsStorage";
 import { triggerHaptic, playClickSound } from "../../utils/audioFeedback";
 
 interface CustomQuestionPickerModalProps {
@@ -36,7 +38,16 @@ export const CustomQuestionPickerModal: React.FC<CustomQuestionPickerModalProps>
   const [filterSource, setFilterSource] = useState<"all" | "custom" | "curated">("all");
 
   const customQuestions = useMemo(() => getUserCustomQuestionsList(), []);
-  const curatedQuestions = FALLBACK_BATTLE_QUESTIONS;
+  const curatedQuestions = useMemo(() => {
+    try {
+      const chapters = getCombinedChapters();
+      const raw = getCombinedQuestions(chapters);
+      if (raw && raw.length > 0) {
+        return raw.map((q) => formatToBattleQuestion(q));
+      }
+    } catch {}
+    return FALLBACK_BATTLE_QUESTIONS;
+  }, []);
 
   const allAvailableQuestions = useMemo(() => {
     const combined: (BattleQuestion & { source: "custom" | "curated" })[] = [

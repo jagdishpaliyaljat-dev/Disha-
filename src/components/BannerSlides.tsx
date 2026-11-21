@@ -10,7 +10,7 @@ interface BannerSlidesProps {
 const DEFAULT_BANNER_SLIDES: AppBanner[] = [
   {
     id: "default_banner_1",
-    title: "DISHA 20-20 Live Mock Series",
+    title: "DISHA 20-20 Live Test Series",
     subtitle: "Right Direction, Accurate Preparation · Real-time All-India ranking",
     badge: "Live Arena",
     color: "from-[#800020] via-[#6B001B] to-[#3B0613]",
