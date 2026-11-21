@@ -1526,7 +1526,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[#FFF9EF] dark:bg-[#171923] text-[#171923] dark:text-[#FFF9EF] flex flex-col font-sans selection:bg-[#800020] selection:text-white w-full max-w-full overflow-x-hidden">
       <OverlayErrorBoundary viewName="System Overlays" fallbackComponent={null}>
-        <BrandSplashAndOnboarding allowAutoOnboarding={activeTab === 'home'} />
+        <BrandSplashAndOnboarding />
         <ToastNotificationContainer toasts={toasts} onDismiss={handleDismissToast} />
         <PWAUpdateToast />
         <OfflineIndicator />
