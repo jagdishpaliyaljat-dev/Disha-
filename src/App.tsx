@@ -48,6 +48,7 @@ import { useNavigation } from './hooks/useNavigation';
 import { useCurriculumManager } from './hooks/useCurriculumManager';
 import { useAppFeatures } from './utils/featureControlService';
 import { loadUserProfile, saveUserProfile, isUserAdmin, isProfileAuthenticated } from './utils/userProfileStorage';
+import { setSentryUser, clearSentryUser } from './utils/sentryInit';
 import { resolvePathToNavigationState, buildCanonicalPath, isKnownTab } from './utils/routeNavigation';
 import { prefetchCoreRoutes } from './utils/routePrefetcher';
 import { loadSettingsFromStorage, saveSettingsToStorage, loadProgressFromStorage, saveProgressToStorage, recordStudyAnswerToHistory, loadStudyHistoryFromStorage, saveStudyHistoryToStorage, mergeRealtimeProgressDelta } from './utils/storage';
@@ -867,6 +868,7 @@ export default function App() {
           setUserProfile(profile);
           setIsAuthenticated(true);
           saveProfile(profile);
+          setSentryUser(profile.id);
 
           // Direct immediate sync to Supabase database & user directory on login
           try {
@@ -935,9 +937,11 @@ export default function App() {
           if (currentProfile && isProfileAuthenticated(currentProfile)) {
             setUserProfile(currentProfile);
             setIsAuthenticated(true);
+            setSentryUser(currentProfile.id);
           } else {
             setUserProfile(currentProfile);
             setIsAuthenticated(false);
+            clearSentryUser();
           }
         }
       };
@@ -1273,6 +1277,7 @@ export default function App() {
     updateProgress(() => ({}));
     setUserProfile(null);
     setIsAuthenticated(false);
+    clearSentryUser();
     setActiveTab('home');
   };
 

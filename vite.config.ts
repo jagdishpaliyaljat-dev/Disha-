@@ -287,6 +287,9 @@ export default defineConfig(({ command }) => {
             if (id.includes('node_modules/jspdf/') || id.includes('node_modules/html2canvas/')) {
               return 'vendor-pdf';
             }
+            if (id.includes('node_modules/@sentry/')) {
+              return 'vendor-sentry';
+            }
           },
         },
       } : {},

@@ -4,7 +4,12 @@ import App from './App';
 import { Disha2020Provider } from './context/Disha2020Provider';
 import { AppErrorBoundary } from './components/AppErrorBoundary';
 import { ensureCleanSlateOnStartup } from './utils/cleanSlate';
+import { initSentry } from './utils/sentryInit';
 import './index.css';
+
+// Initialize Sentry crash reporting FIRST (before any React render)
+initSentry();
+
 
 // Deep cache purge and URL cleanup when booting in recovery mode (?recovery=1 / ?repaired=1)
 if (typeof window !== "undefined") {

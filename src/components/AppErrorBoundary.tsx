@@ -1,5 +1,6 @@
 import * as React from "react";
 import { productionMonitor } from "../utils/productionMonitoring";
+import { captureSentryError } from "../utils/sentryInit";
 import {
   safeGetSessionStorageItem,
   safeSetSessionStorageItem,
@@ -52,6 +53,13 @@ export class AppErrorBoundary extends React.Component<AppErrorBoundaryProps, App
     } catch (_) {}
     this.setState({ errorEventId: entryId });
     console.error("[DISHA 20-20 Root Error Boundary]", error, errorInfo);
+
+    try {
+      captureSentryError(error, {
+        componentStack: errorInfo?.componentStack,
+        errorEventId: entryId,
+      });
+    } catch (_) {}
 
     // Auto-healing recovery: If this is the first unexpected view error in the session,
     // seamlessly purge stale service-worker cache and recover once without scaring the user
