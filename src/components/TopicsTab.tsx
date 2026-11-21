@@ -646,7 +646,7 @@ function TopicDetailView({
   return (
     <div className="flex flex-col h-full bg-[#FFF9EF] dark:bg-[#171923]" id="topic-detail-view">
       {/* Sticky Header */}
-      <header className="px-4 pt-3.5 pb-3.5 bg-white/95 dark:bg-[#1F2330]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] sticky top-0 z-40">
+      <header className="px-4 pt-[env(safe-area-inset-top,0px)] py-2.5 bg-white/95 dark:bg-[#1F2330]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] sticky top-0 z-40 shadow-xs">
         <div className="flex items-center justify-between gap-3 max-w-4xl mx-auto w-full">
           <div className="flex items-center gap-3 min-w-0">
             <button

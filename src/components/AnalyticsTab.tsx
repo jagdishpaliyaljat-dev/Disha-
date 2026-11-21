@@ -603,7 +603,7 @@ https://disha2020.in
       className="min-h-full bg-[#FFF9EF] dark:bg-[#171923] pb-32 overflow-y-auto selection:bg-[#800020] selection:text-white"
     >
       {/* 1. STICKY TOP APP BAR */}
-      <header className="sticky top-0 z-30 bg-[#FFF9EF]/90 dark:bg-[#171923]/90 backdrop-blur-xl border-b border-[#E8D9C0]/80 dark:border-[#31374A] px-4 py-3">
+      <header className="sticky top-0 z-30 bg-[#FFF9EF]/95 dark:bg-[#171923]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] px-3.5 sm:px-4 pt-[env(safe-area-inset-top,0px)] py-2.5 shadow-xs transition-colors">
         <div className="max-w-4xl mx-auto flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
             <button

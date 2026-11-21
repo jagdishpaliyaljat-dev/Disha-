@@ -842,7 +842,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
     <div className="min-h-screen flex flex-col bg-[#FFF9EF] dark:bg-[#171923] text-[#171923] dark:text-[#FFF9EF] font-sans selection:bg-[#800020] selection:text-white">
       
       {/* 1. Sticky Compact Header */}
-      <header className="sticky top-0 z-40 bg-white/95 dark:bg-[#1F2330]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A]">
+      <header className="sticky top-0 z-40 bg-white/95 dark:bg-[#1F2330]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] pt-[env(safe-area-inset-top,0px)]">
         <div className="max-w-screen-2xl mx-auto flex items-center justify-between px-3 sm:px-6 h-14 sm:h-16">
           
           <div className="flex items-center gap-2 sm:gap-4 min-w-0">

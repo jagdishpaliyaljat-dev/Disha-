@@ -267,7 +267,7 @@ export const NotificationsPage: React.FC<NotificationsPageProps> = ({
       )}
 
       {/* MOBILE-OPTIMIZED TOP APP BAR */}
-      <header className="sticky top-0 z-30 bg-white/95 dark:bg-[#1F2330]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] px-3.5 sm:px-5 py-2.5 sm:py-3 transition-colors">
+      <header className="sticky top-0 z-30 bg-white/95 dark:bg-[#1F2330]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] px-3.5 sm:px-5 pt-[env(safe-area-inset-top,0px)] py-2.5 transition-colors shadow-xs">
         <div className="max-w-2xl mx-auto flex items-center justify-between gap-2">
           {/* Back button with 44px touch target */}
           <div className="flex items-center gap-2.5 min-w-0">

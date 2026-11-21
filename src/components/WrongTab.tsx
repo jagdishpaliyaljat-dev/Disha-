@@ -527,7 +527,7 @@ export const WrongTab: React.FC<WrongTabProps> = ({
   return (
     <div id="wrong-tab-view" className="flex flex-col h-full bg-[#FFF9EF] dark:bg-[#171923] overflow-y-auto pb-24 select-none">
       {/* Header */}
-      <div className="bg-white/95 dark:bg-[#1F2330]/95 backdrop-blur-md px-4 pt-4 pb-3 border-b border-[#E8D9C0] dark:border-[#31374A] sticky top-0 z-20">
+      <header className="bg-white/95 dark:bg-[#1F2330]/95 backdrop-blur-md px-4 pt-[env(safe-area-inset-top,0px)] py-2.5 border-b border-[#E8D9C0] dark:border-[#31374A] sticky top-0 z-20 select-none shadow-xs">
         <div className="flex items-center justify-between max-w-4xl mx-auto w-full">
           <div>
             <div className="flex items-center gap-2">
@@ -550,7 +550,7 @@ export const WrongTab: React.FC<WrongTabProps> = ({
             <Clock size={16} />
           </button>
         </div>
-      </div>
+      </header>
 
       <main className="p-4 space-y-4 max-w-4xl mx-auto w-full">
         {/* Top Summary CTA Cards: Mistakes & Bookmarked */}

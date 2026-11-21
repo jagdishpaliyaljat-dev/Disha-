@@ -35,6 +35,7 @@ import {
   Award,
   Zap,
   Crown,
+  ArrowLeft,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import ShareModal, { ShareData } from "./ShareModal";
@@ -114,7 +115,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
   }, [activeProfile, settings.dailyGoal]);
 
   const userName = !isAuthenticated 
-    ? "Guest Aspirant (अतिथि छात्र)" 
+    ? "Guest Aspirant" 
     : (activeProfile?.name && activeProfile.name !== "Student" && activeProfile.name !== "Guest Aspirant" ? activeProfile.name : (activeProfile?.email?.split('@')[0] || "Aspirant"));
   const isAdmin = isUserAdmin(activeProfile);
 
@@ -190,55 +191,79 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
       className="flex flex-col h-full bg-[#FFF9EF] dark:bg-[#171923] overflow-y-auto pb-24 selection:bg-[#800020] selection:text-white"
       id="profile-tab"
     >
-      <header className="px-3 sm:px-5 pt-[env(safe-area-inset-top,0px)] py-3 sm:py-4 bg-white dark:bg-[#1F2330] border-b border-[#E8D9C0] dark:border-[#31374A] relative overflow-hidden shrink-0 shadow-xs">
-        {/* Heritage Royal Strip */}
-        <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-[#800020] via-[#F47B20] to-[#C99A45]" />
-        
-        {/* Ambient Glows */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-[#800020]/15 via-[#F47B20]/10 to-transparent rounded-full blur-2xl pointer-events-none" />
-        <div className="absolute -bottom-16 -left-8 w-48 h-48 bg-[#C99A45]/15 rounded-full blur-2xl pointer-events-none" />
-
-        <div className="max-w-4xl mx-auto relative z-10 space-y-3">
-          {/* Top Brand Identity Bar */}
-          <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-[#E8D9C0]/70 dark:border-[#31374A]">
-            <AppLogo size="sm" variant="horizontal" showTagline={true} />
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <button
-                onClick={() => {
-                  triggerHaptic("light");
-                  onUpdateSettings({ darkMode: !settings.darkMode });
-                }}
-                className="h-7.5 sm:h-8.5 px-2.5 sm:px-3 rounded-lg sm:rounded-xl bg-[#FFF9EF] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center gap-1.5 text-[11px] sm:text-xs font-black text-[#171923] dark:text-[#FFF9EF] hover:border-[#800020] dark:hover:border-[#C99A45] active:scale-95 transition-all cursor-pointer shadow-2xs"
-                aria-label="Toggle Theme"
-              >
-                {settings.darkMode ? (
-                  <>
-                    <Sun size={13} className="text-[#C99A45]" />
-                    <span className="hidden sm:inline">Light</span>
-                  </>
-                ) : (
-                  <>
-                    <Moon size={13} className="text-[#800020]" />
-                    <span className="hidden sm:inline">Dark</span>
-                  </>
-                )}
-              </button>
-              <button
-                onClick={() => {
-                  triggerHaptic("light");
-                  setShowSettingsModal(true);
-                }}
-                className="w-7.5 h-7.5 sm:w-8.5 sm:h-8.5 rounded-lg sm:rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center text-[#800020] dark:text-[#C99A45] shadow-2xs hover:border-[#800020] dark:hover:border-[#C99A45] active:scale-90 transition-all cursor-pointer"
-                aria-label="App Settings"
-                title="App Settings"
-              >
-                <Settings size={15} />
-              </button>
+      {/* 1. COMPACT STICKY PROFILE HEADER (68-72dp excluding status bar inset) */}
+      <header className="sticky top-0 z-40 bg-[#FFF9EF]/95 dark:bg-[#171923]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] select-none w-full max-w-full overflow-hidden shadow-xs transition-colors pt-[env(safe-area-inset-top,0px)]">
+        <div className="h-[68px] sm:h-[72px] px-3.5 sm:px-5 max-w-4xl mx-auto flex items-center justify-between gap-2">
+          {/* Left: Back Navigation + Title */}
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+            <button
+              onClick={() => {
+                triggerHaptic("light");
+                if (typeof onNavigateTab === "function") {
+                  onNavigateTab("home");
+                } else if (typeof window !== "undefined" && window.history.length > 1) {
+                  window.history.back();
+                }
+              }}
+              className="w-10 h-10 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] hover:bg-[#EFE3CF] dark:hover:bg-[#31374A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center text-[#171923] dark:text-[#FFF9EF] active:scale-95 transition-all cursor-pointer shrink-0"
+              aria-label="Back to Home"
+              title="Back"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <div className="min-w-0">
+              <h1 className="text-base sm:text-lg font-black tracking-tight text-[#171923] dark:text-[#FFF9EF] leading-tight truncate">
+                Profile & Settings
+              </h1>
+              <p className="text-[10.5px] text-[#52576A] dark:text-[#CBD2E1] leading-none truncate">
+                Account information and preferences
+              </p>
             </div>
           </div>
 
-          {/* Aspirant Hero Card (20% More Compact) */}
-          <motion.div
+          {/* Right: Theme Toggle + Settings Modal Button */}
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            <button
+              onClick={() => {
+                triggerHaptic("light");
+                onUpdateSettings({ darkMode: !settings.darkMode });
+              }}
+              className="w-10 h-10 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] hover:bg-[#EFE3CF] dark:hover:bg-[#31374A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center text-[#171923] dark:text-[#C99A45] active:scale-95 transition-all cursor-pointer shrink-0"
+              aria-label="Toggle Theme"
+              title={settings.darkMode ? "Light Mode" : "Dark Mode"}
+            >
+              {settings.darkMode ? (
+                <Sun className="w-4.5 h-4.5 text-[#F47B20]" />
+              ) : (
+                <Moon className="w-4.5 h-4.5 text-[#800020]" />
+              )}
+            </button>
+            <button
+              onClick={() => {
+                triggerHaptic("light");
+                setShowSettingsModal(true);
+              }}
+              className="w-10 h-10 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] hover:bg-[#EFE3CF] dark:hover:bg-[#31374A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center text-[#800020] dark:text-[#C99A45] active:scale-95 transition-all cursor-pointer shrink-0"
+              aria-label="App Settings"
+              title="App Settings"
+            >
+              <Settings className="w-4.5 h-4.5" />
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* ─────────────────────────────────────────────────────────────
+          2. MAIN PROFILE BODY & SETTINGS
+      ───────────────────────────────────────────────────────────── */}
+      <motion.main
+        variants={containerVariants}
+        initial="hidden"
+        animate="show"
+        className="px-3 sm:px-6 pt-3 space-y-4 max-w-4xl mx-auto w-full"
+      >
+        {/* Aspirant Hero Card (20% More Compact) */}
+        <motion.div
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
             className="flex flex-col sm:flex-row items-center sm:items-start gap-3 sm:gap-4.5 bg-gradient-to-b from-[#FFF9EF] to-white dark:from-[#171923] dark:to-[#1F2330] p-3 sm:p-4 rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] shadow-xs relative overflow-hidden"
@@ -293,7 +318,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                 ) : !isAuthenticated ? (
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 text-[9px] font-black uppercase tracking-wider">
                     <Award size={10} />
-                    <span>Guest Mode (गेस्ट)</span>
+                    <span>Guest Mode</span>
                   </span>
                 ) : (
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] border border-[#800020]/20 dark:border-[#F47B20]/30 text-[9px] font-black uppercase tracking-wider">
@@ -348,7 +373,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                     className="px-3.5 py-1.5 bg-gradient-to-r from-[#800020] via-[#5E0017] to-[#800020] hover:opacity-95 text-white rounded-lg sm:rounded-xl text-[11px] font-black shadow-sm border border-[#C99A45]/30 transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer"
                   >
                     <LogIn size={11} />
-                    <span>लॉगिन करें (Sign In)</span>
+                    <span>Sign In</span>
                   </button>
                 ) : (
                   <button
@@ -365,18 +390,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
               </div>
             </div>
           </motion.div>
-        </div>
-      </header>
 
-      {/* ─────────────────────────────────────────────────────────────
-          2. MAIN PROFILE BODY & SETTINGS
-      ───────────────────────────────────────────────────────────── */}
-      <motion.main
-        variants={containerVariants}
-        initial="hidden"
-        animate="show"
-        className="px-3.5 sm:px-6 pt-5 space-y-5 max-w-4xl mx-auto w-full"
-      >
         {!isAuthenticated && (
           <motion.div
             variants={itemVariants}
@@ -388,10 +402,10 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
               </div>
               <div>
                 <h3 className="font-black text-sm text-[#171923] dark:text-[#FFF9EF]">
-                  आप अभी गेस्ट मोड में हैं (Guest Mode)
+                  You are in Guest Mode
                 </h3>
                 <p className="text-xs text-slate-600 dark:text-[#E8D9C0]/80 mt-0.5">
-                  अपनी परीक्षा प्रगति, टेस्ट स्कोर और बुकमार्क सुरक्षित रखने के लिए अपने अकाउंट से लॉगिन करें।
+                  Sign in with your Google account to synchronize your exam progress, scores, and bookmarks.
                 </p>
               </div>
             </div>
@@ -403,7 +417,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
               className="w-full sm:w-auto px-4 py-2 bg-gradient-to-r from-[#800020] to-[#5E0017] hover:opacity-95 text-white rounded-xl text-xs font-black shadow-sm active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0"
             >
               <LogIn size={13} />
-              <span>लॉगिन करें (Sign In)</span>
+              <span>Sign In</span>
             </button>
           </motion.div>
         )}
