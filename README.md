@@ -1,175 +1,421 @@
-# DISHA 20-20 (दिशा 20-20) — Exam Preparation Platform
+<div align="center">
 
-[![Official Live Website](https://img.shields.io/badge/Live%20Website-disha--2020.vercel.app-800020?style=for-the-badge&logo=vercel)](https://disha-2020.vercel.app)
-[![Download Android APK](https://img.shields.io/badge/Download%20APK-v1.0.3%20Release-22c55e?style=for-the-badge&logo=android)](https://github.com/jagdishpaliyaljat-dev/Disha-/releases/download/v1.0.3/Disha-20-20-Exam-Prep-v1.0.3.apk)
-[![Production Status](https://img.shields.io/badge/Production-Verified%20Grade%20A%2B-emerald)](https://disha-2020.vercel.app)
-[![Node.js](https://img.shields.io/badge/Node.js-22.x-brightgreen)](https://nodejs.org)
-[![Vite](https://img.shields.io/badge/Vite-8.3.0-646CFF)](https://vitejs.dev)
-[![React](https://img.shields.io/badge/React-19.0.1-61DAFB)](https://react.dev)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-v4.3.3-38B2AC)](https://tailwindcss.com)
-[![Firebase](https://img.shields.io/badge/Firebase-12.19.0-FFCA28)](https://firebase.google.com)
-[![PWA](https://img.shields.io/badge/PWA-Workbox%20Offline%20First-blue)](https://web.dev/progressive-web-apps/)
+<img src="public/icon-512.png" alt="DISHA 20-20 Logo" width="120" height="120" />
 
-> 🌐 **आधिकारिक लाइव वेबसाइट**: [https://disha-2020.vercel.app](https://disha-2020.vercel.app)  
-> 📱 **नवीनतम Android APK डाउनलोड (v1.0.3)**: [Disha-20-20-Exam-Prep-v1.0.3.apk](https://github.com/jagdishpaliyaljat-dev/Disha-/releases/download/v1.0.3/Disha-20-20-Exam-Prep-v1.0.3.apk) (13.05 MB)
+# DISHA 20-20 — Competitive Exam Prep Platform
 
-**DISHA 20-20 (दिशा 20-20)** is an enterprise-grade, offline-first Progressive Web Application (PWA) tailored specifically for Indian competitive exam aspirants—including **RPSC RAS Pre, 1st & 2nd Grade, REET, RSMSSB Patwar, CET, SI Exam, and Rajasthan Police Constable**.
+**India's most advanced Rajasthan competitive exam preparation ecosystem**
 
-Built on a hybrid reactive architecture combining **React 19**, **Vite 8**, **Tailwind CSS v4**, **Node.js 22 Express / Vercel Edge Serverless**, and **Google Cloud Firebase (Auth, Firestore, Cloud Storage)**, DISHA 20-20 is optimized for ultra-low latency, 99.7% Firestore quota conservation, pure Devanagari Hindi typography, KaTeX mathematical typesetting, and complete offline survivability.
+[![Version](https://img.shields.io/badge/version-1.0.15-blue?style=for-the-badge)](https://github.com/jagdishpaliyaljat-dev/Disha-Android-App/releases/tag/v1.0.15)
+[![Build](https://img.shields.io/github/actions/workflow/status/jagdishpaliyaljat-dev/Disha-Android-App/build-apk.yml?branch=main&style=for-the-badge&label=APK%20Build)](https://github.com/jagdishpaliyaljat-dev/Disha-Android-App/actions)
+[![Live App](https://img.shields.io/badge/Live%20App-disha--2020.vercel.app-green?style=for-the-badge)](https://disha-2020.vercel.app)
+[![License](https://img.shields.io/badge/License-Proprietary-red?style=for-the-badge)](#license)
+
+> DISHA 20-20 is a full-stack, offline-first Progressive Web App and Android application built for serious aspirants preparing for RPSC RAS, Rajasthan GK, Police Constable, and Patwari exams — featuring live tests, AI tutoring, real-time battle mode, spaced repetition, PYQ vault, and state-wide merit rankings.
+
+[📱 Download APK](https://github.com/jagdishpaliyaljat-dev/Disha-Android-App/releases/tag/v1.0.15) · [🌐 Live Web App](https://disha-2020.vercel.app) · [📖 Docs](./docs/) · [🐛 Issues](https://github.com/jagdishpaliyaljat-dev/Disha-Android-App/issues)
+
+</div>
 
 ---
 
-## Key Highlights & Core Capabilities
+## 📋 Table of Contents
 
-1. **Intelligent MCQ Engine & Exam Simulation**
-   - Supports 5 core question types: Single Choice, Multiple Statements, Assertion-Reason, Match the Following, and LaTeX Mathematical/Numerical problems.
-   - Exact RPSC examination rules: 1/3 negative marking, 5th option 'E' compliance, automatic -1/3 penalty for unbubbled questions, and 10% unbubbled disqualification rules.
-2. **Quota-Guarded 24-Hour Sync Architecture**
-   - Proprietary `StudentWriteBuffer` queues student practice telemetry locally in IndexedDB v5.
-   - Zero routine Firestore cloud writes during active study sessions. Writes are strictly gated by a 24-hour sync eligibility threshold, slashing cloud database operations by **99.7%**.
-3. **Spaced Repetition & Weakness Intelligence**
-   - Multi-stage Leitner spaced repetition algorithm with interval jumps (`[3, 7, 21, 45, 75]` days).
-   - Dynamic weakness heatmaps, error journals, and smart priority question queues.
-4. **Snapshot & Delta CDN Data Distribution**
-   - High-density curriculum and question bundles published as immutable, version-keyed static assets served with `Cache-Control: public, max-age=31536000, immutable`.
-   - Lightweight delta bundles distribute updates without re-fetching full datasets.
-5. **Universal Admin Content Management System**
-   - Visual Curriculum & Hierarchy Builder (Subject -> Chapter -> Topic -> Question).
-   - Multimodal Importers: Universal Smart Parser, Excel/CSV importer, Bulk HTML importer, and Gemini AI auto-formatting engine.
-   - Dual-write parity mechanism (`questions` and `mcqs` collections) with automated orphan detection and healing.
-6. **Multi-Provider AI Resilience Vault**
-   - Hot-swappable key rotation across Google Gemini 2.0/1.5, Anthropic Claude 3.5, OpenAI GPT-4o, and Groq.
-   - AES-256-GCM encrypted server-side credential vault with automatic exponential cooldown upon rate limits (HTTP 429).
-7. **Disaster Recovery & Reversible Backup Engine**
-   - Full and selective database export to `.zip` archives with SHA-256 integrity checksums.
-   - Reversible Firestore type serialization (preserving Timestamps, GeoPoints, and DocumentReferences).
-   - 5 restoration strategies (Clean, Merge, Skip, Dry-Run, Migration) delivering RTO < 60s and RPO = 0s.
+- [About the Platform](#about-the-platform)
+- [Key Features](#key-features)
+- [Technology Stack](#technology-stack)
+- [Project Structure](#project-structure)
+- [Quick Start](#quick-start)
+- [Environment Variables](#environment-variables)
+- [Android Build](#android-build)
+- [Running Tests](#running-tests)
+- [Deployment](#deployment)
+- [Architecture Overview](#architecture-overview)
+- [Release History](#release-history)
+- [Documentation Index](#documentation-index)
+- [Contributing](#contributing)
+- [License](#license)
+
+---
+
+## About the Platform
+
+DISHA 20-20 is a production-grade, **offline-first** exam preparation platform built specifically for Rajasthan competitive exam aspirants. The platform combines:
+
+- **Real-time competitive infrastructure** — Live mock exams with state-wide verified leaderboards
+- **AI-powered learning** — Gemini 2.0-backed AI tutor, doubt resolver, and auto-question formatter
+- **Spaced repetition engine** — Adaptive difficulty scheduling using SM-2 inspired algorithm
+- **Battle Mode** — Real-time 1v1 MCQ duels with Supabase Realtime channels
+- **Full offline support** — IndexedDB v5 (18 object stores), LocalStorage, and service workers ensure 100% functionality without internet
+- **Progressive Web App + Android** — Single codebase deployed as a PWA (Vercel) and native Android APK (Capacitor)
+
+The platform covers:
+| Exam | Coverage |
+|------|----------|
+| RPSC RAS (Pre + Mains) | Rajasthan GK, History, Geography, Polity, Economy, Science |
+| Rajasthan Police Constable | GK, Reasoning, Hindi, Current Affairs |
+| Rajasthan Patwari | Revenue Law, Maths, Computer, GK |
+| REET (Level 1 & 2) | Child Psychology, Hindi, Maths, EVS, Social Studies |
+| Junior Accountant | Accounts, Commerce, GK |
+
+---
+
+## Key Features
+
+### 🎓 Student / User App
+| Feature | Description |
+|---------|-------------|
+| **Smart Practice Engine** | Chapter-wise, topic-wise, custom difficulty MCQ sessions with real-time scoring |
+| **Live Exam Tests** | Scheduled live tests with countdown timers and state-wide merit leaderboards |
+| **PYQ Vault** | Searchable archive of Previous Year Questions across all exams with filter-by-year |
+| **AI Tutor (Disha AI)** | Gemini 2.0-powered doubt resolver with multi-modal support, KaTeX math rendering |
+| **Battle Mode (1v1)** | Real-time MCQ duels via Supabase Realtime — challenge friends or random opponents |
+| **Spaced Repetition** | Adaptive revision scheduler — prioritizes weak topics using performance history |
+| **QR/Photo Scanner** | Camera-based question import using device OCR + AI formatting |
+| **Weakness Heatmap** | Visual analytics dashboard showing subject-wise accuracy trends |
+| **Error Journal** | Auto-tracks all wrong answers with smart re-attempt queuing |
+| **Google One-Tap Login** | Native Google Sign-In via `@capgo/capacitor-social-login` on Android + web |
+| **Offline First** | Full exam sessions, flashcards, and practice work without internet |
+| **PWA Installable** | Add to home screen with full app-like experience on any device |
+
+### 🛡️ Admin Panel
+| Feature | Description |
+|---------|-------------|
+| **Curriculum Builder** | Visual Subject → Chapter → Topic → Question hierarchy management |
+| **Universal Smart Parser** | AI-powered bulk question importer from plain text, HTML, Excel/CSV |
+| **Gemini Auto-Formatter** | Automatically formats and classifies raw question text using AI |
+| **Live Test Management** | Schedule live exams, set timers, publish results, generate PDF merit lists |
+| **Banner Management** | Upload/manage promotional banners with active/inactive toggle |
+| **AI Vault (Multi-Provider)** | AES-256-GCM encrypted API key vault — Gemini, Claude, GPT-4o, Groq |
+| **Backup & Restore** | Full Supabase/Firestore database export to ZIP with SHA-256 integrity check |
+| **Admin Promotion Security** | Challenge-response admin elevation with 24-hour session lock |
+| **Diagnostic Tools** | Orphan detection, duplicate finder, DB health checker |
 
 ---
 
 ## Technology Stack
 
 | Layer | Technologies & Versions |
-|:---|:---|
-| **Frontend Framework** | React 19.0.1, React DOM 19.0.1, TypeScript 7.0.2 |
-| **Build Tool & Bundler** | Vite 8.3.0, @tailwindcss/vite 4.3.3, esbuild 0.25.0 |
-| **Styling & Animation** | Tailwind CSS v4.3.3, Motion 12.23.24, Lucide React 0.546.0 |
-| **Typography & Math** | KaTeX 0.19.0, DOMPurify 3.4.17, React Markdown 10.1.0, Remark GFM 4.0.1 |
-| **Offline & Storage** | IndexedDB v5 (18 object stores), LocalForage 1.10.0, Vite-Plugin-PWA 2.0.0, Workbox |
-| **Server & Serverless** | Node.js 22.x, Express 4.21.2, Vercel Serverless Functions (@vercel/node) |
-| **Database & Cloud Auth** | Google Cloud Firestore 12.19.0, Firebase Admin 14.5.0, Firebase Storage |
-| **AI Integration** | @google/genai 2.4.0 (Gemini 2.0 Flash / Pro), Multi-Provider REST clients |
-| **Testing & Quality** | Vitest 5.1.0, JSDOM 30.1.3, @firebase/rules-unit-testing 6.0.0 |
+|:------|:------------------------|
+| **Frontend Framework** | React 19.0.1, TypeScript 5.x |
+| **Build Tool** | Vite 8.3.8, `@tailwindcss/vite` 4.3.3 |
+| **Styling** | Tailwind CSS v4.3.3, Motion (Framer) 12.x |
+| **UI Icons** | Lucide React 0.546.0 |
+| **Math & Markdown** | KaTeX 0.19.0, React Markdown 10.x, DOMPurify 3.x |
+| **Backend / BaaS** | Supabase (Postgres, Auth, Realtime, Storage) |
+| **Offline Storage** | IndexedDB v5 (18 object stores), LocalStorage, LocalForage 1.10.0 |
+| **PWA** | Vite-Plugin-PWA 2.0.0, Workbox |
+| **Native Android** | Capacitor 8.6.2, `@capacitor/android`, `@capgo/capacitor-social-login` |
+| **AI Integration** | `@google/genai` 2.4.0 (Gemini 2.0 Flash / Pro), Multi-Provider REST |
+| **Deployment** | Vercel (PWA), GitHub Actions (Android APK) |
+| **Testing** | Vitest 5.1.0, JSDOM 30.x |
+| **Package Manager** | pnpm (required) |
 
 ---
 
-## Project Quick Start
+## Project Structure
+
+```
+Disha-/
+├── android/                    # Capacitor Android project
+│   └── app/
+│       ├── build.gradle        # versionCode 6, versionName "1.0.15"
+│       └── src/main/assets/public/  # Compiled web assets (synced via cap copy)
+├── docs/                       # Developer documentation (18 guides)
+├── public/                     # Static assets, icons, manifest.json
+├── scripts/                    # Seed scripts, health checks, DB utilities
+├── src/
+│   ├── components/             # ~60+ React UI components
+│   │   ├── admin/              # Admin panel modals and sections
+│   │   ├── battle/             # 1v1 Battle Mode components
+│   │   ├── coaching/           # Coaching hierarchy components
+│   │   └── ui/                 # Shared primitive UI components
+│   ├── hooks/                  # Custom React hooks
+│   ├── services/               # Service layer
+│   │   └── snapshot/           # IndexedDB v5 snapshot engine
+│   ├── types/                  # TypeScript type definitions
+│   └── utils/                  # Business logic utilities
+│       ├── cleanSlate.ts       # App startup data integrity (v13.0.0)
+│       ├── supabaseClient.ts   # Supabase client singleton
+│       ├── realtimeBattleService.ts  # Battle Mode realtime engine
+│       ├── questionsStorage.ts # Offline question store (IndexedDB)
+│       ├── aiProviderService.ts # Multi-provider AI with key rotation
+│       └── ...                 # 40+ utility modules
+├── tests/                      # Vitest test suites
+├── .github/workflows/
+│   ├── build-apk.yml           # Android release APK builder (triggers on tag)
+│   └── build-check.yml         # PR build validation
+├── capacitor.config.ts         # Capacitor & Google OAuth config
+├── vite.config.ts              # Vite build config
+├── tailwind.config.ts          # Tailwind CSS v4 config
+├── package.json                # v1.0.15
+└── README.md
+```
+
+---
+
+## Quick Start
 
 ### Prerequisites
-- Node.js `22.x` or higher
-- `pnpm` (>= 9.x recommended)
-- Git
 
-### Installation
+- **Node.js** `22.x` or higher
+- **pnpm** `>= 9.x` — _required, do not use npm or yarn_
+- **Git**
+
 ```bash
-# Clone the repository
-git clone https://github.com/disha-prep/disha-2020.git
-cd disha-2020
+# Install pnpm globally if not present
+npm install -g pnpm
+```
 
-# Install dependencies via pnpm
+### Clone & Install
+
+```bash
+# Clone the web/PWA repository
+git clone https://github.com/jagdishpaliyaljat-dev/Disha-.git
+cd Disha-
+
+# Install dependencies
 pnpm install
 ```
 
-### Environment Configuration
-Create a `.env.local` file in the project root:
-```env
-# Public Firebase Client Configuration (VITE_ prefixed)
-VITE_FIREBASE_API_KEY=your_firebase_web_api_key
-VITE_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
-VITE_FIREBASE_PROJECT_ID=your_firebase_project_id
-VITE_FIREBASE_STORAGE_BUCKET=your_project.firebasestorage.app
-VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-VITE_FIREBASE_APP_ID=your_app_id
-VITE_FIREBASE_MEASUREMENT_ID=your_measurement_id
-
-# Server Secrets (Private — Never prefixed with VITE_)
-AI_ENCRYPTION_KEY=32_byte_hex_secret_for_aes_256_gcm
-SESSION_SECRET=strong_random_session_secret
-PORT=3000
-```
-
 ### Development Server
+
 ```bash
-# Start the local development server (Express + Vite HMR)
 pnpm dev
-# App will be accessible at http://localhost:3000
+# App available at http://localhost:5173
 ```
 
-### Production Build & Local Preview
+### Production Build
+
 ```bash
-# Compile React client and esbuild serverless handlers
+pnpm run build
+# Output: dist/
+
+pnpm start  # or: pnpm preview
+```
+
+---
+
+## Environment Variables
+
+Create a `.env.local` file in the project root:
+
+```env
+# ─── Supabase (Public — VITE_ prefix safe for client) ───────────────────────
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+
+# ─── Google OAuth (Public — used in Capacitor Social Login) ─────────────────
+VITE_GOOGLE_WEB_CLIENT_ID=your_google_oauth_web_client_id.apps.googleusercontent.com
+
+# ─── AI Keys (Encrypted — stored in Supabase vault, NOT hardcoded) ──────────
+# These are managed via the Admin Panel → AI Provider Vault
+# Never commit raw AI API keys to this file or any source file
+
+# ─── Optional: Analytics ────────────────────────────────────────────────────
+VITE_VERCEL_ANALYTICS=true
+```
+
+> ⚠️ **Security Rule:** Only `VITE_` prefixed keys are exposed to the browser bundle. Service-role keys, encryption keys, and AI API keys must **never** be prefixed with `VITE_` or committed to source code.
+
+---
+
+## Android Build
+
+### Local Android Development
+
+```bash
+# 1. Build the web assets
 pnpm run build
 
-# Start the compiled production Node.js server
-pnpm start
+# 2. Sync web assets to Android project
+pnpm exec cap copy android
+
+# 3. Full sync (plugins + assets)
+pnpm run app:sync
+
+# 4. Open in Android Studio
+pnpm run app:open
 ```
 
-### Running Tests
+### Release APK via GitHub Actions
+
+Release APKs are **automatically built** when a version tag is pushed:
+
 ```bash
-# Run unit and integration test suite via Vitest
+# Tag and push → triggers build-apk.yml workflow automatically
+git tag -a v1.0.15 -m "Release v1.0.15"
+git push origin main --tags
+```
+
+APK download: **[GitHub Releases → v1.0.15](https://github.com/jagdishpaliyaljat-dev/Disha-Android-App/releases/tag/v1.0.15)**
+
+### Android App Details
+| Property | Value |
+|----------|-------|
+| App ID | `com.disha2020.examprep` |
+| Version Name | `1.0.15` |
+| Version Code | `6` |
+| Min SDK | 23 (Android 6.0) |
+| Target SDK | 35 (Android 15) |
+| Signing | Release keystore (CI secrets) |
+
+---
+
+## Running Tests
+
+```bash
+# Run all tests
 pnpm test
 
-# Run TypeScript static analysis
-pnpm lint
+# Run specific test files
+pnpm exec vitest run tests/realtime-battle.test.ts
+pnpm exec vitest run tests/adminPromotionSecurity.test.ts
 
-# Execute production health check
-npx tsx scripts/run_production_health_check.ts
+# TypeScript type check
+pnpm lint
 ```
 
----
+**Current Test Status:** ✅ 17/17 tests passing (v1.0.15)
 
-## Complete Documentation Index
-
-For complete developer knowledge transfer, refer to the detailed guides in the `docs/` folder:
-
-| # | Document | Purpose & Description |
-|:---:|:---|:---|
-| 01 | [README.md](file:///data/user/0/com.termux/files/home/Disha-/docs/README.md) | Platform overview, tech stack, and quick start guide |
-| 02 | [PROJECT_OVERVIEW.md](file:///data/user/0/com.termux/files/home/Disha-/docs/PROJECT_OVERVIEW.md) | Business goals, exam coverage, problem statement & architecture scope |
-| 03 | [PROJECT_DIRECTORY_GUIDE.md](file:///data/user/0/com.termux/files/home/Disha-/docs/PROJECT_DIRECTORY_GUIDE.md) | Complete file tree, directory responsibilities, and key modules |
-| 04 | [SYSTEM_ARCHITECTURE.md](file:///data/user/0/com.termux/files/home/Disha-/docs/SYSTEM_ARCHITECTURE.md) | Comprehensive 5-tier architecture, quota defense & security boundaries |
-| 05 | [FRONTEND_ARCHITECTURE.md](file:///data/user/0/com.termux/files/home/Disha-/docs/FRONTEND_ARCHITECTURE.md) | React 19 UI hierarchy, state management, routing & PWA caching |
-| 06 | [BACKEND_API_REFERENCE.md](file:///data/user/0/com.termux/files/home/Disha-/docs/BACKEND_API_REFERENCE.md) | Exhaustive REST endpoint specifications with auth, payloads & responses |
-| 07 | [FIREBASE_DATABASE_SCHEMA.md](file:///data/user/0/com.termux/files/home/Disha-/docs/FIREBASE_DATABASE_SCHEMA.md) | 56 Firestore collections, subcollections, fields, indexes & security rules |
-| 08 | [BUSINESS_LOGIC_REFERENCE.md](file:///data/user/0/com.termux/files/home/Disha-/docs/BUSINESS_LOGIC_REFERENCE.md) | Algorithmic logic: 24h sync gate, spaced repetition, RPSC marking & deduplication |
-| 09 | [ADMIN_PANEL_GUIDE.md](file:///data/user/0/com.termux/files/home/Disha-/docs/ADMIN_PANEL_GUIDE.md) | Operational manual for curriculum, questions, AI vault, and diagnostics |
-| 10 | [USER_PANEL_GUIDE.md](file:///data/user/0/com.termux/files/home/Disha-/docs/USER_PANEL_GUIDE.md) | Student journey walkthrough: practice, tests, revision, PYQ & scanner |
-| 11 | [BACKUP_RESTORE_GUIDE.md](file:///data/user/0/com.termux/files/home/Disha-/docs/BACKUP_RESTORE_GUIDE.md) | Disaster recovery, 5 restore modes, reversible typing & SHA-256 integrity |
-| 12 | [LOCAL_DEVELOPMENT_SETUP.md](file:///data/user/0/com.termux/files/home/Disha-/docs/LOCAL_DEVELOPMENT_SETUP.md) | Developer workstation setup, environment variables & Termux guidelines |
-| 13 | [DEPLOYMENT_RELEASE_GUIDE.md](file:///data/user/0/com.termux/files/home/Disha-/docs/DEPLOYMENT_RELEASE_GUIDE.md) | Vercel Serverless Edge deployment, build pipeline, domains & rollback |
-| 14 | [TESTING_GUIDE.md](file:///data/user/0/com.termux/files/home/Disha-/docs/TESTING_GUIDE.md) | Test suites, test harnesses, mocks, coverage & performance benchmarks |
-| 15 | [TROUBLESHOOTING_GUIDE.md](file:///data/user/0/com.termux/files/home/Disha-/docs/TROUBLESHOOTING_GUIDE.md) | Common errors, solutions, Firebase ADC warnings & Termux tuning |
-| 16 | [ARCHITECTURE_DIAGRAMS.md](file:///data/user/0/com.termux/files/home/Disha-/docs/ARCHITECTURE_DIAGRAMS.md) | GitHub-rendered Mermaid diagrams for flows, schemas & states |
-| 17 | [DEVELOPER_HANDOVER_CHECKLIST.md](file:///data/user/0/com.termux/files/home/Disha-/docs/DEVELOPER_HANDOVER_CHECKLIST.md) | New engineer onboarding, access keys, critical constraints & sign-off |
-| 18 | [PHASE_16_FINAL_REPORT.md](file:///data/user/0/com.termux/files/home/Disha-/docs/PHASE_16_FINAL_REPORT.md) | Phase 16 audit certification, codebase health & handover completion |
+| Test File | Tests | Status |
+|-----------|-------|--------|
+| `realtime-battle.test.ts` | 7 | ✅ Pass |
+| `adminPromotionSecurity.test.ts` | 10 | ✅ Pass |
 
 ---
-
-## License & Intellectual Property
-
-Copyright © 2026 DISHA 20-20. All rights reserved.  
-Proprietary educational platform software. Unauthorized distribution, copying, or reverse engineering is strictly prohibited.
 
 ## Deployment
 
-| Item | Value |
-| --- | --- |
-| Repository | `jagdishpaliyaljat-dev/disha-20-20-app` |
-| Vercel project | `disha-20-20-app` |
-| Build command | `pnpm run build` |
-| Output directory | `dist` |
-| Required env vars | `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` |
+### Web App (Vercel)
 
-Only the Supabase **publishable (anon)** key belongs in the frontend. Service-role
-and secret keys must never be committed or exposed to the client.
+| Property | Value |
+|----------|-------|
+| **Live URL** | https://disha-2020.vercel.app |
+| **Project** | `disha-2020` |
+| **Build Command** | `pnpm run build` |
+| **Output Directory** | `dist` |
+| **Framework** | Vite (Static) |
 
+```bash
+# Manual production deploy
+npx vercel deploy --prod --yes
+```
+
+### Android APK (GitHub Actions)
+
+| Repository | Purpose |
+|------------|---------|
+| [jagdishpaliyaljat-dev/Disha-Android-App](https://github.com/jagdishpaliyaljat-dev/Disha-Android-App) | Primary — APK CI/CD builds |
+| [jagdishpaliyaljat-dev/disha-20-20-app](https://github.com/jagdishpaliyaljat-dev/disha-20-20-app) | Mirror |
+| [jagdishpaliyaljat-dev/Disha-](https://github.com/jagdishpaliyaljat-dev/Disha-) | Web/PWA origin |
+
+---
+
+## Architecture Overview
+
+```
+┌─────────────────────────────────────────────────────────┐
+│              CLIENT (React 19 + TypeScript)             │
+│  PWA (Vercel CDN)        Android APK (Capacitor 8)      │
+├──────────────┬──────────────────────────────────────────┤
+│  OFFLINE     │              ONLINE                       │
+│  IndexedDB   │    Supabase (Postgres + Auth + Realtime) │
+│  LocalStorage│    Supabase Storage (banners, media)     │
+│  Service SW  │    Google Gemini 2.0 Flash (AI Tutor)    │
+├──────────────┴──────────────────────────────────────────┤
+│                 KEY SUBSYSTEMS                          │
+│  ┌─────────────┐  ┌──────────────┐  ┌───────────────┐ │
+│  │ Clean Slate │  │ Battle Mode  │  │  Live Tests   │ │
+│  │  v13.0.0   │  │ Realtime 1v1 │  │ Merit Ranking │ │
+│  └─────────────┘  └──────────────┘  └───────────────┘ │
+│  ┌─────────────┐  ┌──────────────┐  ┌───────────────┐ │
+│  │ Spaced Rep  │  │  AI Vault    │  │  PYQ Vault   │ │
+│  │  Engine     │  │ AES-256-GCM  │  │  Search/Filter│ │
+│  └─────────────┘  └──────────────┘  └───────────────┘ │
+└─────────────────────────────────────────────────────────┘
+```
+
+### Data Integrity — Clean Slate System
+
+The app uses a versioned **Clean Slate** system (`src/utils/cleanSlate.ts`) that runs on every app startup. On version mismatch, it automatically:
+- Resets all coaching/series keys to empty arrays
+- Purges obsolete benchmark, mock, and test-prefixed localStorage entries
+- Clears stale IndexedDB snapshots
+
+**Current version:** `13.0.0` (bumped in v1.0.15 to purge all legacy mock data)
+
+---
+
+## Release History
+
+| Version | Date | Highlights |
+|---------|------|------------|
+| **v1.0.15** | Nov 2026 | 🧹 Complete mock data purge — real leaderboards, real battle questions, Clean Slate v13.0.0 |
+| **v1.0.14** | Nov 2026 | 🎨 Profile UI redesign, compact 68–72dp header optimization, safe-area insets fix |
+| **v1.0.13** | Nov 2026 | 📐 Top header vertical whitespace elimination, premium header layout |
+| **v1.0.12** | Nov 2026 | 🔄 Platform stability and performance improvements |
+| **v1.0.11** | Nov 2026 | 🔐 Native Google One-Tap login integration with Supabase `signInWithIdToken` |
+| **v1.0.10** | Oct 2026 | ⚔️ Battle Mode enhancements, realtime channel stability |
+| **v1.0.9** | Oct 2026 | 📚 PYQ Vault search & filter improvements |
+| **v1.0.8** | Oct 2026 | 🤖 Disha AI Tutor — Gemini 2.0 Flash integration |
+| **v1.0.7** | Oct 2026 | 📊 AI Weakness Heatmap and analytics dashboard |
+| **v1.0.6** | Sep 2026 | 🏆 Live Exam Tests with state-wide merit leaderboards |
+
+---
+
+## Documentation Index
+
+Full developer documentation is in the [`docs/`](./docs/) folder:
+
+| # | Document | Purpose |
+|:--:|:---------|:--------|
+| 01 | [PROJECT_OVERVIEW.md](./docs/PROJECT_OVERVIEW.md) | Business goals, exam coverage, problem statement |
+| 02 | [PROJECT_DIRECTORY_GUIDE.md](./docs/PROJECT_DIRECTORY_GUIDE.md) | Complete file tree and directory responsibilities |
+| 03 | [SYSTEM_ARCHITECTURE.md](./docs/SYSTEM_ARCHITECTURE.md) | 5-tier architecture, quota defense, security boundaries |
+| 04 | [FRONTEND_ARCHITECTURE.md](./docs/FRONTEND_ARCHITECTURE.md) | React 19 UI hierarchy, state, routing, PWA caching |
+| 05 | [BACKEND_API_REFERENCE.md](./docs/BACKEND_API_REFERENCE.md) | REST endpoint specs with auth, payloads, responses |
+| 06 | [FIREBASE_DATABASE_SCHEMA.md](./docs/FIREBASE_DATABASE_SCHEMA.md) | Supabase/Firestore collections, fields, indexes |
+| 07 | [BUSINESS_LOGIC_REFERENCE.md](./docs/BUSINESS_LOGIC_REFERENCE.md) | Spaced repetition, RPSC marking, deduplication logic |
+| 08 | [ADMIN_PANEL_GUIDE.md](./docs/ADMIN_PANEL_GUIDE.md) | Admin CMS operational manual |
+| 09 | [USER_PANEL_GUIDE.md](./docs/USER_PANEL_GUIDE.md) | Student journey: practice, tests, revision, PYQ |
+| 10 | [BACKUP_RESTORE_GUIDE.md](./docs/BACKUP_RESTORE_GUIDE.md) | Disaster recovery, 5 restore modes, SHA-256 integrity |
+| 11 | [LOCAL_DEVELOPMENT_SETUP.md](./docs/LOCAL_DEVELOPMENT_SETUP.md) | Developer setup, env vars, Termux guidelines |
+| 12 | [DEPLOYMENT_RELEASE_GUIDE.md](./docs/DEPLOYMENT_RELEASE_GUIDE.md) | Vercel + GitHub Actions deployment, build pipeline |
+| 13 | [TESTING_GUIDE.md](./docs/TESTING_GUIDE.md) | Test suites, mocks, coverage, performance benchmarks |
+| 14 | [TROUBLESHOOTING_GUIDE.md](./docs/TROUBLESHOOTING_GUIDE.md) | Common errors, solutions, Supabase/Capacitor tips |
+| 15 | [ARCHITECTURE_DIAGRAMS.md](./docs/ARCHITECTURE_DIAGRAMS.md) | Mermaid diagrams for flows, schemas, states |
+| 16 | [DEVELOPER_HANDOVER_CHECKLIST.md](./docs/DEVELOPER_HANDOVER_CHECKLIST.md) | Onboarding, access keys, critical constraints |
+
+---
+
+## Contributing
+
+This is a **private proprietary project**. External contributions are not accepted.
+
+For internal developers:
+1. Always use `pnpm` — never `npm` or `yarn`
+2. Never commit API keys, service-role tokens, or secrets to source
+3. Bump `package.json` version + `android/app/build.gradle` versionCode on each release
+4. Run `pnpm test` before every commit — all tests must pass
+5. Sync Android assets: `pnpm exec cap copy android` after every build
+6. Push to all 3 remotes: `origin`, `neworigin`, `web-origin`
+7. Tag releases with `git tag -a vX.X.X` to trigger APK CI builds
+
+---
+
+## License
+
+Copyright © 2024–2026 **DISHA 20-20**. All rights reserved.
+
+Proprietary educational platform software. Unauthorized distribution, reproduction, reverse engineering, or modification is strictly prohibited. This software and its source code are confidential and may only be used by authorized personnel.
+
+---
+
+<div align="center">
+
+**Built with ❤️ for Rajasthan Competitive Exam Aspirants**
+
+[🌐 disha-2020.vercel.app](https://disha-2020.vercel.app) · [📱 Download APK v1.0.15](https://github.com/jagdishpaliyaljat-dev/Disha-Android-App/releases/tag/v1.0.15)
+
+</div>
