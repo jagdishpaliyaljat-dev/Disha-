@@ -10,6 +10,13 @@ const config: CapacitorConfig = {
   android: {
     allowMixedContent: true,
     webContentsDebuggingEnabled: false
+  },
+  plugins: {
+    SocialLogin: {
+      google: {
+        webClientId: '30041667176-vftn1ar5sj8qmtsv3rh81hl11kdd18b0.apps.googleusercontent.com'
+      }
+    }
   }
 };
 

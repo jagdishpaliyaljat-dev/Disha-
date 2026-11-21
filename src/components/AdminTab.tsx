@@ -19,7 +19,7 @@ import { getDeletedBannerIds } from "../utils/bannerStorage";
 import { triggerAdminToast, AdminToastPayload } from "../utils/adminToast";
 import { supabase } from "../lib/supabase";
 import { AdminQuotaAlert } from "./admin/AdminQuotaAlert";
-import { getOAuthRedirectUrl, openOAuthBrowser } from "../utils/mobileAuthService";
+import { getOAuthRedirectUrl, openOAuthBrowser, performNativeGoogleLogin, isNativePlatform } from "../utils/mobileAuthService";
 
 // Resilient lazy loader helper for admin subcomponents compatible with React 19
 function adminSafeLazy<T extends React.ComponentType<any>>(
@@ -1191,6 +1191,20 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                 <button
                   onClick={async () => {
                     try {
+                      if (isNativePlatform()) {
+                        const nativeRes = await performNativeGoogleLogin();
+                        if (nativeRes.success && nativeRes.session) {
+                          triggerAdminToast({
+                            type: "success",
+                            title: "Cloud Sync Connected",
+                            message: "Signed in successfully with your Google account."
+                          });
+                          return;
+                        }
+                        if (nativeRes.error?.toLowerCase().includes("cancel")) {
+                          return;
+                        }
+                      }
                       const redirectTo = getOAuthRedirectUrl();
                       const { data, error } = await supabase.auth.signInWithOAuth({
                         provider: "google",

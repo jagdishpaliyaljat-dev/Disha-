@@ -19,9 +19,11 @@ import { supabase, isSupabaseConfigured } from "../lib/supabase";
 import { AppLogo } from "./AppLogo";
 import { productionMonitor } from "../utils/productionMonitoring";
 import {
+  isNativePlatform,
   getOAuthRedirectUrl,
   openOAuthBrowser,
   registerMobileDeepLinkListener,
+  performNativeGoogleLogin,
 } from "../utils/mobileAuthService";
 
 interface LoginPageProps {
@@ -143,45 +145,51 @@ export function LoginPage({ onLoginSuccess, onClose }: LoginPageProps) {
     }
   };
 
+  // Helper to establish user profile from Supabase session
+  const syncProfileFromSession = async (session: any) => {
+    if (!session?.user) return;
+    try {
+      const { fetchUserProfileFromSupabase } = await import("../utils/supabaseSyncService");
+      const remote = await fetchUserProfileFromSupabase(session.user.id);
+      const { isSuperAdmin } = await import("../utils/userProfileStorage");
+      const isSuper = isSuperAdmin(session.user.email) || isSuperAdmin(session.user.id);
+      const authoritativeRole = (isSuper || remote?.role === "admin") ? "admin" : "student";
+
+      const profile: UserProfile = {
+        id: session.user.id,
+        email: session.user.email || "",
+        name: remote?.name || session.user.user_metadata?.full_name || session.user.user_metadata?.name || "Student",
+        role: authoritativeRole,
+        status: "active",
+        createdAt: remote?.createdAt || session.user.created_at || new Date().toISOString(),
+      };
+      onLoginSuccess(profile);
+    } catch {
+      const profile: UserProfile = {
+        id: session.user.id,
+        email: session.user.email || "",
+        name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || "Student",
+        role: "student",
+        status: "active",
+        createdAt: session.user.created_at || new Date().toISOString(),
+      };
+      onLoginSuccess(profile);
+    }
+  };
+
   // Listen for mobile deep links if Google login completes in external browser
   React.useEffect(() => {
     const cleanup = registerMobileDeepLinkListener(async (session) => {
       if (session?.user) {
         setSuccessNotice("Login successful! Syncing profile...");
-        try {
-          const { fetchUserProfileFromSupabase } = await import("../utils/supabaseSyncService");
-          const remote = await fetchUserProfileFromSupabase(session.user.id);
-          const { isSuperAdmin } = await import("../utils/userProfileStorage");
-          const isSuper = isSuperAdmin(session.user.email) || isSuperAdmin(session.user.id);
-          const authoritativeRole = (isSuper || remote?.role === "admin") ? "admin" : "student";
-
-          const profile: UserProfile = {
-            id: session.user.id,
-            email: session.user.email || "",
-            name: remote?.name || session.user.user_metadata?.full_name || session.user.user_metadata?.name || "Student",
-            role: authoritativeRole,
-            status: "active",
-            createdAt: remote?.createdAt || session.user.created_at || new Date().toISOString(),
-          };
-          onLoginSuccess(profile);
-        } catch {
-          const profile: UserProfile = {
-            id: session.user.id,
-            email: session.user.email || "",
-            name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || "Student",
-            role: "student",
-            status: "active",
-            createdAt: session.user.created_at || new Date().toISOString(),
-          };
-          onLoginSuccess(profile);
-        }
+        await syncProfileFromSession(session);
       }
     });
 
     return cleanup;
   }, [onLoginSuccess]);
 
-  // Supabase Google Login
+  // Supabase Google Login (Native One-Tap on Android, OAuth fallback on web)
   const handleGoogleLogin = async () => {
     setIsLoading(true);
     setConfigNotice(null);
@@ -189,35 +197,56 @@ export function LoginPage({ onLoginSuccess, onClose }: LoginPageProps) {
     productionMonitor.recordUserJourney("login", "start");
 
     try {
-      if (isSupabaseConfigured()) {
-        const redirectTo = getOAuthRedirectUrl();
+      if (!isSupabaseConfigured()) {
+        setConfigNotice("Supabase credentials not configured in environment.");
+        return;
+      }
 
-        const { data, error } = await supabase.auth.signInWithOAuth({
-          provider: "google",
-          options: {
-            redirectTo,
-            queryParams: {
-              access_type: "offline",
-              prompt: "consent",
-            },
-          },
-        });
+      // 1. Try Native One-Tap first on Android / iOS
+      if (isNativePlatform()) {
+        setSuccessNotice("Opening Google account picker...");
+        const nativeResult = await performNativeGoogleLogin();
 
-        if (error) {
-          console.warn("Supabase Google OAuth error:", error.message);
-          if (error.message?.toLowerCase().includes("not enabled")) {
-            setConfigNotice(
-              "Google Sign-In is not yet configured in Supabase. You can sign in using Email & Password above."
-            );
-          } else {
-            setConfigNotice(`Authentication notice: ${error.message}`);
-          }
-        } else if (data?.url) {
-          await openOAuthBrowser(data.url);
+        if (nativeResult.success && nativeResult.session) {
+          setSuccessNotice("Login successful! Welcome.");
+          await syncProfileFromSession(nativeResult.session);
           return;
         }
-      } else {
-        setConfigNotice("Supabase credentials not configured in environment.");
+
+        // If user cancelled, don't fall back to browser
+        if (nativeResult.error?.toLowerCase().includes("cancel")) {
+          setConfigNotice("Google login was cancelled.");
+          return;
+        }
+
+        console.warn("Native Google login fallback to browser:", nativeResult.error);
+      }
+
+      // 2. Standard OAuth Flow (Web or fallback)
+      const redirectTo = getOAuthRedirectUrl();
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo,
+          queryParams: {
+            access_type: "offline",
+            prompt: "consent",
+          },
+        },
+      });
+
+      if (error) {
+        console.warn("Supabase Google OAuth error:", error.message);
+        if (error.message?.toLowerCase().includes("not enabled")) {
+          setConfigNotice(
+            "Google Sign-In is not yet configured in Supabase. You can sign in using Email & Password above."
+          );
+        } else {
+          setConfigNotice(`Authentication notice: ${error.message}`);
+        }
+      } else if (data?.url) {
+        await openOAuthBrowser(data.url);
+        return;
       }
     } catch (err: any) {
       console.warn("Login attempt error:", err);

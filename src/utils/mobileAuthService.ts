@@ -2,9 +2,93 @@ import { App as CapacitorApp, URLOpenListenerEvent } from '@capacitor/app';
 import { Browser } from '@capacitor/browser';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 
+export const GOOGLE_WEB_CLIENT_ID = '30041667176-vftn1ar5sj8qmtsv3rh81hl11kdd18b0.apps.googleusercontent.com';
 export const NATIVE_CUSTOM_SCHEME = 'com.disha2020.examprep://auth-callback';
 export const NATIVE_FALLBACK_SCHEME = 'disha2020://auth-callback';
 export const PRODUCTION_WEB_ORIGIN = 'https://disha-2020.vercel.app';
+
+let isSocialLoginInitialized = false;
+
+/**
+ * Initialize native social login provider with the Google Web Client ID
+ */
+export const initNativeSocialLogin = async (): Promise<boolean> => {
+  if (!isNativePlatform()) return false;
+  try {
+    const { SocialLogin } = await import('@capgo/capacitor-social-login');
+    if (!isSocialLoginInitialized) {
+      await SocialLogin.initialize({
+        google: {
+          webClientId: GOOGLE_WEB_CLIENT_ID,
+        },
+      });
+      isSocialLoginInitialized = true;
+    }
+    return true;
+  } catch (err) {
+    console.warn('[MobileAuth] SocialLogin.initialize warning:', err);
+    return false;
+  }
+};
+
+/**
+ * Trigger Native Google One-Tap Login on Android / iOS
+ * Uses native bottom-sheet on device and exchanges Google ID Token directly with Supabase.
+ * Returns { success: boolean, session?: any, error?: string, isNative: boolean }
+ */
+export const performNativeGoogleLogin = async (): Promise<{
+  success: boolean;
+  session?: any;
+  error?: string;
+  isNative: boolean;
+}> => {
+  if (!isNativePlatform()) {
+    return { success: false, isNative: false };
+  }
+
+  try {
+    const { SocialLogin } = await import('@capgo/capacitor-social-login');
+    await initNativeSocialLogin();
+
+    console.info('[MobileAuth] Launching Native Google One-Tap Sheet...');
+    const response = await SocialLogin.login({
+      provider: 'google',
+      options: {
+        forceRefreshToken: true,
+      },
+    });
+
+    const idToken = (response?.result as any)?.idToken;
+    if (!idToken) {
+      console.warn('[MobileAuth] No idToken received in native response:', response);
+      return { success: false, error: 'No ID token received from Google.', isNative: true };
+    }
+
+    if (!isSupabaseConfigured() || !supabase) {
+      return { success: false, error: 'Supabase is not configured.', isNative: true };
+    }
+
+    console.info('[MobileAuth] Exchanging Google ID Token with Supabase signInWithIdToken...');
+    const { data, error } = await supabase.auth.signInWithIdToken({
+      provider: 'google',
+      token: idToken,
+    });
+
+    if (error) {
+      console.error('[MobileAuth] Supabase signInWithIdToken error:', error.message);
+      return { success: false, error: error.message, isNative: true };
+    }
+
+    return { success: true, session: data?.session, isNative: true };
+  } catch (err: any) {
+    console.warn('[MobileAuth] Native Google One-Tap error or cancelled:', err);
+    return {
+      success: false,
+      error: err?.message || 'Native Google Sign-In failed.',
+      isNative: true,
+    };
+  }
+};
 
 /**
  * Check if the application is running inside a native Capacitor shell (Android / iOS)

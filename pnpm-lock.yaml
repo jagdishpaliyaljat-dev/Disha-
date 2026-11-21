@@ -20,6 +20,9 @@ importers:
       '@capacitor/core':
         specifier: ^8.6.2
         version: 8.6.2
+      '@capgo/capacitor-social-login':
+        specifier: ^8.7.13
+        version: 8.7.13(@capacitor/core@8.6.2)
       '@google/genai':
         specifier: ^2.4.0
         version: 2.32.0
@@ -691,6 +694,11 @@ packages:
 
   '@capacitor/core@8.6.2':
     resolution: {integrity: sha512-UEb9crRuqEAe2Iu2eGOEuQ8rLQxpwg7ZZIpl17UJoytEpnV1e4oXXW0K7yYS2NsCOGmJjyLeKjNlgG7tkAoX8g==}
+
+  '@capgo/capacitor-social-login@8.7.13':
+    resolution: {integrity: sha512-0feJa4ceCeJVkUOj6/ke3bfjeqyrg/eV6NrJd6foGO7kF6sV2q/M3yQPUoJZB1roK7rD+zrVIgey2qYHQp85hQ==}
+    peerDependencies:
+      '@capacitor/core': '>=8.0.0'
 
   '@csstools/color-helpers@6.1.2':
     resolution: {integrity: sha512-grhRy3OKmniaAEKXMjua5z/EODX0MSqBGjunw8+j/3HQjOnahs2AGhvEOIYVUWcU6ScApbhLhVrQTX8XqrMrow==}
@@ -5008,6 +5016,11 @@ snapshots:
 
   '@capacitor/core@8.6.2':
     dependencies:
+      tslib: 2.9.1
+
+  '@capgo/capacitor-social-login@8.7.13(@capacitor/core@8.6.2)':
+    dependencies:
+      '@capacitor/core': 8.6.2
       tslib: 2.9.1
 
   '@csstools/color-helpers@6.1.2': {}
