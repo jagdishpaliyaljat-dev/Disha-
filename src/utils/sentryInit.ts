@@ -51,9 +51,9 @@ export function initSentry(): void {
         delete event.user.username;
         delete event.user.ip_address;
       }
-      // Strip API keys / tokens from breadcrumb URLs
-      if (event.breadcrumbs?.values) {
-        event.breadcrumbs.values = event.breadcrumbs.values.map((b) => ({
+      // Strip API keys / tokens from breadcrumb data
+      if (Array.isArray(event.breadcrumbs)) {
+        event.breadcrumbs = event.breadcrumbs.map((b) => ({
           ...b,
           data: b.data
             ? Object.fromEntries(
