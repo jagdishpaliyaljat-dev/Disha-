@@ -60,6 +60,7 @@ const USD_TO_INR = 87.5;
 
 // Pricing per million tokens (USD)
 const MODEL_PRICING: Record<string, { inputPerM: number; outputPerM: number }> = {
+  "gemini-flash-lite-latest": { inputPerM: 0.075, outputPerM: 0.30 },
   "gemini-flash-latest": { inputPerM: 0.10, outputPerM: 0.40 },
   "gemini-2.0-flash": { inputPerM: 0.10, outputPerM: 0.40 },
   "gemini-1.5-flash": { inputPerM: 0.075, outputPerM: 0.30 },
@@ -121,7 +122,7 @@ export function recordAIUsage(record: {
   const userId = profile?.id || "anonymous";
 
   const provider = record.provider || "gemini";
-  const model = record.model || "gemini-flash-latest";
+  const model = record.model || "gemini-flash-lite-latest";
   const queryType = record.queryType || "doubt";
   const latencyMs = record.latencyMs || 850;
   const status = record.status || "success";
@@ -335,7 +336,7 @@ export function getAIUsageSummary(timeframe: "today" | "7days" | "30days" | "all
   const totalCostInr = Number((totalCostUsd * USD_TO_INR).toFixed(2));
 
   // Determine active model from most used
-  let activeModel = "gemini-flash-latest";
+  let activeModel = "gemini-flash-lite-latest";
   let maxModelCount = -1;
   Object.entries(modelBreakdown).forEach(([mName, val]) => {
     if (val.count > maxModelCount) {
@@ -568,7 +569,7 @@ function computeSummaryFromLogs(
   const successRate = totalCalls > 0 ? Number(((successCount / totalCalls) * 100).toFixed(1)) : 100;
   const totalCostInr = Number((totalCostUsd * USD_TO_INR).toFixed(2));
 
-  let activeModel = "gemini-flash-latest";
+  let activeModel = "gemini-flash-lite-latest";
   let maxModelCount = -1;
   Object.entries(modelBreakdown).forEach(([mName, val]) => {
     if (val.count > maxModelCount) {

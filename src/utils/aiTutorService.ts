@@ -61,10 +61,10 @@ export function getActiveAICredentials(): {
 
     if (activeKey && activeKey.apiKey?.trim()) {
       const provider = activeKey.provider || "gemini";
-      const defaultModel = PROVIDER_RECOMMENDED_MODELS[provider]?.[0]?.id || "gemini-flash-latest";
+      const defaultModel = PROVIDER_RECOMMENDED_MODELS[provider]?.[0]?.id || "gemini-flash-lite-latest";
       let chosenModel = activeKey.model || defaultModel;
-      if (provider === "gemini" && (!chosenModel || chosenModel.includes("2.0") || chosenModel.includes("1.5") || chosenModel === "default")) {
-        chosenModel = "gemini-flash-latest";
+      if (provider === "gemini" && (!chosenModel || chosenModel.includes("2.0") || chosenModel.includes("1.5") || chosenModel.includes("2.5") || chosenModel === "default" || chosenModel === "gemini-flash-latest")) {
+        chosenModel = "gemini-flash-lite-latest";
       }
       return {
         configured: true,
@@ -79,7 +79,7 @@ export function getActiveAICredentials(): {
         configured: true,
         provider: "gemini",
         apiKey: settings.geminiApiKey.trim(),
-        model: "gemini-flash-latest",
+        model: "gemini-flash-lite-latest",
       };
     }
   }
@@ -90,7 +90,7 @@ export function getActiveAICredentials(): {
       configured: true,
       provider: "gemini",
       apiKey: envGemini.trim(),
-      model: "gemini-flash-latest",
+      model: "gemini-flash-lite-latest",
     };
   }
 
@@ -101,10 +101,10 @@ export function getActiveAICredentials(): {
 
   if (activeKey && activeKey.apiKey?.trim()) {
     const provider = activeKey.provider || "gemini";
-    const defaultModel = PROVIDER_RECOMMENDED_MODELS[provider]?.[0]?.id || "gemini-flash-latest";
+    const defaultModel = PROVIDER_RECOMMENDED_MODELS[provider]?.[0]?.id || "gemini-flash-lite-latest";
     let chosenModel = activeKey.model || defaultModel;
-    if (provider === "gemini" && (!chosenModel || chosenModel.includes("2.0") || chosenModel.includes("1.5") || chosenModel === "default")) {
-      chosenModel = "gemini-flash-latest";
+    if (provider === "gemini" && (!chosenModel || chosenModel.includes("2.0") || chosenModel.includes("1.5") || chosenModel.includes("2.5") || chosenModel === "default" || chosenModel === "gemini-flash-latest")) {
+      chosenModel = "gemini-flash-lite-latest";
     }
     return {
       configured: true,
@@ -119,7 +119,7 @@ export function getActiveAICredentials(): {
       configured: true,
       provider: "gemini",
       apiKey: settings.geminiApiKey.trim(),
-      model: "gemini-flash-latest",
+      model: "gemini-flash-lite-latest",
     };
   }
 
@@ -166,7 +166,8 @@ Your Role:
  */
 export async function askDishaAITutor(
   userPrompt: string,
-  chatHistory: { role: string; content: string }[] = []
+  chatHistory: { role: string; content: string }[] = [],
+  onChunk?: (chunk: string, fullText: string) => void
 ): Promise<string> {
   const credentials = getActiveAICredentials();
   if (!credentials.configured) {
@@ -176,6 +177,7 @@ export async function askDishaAITutor(
   const cacheKey = `prompt_${userPrompt.trim().toLowerCase().slice(0, 80)}`;
   const cached = getCachedAnswer(cacheKey);
   if (cached && chatHistory.length === 0) {
+    if (onChunk) onChunk(cached, cached);
     return cached;
   }
 
@@ -195,6 +197,7 @@ export async function askDishaAITutor(
       prompt: fullPrompt,
       systemPrompt: SYSTEM_PROMPT_STUDY_TUTOR,
       temperature: 0.3,
+      onChunk,
     });
 
     const latencyMs = Date.now() - startTime;
@@ -231,11 +234,15 @@ export async function askDishaAITutor(
 /**
  * Generate a comprehensive 4-part explanation for any MCQ Question
  */
-export async function explainQuestionWithAI(question: Question): Promise<string> {
+export async function explainQuestionWithAI(
+  question: Question,
+  onChunk?: (chunk: string, fullText: string) => void
+): Promise<string> {
   const qText = question.text || question.question || "";
   const cacheKey = `q_explain_${question.id || qText.slice(0, 40)}`;
   const cached = getCachedAnswer(cacheKey);
   if (cached) {
+    if (onChunk) onChunk(cached, cached);
     return cached;
   }
 
@@ -272,6 +279,7 @@ Structure your response into these 4 essential sections:
       prompt,
       systemPrompt: SYSTEM_PROMPT_STUDY_TUTOR,
       temperature: 0.2,
+      onChunk,
     });
 
     const latencyMs = Date.now() - startTime;
@@ -377,13 +385,15 @@ export function formatFriendlyAIError(err: any): { message: string; isApiKeyIssu
     lower.includes("not supported") ||
     lower.includes("no longer available") ||
     lower.includes("update your code") ||
+    lower.includes("high demand") ||
     lower.includes("1.5-flash") ||
     lower.includes("1.5") ||
+    lower.includes("2.0-flash") ||
     lower.includes("2.5-flash") ||
     lower.includes("2.5")
   ) {
     return {
-      message: "The selected AI model was updated. Disha App has automatically switched to the modern 'gemini-flash-latest' model. Please ask your question again.",
+      message: "The selected AI model was upgraded for ultra-fast response times. Disha App has automatically switched to the high-speed 'gemini-flash-lite-latest' model. Please ask your question again.",
       isApiKeyIssue: false,
     };
   }

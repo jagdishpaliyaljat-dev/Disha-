@@ -81,15 +81,39 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
       setMessages([initialUserMsg]);
       setIsLoading(true);
 
-      explainQuestionWithAI(contextQuestion)
+      const aiMsgId = `ai_${Date.now()}`;
+      let isAppended = false;
+
+      explainQuestionWithAI(contextQuestion, (_chunk, accumulated) => {
+        if (!isAppended) {
+          isAppended = true;
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: aiMsgId,
+              role: "assistant",
+              content: accumulated,
+              timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            }
+          ]);
+        } else {
+          setMessages((prev) =>
+            prev.map((m) => (m.id === aiMsgId ? { ...m, content: accumulated } : m))
+          );
+        }
+      })
         .then((explanation) => {
-          const aiMsg: ChatMessage = {
-            id: `ai_${Date.now()}`,
-            role: "assistant",
-            content: explanation,
-            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          };
-          setMessages((prev) => [...prev, aiMsg]);
+          if (!isAppended) {
+            setMessages((prev) => [
+              ...prev,
+              {
+                id: aiMsgId,
+                role: "assistant",
+                content: explanation,
+                timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+              }
+            ]);
+          }
         })
         .catch((err) => {
           const { message, isApiKeyIssue } = formatFriendlyAIError(err);
@@ -226,17 +250,39 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
     setMessages((prev) => [...prev, userMsg]);
     setIsLoading(true);
 
+    const aiMsgId = `ai_${Date.now()}`;
+    let isAppended = false;
+
     try {
       const history = messages.slice(-4).map((m) => ({ role: m.role, content: m.content }));
-      const response = await askDishaAITutor(query, history);
+      const response = await askDishaAITutor(query, history, (_chunk, accumulated) => {
+        if (!isAppended) {
+          isAppended = true;
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: aiMsgId,
+              role: "assistant",
+              content: accumulated,
+              timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            }
+          ]);
+        } else {
+          setMessages((prev) =>
+            prev.map((m) => (m.id === aiMsgId ? { ...m, content: accumulated } : m))
+          );
+        }
+      });
 
-      const aiMsg: ChatMessage = {
-        id: `ai_${Date.now()}`,
-        role: "assistant",
-        content: response,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      };
-      setMessages((prev) => [...prev, aiMsg]);
+      if (!isAppended) {
+        const aiMsg: ChatMessage = {
+          id: aiMsgId,
+          role: "assistant",
+          content: response,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        };
+        setMessages((prev) => [...prev, aiMsg]);
+      }
     } catch (err: any) {
       const { message, isApiKeyIssue } = formatFriendlyAIError(err);
       const errorMsg: ChatMessage = {
@@ -451,7 +497,7 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
             ))
           )}
 
-          {isLoading && (
+          {isLoading && messages[messages.length - 1]?.role !== "assistant" && (
             <div className="flex items-start gap-2.5 animate-in fade-in">
               <div className="w-8 h-8 rounded-xl bg-[#C99A45]/15 border border-[#C99A45]/30 flex items-center justify-center shrink-0">
                 <Bot className="w-4 h-4 text-[#C99A45] animate-pulse" />

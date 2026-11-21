@@ -94,18 +94,18 @@ describe("formatFriendlyAIError", () => {
       '{"error":{"code":404,"message":"models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.","status":"NOT_FOUND"}}'
     );
     const result = formatFriendlyAIError(rawError);
-    expect(result.message).toContain("The selected AI model was updated");
-    expect(result.message).toContain("gemini-flash-latest");
+    expect(result.message).toContain("The selected AI model was upgraded for ultra-fast response times");
+    expect(result.message).toContain("gemini-flash-lite-latest");
     expect(result.message).not.toContain('{"error":{"code":404');
   });
 
   it("converts exact user 'no longer available' error into clean message", () => {
     const rawError = new Error(
-      "This model models/gemini-2.0-flash is no longer available. Please update your code to use models/gemini-flash-latest for the latest features and improvements."
+      "This model models/gemini-2.0-flash is no longer available. Please update your code to use models/gemini-flash-lite-latest for the latest features and improvements."
     );
     const result = formatFriendlyAIError(rawError);
-    expect(result.message).toContain("The selected AI model was updated");
-    expect(result.message).toContain("gemini-flash-latest");
+    expect(result.message).toContain("The selected AI model was upgraded for ultra-fast response times");
+    expect(result.message).toContain("gemini-flash-lite-latest");
     expect(result.message).not.toContain("This model");
   });
 

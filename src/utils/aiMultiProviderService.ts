@@ -29,7 +29,7 @@ export const PROVIDER_METADATA: Record<AIProvider, {
   gemini: {
     name: "Google Gemini",
     tagline: "Ultra-fast multimodal reasoning with long context",
-    defaultModel: "gemini-flash-latest",
+    defaultModel: "gemini-flash-lite-latest",
     docsUrl: "https://aistudio.google.com/app/apikey",
     keyPlaceholder: "AIzaSy...",
     color: "text-blue-600 dark:text-blue-400",
@@ -83,10 +83,10 @@ export const DEFAULT_PROVIDER_MODELS: Record<AIProvider, ProviderModelInfo[]> = 
     { id: "cohere/north-mini-code:free", name: "cohere/north-mini-code:free", displayName: "Cohere North Code Free (Fallback)", badge: "Free" },
   ],
   gemini: [
-    { id: "gemini-flash-latest", name: "gemini-flash-latest", displayName: "Gemini Flash Latest (Official & Stable)", badge: "Recommended" },
-    { id: "gemini-2.5-flash", name: "gemini-2.5-flash", displayName: "Gemini 2.5 Flash", badge: "Next-Gen" },
-    { id: "gemini-2.0-flash", name: "gemini-2.0-flash", displayName: "Gemini 2.0 Flash", badge: "Legacy" },
-    { id: "gemini-1.5-flash", name: "gemini-1.5-flash", displayName: "Gemini 1.5 Flash", badge: "Legacy" },
+    { id: "gemini-flash-lite-latest", name: "gemini-flash-lite-latest", displayName: "Gemini Flash Lite (Ultra-Fast & Responsive)", badge: "Recommended" },
+    { id: "gemini-3.5-flash-lite", name: "gemini-3.5-flash-lite", displayName: "Gemini 3.5 Flash Lite", badge: "Next-Gen" },
+    { id: "gemini-flash-latest", name: "gemini-flash-latest", displayName: "Gemini Flash Latest", badge: "Standard" },
+    { id: "gemini-3.8-flash", name: "gemini-3.8-flash", displayName: "Gemini 3.8 Flash", badge: "Deep" },
   ],
   openai: [
     { id: "gpt-4o-mini", name: "gpt-4o-mini", displayName: "GPT-4o Mini (Fast & Cost Efficient)", badge: "Recommended" },

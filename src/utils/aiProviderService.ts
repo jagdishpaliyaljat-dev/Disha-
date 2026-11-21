@@ -54,33 +54,33 @@ export const PROVIDER_RECOMMENDED_MODELS: Record<AIProvider, AIModelDefinition[]
   ],
   gemini: [
     {
-      id: "gemini-flash-latest",
-      name: "gemini-flash-latest",
-      displayName: "Gemini Flash Latest (Fastest & Stable)",
+      id: "gemini-flash-lite-latest",
+      name: "gemini-flash-lite-latest",
+      displayName: "Gemini Flash Lite (Ultra-Fast & Responsive)",
       provider: "gemini",
-      description: "Official Google AI always-updated Flash model for exams, live chat, and instant explanation",
+      description: "Official Google AI ultra-low-latency model optimized for instant chat and rapid exam answers",
       recommended: true,
     },
     {
-      id: "gemini-2.5-flash",
-      name: "gemini-2.5-flash",
-      displayName: "Gemini 2.5 Flash",
+      id: "gemini-3.5-flash-lite",
+      name: "gemini-3.5-flash-lite",
+      displayName: "Gemini 3.5 Flash Lite",
       provider: "gemini",
-      description: "Next-gen multimodal reasoning model with ultra-low latency",
+      description: "Next-gen ultra-lightweight reasoning model with zero queue latency",
     },
     {
-      id: "gemini-2.0-flash",
-      name: "gemini-2.0-flash",
-      displayName: "Gemini 2.0 Flash",
+      id: "gemini-flash-latest",
+      name: "gemini-flash-latest",
+      displayName: "Gemini Flash Latest",
       provider: "gemini",
-      description: "Standard model for rapid question breakdown",
+      description: "Standard model for detailed comprehensive question breakdowns",
     },
     {
-      id: "gemini-1.5-flash",
-      name: "gemini-1.5-flash",
-      displayName: "Gemini 1.5 Flash (Universal Fallback)",
+      id: "gemini-3.8-flash",
+      name: "gemini-3.8-flash",
+      displayName: "Gemini 3.8 Flash",
       provider: "gemini",
-      description: "Standard production model with universal availability and free tier quota",
+      description: "Deep multimodal reasoning Flash engine",
     },
     {
       id: "gemini-2.0-flash-lite",
@@ -249,6 +249,8 @@ export interface ExecuteAICallParams {
   temperature?: number;
   jsonMode?: boolean;
   onRetry?: (failingKey: string) => Promise<{ apiKey: string; model?: string } | null>;
+  onChunk?: (chunkText: string, accumulatedText: string) => void;
+  timeoutMs?: number;
 }
 
 function withTimeout<T>(promise: Promise<T>, ms: number, errorMsg: string): Promise<T> {
@@ -379,8 +381,8 @@ export async function testAIKeyConnection({
       }
 
       case "gemini": {
-        const initialCandidate = (!selectedModel || selectedModel === "default" || selectedModel.includes("3.5") || selectedModel.includes("3.8") || selectedModel === "gemini-2.0-flash" || selectedModel === "gemini-1.5-flash")
-          ? "gemini-flash-latest"
+        const initialCandidate = (!selectedModel || selectedModel === "default" || selectedModel.includes("2.0") || selectedModel.includes("1.5") || selectedModel.includes("2.5") || selectedModel === "gemini-flash-latest")
+          ? "gemini-flash-lite-latest"
           : selectedModel;
         
         const runTestFetch = async (modelName: string, timeoutMs: number = CONNECTIVITY_TIMEOUT) => {
@@ -400,10 +402,10 @@ export async function testAIKeyConnection({
 
         const candidatesToTry = Array.from(new Set([
           initialCandidate,
+          "gemini-flash-lite-latest",
+          "gemini-3.5-flash-lite",
           "gemini-flash-latest",
-          "gemini-2.5-flash",
-          "gemini-2.0-flash",
-          "gemini-1.5-flash"
+          "gemini-3.8-flash"
         ])).filter(Boolean);
 
         let response: Response | null = null;
@@ -798,6 +800,8 @@ export async function executeAICompletion({
   temperature = 0.2,
   jsonMode = false,
   onRetry,
+  onChunk,
+  timeoutMs,
 }: ExecuteAICallParams): Promise<string> {
     let currentKey = apiKey.trim();
   let currentModel = model?.trim() || PROVIDER_RECOMMENDED_MODELS[provider]?.[0]?.id || "default";
@@ -859,34 +863,57 @@ export async function executeAICompletion({
           if (systemPrompt) config.systemInstruction = systemPrompt;
           if (jsonMode) config.responseMimeType = "application/json";
 
-          const rawTarget = (!currentModel || currentModel === "default" || currentModel === "gemini-2.0-flash" || currentModel === "gemini-1.5-flash")
-            ? "gemini-flash-latest"
+          const rawTarget = (!currentModel || currentModel === "default" || currentModel.includes("2.0") || currentModel.includes("1.5") || currentModel.includes("2.5") || currentModel === "gemini-flash-latest")
+            ? "gemini-flash-lite-latest"
             : currentModel;
 
           const modelsToTry = Array.from(new Set([
             rawTarget,
+            "gemini-flash-lite-latest",
+            "gemini-3.5-flash-lite",
             "gemini-flash-latest",
-            "gemini-2.5-flash",
-            "gemini-2.5-flash-lite",
-            "gemini-2.0-flash",
-            "gemini-1.5-flash"
+            "gemini-3.8-flash"
           ])).filter(Boolean);
 
+          const perModelTimeout = timeoutMs || 7000;
           let lastErr: any = null;
+
           for (let i = 0; i < modelsToTry.length; i++) {
             const mName = modelsToTry[i];
             try {
-              const result = await withTimeout(
-                client.models.generateContent({
+              if (onChunk && !jsonMode) {
+                const streamPromise = client.models.generateContentStream({
                   model: mName,
                   contents: prompt,
                   config,
-                }),
-                DEFAULT_TIMEOUT,
-                `Gemini timed out with model ${mName}`
-              );
-              if (result && result.text) {
-                return result.text;
+                });
+                const responseStream = await withTimeout(
+                  streamPromise,
+                  perModelTimeout,
+                  `Gemini timed out with model ${mName}`
+                );
+                let accumulated = "";
+                for await (const chunk of responseStream) {
+                  const chunkText = chunk.text || "";
+                  accumulated += chunkText;
+                  onChunk(chunkText, accumulated);
+                }
+                if (accumulated.trim()) {
+                  return accumulated;
+                }
+              } else {
+                const result = await withTimeout(
+                  client.models.generateContent({
+                    model: mName,
+                    contents: prompt,
+                    config,
+                  }),
+                  perModelTimeout,
+                  `Gemini timed out with model ${mName}`
+                );
+                if (result && result.text) {
+                  return result.text;
+                }
               }
             } catch (modelErr: any) {
               lastErr = modelErr;
@@ -917,7 +944,7 @@ export async function executeAICompletion({
           if (lastErr) {
             try {
               const liveModels = await fetchAvailableGeminiModels(currentKey);
-              const flashCandidate = liveModels.find(m => m.includes("flash")) || liveModels[0];
+              const flashCandidate = liveModels.find(m => m.includes("lite") && m.includes("flash")) || liveModels.find(m => m.includes("flash")) || liveModels[0];
               if (flashCandidate && !modelsToTry.includes(flashCandidate)) {
                 const result = await withTimeout(
                   client.models.generateContent({
@@ -925,7 +952,7 @@ export async function executeAICompletion({
                     contents: prompt,
                     config,
                   }),
-                  DEFAULT_TIMEOUT,
+                  perModelTimeout,
                   `Gemini timed out with dynamic model ${flashCandidate}`
                 );
                 if (result && result.text) {
