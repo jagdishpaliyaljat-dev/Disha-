@@ -258,8 +258,7 @@ export const PYQVaultTab: React.FC<PYQVaultTabProps> = ({
       className="flex flex-col w-full min-h-full bg-[#FFF9EF] dark:bg-[#171923] pb-32 overflow-y-auto text-[#171923] dark:text-[#FFF9EF] select-none"
       id="pyq-vault-view"
     >
-      {/* 1. HEADER DESIGN */}
-      <header className="bg-white/95 dark:bg-[#1F2330]/95 backdrop-blur-md px-4 pt-[max(34px,calc(10px+env(safe-area-inset-top,0px)))] sm:pt-3 pb-3 border-b border-[#E8D9C0] dark:border-[#31374A] sticky top-0 z-30 select-none shadow-[0_2px_10px_rgba(23,25,35,0.03)]">
+      <header className="bg-white/95 dark:bg-[#1F2330]/95 backdrop-blur-md px-4 pt-[env(safe-area-inset-top,0px)] py-2.5 border-b border-[#E8D9C0] dark:border-[#31374A] sticky top-0 z-30 select-none shadow-xs">
         <div className="flex items-center justify-between gap-3 max-w-4xl mx-auto w-full">
           <div className="flex items-center gap-3 min-w-0">
             {onNavigateTab && (

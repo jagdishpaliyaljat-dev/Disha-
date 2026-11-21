@@ -203,7 +203,7 @@ export const TopicsTab: React.FC<TopicsTabProps> = ({
   if (activeChapter) {
     return (
       <div className="flex flex-col h-full bg-[#FFF9EF] dark:bg-[#171923]" id="topics-explorer">
-        <header className="px-4 pt-[max(34px,calc(12px+env(safe-area-inset-top,0px)))] sm:pt-3.5 pb-3.5 bg-white/95 dark:bg-[#1F2330]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] sticky top-0 z-40">
+        <header className="px-4 pt-[env(safe-area-inset-top,0px)] py-3 bg-white/95 dark:bg-[#1F2330]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] sticky top-0 z-40">
           <div className="flex items-center gap-3 max-w-4xl mx-auto w-full">
             <button
               onClick={() => {
@@ -257,7 +257,7 @@ export const TopicsTab: React.FC<TopicsTabProps> = ({
   if (activeSubject) {
     return (
       <div className="flex flex-col h-full bg-[#FFF9EF] dark:bg-[#171923]" id="subject-chapters">
-        <header className="px-4 pt-[max(34px,calc(12px+env(safe-area-inset-top,0px)))] sm:pt-3.5 pb-3.5 bg-white/95 dark:bg-[#1F2330]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] sticky top-0 z-40">
+        <header className="px-4 pt-[env(safe-area-inset-top,0px)] py-3 bg-white/95 dark:bg-[#1F2330]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] sticky top-0 z-40">
           <div className="flex items-center gap-3 max-w-4xl mx-auto w-full">
             <button
               onClick={() => {
@@ -328,7 +328,7 @@ export const TopicsTab: React.FC<TopicsTabProps> = ({
   // ─────────────────────────────────────────────────────────────
   return (
     <div className="flex flex-col h-full bg-[#FFF9EF] dark:bg-[#171923]" id="all-subjects">
-      <header className="px-3.5 pt-[max(34px,calc(10px+env(safe-area-inset-top,0px)))] sm:pt-2.5 pb-2.5 bg-white/95 dark:bg-[#1F2330]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] sticky top-0 z-40 select-none shadow-[0_2px_10px_rgba(23,25,35,0.03)]">
+      <header className="px-3.5 pt-[env(safe-area-inset-top,0px)] py-2.5 bg-white/95 dark:bg-[#1F2330]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] sticky top-0 z-40 select-none shadow-[0_2px_10px_rgba(23,25,35,0.03)]">
         <div className="max-w-4xl mx-auto w-full space-y-2">
           <div className="flex items-center justify-between gap-2">
             <button

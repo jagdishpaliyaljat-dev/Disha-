@@ -673,8 +673,7 @@ export const FullExamModal: React.FC<FullExamModalProps> = ({
         id="full-exam-active-viewport"
         className="fixed inset-0 z-50 bg-[#F8FAFC] dark:bg-[#0B1220] flex flex-col w-full h-[100dvh] overflow-hidden select-none font-sans"
       >
-        {/* Top Control Bar - Sleek & Mobile Optimized */}
-        <header className="min-h-[3.5rem] sm:min-h-[4rem] pt-[max(34px,calc(8px+env(safe-area-inset-top,0px)))] sm:pt-2 px-3 sm:px-6 bg-white dark:bg-[#111A2E] border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-2 shrink-0 shadow-sm sticky top-0 z-30 pb-2">
+        <header className="min-h-[3.5rem] sm:min-h-[4rem] pt-[env(safe-area-inset-top,0px)] px-3 sm:px-6 bg-white dark:bg-[#111A2E] border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-2 shrink-0 shadow-sm sticky top-0 z-30 py-2">
           {/* Left: Progress Info */}
           <div className="flex items-center gap-2 min-w-0">
             <div className="hidden sm:flex w-9 h-9 rounded-xl bg-blue-600 text-white items-center justify-center shrink-0 font-bold text-xs shadow-xs">
@@ -1182,8 +1181,7 @@ export const FullExamModal: React.FC<FullExamModalProps> = ({
         />
       )}
 
-      {/* Result Header */}
-      <header className="min-h-[3.5rem] sm:min-h-[4rem] pt-[max(34px,calc(8px+env(safe-area-inset-top,0px)))] sm:pt-2 px-4 sm:px-6 bg-white dark:bg-[#111A2E] border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-3 shrink-0 sticky top-0 z-20 shadow-xs pb-2">
+      <header className="min-h-[3.5rem] sm:min-h-[4rem] pt-[env(safe-area-inset-top,0px)] px-4 sm:px-6 bg-white dark:bg-[#111A2E] border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-3 shrink-0 sticky top-0 z-20 shadow-xs py-2">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-xs">
             <Award className="w-4 h-4" />

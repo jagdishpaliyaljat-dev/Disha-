@@ -197,58 +197,58 @@ export const HomeTab: React.FC<HomeTabProps> = ({
       className="flex flex-col w-full min-h-full bg-[#FFF9EF] dark:bg-[#171923] text-[#171923] dark:text-[#FFF9EF]"
       id="home-container"
     >
-      {/* 1. COMPACT BRAND HEADER (Mobile) */}
-      <header className="px-2.5 sm:px-5 pt-[max(34px,calc(8px+env(safe-area-inset-top,0px)))] sm:pt-2 pb-2 bg-[#FFF9EF]/95 dark:bg-[#171923]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] sticky top-0 z-40 select-none md:hidden w-full max-w-full overflow-hidden">
-        <div className="max-w-5xl mx-auto flex items-center justify-between gap-1.5 sm:gap-2">
+      {/* 1. OPTIMIZED COMPACT BRAND HEADER (Mobile: 68-72dp excluding status bar inset) */}
+      <header className="sticky top-0 z-40 bg-[#FFF9EF]/95 dark:bg-[#171923]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] select-none md:hidden w-full max-w-full overflow-hidden shadow-xs transition-colors pt-[env(safe-area-inset-top,0px)]">
+        <div className="h-[68px] sm:h-[72px] px-3 sm:px-5 max-w-5xl mx-auto flex items-center justify-between gap-2">
           {/* Left Brand Identity: Drawer Trigger + Non-wrapping Logo */}
-          <div className="flex items-center gap-1.5 sm:gap-2.5 min-w-0 shrink-0">
+          <div className="flex items-center gap-2 sm:gap-2.5 min-w-0 shrink-0">
             <button
               onClick={() => setIsMenuOpen(true)}
-              className="w-8.5 h-8.5 sm:w-10 sm:h-10 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] hover:bg-[#EFE3CF] dark:hover:bg-[#31374A] flex items-center justify-center text-[#171923] dark:text-[#FFF9EF] active:scale-95 transition-all shrink-0 cursor-pointer border border-[#E8D9C0] dark:border-[#31374A]"
+              className="w-10 h-10 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] hover:bg-[#EFE3CF] dark:hover:bg-[#31374A] flex items-center justify-center text-[#171923] dark:text-[#FFF9EF] active:scale-95 transition-all shrink-0 cursor-pointer border border-[#E8D9C0] dark:border-[#31374A]"
               aria-label="Open menu drawer"
             >
-              <Menu className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
+              <Menu className="w-5 h-5" />
             </button>
             <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 whitespace-nowrap select-none">
-              <span className="text-[15px] sm:text-lg font-black tracking-wider text-[#171923] dark:text-[#FFF9EF] uppercase font-serif whitespace-nowrap shrink-0">
+              <span className="text-base sm:text-lg font-black tracking-wider text-[#171923] dark:text-[#FFF9EF] uppercase font-serif whitespace-nowrap shrink-0">
                 DISHA
               </span>
-              <span className="inline-flex items-center justify-center px-1.5 sm:px-2 py-0.5 rounded-md sm:rounded-lg bg-gradient-to-r from-[#F47B20] to-[#E06A12] text-white font-black text-[11px] sm:text-xs tracking-tight shadow-xs whitespace-nowrap shrink-0 leading-none">
+              <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-lg bg-gradient-to-r from-[#F47B20] to-[#E06A12] text-white font-black text-xs tracking-tight shadow-xs whitespace-nowrap shrink-0 leading-none">
                 20-20
               </span>
             </div>
           </div>
 
           {/* Right Action Icons: Notification, Theme, Compact Sign In / Avatar */}
-          <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+          <div className="flex items-center gap-1.5 shrink-0">
             <button
               onClick={onOpenNotifications || (() => onNavigateTab?.("notifications"))}
-              className="relative w-8.5 h-8.5 sm:w-10 sm:h-10 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] hover:bg-[#EFE3CF] dark:hover:bg-[#31374A] flex items-center justify-center text-[#171923] dark:text-[#FFF9EF] active:scale-95 transition-all cursor-pointer border border-[#E8D9C0] dark:border-[#31374A] shrink-0"
+              className="relative w-10 h-10 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] hover:bg-[#EFE3CF] dark:hover:bg-[#31374A] flex items-center justify-center text-[#171923] dark:text-[#FFF9EF] active:scale-95 transition-all cursor-pointer border border-[#E8D9C0] dark:border-[#31374A] shrink-0"
               aria-label="Notifications"
             >
-              <Bell className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
+              <Bell className="w-4.5 h-4.5" />
               {unreadNotificationsCount > 0 && (
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#F47B20] ring-2 ring-[#FFF9EF] dark:ring-[#171923]" />
+                <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#F47B20] ring-2 ring-[#FFF9EF] dark:ring-[#171923]" />
               )}
             </button>
 
             <button
               onClick={onToggleDarkMode}
-              className="w-8.5 h-8.5 sm:w-10 sm:h-10 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] hover:bg-[#EFE3CF] dark:hover:bg-[#31374A] flex items-center justify-center text-[#171923] dark:text-[#C99A45] active:scale-95 transition-all cursor-pointer border border-[#E8D9C0] dark:border-[#31374A] shrink-0"
+              className="w-10 h-10 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] hover:bg-[#EFE3CF] dark:hover:bg-[#31374A] flex items-center justify-center text-[#171923] dark:text-[#C99A45] active:scale-95 transition-all cursor-pointer border border-[#E8D9C0] dark:border-[#31374A] shrink-0"
               aria-label={settings.darkMode ? "Switch to Day Mode" : "Switch to Night Mode"}
               title={settings.darkMode ? "Day Mode" : "Night Mode"}
             >
               {settings.darkMode ? (
-                <Sun className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-[#F47B20]" />
+                <Sun className="w-4.5 h-4.5 text-[#F47B20]" />
               ) : (
-                <Moon className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-[#800020]" />
+                <Moon className="w-4.5 h-4.5 text-[#800020]" />
               )}
             </button>
 
             {!isAuthenticated ? (
               <button
                 onClick={onOpenLogin}
-                className="flex items-center gap-1 sm:gap-1.5 h-8.5 sm:h-10 px-2.5 sm:px-3.5 rounded-xl bg-[#800020] hover:bg-[#5E0017] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] text-white text-[11px] sm:text-xs font-black shadow-xs transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap"
+                className="flex items-center gap-1.5 h-10 px-3 rounded-xl bg-[#800020] hover:bg-[#5E0017] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] text-white text-xs font-black shadow-xs transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap"
                 aria-label="Login to DISHA 20-20"
               >
                 <LogIn className="w-3.5 h-3.5 shrink-0" />
@@ -257,7 +257,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
             ) : (
               <button
                 onClick={() => onNavigateTab?.("profile")}
-                className="w-8.5 h-8.5 sm:w-10 sm:h-10 rounded-full ring-2 ring-[#C99A45]/60 hover:ring-[#800020] dark:hover:ring-[#F47B20] flex items-center justify-center overflow-hidden active:scale-95 transition-all cursor-pointer bg-[#F7EFE2] dark:bg-[#252A3A] shrink-0"
+                className="w-10 h-10 rounded-full ring-2 ring-[#C99A45]/60 hover:ring-[#800020] dark:hover:ring-[#F47B20] flex items-center justify-center overflow-hidden active:scale-95 transition-all cursor-pointer bg-[#F7EFE2] dark:bg-[#252A3A] shrink-0"
                 aria-label="User Profile"
               >
                 <img
@@ -272,7 +272,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
       </header>
 
       {/* MAIN CONTENT CANVAS */}
-      <main className="w-full max-w-5xl mx-auto px-2.5 sm:px-6 pt-3 sm:pt-4 space-y-3.5 sm:space-y-5 pb-24 select-none">
+      <main className="w-full max-w-5xl mx-auto px-2.5 sm:px-6 pt-2 sm:pt-3 space-y-3 sm:space-y-4 pb-24 select-none">
         {/* 2. PROMINENT BANNER CAROUSEL */}
         <BannerSlides banners={activeBanners} onNavigateTab={onNavigateTab} />
 
