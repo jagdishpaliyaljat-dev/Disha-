@@ -6,14 +6,14 @@
 
 **India's most advanced Rajasthan competitive exam preparation ecosystem**
 
-[![Version](https://img.shields.io/badge/version-1.0.17-blue?style=for-the-badge)](https://github.com/jagdishpaliyaljat-dev/Disha-Android-App/releases/tag/v1.0.17)
+[![Version](https://img.shields.io/badge/version-1.0.18-blue?style=for-the-badge)](https://github.com/jagdishpaliyaljat-dev/Disha-Android-App/releases/tag/v1.0.18)
 [![Build](https://img.shields.io/github/actions/workflow/status/jagdishpaliyaljat-dev/Disha-Android-App/build-apk.yml?branch=main&style=for-the-badge&label=APK%20Build)](https://github.com/jagdishpaliyaljat-dev/Disha-Android-App/actions)
 [![Live App](https://img.shields.io/badge/Live%20App-disha--2020.vercel.app-green?style=for-the-badge)](https://disha-2020.vercel.app)
 [![License](https://img.shields.io/badge/License-Proprietary-red?style=for-the-badge)](#license)
 
 > DISHA 20-20 is a full-stack, offline-first Progressive Web App and Android application built for serious aspirants preparing for RPSC RAS, Rajasthan GK, Police Constable, and Patwari exams — featuring live tests, AI tutoring, real-time battle mode, spaced repetition, PYQ vault, and state-wide merit rankings.
 
-[📱 Download APK](https://github.com/jagdishpaliyaljat-dev/Disha-Android-App/releases/tag/v1.0.17) · [🌐 Live Web App](https://disha-2020.vercel.app) · [📖 Docs](./docs/) · [🐛 Issues](https://github.com/jagdishpaliyaljat-dev/Disha-Android-App/issues)
+[📱 Download APK](https://github.com/jagdishpaliyaljat-dev/Disha-Android-App/releases/tag/v1.0.18) · [🌐 Live Web App](https://disha-2020.vercel.app) · [📖 Docs](./docs/) · [🐛 Issues](https://github.com/jagdishpaliyaljat-dev/Disha-Android-App/issues)
 
 </div>
 
@@ -351,6 +351,7 @@ The app uses a versioned **Clean Slate** system (`src/utils/cleanSlate.ts`) that
 
 | Version | Date | Highlights |
 |---------|------|------------|
+| **v1.0.18** | Nov 2026 | 🤖 Global Gemini AI Integration & Universal Disha AI Tutor (Always active, zero key prompts for students, auto-upgraded to `gemini-flash-latest`) |
 | **v1.0.17** | Nov 2026 | 🚨 In-House Supabase Crash Reporting Engine, real-time telemetry dashboard & offline queue (Zero 3rd-party setup) |
 | **v1.0.16** | Nov 2026 | 🛡️ Production crash reporting integration with Sentry (`@sentry/react` 11.x), PII scrubbing & anonymous user telemetry |
 | **v1.0.15** | Nov 2026 | 🧹 Complete mock data purge — real leaderboards, real battle questions, Clean Slate v13.0.0 |
@@ -418,6 +419,6 @@ Proprietary educational platform software. Unauthorized distribution, reproducti
 
 **Built with ❤️ for Rajasthan Competitive Exam Aspirants**
 
-[🌐 disha-2020.vercel.app](https://disha-2020.vercel.app) · [📱 Download APK v1.0.17](https://github.com/jagdishpaliyaljat-dev/Disha-Android-App/releases/tag/v1.0.17)
+[🌐 disha-2020.vercel.app](https://disha-2020.vercel.app) · [📱 Download APK v1.0.18](https://github.com/jagdishpaliyaljat-dev/Disha-Android-App/releases/tag/v1.0.18)
 
 </div>

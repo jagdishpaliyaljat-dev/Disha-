@@ -43,6 +43,7 @@ jobs:
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL || 'https://eaidivceejkdqsshlraj.supabase.co' }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY || 'sb_publishable_HSl8o7bm-TQMIFbEnbp7TA_TfBfiv_0' }}
+          VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}
         run: pnpm run build
 
       - name: Sync Capacitor Android

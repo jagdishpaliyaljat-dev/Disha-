@@ -51,17 +51,60 @@ export function getActiveAICredentials(): {
   model: string;
 } {
   const settings = loadSettingsFromStorage();
+  const envGemini = (typeof import.meta !== "undefined" && import.meta.env?.VITE_GEMINI_API_KEY) || "";
+
+  // 1. If user explicitly enabled personal keys mode, use their personal key
+  if (settings.aiMode === "personal_keys" || settings.useCustomApiKey) {
+    const keys = Array.isArray(settings.personalAiKeys) ? settings.personalAiKeys : [];
+    let activeKey = keys.find((k: any) => k.id === settings.activePersonalKeyId && k.enabled && k.apiKey?.trim())
+      || keys.find((k: any) => k.enabled && k.apiKey?.trim());
+
+    if (activeKey && activeKey.apiKey?.trim()) {
+      const provider = activeKey.provider || "gemini";
+      const defaultModel = PROVIDER_RECOMMENDED_MODELS[provider]?.[0]?.id || "gemini-flash-latest";
+      let chosenModel = activeKey.model || defaultModel;
+      if (provider === "gemini" && (!chosenModel || chosenModel.includes("2.0") || chosenModel.includes("1.5") || chosenModel === "default")) {
+        chosenModel = "gemini-flash-latest";
+      }
+      return {
+        configured: true,
+        provider,
+        apiKey: activeKey.apiKey.trim(),
+        model: chosenModel,
+      };
+    }
+
+    if (settings.geminiApiKey?.trim()) {
+      return {
+        configured: true,
+        provider: "gemini",
+        apiKey: settings.geminiApiKey.trim(),
+        model: "gemini-flash-latest",
+      };
+    }
+  }
+
+  // 2. Global / Platform default fallback (built-in Vercel/Vite environment key)
+  if (envGemini.trim()) {
+    return {
+      configured: true,
+      provider: "gemini",
+      apiKey: envGemini.trim(),
+      model: "gemini-flash-latest",
+    };
+  }
+
+  // 3. Secondary fallback: check if user has custom keys even if aiMode was not explicitly switched
   const keys = Array.isArray(settings.personalAiKeys) ? settings.personalAiKeys : [];
-  
   let activeKey = keys.find((k: any) => k.id === settings.activePersonalKeyId && k.enabled && k.apiKey?.trim())
     || keys.find((k: any) => k.enabled && k.apiKey?.trim());
 
   if (activeKey && activeKey.apiKey?.trim()) {
     const provider = activeKey.provider || "gemini";
-    const defaultModel = PROVIDER_RECOMMENDED_MODELS[provider]?.[0]?.id || "gemini-2.0-flash";
+    const defaultModel = PROVIDER_RECOMMENDED_MODELS[provider]?.[0]?.id || "gemini-flash-latest";
     let chosenModel = activeKey.model || defaultModel;
-    if (provider === "gemini" && (!chosenModel || chosenModel.includes("3.5") || chosenModel.includes("3.8") || chosenModel === "default" || chosenModel === "gemini-flash-latest")) {
-      chosenModel = "gemini-2.0-flash";
+    if (provider === "gemini" && (!chosenModel || chosenModel.includes("2.0") || chosenModel.includes("1.5") || chosenModel === "default")) {
+      chosenModel = "gemini-flash-latest";
     }
     return {
       configured: true,
@@ -76,18 +119,7 @@ export function getActiveAICredentials(): {
       configured: true,
       provider: "gemini",
       apiKey: settings.geminiApiKey.trim(),
-      model: "gemini-2.0-flash",
-    };
-  }
-
-  // Check Vite Environment Fallback
-  const envGemini = (typeof import.meta !== "undefined" && import.meta.env?.VITE_GEMINI_API_KEY) || "";
-  if (envGemini.trim()) {
-    return {
-      configured: true,
-      provider: "gemini",
-      apiKey: envGemini.trim(),
-      model: "gemini-2.0-flash",
+      model: "gemini-flash-latest",
     };
   }
 
@@ -109,7 +141,7 @@ export function getActiveAICredentials(): {
       configured: true,
       provider: "cliproxy",
       apiKey: envProxyKey,
-      model: "gemini-2.0-flash",
+      model: "gemini-flash-latest",
     };
   }
 
@@ -117,7 +149,7 @@ export function getActiveAICredentials(): {
     configured: false,
     provider: "gemini",
     apiKey: "",
-    model: "gemini-2.0-flash",
+    model: "gemini-flash-latest",
   };
 }
 
@@ -351,7 +383,7 @@ export function formatFriendlyAIError(err: any): { message: string; isApiKeyIssu
     lower.includes("2.5")
   ) {
     return {
-      message: "The selected AI model was updated. Disha App has automatically switched to the modern 'gemini-2.0-flash' model. Please ask your question again.",
+      message: "The selected AI model was updated. Disha App has automatically switched to the modern 'gemini-flash-latest' model. Please ask your question again.",
       isApiKeyIssue: false,
     };
   }
