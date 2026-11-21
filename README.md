@@ -1,19 +1,19 @@
 <div align="center">
 
-<img src="public/icon-512.png" alt="DISHA 20-20 Logo" width="120" height="120" />
+<img src="public/icon-512.png" alt="Disha PYQ Logo" width="120" height="120" />
 
-# DISHA 20-20 — Competitive Exam Prep Platform
+# Disha PYQ — Competitive Exam Prep Platform
 
 **India's most advanced Rajasthan competitive exam preparation ecosystem**
 
-[![Version](https://img.shields.io/badge/version-1.0.21-blue?style=for-the-badge)](https://github.com/jagdishpaliyaljat-dev/Disha-Android-App/releases/tag/v1.0.21)
+[![Version](https://img.shields.io/badge/version-1.0.23-blue?style=for-the-badge)](https://github.com/jagdishpaliyaljat-dev/Disha-Android-App/releases/tag/v1.0.23)
 [![Build](https://img.shields.io/github/actions/workflow/status/jagdishpaliyaljat-dev/Disha-Android-App/build-apk.yml?branch=main&style=for-the-badge&label=APK%20Build)](https://github.com/jagdishpaliyaljat-dev/Disha-Android-App/actions)
 [![Live App](https://img.shields.io/badge/Live%20App-disha--2020.vercel.app-green?style=for-the-badge)](https://disha-2020.vercel.app)
 [![License](https://img.shields.io/badge/License-Proprietary-red?style=for-the-badge)](#license)
 
-> DISHA 20-20 is a full-stack, offline-first Progressive Web App and Android application built for serious aspirants preparing for RPSC RAS, Rajasthan GK, Police Constable, and Patwari exams — featuring live tests, AI tutoring, real-time battle mode, spaced repetition, PYQ vault, and state-wide merit rankings.
+> Disha PYQ is a full-stack, offline-first Progressive Web App and Android application built for serious aspirants preparing for RPSC RAS, Rajasthan GK, Police Constable, and Patwari exams — featuring live tests, AI tutoring, real-time battle mode, spaced repetition, PYQ vault, and state-wide merit rankings.
 
-[📱 Download APK](https://github.com/jagdishpaliyaljat-dev/Disha-Android-App/releases/tag/v1.0.21) · [🌐 Live Web App](https://disha-2020.vercel.app) · [📖 Docs](./docs/) · [🐛 Issues](https://github.com/jagdishpaliyaljat-dev/Disha-Android-App/issues)
+[📱 Download APK](https://github.com/jagdishpaliyaljat-dev/Disha-Android-App/releases/tag/v1.0.23) · [🌐 Live Web App](https://disha-2020.vercel.app) · [📖 Docs](./docs/) · [🐛 Issues](https://github.com/jagdishpaliyaljat-dev/Disha-Android-App/issues)
 
 </div>
 
@@ -40,7 +40,7 @@
 
 ## About the Platform
 
-DISHA 20-20 is a production-grade, **offline-first** exam preparation platform built specifically for Rajasthan competitive exam aspirants. The platform combines:
+Disha PYQ is a production-grade, **offline-first** exam preparation platform built specifically for Rajasthan competitive exam aspirants. The platform combines:
 
 - **Real-time competitive infrastructure** — Live mock exams with state-wide verified leaderboards
 - **AI-powered learning** — Gemini 2.0-backed AI tutor, doubt resolver, and auto-question formatter
@@ -351,6 +351,8 @@ The app uses a versioned **Clean Slate** system (`src/utils/cleanSlate.ts`) that
 
 | Version | Date | Highlights |
 |---------|------|------------|
+| **v1.0.23** | Nov 2026 | 💎 Complete Platform Rebranding: Disha PYQ (Modern visual identity with deep dark background `#171329`, royal purple `#7045D8` / `#A78BFA`, light background `#F4F1FA`, minimal Disha PYQ logo badge, full UI components purge of old branding, and unified Play Store / Android package metadata) |
+| **v1.0.22** | Nov 2026 | 🎨 Official Disha PYQ Brand Logo & App Icon Update (Vector SVG logos, high-res PWA assets, Android adaptive launcher & splash density assets) |
 | **v1.0.21** | Nov 2026 | 🚀 Instant Launch & Google-Only Login (Removed startup splash screen delay & HTML loading overlay for instant app opening, streamlined login UI strictly to Google Sign-In with Native One-Tap / Supabase OAuth) |
 | **v1.0.20** | Nov 2026 | 🏷️ Curriculum UI Serial Number Deduplication (Resolved repeating serial numbers in Chapter & Topic list cards, standardized `stripLeadingSerial` resolver, deterministic sorting) |
 | **v1.0.19** | Nov 2026 | ⚡ Ultra-Fast AI Tutor & Real-Time Live Streaming (Switched to ultra-low-latency `gemini-flash-lite-latest` & `gemini-3.5-flash-lite`, sub-second token streaming, zero high-demand lag) |
@@ -412,7 +414,7 @@ For internal developers:
 
 ## License
 
-Copyright © 2024–2026 **DISHA 20-20**. All rights reserved.
+Copyright © 2024–2026 **Disha PYQ**. All rights reserved.
 
 Proprietary educational platform software. Unauthorized distribution, reproduction, reverse engineering, or modification is strictly prohibited. This software and its source code are confidential and may only be used by authorized personnel.
 
@@ -422,6 +424,6 @@ Proprietary educational platform software. Unauthorized distribution, reproducti
 
 **Built with ❤️ for Rajasthan Competitive Exam Aspirants**
 
-[🌐 disha-2020.vercel.app](https://disha-2020.vercel.app) · [📱 Download APK v1.0.21](https://github.com/jagdishpaliyaljat-dev/Disha-Android-App/releases/tag/v1.0.21)
+[🌐 disha-2020.vercel.app](https://disha-2020.vercel.app) · [📱 Download APK v1.0.23](https://github.com/jagdishpaliyaljat-dev/Disha-Android-App/releases/tag/v1.0.23)
 
 </div>

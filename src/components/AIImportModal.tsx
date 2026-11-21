@@ -1603,7 +1603,7 @@ export const AIImportModal: React.FC<AIImportModalProps> = ({
             )}
             <div>
               <h1 className="text-base font-black text-[#171923] dark:text-[#FFF9EF] leading-none">Bulk MCQ Text Import</h1>
-              <p className="text-[10px] font-black uppercase text-[#800020] dark:text-[#F47B20] tracking-widest mt-1">DISHA 20-20 Question Bank</p>
+              <p className="text-[10px] font-black uppercase text-[#800020] dark:text-[#F47B20] tracking-widest mt-1">Disha PYQ Question Bank</p>
             </div>
           </div>
           <button onClick={onClose} className="p-2 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] text-[#52576A] dark:text-[#CBD2E1] hover:text-rose-500 transition-colors"><X className="w-5 h-5" /></button>
@@ -1941,7 +1941,7 @@ export const AIImportModal: React.FC<AIImportModalProps> = ({
                       </div>
                       <div>
                         <h3 className="text-sm font-black text-slate-900 dark:text-white">Method 2: Paste JSON Format</h3>
-                        <p className="text-[10px] font-bold text-slate-400">DISHA 20-20 Schema v1 Compatible • Unlimited Multi-Exam Array</p>
+                        <p className="text-[10px] font-bold text-slate-400">Disha PYQ Schema v1 Compatible • Unlimited Multi-Exam Array</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -2064,7 +2064,7 @@ export const AIImportModal: React.FC<AIImportModalProps> = ({
                         Click to select or drag & drop a <span className="text-purple-600 dark:text-purple-400">.json file</span>
                       </p>
                       <p className="text-[10px] font-bold text-slate-400 mt-1">
-                        Compatible with standard DISHA 20-20 schema v1 and multi-exam format
+                        Compatible with standard Disha PYQ schema v1 and multi-exam format
                       </p>
                     </div>
                   </div>

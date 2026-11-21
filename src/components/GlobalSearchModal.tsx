@@ -256,7 +256,7 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
             <span>↵ Select</span>
             <span>Esc Close</span>
           </div>
-          <span className="font-semibold text-[#800020] dark:text-[#E8D9C0]">DISHA 20-20 FastSearch</span>
+          <span className="font-semibold text-[#800020] dark:text-[#E8D9C0]">Disha PYQ FastSearch</span>
         </div>
       </div>
     </div>

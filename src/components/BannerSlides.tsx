@@ -10,7 +10,7 @@ interface BannerSlidesProps {
 const DEFAULT_BANNER_SLIDES: AppBanner[] = [
   {
     id: "default_banner_1",
-    title: "DISHA 20-20 Live Test Series",
+    title: "Disha PYQ Live Test Series",
     subtitle: "Right Direction, Accurate Preparation · Real-time All-India ranking",
     badge: "Live Arena",
     color: "from-[#800020] via-[#6B001B] to-[#3B0613]",
@@ -101,7 +101,7 @@ export const BannerSlides: React.FC<BannerSlidesProps> = ({ banners, onNavigateT
                 {banner.imageUrl ? (
                   <img
                     src={banner.imageUrl}
-                    alt={banner.title || "DISHA 20-20 Banner"}
+                    alt={banner.title || "Disha PYQ Banner"}
                     className="w-full h-full object-cover"
                     loading="eager"
                     onError={(e) => {

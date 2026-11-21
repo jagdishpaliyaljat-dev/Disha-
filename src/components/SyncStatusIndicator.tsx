@@ -79,7 +79,7 @@ export const SyncStatusIndicator: React.FC<SyncStatusIndicatorProps> = ({ isOnli
       <button
         onClick={() => setExpanded(!expanded)}
         className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border shadow-2xs transition-all text-[11px] font-semibold leading-tight max-w-full ${badge.color}`}
-        title="DISHA 20-20 Strict 24-Hour Offline-First Sync Architecture"
+        title="Disha PYQ Strict 24-Hour Offline-First Sync Architecture"
       >
         {badge.icon}
         <span className="whitespace-nowrap">{badge.label}</span>

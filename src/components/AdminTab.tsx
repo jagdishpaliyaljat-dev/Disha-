@@ -840,7 +840,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
         </div>
         <h2 className="text-xl font-black text-slate-900 dark:text-white">Access Denied</h2>
         <p className="text-xs text-slate-500 max-w-sm mt-1">
-          This portal is restricted to DISHA 20-20 Administrators. Please sign in with an authorized account.
+          This portal is restricted to Disha PYQ Administrators. Please sign in with an authorized account.
         </p>
       </div>
     );
@@ -867,7 +867,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                 D
               </div>
               <h1 className="text-sm sm:text-base font-bold tracking-tight text-[#171923] dark:text-[#FFF9EF] truncate">
-                DISHA 20-20 Admin
+                Disha PYQ Admin
               </h1>
             </div>
             
@@ -1018,7 +1018,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
               </div>
               <div>
                 <span className="text-sm font-bold text-[#171923] dark:text-[#FFF9EF] block leading-tight">Admin Console</span>
-                <span className="text-[10px] text-[#787D91] dark:text-[#929AB0] font-medium">DISHA 20-20 Management</span>
+                <span className="text-[10px] text-[#787D91] dark:text-[#929AB0] font-medium">Disha PYQ Management</span>
               </div>
             </div>
             <button

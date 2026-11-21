@@ -550,7 +550,7 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
         ? criticalWeakList.slice(0, 3).map((w, i) => `${i + 1}. ${w.name} (${w.accuracy}% Acc)`).join(", ")
         : "None (Consistent balance)";
 
-    const reportText = `📊 *DISHA 20-20 Performance Report & Analytics*
+    const reportText = `📊 *Disha PYQ Performance Report & Analytics*
 ━━━━━━━━━━━━━━━━━━
 👤 Aspirant: ${studentName}
 🎯 Target Exam: ${targetExam}
@@ -565,14 +565,14 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
 
 🔴 Priority Focus: ${topWeakText}
 
-📱 Test your preparation on DISHA 20-20:
+📱 Test your preparation on Disha PYQ:
 https://disha2020.in
 ━━━━━━━━━━━━━━━━━━`;
 
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `DISHA 20-20 Performance Report: ${readiness.score}% (${readiness.tier})`,
+          title: `Disha PYQ Performance Report: ${readiness.score}% (${readiness.tier})`,
           text: reportText,
         });
         return;
@@ -590,7 +590,7 @@ https://disha2020.in
     }
 
     setShareData({
-      title: `DISHA 20-20 Performance Report: ${readiness.score}%`,
+      title: `Disha PYQ Performance Report: ${readiness.score}%`,
       text: reportText,
       url: typeof window !== "undefined" ? window.location.origin : "https://disha2020.in",
       category: "Performance Report",
@@ -622,7 +622,7 @@ https://disha2020.in
                 Performance Report
               </h1>
               <p className="text-[10px] font-bold text-[#787D91] dark:text-[#929AB0] tracking-wide truncate">
-                Performance Report & Analytics • DISHA 20-20
+                Performance Report & Analytics • Disha PYQ
               </p>
             </div>
           </div>

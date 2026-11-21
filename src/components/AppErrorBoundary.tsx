@@ -195,11 +195,11 @@ export class AppErrorBoundary extends React.Component<AppErrorBoundaryProps, App
               <h1 className="text-lg sm:text-xl font-black text-[#171923] dark:text-[#FFF9EF] tracking-tight">
                 {isChunk
                   ? "App Update Ready"
-                  : this.props.fallbackTitle || "DISHA 20-20 — System Auto-Repair"}
+                  : this.props.fallbackTitle || "Disha PYQ — System Auto-Repair"}
               </h1>
               <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                 {isChunk
-                  ? "A newer, faster version of DISHA 20-20 is live. Tap the 1-Tap Auto-Repair button below to reload immediately."
+                  ? "A newer, faster version of Disha PYQ is live. Tap the 1-Tap Auto-Repair button below to reload immediately."
                   : "A temporary view rendering error was caught. Your practice progress, bookmarks, and profile data are 100% safe."}
               </p>
               {this.state.errorEventId && (

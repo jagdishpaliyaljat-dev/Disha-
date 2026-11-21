@@ -72,7 +72,7 @@ export const ArticleBlockEditorModal: React.FC<ArticleBlockEditorModalProps> = (
       ...initialArticle,
       content: initialContent,
       category: initialArticle.category || (categories[0] || "General"),
-      authorName: initialArticle.authorName || "DISHA 20-20 Editorial",
+      authorName: initialArticle.authorName || "Disha PYQ Editorial",
       status: initialArticle.status || "published",
       coverImageUrl: initialArticle.coverImageUrl || "",
     };
@@ -814,7 +814,7 @@ export const ArticleBlockEditorModal: React.FC<ArticleBlockEditorModalProps> = (
                       type="text"
                       value={article.authorName || ""}
                       onChange={(e) => setArticle((prev) => ({ ...prev, authorName: e.target.value }))}
-                      placeholder="DISHA 20-20 Editorial"
+                      placeholder="Disha PYQ Editorial"
                       className="w-full bg-white dark:bg-[#202534] border border-[#E8D9C0] dark:border-[#31374A] rounded-xl px-3 py-2 text-xs font-semibold text-[#171923] dark:text-[#FFF9EF] focus:outline-hidden focus:border-[#800020]"
                     />
                   </div>

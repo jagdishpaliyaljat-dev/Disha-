@@ -291,11 +291,11 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
               <h3 className="text-base font-black text-[#171923] dark:text-[#FFF9EF] flex items-center gap-2">
                 <span>Study Assistant Setup</span>
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-[#F7EFE2] dark:bg-[#252A3A] text-[#800020] dark:text-[#F47B20] border border-[#E8D9C0] dark:border-[#31374A]">
-                  DISHA 20-20
+                  Disha PYQ
                 </span>
               </h3>
               <p className="text-[11px] font-medium text-[#52576A] dark:text-[#CBD2E1]">
-                Choose between DISHA 20-20 Platform Engine or your personal keys
+                Choose between Disha PYQ Platform Engine or your personal keys
               </p>
             </div>
           </div>
@@ -347,7 +347,7 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
                   )}
                 </div>
                 <h4 className="text-xs font-black text-[#171923] dark:text-[#FFF9EF]">
-                  DISHA 20-20 Platform Engine
+                  Disha PYQ Platform Engine
                 </h4>
                 <p className="text-[10px] text-[#52576A] dark:text-[#CBD2E1] mt-1 leading-snug">
                   Zero setup required. Powered by the high-speed shared key managed by Admin.
@@ -396,7 +396,7 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-[#171923] dark:text-[#FFF9EF] flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5 text-[#800020] dark:text-[#F47B20]" />
-                  <span>DISHA 20-20 Status: Active</span>
+                  <span>Disha PYQ Status: Active</span>
                 </span>
                 <span className="text-[10px] font-extrabold text-[#15803D] dark:text-emerald-400 flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-[#15803D] dark:bg-emerald-400" />
@@ -404,7 +404,7 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
                 </span>
               </div>
               <p className="text-[11px] text-[#52576A] dark:text-[#CBD2E1] leading-relaxed">
-                You are currently using the default study engine provided by DISHA 20-20 Admin. MCQ explanations, hints, and smart practice run seamlessly without needing any personal API key.
+                You are currently using the default study engine provided by Disha PYQ Admin. MCQ explanations, hints, and smart practice run seamlessly without needing any personal API key.
               </p>
               <div className="flex items-center gap-1.5 text-[10px] text-[#787D91] dark:text-[#929AB0] border-t border-[#E8D9C0]/70 dark:border-[#31374A] pt-2">
                 <Lock className="w-3 h-3 text-[#800020] dark:text-[#F47B20] shrink-0" />

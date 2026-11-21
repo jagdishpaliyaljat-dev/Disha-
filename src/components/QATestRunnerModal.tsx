@@ -434,7 +434,7 @@ Answer: A`;
     setIsRunning(true);
     setActiveSuite("ALL");
     setLogs([]);
-    setStatusBanner("Running full DISHA 20-20 Supabase QA Automation Suite...");
+    setStatusBanner("Running full Disha PYQ Supabase QA Automation Suite...");
 
     try {
       await runSuiteA();
@@ -498,7 +498,7 @@ Answer: A`;
   const exportReport = () => {
     const reportData = {
       timestamp: new Date().toISOString(),
-      platform: "DISHA 20-20 Preparation Platform",
+      platform: "Disha PYQ Preparation Platform",
       backend: "Supabase PostgreSQL",
       supabaseHost: SUPABASE_URL ? new URL(SUPABASE_URL).hostname : "unconfigured",
       metrics: {
@@ -516,7 +516,7 @@ Answer: A`;
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `DISHA2020_QA_REPORT_${Date.now()}.json`;
+    a.download = `Disha_PYQ_QA_REPORT_${Date.now()}.json`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -537,7 +537,7 @@ Answer: A`;
             </div>
             <div>
               <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-white flex flex-wrap items-center gap-2">
-                <span>DISHA 20-20 — Automated QA Test Runner</span>
+                <span>Disha PYQ — Automated QA Test Runner</span>
                 <span className="text-[10px] font-bold px-2 py-0.5 bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 rounded-full border border-emerald-500/30 flex items-center gap-1">
                   <Database className="w-3 h-3" /> Supabase PostgreSQL
                 </span>

@@ -1874,8 +1874,8 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                   whileHover={{ y: -1 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => {
-                    const title = `🎯 I scored ${sessionAccuracy}% in "${session.title}" on DISHA 20-20!`;
-                    const text = `Score: ${totalCorrect}/${questions.length} | Accuracy: ${sessionAccuracy}% | Time: ${formatTime(elapsedSeconds)}.\nPractice with me on DISHA 20-20:`;
+                    const title = `🎯 I scored ${sessionAccuracy}% in "${session.title}" on Disha PYQ!`;
+                    const text = `Score: ${totalCorrect}/${questions.length} | Accuracy: ${sessionAccuracy}% | Time: ${formatTime(elapsedSeconds)}.\nPractice with me on Disha PYQ:`;
                     setShareData({
                       title,
                       text,
@@ -2411,7 +2411,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                     if (session.topicId) {
                       sharePayload = {
                         title: session.title,
-                        text: `Solve MCQ practice on ${session.title} on DISHA 20-20!`,
+                        text: `Solve MCQ practice on ${session.title} on Disha PYQ!`,
                         url: getShareUrl("topic", session.topicId),
                         category: "Topic Practice",
                       };
@@ -2422,7 +2422,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                     } else {
                       sharePayload = {
                         title: session.title,
-                        text: "Practice this test on DISHA 20-20!",
+                        text: "Practice this test on Disha PYQ!",
                         url: getShareUrl("test", session.testId || session.title),
                         category: "Mock Test",
                       };
@@ -2630,7 +2630,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                 {displayTitle}
               </h2>
               <span className="text-[9px] font-bold text-[#800020] dark:text-[#F47B20] uppercase tracking-wider whitespace-nowrap truncate mt-0.5">
-                {isTestMode ? "Exam Session" : "DISHA 20-20 Practice"}
+                {isTestMode ? "Exam Session" : "Disha PYQ Practice"}
               </span>
             </div>
           </div>
@@ -2662,21 +2662,21 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                 if (session.topicId) {
                   sharePayload = {
                     title: session.title,
-                    text: `Attempt specialized MCQ practice on ${session.title} with bilingual explanations and conceptual notes on DISHA 20-20.`,
+                    text: `Attempt specialized MCQ practice on ${session.title} with bilingual explanations and conceptual notes on Disha PYQ.`,
                     url: getShareUrl("topic", session.topicId),
                     category: "Topic Practice",
                   };
                 } else if (session.chapterId) {
                   sharePayload = {
                     title: session.title,
-                    text: `Master ${session.title} with bilingual MCQ practice on DISHA 20-20.`,
+                    text: `Master ${session.title} with bilingual MCQ practice on Disha PYQ.`,
                     url: getShareUrl("chapter", session.chapterId),
                     category: "Chapter Practice",
                   };
                 } else {
                   sharePayload = {
                     title: session.title,
-                    text: "Practice these bilingual MCQs on DISHA 20-20!",
+                    text: "Practice these bilingual MCQs on Disha PYQ!",
                     url: getShareUrl("practice", session.title),
                     category: "Practice Set",
                   };
@@ -3466,7 +3466,7 @@ function RedesignedLiveAndPYQTestView({
               } else if (session.chapterId) {
                 sharePayload = {
                   title: session.title,
-                  text: "Practice this chapter test on DISHA 20-20!",
+                  text: "Practice this chapter test on Disha PYQ!",
                   url: getShareUrl("chapter", session.chapterId),
                   category: "Chapter Practice",
                 };
