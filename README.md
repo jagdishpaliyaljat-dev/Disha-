@@ -6,14 +6,14 @@
 
 **India's most advanced Rajasthan competitive exam preparation ecosystem**
 
-[![Version](https://img.shields.io/badge/version-1.0.23-blue?style=for-the-badge)](https://github.com/jagdishpaliyaljat-dev/Disha-Android-App/releases/tag/v1.0.23)
+[![Version](https://img.shields.io/badge/version-1.0.24-blue?style=for-the-badge)](https://github.com/jagdishpaliyaljat-dev/Disha-Android-App/releases/tag/v1.0.24)
 [![Build](https://img.shields.io/github/actions/workflow/status/jagdishpaliyaljat-dev/Disha-Android-App/build-apk.yml?branch=main&style=for-the-badge&label=APK%20Build)](https://github.com/jagdishpaliyaljat-dev/Disha-Android-App/actions)
 [![Live App](https://img.shields.io/badge/Live%20App-disha--2020.vercel.app-green?style=for-the-badge)](https://disha-2020.vercel.app)
 [![License](https://img.shields.io/badge/License-Proprietary-red?style=for-the-badge)](#license)
 
 > Disha PYQ is a full-stack, offline-first Progressive Web App and Android application built for serious aspirants preparing for RPSC RAS, Rajasthan GK, Police Constable, and Patwari exams — featuring live tests, AI tutoring, real-time battle mode, spaced repetition, PYQ vault, and state-wide merit rankings.
 
-[📱 Download APK](https://github.com/jagdishpaliyaljat-dev/Disha-Android-App/releases/tag/v1.0.23) · [🌐 Live Web App](https://disha-2020.vercel.app) · [📖 Docs](./docs/) · [🐛 Issues](https://github.com/jagdishpaliyaljat-dev/Disha-Android-App/issues)
+[📱 Download APK](https://github.com/jagdishpaliyaljat-dev/Disha-Android-App/releases/tag/v1.0.24) · [🌐 Live Web App](https://disha-2020.vercel.app) · [📖 Docs](./docs/) · [🐛 Issues](https://github.com/jagdishpaliyaljat-dev/Disha-Android-App/issues)
 
 </div>
 
@@ -351,6 +351,7 @@ The app uses a versioned **Clean Slate** system (`src/utils/cleanSlate.ts`) that
 
 | Version | Date | Highlights |
 |---------|------|------------|
+| **v1.0.24** | Nov 2026 | 🛡️ Live Database & Test Suite Hardening (Purged 3 duplicate questions from production questions table, aligned PostgREST RLS zero-row validation tests, and updated student session test suites for Google-Only Auth) |
 | **v1.0.23** | Nov 2026 | 💎 Complete Platform Rebranding: Disha PYQ (Modern visual identity with deep dark background `#171329`, royal purple `#7045D8` / `#A78BFA`, light background `#F4F1FA`, minimal Disha PYQ logo badge, full UI components purge of old branding, and unified Play Store / Android package metadata) |
 | **v1.0.22** | Nov 2026 | 🎨 Official Disha PYQ Brand Logo & App Icon Update (Vector SVG logos, high-res PWA assets, Android adaptive launcher & splash density assets) |
 | **v1.0.21** | Nov 2026 | 🚀 Instant Launch & Google-Only Login (Removed startup splash screen delay & HTML loading overlay for instant app opening, streamlined login UI strictly to Google Sign-In with Native One-Tap / Supabase OAuth) |
@@ -424,6 +425,6 @@ Proprietary educational platform software. Unauthorized distribution, reproducti
 
 **Built with ❤️ for Rajasthan Competitive Exam Aspirants**
 
-[🌐 disha-2020.vercel.app](https://disha-2020.vercel.app) · [📱 Download APK v1.0.23](https://github.com/jagdishpaliyaljat-dev/Disha-Android-App/releases/tag/v1.0.23)
+[🌐 disha-2020.vercel.app](https://disha-2020.vercel.app) · [📱 Download APK v1.0.24](https://github.com/jagdishpaliyaljat-dev/Disha-Android-App/releases/tag/v1.0.24)
 
 </div>

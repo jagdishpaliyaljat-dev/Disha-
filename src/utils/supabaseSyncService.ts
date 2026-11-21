@@ -71,7 +71,10 @@ export async function syncCurriculumAuthoritative(options?: { force?: boolean })
   }
 
   if (activeCurriculumSyncPromise) {
-    return activeCurriculumSyncPromise;
+    if (!options?.force) {
+      return activeCurriculumSyncPromise;
+    }
+    await activeCurriculumSyncPromise.catch(() => {});
   }
 
   activeCurriculumSyncPromise = (async () => {

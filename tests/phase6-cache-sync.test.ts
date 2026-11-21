@@ -68,10 +68,16 @@ describe('Phase 6: Local Cache Integrity & Production Readiness Audit', () => {
       const originalFrom = supabase.from;
       // @ts-ignore
       supabase.from = (table: string) => {
+        const queryResult = Promise.resolve({ data: [], error: null });
+        const mockBuilder: any = {
+          order: () => mockBuilder,
+          range: () => mockBuilder,
+          limit: () => mockBuilder,
+          then: queryResult.then.bind(queryResult),
+          catch: queryResult.catch.bind(queryResult)
+        };
         return {
-          select: () => ({
-            order: () => Promise.resolve({ data: [], error: null })
-          })
+          select: () => mockBuilder
         } as any;
       };
 
@@ -127,10 +133,16 @@ describe('Phase 6: Local Cache Integrity & Production Readiness Audit', () => {
       const originalFrom = supabase.from;
       // @ts-ignore
       supabase.from = (table: string) => {
+        const queryResult = Promise.resolve({ data: [], error: null });
+        const mockBuilder: any = {
+          order: () => mockBuilder,
+          range: () => mockBuilder,
+          limit: () => mockBuilder,
+          then: queryResult.then.bind(queryResult),
+          catch: queryResult.catch.bind(queryResult)
+        };
         return {
-          select: () => ({
-            order: () => Promise.resolve({ data: [], error: null })
-          })
+          select: () => mockBuilder
         } as any;
       };
 

@@ -355,16 +355,8 @@ export function getUserCustomQuestionsList(): BattleQuestion[] {
     const store = loadUserQuestionsStore();
     if (store && Array.isArray(store.customQuestions) && store.customQuestions.length > 0) {
       return store.customQuestions
-        .filter((q) => q && q.text && Array.isArray(q.options) && q.options.length >= 2)
-        .map((q) => ({
-          id: q.id,
-          text: q.text,
-          options: q.options,
-          correctIndex: typeof q.correctIndex === "number" ? q.correctIndex : 0,
-          explanation: q.explanation || "",
-          category: q.subjectId || "custom",
-          difficulty: q.difficulty || "medium",
-        }));
+        .filter((q) => q && (q.text || (q as any).question) && Array.isArray(q.options) && q.options.length >= 2)
+        .map((q) => formatToBattleQuestion(q, "custom"));
     }
   } catch {
     // Ignore hydration error
@@ -485,16 +477,128 @@ export interface GetBattleQuestionsOptions {
   selectedQuestionIds?: string[];
 }
 
+/**
+ * Comprehensive Correct Answer Resolver
+ * Safely resolves 0-based index from numbers, numeric strings ("0", "1"),
+ * letters ("A", "B", "C", "D"), Hindi letters, or option string matches.
+ */
+export function resolveCorrectIndex(raw: any, options: string[]): number {
+  if (!raw || !Array.isArray(options) || options.length === 0) return 0;
+  const numOptions = options.length;
+
+  // Direct number check (0-based preferred, then 1-based)
+  const numericCandidates = [raw.correctIndex, raw.correct_answer, raw.correctOption, raw.correct_option];
+  for (const n of numericCandidates) {
+    if (typeof n === "number" && !isNaN(n)) {
+      if (n >= 0 && n < numOptions) return n;
+      if (n >= 1 && n <= numOptions) return n - 1; // 1-based index support
+    }
+  }
+
+  // String candidate check
+  const strCandidates = [
+    raw.correctIndex,
+    raw.correct_answer,
+    raw.correctAnswer,
+    raw.answer,
+    raw.correctOption,
+    raw.correct_option,
+  ];
+
+  for (const val of strCandidates) {
+    if (val === undefined || val === null) continue;
+    const str = String(val).trim();
+    if (!str) continue;
+
+    // Check if numeric string "0", "1", "2"...
+    const parsedNum = parseInt(str, 10);
+    if (!isNaN(parsedNum) && String(parsedNum) === str) {
+      if (parsedNum >= 0 && parsedNum < numOptions) return parsedNum;
+      if (parsedNum >= 1 && parsedNum <= numOptions) return parsedNum - 1;
+    }
+
+    // Check standard uppercase/lowercase letter "A", "B", "C", "D", "E"
+    const letterMatch = str.toUpperCase().match(/^[A-E]$/);
+    if (letterMatch) {
+      const idx = letterMatch[0].charCodeAt(0) - 65;
+      if (idx >= 0 && idx < numOptions) return idx;
+    }
+
+    // Check Hindi letter markers (क, ख, ग, घ)
+    const hindiMap: Record<string, number> = { "क": 0, "ख": 1, "ग": 2, "घ": 3, "ङ": 4 };
+    if (hindiMap[str] !== undefined && hindiMap[str] < numOptions) {
+      return hindiMap[str];
+    }
+
+    // Check matching against option text directly
+    const exactMatch = options.findIndex((opt) => opt.trim().toLowerCase() === str.toLowerCase());
+    if (exactMatch >= 0) return exactMatch;
+  }
+
+  return 0; // Default safe fallback
+}
+
+/**
+ * Shuffles question options while deterministically recalculating the correctIndex.
+ * Keeps "All of the above" / "None of the above" intact if present.
+ */
+export function shuffleQuestionOptions(question: BattleQuestion): BattleQuestion {
+  if (!question || !Array.isArray(question.options) || question.options.length < 2) {
+    return question;
+  }
+
+  // Check if any option has "all of the above", "उपर्युक्त", "उपरोक्त", "none of the above", etc.
+  const hasFixedOrderOption = question.options.some((opt) => {
+    const lower = String(opt || "").toLowerCase();
+    return (
+      lower.includes("उपर्युक्त") ||
+      lower.includes("उपरोक्त") ||
+      lower.includes("सभी") ||
+      lower.includes("all of the above") ||
+      lower.includes("none of the above") ||
+      lower.includes("इनमें से कोई नहीं")
+    );
+  });
+
+  if (hasFixedOrderOption) {
+    return question;
+  }
+
+  const correctIdx = Number(
+    question.correctIndex >= 0 && question.correctIndex < question.options.length
+      ? question.correctIndex
+      : 0
+  );
+
+  const indexed = question.options.map((opt, idx) => ({
+    text: opt,
+    isCorrect: idx === correctIdx,
+  }));
+
+  const shuffled = shuffleArray(indexed);
+  const newCorrectIndex = shuffled.findIndex((item) => item.isCorrect);
+
+  return {
+    ...question,
+    options: shuffled.map((item) => item.text),
+    correctIndex: newCorrectIndex >= 0 ? newCorrectIndex : 0,
+  };
+}
+
 // Internal helper to convert any app question format to BattleQuestion
 export function formatToBattleQuestion(raw: any, fallbackIdPrefix = "q"): BattleQuestion {
+  const options = Array.isArray(raw?.options) && raw.options.length >= 2
+    ? raw.options.map((opt: any) => String(opt || "").trim())
+    : ["A", "B", "C", "D"];
+
   return {
-    id: raw.id || `${fallbackIdPrefix}_${Math.random().toString(36).substring(2, 7)}`,
-    text: raw.text || raw.question || "",
-    options: Array.isArray(raw.options) && raw.options.length >= 2 ? raw.options : ["A", "B", "C", "D"],
-    correctIndex: typeof raw.correctIndex === "number" ? raw.correctIndex : typeof raw.correct_answer === "number" ? raw.correct_answer : 0,
-    explanation: raw.explanation || "",
-    category: raw.subjectId || raw.category || "General",
-    difficulty: raw.difficulty || "medium",
+    id: raw?.id || `${fallbackIdPrefix}_${Math.random().toString(36).substring(2, 7)}`,
+    text: String(raw?.text || raw?.question || "").trim() || "Question",
+    options,
+    correctIndex: resolveCorrectIndex(raw, options),
+    explanation: String(raw?.explanation || "").trim(),
+    category: raw?.subjectId || raw?.category || "General",
+    difficulty: raw?.difficulty || "medium",
   };
 }
 
@@ -541,12 +645,12 @@ export function getBattleQuestions(
     const picked = combined.filter((q) => selectedQuestionIds!.includes(q.id));
     if (picked.length > 0) {
       if (picked.length >= count) {
-        return picked.slice(0, count);
+        return picked.slice(0, count).map(shuffleQuestionOptions);
       }
       // If user requested more questions than selected, supplement
       const needed = count - picked.length;
       const supplement = shuffleArray(FALLBACK_BATTLE_QUESTIONS).slice(0, needed);
-      return [...picked, ...supplement];
+      return [...picked, ...supplement].map(shuffleQuestionOptions);
     }
   }
 
@@ -562,11 +666,11 @@ export function getBattleQuestions(
       if (matched.length > 0) {
         const shuffled = shuffleArray(matched);
         if (shuffled.length >= count) {
-          return shuffled.slice(0, count);
+          return shuffled.slice(0, count).map(shuffleQuestionOptions);
         }
         const needed = count - shuffled.length;
         const supplement = shuffleArray(FALLBACK_BATTLE_QUESTIONS).slice(0, needed);
-        return [...shuffled, ...supplement];
+        return [...shuffled, ...supplement].map(shuffleQuestionOptions);
       }
     } catch {
       // Fallback
@@ -585,11 +689,11 @@ export function getBattleQuestions(
       if (matched.length > 0) {
         const shuffled = shuffleArray(matched);
         if (shuffled.length >= count) {
-          return shuffled.slice(0, count);
+          return shuffled.slice(0, count).map(shuffleQuestionOptions);
         }
         const needed = count - shuffled.length;
         const supplement = shuffleArray(FALLBACK_BATTLE_QUESTIONS).slice(0, needed);
-        return [...shuffled, ...supplement];
+        return [...shuffled, ...supplement].map(shuffleQuestionOptions);
       }
     } catch {
       // Fallback
@@ -608,11 +712,11 @@ export function getBattleQuestions(
       if (matched.length > 0) {
         const shuffled = shuffleArray(matched);
         if (shuffled.length >= count) {
-          return shuffled.slice(0, count);
+          return shuffled.slice(0, count).map(shuffleQuestionOptions);
         }
         const needed = count - shuffled.length;
         const supplement = shuffleArray(FALLBACK_BATTLE_QUESTIONS).slice(0, needed);
-        return [...shuffled, ...supplement];
+        return [...shuffled, ...supplement].map(shuffleQuestionOptions);
       }
     } catch {
       // Fallback
@@ -625,11 +729,11 @@ export function getBattleQuestions(
     if (customList.length > 0) {
       const shuffledCustom = shuffleArray(customList);
       if (shuffledCustom.length >= count) {
-        return shuffledCustom.slice(0, count);
+        return shuffledCustom.slice(0, count).map(shuffleQuestionOptions);
       }
       const needed = count - shuffledCustom.length;
       const fallbackSubset = shuffleArray(FALLBACK_BATTLE_QUESTIONS).slice(0, needed);
-      return [...shuffledCustom, ...fallbackSubset];
+      return [...shuffledCustom, ...fallbackSubset].map(shuffleQuestionOptions);
     }
   }
 
@@ -661,7 +765,7 @@ export function getBattleQuestions(
   }
 
   const shuffled = shuffleArray(pool);
-  return shuffled.slice(0, Math.min(count, shuffled.length));
+  return shuffled.slice(0, Math.min(count, shuffled.length)).map(shuffleQuestionOptions);
 }
 
 /**

@@ -100,6 +100,7 @@ export type BattleEventType =
   | "START_GAME"
   | "ANSWER_SUBMIT"
   | "NEXT_QUESTION"
+  | "ROUND_REVEAL"
   | "REACTION"
   | "REMATCH"
   | "ROOM_STATE_SYNC"

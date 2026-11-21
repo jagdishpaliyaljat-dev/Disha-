@@ -155,11 +155,22 @@ describe('Phase 8: Deployment Gap & Authentication UUID Final Verification', () 
 
       const originalFrom = supabase.from;
       // @ts-ignore
-      supabase.from = () => ({
-        select: () => ({
-          order: () => Promise.reject(new Error('Network offline'))
-        })
-      } as any);
+      supabase.from = () => {
+        const mockBuilder: any = {
+          order: () => mockBuilder,
+          range: () => mockBuilder,
+          limit: () => mockBuilder,
+          then: (onfulfilled?: any, onrejected?: any) => {
+            return Promise.reject(new Error('Network offline')).then(onfulfilled, onrejected);
+          },
+          catch: (onrejected?: any) => {
+            return Promise.reject(new Error('Network offline')).catch(onrejected);
+          }
+        };
+        return {
+          select: () => mockBuilder
+        } as any;
+      };
 
       try {
         const failedSync = await syncCurriculumAuthoritative({ force: true });

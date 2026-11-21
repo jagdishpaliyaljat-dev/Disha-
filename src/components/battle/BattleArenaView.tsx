@@ -216,8 +216,8 @@ export const BattleArenaView: React.FC<BattleArenaViewProps> = ({
         {/* Options Grid */}
         <div className="space-y-2.5 my-3">
           {question.options.map((option, idx) => {
-            const isSelected = selectedOption === idx;
-            const isCorrect = idx === question.correctIndex;
+            const isSelected = selectedOption !== null && Number(selectedOption) === Number(idx);
+            const isCorrect = Number(idx) === Number(question.correctIndex);
 
             let buttonStyle =
               "bg-white dark:bg-[#1F2330] border-stone-200/90 dark:border-[#31374A] text-stone-800 dark:text-[#FFF9EF] hover:border-amber-400 shadow-xs";
@@ -241,6 +241,11 @@ export const BattleArenaView: React.FC<BattleArenaViewProps> = ({
               badgeStyle = "bg-[#800020] dark:bg-amber-500 text-white dark:text-stone-950 border-[#800020] dark:border-amber-500";
             }
 
+            // Clean leading redundant option prefixes like "A. " or "(1) "
+            const cleanOption = String(option || "")
+              .replace(/^(?:[A-Da-d1-4][\.\)\:\-]\s*|\([A-Da-d1-4]\)\s*|[क-घ][\.\)\:\-]\s*)/, "")
+              .trim() || String(option || "");
+
             return (
               <button
                 key={idx}
@@ -251,7 +256,7 @@ export const BattleArenaView: React.FC<BattleArenaViewProps> = ({
                   triggerHaptic("light");
                   onSelectOption(idx);
                 }}
-                className={`w-full flex items-center justify-between p-3.5 sm:p-4 rounded-2xl border-2 transition-all active:scale-98 text-left ${buttonStyle}`}
+                className={`w-full flex items-center justify-between p-3.5 sm:p-4 rounded-2xl border-2 transition-all active:scale-98 text-left cursor-pointer touch-manipulation select-none ${buttonStyle}`}
               >
                 <div className="flex items-center gap-3">
                   <span
@@ -259,7 +264,7 @@ export const BattleArenaView: React.FC<BattleArenaViewProps> = ({
                   >
                     {OPTION_LETTERS[idx]}
                   </span>
-                  <span className="text-sm font-semibold">{option}</span>
+                  <span className="text-sm font-semibold">{cleanOption}</span>
                 </div>
 
                 {/* Status Indicator Icon */}
@@ -287,7 +292,7 @@ export const BattleArenaView: React.FC<BattleArenaViewProps> = ({
             <button
               key={emoji}
               onClick={() => onSendEmoji(emoji)}
-              className="w-9 h-9 flex items-center justify-center text-lg rounded-2xl bg-white dark:bg-[#1F2330] shadow-xs border border-stone-200 dark:border-[#31374A] hover:bg-amber-50 dark:hover:bg-[#252A3A] active:scale-125 transition"
+              className="w-9 h-9 flex items-center justify-center text-lg rounded-2xl bg-white dark:bg-[#1F2330] shadow-xs border border-stone-200 dark:border-[#31374A] hover:bg-amber-50 dark:hover:bg-[#252A3A] active:scale-125 transition cursor-pointer"
             >
               {emoji}
             </button>
@@ -300,14 +305,14 @@ export const BattleArenaView: React.FC<BattleArenaViewProps> = ({
         <div className="bg-white dark:bg-[#1F2330] border-t border-stone-200 dark:border-[#31374A] p-4 shadow-xl animate-in slide-in-from-bottom-2 duration-200">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-1.5">
-              {selectedOption === question.correctIndex ? (
-                <span className="flex items-center gap-1 text-sm font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/60 px-3 py-1 rounded-full border border-emerald-200 dark:border-emerald-800">
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>Great Job! Correct (+{myPlayer?.lastAnswer?.pointsEarned || 100})</span>
+              {selectedOption !== null && Number(selectedOption) === Number(question.correctIndex) ? (
+                <span className="flex items-center gap-1.5 text-xs sm:text-sm font-extrabold text-emerald-800 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/70 px-3 py-1.5 rounded-full border border-emerald-300 dark:border-emerald-700 shadow-xs">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  <span>Great Job! Correct (+{myPlayer?.lastAnswer?.pointsEarned || 100} pts)</span>
                 </span>
               ) : (
-                <span className="flex items-center gap-1 text-sm font-bold text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-950/60 px-3 py-1 rounded-full border border-red-200 dark:border-red-800">
-                  <XCircle className="w-4 h-4" />
+                <span className="flex items-center gap-1.5 text-xs sm:text-sm font-extrabold text-red-800 dark:text-red-300 bg-red-100 dark:bg-red-950/70 px-3 py-1.5 rounded-full border border-red-300 dark:border-red-700 shadow-xs">
+                  <XCircle className="w-4 h-4 text-red-600 dark:text-red-400" />
                   <span>Incorrect (+0 pts)</span>
                 </span>
               )}
