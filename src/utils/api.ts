@@ -4,7 +4,10 @@ import { supabase } from "../lib/supabase";
 export async function apiFetch(url: string, options: RequestInit = {}): Promise<Response> {
   let finalUrl = url;
   if (typeof window === "undefined" && url.startsWith("/")) {
-    finalUrl = `http://localhost:3000${url}`;
+    // Server/SSR side: resolve relative URLs against the configured public
+    // origin instead of a hardcoded localhost (which cannot be whitelisted).
+    const base = (process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || "https://disha-2020.vercel.app").replace(/\/$/, "");
+    finalUrl = `${base}${url}`;
   }
 
   let settings: any = {};

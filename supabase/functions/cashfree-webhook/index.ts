@@ -55,7 +55,21 @@ function isFreshTimestamp(timestamp: string): boolean {
   return Math.abs(Date.now() - millis) <= 5 * 60 * 1000;
 }
 
-const DEFAULT_ORIGIN = "https://disha-2020.vercel.app";
+// Public HTTPS origin for CORS. Configure via APP_URL in Supabase secrets.
+const DEFAULT_ORIGIN = (() => {
+  const raw = Deno.env.get("APP_URL") || Deno.env.get("NEXT_PUBLIC_APP_URL") || Deno.env.get("SITE_URL") || "";
+  try {
+    if (raw) {
+      const value = raw.trim();
+      const url = new URL(value.includes("://") ? value : `https://${value}`);
+      const host = url.hostname.toLowerCase();
+      if (url.protocol === "https:" && host !== "localhost" && host !== "127.0.0.1" && host !== "::1" && !host.endsWith(".localhost")) {
+        return url.origin;
+      }
+    }
+  } catch {}
+  return "https://disha-2020.vercel.app";
+})();
 
 function corsHeaders(origin: string | null): Record<string, string> {
   const allowed = [DEFAULT_ORIGIN, "https://localhost", "http://localhost", "capacitor://localhost"];

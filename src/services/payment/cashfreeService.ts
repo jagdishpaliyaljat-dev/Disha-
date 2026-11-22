@@ -3,6 +3,11 @@ import confetti from "canvas-confetti";
 import { Capacitor } from "@capacitor/core";
 import { Browser } from "@capacitor/browser";
 
+import {
+  buildCashfreeReturnUrl,
+  getCashfreeMode,
+  getCheckoutBridgeUrl,
+} from "../../config/paymentConfig";
 import { 
   AdminPremiumPlan, 
   getActivePremiumPlans, 
@@ -121,26 +126,16 @@ export async function initiateCashfreePayment(
   try {
     onStatusUpdate?.("creating_order", "ऑर्डर तैयार किया जा रहा है...");
 
-    // 1. Call create-cashfree-order Edge function
-    // Ensure returnUrl is ALWAYS an approved public HTTPS domain (never localhost or capacitor://)
-    const isLocalOrApp = typeof window !== "undefined" && 
-      (window.location.hostname === "localhost" || 
-       window.location.hostname === "127.0.0.1" || 
-       window.location.protocol.startsWith("capacitor") || 
-       window.location.protocol.startsWith("file"));
-
-    const returnUrl = (typeof window !== "undefined" && !isLocalOrApp && window.location.origin.startsWith("https://"))
-      ? `${window.location.origin}/?order_id={order_id}`
-      : "https://disha-2020.vercel.app/?order_id={order_id}";
+    // 1. Call create-cashfree-order Edge function.
+    // The return URL is always a public HTTPS origin from config (VITE_APP_URL /
+    // NEXT_PUBLIC_APP_URL / APP_URL). localhost and capacitor:// are never sent
+    // to Cashfree because they cannot be whitelisted.
+    const returnUrl = buildCashfreeReturnUrl();
 
     const { data: orderData, error: orderError } = await supabase.functions.invoke("create-cashfree-order", {
       body: { 
         planId, 
         returnUrl,
-        userId: userProfile?.id,
-        userEmail: userProfile?.email,
-        userName: userProfile?.name,
-        userPhone: userProfile?.phone,
       },
     });
 
@@ -157,16 +152,17 @@ export async function initiateCashfreePayment(
     }
 
     const { paymentSessionId, orderId, environment } = orderData;
-    const mode = environment === "SANDBOX" || environment === "TEST" ? "sandbox" : "production";
+    const mode = getCashfreeMode(environment);
 
     onStatusUpdate?.("ready_to_pay", "आधिकारिक Cashfree पेमेंट पेज खोला जा रहा है...");
 
-    // 2. Launch official Cashfree checkout page
-    // On native mobile app (Android/iOS): Open via Chrome Custom Tabs on verified public HTTPS domain
-    // This completely eliminates the "https://localhost/ is not enabled or approved" Cashfree whitelisting error
+    // 2. Launch official Cashfree checkout page.
+    // Native app: open the hosted-checkout bridge on the configured public HTTPS
+    // domain via Chrome Custom Tabs. No localhost/capacitor origin ever reaches
+    // Cashfree, so the "https://localhost/ is not enabled" error cannot occur.
     if (Capacitor.isNativePlatform()) {
       try {
-        const checkoutBridgeUrl = `https://disha-2020.vercel.app/checkout.html?session_id=${encodeURIComponent(paymentSessionId)}&order_id=${encodeURIComponent(orderId)}&mode=${mode}`;
+        const checkoutBridgeUrl = getCheckoutBridgeUrl(paymentSessionId, orderId, mode);
 
         // Automatically verify subscription as soon as user returns from payment window
         let finishedListener: any = null;
@@ -195,7 +191,7 @@ export async function initiateCashfreePayment(
       }
     }
 
-    // On Web (disha-2020.vercel.app), use official SDK or hosted checkout POST
+    // On Web (configured public domain), use official SDK or hosted checkout POST
     try {
       const cashfree = await loadCashfreeSdk(mode).catch(() => null);
       if (cashfree && typeof cashfree.checkout === "function") {

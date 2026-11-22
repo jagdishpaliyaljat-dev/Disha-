@@ -4,19 +4,47 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
 // Fixed plans. Unknown ids are rejected rather than silently mapped to the
 // cheapest plan (which used to grant a 10-year "lifetime" subscription).
 const PLANS: Record<string, { name: string; amount: number; days: number }> = {
+  trial_weekly: { name: "1 Week Trial AutoPay Pass", amount: 1.00, days: 7 },
+  weekly: { name: "1 Week Trial AutoPay Pass", amount: 1.00, days: 7 },
   monthly: { name: "1 Month Pass", amount: 49.00, days: 30 },
   yearly: { name: "1 Year Super Pass", amount: 149.00, days: 365 },
   lifetime: { name: "Lifetime VIP Pass", amount: 249.00, days: 3650 },
 };
 
-const DEFAULT_RETURN_ORIGIN = "https://disha-2020.vercel.app";
+// Public HTTPS origin registered/whitelisted with Cashfree. Configure with
+// APP_URL (or NEXT_PUBLIC_APP_URL / SITE_URL) in Supabase Edge Function secrets.
+// localhost/capacitor origins are NEVER accepted as return URLs.
+const FALLBACK_RETURN_ORIGIN = "https://disha-2020.vercel.app";
 
-function allowlistedOrigins(envValue: string): string[] {
-  const fromEnv = (envValue || "")
+function normalizeHttpsOrigin(raw: string | undefined | null): string {
+  if (!raw || !raw.trim()) return "";
+  try {
+    const value = raw.trim();
+    const url = new URL(value.includes("://") ? value : `https://${value}`);
+    if (url.protocol !== "https:") return "";
+    const host = url.hostname.toLowerCase();
+    if (host === "localhost" || host === "127.0.0.1" || host === "::1" || host.endsWith(".localhost") || host.startsWith("127.")) return "";
+    return url.origin;
+  } catch {
+    return "";
+  }
+}
+
+function configuredOrigins(): string[] {
+  const explicit = normalizeHttpsOrigin(
+    Deno.env.get("APP_URL") || Deno.env.get("NEXT_PUBLIC_APP_URL") || Deno.env.get("SITE_URL")
+  );
+  const fromEnv = (Deno.env.get("ALLOWED_RETURN_ORIGINS") || "")
     .split(",")
-    .map((s) => s.trim())
+    .map((s) => normalizeHttpsOrigin(s))
     .filter(Boolean);
-  return Array.from(new Set([DEFAULT_RETURN_ORIGIN, ...fromEnv]));
+  return Array.from(new Set([explicit || FALLBACK_RETURN_ORIGIN, ...fromEnv]));
+}
+
+const DEFAULT_RETURN_ORIGIN = configuredOrigins()[0];
+
+function allowlistedOrigins(_envValue: string): string[] {
+  return configuredOrigins();
 }
 
 function corsHeaders(origin: string | null, allowed: string[]) {
@@ -50,8 +78,10 @@ function makeOrderId(): string {
 }
 
 Deno.serve(async (req: Request) => {
-  const returnOrigins = allowlistedOrigins(Deno.env.get("ALLOWED_RETURN_ORIGINS") || "");
-  // WebView/Capacitor origins need CORS access but must NEVER be valid return URLs.
+  const returnOrigins = allowlistedOrigins();
+  // These localhost entries are for CORS responses ONLY (native WebView needs
+  // capacitor://localhost). They are NOT in `returnOrigins`, so safeReturnUrl
+  // can never emit a localhost return URL to Cashfree.
   const corsOrigins = Array.from(new Set([
     ...returnOrigins,
     "https://localhost",

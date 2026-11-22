@@ -6,6 +6,9 @@ import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig(({ command }) => {
   return {
+    // Expose NEXT_PUBLIC_* to the browser as well as the Vite-native VITE_* prefix.
+    // Both NEXT_PUBLIC_APP_URL and VITE_APP_URL can configure the Cashfree return domain.
+    envPrefix: ['VITE_', 'NEXT_PUBLIC_'],
     plugins: [
       react(), 
       tailwindcss(),
