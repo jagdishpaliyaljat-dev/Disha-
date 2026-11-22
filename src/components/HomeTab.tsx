@@ -57,6 +57,7 @@ import {
   BarChart3,
   Scan,
   Crown,
+  Sparkles,
 } from "lucide-react";
 import { BannerSlides } from "./BannerSlides";
 import { AppLogo } from "./AppLogo";
@@ -248,7 +249,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
               )}
             </button>
 
-            {/* Disha VIP Badge / Button */}
+            {/* 100% Free Education Badge */}
             <button
               onClick={() => {
                 if (onOpenPremium) {
@@ -257,12 +258,12 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                   window.dispatchEvent(new CustomEvent("disha_open_premium_modal", { detail: { trigger: "general" } }));
                 }
               }}
-              className="h-10 px-2 sm:px-2.5 rounded-xl bg-gradient-to-r from-amber-500/20 to-purple-500/20 hover:from-amber-500/30 hover:to-purple-500/30 border border-amber-500/40 text-amber-600 dark:text-amber-400 font-extrabold text-xs flex items-center gap-1 transition-all shadow-xs active:scale-95 cursor-pointer shrink-0"
-              aria-label="Disha PYQ VIP"
-              title="Disha PYQ VIP Pass"
+              className="h-10 px-2.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-extrabold text-xs flex items-center gap-1.5 transition-all shadow-xs active:scale-95 cursor-pointer shrink-0"
+              aria-label="Disha PYQ 100% Free"
+              title="100% निःशुल्क शिक्षा पहल"
             >
-              <Crown className="w-4 h-4 text-amber-500 shrink-0" />
-              <span className="text-[11px] font-black">{currentUserProfile?.isPremium ? "VIP" : "VIP"}</span>
+              <Sparkles className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+              <span className="text-[11px] font-black">100% Free</span>
             </button>
 
             {!isAuthenticated ? (

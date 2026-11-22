@@ -114,51 +114,51 @@ export const DEFAULT_PAYWALL_RULES: PaywallRules = {
   ai_tutor: {
     key: "ai_tutor",
     title: "Disha AI Tutor (24x7 डाउट सॉल्वर)",
-    mode: "limited_free",
-    freeDailyLimit: 3,
-    description: "कठिन प्रश्नों का तत्काल समाधान व व्याख्या जनरेटर",
+    mode: "free",
+    freeDailyLimit: 999999,
+    description: "कठिन प्रश्नों का तत्काल समाधान व व्याख्या जनरेटर (100% मुफ़्त)",
   },
   mock_tests: {
     key: "mock_tests",
     title: "RPSC व RSMSSB Mock Tests & Live Series",
-    mode: "limited_free",
-    freeDemoTestsCount: 1,
-    description: "आगामी परीक्षाओं के पूर्ण अभ्यास टेस्ट पेपर्स",
+    mode: "free",
+    freeDemoTestsCount: 999999,
+    description: "आगामी परीक्षाओं के पूर्ण अभ्यास टेस्ट पेपर्स (100% मुफ़्त)",
   },
   state_merit_rank: {
     key: "state_merit_rank",
     title: "All-Rajasthan Live Merit Ranking",
-    isVipOnly: true,
-    description: "सैकड़ों अभ्यर्थियों के बीच राज्यस्तरीय रैंक और परसेंटाइल",
+    isVipOnly: false,
+    description: "सैकड़ों अभ्यर्थियों के बीच राज्यस्तरीय रैंक और परसेंटाइल (100% मुफ़्त)",
   },
   detailed_explanations: {
     key: "detailed_explanations",
     title: "विस्तृत उत्तर व्याख्या व शॉर्ट ट्रिक्स",
     isVipOnly: false,
-    description: "प्रत्येक प्रश्न की मानक पुस्तकों से प्रामाणिक व्याख्या",
+    description: "प्रत्येक प्रश्न की मानक पुस्तकों से प्रामाणिक व्याख्या (100% मुफ़्त)",
   },
   mistake_bank: {
     key: "mistake_bank",
     title: "मिस्टेक बैंक (गलत प्रश्नों का ऑटो-रिवीज़न)",
-    isVipOnly: true,
-    description: "टेस्ट में गलत हुए प्रश्नों का स्मार्ट रिवीज़न वॉल्ट",
+    isVipOnly: false,
+    description: "टेस्ट में गलत हुए प्रश्नों का स्मार्ट रिवीज़न वॉल्ट (100% मुफ़्त)",
   },
   live_battle: {
     key: "live_battle",
     title: "1v1 लाइव क्विज़ मुकाबला",
     isVipOnly: false,
-    description: "सहपाठियों के साथ रियल-टाइम क्विज़ बैटल रूम",
+    description: "सहपाठियों के साथ रियल-टाइम क्विज़ बैटल रूम (100% मुफ़्त)",
   },
   pdf_export: {
     key: "pdf_export",
     title: "PDF टेस्ट पेपर डाउनलोड व एक्सपोर्ट",
-    isVipOnly: true,
-    description: "प्रिंट-योग्य ऑफ़लाइन पीडीएफ टेस्ट पेपर्स",
+    isVipOnly: false,
+    description: "प्रिंट-योग्य ऑफ़लाइन पीडीएफ टेस्ट पेपर्स (100% मुफ़्त)",
   },
   ad_free: {
     key: "ad_free",
     title: "100% विज्ञापन-मुक्त अनुभव",
-    isVipOnly: true,
+    isVipOnly: false,
     description: "बिना किसी रुकावट या विज्ञापन के निर्बाध अध्ययन",
   },
 };
@@ -190,11 +190,11 @@ export function getLocalPremiumPlans(): AdminPremiumPlan[] {
 }
 
 /**
- * Get active plans enabled for users
+ * Get active plans enabled for users.
+ * Empty array returned since app is 100% free and subscription plans are removed.
  */
 export function getActivePremiumPlans(): AdminPremiumPlan[] {
-  const plans = getLocalPremiumPlans();
-  return plans.filter((p) => p.enabled !== false);
+  return [];
 }
 
 /**
@@ -219,49 +219,16 @@ export function getLocalPaywallRules(): PaywallRules {
 }
 
 /**
- * Check if a specific feature is restricted by paywall for this user
+ * Check if a specific feature is restricted by paywall for this user.
+ * 100% FREE FOR ALL: Always returns false so all features, tests, AI Tutor,
+ * and state rank are permanently unlocked for every student.
  */
 export function isFeatureVipLocked(
-  featureKey: keyof PaywallRules | string,
-  userProfile?: UserProfile | null,
-  context?: { dailyAttemptsCount?: number; testIndex?: number }
+  _featureKey: keyof PaywallRules | string,
+  _userProfile?: UserProfile | null,
+  _context?: { dailyAttemptsCount?: number; testIndex?: number }
 ): boolean {
-  // If user has active VIP pass, NEVER lock anything
-  if (userProfile?.isPremium) {
-    return false;
-  }
-
-  const rules = getLocalPaywallRules();
-  const rule = (rules as any)[featureKey];
-  if (!rule) return false;
-
-  // 1. AI Tutor specific checks
-  if (featureKey === "ai_tutor") {
-    if (rule.mode === "free") return false;
-    if (rule.mode === "vip_only") return true;
-    if (rule.mode === "limited_free") {
-      const count = context?.dailyAttemptsCount || 0;
-      const limit = rule.freeDailyLimit ?? 3;
-      return count >= limit;
-    }
-  }
-
-  // 2. Mock Tests specific checks
-  if (featureKey === "mock_tests") {
-    if (rule.mode === "free") return false;
-    if (rule.mode === "vip_only") return true;
-    if (rule.mode === "limited_free") {
-      const index = context?.testIndex ?? 0;
-      const allowed = rule.freeDemoTestsCount ?? 1;
-      return index >= allowed;
-    }
-  }
-
-  // 3. Boolean flags
-  if (typeof rule.isVipOnly === "boolean") {
-    return rule.isVipOnly;
-  }
-
+  // Free Education Initiative: All features unlocked forever
   return false;
 }
 

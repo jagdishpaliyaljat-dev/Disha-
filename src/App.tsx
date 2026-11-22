@@ -1692,18 +1692,18 @@ export default function App() {
                 )}
               </button>
 
-              {/* VIP Upgrade Button */}
+              {/* 100% Free Education Badge */}
               <button
                 type="button"
                 onClick={() => {
                   setPremiumFeatureTrigger('general');
                   setIsPremiumModalOpen(true);
                 }}
-                className="px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-500/20 to-purple-500/20 hover:from-amber-500/30 hover:to-purple-500/30 border border-amber-500/40 text-amber-600 dark:text-amber-400 font-extrabold text-xs flex items-center gap-1.5 transition-all shadow-xs active:scale-95 cursor-pointer"
-                title="Disha PYQ VIP Pass"
+                className="px-2.5 py-1.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-extrabold text-xs flex items-center gap-1.5 transition-all shadow-xs active:scale-95 cursor-pointer"
+                title="100% निःशुल्क शिक्षा पहल"
               >
-                <Crown className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                <span>{userProfile?.isPremium ? "VIP Member" : "Get VIP"}</span>
+                <Sparkles className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                <span>100% Free</span>
               </button>
 
               {!isAuthenticated ? (
@@ -1795,22 +1795,12 @@ export default function App() {
             onShowAddSubject={() => setIsAddSubjectOpen(true)}
             onNavigateTab={(tab) => setActiveTab(tab)}
             onOpenPDFExport={() => {
-              if (isFeatureVipLocked('pdf_export', userProfile)) {
-                setPremiumFeatureTrigger('pdf_export');
-                setIsPremiumModalOpen(true);
-                return;
-              }
               setIsPDFOpen(true);
             }}
             onOpenFullExam={() => setIsFullExamOpen(true)}
             onOpenExamAnalyzer={() => setIsExamAnalyzerOpen(true)}
             onOpenApiSettings={() => setIsApiSettingsOpen(true)}
             onOpenLiveBattle={() => {
-              if (isFeatureVipLocked('live_battle', userProfile)) {
-                setPremiumFeatureTrigger('live_battle');
-                setIsPremiumModalOpen(true);
-                return;
-              }
               setBattleInitialRoomCode('');
               setIsLiveBattleOpen(true);
             }}
@@ -1837,11 +1827,6 @@ export default function App() {
             onSelectTopic={(topId: string | null) => setSelectedTopicId(topId)}
             onStartSession={handleStartSession}
             onOpenPDFExport={() => {
-              if (isFeatureVipLocked('pdf_export', userProfile)) {
-                setPremiumFeatureTrigger('pdf_export');
-                setIsPremiumModalOpen(true);
-                return;
-              }
               setIsPDFOpen(true);
             }}
             isAdmin={isAdmin}

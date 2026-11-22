@@ -236,28 +236,6 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
     const query = (textToSend || inputText).trim();
     if (!query || isLoading) return;
 
-    // Check VIP paywall rules for Disha AI Tutor
-    const todayKey = new Date().toISOString().slice(0, 10);
-    const storageKey = `disha_ai_daily_count_${todayKey}`;
-    const currentCount = parseInt(localStorage.getItem(storageKey) || "0", 10);
-
-    const profile = loadUserProfile();
-    if (isFeatureVipLocked("ai_tutor", profile, { dailyAttemptsCount: currentCount })) {
-      triggerHaptic("warning");
-      if (typeof window !== "undefined") {
-        window.dispatchEvent(
-          new CustomEvent("disha_open_premium_modal", {
-            detail: {
-              trigger: "ai_tutor",
-              title: "Disha AI Daily Quota Reached",
-              message: "Free daily AI tutor quota is reached. Upgrade to VIP Pass for unlimited 24x7 doubt solving!",
-            },
-          })
-        );
-      }
-      return;
-    }
-
     triggerHaptic("light");
     setInputText("");
     if (speakingId) {
@@ -368,19 +346,13 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
           </div>
 
           <div className="flex items-center gap-1.5">
-            <button
-              onClick={() => {
-                triggerHaptic("medium");
-                if (typeof window !== "undefined") {
-                  window.dispatchEvent(new CustomEvent("disha_open_premium_modal", { detail: { trigger: "ai_tutor" } }));
-                }
-              }}
-              title="Disha VIP Pass"
-              className="px-2 py-1 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 text-black font-black text-[10px] flex items-center gap-1 shadow-xs hover:opacity-95 transition-all cursor-pointer"
+            <div
+              title="100% निःशुल्क शिक्षा पहल"
+              className="px-2 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 font-black text-[10px] flex items-center gap-1 shadow-xs border border-emerald-400/30 select-none"
             >
-              <Crown className="w-3 h-3 text-black fill-black" />
-              <span>VIP</span>
-            </button>
+              <Sparkles className="w-3 h-3 text-emerald-300" />
+              <span>100% Free</span>
+            </div>
             <button
               onClick={handleResetChat}
               title="Reset Chat"

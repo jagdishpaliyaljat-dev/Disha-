@@ -25,6 +25,7 @@ export const DEFAULT_USER_PROFILE: UserProfile = {
   name: "Guest Aspirant",
   email: "",
   role: "student",
+  isPremium: true,
   targetExam: "Competitive Exams & General Studies",
   dailyGoalQuestions: 30,
   streakDays: 0,
@@ -154,9 +155,15 @@ export function loadUserProfile(): UserProfile | null {
       profile.role = "student";
     }
     
+    // 100% Free: All students have full premium access unlocked
+    profile.isPremium = true;
+    
     return profile;
   } catch (err) {
     console.error("Failed to load user profile", err);
+    if (inMemoryProfile) {
+      inMemoryProfile.isPremium = true;
+    }
     return inMemoryProfile;
   }
 }

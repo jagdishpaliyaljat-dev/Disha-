@@ -393,42 +393,26 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
             </div>
           </motion.div>
 
-        {/* VIP Membership Status Card */}
+        {/* 100% Free Education Status Card */}
         <motion.div
           variants={itemVariants}
-          className={`p-4 rounded-2xl border shadow-sm relative overflow-hidden flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 ${
-            activeProfile?.isPremium
-              ? "bg-gradient-to-r from-amber-500/15 via-[#7045D8]/20 to-amber-500/10 border-amber-500/40"
-              : "bg-gradient-to-r from-[#7045D8]/15 via-[#855fe6]/10 to-[#171329] border-[#7045D8]/40"
-          }`}
+          className="p-4 rounded-2xl border shadow-sm relative overflow-hidden flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-gradient-to-r from-emerald-500/15 via-[#7045D8]/20 to-emerald-500/10 border-emerald-500/40"
         >
           <div className="flex items-center gap-3">
-            <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 shadow-md ${
-              activeProfile?.isPremium
-                ? "bg-gradient-to-br from-amber-400 to-amber-600 text-black shadow-amber-500/30"
-                : "bg-gradient-to-br from-[#7045D8] to-[#A78BFA] text-white shadow-[#7045D8]/30"
-            }`}>
-              <Crown className="w-6 h-6" />
+            <div className="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 shadow-md bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-emerald-500/30">
+              <Sparkles className="w-6 h-6" />
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="font-extrabold text-sm sm:text-base text-[#171923] dark:text-white flex items-center gap-1.5">
-                  Disha PYQ VIP Pass
+                  दिशा 100% निःशुल्क शिक्षा योजना
                 </h3>
-                {activeProfile?.isPremium ? (
-                  <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-400 text-black uppercase tracking-wider">
-                    सक्रिय (Active)
-                  </span>
-                ) : (
-                  <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-[#7045D8] text-white uppercase tracking-wider animate-pulse">
-                    ₹49 से शुरू
-                  </span>
-                )}
+                <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-500 text-white uppercase tracking-wider">
+                  आजीवन मुफ़्त (Active)
+                </span>
               </div>
               <p className="text-xs text-slate-600 dark:text-[#CBD2E1] mt-0.5">
-                {activeProfile?.isPremium
-                  ? `सक्रिय प्लान: ${activeProfile.premiumPlan ? activeProfile.premiumPlan.toUpperCase() : 'VIP'} • सभी Mock Tests और AI Tutor अनलॉक हैं`
-                  : "असीमित Mock Tests, State-Level Merit Ranking और Disha AI Tutor 24x7 अनलॉक करें"}
+                सभी RPSC & RSMSSB Mock Tests, Disha AI Tutor व State Merit Ranking आपके लिए हमेशा 100% निःशुल्क अनलॉक हैं।
               </p>
             </div>
           </div>
@@ -442,14 +426,10 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                 window.dispatchEvent(new CustomEvent("disha_open_premium_modal", { detail: { trigger: "profile" } }));
               }
             }}
-            className={`px-4 py-2.5 rounded-xl font-bold text-xs shadow-md transition-all active:scale-95 shrink-0 flex items-center gap-1.5 cursor-pointer ${
-              activeProfile?.isPremium
-                ? "bg-amber-500/20 hover:bg-amber-500/30 text-amber-600 dark:text-amber-400 border border-amber-500/40"
-                : "bg-gradient-to-r from-[#7045D8] to-[#855fe6] hover:opacity-95 text-white shadow-[#7045D8]/30"
-            }`}
+            className="px-4 py-2.5 rounded-xl font-bold text-xs shadow-md transition-all active:scale-95 shrink-0 flex items-center gap-1.5 cursor-pointer bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-600 dark:text-emerald-400 border border-emerald-500/40"
           >
-            <Crown size={14} className={activeProfile?.isPremium ? "text-amber-400" : "text-amber-300"} />
-            <span>{activeProfile?.isPremium ? "सदस्यता विवरण" : "VIP अनलॉक करें"}</span>
+            <Sparkles size={14} className="text-emerald-500" />
+            <span>सुविधाएं विवरण</span>
           </button>
         </motion.div>
 
