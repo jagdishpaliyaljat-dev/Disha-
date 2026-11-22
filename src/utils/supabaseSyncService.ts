@@ -1563,7 +1563,7 @@ export async function fetchUserProfileFromSupabase(userId?: string): Promise<any
 
     const { data, error } = await supabase
       .from("profiles")
-      .select("id,email,display_name,photo_url,role,created_at,updated_at")
+      .select("id,email,display_name,photo_url,role,is_premium,premium_plan,premium_until,created_at,updated_at")
       .eq("id", uid)
       .maybeSingle();
 
@@ -1578,6 +1578,9 @@ export async function fetchUserProfileFromSupabase(userId?: string): Promise<any
       displayName: data.display_name || "Student",
       photoURL: data.photo_url || "",
       role: data.role || "student",
+      isPremium: Boolean(data.is_premium),
+      premiumPlan: data.premium_plan || undefined,
+      premiumUntil: data.premium_until || undefined,
       createdAt: data.created_at,
       updatedAt: data.updated_at
     };

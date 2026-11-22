@@ -13,6 +13,7 @@ import {
   ArrowRight, 
   Key, 
   Loader2, 
+  Crown,
 } from "lucide-react";
 import { Question } from "../types";
 import { 
@@ -339,7 +340,20 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
             </div>
           </div>
 
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => {
+                triggerHaptic("medium");
+                if (typeof window !== "undefined") {
+                  window.dispatchEvent(new CustomEvent("disha_open_premium_modal", { detail: { trigger: "ai_tutor" } }));
+                }
+              }}
+              title="Disha VIP Pass"
+              className="px-2 py-1 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 text-black font-black text-[10px] flex items-center gap-1 shadow-xs hover:opacity-95 transition-all cursor-pointer"
+            >
+              <Crown className="w-3 h-3 text-black fill-black" />
+              <span>VIP</span>
+            </button>
             <button
               onClick={handleResetChat}
               title="Reset Chat"

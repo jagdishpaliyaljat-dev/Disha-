@@ -732,6 +732,9 @@ export interface UserProfile {
   createdAt: string;
   lastLoginAt?: string;
   isTest?: boolean;
+  isPremium?: boolean;
+  premiumPlan?: "monthly" | "yearly" | "lifetime" | string;
+  premiumUntil?: string;
 }
 
 export interface AdminAuditLog {

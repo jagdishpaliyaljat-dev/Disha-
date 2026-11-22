@@ -28,6 +28,7 @@ import {
   Share2,
   Medal,
   Zap,
+  Crown,
 } from "lucide-react";
 import ShareModal, { ShareData } from "./ShareModal";
 import { buildLiveTestShareData } from "../utils/shareService";
@@ -401,6 +402,43 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
             <span>Ranks</span>
           </button>
         </nav>
+
+        {/* Disha PYQ VIP Test Pass Banner */}
+        {!userProfile?.isPremium && (
+          <div
+            onClick={() => {
+              triggerHaptic("medium");
+              if (typeof window !== "undefined") {
+                window.dispatchEvent(new CustomEvent("disha_open_premium_modal", { detail: { trigger: "mock_tests" } }));
+              }
+            }}
+            className="p-3.5 rounded-2xl bg-gradient-to-r from-[#7045D8]/20 via-[#171329] to-[#7045D8]/10 border border-[#7045D8]/40 shadow-sm flex items-center justify-between gap-3 text-white cursor-pointer hover:border-[#A78BFA]/60 transition-all active:scale-[0.99]"
+          >
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-black shrink-0 shadow-md shadow-amber-500/20">
+                <Crown className="w-5 h-5" />
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <h3 className="text-xs sm:text-sm font-black text-white truncate">Disha PYQ VIP Test Pass</h3>
+                  <span className="text-[9px] font-black px-1.5 py-0.5 rounded-full bg-amber-400 text-black uppercase">
+                    ₹49 से शुरू
+                  </span>
+                </div>
+                <p className="text-[10px] sm:text-[11px] text-[#A78BFA] truncate">
+                  सभी RPSC, RSMSSB Mock Tests व लाइव टेस्ट सीरीज़ असीमित अनलॉक करें
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#7045D8] to-[#855fe6] text-white font-extrabold text-xs shadow-md shadow-[#7045D8]/30 active:scale-95 transition-all shrink-0 cursor-pointer pointer-events-none"
+            >
+              Get VIP
+            </button>
+          </div>
+        )}
 
         {/* ── 3. LIVE TESTS TAB CONTENT ───────────────────────────────────── */}
         {activeSubTab === "live" && (

@@ -30,7 +30,8 @@ import {
   Bell,
   Ban,
   LogOut,
-  Video
+  Video,
+  Crown
 } from 'lucide-react';
 import { BottomNav } from './components/BottomNav';
 import { DishaAITutorModal, FloatingAIAssistant } from './components/DishaAITutorModal';
@@ -181,6 +182,7 @@ const TestSeriesPage = safeLazy<typeof import('./components/TestSeriesPage').Tes
 const HTMLImportMCQModal = safeLazy<typeof import('./components/admin/HTMLImportMCQModal').HTMLImportMCQModal>(() => import('./components/admin/HTMLImportMCQModal'), 'HTMLImportMCQModal');
 const GlobalSearchModal = safeLazy<typeof import('./components/GlobalSearchModal').GlobalSearchModal>(() => import('./components/GlobalSearchModal'), 'GlobalSearchModal');
 const LiveBattleModal = safeLazy<typeof import('./components/battle/LiveBattleModal').LiveBattleModal>(() => import('./components/battle/LiveBattleModal'), 'LiveBattleModal');
+const PremiumUpgradeModal = safeLazy<typeof import('./components/payment/PremiumUpgradeModal').PremiumUpgradeModal>(() => import('./components/payment/PremiumUpgradeModal'), 'PremiumUpgradeModal');
 
 export default function App() {
   const initialNavState = React.useMemo(() => {
@@ -442,6 +444,8 @@ export default function App() {
   const [battleInitialRoomCode, setBattleInitialRoomCode] = React.useState<string>("");
   const [isAITutorOpen, setIsAITutorOpen] = React.useState(false);
   const [aiTutorContextQuestion, setAiTutorContextQuestion] = React.useState<Question | null>(null);
+  const [isPremiumModalOpen, setIsPremiumModalOpen] = React.useState(false);
+  const [premiumFeatureTrigger, setPremiumFeatureTrigger] = React.useState<"ai_tutor" | "mock_tests" | "profile" | "general">("general");
   const [viewCount, setViewCount] = React.useState<number>(1240);
 
   // Check for direct battle invite link (?battle=CODE or ?room=CODE)
@@ -485,18 +489,42 @@ export default function App() {
     };
   }, []);
 
-  // Global event listener to sync tier upgrades
+  // Global event listener to sync tier upgrades and VIP subscriptions
   React.useEffect(() => {
     const handleTierUpdated = () => setUserProfile(loadUserProfile());
 
+    const handleOpenPremium = (e: any) => {
+      setPremiumFeatureTrigger(e?.detail?.trigger || "general");
+      setIsPremiumModalOpen(true);
+    };
+
+    const handleSubscriptionUpdated = async () => {
+      if (userProfile?.id) {
+        try {
+          const { fetchUserProfileFromSupabase } = await import("./utils/supabaseSyncService");
+          const remote = await fetchUserProfileFromSupabase(userProfile.id);
+          if (remote) {
+            setUserProfile((prev: any) => ({ ...prev, ...remote }));
+            saveUserProfile(remote);
+          }
+        } catch {}
+      } else {
+        setUserProfile(loadUserProfile());
+      }
+    };
+
     window.addEventListener('disha2020-user-tier-updated', handleTierUpdated);
     window.addEventListener('quizpro-user-tier-updated', handleTierUpdated);
+    window.addEventListener('disha_open_premium_modal', handleOpenPremium);
+    window.addEventListener('disha_subscription_updated', handleSubscriptionUpdated);
 
     return () => {
       window.removeEventListener('disha2020-user-tier-updated', handleTierUpdated);
       window.removeEventListener('quizpro-user-tier-updated', handleTierUpdated);
+      window.removeEventListener('disha_open_premium_modal', handleOpenPremium);
+      window.removeEventListener('disha_subscription_updated', handleSubscriptionUpdated);
     };
-  }, []);
+  }, [userProfile?.id]);
 
   // Curriculum Admin Modal States
   const [isAddSubjectOpen, setIsAddSubjectOpen] = React.useState(false);
@@ -1631,6 +1659,20 @@ export default function App() {
                 )}
               </button>
 
+              {/* VIP Upgrade Button */}
+              <button
+                type="button"
+                onClick={() => {
+                  setPremiumFeatureTrigger('general');
+                  setIsPremiumModalOpen(true);
+                }}
+                className="px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-500/20 to-purple-500/20 hover:from-amber-500/30 hover:to-purple-500/30 border border-amber-500/40 text-amber-600 dark:text-amber-400 font-extrabold text-xs flex items-center gap-1.5 transition-all shadow-xs active:scale-95 cursor-pointer"
+                title="Disha PYQ VIP Pass"
+              >
+                <Crown className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                <span>{userProfile?.isPremium ? "VIP Member" : "Get VIP"}</span>
+              </button>
+
               {!isAuthenticated ? (
                 <button
                   type="button"
@@ -1726,6 +1768,10 @@ export default function App() {
             onOpenLiveBattle={() => {
               setBattleInitialRoomCode('');
               setIsLiveBattleOpen(true);
+            }}
+            onOpenPremium={() => {
+              setPremiumFeatureTrigger('general');
+              setIsPremiumModalOpen(true);
             }}
             onToggleDarkMode={() => setSettings(prev => ({ ...prev, darkMode: !prev.darkMode }))}
             onLogout={handleLogout}
@@ -1829,6 +1875,10 @@ export default function App() {
             onResetProgress={() => updateProgress(() => ({}))}
             onLogout={handleLogout}
             onNavigateTab={(tab: ActiveTab) => setActiveTab(tab)}
+            onOpenPremium={() => {
+              setPremiumFeatureTrigger('profile');
+              setIsPremiumModalOpen(true);
+            }}
           />
         )}
 
@@ -2140,6 +2190,23 @@ export default function App() {
             isOpen={isLiveBattleOpen}
             initialRoomCode={battleInitialRoomCode}
             onClose={() => setIsLiveBattleOpen(false)}
+          />
+        </OverlayErrorBoundary>
+      )}
+
+      {isPremiumModalOpen && (
+        <OverlayErrorBoundary
+          viewName="Disha VIP Premium Upgrade"
+          onClose={() => setIsPremiumModalOpen(false)}
+        >
+          <PremiumUpgradeModal
+            isOpen={isPremiumModalOpen}
+            onClose={() => setIsPremiumModalOpen(false)}
+            currentUser={userProfile}
+            featureTrigger={premiumFeatureTrigger}
+            onSuccess={() => {
+              setIsPremiumModalOpen(false);
+            }}
           />
         </OverlayErrorBoundary>
       )}

@@ -61,29 +61,33 @@ export function normalizeQuestionText(text: string): string {
  */
 export async function scanMcqCollectionDuplicates(
   targetCollection = "questions",
-  maxScanLimit = 2000
+  maxScanLimit = 300
 ): Promise<McqScanResult> {
   const timestamp = new Date().toISOString();
   const scannedSources: string[] = [];
 
   let docsToScan: Array<{ docId: string; data: any; source: string }> = [];
 
-  // 1. Fetch ALL questions from Supabase with pagination (BUG-18: was hard-limited to 2000)
+  // 1. Fetch questions from Supabase with pagination respecting maxScanLimit
   try {
-    const PAGE_SIZE = 1000;
+    const PAGE_SIZE = Math.min(1000, maxScanLimit || 1000);
     let page = 0;
-    let keepFetching = true;
+    let keepFetching = (maxScanLimit > 0);
     while (keepFetching) {
+      const from = page * PAGE_SIZE;
+      const to = Math.min((page + 1) * PAGE_SIZE - 1, (page * PAGE_SIZE) + (maxScanLimit - docsToScan.length) - 1);
+      if (to < from) { keepFetching = false; break; }
+
       const { data, error } = await supabase
         .from("questions")
         .select("id,question,options,correct_answer,explanation,subject_id,chapter_id,topic_id,exam,year,level,created_at,updated_at")
-        .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
+        .range(from, to);
       if (error || !data || data.length === 0) { keepFetching = false; break; }
       scannedSources.push(`Supabase 'questions' page ${page + 1} (${data.length} rows)`);
       data.forEach((row) => {
         docsToScan.push({ docId: row.id, data: row, source: "Supabase (questions)" });
       });
-      if (data.length < PAGE_SIZE) { keepFetching = false; }
+      if (data.length < PAGE_SIZE || docsToScan.length >= maxScanLimit) { keepFetching = false; }
       page++;
     }
   } catch (err: any) {

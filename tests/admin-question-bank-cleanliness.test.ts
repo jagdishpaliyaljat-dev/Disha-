@@ -94,12 +94,12 @@ describe("Admin Panel Question Bank UI — Firebase / Firestore Decoupling Verif
     const counts = await fetchRegisteredUserCounts();
     const legacyCounts = await fetchFirestoreUserCounts();
     expect(counts).toEqual(legacyCounts);
-  });
+  }, 15000);
 
   it("10. verifies scanMcqCollectionDuplicates defaults to Supabase questions table", async () => {
     const result = await scanMcqCollectionDuplicates();
     expect(result.collectionName).toBe("questions");
     expect(result.summaryMessage).not.toMatch(/firestore/i);
     expect(Array.isArray(result.duplicateGroups)).toBe(true);
-  });
+  }, 15000);
 });

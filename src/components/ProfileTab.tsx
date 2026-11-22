@@ -55,6 +55,7 @@ interface ProfileTabProps {
   onResetProgress: () => void;
   onNavigateTab?: (tab: ActiveTab) => void;
   onLogout?: () => void;
+  onOpenPremium?: () => void;
 }
 
 const POPULAR_TARGET_EXAMS = [
@@ -80,6 +81,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
   onResetProgress,
   onNavigateTab,
   onLogout,
+  onOpenPremium,
 }) => {
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [resetConfirmText, setResetConfirmText] = useState("");
@@ -390,6 +392,66 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
               </div>
             </div>
           </motion.div>
+
+        {/* VIP Membership Status Card */}
+        <motion.div
+          variants={itemVariants}
+          className={`p-4 rounded-2xl border shadow-sm relative overflow-hidden flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 ${
+            activeProfile?.isPremium
+              ? "bg-gradient-to-r from-amber-500/15 via-[#7045D8]/20 to-amber-500/10 border-amber-500/40"
+              : "bg-gradient-to-r from-[#7045D8]/15 via-[#855fe6]/10 to-[#171329] border-[#7045D8]/40"
+          }`}
+        >
+          <div className="flex items-center gap-3">
+            <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 shadow-md ${
+              activeProfile?.isPremium
+                ? "bg-gradient-to-br from-amber-400 to-amber-600 text-black shadow-amber-500/30"
+                : "bg-gradient-to-br from-[#7045D8] to-[#A78BFA] text-white shadow-[#7045D8]/30"
+            }`}>
+              <Crown className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="font-extrabold text-sm sm:text-base text-[#171923] dark:text-white flex items-center gap-1.5">
+                  Disha PYQ VIP Pass
+                </h3>
+                {activeProfile?.isPremium ? (
+                  <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-400 text-black uppercase tracking-wider">
+                    सक्रिय (Active)
+                  </span>
+                ) : (
+                  <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-[#7045D8] text-white uppercase tracking-wider animate-pulse">
+                    ₹49 से शुरू
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-slate-600 dark:text-[#CBD2E1] mt-0.5">
+                {activeProfile?.isPremium
+                  ? `सक्रिय प्लान: ${activeProfile.premiumPlan ? activeProfile.premiumPlan.toUpperCase() : 'VIP'} • सभी Mock Tests और AI Tutor अनलॉक हैं`
+                  : "असीमित Mock Tests, State-Level Merit Ranking और Disha AI Tutor 24x7 अनलॉक करें"}
+              </p>
+            </div>
+          </div>
+
+          <button
+            onClick={() => {
+              triggerHaptic("medium");
+              if (onOpenPremium) {
+                onOpenPremium();
+              } else if (typeof window !== "undefined") {
+                window.dispatchEvent(new CustomEvent("disha_open_premium_modal", { detail: { trigger: "profile" } }));
+              }
+            }}
+            className={`px-4 py-2.5 rounded-xl font-bold text-xs shadow-md transition-all active:scale-95 shrink-0 flex items-center gap-1.5 cursor-pointer ${
+              activeProfile?.isPremium
+                ? "bg-amber-500/20 hover:bg-amber-500/30 text-amber-600 dark:text-amber-400 border border-amber-500/40"
+                : "bg-gradient-to-r from-[#7045D8] to-[#855fe6] hover:opacity-95 text-white shadow-[#7045D8]/30"
+            }`}
+          >
+            <Crown size={14} className={activeProfile?.isPremium ? "text-amber-400" : "text-amber-300"} />
+            <span>{activeProfile?.isPremium ? "सदस्यता विवरण" : "VIP अनलॉक करें"}</span>
+          </button>
+        </motion.div>
 
         {!isAuthenticated && (
           <motion.div
