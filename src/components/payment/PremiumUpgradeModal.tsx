@@ -62,7 +62,7 @@ export const PremiumUpgradeModal: React.FC<PremiumUpgradeModalProps> = ({
 }) => {
   const [plans, setPlans] = useState<PremiumPlan[]>(() => getPremiumPlansList());
   const [selectedPlanId, setSelectedPlanId] = useState<"monthly" | "yearly" | "lifetime">("yearly");
-  const [paymentMethodTab, setPaymentMethodTab] = useState<"upi" | "cashfree">("upi");
+  const [showManualUpi, setShowManualUpi] = useState(false);
   const [gatewayConfig, setGatewayConfig] = useState<PaymentGatewayConfig>(() => getLocalPaymentGatewayConfig());
   
   // UPI Form state
@@ -82,9 +82,6 @@ export const PremiumUpgradeModal: React.FC<PremiumUpgradeModalProps> = ({
   useEffect(() => {
     fetchPaymentGatewayConfigFromCloud().then(cfg => {
       setGatewayConfig(cfg);
-      if (!cfg.cashfree?.enabled && cfg.upi?.enabled) {
-        setPaymentMethodTab("upi");
-      }
     });
 
     const handleConfigUpdate = (e: any) => {
@@ -237,7 +234,7 @@ export const PremiumUpgradeModal: React.FC<PremiumUpgradeModalProps> = ({
       setErrorMessage(result.error);
       // Auto-fallback suggestion
       if (result.error.includes("credential") || result.error.includes("Cashfree") || result.error.includes("500")) {
-        setPaymentMethodTab("upi");
+        setShowManualUpi(true);
       }
     }
   };
@@ -583,181 +580,176 @@ export const PremiumUpgradeModal: React.FC<PremiumUpgradeModalProps> = ({
                   })}
                 </div>
 
-                {/* C. PAYMENT METHOD TABS (UPI QR Code vs Cashfree PG) */}
-                <div className="pt-2 space-y-4">
-                  <div className="flex items-center justify-center gap-2 p-1 bg-[#201838] rounded-2xl border border-white/10 max-w-md mx-auto">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        triggerHaptic("light");
-                        setPaymentMethodTab("upi");
-                      }}
-                      className={`flex-1 py-2 px-3 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                        paymentMethodTab === "upi"
-                          ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md"
-                          : "text-gray-400 hover:text-white"
-                      }`}
-                    >
-                      <QrCode className="w-4 h-4" />
-                      <span>⚡ UPI QR / Apps (100% कार्यशील)</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        triggerHaptic("light");
-                        setPaymentMethodTab("cashfree");
-                      }}
-                      className={`flex-1 py-2 px-3 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                        paymentMethodTab === "cashfree"
-                          ? "bg-gradient-to-r from-[#7045D8] to-[#855fe6] text-white shadow-md"
-                          : "text-gray-400 hover:text-white"
-                      }`}
-                    >
-                      <CreditCard className="w-4 h-4" />
-                      <span>💳 कार्ड / नेटबैंकिंग</span>
-                    </button>
-                  </div>
-
-                  {/* TAB 1: UPI QR CODE & DIRECT APP INTENT */}
-                  {paymentMethodTab === "upi" && (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.98 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      className="p-5 sm:p-6 rounded-3xl bg-[#1C1630] border border-emerald-500/30 space-y-5"
-                    >
-                      <div className="flex flex-col sm:flex-row items-center gap-6">
-                        {/* Dynamic QR Code */}
-                        <div className="p-3 bg-white rounded-2xl shadow-xl flex flex-col items-center justify-center shrink-0 border border-white/20">
-                          <img
-                            src={upiQrUrl}
-                            alt="UPI QR Code"
-                            className="w-40 h-40 sm:w-44 sm:h-44 object-contain rounded-lg"
-                          />
-                          <span className="text-[10px] font-black text-slate-800 mt-1 uppercase tracking-wider">
-                            ₹{selectedPlan.amount} • स्कैन करें
-                          </span>
+                {/* C. OFFICIAL CASHFREE PAYMENT GATEWAY (Primary Checkout) */}
+                <div className="pt-2 space-y-3.5">
+                  <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-b from-[#22183e] via-[#1a1433] to-[#140f28] border border-[#7045D8]/50 shadow-2xl space-y-4">
+                    {/* Trust & Official Gateway Badges */}
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-2 border-b border-white/10 pb-3">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-9 h-9 rounded-xl bg-[#7045D8]/30 border border-[#7045D8]/50 flex items-center justify-center text-[#A78BFA] shrink-0">
+                          <ShieldCheck className="w-5 h-5 text-emerald-400" />
                         </div>
-
-                        {/* Steps & Direct App Button */}
-                        <div className="flex-1 space-y-3.5 text-left w-full">
-                          <div>
-                            <span className="text-[10px] font-black uppercase tracking-widest text-emerald-400">
-                              आसान व सुरक्षित भुगतान
+                        <div>
+                          <h4 className="text-xs sm:text-sm font-black text-white flex items-center gap-1.5">
+                            <span>Cashfree आधिकारिक पेमेंट गेटवे</span>
+                            <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                              Verified
                             </span>
-                            <h4 className="text-base sm:text-lg font-black text-white">
-                              Google Pay, PhonePe, Paytm या BHIM से पे करें
-                            </h4>
-                            <p className="text-xs text-gray-300 mt-0.5">
-                              QR कोड स्कैन करें या नीचे दिए बटन से सीधे अपनी UPI ऐप में खोलें:
-                            </p>
-                          </div>
-
-                          {/* Direct Mobile UPI App Button */}
-                          <button
-                            type="button"
-                            onClick={handleOpenUpiApp}
-                            className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:brightness-110 active:scale-95 text-white font-black text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/30 cursor-pointer"
-                          >
-                            <ExternalLink className="w-4 h-4" />
-                            <span>📲 सीधे UPI ऐप में खोलें (Pay ₹{selectedPlan.amount})</span>
-                          </button>
-
-                          {/* Copy UPI ID Bar */}
-                          <div className="flex items-center gap-2 p-2.5 bg-black/40 rounded-xl border border-white/10 text-xs">
-                            <span className="text-gray-400 font-mono text-[11px]">UPI ID:</span>
-                            <strong className="text-white font-mono text-xs select-all flex-1 truncate">
-                              {upiId}
-                            </strong>
-                            <button
-                              type="button"
-                              onClick={handleCopyUpiId}
-                              className="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-gray-200 text-[11px] font-bold flex items-center gap-1 cursor-pointer"
-                            >
-                              <Copy className="w-3 h-3" />
-                              <span>{copiedUpi ? "कॉपी हो गया!" : "कॉपी"}</span>
-                            </button>
-                          </div>
+                          </h4>
+                          <p className="text-[10px] text-gray-400 font-medium">
+                            256-Bit बैंक-ग्रेड एन्क्रिप्शन • 100% सुरक्षित भुगतान
+                          </p>
                         </div>
                       </div>
+                      <div className="flex items-center gap-1 text-[11px] font-bold text-amber-300 bg-amber-400/10 px-2.5 py-1 rounded-full border border-amber-400/25">
+                        <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                        <span>त्वरित VIP एक्टिवेशन</span>
+                      </div>
+                    </div>
 
-                      {/* UTR Submission Form */}
-                      <form onSubmit={handleUpiSubmit} className="pt-3 border-t border-white/10 space-y-3">
-                        <div className="flex flex-col sm:flex-row items-center gap-3">
-                          <div className="flex-1 w-full">
-                            <label className="block text-xs font-bold text-gray-200 mb-1">
-                              भुगतान के बाद 12 अंकों का UTR / Transaction ID दर्ज करें:
-                            </label>
+                    {/* Official Gateway Checkout CTA Button */}
+                    <button
+                      type="button"
+                      onClick={handlePay}
+                      disabled={isProcessing}
+                      className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-[#7045D8] via-[#855fe6] to-[#A78BFA] hover:brightness-110 active:scale-[0.99] text-white font-black text-sm sm:text-base flex items-center justify-center gap-3 shadow-xl shadow-[#7045D8]/40 transition-all cursor-pointer disabled:opacity-50"
+                    >
+                      {isProcessing ? (
+                        <>
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                          <span>{statusMessage || "ऑफिशियल पेमेंट गेटवे लोड हो रहा है..."}</span>
+                        </>
+                      ) : (
+                        <>
+                          <Lock className="w-5 h-5" />
+                          <span>आधिकारिक पेमेंट गेटवे से भुगतान करें (₹{selectedPlan.amount})</span>
+                          <ArrowRight className="w-5 h-5" />
+                        </>
+                      )}
+                    </button>
+
+                    {/* Supported Payment Options Badges */}
+                    <div className="space-y-2 pt-1 text-center">
+                      <div className="flex flex-wrap items-center justify-center gap-2 text-[11px] font-bold text-gray-200">
+                        <span className="px-2.5 py-1 rounded-xl bg-white/5 border border-white/10">📱 PhonePe</span>
+                        <span className="px-2.5 py-1 rounded-xl bg-white/5 border border-white/10">🟢 Google Pay</span>
+                        <span className="px-2.5 py-1 rounded-xl bg-white/5 border border-white/10">🔵 Paytm</span>
+                        <span className="px-2.5 py-1 rounded-xl bg-white/5 border border-white/10">⚡ BHIM UPI</span>
+                        <span className="px-2.5 py-1 rounded-xl bg-white/5 border border-white/10">💳 डेबिट / क्रेडिट कार्ड्स</span>
+                        <span className="px-2.5 py-1 rounded-xl bg-white/5 border border-white/10">🏦 नेट बैंकिंग</span>
+                      </div>
+                      <p className="text-[11px] text-gray-400 max-w-md mx-auto leading-relaxed">
+                        बटन दबाते ही <strong>Cashfree का आधिकारिक पेमेंट पेज</strong> खुलेगा जहाँ आप अपनी पसंदीदा UPI ऐप, कार्ड्स या नेटबैंकिंग से सीधे पे कर सकते हैं।
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* D. OPTIONAL FALLBACK: Direct Manual UPI QR (Hidden by default) */}
+                  <div className="rounded-2xl border border-white/10 bg-[#1A142E]/70 overflow-hidden">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        triggerHaptic("light");
+                        setShowManualUpi(!showManualUpi);
+                      }}
+                      className="w-full p-3 flex items-center justify-between text-left text-xs font-bold text-gray-300 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2">
+                        <QrCode className="w-3.5 h-3.5 text-emerald-400" />
+                        <span>वैकल्पिक: यदि गेटवे न खुले तो डायरेक्ट UPI QR देखें</span>
+                      </div>
+                      {showManualUpi ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                    </button>
+
+                    {showManualUpi && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        className="p-4 sm:p-5 border-t border-white/10 space-y-4"
+                      >
+                        <div className="flex flex-col sm:flex-row items-center gap-5">
+                          <div className="p-3 bg-white rounded-2xl shadow-xl flex flex-col items-center justify-center shrink-0 border border-white/20">
+                            <img
+                              src={upiQrUrl}
+                              alt="UPI QR Code"
+                              className="w-36 h-36 object-contain rounded-lg"
+                            />
+                            <span className="text-[10px] font-black text-slate-800 mt-1 uppercase tracking-wider">
+                              ₹{selectedPlan.amount} • स्कैन करें
+                            </span>
+                          </div>
+
+                          <div className="flex-1 space-y-3 text-left w-full">
+                            <div>
+                              <h5 className="text-sm font-black text-white">
+                                डायरेक्ट UPI ऐप या QR से भुगतान
+                              </h5>
+                              <p className="text-xs text-gray-300 mt-0.5">
+                                QR स्कैन करें या नीचे दिए बटन से अपनी UPI ऐप खोलें:
+                              </p>
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={handleOpenUpiApp}
+                              className="w-full sm:w-auto px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:brightness-110 active:scale-95 text-white font-black text-xs flex items-center justify-center gap-2 shadow-md cursor-pointer"
+                            >
+                              <ExternalLink className="w-3.5 h-3.5" />
+                              <span>📲 सीधे UPI ऐप में खोलें (Pay ₹{selectedPlan.amount})</span>
+                            </button>
+
+                            <div className="flex items-center gap-2 p-2 bg-black/40 rounded-xl border border-white/10 text-xs">
+                              <span className="text-gray-400 font-mono text-[11px]">UPI ID:</span>
+                              <strong className="text-white font-mono text-xs select-all flex-1 truncate">
+                                {upiId}
+                              </strong>
+                              <button
+                                type="button"
+                                onClick={handleCopyUpiId}
+                                className="px-2 py-0.5 rounded-lg bg-white/10 hover:bg-white/20 text-gray-200 text-[11px] font-bold flex items-center gap-1 cursor-pointer"
+                              >
+                                <Copy className="w-3 h-3" />
+                                <span>{copiedUpi ? "कॉपी हो गया!" : "कॉपी"}</span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* UTR Submission Form */}
+                        <form onSubmit={handleUpiSubmit} className="pt-3 border-t border-white/10 space-y-2.5">
+                          <label className="block text-xs font-bold text-gray-200">
+                            भुगतान के बाद 12 अंकों का UTR / UPI Ref No दर्ज करें:
+                          </label>
+                          <div className="flex flex-col sm:flex-row items-center gap-2.5">
                             <input
                               type="text"
                               value={utrNumber}
                               onChange={(e) => setUtrNumber(e.target.value)}
-                              placeholder="उदा. 423456789012 या UPI Ref No."
-                              className="w-full px-4 py-2.5 rounded-xl bg-black/50 border border-white/20 text-white font-mono text-sm focus:outline-none focus:border-emerald-400 transition-colors"
+                              placeholder="उदा. 423456789012"
+                              className="flex-1 w-full px-3.5 py-2 rounded-xl bg-black/50 border border-white/20 text-white font-mono text-xs focus:outline-none focus:border-emerald-400"
                             />
+                            <button
+                              type="submit"
+                              disabled={isUpiSubmitting}
+                              className="w-full sm:w-auto px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-black text-xs flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 shrink-0"
+                            >
+                              {isUpiSubmitting ? (
+                                <>
+                                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                  <span>सत्यापित हो रहा है...</span>
+                                </>
+                              ) : (
+                                <>
+                                  <CheckCircle2 className="w-3.5 h-3.5" />
+                                  <span>सबमिट करें</span>
+                                </>
+                              )}
+                            </button>
                           </div>
-                          <button
-                            type="submit"
-                            disabled={isUpiSubmitting}
-                            className="w-full sm:w-auto mt-0 sm:mt-5 px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-black font-black text-xs flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-emerald-500/30 disabled:opacity-50 shrink-0"
-                          >
-                            {isUpiSubmitting ? (
-                              <>
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                                <span>सत्यापित हो रहा है...</span>
-                              </>
-                            ) : (
-                              <>
-                                <CheckCircle2 className="w-4 h-4" />
-                                <span>सबमिट करें व VIP अनलॉक करें</span>
-                              </>
-                            )}
-                          </button>
-                        </div>
-                        <p className="text-[11px] text-gray-400">
-                          ℹ️ UPI ऐप की रसीद में <strong>12 अंकों का UTR / UPI Ref No</strong> होता है। सबमिट करते ही VIP पास तुरंत सक्रिय हो जाएगा।
-                        </p>
-                      </form>
-                    </motion.div>
-                  )}
-
-                  {/* TAB 2: CASHFREE ONLINE GATEWAY */}
-                  {paymentMethodTab === "cashfree" && (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.98 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      className="p-5 rounded-3xl bg-[#1C1630] border border-white/10 space-y-4 text-center"
-                    >
-                      <div className="max-w-md mx-auto space-y-2">
-                        <CreditCard className="w-8 h-8 text-[#A78BFA] mx-auto" />
-                        <h4 className="text-base font-black text-white">
-                          Cashfree ऑनलाइन पेमेंट गेटवे
-                        </h4>
-                        <p className="text-xs text-gray-300">
-                          क्रेडिट/डेबिट कार्ड्स, नेटबैंकिंग और वॉलेट्स द्वारा त्वरित स्वचालित भुगतान।
-                        </p>
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={handlePay}
-                        disabled={isProcessing}
-                        className="px-8 py-3 rounded-2xl bg-gradient-to-r from-[#7045D8] to-[#855fe6] hover:brightness-110 active:scale-95 text-white font-black text-sm flex items-center justify-center gap-2 mx-auto cursor-pointer shadow-xl shadow-[#7045D8]/40 disabled:opacity-50"
-                      >
-                        {isProcessing ? (
-                          <>
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                            <span>{statusMessage || "गेटवे लोड हो रहा है..."}</span>
-                          </>
-                        ) : (
-                          <>
-                            <Lock className="w-4 h-4" />
-                            <span>सुरक्षित गेटवे से पे करें (₹{selectedPlan.amount})</span>
-                          </>
-                        )}
-                      </button>
-                    </motion.div>
-                  )}
+                        </form>
+                      </motion.div>
+                    )}
+                  </div>
                 </div>
 
                 {/* D. Collapsible Free vs VIP Comparison Table */}

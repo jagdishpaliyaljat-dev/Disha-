@@ -85,8 +85,12 @@ export async function initiateCashfreePayment(
     onStatusUpdate?.("creating_order", "ऑर्डर तैयार किया जा रहा है...");
 
     // 1. Call create-cashfree-order Edge function
+    const returnUrl = typeof window !== "undefined"
+      ? `${window.location.origin}/?order_id={order_id}`
+      : "https://disha-2020.vercel.app/?order_id={order_id}";
+
     const { data: orderData, error: orderError } = await supabase.functions.invoke("create-cashfree-order", {
-      body: { planId },
+      body: { planId, returnUrl },
     });
 
     if (orderError || !orderData?.paymentSessionId) {
@@ -98,64 +102,79 @@ export async function initiateCashfreePayment(
     const { paymentSessionId, orderId, environment } = orderData;
     const mode = environment === "SANDBOX" || environment === "TEST" ? "sandbox" : "production";
 
-    onStatusUpdate?.("ready_to_pay", "पेमेंट गेटवे लोड हो रहा है...");
+    onStatusUpdate?.("ready_to_pay", "आधिकारिक Cashfree पेमेंट पेज खोला जा रहा है...");
 
-    // 2. Load SDK and launch checkout
-    const cashfree = await loadCashfreeSdk(mode);
-    if (!cashfree) {
-      throw new Error("Cashfree SDK load failed");
+    // 2. Load SDK and launch official Cashfree checkout page
+    try {
+      const cashfree = await loadCashfreeSdk(mode);
+      if (cashfree) {
+        // Opens Cashfree's official full-page payment gateway
+        cashfree.checkout({
+          paymentSessionId,
+          redirectTarget: "_self",
+        });
+
+        // Fallback safety timeout: If redirect hasn't happened in 2.5s, direct navigate
+        setTimeout(() => {
+          if (typeof window !== "undefined") {
+            const hostedUrl = mode === "sandbox"
+              ? `https://sandbox.cashfree.com/pg/orders/${paymentSessionId}`
+              : `https://payments.cashfree.com/forms/${paymentSessionId}`;
+            window.location.href = hostedUrl;
+          }
+        }, 2500);
+
+        return { success: true, orderId };
+      }
+    } catch (sdkErr: any) {
+      console.warn("[Cashfree] SDK error, using direct hosted checkout URL:", sdkErr);
+      const hostedUrl = mode === "sandbox"
+        ? `https://sandbox.cashfree.com/pg/orders/${paymentSessionId}`
+        : `https://payments.cashfree.com/forms/${paymentSessionId}`;
+      if (typeof window !== "undefined") {
+        window.location.href = hostedUrl;
+      }
+      return { success: true, orderId };
     }
 
-    return new Promise((resolve) => {
-      const checkoutOptions = {
-        paymentSessionId,
-        redirectTarget: "_modal",
-      };
-
-      cashfree.checkout(checkoutOptions).then(async (result: any) => {
-        if (result?.error) {
-          console.warn("[Cashfree] Checkout dismissed or error:", result.error);
-          onStatusUpdate?.("failed", result.error.message || "भुगतान रद्द कर दिया गया");
-          resolve({ success: false, orderId, error: result.error.message });
-          return;
-        }
-
-        // 3. Verify Payment with verify-cashfree-order
-        onStatusUpdate?.("verifying", "भुगतान सत्यापित किया जा रहा है...");
-
-        try {
-          const { data: verifyData } = await supabase.functions.invoke("verify-cashfree-order", {
-            body: { orderId },
-          });
-
-          if (verifyData?.success || verifyData?.isPremium) {
-            triggerSuccessCelebration();
-            onStatusUpdate?.("success", "बधाई हो! आपका Disha PYQ प्रीमियम सक्रिय हो गया है!");
-
-            // Notify app components to refresh user profile instantly
-            if (typeof window !== "undefined") {
-              window.dispatchEvent(
-                new CustomEvent("disha_subscription_updated", {
-                  detail: { isPremium: true, planId, orderId },
-                })
-              );
-            }
-
-            resolve({ success: true, orderId, isPremium: true });
-          } else {
-            onStatusUpdate?.("failed", "भुगतान अधूरा रहा या बैंक द्वारा अस्वीकृत हुआ।");
-            resolve({ success: false, orderId, error: "Payment verification failed" });
-          }
-        } catch (vErr: any) {
-          console.error("[Cashfree] Verification error:", vErr);
-          // Still dispatch check in background
-          resolve({ success: false, orderId, error: vErr.message });
-        }
-      });
-    });
+    return { success: false, orderId, error: "पेमेंट गेटवे लोड नहीं हो पाया" };
   } catch (err: any) {
     console.error("[Cashfree] Payment initiation error:", err);
     onStatusUpdate?.("failed", err.message || "कुछ गड़बड़ हुई");
+    return { success: false, error: err.message };
+  }
+}
+
+/**
+ * Verifies a completed Cashfree order and activates VIP subscription
+ */
+export async function verifyCashfreeOrder(
+  orderId: string
+): Promise<{ success: boolean; isPremium?: boolean; planId?: string; error?: string }> {
+  try {
+    const { data: verifyData, error: verifyError } = await supabase.functions.invoke("verify-cashfree-order", {
+      body: { orderId },
+    });
+
+    if (verifyError) {
+      return { success: false, error: verifyError.message };
+    }
+
+    if (verifyData?.success || verifyData?.isPremium) {
+      triggerSuccessCelebration();
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(
+          new CustomEvent("disha_subscription_updated", {
+            detail: { isPremium: true, orderId, planId: verifyData.planId },
+          })
+        );
+      }
+      return { success: true, isPremium: true, planId: verifyData.planId };
+    }
+
+    return { success: false, error: "भुगतान पूर्ण नहीं हुआ या लंबित है" };
+  } catch (err: any) {
+    console.error("[Cashfree] Verification exception:", err);
     return { success: false, error: err.message };
   }
 }

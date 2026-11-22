@@ -82,7 +82,7 @@ Deno.serve(async (req: Request) => {
 
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
-    const { planId } = await req.json();
+    const { planId, returnUrl } = await req.json();
 
     // Dynamically load pricing configured by Admin from app_settings
     let activePlan = PLANS[planId] || PLANS.monthly;
@@ -120,6 +120,10 @@ Deno.serve(async (req: Request) => {
     const customerEmail = user.email || `student_${user.id.slice(0, 8)}@disha-pyq.app`;
     const customerName = user.user_metadata?.full_name || user.user_metadata?.name || "Student Aspirant";
 
+    const resolvedReturnUrl = returnUrl
+      ? (returnUrl.includes("{order_id}") ? returnUrl : `${returnUrl}${returnUrl.includes("?") ? "&" : "?"}order_id=${orderId}`)
+      : `https://disha-2020.vercel.app/?order_id=${orderId}`;
+
     const orderPayload = {
       order_id: orderId,
       order_amount: plan.amount,
@@ -131,7 +135,7 @@ Deno.serve(async (req: Request) => {
         customer_name: customerName,
       },
       order_meta: {
-        return_url: `https://disha-2020.vercel.app/payment-status?order_id=${orderId}`,
+        return_url: resolvedReturnUrl,
         notify_url: `${supabaseUrl}/functions/v1/cashfree-webhook`,
       },
       order_note: `Disha PYQ - ${plan.name}`,

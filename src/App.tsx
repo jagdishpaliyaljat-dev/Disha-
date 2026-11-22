@@ -527,6 +527,29 @@ export default function App() {
     };
   }, [userProfile?.id]);
 
+  // Check for return from Cashfree official hosted payment page (?order_id=...)
+  React.useEffect(() => {
+    try {
+      if (typeof window === "undefined") return;
+      const urlParams = new URLSearchParams(window.location.search);
+      const returnedOrderId = urlParams.get("order_id");
+      if (returnedOrderId) {
+        import("./services/payment/cashfreeService").then(async ({ verifyCashfreeOrder }) => {
+          const res = await verifyCashfreeOrder(returnedOrderId);
+          if (res.success || res.isPremium) {
+            addToast('success', 'VIP पास सक्रिय!', '🎉 बधाई हो! आपका Disha VIP पास आधिकारिक रूप से सक्रिय हो गया है!');
+          }
+          // Clean order_id from browser URL without reloading
+          const cleanUrl = new URL(window.location.href);
+          cleanUrl.searchParams.delete("order_id");
+          window.history.replaceState({}, document.title, cleanUrl.pathname + (cleanUrl.search ? cleanUrl.search : ""));
+        });
+      }
+    } catch (e) {
+      console.warn("[Cashfree Return] Error checking order_id:", e);
+    }
+  }, []);
+
   // Curriculum Admin Modal States
   const [isAddSubjectOpen, setIsAddSubjectOpen] = React.useState(false);
   const [isAddChapterOpen, setIsAddChapterOpen] = React.useState(false);
