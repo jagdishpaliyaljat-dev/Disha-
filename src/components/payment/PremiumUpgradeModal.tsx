@@ -120,18 +120,23 @@ export const PremiumUpgradeModal: React.FC<PremiumUpgradeModalProps> = ({
       setStatusMessage(msg || "");
     });
 
-    setIsProcessing(false);
-
-    if (result.success) {
+    if (result.isPremium) {
+      setIsProcessing(false);
       triggerHaptic("success");
       setIsSuccessState(true);
       setTimeout(() => {
         onSuccess?.();
         onClose();
       }, 2500);
+    } else if (result.success) {
+      setStatusMessage("आधिकारिक Cashfree पेमेंट गेटवे खोला जा रहा है...");
+      // Keep isProcessing true so the user is aware redirection is in progress
     } else if (result.error) {
+      setIsProcessing(false);
       triggerHaptic("warning");
       setErrorMessage(result.error);
+    } else {
+      setIsProcessing(false);
     }
   };
 

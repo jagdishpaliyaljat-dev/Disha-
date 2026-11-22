@@ -72,6 +72,40 @@ export async function loadCashfreeSdk(mode: "production" | "sandbox" = "producti
 }
 
 /**
+ * Directly submits an HTML form to Cashfree's official hosted checkout endpoint.
+ * This directly posts to Cashfree's PG checkout endpoint without relying on external CDN scripts.
+ */
+export function openCashfreeHostedCheckout(paymentSessionId: string, mode: "production" | "sandbox" = "production"): void {
+  if (typeof document === "undefined") return;
+
+  const checkoutUrl = mode === "sandbox"
+    ? "https://sandbox.cashfree.com/pg/view/sessions/checkout"
+    : "https://api.cashfree.com/pg/view/sessions/checkout";
+
+  // Remove existing form if any
+  const oldForm = document.getElementById("cf-direct-checkout-form");
+  if (oldForm) {
+    oldForm.remove();
+  }
+
+  const form = document.createElement("form");
+  form.id = "cf-direct-checkout-form";
+  form.method = "POST";
+  form.action = checkoutUrl;
+  form.target = "_self";
+  form.style.display = "none";
+
+  const sessionInput = document.createElement("input");
+  sessionInput.type = "hidden";
+  sessionInput.name = "payment_session_id";
+  sessionInput.value = paymentSessionId;
+  form.appendChild(sessionInput);
+
+  document.body.appendChild(form);
+  form.submit();
+}
+
+/**
  * Initiates complete Cashfree checkout flow:
  * 1. Calls Edge function to create order & get paymentSessionId
  * 2. Launches Cashfree modal checkout
@@ -118,40 +152,23 @@ export async function initiateCashfreePayment(
 
     onStatusUpdate?.("ready_to_pay", "आधिकारिक Cashfree पेमेंट पेज खोला जा रहा है...");
 
-    // 2. Load SDK and launch official Cashfree checkout page
+    // 2. Launch official Cashfree checkout page
     try {
-      const cashfree = await loadCashfreeSdk(mode);
-      if (cashfree) {
-        // Opens Cashfree's official full-page payment gateway
+      const cashfree = await loadCashfreeSdk(mode).catch(() => null);
+      if (cashfree && typeof cashfree.checkout === "function") {
         cashfree.checkout({
           paymentSessionId,
           redirectTarget: "_self",
         });
-
-        // Fallback safety timeout: If redirect hasn't happened in 2.5s, direct navigate
-        setTimeout(() => {
-          if (typeof window !== "undefined") {
-            const hostedUrl = mode === "sandbox"
-              ? `https://sandbox.cashfree.com/pg/orders/${paymentSessionId}`
-              : `https://payments.cashfree.com/forms/${paymentSessionId}`;
-            window.location.href = hostedUrl;
-          }
-        }, 2500);
-
         return { success: true, orderId };
       }
     } catch (sdkErr: any) {
-      console.warn("[Cashfree] SDK error, using direct hosted checkout URL:", sdkErr);
-      const hostedUrl = mode === "sandbox"
-        ? `https://sandbox.cashfree.com/pg/orders/${paymentSessionId}`
-        : `https://payments.cashfree.com/forms/${paymentSessionId}`;
-      if (typeof window !== "undefined") {
-        window.location.href = hostedUrl;
-      }
-      return { success: true, orderId };
+      console.warn("[Cashfree] SDK error, using direct hosted checkout POST:", sdkErr);
     }
 
-    return { success: false, orderId, error: "पेमेंट गेटवे लोड नहीं हो पाया" };
+    // Direct hosted checkout fallback (submits form to https://api.cashfree.com/pg/view/sessions/checkout)
+    openCashfreeHostedCheckout(paymentSessionId, mode);
+    return { success: true, orderId };
   } catch (err: any) {
     console.error("[Cashfree] Payment initiation error:", err);
     onStatusUpdate?.("failed", err.message || "कुछ गड़बड़ हुई");
