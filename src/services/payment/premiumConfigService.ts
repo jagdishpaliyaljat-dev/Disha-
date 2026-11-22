@@ -2,7 +2,7 @@ import { supabase, isSupabaseConfigured } from "../../lib/supabase";
 import { UserProfile } from "../../types";
 
 export interface AdminPremiumPlan {
-  id: "monthly" | "yearly" | "lifetime";
+  id: "trial_weekly" | "weekly" | "monthly" | "yearly" | "lifetime" | string;
   name: string;
   hindiName: string;
   amount: number;
@@ -10,6 +10,7 @@ export interface AdminPremiumPlan {
   duration: string;
   tag?: string;
   isPopular?: boolean;
+  isAutoPay?: boolean;
   enabled: boolean;
   features: string[];
 }
@@ -39,6 +40,23 @@ export interface PaywallRules {
 }
 
 export const DEFAULT_PREMIUM_PLANS: AdminPremiumPlan[] = [
+  {
+    id: "trial_weekly",
+    name: "1 Week Trial Auto-Pay",
+    hindiName: "7 दिन ट्रायल (₹1 ऑटो-पे)",
+    amount: 1,
+    originalAmount: 49,
+    duration: "7 दिन (1 हफ़्ता)",
+    tag: "⚡ ₹1 स्पेशल ट्रायल",
+    isAutoPay: true,
+    enabled: true,
+    features: [
+      "सिर्फ ₹1 में 7 दिन संपूर्ण VIP एक्सेस",
+      "सभी RPSC व RSMSSB टेस्ट पेपर्स अनलॉक",
+      "Disha AI Tutor 24x7 असीमित उपयोग",
+      "UPI ऑटो-पे (किसी भी समय 1-क्लिक में रद्द करें)",
+    ],
+  },
   {
     id: "monthly",
     name: "1 Month Pass",
