@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>दिशा PYQ - सुरक्षित पेमेंट गेटवे</title>
+  <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
   <style>
     * { box-sizing: border-box; }
     body {
@@ -75,6 +76,18 @@
       color: #64748b;
       margin-top: 16px;
     }
+    .btn {
+      display: inline-block;
+      margin-top: 16px;
+      padding: 12px 24px;
+      background: #7045D8;
+      color: #fff;
+      text-decoration: none;
+      font-weight: 600;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -89,36 +102,76 @@
     <h2>आधिकारिक Cashfree गेटवे खोला जा रहा है...</h2>
     <p>Google Pay, PhonePe, Paytm व कार्ड्स लोड हो रहे हैं, कृपया प्रतीक्षा करें।</p>
     <div class="note">पेज को रिफ्रेश या बंद न करें।</div>
+    <div id="fallback-action" style="display: none;">
+      <button class="btn" id="retry-btn">पेमेंट पेज दोबारा खोलें</button>
+    </div>
   </div>
-
-  <form id="cf-form" method="POST" action="https://api.cashfree.com/pg/view/sessions/checkout">
-    <input type="hidden" name="payment_session_id" id="session-input" value="">
-  </form>
 
   <script>
     (function() {
       try {
         var params = new URLSearchParams(window.location.search);
-        var session = params.get("session_id") || params.get("payment_session_id");
+        var sessionId = params.get("session_id") || params.get("payment_session_id");
         var mode = (params.get("mode") || "production").toLowerCase();
 
-        if (session) {
-          var form = document.getElementById("cf-form");
-          if (mode === "sandbox" || mode === "test") {
-            form.action = "https://sandbox.cashfree.com/pg/view/sessions/checkout";
-          } else {
-            form.action = "https://api.cashfree.com/pg/view/sessions/checkout";
-          }
-          document.getElementById("session-input").value = session;
-          // Short delay to ensure browser context is settled
-          setTimeout(function() {
-            form.submit();
-          }, 300);
-        } else {
+        if (!sessionId) {
           document.querySelector(".card").innerHTML =
             "<h2 style='color:#f87171;'>त्रुटि: अमान्य पेमेंट सेशन</h2>" +
             "<p>पेमेंट सेशन आईडी नहीं मिली। कृपया ऐप से दोबारा प्रयास करें।</p>";
+          return;
         }
+
+        function launchCheckout() {
+          if (window.Cashfree) {
+            try {
+              var cashfree = window.Cashfree({ mode: mode });
+              cashfree.checkout({
+                paymentSessionId: sessionId,
+                redirectTarget: "_self"
+              });
+              return;
+            } catch (sdkErr) {
+              console.warn("Cashfree checkout error:", sdkErr);
+            }
+          }
+          // Direct fallback
+          var form = document.createElement("form");
+          form.method = "POST";
+          form.action = mode === "sandbox" || mode === "test"
+            ? "https://sandbox.cashfree.com/pg/view/sessions/checkout"
+            : "https://api.cashfree.com/pg/view/sessions/checkout";
+          form.target = "_self";
+          var inp = document.createElement("input");
+          inp.type = "hidden";
+          inp.name = "payment_session_id";
+          inp.value = sessionId;
+          form.appendChild(inp);
+          document.body.appendChild(form);
+          form.submit();
+        }
+
+        // Wait for SDK script to load if not already ready
+        if (window.Cashfree) {
+          launchCheckout();
+        } else {
+          var checkCount = 0;
+          var interval = setInterval(function() {
+            checkCount++;
+            if (window.Cashfree || checkCount > 15) {
+              clearInterval(interval);
+              launchCheckout();
+            }
+          }, 100);
+        }
+
+        var retryBtn = document.getElementById("retry-btn");
+        if (retryBtn) {
+          retryBtn.addEventListener("click", launchCheckout);
+        }
+        setTimeout(function() {
+          var fb = document.getElementById("fallback-action");
+          if (fb) fb.style.display = "block";
+        }, 3000);
       } catch (err) {
         console.error("Checkout init error:", err);
       }

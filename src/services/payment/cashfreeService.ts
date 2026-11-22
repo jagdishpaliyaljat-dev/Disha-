@@ -187,8 +187,13 @@ export async function initiateCashfreePayment(
 
         return { success: true, orderId };
       } catch (nativeBrowserErr) {
-        console.warn("[Cashfree] Native Browser open error, falling back to direct submit:", nativeBrowserErr);
+        console.warn("[Cashfree] Native Browser open error, opening system browser:", nativeBrowserErr);
+        if (typeof window !== "undefined") {
+          window.open(checkoutBridgeUrl, "_system");
+          return { success: true, orderId };
+        }
       }
+      return { success: true, orderId };
     }
 
     // On Web (configured public domain), use official SDK or hosted checkout POST
