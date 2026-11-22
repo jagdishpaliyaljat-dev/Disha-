@@ -17,15 +17,16 @@ Deno.serve(async (req: Request) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY") || "";
 
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+
     let cashfreeAppId = Deno.env.get("CASHFREE_APP_ID") || "";
     let cashfreeSecret = Deno.env.get("CASHFREE_SECRET_KEY") || "";
     let cashfreeEnv = (Deno.env.get("CASHFREE_ENV") || "PRODUCTION").toUpperCase();
 
-    // Fallback: Check app_settings table if env secrets are not set
+    // Fallback: Check app_settings table in DB
     if (!cashfreeAppId || !cashfreeSecret) {
       try {
-        const supabaseAdminInit = createClient(supabaseUrl, supabaseServiceKey);
-        const { data: gwRow } = await supabaseAdminInit
+        const { data: gwRow } = await supabaseAdmin
           .from("app_settings")
           .select("value")
           .eq("key", "payment_gateway_config")
@@ -39,32 +40,11 @@ Deno.serve(async (req: Request) => {
           }
         }
       } catch (dbErr) {
-        console.warn("[verify-cashfree-order] Note: Could not load gateway config from DB:", dbErr);
+        console.warn("[verify-cashfree-order] Gateway config load note:", dbErr);
       }
     }
 
-    // 1. Verify User Session
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      return new Response(
-        JSON.stringify({ error: "Missing Authorization header" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    const supabaseAuthClient = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } },
-    });
-
-    const { data: { user }, error: userError } = await supabaseAuthClient.auth.getUser();
-    if (userError || !user) {
-      return new Response(
-        JSON.stringify({ error: "Unauthorized user session" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    const { orderId } = await req.json();
+    const { orderId } = await req.json().catch(() => ({}));
     if (!orderId) {
       return new Response(
         JSON.stringify({ error: "Missing orderId" }),
@@ -72,7 +52,7 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // 2. Fetch order from Cashfree
+    // 1. Fetch order directly from Cashfree API
     const cashfreeBaseUrl = cashfreeEnv === "SANDBOX" || cashfreeEnv === "TEST"
       ? "https://sandbox.cashfree.com/pg"
       : "https://api.cashfree.com/pg";
@@ -96,24 +76,32 @@ Deno.serve(async (req: Request) => {
     }
 
     const isPaid = cfOrder.order_status === "PAID";
-    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
     if (isPaid) {
-      // Find plan_id from local order record or tags
+      // Find plan_id and user_id from local order record or tags
       let planId = cfOrder.order_tags?.plan_id || "monthly";
+      let targetUserId = cfOrder.order_tags?.user_id || cfOrder.customer_details?.customer_id;
+
       const { data: localOrder } = await supabaseAdmin
         .from("orders")
         .select("plan_id, user_id")
         .eq("order_id", orderId)
         .maybeSingle();
 
-      if (localOrder?.plan_id) {
-        planId = localOrder.plan_id;
+      if (localOrder?.plan_id) planId = localOrder.plan_id;
+      if (localOrder?.user_id) targetUserId = localOrder.user_id;
+
+      if (!targetUserId) {
+        console.warn("[verify-cashfree-order] No user_id found for paid order:", orderId);
+        return new Response(
+          JSON.stringify({ success: false, error: "No user found for order" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
       }
 
       // Execute atomic activation RPC
       const { data: activationResult, error: rpcError } = await supabaseAdmin.rpc("activate_user_subscription", {
-        p_user_id: user.id,
+        p_user_id: targetUserId,
         p_order_id: orderId,
         p_plan_id: planId,
         p_cf_payment_id: cfOrder.cf_order_id ? String(cfOrder.cf_order_id) : null,

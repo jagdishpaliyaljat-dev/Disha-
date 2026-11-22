@@ -79,6 +79,7 @@ export async function loadCashfreeSdk(mode: "production" | "sandbox" = "producti
  */
 export async function initiateCashfreePayment(
   planId: string,
+  userProfile?: { id?: string; email?: string; name?: string; phone?: string } | null,
   onStatusUpdate?: (status: "creating_order" | "ready_to_pay" | "verifying" | "success" | "failed", msg?: string) => void
 ): Promise<{ success: boolean; orderId?: string; isPremium?: boolean; error?: string }> {
   try {
@@ -90,11 +91,24 @@ export async function initiateCashfreePayment(
       : "https://disha-2020.vercel.app/?order_id={order_id}";
 
     const { data: orderData, error: orderError } = await supabase.functions.invoke("create-cashfree-order", {
-      body: { planId, returnUrl },
+      body: { 
+        planId, 
+        returnUrl,
+        userId: userProfile?.id,
+        userEmail: userProfile?.email,
+        userName: userProfile?.name,
+        userPhone: userProfile?.phone,
+      },
     });
 
     if (orderError || !orderData?.paymentSessionId) {
-      const errMsg = orderData?.error || orderError?.message || "ऑर्डर बनाने में समस्या आई";
+      let errMsg = orderData?.error || orderError?.message || "ऑर्डर बनाने में समस्या आई";
+      try {
+        if (orderError && "context" in orderError && (orderError as any).context) {
+          const bodyJson = await (orderError as any).context.json?.();
+          if (bodyJson?.error) errMsg = bodyJson.error;
+        }
+      } catch {}
       onStatusUpdate?.("failed", errMsg);
       return { success: false, error: errMsg };
     }

@@ -19,26 +19,12 @@ import {
   HelpCircle,
   Smartphone,
   Laptop,
-  QrCode,
-  Copy,
-  ExternalLink,
   AlertTriangle,
   LogIn,
-  ArrowRight,
-  Clock
+  ArrowRight
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { PREMIUM_PLANS, PremiumPlan, initiateCashfreePayment, getPremiumPlansList } from "../../services/payment/cashfreeService";
-import { 
-  getLocalPaymentGatewayConfig, 
-  PaymentGatewayConfig, 
-  fetchPaymentGatewayConfigFromCloud 
-} from "../../services/payment/premiumConfigService";
-import { 
-  generateUpiDeepLink, 
-  generateUpiQrUrl, 
-  submitStudentUpiPayment 
-} from "../../services/payment/upiPaymentService";
 import { UserProfile } from "../../types";
 import { isProfileAuthenticated } from "../../utils/userProfileStorage";
 import { triggerHaptic, playClickSound } from "../../utils/audioFeedback";
@@ -62,28 +48,16 @@ export const PremiumUpgradeModal: React.FC<PremiumUpgradeModalProps> = ({
 }) => {
   const [plans, setPlans] = useState<PremiumPlan[]>(() => getPremiumPlansList());
   const [selectedPlanId, setSelectedPlanId] = useState<"monthly" | "yearly" | "lifetime">("yearly");
-  const [showManualUpi, setShowManualUpi] = useState(false);
-  const [gatewayConfig, setGatewayConfig] = useState<PaymentGatewayConfig>(() => getLocalPaymentGatewayConfig());
-  
-  // UPI Form state
-  const [utrNumber, setUtrNumber] = useState("");
-  const [copiedUpi, setCopiedUpi] = useState(false);
-  const [isUpiSubmitting, setIsUpiSubmitting] = useState(false);
-  const [upiSubmittedSuccess, setUpiSubmittedSuccess] = useState(false);
 
-  // Cashfree state
+  // Cashfree exclusive state
   const [isProcessing, setIsProcessing] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSuccessState, setIsSuccessState] = useState(false);
   const [showComparison, setShowComparison] = useState(false);
 
-  // Sync dynamic plans and gateway settings
+  // Sync dynamic plans from Admin Panel
   useEffect(() => {
-    fetchPaymentGatewayConfigFromCloud().then(cfg => {
-      setGatewayConfig(cfg);
-    });
-
     const handleConfigUpdate = (e: any) => {
       if (e.detail?.plans) {
         setPlans(e.detail.plans.filter((p: any) => p.enabled !== false));
@@ -92,20 +66,12 @@ export const PremiumUpgradeModal: React.FC<PremiumUpgradeModalProps> = ({
       }
     };
 
-    const handleGatewayUpdate = (e: any) => {
-      if (e.detail) {
-        setGatewayConfig(e.detail);
-      }
-    };
-
     if (typeof window !== "undefined") {
       window.addEventListener("disha_premium_config_updated", handleConfigUpdate);
-      window.addEventListener("disha_gateway_config_updated", handleGatewayUpdate);
     }
     return () => {
       if (typeof window !== "undefined") {
         window.removeEventListener("disha_premium_config_updated", handleConfigUpdate);
-        window.removeEventListener("disha_gateway_config_updated", handleGatewayUpdate);
       }
     };
   }, []);
@@ -113,7 +79,7 @@ export const PremiumUpgradeModal: React.FC<PremiumUpgradeModalProps> = ({
   // Close on Escape key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && isOpen && !isProcessing && !isUpiSubmitting) {
+      if (e.key === "Escape" && isOpen && !isProcessing) {
         onClose();
       }
     };
@@ -121,7 +87,7 @@ export const PremiumUpgradeModal: React.FC<PremiumUpgradeModalProps> = ({
       window.addEventListener("keydown", handleKeyDown);
     }
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, isProcessing, isUpiSubmitting, onClose]);
+  }, [isOpen, isProcessing, onClose]);
 
   if (!isOpen) return null;
 
@@ -129,80 +95,14 @@ export const PremiumUpgradeModal: React.FC<PremiumUpgradeModalProps> = ({
   const isAuth = isProfileAuthenticated(currentUser || null);
   const selectedPlan = plans.find((p) => p.id === selectedPlanId) || plans[0] || PREMIUM_PLANS[0];
 
-  const upiId = gatewayConfig.upi?.upiId || "jagdishpaliyaljat@okhdfcbank";
-  const payeeName = gatewayConfig.upi?.payeeName || "Disha PYQ Online";
-  const upiDeepLink = generateUpiDeepLink(upiId, payeeName, selectedPlan.amount, selectedPlan.name);
-  const upiQrUrl = generateUpiQrUrl(upiDeepLink, 240);
-
   const handleSelectPlan = (planId: "monthly" | "yearly" | "lifetime") => {
-    if (isProcessing || isUpiSubmitting) return;
+    if (isProcessing) return;
     triggerHaptic("light");
     playClickSound();
     setSelectedPlanId(planId);
-    setUtrNumber("");
   };
 
-  const handleCopyUpiId = () => {
-    triggerHaptic("light");
-    if (navigator?.clipboard?.writeText) {
-      navigator.clipboard.writeText(upiId);
-      setCopiedUpi(true);
-      setTimeout(() => setCopiedUpi(false), 2500);
-    }
-  };
-
-  const handleOpenUpiApp = () => {
-    triggerHaptic("medium");
-    window.location.href = upiDeepLink;
-  };
-
-  // Submit UPI UTR
-  const handleUpiSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!isAuth) {
-      triggerHaptic("warning");
-      setErrorMessage("प्रीमियम सक्रिय करने से पहले कृपया लॉगिन करें।");
-      return;
-    }
-    if (!utrNumber.trim() || utrNumber.trim().length < 6) {
-      triggerHaptic("warning");
-      setErrorMessage("कृपया 12 अंकों का सही UTR / Transaction No. दर्ज करें।");
-      return;
-    }
-
-    setErrorMessage(null);
-    setIsUpiSubmitting(true);
-    triggerHaptic("medium");
-
-    const res = await submitStudentUpiPayment({
-      userId: currentUser!.id,
-      userEmail: currentUser?.email,
-      userName: currentUser?.name,
-      planId: selectedPlanId,
-      amount: selectedPlan.amount,
-      utrNumber: utrNumber.trim(),
-    });
-
-    setIsUpiSubmitting(false);
-
-    if (res.success) {
-      triggerHaptic("success");
-      if (res.isPremium) {
-        setIsSuccessState(true);
-        setTimeout(() => {
-          onSuccess?.();
-          onClose();
-        }, 2500);
-      } else {
-        setUpiSubmittedSuccess(true);
-      }
-    } else {
-      triggerHaptic("warning");
-      setErrorMessage(res.error || "भुगतान दर्ज करने में समस्या आई।");
-    }
-  };
-
-  // Cashfree Checkout
+  // Cashfree Checkout (Official & Exclusive)
   const handlePay = async () => {
     if (!isAuth) {
       triggerHaptic("warning");
@@ -216,7 +116,7 @@ export const PremiumUpgradeModal: React.FC<PremiumUpgradeModalProps> = ({
     setErrorMessage(null);
     setIsProcessing(true);
 
-    const result = await initiateCashfreePayment(selectedPlanId, (status, msg) => {
+    const result = await initiateCashfreePayment(selectedPlanId, currentUser, (status, msg) => {
       setStatusMessage(msg || "");
     });
 
@@ -232,10 +132,6 @@ export const PremiumUpgradeModal: React.FC<PremiumUpgradeModalProps> = ({
     } else if (result.error) {
       triggerHaptic("warning");
       setErrorMessage(result.error);
-      // Auto-fallback suggestion
-      if (result.error.includes("credential") || result.error.includes("Cashfree") || result.error.includes("500")) {
-        setShowManualUpi(true);
-      }
     }
   };
 
@@ -318,7 +214,7 @@ export const PremiumUpgradeModal: React.FC<PremiumUpgradeModalProps> = ({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          onClick={() => !isProcessing && !isUpiSubmitting && onClose()}
+          onClick={() => !isProcessing && onClose()}
           className="fixed inset-0 bg-transparent"
         />
 
@@ -362,7 +258,7 @@ export const PremiumUpgradeModal: React.FC<PremiumUpgradeModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              disabled={isProcessing || isUpiSubmitting}
+              disabled={isProcessing}
               className="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 text-gray-300 hover:text-white flex items-center justify-center transition-all cursor-pointer disabled:opacity-30"
               aria-label="Close premium modal"
             >
@@ -443,31 +339,6 @@ export const PremiumUpgradeModal: React.FC<PremiumUpgradeModalProps> = ({
                   className="px-6 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs cursor-pointer transition-colors"
                 >
                   बंद करें
-                </button>
-              </div>
-            ) : upiSubmittedSuccess ? (
-              /* UPI Submitted for Manual Verification */
-              <div className="p-6 rounded-3xl bg-gradient-to-br from-emerald-500/15 via-[#1F1938] to-emerald-500/10 border border-emerald-500/30 text-center space-y-4">
-                <div className="w-14 h-14 rounded-2xl bg-emerald-500 text-black flex items-center justify-center mx-auto shadow-lg shadow-emerald-500/30">
-                  <Clock className="w-7 h-7" />
-                </div>
-                <div className="space-y-1">
-                  <h3 className="text-lg sm:text-xl font-black text-white">
-                    आपका भुगतान UTR प्राप्त हो गया है!
-                  </h3>
-                  <p className="text-xs text-emerald-300 font-mono font-bold">
-                    UTR: {utrNumber}
-                  </p>
-                </div>
-                <p className="text-xs text-gray-300 max-w-md mx-auto leading-relaxed">
-                  हमारी टीम आपके भुगतान का सत्यापन कर रही है। अगले <strong>5 से 15 मिनट</strong> में आपका VIP पास स्वतः सक्रिय हो जाएगा।
-                </p>
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs cursor-pointer shadow-lg shadow-emerald-600/30"
-                >
-                  ठीक है, धन्यवाद
                 </button>
               </div>
             ) : (
@@ -642,113 +513,6 @@ export const PremiumUpgradeModal: React.FC<PremiumUpgradeModalProps> = ({
                         बटन दबाते ही <strong>Cashfree का आधिकारिक पेमेंट पेज</strong> खुलेगा जहाँ आप अपनी पसंदीदा UPI ऐप, कार्ड्स या नेटबैंकिंग से सीधे पे कर सकते हैं।
                       </p>
                     </div>
-                  </div>
-
-                  {/* D. OPTIONAL FALLBACK: Direct Manual UPI QR (Hidden by default) */}
-                  <div className="rounded-2xl border border-white/10 bg-[#1A142E]/70 overflow-hidden">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        triggerHaptic("light");
-                        setShowManualUpi(!showManualUpi);
-                      }}
-                      className="w-full p-3 flex items-center justify-between text-left text-xs font-bold text-gray-300 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
-                    >
-                      <div className="flex items-center gap-2">
-                        <QrCode className="w-3.5 h-3.5 text-emerald-400" />
-                        <span>वैकल्पिक: यदि गेटवे न खुले तो डायरेक्ट UPI QR देखें</span>
-                      </div>
-                      {showManualUpi ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                    </button>
-
-                    {showManualUpi && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        className="p-4 sm:p-5 border-t border-white/10 space-y-4"
-                      >
-                        <div className="flex flex-col sm:flex-row items-center gap-5">
-                          <div className="p-3 bg-white rounded-2xl shadow-xl flex flex-col items-center justify-center shrink-0 border border-white/20">
-                            <img
-                              src={upiQrUrl}
-                              alt="UPI QR Code"
-                              className="w-36 h-36 object-contain rounded-lg"
-                            />
-                            <span className="text-[10px] font-black text-slate-800 mt-1 uppercase tracking-wider">
-                              ₹{selectedPlan.amount} • स्कैन करें
-                            </span>
-                          </div>
-
-                          <div className="flex-1 space-y-3 text-left w-full">
-                            <div>
-                              <h5 className="text-sm font-black text-white">
-                                डायरेक्ट UPI ऐप या QR से भुगतान
-                              </h5>
-                              <p className="text-xs text-gray-300 mt-0.5">
-                                QR स्कैन करें या नीचे दिए बटन से अपनी UPI ऐप खोलें:
-                              </p>
-                            </div>
-
-                            <button
-                              type="button"
-                              onClick={handleOpenUpiApp}
-                              className="w-full sm:w-auto px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:brightness-110 active:scale-95 text-white font-black text-xs flex items-center justify-center gap-2 shadow-md cursor-pointer"
-                            >
-                              <ExternalLink className="w-3.5 h-3.5" />
-                              <span>📲 सीधे UPI ऐप में खोलें (Pay ₹{selectedPlan.amount})</span>
-                            </button>
-
-                            <div className="flex items-center gap-2 p-2 bg-black/40 rounded-xl border border-white/10 text-xs">
-                              <span className="text-gray-400 font-mono text-[11px]">UPI ID:</span>
-                              <strong className="text-white font-mono text-xs select-all flex-1 truncate">
-                                {upiId}
-                              </strong>
-                              <button
-                                type="button"
-                                onClick={handleCopyUpiId}
-                                className="px-2 py-0.5 rounded-lg bg-white/10 hover:bg-white/20 text-gray-200 text-[11px] font-bold flex items-center gap-1 cursor-pointer"
-                              >
-                                <Copy className="w-3 h-3" />
-                                <span>{copiedUpi ? "कॉपी हो गया!" : "कॉपी"}</span>
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* UTR Submission Form */}
-                        <form onSubmit={handleUpiSubmit} className="pt-3 border-t border-white/10 space-y-2.5">
-                          <label className="block text-xs font-bold text-gray-200">
-                            भुगतान के बाद 12 अंकों का UTR / UPI Ref No दर्ज करें:
-                          </label>
-                          <div className="flex flex-col sm:flex-row items-center gap-2.5">
-                            <input
-                              type="text"
-                              value={utrNumber}
-                              onChange={(e) => setUtrNumber(e.target.value)}
-                              placeholder="उदा. 423456789012"
-                              className="flex-1 w-full px-3.5 py-2 rounded-xl bg-black/50 border border-white/20 text-white font-mono text-xs focus:outline-none focus:border-emerald-400"
-                            />
-                            <button
-                              type="submit"
-                              disabled={isUpiSubmitting}
-                              className="w-full sm:w-auto px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-black text-xs flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 shrink-0"
-                            >
-                              {isUpiSubmitting ? (
-                                <>
-                                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                  <span>सत्यापित हो रहा है...</span>
-                                </>
-                              ) : (
-                                <>
-                                  <CheckCircle2 className="w-3.5 h-3.5" />
-                                  <span>सबमिट करें</span>
-                                </>
-                              )}
-                            </button>
-                          </div>
-                        </form>
-                      </motion.div>
-                    )}
                   </div>
                 </div>
 

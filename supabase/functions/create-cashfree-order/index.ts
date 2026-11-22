@@ -24,15 +24,16 @@ Deno.serve(async (req: Request) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY") || "";
 
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+
     let cashfreeAppId = Deno.env.get("CASHFREE_APP_ID") || "";
     let cashfreeSecret = Deno.env.get("CASHFREE_SECRET_KEY") || "";
     let cashfreeEnv = (Deno.env.get("CASHFREE_ENV") || "PRODUCTION").toUpperCase();
 
-    // Fallback: Check app_settings table if env secrets are not set
+    // Fallback: Check app_settings table in Supabase DB for credentials
     if (!cashfreeAppId || !cashfreeSecret) {
       try {
-        const supabaseAdminInit = createClient(supabaseUrl, supabaseServiceKey);
-        const { data: gwRow } = await supabaseAdminInit
+        const { data: gwRow } = await supabaseAdmin
           .from("app_settings")
           .select("value")
           .eq("key", "payment_gateway_config")
@@ -46,43 +47,57 @@ Deno.serve(async (req: Request) => {
           }
         }
       } catch (dbErr) {
-        console.warn("[create-cashfree-order] Note: Could not load gateway config from DB:", dbErr);
+        console.warn("[create-cashfree-order] Gateway config load note:", dbErr);
       }
     }
 
     if (!cashfreeAppId || !cashfreeSecret) {
       return new Response(
         JSON.stringify({ 
-          error: "Cashfree API credentials not configured in Supabase Secrets or Admin Gateway Settings (CASHFREE_APP_ID / CASHFREE_SECRET_KEY)" 
+          error: "Cashfree API credentials not configured in Admin Gateway Settings" 
         }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // 1. Verify User Session from Authorization header
+    // 1. Parse Request Body
+    const body = await req.json().catch(() => ({}));
+    const { planId, returnUrl, userId, userEmail, userName, userPhone } = body;
+
+    let targetUserId = (userId && typeof userId === "string") ? userId.trim() : "";
+    let customerEmail = (userEmail && typeof userEmail === "string") ? userEmail.trim() : "";
+    let customerName = (userName && typeof userName === "string") ? userName.trim() : "Student Aspirant";
+    let customerPhone = (userPhone && typeof userPhone === "string" && userPhone.length >= 10) ? userPhone.trim() : "9999999999";
+
+    // Try extracting authenticated user from JWT if available
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      const token = authHeader.replace("Bearer ", "").trim();
+      if (token && token !== supabaseAnonKey) {
+        try {
+          const supabaseAuthClient = createClient(supabaseUrl, supabaseAnonKey);
+          const { data: { user } } = await supabaseAuthClient.auth.getUser(token);
+          if (user) {
+            targetUserId = user.id;
+            customerEmail = user.email || customerEmail;
+            customerName = user.user_metadata?.full_name || user.user_metadata?.name || customerName;
+            if (user.phone) customerPhone = user.phone;
+          }
+        } catch (_) {}
+      }
+    }
+
+    // Validate we have a user identity to associate order with
+    if (!targetUserId || targetUserId === "student_default") {
       return new Response(
-        JSON.stringify({ error: "Missing Authorization header" }),
+        JSON.stringify({ error: "कृपया भुगतान करने से पहले लॉगिन करें।" }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    const supabaseAuthClient = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } },
-    });
-
-    const { data: { user }, error: userError } = await supabaseAuthClient.auth.getUser();
-    if (userError || !user) {
-      return new Response(
-        JSON.stringify({ error: "Unauthorized user session" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    if (!customerEmail) {
+      customerEmail = `student_${targetUserId.slice(0, 8)}@disha-pyq.app`;
     }
-
-    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
-
-    const { planId, returnUrl } = await req.json();
 
     // Dynamically load pricing configured by Admin from app_settings
     let activePlan = PLANS[planId] || PLANS.monthly;
@@ -116,10 +131,6 @@ Deno.serve(async (req: Request) => {
     const uniqueSuffix = Math.random().toString(36).substring(2, 7);
     const orderId = `DPYQ_${Date.now()}_${uniqueSuffix}`;
 
-    const customerPhone = user.phone || "9999999999";
-    const customerEmail = user.email || `student_${user.id.slice(0, 8)}@disha-pyq.app`;
-    const customerName = user.user_metadata?.full_name || user.user_metadata?.name || "Student Aspirant";
-
     const resolvedReturnUrl = returnUrl
       ? (returnUrl.includes("{order_id}") ? returnUrl : `${returnUrl}${returnUrl.includes("?") ? "&" : "?"}order_id=${orderId}`)
       : `https://disha-2020.vercel.app/?order_id=${orderId}`;
@@ -129,7 +140,7 @@ Deno.serve(async (req: Request) => {
       order_amount: plan.amount,
       order_currency: "INR",
       customer_details: {
-        customer_id: user.id,
+        customer_id: targetUserId.substring(0, 50),
         customer_email: customerEmail,
         customer_phone: customerPhone,
         customer_name: customerName,
@@ -141,7 +152,7 @@ Deno.serve(async (req: Request) => {
       order_note: `Disha PYQ - ${plan.name}`,
       order_tags: {
         plan_id: planId,
-        user_id: user.id,
+        user_id: targetUserId,
       },
     };
 
@@ -173,7 +184,7 @@ Deno.serve(async (req: Request) => {
     // 3. Save Order to Supabase using Admin Client
     const { error: dbError } = await supabaseAdmin.from("orders").insert({
       order_id: orderId,
-      user_id: user.id,
+      user_id: targetUserId,
       amount: plan.amount,
       currency: "INR",
       plan_id: planId,
