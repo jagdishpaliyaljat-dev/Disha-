@@ -14,3 +14,6 @@ backups/*.zip
 opencode-antigravity-auth
 *.apk
 apk-build/
+
+# Android signing material is supplied via CI secrets, never committed.
+android/app/release.keystore

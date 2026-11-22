@@ -20,9 +20,9 @@ android {
         release {
             if (file('release.keystore').exists()) {
                 storeFile file('release.keystore')
-                storePassword 'DishaApp2020Pass'
-                keyAlias 'disha'
-                keyPassword 'DishaApp2020Pass'
+                storePassword System.getenv('KEYSTORE_PASSWORD') ?: ''
+                keyAlias System.getenv('KEYSTORE_ALIAS') ?: 'disha'
+                keyPassword System.getenv('KEY_PASSWORD') ?: System.getenv('KEYSTORE_PASSWORD') ?: ''
             }
         }
     }

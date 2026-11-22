@@ -1068,27 +1068,14 @@ export const AdminPremiumPlansSection: React.FC<AdminPremiumPlansSectionProps> =
                   />
                 </div>
 
-                {/* Auto Approve Toggle */}
-                <div className="pt-2 p-3 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
-                  <div>
-                    <h4 className="text-xs font-black text-slate-900 dark:text-white">
-                      ऑटो-अनलॉक (Instant Auto-Approve)
-                    </h4>
-                    <p className="text-[10.5px] text-slate-500">
-                      विद्यार्थी द्वारा UTR सबमिट करते ही VIP पास तुरंत सक्रिय हो जाएगा।
-                    </p>
-                  </div>
-                  <input
-                    type="checkbox"
-                    checked={Boolean(gatewayConfig.autoApprove)}
-                    onChange={(e) =>
-                      setGatewayConfig((prev) => ({
-                        ...prev,
-                        autoApprove: e.target.checked,
-                      }))
-                    }
-                    className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer"
-                  />
+                {/* Approval policy notice — auto-approve intentionally removed for security */}
+                <div className="pt-2 p-3 rounded-2xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/40">
+                  <h4 className="text-xs font-black text-amber-800 dark:text-amber-300">
+                    मैन्युअल वेरिफिकेशन अनिवार्य
+                  </h4>
+                  <p className="text-[10.5px] text-amber-700/80 dark:text-amber-400/70 mt-0.5">
+                    सभी UPI भुगतान अब एडमिन द्वारा मैन्युअली वेरिफ़ाई किए जाते हैं। ऑटो-अनलॉक सुरक्षा कारणों से हटाया गया है — UTR सबमिट करते ही VIP सक्रिय नहीं होता।
+                  </p>
                 </div>
               </div>
             </div>

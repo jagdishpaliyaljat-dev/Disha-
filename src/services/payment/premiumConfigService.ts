@@ -410,7 +410,6 @@ export interface PaymentGatewayConfig {
     payeeName: string;
     instructions?: string;
   };
-  autoApprove?: boolean;
 }
 
 export const DEFAULT_GATEWAY_CONFIG: PaymentGatewayConfig = {
@@ -426,7 +425,6 @@ export const DEFAULT_GATEWAY_CONFIG: PaymentGatewayConfig = {
     payeeName: "Disha PYQ Online",
     instructions: "Google Pay, PhonePe, Paytm या किसी भी UPI ऐप से QR कोड स्कैन करें या UPI ID पर भुगतान करें। भुगतान के बाद 12 अंकों का UTR / Transaction ID दर्ज करें।",
   },
-  autoApprove: false,
 };
 
 const STORAGE_KEY_GATEWAY = "disha_payment_gateway_config_v1";
@@ -491,13 +489,37 @@ export async function fetchPaymentGatewayConfigFromCloud(): Promise<PaymentGatew
   return getLocalPaymentGatewayConfig();
 }
 
+const VERIFIED_ADMIN_EMAILS = new Set([
+  "jagdishpaliyaljat@gmail.com",
+  "jagdishpaliyaljat2003@gmail.com",
+  "zdpaliyal@gmail.com",
+  "kamleshchoudhary96022@gmail.com",
+  "disha2020prep@gmail.com",
+]);
+
+/** Defence in depth: RLS is the real gate, but also check the signed session here. */
+async function isVerifiedAdmin(): Promise<boolean> {
+  if (!isSupabaseConfigured()) return false;
+  const { data: { user }, error } = await supabase.auth.getUser();
+  if (error || !user) return false;
+  return (
+    user.app_metadata?.role === "admin" ||
+    VERIFIED_ADMIN_EMAILS.has(String(user.email || "").toLowerCase())
+  );
+}
+
 /**
  * Admin-only loader: returns the raw config INCLUDING the Cashfree secret key.
  * Never writes to localStorage and never dispatches a global event.
- * Protected by the app_settings RLS policy (admin-only read on this row).
+ * Protected by BOTH a verified-session check here and the app_settings RLS
+ * policy (admin-only read on this row).
  */
 export async function fetchGatewayConfigForAdmin(): Promise<PaymentGatewayConfig> {
   if (!isSupabaseConfigured()) return getLocalPaymentGatewayConfig();
+  if (!(await isVerifiedAdmin())) {
+    console.warn("[PaymentGateway] Admin config access denied");
+    return getLocalPaymentGatewayConfig();
+  }
   try {
     const { data, error } = await supabase
       .from("app_settings")
@@ -532,13 +554,37 @@ export async function savePaymentGatewayConfigToCloud(
       return { success: true };
     }
 
+    // Never allow an empty secret to overwrite the live server-side credential.
+    // This could happen if the admin's privileged read transiently failed and
+    // the local stripped config (secretKey: "") was passed back for saving.
+    let secretToPreserve = config.cashfree.secretKey;
+    if (!secretToPreserve) {
+      const { data: current, error: readErr } = await supabase
+        .from("app_settings")
+        .select("value")
+        .eq("key", "payment_gateway_config")
+        .maybeSingle();
+      if (readErr || !current?.value?.cashfree?.secretKey) {
+        return {
+          success: false,
+          error: "Cashfree secret could not be verified. Save aborted to protect the live key.",
+        };
+      }
+      secretToPreserve = current.value.cashfree.secretKey;
+    }
+
+    const valueToSave: PaymentGatewayConfig = {
+      ...config,
+      cashfree: { ...config.cashfree, secretKey: secretToPreserve },
+    };
+
     const { error } = await supabase
       .from("app_settings")
       .upsert({
         key: "payment_gateway_config",
         // Full config is stored server-side so Edge Functions (service role)
         // keep working. It is never cached in the browser.
-        value: config,
+        value: valueToSave,
         description: "Configurable payment gateway credentials (Cashfree) and UPI QR details",
         updated_at: new Date().toISOString(),
         updated_by: adminEmail,
