@@ -26,6 +26,8 @@ import {
 import { AIMessageRenderer } from "./AIMessageRenderer";
 import { triggerHaptic } from "../utils/audioFeedback";
 import { InlineSpinner } from "./ui/LoadingScreen";
+import { isFeatureVipLocked } from "../services/payment/premiumConfigService";
+import { loadUserProfile } from "../utils/userProfileStorage";
 
 interface DishaAITutorModalProps {
   isOpen: boolean;
@@ -234,12 +236,37 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
     const query = (textToSend || inputText).trim();
     if (!query || isLoading) return;
 
+    // Check VIP paywall rules for Disha AI Tutor
+    const todayKey = new Date().toISOString().slice(0, 10);
+    const storageKey = `disha_ai_daily_count_${todayKey}`;
+    const currentCount = parseInt(localStorage.getItem(storageKey) || "0", 10);
+
+    const profile = loadUserProfile();
+    if (isFeatureVipLocked("ai_tutor", profile, { dailyAttemptsCount: currentCount })) {
+      triggerHaptic("warning");
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(
+          new CustomEvent("disha_open_premium_modal", {
+            detail: {
+              trigger: "ai_tutor",
+              title: "Disha AI Daily Quota Reached",
+              message: "Free daily AI tutor quota is reached. Upgrade to VIP Pass for unlimited 24x7 doubt solving!",
+            },
+          })
+        );
+      }
+      return;
+    }
+
     triggerHaptic("light");
     setInputText("");
     if (speakingId) {
       window.speechSynthesis.cancel();
       setSpeakingId(null);
     }
+
+    // Increment daily AI counter for non-VIP
+    localStorage.setItem(storageKey, String(currentCount + 1));
 
     const userMsg: ChatMessage = {
       id: `user_${Date.now()}`,

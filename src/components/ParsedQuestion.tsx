@@ -75,13 +75,8 @@ export const ParsedQuestion: React.FC<ParsedQuestionProps> = ({
   return (
     <div className="space-y-3 sm:space-y-4 font-hindi w-full select-none break-words [overflow-wrap:anywhere] text-left">
       {/* Classification & Multi-Exam History Bar */}
-      {isPYQ ? (
+      {verifiedHistory.length > 0 ? (
         <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap pb-1.5 pt-0.5">
-          {/* Solid Red PYQ Badge */}
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full bg-red-600 text-white text-xs sm:text-xs font-black shadow-xs shrink-0 tracking-wide select-none">
-            <span className="text-xs sm:text-xs leading-none">🏆</span>
-            <span>PYQ</span>
-          </span>
 
           {/* Exam Tags */}
           {visibleExams.map((entry: any, eIdx: number) => (

@@ -48,6 +48,7 @@ import { NotFoundView } from './components/NotFoundView';
 import { useNavigation } from './hooks/useNavigation';
 import { useCurriculumManager } from './hooks/useCurriculumManager';
 import { useAppFeatures } from './utils/featureControlService';
+import { isFeatureVipLocked } from './services/payment/premiumConfigService';
 import { loadUserProfile, saveUserProfile, isUserAdmin, isProfileAuthenticated } from './utils/userProfileStorage';
 import { setSentryUser, clearSentryUser } from './utils/sentryInit';
 import { resolvePathToNavigationState, buildCanonicalPath, isKnownTab } from './utils/routeNavigation';
@@ -445,7 +446,7 @@ export default function App() {
   const [isAITutorOpen, setIsAITutorOpen] = React.useState(false);
   const [aiTutorContextQuestion, setAiTutorContextQuestion] = React.useState<Question | null>(null);
   const [isPremiumModalOpen, setIsPremiumModalOpen] = React.useState(false);
-  const [premiumFeatureTrigger, setPremiumFeatureTrigger] = React.useState<"ai_tutor" | "mock_tests" | "profile" | "general">("general");
+  const [premiumFeatureTrigger, setPremiumFeatureTrigger] = React.useState<"ai_tutor" | "mock_tests" | "profile" | "general" | "pdf_export" | "live_battle" | "mistake_bank" | "state_merit_rank">("general");
   const [viewCount, setViewCount] = React.useState<number>(1240);
 
   // Check for direct battle invite link (?battle=CODE or ?room=CODE)
@@ -1761,11 +1762,23 @@ export default function App() {
             }}
             onShowAddSubject={() => setIsAddSubjectOpen(true)}
             onNavigateTab={(tab) => setActiveTab(tab)}
-            onOpenPDFExport={() => setIsPDFOpen(true)}
+            onOpenPDFExport={() => {
+              if (isFeatureVipLocked('pdf_export', userProfile)) {
+                setPremiumFeatureTrigger('pdf_export');
+                setIsPremiumModalOpen(true);
+                return;
+              }
+              setIsPDFOpen(true);
+            }}
             onOpenFullExam={() => setIsFullExamOpen(true)}
             onOpenExamAnalyzer={() => setIsExamAnalyzerOpen(true)}
             onOpenApiSettings={() => setIsApiSettingsOpen(true)}
             onOpenLiveBattle={() => {
+              if (isFeatureVipLocked('live_battle', userProfile)) {
+                setPremiumFeatureTrigger('live_battle');
+                setIsPremiumModalOpen(true);
+                return;
+              }
               setBattleInitialRoomCode('');
               setIsLiveBattleOpen(true);
             }}
@@ -1791,7 +1804,14 @@ export default function App() {
             selectedTopicId={selectedTopicId}
             onSelectTopic={(topId: string | null) => setSelectedTopicId(topId)}
             onStartSession={handleStartSession}
-            onOpenPDFExport={() => setIsPDFOpen(true)}
+            onOpenPDFExport={() => {
+              if (isFeatureVipLocked('pdf_export', userProfile)) {
+                setPremiumFeatureTrigger('pdf_export');
+                setIsPremiumModalOpen(true);
+                return;
+              }
+              setIsPDFOpen(true);
+            }}
             isAdmin={isAdmin}
             onEditTopic={(topic: Topic) => handleEditTopic(topic)}
             onBack={() => {

@@ -21,7 +21,7 @@ import {
   Laptop
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-import { PREMIUM_PLANS, PremiumPlan, initiateCashfreePayment } from "../../services/payment/cashfreeService";
+import { PREMIUM_PLANS, PremiumPlan, initiateCashfreePayment, getPremiumPlansList } from "../../services/payment/cashfreeService";
 import { UserProfile } from "../../types";
 import { triggerHaptic, playClickSound } from "../../utils/audioFeedback";
 
@@ -29,7 +29,7 @@ export interface PremiumUpgradeModalProps {
   isOpen: boolean;
   onClose: () => void;
   currentUser?: UserProfile | null;
-  featureTrigger?: "ai_tutor" | "mock_tests" | "profile" | "general";
+  featureTrigger?: "ai_tutor" | "mock_tests" | "profile" | "general" | "pdf_export" | "live_battle" | "mistake_bank" | "state_merit_rank";
   onSuccess?: () => void;
 }
 
@@ -40,12 +40,32 @@ export const PremiumUpgradeModal: React.FC<PremiumUpgradeModalProps> = ({
   featureTrigger = "general",
   onSuccess,
 }) => {
+  const [plans, setPlans] = useState<PremiumPlan[]>(() => getPremiumPlansList());
   const [selectedPlanId, setSelectedPlanId] = useState<"monthly" | "yearly" | "lifetime">("yearly");
   const [isProcessing, setIsProcessing] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSuccessState, setIsSuccessState] = useState(false);
   const [showComparison, setShowComparison] = useState(false);
+
+  // Sync dynamic plans when updated from Admin Panel
+  useEffect(() => {
+    const handleConfigUpdate = (e: any) => {
+      if (e.detail?.plans) {
+        setPlans(e.detail.plans.filter((p: any) => p.enabled !== false));
+      } else {
+        setPlans(getPremiumPlansList());
+      }
+    };
+    if (typeof window !== "undefined") {
+      window.addEventListener("disha_premium_config_updated", handleConfigUpdate);
+    }
+    return () => {
+      if (typeof window !== "undefined") {
+        window.removeEventListener("disha_premium_config_updated", handleConfigUpdate);
+      }
+    };
+  }, []);
 
   // Close on Escape key
   useEffect(() => {
@@ -63,7 +83,7 @@ export const PremiumUpgradeModal: React.FC<PremiumUpgradeModalProps> = ({
   if (!isOpen) return null;
 
   const isAlreadyPremium = Boolean(currentUser?.isPremium);
-  const selectedPlan = PREMIUM_PLANS.find((p) => p.id === selectedPlanId) || PREMIUM_PLANS[1];
+  const selectedPlan = plans.find((p) => p.id === selectedPlanId) || plans[0] || PREMIUM_PLANS[0];
 
   const handleSelectPlan = (planId: "monthly" | "yearly" | "lifetime") => {
     if (isProcessing) return;
@@ -110,6 +130,30 @@ export const PremiumUpgradeModal: React.FC<PremiumUpgradeModalProps> = ({
           badge: "RPSC & RSMSSB Mock Tests • सम्पूर्ण एक्सेस",
           title: "सभी टेस्ट पेपर्स व लाइव टेस्ट सीरीज़ अनलॉक करें",
           subtitle: "राज्य-स्तरीय मेरिट रैंक, परसेंटाइल और पिछले वर्षों के पेपर्स का विस्तृत हल",
+        };
+      case "pdf_export":
+        return {
+          badge: "PDF Test Papers • प्रिंट-योग्य एक्सपोर्ट",
+          title: "PDF टेस्ट पेपर्स व क्वेश्चन बैंक डाउनलोड अनलॉक करें",
+          subtitle: "बिना इंटरनेट ऑफ़लाइन पढ़ाई के लिए A4 फॉर्मेट में संपूर्ण व्याख्या सहित टेस्ट पेपर्स प्रिंट करें",
+        };
+      case "live_battle":
+        return {
+          badge: "1v1 Quiz Battle • लाइव मुकाबला",
+          title: "1v1 लाइव क्विज़ मुकाबला रूम अनलॉक करें",
+          subtitle: "साथी अभ्यर्थियों के साथ रियल-टाइम क्विज़ चैलेंज और लीडरबोर्ड मुकाबला खेलें",
+        };
+      case "mistake_bank":
+        return {
+          badge: "स्मार्ट मिस्टेक बैंक • ऑटो रिवीज़न",
+          title: "मिस्टेक बैंक व कमजोर टॉपिक रिवीज़न अनलॉक करें",
+          subtitle: "परीक्षा में जो प्रश्न गलत हुए उनका वैज्ञानिक अंतराल (Spaced Repetition) रिवीज़न करें",
+        };
+      case "state_merit_rank":
+        return {
+          badge: "All-Rajasthan Merit Rank • लाइव परसेंटाइल",
+          title: "अखिल राजस्थान रियल-टाइम मेरिट रैंक अनलॉक करें",
+          subtitle: "हजारों अभ्यर्थियों के बीच अपनी सटीक रैंक, परसेंटाइल और विषयवार तुलनात्मक रिपोर्ट देखें",
         };
       default:
         return {
@@ -306,7 +350,7 @@ export const PremiumUpgradeModal: React.FC<PremiumUpgradeModalProps> = ({
 
                 {/* MOBILE VIEW (< md) : Touch-Friendly Vertical Radio Cards */}
                 <div className="block md:hidden space-y-2.5">
-                  {PREMIUM_PLANS.map((plan) => {
+                  {plans.map((plan) => {
                     const isSelected = selectedPlanId === plan.id;
                     const savings = getSavingsPercent(plan.amount, plan.originalAmount);
                     const perDay = getPerDayCalculation(plan.id, plan.amount);
@@ -386,7 +430,7 @@ export const PremiumUpgradeModal: React.FC<PremiumUpgradeModalProps> = ({
 
                 {/* LAPTOP / DESKTOP VIEW (>= md) : 3-Column Side-by-Side Cards */}
                 <div className="hidden md:grid md:grid-cols-3 gap-4 lg:gap-5 items-stretch pt-2">
-                  {PREMIUM_PLANS.map((plan) => {
+                  {plans.map((plan) => {
                     const isSelected = selectedPlanId === plan.id;
                     const savings = getSavingsPercent(plan.amount, plan.originalAmount);
                     const perDay = getPerDayCalculation(plan.id, plan.amount);

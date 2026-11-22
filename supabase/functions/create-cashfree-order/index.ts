@@ -58,8 +58,34 @@ Deno.serve(async (req: Request) => {
       );
     }
 
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+
     const { planId } = await req.json();
-    const plan = PLANS[planId] || PLANS.monthly;
+
+    // Dynamically load pricing configured by Admin from app_settings
+    let activePlan = PLANS[planId] || PLANS.monthly;
+    try {
+      const { data: configRow } = await supabaseAdmin
+        .from("app_settings")
+        .select("value")
+        .eq("key", "premium_plans_config")
+        .maybeSingle();
+
+      if (configRow?.value && Array.isArray(configRow.value)) {
+        const found = configRow.value.find((p: any) => p.id === planId);
+        if (found && typeof found.amount === "number" && found.amount > 0) {
+          activePlan = {
+            name: found.name || found.hindiName || planId,
+            amount: Number(found.amount),
+            days: planId === "monthly" ? 30 : planId === "yearly" ? 365 : 3650,
+          };
+        }
+      }
+    } catch (cfgErr) {
+      console.warn("Could not load dynamic plan, using static default:", cfgErr);
+    }
+
+    const plan = activePlan;
 
     const cashfreeBaseUrl = cashfreeEnv === "SANDBOX" || cashfreeEnv === "TEST"
       ? "https://sandbox.cashfree.com/pg"
@@ -119,7 +145,6 @@ Deno.serve(async (req: Request) => {
     }
 
     // 3. Save Order to Supabase using Admin Client
-    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
     const { error: dbError } = await supabaseAdmin.from("orders").insert({
       order_id: orderId,
       user_id: user.id,

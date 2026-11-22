@@ -29,10 +29,12 @@ import {
   Medal,
   Zap,
   Crown,
+  Lock,
 } from "lucide-react";
 import ShareModal, { ShareData } from "./ShareModal";
 import { buildLiveTestShareData } from "../utils/shareService";
 import { CoachingHierarchySection } from "./CoachingHierarchySection";
+import { isFeatureVipLocked } from "../services/payment/premiumConfigService";
 
 interface LiveTestsTabProps {
   onStartSession: (session: MCQSession) => void;
@@ -153,6 +155,25 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
   // Start Exam Session with question resolution
   const handleStartLiveTest = async (test: LiveTest) => {
     if (fetchingTestId) return;
+
+    // Check if mock test is VIP locked
+    const testIndex = tests.findIndex((t) => t.id === test.id);
+    if (isFeatureVipLocked("mock_tests", userProfile, { testIndex: testIndex >= 0 ? testIndex : 0 })) {
+      triggerHaptic("warning");
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(
+          new CustomEvent("disha_open_premium_modal", {
+            detail: {
+              trigger: "mock_tests",
+              title: "VIP Mock Test Locked",
+              message: "This live mock test is reserved for VIP Pass members. Upgrade now to unlock all tests & state merit ranking!",
+            },
+          })
+        );
+      }
+      return;
+    }
+
     triggerHaptic("light");
     playClickSound();
 
@@ -403,43 +424,6 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
           </button>
         </nav>
 
-        {/* Disha PYQ VIP Test Pass Banner */}
-        {!userProfile?.isPremium && (
-          <div
-            onClick={() => {
-              triggerHaptic("medium");
-              if (typeof window !== "undefined") {
-                window.dispatchEvent(new CustomEvent("disha_open_premium_modal", { detail: { trigger: "mock_tests" } }));
-              }
-            }}
-            className="p-3.5 rounded-2xl bg-gradient-to-r from-[#7045D8]/20 via-[#171329] to-[#7045D8]/10 border border-[#7045D8]/40 shadow-sm flex items-center justify-between gap-3 text-white cursor-pointer hover:border-[#A78BFA]/60 transition-all active:scale-[0.99]"
-          >
-            <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-black shrink-0 shadow-md shadow-amber-500/20">
-                <Crown className="w-5 h-5" />
-              </div>
-              <div className="min-w-0">
-                <div className="flex items-center gap-1.5">
-                  <h3 className="text-xs sm:text-sm font-black text-white truncate">Disha PYQ VIP Test Pass</h3>
-                  <span className="text-[9px] font-black px-1.5 py-0.5 rounded-full bg-amber-400 text-black uppercase">
-                    ₹49 से शुरू
-                  </span>
-                </div>
-                <p className="text-[10px] sm:text-[11px] text-[#A78BFA] truncate">
-                  सभी RPSC, RSMSSB Mock Tests व लाइव टेस्ट सीरीज़ असीमित अनलॉक करें
-                </p>
-              </div>
-            </div>
-
-            <button
-              type="button"
-              className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#7045D8] to-[#855fe6] text-white font-extrabold text-xs shadow-md shadow-[#7045D8]/30 active:scale-95 transition-all shrink-0 cursor-pointer pointer-events-none"
-            >
-              Get VIP
-            </button>
-          </div>
-        )}
-
         {/* ── 3. LIVE TESTS TAB CONTENT ───────────────────────────────────── */}
         {activeSubTab === "live" && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
@@ -476,12 +460,13 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
                 </button>
               </div>
             ) : (
-              liveAndUpcoming.map((test) => {
+              liveAndUpcoming.map((test, index) => {
                 const existingSub = getTestSubmission(test.id);
                 const questionCount = test.questionCount || (test.questions ? test.questions.length : 0);
                 const durationMinutes = test.durationMinutes || 120;
                 const totalMarks = test.totalMarks || 200;
                 const negMark = test.negativeMarking ? `-${test.negativeMarking}` : "-0.33";
+                const isTestLocked = isFeatureVipLocked("mock_tests", userProfile, { testIndex: index });
 
                 return (
                   <article
@@ -502,6 +487,21 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
                         </div>
 
                         <div className="flex items-center gap-1">
+                          {isTestLocked ? (
+                            <div className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500/15 dark:bg-amber-500/25 border border-amber-500/40 text-amber-700 dark:text-amber-400 shrink-0">
+                              <Lock size={10} className="text-amber-600 dark:text-amber-400" />
+                              <span className="text-[9px] font-black uppercase tracking-wider">
+                                VIP PASS
+                              </span>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-500/10 dark:bg-emerald-500/20 border border-emerald-500/30 text-emerald-700 dark:text-emerald-400 shrink-0">
+                              <span className="text-[9px] font-black uppercase tracking-wider">
+                                FREE DEMO
+                              </span>
+                            </div>
+                          )}
+
                           <div className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#991B1B]/10 dark:bg-[#991B1B]/25 border border-[#991B1B]/30 text-[#991B1B] dark:text-[#F47B20] shrink-0">
                             <span className="w-1.5 h-1.5 rounded-full bg-[#991B1B] animate-ping" />
                             <span className="text-[9px] font-black uppercase tracking-wider">
@@ -603,6 +603,28 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
                             Re-attempt
                           </button>
                         </div>
+                      ) : isTestLocked ? (
+                        <button
+                          onClick={() => {
+                            triggerHaptic("medium");
+                            if (typeof window !== "undefined") {
+                              window.dispatchEvent(
+                                new CustomEvent("disha_open_premium_modal", {
+                                  detail: {
+                                    trigger: "mock_tests",
+                                    title: "VIP Mock Test Locked",
+                                    message: "This test is reserved for VIP Pass members. Upgrade now to unlock all full-length tests!",
+                                  },
+                                })
+                              );
+                            }
+                          }}
+                          className="w-full bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 hover:brightness-110 active:scale-[0.99] text-white py-2.5 px-4 rounded-xl font-black text-xs sm:text-sm flex items-center justify-center gap-2 border border-amber-300 shadow-md shadow-amber-600/20 transition-all duration-150 cursor-pointer min-h-[44px]"
+                        >
+                          <Lock size={15} />
+                          <span>Unlock with VIP Pass</span>
+                          <Crown size={14} className="text-amber-200" />
+                        </button>
                       ) : (
                         <button
                           onClick={() => handleStartLiveTest(test)}
@@ -869,56 +891,93 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
                     Full Merit Standings
                   </h3>
 
-                  {leaderboardEntries.map((entry) => (
-                    <article
-                      key={entry.id}
-                      className={`p-2.5 sm:p-3 rounded-2xl border transition-all flex items-center justify-between gap-3 ${
-                        entry.isCurrentUser
-                          ? "bg-[#800020]/10 dark:bg-[#800020]/25 border-[#800020]/50 dark:border-[#C99A45]/50 shadow-xs"
-                          : "bg-white dark:bg-[#1F2330] border-[#E8D9C0] dark:border-[#31374A] shadow-xs"
-                      }`}
-                    >
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <div
-                          className={`w-7 h-7 rounded-xl flex items-center justify-center font-black text-xs shrink-0 tabular-nums ${
-                            entry.rank === 1
-                              ? "bg-[#C99A45] text-[#171923]"
-                              : entry.rank === 2
-                              ? "bg-slate-300 text-slate-800 dark:bg-slate-600 dark:text-white"
-                              : entry.rank === 3
-                              ? "bg-amber-700/30 text-amber-900 dark:text-amber-200"
-                              : "bg-[#F7EFE2] dark:bg-[#252A3A] text-stone-600 dark:text-stone-300"
-                          }`}
-                        >
-                          #{entry.rank}
-                        </div>
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-1.5">
-                            <p className="text-xs font-black text-[#171923] dark:text-[#FFF9EF] truncate">
-                              {entry.userName}
-                            </p>
-                            {entry.isCurrentUser && (
-                              <span className="text-[8px] font-black uppercase px-1.5 py-0.2 rounded bg-[#800020] text-[#FFF9EF] border border-[#C99A45]/30">
-                                YOU
-                              </span>
-                            )}
+                  {isFeatureVipLocked("state_merit_rank", userProfile) ? (
+                    <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-amber-500/10 via-amber-600/5 to-transparent border border-amber-500/30 text-center space-y-3">
+                      <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-600 dark:text-amber-400 mx-auto flex items-center justify-center">
+                        <Lock size={18} />
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-black text-[#171923] dark:text-[#FFF9EF]">
+                          All-Rajasthan Realtime Merit Rank
+                        </h4>
+                        <p className="text-xs text-stone-500 dark:text-stone-400 mt-1 max-w-sm mx-auto">
+                          हजारों अभ्यर्थियों के बीच आपकी सटीक राज्यस्तरीय रैंक और परसेंटाइल केवल VIP Pass में उपलब्ध है।
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => {
+                          triggerHaptic("medium");
+                          if (typeof window !== "undefined") {
+                            window.dispatchEvent(
+                              new CustomEvent("disha_open_premium_modal", {
+                                detail: {
+                                  trigger: "state_merit_rank",
+                                  title: "Unlock Rajasthan Merit Rank",
+                                  message: "See your exact position, percentile and performance breakdown with Disha VIP Pass!",
+                                },
+                              })
+                            );
+                          }
+                        }}
+                        className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 text-white font-black text-xs shadow-md shadow-amber-600/25 active:scale-95 transition-all inline-flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <Lock size={13} />
+                        <span>Unlock Complete Merit Standings</span>
+                        <Crown size={13} className="text-amber-200" />
+                      </button>
+                    </div>
+                  ) : (
+                    leaderboardEntries.map((entry) => (
+                      <article
+                        key={entry.id}
+                        className={`p-2.5 sm:p-3 rounded-2xl border transition-all flex items-center justify-between gap-3 ${
+                          entry.isCurrentUser
+                            ? "bg-[#800020]/10 dark:bg-[#800020]/25 border-[#800020]/50 dark:border-[#C99A45]/50 shadow-xs"
+                            : "bg-white dark:bg-[#1F2330] border-[#E8D9C0] dark:border-[#31374A] shadow-xs"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div
+                            className={`w-7 h-7 rounded-xl flex items-center justify-center font-black text-xs shrink-0 tabular-nums ${
+                              entry.rank === 1
+                                ? "bg-[#C99A45] text-[#171923]"
+                                : entry.rank === 2
+                                ? "bg-slate-300 text-slate-800 dark:bg-slate-600 dark:text-white"
+                                : entry.rank === 3
+                                ? "bg-amber-700/30 text-amber-900 dark:text-amber-200"
+                                : "bg-[#F7EFE2] dark:bg-[#252A3A] text-stone-600 dark:text-stone-300"
+                            }`}
+                          >
+                            #{entry.rank}
                           </div>
-                          <p className="text-[10px] text-stone-500 dark:text-stone-400 truncate">
-                            {entry.testTitle}
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-1.5">
+                              <p className="text-xs font-black text-[#171923] dark:text-[#FFF9EF] truncate">
+                                {entry.userName}
+                              </p>
+                              {entry.isCurrentUser && (
+                                <span className="text-[8px] font-black uppercase px-1.5 py-0.2 rounded bg-[#800020] text-[#FFF9EF] border border-[#C99A45]/30">
+                                  YOU
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-[10px] text-stone-500 dark:text-stone-400 truncate">
+                              {entry.testTitle}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="text-right shrink-0">
+                          <p className="text-xs font-black text-[#171923] dark:text-[#FFF9EF] tabular-nums">
+                            {entry.score} pts
+                          </p>
+                          <p className="text-[9px] text-emerald-700 dark:text-emerald-400 font-black tabular-nums">
+                            {entry.accuracy}% Acc
                           </p>
                         </div>
-                      </div>
-
-                      <div className="text-right shrink-0">
-                        <p className="text-xs font-black text-[#171923] dark:text-[#FFF9EF] tabular-nums">
-                          {entry.score} pts
-                        </p>
-                        <p className="text-[9px] text-emerald-700 dark:text-emerald-400 font-black tabular-nums">
-                          {entry.accuracy}% Acc
-                        </p>
-                      </div>
-                    </article>
-                  ))}
+                      </article>
+                    ))
+                  )}
                 </div>
               </>
             )}

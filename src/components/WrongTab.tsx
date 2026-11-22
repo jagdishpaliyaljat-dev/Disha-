@@ -21,8 +21,12 @@ import {
   CheckCircle2,
   BookOpen,
   Flag,
+  Lock,
+  Crown,
 } from "lucide-react";
 import { QuestionReportModal } from "./QuestionReportModal";
+import { isFeatureVipLocked } from "../services/payment/premiumConfigService";
+import { loadUserProfile } from "../utils/userProfileStorage";
 
 interface WrongTabProps {
   progressStore: ProgressStore;
@@ -52,6 +56,7 @@ export const WrongTab: React.FC<WrongTabProps> = ({
   const [revealedIds, setRevealedIds] = useState<Record<string, boolean>>({});
   const [hydratedQuestions, setHydratedQuestions] = useState<Question[]>([]);
   const todayStr = getTodayDateString();
+  const isMistakeLocked = useMemo(() => isFeatureVipLocked("mistake_bank", loadUserProfile()), []);
 
   // Hydrate questions from IndexedDB bundles & questionBankCache, and fetch any still-missing bookmarked/wrong IDs from Supabase database
   useEffect(() => {
@@ -289,6 +294,25 @@ export const WrongTab: React.FC<WrongTabProps> = ({
   // Start practice of all wrong questions
   const handleStartAllMistakesPractice = () => {
     if (wrongQuestions.length === 0) return;
+
+    // Check VIP paywall for Mistake Bank
+    const profile = loadUserProfile();
+    if (isFeatureVipLocked("mistake_bank", profile)) {
+      triggerHaptic("warning");
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(
+          new CustomEvent("disha_open_premium_modal", {
+            detail: {
+              trigger: "mistake_bank",
+              title: "Mistake Bank Revision Locked",
+              message: "Auto-spaced repetition mistake vault is a VIP Pass feature. Upgrade now to master every question you missed!",
+            },
+          })
+        );
+      }
+      return;
+    }
+
     triggerHaptic("light");
     playClickSound();
 
@@ -611,6 +635,11 @@ export const WrongTab: React.FC<WrongTabProps> = ({
                   <span className="px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-600 dark:text-rose-400 text-[9px] font-black uppercase tracking-wider">
                     PRIORITY REVISION
                   </span>
+                  {isMistakeLocked && (
+                    <span className="px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-700 dark:text-amber-400 text-[9px] font-black uppercase tracking-wider flex items-center gap-0.5">
+                      <Lock size={9} /> VIP PASS
+                    </span>
+                  )}
                 </div>
                 <h3 className="text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] mt-0.5 truncate">
                   Practice All Mistakes
@@ -714,10 +743,14 @@ export const WrongTab: React.FC<WrongTabProps> = ({
                 <button
                   type="button"
                   onClick={handleStartAllMistakesPractice}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-600 text-white text-xs font-extrabold shadow-2xs active:scale-95 transition-all cursor-pointer"
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-extrabold shadow-2xs active:scale-95 transition-all cursor-pointer ${
+                    isMistakeLocked
+                      ? "bg-gradient-to-r from-amber-600 to-amber-500 text-white"
+                      : "bg-rose-600 text-white"
+                  }`}
                 >
-                  <Play size={12} className="fill-white" />
-                  <span>Practice Mistakes ({totalWrongCount})</span>
+                  {isMistakeLocked ? <Lock size={12} /> : <Play size={12} className="fill-white" />}
+                  <span>{isMistakeLocked ? "Unlock Mistake Bank" : `Practice Mistakes (${totalWrongCount})`}</span>
                 </button>
               )}
             </div>

@@ -4,7 +4,8 @@ import {
   FolderPlus, PlusCircle, Database, LayoutGrid, Settings, ShieldCheck, 
   Upload, Sparkles, Menu, ChevronRight, ChevronLeft, HardDrive, Activity, Cpu, RefreshCw, Newspaper,
   Trophy, CheckCircle2, ListFilter, ChevronDown, Trash2, AlertCircle, Building2,
-  FileCode, Archive, LogOut, ArrowRight, Timer, FileText, FileSpreadsheet, Home, Bot, Swords, ShieldAlert
+  FileCode, Archive, LogOut, ArrowRight, Timer, FileText, FileSpreadsheet, Home, Bot, Swords, ShieldAlert,
+  Crown
 } from "lucide-react";
 import { Subject, Chapter, UserQuestionsStore, UserProfile } from "../types";
 import { ConfirmDialog } from "./admin/ConfirmDialog";
@@ -61,6 +62,7 @@ const ExportDataWidget = adminSafeLazy<any>(() => import("./admin/ExportDataWidg
 const BackupRestoreSection = adminSafeLazy<any>(() => import("./admin/BackupRestoreSection"), "BackupRestoreSection");
 const AuditLogWidget = adminSafeLazy<any>(() => import("./admin/AuditLogWidget"), "AuditLogWidget");
 const AdminFeatureControlSection = adminSafeLazy<any>(() => import("./admin/AdminFeatureControlSection"), "AdminFeatureControlSection");
+const AdminPremiumPlansSection = adminSafeLazy<any>(() => import("./admin/AdminPremiumPlansSection"), "AdminPremiumPlansSection");
 const SyncProgressModal = adminSafeLazy<any>(() => import("./admin/SyncProgressModal"), "SyncProgressModal");
 const SyncConfirmationModal = adminSafeLazy<any>(() => import("./admin/SyncConfirmationModal"), "SyncConfirmationModal");
 const QATestRunnerModal = adminSafeLazy<any>(() => import("./QATestRunnerModal"), "QATestRunnerModal");
@@ -105,6 +107,7 @@ export type AdminGroupSection =
   | "tests"
   | "content"
   | "users"
+  | "plans"
   | "supabase"
   | "diagnostics"
   | "crashes"
@@ -723,6 +726,12 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
       icon: Users,
     },
     {
+      id: "plans",
+      title: "VIP Plans & Paywalls",
+      icon: Crown,
+      badge: "VIP",
+    },
+    {
       id: "supabase",
       title: "Supabase Database",
       icon: HardDrive,
@@ -790,8 +799,14 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
       ],
     },
     {
-      category: "Database & Platform",
+      category: "VIP & Platform",
       items: [
+        {
+          id: "plans" as AdminGroupSection,
+          title: "VIP Plans & Paywalls",
+          icon: Crown,
+          badge: "VIP",
+        },
         {
           id: "supabase" as AdminGroupSection,
           title: "Supabase Cloud",
@@ -1838,6 +1853,20 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
               </div>
             )}
 
+            {/* VIP Plans & Paywalls Section */}
+            {activeGroup === "plans" && (
+              <React.Suspense fallback={<AdminSectionLoader type="cards" title="Loading VIP Plans & Paywalls..." />}>
+                <AdminPremiumPlansSection
+                  adminEmail={cloudAuthState.userEmail || props.userProfile?.email || "admin"}
+                  onOpenPreview={() => {
+                    if (typeof window !== "undefined") {
+                      window.dispatchEvent(new CustomEvent("disha_open_premium_modal", { detail: { trigger: "general" } }));
+                    }
+                  }}
+                />
+              </React.Suspense>
+            )}
+
             {/* Disaster Recovery: Backup & Restore Section */}
             {activeGroup === "backup" && (
               <React.Suspense fallback={<AdminSectionLoader type="cards" title="Loading Disaster Recovery..." />}>
@@ -1880,6 +1909,13 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                     >
                       <Settings className="w-3.5 h-3.5" />
                       <span>Backup & Maintenance</span>
+                    </button>
+                    <button
+                      onClick={() => setActiveGroup("plans")}
+                      className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/40"
+                    >
+                      <Crown className="w-3.5 h-3.5" />
+                      <span>VIP Paywalls & Plans</span>
                     </button>
                   </div>
                 </div>

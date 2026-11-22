@@ -1,68 +1,23 @@
 import { supabase } from "../../lib/supabase";
 import confetti from "canvas-confetti";
 
-export interface PremiumPlan {
-  id: "monthly" | "yearly" | "lifetime";
-  name: string;
-  hindiName: string;
-  amount: number;
-  originalAmount: number;
-  duration: string;
-  tag?: string;
-  isPopular?: boolean;
-  features: string[];
+import { 
+  AdminPremiumPlan, 
+  getActivePremiumPlans, 
+  DEFAULT_PREMIUM_PLANS 
+} from "./premiumConfigService";
+
+export type PremiumPlan = AdminPremiumPlan;
+
+/**
+ * Returns currently active plans dynamically configured from Admin Panel / Supabase
+ */
+export function getPremiumPlansList(): PremiumPlan[] {
+  const active = getActivePremiumPlans();
+  return active.length > 0 ? active : DEFAULT_PREMIUM_PLANS;
 }
 
-export const PREMIUM_PLANS: PremiumPlan[] = [
-  {
-    id: "monthly",
-    name: "1 Month Pass",
-    hindiName: "1 माह पास",
-    amount: 49,
-    originalAmount: 99,
-    duration: "30 दिन",
-    tag: "स्टार्टर",
-    features: [
-      "सभी RPSC & RSMSSB Mock Tests अनलॉक",
-      "Disha AI Tutor अनलिमिटेड 24/7 उपयोग",
-      "असीमित PYQ Vault और टॉपिक वाइज़ प्रैक्टिस",
-      "1v1 लाइव बैटल मोड असीमित खेलें",
-    ],
-  },
-  {
-    id: "yearly",
-    name: "1 Year Super Pass",
-    hindiName: "1 वर्ष सुपर पास",
-    amount: 149,
-    originalAmount: 499,
-    duration: "365 दिन (1 साल)",
-    tag: "🔥 सबसे लोकप्रिय",
-    isPopular: true,
-    features: [
-      "पूरे 1 साल के लिए सभी Mock Tests & पेपर्स",
-      "राज्य-स्तरीय मेरिट रैंकिंग और विस्तृत विश्लेषण",
-      "Disha AI Tutor द्वारा कठिन प्रश्नों का तुरंत हल",
-      "सभी नए टेस्ट पेपर्स तुरंत मुफ्त अपडेट",
-      "ऑफ़लाइन टेस्ट डाउनलोड और पूर्ण विज्ञापन-मुक्त",
-    ],
-  },
-  {
-    id: "lifetime",
-    name: "Lifetime VIP Pass",
-    hindiName: "लाइफटाइम VIP पास",
-    amount: 249,
-    originalAmount: 999,
-    duration: "आजीवन (Lifetime)",
-    tag: "💎 बेस्ट वैल्यू",
-    features: [
-      "आजीवन सभी आगामी परीक्षाओं के पेपर्स अनलॉक",
-      "भविष्य में आने वाले सभी नए फ़ीचर्स हमेशा मुफ़्त",
-      "गोल्डन VIP प्रोफाइल बैज और प्राथमिकता सहायता",
-      "असीमित लाइव टेस्ट सीरीज़ व लीडरबोर्ड एक्सेस",
-      "एक बार भुगतान — कभी दोबारा रिन्यूअल नहीं",
-    ],
-  },
-];
+export const PREMIUM_PLANS: PremiumPlan[] = getPremiumPlansList();
 
 declare global {
   interface Window {
