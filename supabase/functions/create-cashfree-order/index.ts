@@ -131,9 +131,22 @@ Deno.serve(async (req: Request) => {
     const uniqueSuffix = Math.random().toString(36).substring(2, 7);
     const orderId = `DPYQ_${Date.now()}_${uniqueSuffix}`;
 
-    const resolvedReturnUrl = returnUrl
-      ? (returnUrl.includes("{order_id}") ? returnUrl : `${returnUrl}${returnUrl.includes("?") ? "&" : "?"}order_id=${orderId}`)
-      : `https://disha-2020.vercel.app/?order_id=${orderId}`;
+    // Return URL MUST be a public, whitelisted HTTPS domain.
+    // In Android WebView / Capacitor, origin is localhost, which Cashfree strictly blocks with "Broken Link! localhost is not enabled or approved".
+    let resolvedReturnUrl = `https://disha-2020.vercel.app/?order_id=${orderId}`;
+    if (returnUrl && typeof returnUrl === "string") {
+      const isLocalOrInvalid = 
+        returnUrl.includes("localhost") || 
+        returnUrl.includes("127.0.0.1") || 
+        returnUrl.startsWith("capacitor:") || 
+        returnUrl.startsWith("file:");
+
+      if (!isLocalOrInvalid && returnUrl.startsWith("https://")) {
+        resolvedReturnUrl = returnUrl.includes("{order_id}")
+          ? returnUrl.replace("{order_id}", orderId)
+          : `${returnUrl}${returnUrl.includes("?") ? "&" : "?"}order_id=${orderId}`;
+      }
+    }
 
     const orderPayload = {
       order_id: orderId,

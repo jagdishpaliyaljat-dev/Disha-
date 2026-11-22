@@ -539,10 +539,19 @@ export default function App() {
           if (res.success || res.isPremium) {
             addToast('success', 'VIP पास सक्रिय!', '🎉 बधाई हो! आपका Disha VIP पास आधिकारिक रूप से सक्रिय हो गया है!');
           }
-          // Clean order_id from browser URL without reloading
-          const cleanUrl = new URL(window.location.href);
-          cleanUrl.searchParams.delete("order_id");
-          window.history.replaceState({}, document.title, cleanUrl.pathname + (cleanUrl.search ? cleanUrl.search : ""));
+          // If user paid on web or WebView was redirected to Vercel, allow smooth return
+          if (window.location.hostname !== "localhost" && /Android|wv/i.test(navigator.userAgent)) {
+            setTimeout(() => {
+              try {
+                window.location.href = `https://localhost/?payment=completed&order_id=${returnedOrderId}`;
+              } catch (_) {}
+            }, 2000);
+          } else {
+            // Clean order_id from browser URL without reloading
+            const cleanUrl = new URL(window.location.href);
+            cleanUrl.searchParams.delete("order_id");
+            window.history.replaceState({}, document.title, cleanUrl.pathname + (cleanUrl.search ? cleanUrl.search : ""));
+          }
         });
       }
     } catch (e) {

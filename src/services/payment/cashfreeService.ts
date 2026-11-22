@@ -120,7 +120,14 @@ export async function initiateCashfreePayment(
     onStatusUpdate?.("creating_order", "ऑर्डर तैयार किया जा रहा है...");
 
     // 1. Call create-cashfree-order Edge function
-    const returnUrl = typeof window !== "undefined"
+    // Ensure returnUrl is ALWAYS an approved public HTTPS domain (never localhost or capacitor://)
+    const isLocalOrApp = typeof window !== "undefined" && 
+      (window.location.hostname === "localhost" || 
+       window.location.hostname === "127.0.0.1" || 
+       window.location.protocol.startsWith("capacitor") || 
+       window.location.protocol.startsWith("file"));
+
+    const returnUrl = (typeof window !== "undefined" && !isLocalOrApp && window.location.origin.startsWith("https://"))
       ? `${window.location.origin}/?order_id={order_id}`
       : "https://disha-2020.vercel.app/?order_id={order_id}";
 
