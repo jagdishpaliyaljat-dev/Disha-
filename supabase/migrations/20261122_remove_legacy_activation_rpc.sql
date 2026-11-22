@@ -12,6 +12,10 @@
 
 DROP FUNCTION IF EXISTS public.activate_user_subscription(uuid, text, text, text, text);
 
+-- PostgREST caches function signatures. Force a schema reload so the
+-- dropped function stops appearing as a "best candidate" (HTTP 300/PGRST203).
+SELECT pg_notify('pgrst', 'reload schema');
+
 -- Verify exactly one hardened function remains:
 SELECT p.oid::regprocedure AS signature, p.prosecdef AS security_definer
 FROM pg_proc p
