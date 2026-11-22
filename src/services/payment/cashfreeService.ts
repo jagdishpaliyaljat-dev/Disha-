@@ -1,5 +1,7 @@
 import { supabase } from "../../lib/supabase";
 import confetti from "canvas-confetti";
+import { Capacitor } from "@capacitor/core";
+import { Browser } from "@capacitor/browser";
 
 import { 
   AdminPremiumPlan, 
@@ -160,6 +162,40 @@ export async function initiateCashfreePayment(
     onStatusUpdate?.("ready_to_pay", "आधिकारिक Cashfree पेमेंट पेज खोला जा रहा है...");
 
     // 2. Launch official Cashfree checkout page
+    // On native mobile app (Android/iOS): Open via Chrome Custom Tabs on verified public HTTPS domain
+    // This completely eliminates the "https://localhost/ is not enabled or approved" Cashfree whitelisting error
+    if (Capacitor.isNativePlatform()) {
+      try {
+        const checkoutBridgeUrl = `https://disha-2020.vercel.app/checkout.html?session_id=${encodeURIComponent(paymentSessionId)}&order_id=${encodeURIComponent(orderId)}&mode=${mode}`;
+
+        // Automatically verify subscription as soon as user returns from payment window
+        let finishedListener: any = null;
+        finishedListener = await Browser.addListener("browserFinished", async () => {
+          try {
+            finishedListener?.remove?.();
+          } catch (_) {}
+          onStatusUpdate?.("verifying", "पेमेंट सत्यापन किया जा रहा है...");
+          try {
+            const verifyRes = await verifyCashfreeOrder(orderId);
+            if (verifyRes.success || verifyRes.isPremium) {
+              onStatusUpdate?.("success", "VIP पास सक्रिय हो गया!");
+            }
+          } catch (_) {}
+        });
+
+        await Browser.open({
+          url: checkoutBridgeUrl,
+          windowName: "_blank",
+          presentationStyle: "popover",
+        });
+
+        return { success: true, orderId };
+      } catch (nativeBrowserErr) {
+        console.warn("[Cashfree] Native Browser open error, falling back to direct submit:", nativeBrowserErr);
+      }
+    }
+
+    // On Web (disha-2020.vercel.app), use official SDK or hosted checkout POST
     try {
       const cashfree = await loadCashfreeSdk(mode).catch(() => null);
       if (cashfree && typeof cashfree.checkout === "function") {

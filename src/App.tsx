@@ -539,13 +539,13 @@ export default function App() {
           if (res.success || res.isPremium) {
             addToast('success', 'VIP पास सक्रिय!', '🎉 बधाई हो! आपका Disha VIP पास आधिकारिक रूप से सक्रिय हो गया है!');
           }
-          // If user paid on web or WebView was redirected to Vercel, allow smooth return
-          if (window.location.hostname !== "localhost" && /Android|wv/i.test(navigator.userAgent)) {
+          // If user paid in Chrome Custom Tabs or mobile browser, return to app via deep link
+          if (window.location.hostname !== "localhost" && /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent)) {
             setTimeout(() => {
               try {
-                window.location.href = `https://localhost/?payment=completed&order_id=${returnedOrderId}`;
+                window.location.href = `disha2020://auth-callback?order_id=${returnedOrderId}`;
               } catch (_) {}
-            }, 2000);
+            }, 1500);
           } else {
             // Clean order_id from browser URL without reloading
             const cleanUrl = new URL(window.location.href);

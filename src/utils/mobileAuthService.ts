@@ -291,6 +291,16 @@ export const registerMobileDeepLinkListener = (
         if (isAuthUrl) {
           await handleIncomingAuthUrl(incomingUrl, onSessionEstablished);
         }
+
+        if (incomingUrl.includes('order_id=')) {
+          const match = incomingUrl.match(/order_id=([^&]+)/);
+          const orderId = match ? decodeURIComponent(match[1]) : null;
+          if (orderId) {
+            import('../services/payment/cashfreeService').then(async ({ verifyCashfreeOrder }) => {
+              await verifyCashfreeOrder(orderId);
+            });
+          }
+        }
       }
     );
 

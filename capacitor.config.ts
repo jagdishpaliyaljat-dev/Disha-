@@ -5,7 +5,12 @@ const config: CapacitorConfig = {
   appName: 'Disha PYQ',
   webDir: 'dist',
   server: {
-    androidScheme: 'https'
+    androidScheme: 'https',
+    allowNavigation: [
+      '*.cashfree.com',
+      'disha-2020.vercel.app',
+      'eaidivceejkdqsshlraj.supabase.co'
+    ]
   },
   android: {
     allowMixedContent: true,
