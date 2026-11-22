@@ -430,18 +430,36 @@ export const DEFAULT_GATEWAY_CONFIG: PaymentGatewayConfig = {
 };
 
 const STORAGE_KEY_GATEWAY = "disha_payment_gateway_config_v1";
-let inMemoryGatewayConfig: PaymentGatewayConfig = { ...DEFAULT_GATEWAY_CONFIG };
+let inMemoryGatewayConfig: PaymentGatewayConfig = stripGatewaySecret(DEFAULT_GATEWAY_CONFIG);
+
+/**
+ * The Cashfree secret must never reach localStorage, global events, or
+ * non-admin screens. Only the Edge Functions (service role) and the admin
+ * panel's explicit admin-only loader may see it.
+ */
+function stripGatewaySecret(config: PaymentGatewayConfig): PaymentGatewayConfig {
+  return {
+    ...config,
+    cashfree: { ...config.cashfree, secretKey: "" },
+  };
+}
 
 export function getLocalPaymentGatewayConfig(): PaymentGatewayConfig {
   if (typeof window !== "undefined") {
     try {
       const stored = localStorage.getItem(STORAGE_KEY_GATEWAY);
       if (stored) {
-        return { ...DEFAULT_GATEWAY_CONFIG, ...JSON.parse(stored) };
+        const parsed = { ...DEFAULT_GATEWAY_CONFIG, ...JSON.parse(stored) };
+        const safe = stripGatewaySecret(parsed);
+        // Self-heal caches written by older versions that stored the secret.
+        if (parsed.cashfree?.secretKey) {
+          localStorage.setItem(STORAGE_KEY_GATEWAY, JSON.stringify(safe));
+        }
+        return safe;
       }
     } catch {}
   }
-  return inMemoryGatewayConfig;
+  return stripGatewaySecret(inMemoryGatewayConfig);
 }
 
 export async function fetchPaymentGatewayConfigFromCloud(): Promise<PaymentGatewayConfig> {
@@ -456,7 +474,8 @@ export async function fetchPaymentGatewayConfigFromCloud(): Promise<PaymentGatew
       .maybeSingle();
 
     if (!error && data?.value) {
-      const cfg: PaymentGatewayConfig = { ...DEFAULT_GATEWAY_CONFIG, ...data.value };
+      const full: PaymentGatewayConfig = { ...DEFAULT_GATEWAY_CONFIG, ...data.value };
+      const cfg = stripGatewaySecret(full);
       inMemoryGatewayConfig = cfg;
       if (typeof window !== "undefined") {
         localStorage.setItem(STORAGE_KEY_GATEWAY, JSON.stringify(cfg));
@@ -472,16 +491,40 @@ export async function fetchPaymentGatewayConfigFromCloud(): Promise<PaymentGatew
   return getLocalPaymentGatewayConfig();
 }
 
+/**
+ * Admin-only loader: returns the raw config INCLUDING the Cashfree secret key.
+ * Never writes to localStorage and never dispatches a global event.
+ * Protected by the app_settings RLS policy (admin-only read on this row).
+ */
+export async function fetchGatewayConfigForAdmin(): Promise<PaymentGatewayConfig> {
+  if (!isSupabaseConfigured()) return getLocalPaymentGatewayConfig();
+  try {
+    const { data, error } = await supabase
+      .from("app_settings")
+      .select("value")
+      .eq("key", "payment_gateway_config")
+      .maybeSingle();
+
+    if (!error && data?.value) {
+      return { ...DEFAULT_GATEWAY_CONFIG, ...data.value };
+    }
+  } catch (err) {
+    console.warn("[PaymentGateway] Admin config load note:", err);
+  }
+  return getLocalPaymentGatewayConfig();
+}
+
 export async function savePaymentGatewayConfigToCloud(
   config: PaymentGatewayConfig,
   adminEmail: string = "admin"
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    inMemoryGatewayConfig = { ...config };
+    const publicConfig = stripGatewaySecret(config);
+    inMemoryGatewayConfig = publicConfig;
     if (typeof window !== "undefined") {
-      localStorage.setItem(STORAGE_KEY_GATEWAY, JSON.stringify(config));
+      localStorage.setItem(STORAGE_KEY_GATEWAY, JSON.stringify(publicConfig));
       window.dispatchEvent(
-        new CustomEvent("disha_gateway_config_updated", { detail: config })
+        new CustomEvent("disha_gateway_config_updated", { detail: publicConfig })
       );
     }
 
@@ -493,6 +536,8 @@ export async function savePaymentGatewayConfigToCloud(
       .from("app_settings")
       .upsert({
         key: "payment_gateway_config",
+        // Full config is stored server-side so Edge Functions (service role)
+        // keep working. It is never cached in the browser.
         value: config,
         description: "Configurable payment gateway credentials (Cashfree) and UPI QR details",
         updated_at: new Date().toISOString(),

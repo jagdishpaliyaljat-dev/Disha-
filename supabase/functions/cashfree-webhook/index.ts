@@ -1,6 +1,52 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
 
+/**
+ * Cashfree webhook signature verification.
+ * Docs: https://www.cashfree.com/docs/payments/online/webhooks/signature-verification.md
+ *
+ * expected = Base64(HMAC_SHA256(timestamp + RAW_BODY, secretKey))
+ * The signature must be computed over the exact raw body, never a parsed/re-serialised object.
+ */
+function constantTimeEquals(a: string, b: string): boolean {
+  if (a.length !== b.length) {
+    // Do comparable work even on length mismatch to avoid a trivial timing oracle.
+    let diff = a.length ^ b.length;
+    for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ 0;
+    return false;
+  }
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+
+async function verifyCashfreeSignature(
+  rawBody: string,
+  signature: string,
+  timestamp: string,
+  secret: string
+): Promise<boolean> {
+  if (!signature || !timestamp || !secret) return false;
+
+  try {
+    const encoder = new TextEncoder();
+    const key = await crypto.subtle.importKey(
+      "raw",
+      encoder.encode(secret),
+      { name: "HMAC", hash: "SHA-256" },
+      false,
+      ["sign"]
+    );
+    const signedPayload = encoder.encode(timestamp + rawBody);
+    const signatureBytes = await crypto.subtle.sign("HMAC", key, signedPayload);
+    const expected = btoa(String.fromCharCode(...new Uint8Array(signatureBytes)));
+    return constantTimeEquals(expected, signature);
+  } catch (err) {
+    console.error("[Cashfree Webhook] Signature verification error:", err);
+    return false;
+  }
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", {
@@ -16,7 +62,34 @@ Deno.serve(async (req: Request) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 
+    // --- Signature verification (must run before any state change) ---
+    let cashfreeSecret = Deno.env.get("CASHFREE_SECRET_KEY") || "";
+    if (!cashfreeSecret) {
+      // Same fallback used by create/verify Edge Functions: Admin Gateway Settings in DB.
+      const adminClient = createClient(supabaseUrl, supabaseServiceKey);
+      const { data: gwRow } = await adminClient
+        .from("app_settings")
+        .select("value")
+        .eq("key", "payment_gateway_config")
+        .maybeSingle();
+      cashfreeSecret = (gwRow?.value?.cashfree?.secretKey || "").trim();
+    }
+
+    if (!cashfreeSecret) {
+      console.error("[Cashfree Webhook] No secret key configured; cannot verify signature");
+      return new Response(JSON.stringify({ error: "Webhook secret not configured" }), { status: 500 });
+    }
+
     const rawBody = await req.text();
+    const webhookSignature = req.headers.get("x-webhook-signature") || "";
+    const webhookTimestamp = req.headers.get("x-webhook-timestamp") || "";
+
+    if (!(await verifyCashfreeSignature(rawBody, webhookSignature, webhookTimestamp, cashfreeSecret))) {
+      console.warn("[Cashfree Webhook] Invalid/missing signature - rejecting request");
+      return new Response(JSON.stringify({ error: "Invalid webhook signature" }), { status: 401 });
+    }
+    // --- End signature verification ---
+
     let payload: any = {};
     try {
       payload = JSON.parse(rawBody);

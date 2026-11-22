@@ -41,7 +41,7 @@ import {
   fetchPremiumConfigFromCloud,
   savePremiumPlansToCloud,
   savePaywallRulesToCloud,
-  fetchPaymentGatewayConfigFromCloud,
+  fetchGatewayConfigForAdmin,
   savePaymentGatewayConfigToCloud,
   getLocalPremiumPlans,
   getLocalPaywallRules,
@@ -135,7 +135,7 @@ export const AdminPremiumPlansSection: React.FC<AdminPremiumPlansSectionProps> =
   // Load gateway config and pending orders
   const loadGatewayAndOrders = async () => {
     try {
-      const gw = await fetchPaymentGatewayConfigFromCloud();
+      const gw = await fetchGatewayConfigForAdmin();
       setGatewayConfig(gw);
       setIsLoadingOrders(true);
       const ords = await fetchPendingOrders();
