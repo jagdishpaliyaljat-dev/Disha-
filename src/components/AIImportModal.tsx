@@ -1051,7 +1051,8 @@ export const AIImportModal: React.FC<AIImportModalProps> = ({
         });
       }
 
-      if (drafts && drafts.length > 0) {
+      const hasUsableDrafts = drafts && drafts.length > 0 && drafts.some((d) => Array.isArray(d.options) && d.options.length >= 2);
+      if (hasUsableDrafts) {
         // Preserve exact parsed options & answers — NEVER fabricate missing options or default missing answers to "A"
         const schemaObj = {
           schemaVersion: 1,
@@ -1108,40 +1109,55 @@ export const AIImportModal: React.FC<AIImportModalProps> = ({
         }
       }
       
-      // AI Fallback for text only
+      // AI Fallback for text only when deterministic parsing could not extract usable questions
       if (effectiveMode === "text") {
-        const res = await apiFetch("/api/ai/ai-mcq-import", {
-          method: "POST",
-          body: JSON.stringify({ 
-            jsonContent: { rawText: rawInput },
-            subjectId: selectedSubjectId,
-            chapterId: selectedChapterId,
-            topicId: selectedTopicId
-          }),
-        });
-        const data = await res.json();
-        if (res.ok && data.success) {
-          const parsed = processJSONImport(typeof data.schema === "string" ? data.schema : JSON.stringify(data.schema), existingHashes);
-          setParseResult(parsed);
-          const validIds = new Set<string>();
-          parsed.results.forEach((q: any) => {
-            if (q.isValid && q.correctIndex >= 0 && (!skipDuplicates || !q.isDuplicate)) {
-              validIds.add(q.tempId);
-            }
-          });
-          setSelectedDraftIds(validIds);
-          setActiveStep("preview");
+        setProcessingStatus("Formatting questions with AI assistant...");
+        const { formatBatchQuestionsWithAI } = await import("../utils/aiFormatter");
+        const aiDrafts = await formatBatchQuestionsWithAI(rawInput);
+        if (aiDrafts && aiDrafts.length > 0) {
+          const schemaObj = {
+            schemaVersion: 1,
+            questions: aiDrafts.map((d: any) => ({
+              type: d.questionType || d.type || "single_correct",
+              questionType: d.questionType || d.type || "single_correct",
+              question: d.text || d.question || "",
+              options: Array.isArray(d.options) ? d.options : [],
+              answer: d.correctIndex >= 0 ? (["A", "B", "C", "D", "E"][d.correctIndex] || "") : (d.answer || ""),
+              correctIndex: typeof d.correctIndex === "number" ? d.correctIndex : -1,
+              explanation: d.explanation || "",
+              statements: d.statements,
+              assertion: d.assertion,
+              reason: d.reason,
+              matchTable: d.matchTable,
+              table: d.table || d.tableData,
+              rawInput: rawInput,
+            })),
+          };
+          const parsed = processJSONImport(JSON.stringify(schemaObj), existingHashes);
+          if (parsed.success && parsed.results.length > 0) {
+            setParseResult(parsed);
+            const validIds = new Set<string>();
+            parsed.results.forEach((q: any) => {
+              if (q.isValid && q.correctIndex >= 0 && (!skipDuplicates || !q.isDuplicate)) {
+                validIds.add(q.tempId);
+              }
+            });
+            setSelectedDraftIds(validIds);
+            setActiveStep("preview");
 
-          recordAIUsage({
-            queryType: "ai_import",
-            model: "gemini-2.0-flash",
-            inputChars: rawInput.length,
-            outputChars: typeof data.schema === "string" ? data.schema.length : JSON.stringify(data.schema).length,
-            status: "success",
-            promptSnippet: rawInput.slice(0, 100),
-            responseSnippet: `Parsed ${parsed.results?.length || 0} questions`,
-          });
-        } else throw new Error(data.message || "AI parsing failed.");
+            recordAIUsage({
+              queryType: "ai_import",
+              model: "gemini-flash-lite-latest",
+              inputChars: rawInput.length,
+              outputChars: JSON.stringify(schemaObj).length,
+              status: "success",
+              promptSnippet: rawInput.slice(0, 100),
+              responseSnippet: `Parsed ${parsed.results?.length || 0} questions`,
+            });
+            return;
+          }
+        }
+        throw new Error("Unable to parse questions from the provided text. Please ensure questions have question text and at least 2 options (A, B, C, D or 1, 2, 3, 4).");
       } else {
         throw new Error("Could not parse JSON. Please check the format.");
       }

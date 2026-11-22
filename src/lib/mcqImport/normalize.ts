@@ -884,8 +884,14 @@ export const normalizeQuestion = (raw: any): MCQImportQuestion => {
     /\$[^$]+\$|\\frac|\\sqrt|[√π÷×≤≥≠²³]/.test(`${finalQuestion} ${options.join(" ")}`)
   ) {
     type = rawTypeStr && /math|numerical|geometry/i.test(rawTypeStr) ? rawTypeStr : "math";
-  } else if (rawTypeStr) {
-    type = rawTypeStr;
+  } else if (
+    /case_based|passage/i.test(rawTypeStr) ||
+    /(?:गद्यांश|पद्यांश|passage|directions?)/i.test(finalQuestion)
+  ) {
+    type = "case_based";
+  } else {
+    // Normal single-choice question (simple, bilingual, direct, standard, fill_blank, true_false, etc.)
+    type = "single_correct";
   }
 
   // 11. OCR & Extraction Uncertainty Detection

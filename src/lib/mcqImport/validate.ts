@@ -31,6 +31,8 @@ const SUPPORTED_TYPES = new Set([
   "sequence",
   "case_based",
   "passage",
+  "passage_based",
+  "image_reference",
   "table_based",
   "true_false",
   "boolean",

@@ -74,10 +74,14 @@ export async function formatBatchQuestionsWithAI(rawText: string): Promise<Forma
       const creds = getActiveAICredentials();
       if (creds.configured && creds.apiKey) {
         const { executeAICompletion } = await import("./aiProviderService");
-        const prompt = `Convert the following text into standard structured MCQ JSON format. Return valid JSON array only:
+        const prompt = `You are an expert exam question parser for competitive examinations (RPSC, RSMSSB, Disha PYQ).
+Convert the following text into standard structured MCQ JSON format.
+Identify question type accurately: "single_correct", "statement_based", "assertion_reason", "match_following", "table_based", "math".
+Return a valid JSON array only:
 [
   {
-    "text": "Question text in Hindi/English",
+    "type": "single_correct",
+    "text": "Clean question text in Hindi/English without question numbers",
     "options": ["Option A", "Option B", "Option C", "Option D"],
     "correctIndex": 0,
     "explanation": "Detailed explanation"
@@ -89,7 +93,7 @@ ${rawText}`;
           prompt,
           provider: creds.provider,
           apiKey: creds.apiKey,
-          model: creds.provider === "gemini" ? "gemini-2.5-flash-lite" : undefined,
+          model: creds.model || (creds.provider === "gemini" ? "gemini-flash-lite-latest" : undefined),
           jsonMode: true,
         });
 
@@ -98,11 +102,17 @@ ${rawText}`;
           const parsed = JSON.parse(jsonMatch[0]);
           if (Array.isArray(parsed) && parsed.length > 0) {
             return parsed.map((item: any) => ({
-              questionType: "single_correct",
-              text: formatMathAndChemistryLatex(item.text || ""),
+              questionType: item.type || item.questionType || "single_correct",
+              type: item.type || item.questionType || "single_correct",
+              text: formatMathAndChemistryLatex(item.text || item.question || ""),
               options: Array.isArray(item.options) ? item.options.map(String).map(formatMathAndChemistryLatex) : [],
               correctIndex: typeof item.correctIndex === "number" ? item.correctIndex : 0,
               explanation: formatMathAndChemistryLatex(item.explanation || ""),
+              statements: item.statements,
+              assertion: item.assertion,
+              reason: item.reason,
+              matchTable: item.matchTable,
+              table: item.table,
             }));
           }
         }

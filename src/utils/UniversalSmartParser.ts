@@ -28,7 +28,8 @@ export class UniversalSmartParser {
 
     // 2. Parse using the comprehensive MCQ text parser
     const { questions } = parseRawMcqText(trimmed, chapterId, topicId);
-    if (questions && questions.length > 0) {
+    const hasUsableQuestions = questions && questions.length > 0 && questions.some((q) => Array.isArray(q.options) && q.options.length >= 2);
+    if (hasUsableQuestions) {
       return questions.map((q, idx) => {
         const normalized = normalizeQuestion({
           type: q.questionType || q.type || "single_correct",
@@ -93,13 +94,15 @@ export class UniversalSmartParser {
       });
     }
 
-    // 3. Fallback: Parse using AI if deterministic parser found no questions
+    // 3. Fallback: Parse using AI if deterministic parser found no usable questions
     try {
       const aiResults = await formatBatchQuestionsWithAI(trimmed);
       if (aiResults && aiResults.length > 0) {
         return aiResults.map((q, idx) => {
           const normalized = normalizeQuestion({
             ...q,
+            type: q.questionType || (q as any).type || "single_correct",
+            questionType: q.questionType || (q as any).type || "single_correct",
             question: q.text || (q as any).question || "",
             options: Array.isArray(q.options) ? q.options.filter((o) => String(o ?? "").trim() !== "") : [],
             correctIndex: typeof q.correctIndex === "number" ? q.correctIndex : -1,

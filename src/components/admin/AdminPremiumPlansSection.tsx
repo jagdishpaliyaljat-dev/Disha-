@@ -23,19 +23,36 @@ import {
   Trash2,
   Check,
   Eye,
-  Loader2
+  Loader2,
+  CreditCard,
+  QrCode,
+  ClipboardList,
+  XCircle,
+  ExternalLink,
+  RefreshCw,
 } from "lucide-react";
 import {
   AdminPremiumPlan,
   PaywallRules,
+  PaymentGatewayConfig,
   DEFAULT_PREMIUM_PLANS,
   DEFAULT_PAYWALL_RULES,
+  DEFAULT_GATEWAY_CONFIG,
   fetchPremiumConfigFromCloud,
   savePremiumPlansToCloud,
   savePaywallRulesToCloud,
+  fetchPaymentGatewayConfigFromCloud,
+  savePaymentGatewayConfigToCloud,
   getLocalPremiumPlans,
   getLocalPaywallRules,
+  getLocalPaymentGatewayConfig,
 } from "../../services/payment/premiumConfigService";
+import {
+  StudentOrderRecord,
+  fetchPendingOrders,
+  approveStudentOrder,
+  rejectStudentOrder,
+} from "../../services/payment/upiPaymentService";
 import { triggerHaptic, playClickSound } from "../../utils/audioFeedback";
 
 interface AdminPremiumPlansSectionProps {
@@ -47,9 +64,12 @@ export const AdminPremiumPlansSection: React.FC<AdminPremiumPlansSectionProps> =
   adminEmail = "admin",
   onOpenPreview,
 }) => {
-  const [activeTab, setActiveTab] = useState<"paywall" | "plans">("paywall");
+  const [activeTab, setActiveTab] = useState<"paywall" | "plans" | "gateway" | "orders">("paywall");
   const [plans, setPlans] = useState<AdminPremiumPlan[]>(() => getLocalPremiumPlans());
   const [rules, setRules] = useState<PaywallRules>(() => getLocalPaywallRules());
+  const [gatewayConfig, setGatewayConfig] = useState<PaymentGatewayConfig>(() => getLocalPaymentGatewayConfig());
+  const [pendingOrders, setPendingOrders] = useState<StudentOrderRecord[]>([]);
+  const [isLoadingOrders, setIsLoadingOrders] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [toast, setToast] = useState<{ text: string; type: "success" | "error" } | null>(null);
@@ -109,6 +129,70 @@ export const AdminPremiumPlansSection: React.FC<AdminPremiumPlansSectionProps> =
     } else {
       triggerHaptic("warning");
       showToast(`सेव करने में त्रुटि: ${res.error}`, "error");
+    }
+  };
+
+  // Load gateway config and pending orders
+  const loadGatewayAndOrders = async () => {
+    try {
+      const gw = await fetchPaymentGatewayConfigFromCloud();
+      setGatewayConfig(gw);
+      setIsLoadingOrders(true);
+      const ords = await fetchPendingOrders();
+      setPendingOrders(ords);
+    } catch (e) {
+      console.warn("Orders/GW load note:", e);
+    } finally {
+      setIsLoadingOrders(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === "gateway" || activeTab === "orders") {
+      loadGatewayAndOrders();
+    }
+  }, [activeTab]);
+
+  // Save Gateway & UPI Settings
+  const handleSaveGatewayConfig = async () => {
+    triggerHaptic("medium");
+    playClickSound();
+    setIsSaving(true);
+    const res = await savePaymentGatewayConfigToCloud(gatewayConfig, adminEmail);
+    setIsSaving(false);
+    if (res.success) {
+      triggerHaptic("success");
+      showToast("गेटवे व UPI सेटिंग्स Supabase पर सफलतापूर्वक अपडेट हो गईं!", "success");
+    } else {
+      triggerHaptic("warning");
+      showToast(`सेव करने में त्रुटि: ${res.error}`, "error");
+    }
+  };
+
+  // Approve student UPI payment
+  const handleApproveOrder = async (order: StudentOrderRecord) => {
+    triggerHaptic("medium");
+    if (!window.confirm(`क्या आप ${order.user_name || order.user_email || "छात्र"} का VIP प्लान मंजूर करना चाहते हैं?`)) return;
+    const res = await approveStudentOrder(order);
+    if (res.success) {
+      triggerHaptic("success");
+      showToast("VIP पास सफलतापूर्वक सक्रिय कर दिया गया!", "success");
+      setPendingOrders((prev) => prev.filter((o) => o.order_id !== order.order_id));
+    } else {
+      triggerHaptic("warning");
+      showToast(`स्वीकृत करने में त्रुटि: ${res.error}`, "error");
+    }
+  };
+
+  // Reject student payment
+  const handleRejectOrder = async (orderId: string) => {
+    triggerHaptic("warning");
+    const reason = window.prompt("खारिज करने का कारण दर्ज करें (वैकल्पिक):", "अमान्य UTR या भुगतान नहीं मिला");
+    if (reason === null) return;
+    const res = await rejectStudentOrder(orderId, reason);
+    if (res.success) {
+      showToast("ऑर्डर खारिज कर दिया गया।", "error");
+      setPendingOrders((prev) => prev.filter((o) => o.order_id !== orderId));
     }
   };
 
@@ -206,12 +290,32 @@ export const AdminPremiumPlansSection: React.FC<AdminPremiumPlansSectionProps> =
         <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
           <button
             type="button"
-            onClick={activeTab === "paywall" ? handleSavePaywallRules : handleSavePlans}
-            disabled={isSaving}
+            onClick={
+              activeTab === "paywall"
+                ? handleSavePaywallRules
+                : activeTab === "plans"
+                ? handleSavePlans
+                : activeTab === "gateway"
+                ? handleSaveGatewayConfig
+                : loadGatewayAndOrders
+            }
+            disabled={isSaving || (activeTab === "orders" && isLoadingOrders)}
             className="px-4 py-2.5 rounded-xl bg-[#7045D8] hover:bg-[#5e34ca] text-white text-xs font-black shadow-lg shadow-[#7045D8]/30 flex items-center gap-2 active:scale-95 transition-all cursor-pointer disabled:opacity-50"
           >
-            {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-            <span>{isSaving ? "सेव हो रहा है..." : "सेटिंग्स सेव करें"}</span>
+            {isSaving || (activeTab === "orders" && isLoadingOrders) ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : activeTab === "orders" ? (
+              <RefreshCw className="w-4 h-4" />
+            ) : (
+              <Save className="w-4 h-4" />
+            )}
+            <span>
+              {isSaving
+                ? "सेव हो रहा है..."
+                : activeTab === "orders"
+                ? "रिफ्रेश करें"
+                : "सेटिंग्स सेव करें"}
+            </span>
           </button>
 
           <button
@@ -237,27 +341,21 @@ export const AdminPremiumPlansSection: React.FC<AdminPremiumPlansSectionProps> =
         </div>
 
         <div className="p-3.5 rounded-2xl bg-white dark:bg-[#1E2330] border border-slate-200 dark:border-slate-800 shadow-xs">
-          <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400">AI Tutor एक्सेस मोड</p>
-          <p className="text-lg sm:text-xl font-black text-[#7045D8] dark:text-[#A78BFA] mt-1 capitalize">
-            {rules.ai_tutor.mode === "limited_free"
-              ? `${rules.ai_tutor.freeDailyLimit} फ्री/दिन`
-              : rules.ai_tutor.mode === "free"
-              ? "सबके लिए मुफ़्त"
-              : "केवल VIP"}
+          <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400">पेमेंट गेटवे स्थिति</p>
+          <p className="text-lg sm:text-xl font-black text-emerald-600 dark:text-emerald-400 mt-1">
+            {gatewayConfig.upi?.enabled ? "UPI QR सक्रिय" : "केवल PG"}
           </p>
-          <span className="text-[10px] text-slate-500 font-bold">VIP: अनलिमिटेड 24x7</span>
+          <span className="text-[10px] text-slate-500 font-bold">
+            {gatewayConfig.cashfree?.enabled ? "Cashfree ON" : "Cashfree OFF"}
+          </span>
         </div>
 
         <div className="p-3.5 rounded-2xl bg-white dark:bg-[#1E2330] border border-slate-200 dark:border-slate-800 shadow-xs">
-          <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400">Mock Tests एक्सेस मोड</p>
-          <p className="text-lg sm:text-xl font-black text-amber-600 dark:text-amber-400 mt-1 capitalize">
-            {rules.mock_tests.mode === "limited_free"
-              ? `${rules.mock_tests.freeDemoTestsCount} डेमो फ्री`
-              : rules.mock_tests.mode === "free"
-              ? "सभी टेस्ट मुफ़्त"
-              : "केवल VIP"}
+          <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400">लंबित सत्यापन (Pending UPI)</p>
+          <p className="text-lg sm:text-xl font-black text-amber-600 dark:text-amber-400 mt-1">
+            {pendingOrders.length} छात्र
           </p>
-          <span className="text-[10px] text-slate-500 font-bold">VIP: सभी 50+ टेस्ट</span>
+          <span className="text-[10px] text-slate-500 font-bold">UTR सत्यापन हेतु</span>
         </div>
 
         <div className="p-3.5 rounded-2xl bg-white dark:bg-[#1E2330] border border-slate-200 dark:border-slate-800 shadow-xs">
@@ -270,21 +368,21 @@ export const AdminPremiumPlansSection: React.FC<AdminPremiumPlansSectionProps> =
       </div>
 
       {/* 3. Sub-Tab Switcher */}
-      <div className="flex items-center gap-2 p-1 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 w-fit">
+      <div className="flex flex-wrap items-center gap-2 p-1 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 w-fit">
         <button
           type="button"
           onClick={() => {
             triggerHaptic("light");
             setActiveTab("paywall");
           }}
-          className={`px-4 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer ${
+          className={`px-3.5 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer ${
             activeTab === "paywall"
               ? "bg-[#7045D8] text-white shadow-md shadow-[#7045D8]/30"
               : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
           }`}
         >
           <Lock className="w-3.5 h-3.5" />
-          <span>1. पेवॉल नियम (कौनसी चीज़ प्रीमियम में जाएगी)</span>
+          <span>1. पेवॉल नियम</span>
         </button>
 
         <button
@@ -293,14 +391,51 @@ export const AdminPremiumPlansSection: React.FC<AdminPremiumPlansSectionProps> =
             triggerHaptic("light");
             setActiveTab("plans");
           }}
-          className={`px-4 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer ${
+          className={`px-3.5 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer ${
             activeTab === "plans"
               ? "bg-[#7045D8] text-white shadow-md shadow-[#7045D8]/30"
               : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
           }`}
         >
           <Crown className="w-3.5 h-3.5 text-amber-400" />
-          <span>2. प्लान्स और कीमतें (Pricing Tiers)</span>
+          <span>2. प्लान्स व कीमतें</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            triggerHaptic("light");
+            setActiveTab("gateway");
+          }}
+          className={`px-3.5 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer ${
+            activeTab === "gateway"
+              ? "bg-[#7045D8] text-white shadow-md shadow-[#7045D8]/30"
+              : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+          }`}
+        >
+          <CreditCard className="w-3.5 h-3.5 text-teal-400" />
+          <span>3. गेटवे व UPI सेटिंग्स</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            triggerHaptic("light");
+            setActiveTab("orders");
+          }}
+          className={`px-3.5 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer ${
+            activeTab === "orders"
+              ? "bg-[#7045D8] text-white shadow-md shadow-[#7045D8]/30"
+              : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+          }`}
+        >
+          <ClipboardList className="w-3.5 h-3.5 text-emerald-400" />
+          <span>4. पेमेंट्स सत्यापन</span>
+          {pendingOrders.length > 0 && (
+            <span className="px-1.5 py-0.5 rounded-full bg-rose-500 text-white font-mono text-[10px] font-black">
+              {pendingOrders.length}
+            </span>
+          )}
         </button>
       </div>
 
@@ -851,6 +986,313 @@ export const AdminPremiumPlansSection: React.FC<AdminPremiumPlansSectionProps> =
               );
             })}
           </div>
+        </div>
+      )}
+
+      {/* 5. TAB 3: PAYMENT GATEWAY & UPI CONFIGURATION */}
+      {activeTab === "gateway" && (
+        <div className="space-y-5">
+          <div className="p-4 rounded-2xl bg-teal-500/10 border border-teal-500/20 text-teal-800 dark:text-teal-300 text-xs">
+            ⚡ <strong>पेमेंट गेटवे नियंत्रण:</strong> यहां से आप <strong>Cashfree Gateway</strong> और <strong>डायरेक्ट UPI QR कोड</strong> को पूरी तरह नियंत्रित कर सकते हैं। आप जो भी जानकारी यहां सेव करेंगे, वह सीधे डेटाबेस में अपडेट होगी।
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {/* Box A: Direct UPI & Dynamic QR Code */}
+            <div className="p-5 rounded-3xl bg-white dark:bg-[#1E2330] border border-emerald-500/30 shadow-sm space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                    <QrCode className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-black text-sm text-slate-900 dark:text-white">
+                      डायरेक्ट UPI व QR कोड भुगतान
+                    </h3>
+                    <p className="text-[11px] text-slate-500">PhonePe, GPay, Paytm, BHIM</p>
+                  </div>
+                </div>
+
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={Boolean(gatewayConfig.upi?.enabled)}
+                    onChange={(e) =>
+                      setGatewayConfig((prev) => ({
+                        ...prev,
+                        upi: { ...prev.upi, enabled: e.target.checked },
+                      }))
+                    }
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                </label>
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                    आपकी UPI ID (जिस पर पैसे प्राप्त होंगे):
+                  </label>
+                  <input
+                    type="text"
+                    value={gatewayConfig.upi?.upiId || ""}
+                    onChange={(e) =>
+                      setGatewayConfig((prev) => ({
+                        ...prev,
+                        upi: { ...prev.upi, upiId: e.target.value.trim() },
+                      }))
+                    }
+                    placeholder="e.g. jagdishpaliyaljat@okhdfcbank"
+                    className="w-full px-3.5 py-2 rounded-xl text-xs font-mono font-bold border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+                  />
+                  <span className="text-[10px] text-slate-400 mt-0.5 block">
+                    विद्यार्थी को इसी UPI ID का डायनामिक QR कोड व डायरेक्ट पे लिंक दिखाया जाता है।
+                  </span>
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                    प्राप्तकर्ता का नाम (Payee Name):
+                  </label>
+                  <input
+                    type="text"
+                    value={gatewayConfig.upi?.payeeName || ""}
+                    onChange={(e) =>
+                      setGatewayConfig((prev) => ({
+                        ...prev,
+                        upi: { ...prev.upi, payeeName: e.target.value },
+                      }))
+                    }
+                    placeholder="Disha PYQ Online"
+                    className="w-full px-3.5 py-2 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+                  />
+                </div>
+
+                {/* Auto Approve Toggle */}
+                <div className="pt-2 p-3 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                  <div>
+                    <h4 className="text-xs font-black text-slate-900 dark:text-white">
+                      ऑटो-अनलॉक (Instant Auto-Approve)
+                    </h4>
+                    <p className="text-[10.5px] text-slate-500">
+                      विद्यार्थी द्वारा UTR सबमिट करते ही VIP पास तुरंत सक्रिय हो जाएगा।
+                    </p>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={Boolean(gatewayConfig.autoApprove)}
+                    onChange={(e) =>
+                      setGatewayConfig((prev) => ({
+                        ...prev,
+                        autoApprove: e.target.checked,
+                      }))
+                    }
+                    className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Box B: Cashfree Payment Gateway */}
+            <div className="p-5 rounded-3xl bg-white dark:bg-[#1E2330] border border-[#7045D8]/30 shadow-sm space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+                    <CreditCard className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-black text-sm text-slate-900 dark:text-white">
+                      Cashfree Payment Gateway
+                    </h3>
+                    <p className="text-[11px] text-slate-500">Cards, NetBanking & Wallets</p>
+                  </div>
+                </div>
+
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={Boolean(gatewayConfig.cashfree?.enabled)}
+                    onChange={(e) =>
+                      setGatewayConfig((prev) => ({
+                        ...prev,
+                        cashfree: { ...prev.cashfree, enabled: e.target.checked },
+                      }))
+                    }
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#7045D8]"></div>
+                </label>
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                    Cashfree App ID (Client ID):
+                  </label>
+                  <input
+                    type="text"
+                    value={gatewayConfig.cashfree?.appId || ""}
+                    onChange={(e) =>
+                      setGatewayConfig((prev) => ({
+                        ...prev,
+                        cashfree: { ...prev.cashfree, appId: e.target.value.trim() },
+                      }))
+                    }
+                    placeholder="e.g. CF_APP_xxxxxx or TESTxxxxxx"
+                    className="w-full px-3.5 py-2 rounded-xl text-xs font-mono font-bold border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-[#7045D8]"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                    Cashfree Secret Key:
+                  </label>
+                  <input
+                    type="password"
+                    value={gatewayConfig.cashfree?.secretKey || ""}
+                    onChange={(e) =>
+                      setGatewayConfig((prev) => ({
+                        ...prev,
+                        cashfree: { ...prev.cashfree, secretKey: e.target.value.trim() },
+                      }))
+                    }
+                    placeholder="cfsk_ma_prod_xxxxxx..."
+                    className="w-full px-3.5 py-2 rounded-xl text-xs font-mono font-bold border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:border-[#7045D8]"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                    Environment (मोड):
+                  </label>
+                  <select
+                    value={gatewayConfig.cashfree?.environment || "SANDBOX"}
+                    onChange={(e) =>
+                      setGatewayConfig((prev) => ({
+                        ...prev,
+                        cashfree: {
+                          ...prev.cashfree,
+                          environment: e.target.value as "SANDBOX" | "PRODUCTION",
+                        },
+                      }))
+                    }
+                    className="w-full px-3.5 py-2 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white"
+                  >
+                    <option value="PRODUCTION">PRODUCTION (लाइव भुगतान)</option>
+                    <option value="SANDBOX">SANDBOX (टेस्टिंग मोड)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-2 flex justify-end">
+            <button
+              type="button"
+              onClick={handleSaveGatewayConfig}
+              disabled={isSaving}
+              className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:brightness-110 active:scale-95 text-white font-black text-xs flex items-center gap-2 shadow-lg shadow-emerald-600/30 cursor-pointer disabled:opacity-50"
+            >
+              {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              <span>गेटवे व UPI सेटिंग्स सेव करें</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 6. TAB 4: STUDENT PAYMENTS APPROVAL (ORDERS) */}
+      {activeTab === "orders" && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-800 dark:text-amber-300 text-xs flex-1">
+              📋 <strong>सत्यापन डैशबोर्ड:</strong> यहां वे सभी विद्यार्थी दिखेंगे जिन्होंने UPI QR कोड से भुगतान करके 12 अंकों का UTR नंबर सबमिट किया है। आप UTR देखकर 1-क्लिक में उनका VIP पास एक्टिवेट कर सकते हैं।
+            </div>
+          </div>
+
+          {isLoadingOrders ? (
+            <div className="p-12 text-center text-slate-400">
+              <Loader2 className="w-8 h-8 animate-spin mx-auto text-[#7045D8]" />
+              <p className="text-xs font-bold mt-2">पेमेंट्स लोड हो रहे हैं...</p>
+            </div>
+          ) : pendingOrders.length === 0 ? (
+            <div className="p-12 rounded-3xl bg-white dark:bg-[#1E2330] border border-slate-200 dark:border-slate-800 text-center space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center mx-auto">
+                <CheckCircle2 className="w-6 h-6" />
+              </div>
+              <h4 className="text-base font-black text-slate-900 dark:text-white">
+                कोई भी लंबित पेमेंट नहीं है!
+              </h4>
+              <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                सभी विद्यार्थियों के ऑर्डर्स सत्यापित व सक्रिय हैं। नए UTR आने पर वे यहां स्वतः दिखाई देंगे।
+              </p>
+            </div>
+          ) : (
+            <div className="rounded-3xl bg-white dark:bg-[#1E2330] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs text-left">
+                  <thead className="bg-slate-50 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-700">
+                    <tr>
+                      <th className="p-3.5">विद्यार्थी (Student)</th>
+                      <th className="p-3.5">प्लान (Plan)</th>
+                      <th className="p-3.5">राशि (Amount)</th>
+                      <th className="p-3.5">UTR / Ref No.</th>
+                      <th className="p-3.5">तारीख व समय</th>
+                      <th className="p-3.5 text-right">कार्रवाई (Action)</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                    {pendingOrders.map((order) => (
+                      <tr key={order.order_id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40">
+                        <td className="p-3.5">
+                          <strong className="block text-slate-900 dark:text-white">
+                            {order.user_name || "विद्यार्थी"}
+                          </strong>
+                          <span className="text-[11px] text-slate-400 font-mono">
+                            {order.user_email || order.user_id.slice(0, 8)}
+                          </span>
+                        </td>
+                        <td className="p-3.5">
+                          <span className="px-2 py-0.5 rounded-md bg-[#7045D8]/10 text-[#7045D8] dark:text-[#A78BFA] font-black uppercase text-[10px]">
+                            {order.plan_id}
+                          </span>
+                        </td>
+                        <td className="p-3.5 font-mono font-black text-emerald-600 dark:text-emerald-400">
+                          ₹{order.amount}
+                        </td>
+                        <td className="p-3.5 font-mono font-black text-slate-900 dark:text-white select-all">
+                          <span className="px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                            {order.utr_number || "—"}
+                          </span>
+                        </td>
+                        <td className="p-3.5 text-slate-500 text-[11px]">
+                          {order.created_at ? new Date(order.created_at).toLocaleString("hi-IN") : "—"}
+                        </td>
+                        <td className="p-3.5 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <button
+                              type="button"
+                              onClick={() => handleApproveOrder(order)}
+                              className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs flex items-center gap-1 cursor-pointer shadow-sm active:scale-95"
+                            >
+                              <Check className="w-3.5 h-3.5" />
+                              <span>स्वीकृत करें</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleRejectOrder(order.order_id)}
+                              className="px-2.5 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 font-bold text-xs cursor-pointer"
+                            >
+                              खारिज
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

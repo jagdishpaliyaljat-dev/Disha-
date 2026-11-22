@@ -2229,6 +2229,10 @@ export default function App() {
             onSuccess={() => {
               setIsPremiumModalOpen(false);
             }}
+            onOpenLogin={() => {
+              setIsPremiumModalOpen(false);
+              setIsLoginOpen(true);
+            }}
           />
         </OverlayErrorBoundary>
       )}

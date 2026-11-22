@@ -17,9 +17,31 @@ Deno.serve(async (req: Request) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY") || "";
 
-    const cashfreeAppId = Deno.env.get("CASHFREE_APP_ID") || "";
-    const cashfreeSecret = Deno.env.get("CASHFREE_SECRET_KEY") || "";
-    const cashfreeEnv = (Deno.env.get("CASHFREE_ENV") || "PRODUCTION").toUpperCase();
+    let cashfreeAppId = Deno.env.get("CASHFREE_APP_ID") || "";
+    let cashfreeSecret = Deno.env.get("CASHFREE_SECRET_KEY") || "";
+    let cashfreeEnv = (Deno.env.get("CASHFREE_ENV") || "PRODUCTION").toUpperCase();
+
+    // Fallback: Check app_settings table if env secrets are not set
+    if (!cashfreeAppId || !cashfreeSecret) {
+      try {
+        const supabaseAdminInit = createClient(supabaseUrl, supabaseServiceKey);
+        const { data: gwRow } = await supabaseAdminInit
+          .from("app_settings")
+          .select("value")
+          .eq("key", "payment_gateway_config")
+          .maybeSingle();
+
+        if (gwRow?.value?.cashfree?.appId && gwRow?.value?.cashfree?.secretKey) {
+          cashfreeAppId = gwRow.value.cashfree.appId.trim();
+          cashfreeSecret = gwRow.value.cashfree.secretKey.trim();
+          if (gwRow.value.cashfree.environment) {
+            cashfreeEnv = gwRow.value.cashfree.environment.toUpperCase();
+          }
+        }
+      } catch (dbErr) {
+        console.warn("[verify-cashfree-order] Note: Could not load gateway config from DB:", dbErr);
+      }
+    }
 
     // 1. Verify User Session
     const authHeader = req.headers.get("Authorization");

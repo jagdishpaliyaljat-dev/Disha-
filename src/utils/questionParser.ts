@@ -503,8 +503,11 @@ interface SplitBlockResult extends Array<string[]> {
 
 export function splitBlocks(body: string): SplitBlockResult {
   const lines = body.split('\n');
-  const qPref = /^\s*(?:Q\.?|प्रश्न|Question|Que\.?)\s*(?:\(?(\d+)[.):]?|[:\-–])\s*/i;
-  const hasQPref = lines.some(l => qPref.test(l));
+  const qPref = /^\s*(?:(?:Q(?:uestion|ue)?|प्रश्न|प्र)\.?\s*(?:\(?(\d+)[.):\-–]?|[:\-–])?|(?:\(?(\d+)[.):\-–]\s+))/i;
+  const isAnsLine = (l: string) => /^\s*(?:answer|ans|correct|उत्तर|सही\s*उत्तर|right\s*option)\s*[:\-–]?/i.test(l);
+  const isExplicitQ = (l: string) => /^\s*(?:(?:Q(?:uestion|ue)?|प्रश्न|प्र)\.?\s*(?:\(?\d+[.):\-–]?|[:\-–])?)\s+/i.test(l);
+  const isNumberedQ = (l: string) => /^\s*(?:\(?\d+[.):\-–]\s+)/.test(l);
+  const isOptionLine = (l: string) => /^\s*(?:(?:\([A-Ea-eक-ङअ-द1-5]\)|[A-Ea-eक-ङअ-द1-5][.):\-–]|Option\s*[A-Ea-e1-5])\s+)/i.test(l);
 
   const blocks: SplitBlockResult = [] as any;
   blocks.meta = {};
@@ -518,7 +521,13 @@ export function splitBlocks(body: string): SplitBlockResult {
     const l = lines[i];
     const trimmed = l.trim();
     if (!trimmed) {
-      if (cur) cur.push(l);
+      if (cur && (cur.some(isAnsLine) || cur.filter(isOptionLine).length >= 2)) {
+        // Blank line following an answered question cleanly closes the block
+        blocks.push(cur);
+        cur = null;
+      } else if (cur) {
+        cur.push(l);
+      }
       continue;
     }
 
@@ -552,7 +561,7 @@ export function splitBlocks(body: string): SplitBlockResult {
     if (passageIntroRe.test(trimmed)) {
       const pLines: string[] = [trimmed];
       i++;
-      while (i < lines.length && !qPref.test(lines[i]) && !/^\s*(\d+)[.)]\s+/.test(lines[i])) {
+      while (i < lines.length && !isExplicitQ(lines[i]) && !/^\s*(\d+)[.)]\s+/.test(lines[i])) {
         if (lines[i].trim()) pLines.push(lines[i].trim());
         i++;
       }
@@ -562,21 +571,50 @@ export function splitBlocks(body: string): SplitBlockResult {
     }
 
     const isPipeLine = trimmed.includes('|');
-    const m = (!isPipeLine && hasQPref) 
-      ? trimmed.match(qPref) 
-      : (!isPipeLine ? (trimmed.match(qPref) || trimmed.match(/^\s*(\d+)[.)]\s+/)) : null);
+    if (!isPipeLine) {
+      // 1. Check explicit question prefix (e.g. Q. 1, Question:, प्रश्न 1:)
+      const explicitMatch = trimmed.match(qPref);
+      if (isExplicitQ(trimmed) && explicitMatch) {
+        const qNum = explicitMatch[1] ? +explicitMatch[1] : (last + 1);
+        if (cur && cur.length > 0) blocks.push(cur);
+        cur = activePassage ? [activePassage, trimmed] : [trimmed];
+        last = qNum;
+        continue;
+      }
 
-    if (m) {
-      const qNum = m[1] ? +m[1] : (last + 1);
-      const startLines = activePassage ? [activePassage, trimmed] : [trimmed];
-      cur = startLines;
-      blocks.push(cur);
-      last = qNum;
-    } else if (cur) {
+      // 2. Check numbered line like "1. ...", "2. ..."
+      if (isNumberedQ(trimmed)) {
+        const numMatch = trimmed.match(/^\s*\(?(\d+)[.):\-–]/);
+        const digit = numMatch ? parseInt(numMatch[1], 10) : 0;
+        const curHasAnswer = cur && cur.some(isAnsLine);
+        const curHasLetterOptions = cur && cur.filter(isOptionLine).some((l) => /^\s*(?:(?:\([A-Ea-eक-ङअ-द]\)|[A-Ea-eक-ङअ-द][.):\-–]|Option\s*[A-Ea-e])\s+)/i.test(l));
+
+        // A bare number starts a new question ONLY if cur already has an answer or letter options (A, B, C, D)
+        if (cur && cur.length > 0 && (curHasAnswer || curHasLetterOptions) && digit > 0) {
+          blocks.push(cur);
+          cur = activePassage ? [activePassage, trimmed] : [trimmed];
+          last = digit;
+          continue;
+        }
+
+        if (!cur) {
+          cur = activePassage ? [activePassage, trimmed] : [trimmed];
+          last = digit || 1;
+          continue;
+        }
+      }
+    }
+
+    if (cur) {
       cur.push(trimmed);
     } else {
-      bufferBeforeFirstQ.push(trimmed);
+      cur = activePassage ? [activePassage, trimmed] : [trimmed];
     }
+  }
+
+  // Push final remaining block
+  if (cur && cur.length > 0) {
+    blocks.push(cur);
   }
 
   // If no blocks formed, treat all lines as single question block
@@ -584,10 +622,12 @@ export function splitBlocks(body: string): SplitBlockResult {
     const filtered = lines.filter(l => l.trim().length > 0);
     blocks.push(filtered);
   } else if (blocks.length > 0 && bufferBeforeFirstQ.length > 0) {
-    // Check if buffer before first Q was a passage
+    // If buffer before first Q was a passage or question stem, prepend it to blocks[0]
     const beforeText = bufferBeforeFirstQ.join('\n');
     if (passageIntroRe.test(beforeText)) {
       blocks[0].unshift(beforeText);
+    } else {
+      blocks[0] = [...bufferBeforeFirstQ, ...blocks[0]];
     }
   }
 
@@ -984,42 +1024,23 @@ export function detectType(
     /(?:Reason\s*\(?R\)?|कारण|स्पष्टीकरण|कथन\s*\(?R\)?|\(R\))/i.test(stem);
 
   const hasStatements = has2PlusStatements || (
-    /^\s*\(?(a|b|c|d|i|ii|1|2|I|II)\)/im.test(stem) ||
-    /^\s*(?:कथन\s*)?\(?[I123]\)?[.:]/im.test(stem) ||
-    /कथन\s*\(?[I1]/i.test(stem) ||
-    /कथन सही हैं|उपर्युक्त कथनों|statements? given above/i.test(stem) ||
+    /कथनों\s+पर\s+विचार|उपर्युक्त\s+कथनों|कथन\s+सही|statements?\s+given\s+above/i.test(stem) ||
+    (
+      /(?:^|\n)\s*(?:कथन\s*[123I]|Statement\s*[123I]|\([123I]\))\s*[:.]/im.test(stem) &&
+      /(?:^|\n)\s*(?:कथन\s*[234II]|Statement\s*[234II]|\([234II]\))\s*[:.]/im.test(stem)
+    ) ||
     cleanOpts.some(o => /(?:(?:only|केवल|both|दोनों)\s*(?:I{1,3}|IV|VI{0,3}|[1-4]|कथन|statement))|(?:(?:I{1,3}|IV|VI{0,3}|[1-4])\s*(?:and|तथा|और)\s*(?:I{1,3}|IV|VI{0,3}|[1-4]))/i.test(o))
   );
 
-  const hasFillBlank = /_{3,}|\.{4,}/.test(stem);
-  const strippedOpts = cleanOpts.map(o => o.replace(/^(?:[A-Da-d1-4कखगघअबतथ]\.?|\([A-Da-d1-4कखगघअबतथ]\))\s*/, '').trim());
-  const isTrueFalse = cleanOpts.length === 2 && strippedOpts.some(o => /^(सत्य|असत्य|true|false|सही|गलत)$/i.test(o));
   const hasPassage = /(?:^|[\s\n])(?:गद्यांश|पद्यांश|passage|directions?|निर्देश)(?:\s*[:\-–\n]|$)/i.test(stem);
-  const hasImageRef = /\[image.*?\]|\[चित्र.*?\]|\[diagram.*?\]/i.test(stem);
-
-  const lines = stem.split('\n').map(l => l.trim()).filter(Boolean);
-  const hasFullHindiLine = lines.some(l => /^[\u0900-\u097F\s\d.,!?"'()\-:;]+$/.test(l) && /[\u0900-\u097F]{5,}/.test(l));
-  const hasFullEnglishLine = lines.some(l => /^[a-zA-Z\s\d.,!?"'()\-:;]+$/.test(l) && /[a-zA-Z]{5,}/.test(l) && l.replace(/[^a-zA-Z]/g, '').length > 5);
-
-  const hasHindiChars = /[\u0900-\u097F]{3,}/.test(stem);
-  const hasEnglishChars = /[a-zA-Z]{3,}/.test(stem);
-  const hasSlashSep = stem.includes('/') || cleanOpts.some(o => o.includes('/'));
-
-  const isBilingual = (
-    ((hasFullHindiLine && hasFullEnglishLine) || (hasHindiChars && hasEnglishChars && hasSlashSep) || /[\u0900-\u097F]{5,}[\s\S]*\/[\s\S]*[a-zA-Z]{5,}/.test(stem)) && 
-    !/^\s*\([A-Z][a-z]?\d*\)\s*$/m.test(stem) && 
-    !/^\s*\(.*[0-9].*\)\s*$/m.test(stem)
-  );
+  const hasMath = /\$[^$]+\$|\\frac|\\sqrt|[√π÷×≤≥≠²³]/.test(`${stem} ${cleanOpts.join(" ")}`);
 
   if (hasMatchStructure || isMatchList) return 'match_following';
   if (hasAssertion) return 'assertion_reason';
   if (hasStatements) return 'statement_based';
-  if (hasFillBlank) return 'fill_blank';
-  if (isTrueFalse) return 'true_false';
-  if (hasPassage) return 'passage_based';
-  if (hasImageRef) return 'image_reference';
-  if (isBilingual) return 'bilingual';
-  return 'simple';
+  if (hasPassage) return 'case_based';
+  if (hasMath) return 'math';
+  return 'single_correct';
 }
 
 
@@ -1205,7 +1226,7 @@ export function parseRawMcqText(
     }
 
     let stem = lines.slice(0, res.stemEnd + 1).join('\n')
-      .replace(/^\s*(?:Q\.?|प्रश्न|Question|Que\.?)\s*(?:\(?\d+[.):]?|[:\-–])\s*/i, '') + (res.stemTail ?? '');
+      .replace(/^\s*(?:(?:Q(?:uestion|ue)?|प्रश्न|प्र)\.?\s*(?:\(?\d+[.):\-–]?|[:\-–])?|(?:\(?\d+[.):\-–]\s+))\s*/i, '') + (res.stemTail ?? '');
     stem = stem.trim();
 
     // Extract statements and ask line from stem

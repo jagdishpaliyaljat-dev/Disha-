@@ -397,9 +397,122 @@ export async function savePaywallRulesToCloud(
   }
 }
 
+export interface PaymentGatewayConfig {
+  cashfree: {
+    enabled: boolean;
+    appId: string;
+    secretKey: string;
+    environment: "SANDBOX" | "PRODUCTION";
+  };
+  upi: {
+    enabled: boolean;
+    upiId: string;
+    payeeName: string;
+    instructions?: string;
+  };
+  autoApprove?: boolean;
+}
+
+export const DEFAULT_GATEWAY_CONFIG: PaymentGatewayConfig = {
+  cashfree: {
+    enabled: false,
+    appId: "",
+    secretKey: "",
+    environment: "SANDBOX",
+  },
+  upi: {
+    enabled: true,
+    upiId: "jagdishpaliyaljat@okhdfcbank",
+    payeeName: "Disha PYQ Online",
+    instructions: "Google Pay, PhonePe, Paytm या किसी भी UPI ऐप से QR कोड स्कैन करें या UPI ID पर भुगतान करें। भुगतान के बाद 12 अंकों का UTR / Transaction ID दर्ज करें।",
+  },
+  autoApprove: false,
+};
+
+const STORAGE_KEY_GATEWAY = "disha_payment_gateway_config_v1";
+let inMemoryGatewayConfig: PaymentGatewayConfig = { ...DEFAULT_GATEWAY_CONFIG };
+
+export function getLocalPaymentGatewayConfig(): PaymentGatewayConfig {
+  if (typeof window !== "undefined") {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY_GATEWAY);
+      if (stored) {
+        return { ...DEFAULT_GATEWAY_CONFIG, ...JSON.parse(stored) };
+      }
+    } catch {}
+  }
+  return inMemoryGatewayConfig;
+}
+
+export async function fetchPaymentGatewayConfigFromCloud(): Promise<PaymentGatewayConfig> {
+  if (!isSupabaseConfigured()) {
+    return getLocalPaymentGatewayConfig();
+  }
+  try {
+    const { data, error } = await supabase
+      .from("app_settings")
+      .select("value")
+      .eq("key", "payment_gateway_config")
+      .maybeSingle();
+
+    if (!error && data?.value) {
+      const cfg: PaymentGatewayConfig = { ...DEFAULT_GATEWAY_CONFIG, ...data.value };
+      inMemoryGatewayConfig = cfg;
+      if (typeof window !== "undefined") {
+        localStorage.setItem(STORAGE_KEY_GATEWAY, JSON.stringify(cfg));
+        window.dispatchEvent(
+          new CustomEvent("disha_gateway_config_updated", { detail: cfg })
+        );
+      }
+      return cfg;
+    }
+  } catch (err) {
+    console.warn("[PaymentGateway] Cloud load note:", err);
+  }
+  return getLocalPaymentGatewayConfig();
+}
+
+export async function savePaymentGatewayConfigToCloud(
+  config: PaymentGatewayConfig,
+  adminEmail: string = "admin"
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    inMemoryGatewayConfig = { ...config };
+    if (typeof window !== "undefined") {
+      localStorage.setItem(STORAGE_KEY_GATEWAY, JSON.stringify(config));
+      window.dispatchEvent(
+        new CustomEvent("disha_gateway_config_updated", { detail: config })
+      );
+    }
+
+    if (!isSupabaseConfigured()) {
+      return { success: true };
+    }
+
+    const { error } = await supabase
+      .from("app_settings")
+      .upsert({
+        key: "payment_gateway_config",
+        value: config,
+        description: "Configurable payment gateway credentials (Cashfree) and UPI QR details",
+        updated_at: new Date().toISOString(),
+        updated_by: adminEmail,
+      }, { onConflict: "key" });
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err?.message || "Failed to save gateway config" };
+  }
+}
+
 // Auto-fetch on module load in browser
 if (typeof window !== "undefined") {
   setTimeout(() => {
     fetchPremiumConfigFromCloud().catch(() => {});
+    fetchPaymentGatewayConfigFromCloud().catch(() => {});
   }, 100);
 }

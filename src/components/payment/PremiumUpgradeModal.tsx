@@ -18,11 +18,29 @@ import {
   ChevronUp,
   HelpCircle,
   Smartphone,
-  Laptop
+  Laptop,
+  QrCode,
+  Copy,
+  ExternalLink,
+  AlertTriangle,
+  LogIn,
+  ArrowRight,
+  Clock
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { PREMIUM_PLANS, PremiumPlan, initiateCashfreePayment, getPremiumPlansList } from "../../services/payment/cashfreeService";
+import { 
+  getLocalPaymentGatewayConfig, 
+  PaymentGatewayConfig, 
+  fetchPaymentGatewayConfigFromCloud 
+} from "../../services/payment/premiumConfigService";
+import { 
+  generateUpiDeepLink, 
+  generateUpiQrUrl, 
+  submitStudentUpiPayment 
+} from "../../services/payment/upiPaymentService";
 import { UserProfile } from "../../types";
+import { isProfileAuthenticated } from "../../utils/userProfileStorage";
 import { triggerHaptic, playClickSound } from "../../utils/audioFeedback";
 
 export interface PremiumUpgradeModalProps {
@@ -31,6 +49,7 @@ export interface PremiumUpgradeModalProps {
   currentUser?: UserProfile | null;
   featureTrigger?: "ai_tutor" | "mock_tests" | "profile" | "general" | "pdf_export" | "live_battle" | "mistake_bank" | "state_merit_rank";
   onSuccess?: () => void;
+  onOpenLogin?: () => void;
 }
 
 export const PremiumUpgradeModal: React.FC<PremiumUpgradeModalProps> = ({
@@ -39,17 +58,35 @@ export const PremiumUpgradeModal: React.FC<PremiumUpgradeModalProps> = ({
   currentUser,
   featureTrigger = "general",
   onSuccess,
+  onOpenLogin,
 }) => {
   const [plans, setPlans] = useState<PremiumPlan[]>(() => getPremiumPlansList());
   const [selectedPlanId, setSelectedPlanId] = useState<"monthly" | "yearly" | "lifetime">("yearly");
+  const [paymentMethodTab, setPaymentMethodTab] = useState<"upi" | "cashfree">("upi");
+  const [gatewayConfig, setGatewayConfig] = useState<PaymentGatewayConfig>(() => getLocalPaymentGatewayConfig());
+  
+  // UPI Form state
+  const [utrNumber, setUtrNumber] = useState("");
+  const [copiedUpi, setCopiedUpi] = useState(false);
+  const [isUpiSubmitting, setIsUpiSubmitting] = useState(false);
+  const [upiSubmittedSuccess, setUpiSubmittedSuccess] = useState(false);
+
+  // Cashfree state
   const [isProcessing, setIsProcessing] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSuccessState, setIsSuccessState] = useState(false);
   const [showComparison, setShowComparison] = useState(false);
 
-  // Sync dynamic plans when updated from Admin Panel
+  // Sync dynamic plans and gateway settings
   useEffect(() => {
+    fetchPaymentGatewayConfigFromCloud().then(cfg => {
+      setGatewayConfig(cfg);
+      if (!cfg.cashfree?.enabled && cfg.upi?.enabled) {
+        setPaymentMethodTab("upi");
+      }
+    });
+
     const handleConfigUpdate = (e: any) => {
       if (e.detail?.plans) {
         setPlans(e.detail.plans.filter((p: any) => p.enabled !== false));
@@ -57,12 +94,21 @@ export const PremiumUpgradeModal: React.FC<PremiumUpgradeModalProps> = ({
         setPlans(getPremiumPlansList());
       }
     };
+
+    const handleGatewayUpdate = (e: any) => {
+      if (e.detail) {
+        setGatewayConfig(e.detail);
+      }
+    };
+
     if (typeof window !== "undefined") {
       window.addEventListener("disha_premium_config_updated", handleConfigUpdate);
+      window.addEventListener("disha_gateway_config_updated", handleGatewayUpdate);
     }
     return () => {
       if (typeof window !== "undefined") {
         window.removeEventListener("disha_premium_config_updated", handleConfigUpdate);
+        window.removeEventListener("disha_gateway_config_updated", handleGatewayUpdate);
       }
     };
   }, []);
@@ -70,7 +116,7 @@ export const PremiumUpgradeModal: React.FC<PremiumUpgradeModalProps> = ({
   // Close on Escape key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && isOpen && !isProcessing) {
+      if (e.key === "Escape" && isOpen && !isProcessing && !isUpiSubmitting) {
         onClose();
       }
     };
@@ -78,21 +124,96 @@ export const PremiumUpgradeModal: React.FC<PremiumUpgradeModalProps> = ({
       window.addEventListener("keydown", handleKeyDown);
     }
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, isProcessing, onClose]);
+  }, [isOpen, isProcessing, isUpiSubmitting, onClose]);
 
   if (!isOpen) return null;
 
   const isAlreadyPremium = Boolean(currentUser?.isPremium);
+  const isAuth = isProfileAuthenticated(currentUser || null);
   const selectedPlan = plans.find((p) => p.id === selectedPlanId) || plans[0] || PREMIUM_PLANS[0];
 
+  const upiId = gatewayConfig.upi?.upiId || "jagdishpaliyaljat@okhdfcbank";
+  const payeeName = gatewayConfig.upi?.payeeName || "Disha PYQ Online";
+  const upiDeepLink = generateUpiDeepLink(upiId, payeeName, selectedPlan.amount, selectedPlan.name);
+  const upiQrUrl = generateUpiQrUrl(upiDeepLink, 240);
+
   const handleSelectPlan = (planId: "monthly" | "yearly" | "lifetime") => {
-    if (isProcessing) return;
+    if (isProcessing || isUpiSubmitting) return;
     triggerHaptic("light");
     playClickSound();
     setSelectedPlanId(planId);
+    setUtrNumber("");
   };
 
+  const handleCopyUpiId = () => {
+    triggerHaptic("light");
+    if (navigator?.clipboard?.writeText) {
+      navigator.clipboard.writeText(upiId);
+      setCopiedUpi(true);
+      setTimeout(() => setCopiedUpi(false), 2500);
+    }
+  };
+
+  const handleOpenUpiApp = () => {
+    triggerHaptic("medium");
+    window.location.href = upiDeepLink;
+  };
+
+  // Submit UPI UTR
+  const handleUpiSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isAuth) {
+      triggerHaptic("warning");
+      setErrorMessage("प्रीमियम सक्रिय करने से पहले कृपया लॉगिन करें।");
+      return;
+    }
+    if (!utrNumber.trim() || utrNumber.trim().length < 6) {
+      triggerHaptic("warning");
+      setErrorMessage("कृपया 12 अंकों का सही UTR / Transaction No. दर्ज करें।");
+      return;
+    }
+
+    setErrorMessage(null);
+    setIsUpiSubmitting(true);
+    triggerHaptic("medium");
+
+    const res = await submitStudentUpiPayment({
+      userId: currentUser!.id,
+      userEmail: currentUser?.email,
+      userName: currentUser?.name,
+      planId: selectedPlanId,
+      amount: selectedPlan.amount,
+      utrNumber: utrNumber.trim(),
+    });
+
+    setIsUpiSubmitting(false);
+
+    if (res.success) {
+      triggerHaptic("success");
+      if (res.isPremium) {
+        setIsSuccessState(true);
+        setTimeout(() => {
+          onSuccess?.();
+          onClose();
+        }, 2500);
+      } else {
+        setUpiSubmittedSuccess(true);
+      }
+    } else {
+      triggerHaptic("warning");
+      setErrorMessage(res.error || "भुगतान दर्ज करने में समस्या आई।");
+    }
+  };
+
+  // Cashfree Checkout
   const handlePay = async () => {
+    if (!isAuth) {
+      triggerHaptic("warning");
+      setErrorMessage("पेमेंट करने से पहले कृपया अपनी प्रोफाइल में लॉगिन करें।");
+      onOpenLogin?.();
+      return;
+    }
+
     triggerHaptic("medium");
     playClickSound();
     setErrorMessage(null);
@@ -114,6 +235,10 @@ export const PremiumUpgradeModal: React.FC<PremiumUpgradeModalProps> = ({
     } else if (result.error) {
       triggerHaptic("warning");
       setErrorMessage(result.error);
+      // Auto-fallback suggestion
+      if (result.error.includes("credential") || result.error.includes("Cashfree") || result.error.includes("500")) {
+        setPaymentMethodTab("upi");
+      }
     }
   };
 
@@ -196,7 +321,7 @@ export const PremiumUpgradeModal: React.FC<PremiumUpgradeModalProps> = ({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          onClick={() => !isProcessing && onClose()}
+          onClick={() => !isProcessing && !isUpiSubmitting && onClose()}
           className="fixed inset-0 bg-transparent"
         />
 
@@ -218,140 +343,156 @@ export const PremiumUpgradeModal: React.FC<PremiumUpgradeModalProps> = ({
           <div className="relative flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-white/10 bg-[#171329]/95 backdrop-blur-md z-20 shrink-0">
             {/* Left: Brand + VIP Badge */}
             <div className="flex items-center gap-2.5 sm:gap-3">
-              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/25 shrink-0 transform -rotate-2">
-                <Crown className="w-5 h-5 sm:w-6 sm:h-6 text-black fill-black" />
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-400 via-amber-500 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/30 text-black shrink-0">
+                <Crown className="w-5 h-5 fill-black" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="font-black text-white text-base sm:text-lg tracking-tight">Disha PYQ</span>
-                  <span className="text-[10px] sm:text-[11px] font-black px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 text-black uppercase tracking-wider shadow-xs">
-                    VIP PASS
+                  <h2 id="modal-premium-title" className="text-sm sm:text-base font-black text-white tracking-tight">
+                    Disha VIP Pass
+                  </h2>
+                  <span className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 text-black">
+                    PRO
                   </span>
                 </div>
-                <p className="text-[11px] sm:text-xs text-[#A78BFA] font-medium leading-none mt-0.5">
-                  प्रीमियम परीक्षा तैयारी
+                <p className="text-[11px] text-[#A78BFA] font-medium hidden sm:block">
+                  राजस्थान प्रतियोगी परीक्षाओं के लिए सर्वश्रेष्ठ डिजिटल साथी
                 </p>
               </div>
             </div>
 
-            {/* Right: Security Badge & Close Button */}
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[11px] font-semibold">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                <span>100% सुरक्षित भुगतान</span>
-              </div>
-
-              <button
-                type="button"
-                onClick={onClose}
-                disabled={isProcessing}
-                className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center text-gray-300 hover:text-white transition-all cursor-pointer"
-                aria-label="Close modal"
-              >
-                <X className="w-4 h-4 sm:w-5 sm:h-5" />
-              </button>
-            </div>
+            {/* Right: Close Button */}
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={isProcessing || isUpiSubmitting}
+              className="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 text-gray-300 hover:text-white flex items-center justify-center transition-all cursor-pointer disabled:opacity-30"
+              aria-label="Close premium modal"
+            >
+              <X className="w-5 h-5" />
+            </button>
           </div>
 
           {/* 2. SCROLLABLE CONTENT BODY */}
-          <div className="p-4 sm:p-6 overflow-y-auto space-y-4 sm:space-y-6 flex-1 z-10 text-slate-100">
-            {isSuccessState ? (
-              /* Success Confirmation View */
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="py-12 text-center space-y-4 max-w-md mx-auto"
+          <div className="flex-1 overflow-y-auto overscroll-contain p-4 sm:p-6 space-y-6">
+            
+            {/* Guest User Warning Banner */}
+            {!isAuth && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-amber-500/20 via-orange-500/15 to-amber-500/20 border border-amber-500/40 flex flex-col sm:flex-row items-center justify-between gap-3 text-left shadow-lg"
               >
-                <div className="w-20 h-20 mx-auto rounded-full bg-emerald-500/20 border-2 border-emerald-500 flex items-center justify-center text-emerald-400 shadow-xl shadow-emerald-500/30 animate-bounce">
-                  <Check className="w-10 h-10 stroke-[3]" />
-                </div>
-                <h3 className="text-2xl sm:text-3xl font-black text-white">बधाई हो! 🎉</h3>
-                <p className="text-sm sm:text-base text-gray-200 leading-relaxed">
-                  आपका <strong className="text-amber-400">Disha PYQ VIP पास</strong> सफलतापूर्वक सक्रिय कर दिया गया है। 
-                  सभी Mock Tests, Test Series और Disha AI Tutor अब पूरी तरह अनलॉक हैं।
-                </p>
-                <div className="pt-2">
-                  <span className="inline-block text-xs font-bold px-3 py-1.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                    ऐप पर वापस रीडायरेक्ट हो रहे हैं...
-                  </span>
-                </div>
-              </motion.div>
-            ) : isAlreadyPremium ? (
-              /* Already Active VIP View */
-              <div className="py-8 text-center space-y-4 bg-white/5 rounded-3xl border border-white/10 p-6 max-w-lg mx-auto">
-                <div className="w-16 h-16 mx-auto rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 shadow-lg">
-                  <Award className="w-8 h-8" />
-                </div>
-                <div>
-                  <h3 className="text-xl sm:text-2xl font-black text-white">आप पहले से VIP सदस्य हैं! 👑</h3>
-                  <p className="text-xs sm:text-sm text-gray-300 mt-1">
-                    सक्रिय प्लान: <strong className="text-amber-400 uppercase">{currentUser.premiumPlan || "VIP"}</strong>
-                  </p>
-                  {currentUser.premiumUntil && (
-                    <p className="text-xs text-gray-400 mt-0.5">
-                      वैधता: <strong className="text-white">{new Date(currentUser.premiumUntil).toLocaleDateString("hi-IN", { day: "numeric", month: "long", year: "numeric" })}</strong> तक
+                <div className="flex items-center gap-3 w-full sm:w-auto">
+                  <div className="w-10 h-10 rounded-xl bg-amber-500 text-black flex items-center justify-center shrink-0 font-bold shadow-md">
+                    <AlertTriangle className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="text-xs sm:text-sm font-black text-amber-200">
+                      आप अभी अतिथि (Guest) मोड में हैं!
+                    </h4>
+                    <p className="text-[11px] text-amber-300/80 leading-snug mt-0.5">
+                      प्रीमियम पास खरीदने से पहले लॉगिन करें, ताकि आपका VIP पास हमेशा आपकी आईडी पर सुरक्षित रहे।
                     </p>
-                  )}
+                  </div>
                 </div>
-                <p className="text-xs text-[#A78BFA] leading-relaxed max-w-sm mx-auto">
-                  आपकी सदस्यता सक्रिय है। सभी Mock Tests, State Merit Ranking और 24x7 AI Tutor का असीमित आनंद लें।
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClose();
+                    onOpenLogin?.();
+                  }}
+                  className="w-full sm:w-auto px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-black font-black text-xs shrink-0 flex items-center justify-center gap-1.5 cursor-pointer shadow-md active:scale-95 transition-transform"
+                >
+                  <LogIn className="w-3.5 h-3.5" />
+                  <span>अभी लॉगिन करें</span>
+                </button>
+              </motion.div>
+            )}
+
+            {/* Success State Screen */}
+            {isSuccessState ? (
+              <div className="py-12 px-4 text-center space-y-4">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", damping: 12 }}
+                  className="w-20 h-20 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center mx-auto shadow-2xl"
+                >
+                  <CheckCheck className="w-10 h-10 stroke-[2.5]" />
+                </motion.div>
+                <h3 className="text-xl sm:text-2xl font-black text-white">
+                  बधाई हो! आपका Disha VIP सक्रिय हो गया है
+                </h3>
+                <p className="text-xs sm:text-sm text-gray-300 max-w-md mx-auto">
+                  आपके सभी टेस्ट पेपर्स, Disha AI Tutor और ऑल-राजस्थान मेरिट रैंक सफलतापूर्वक अनलॉक हो चुके हैं।
                 </p>
-                <div className="pt-3">
-                  <button
-                    type="button"
-                    onClick={onClose}
-                    className="w-full sm:w-auto px-8 py-3 rounded-2xl bg-[#7045D8] hover:bg-[#5e34ca] text-white font-black text-sm shadow-lg shadow-[#7045D8]/30 transition-all cursor-pointer"
-                  >
-                    जारी रखें (Continue App)
-                  </button>
+              </div>
+            ) : isAlreadyPremium ? (
+              /* Already Premium Banner */
+              <div className="p-6 rounded-3xl bg-gradient-to-br from-[#7045D8]/20 via-[#1F1938] to-[#7045D8]/10 border border-[#7045D8]/40 text-center space-y-3">
+                <div className="w-14 h-14 rounded-2xl bg-amber-400 text-black flex items-center justify-center mx-auto shadow-lg shadow-amber-400/30">
+                  <Crown className="w-7 h-7 fill-black" />
                 </div>
+                <h3 className="text-lg sm:text-xl font-black text-white">
+                  आप पहले से Disha VIP सदस्य हैं!
+                </h3>
+                <p className="text-xs text-gray-300 max-w-md mx-auto">
+                  आपकी प्रोफाइल में सभी प्रीमियम सुविधाएं और असीमित टेस्ट पेपर्स सक्रिय हैं।
+                </p>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="px-6 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs cursor-pointer transition-colors"
+                >
+                  बंद करें
+                </button>
+              </div>
+            ) : upiSubmittedSuccess ? (
+              /* UPI Submitted for Manual Verification */
+              <div className="p-6 rounded-3xl bg-gradient-to-br from-emerald-500/15 via-[#1F1938] to-emerald-500/10 border border-emerald-500/30 text-center space-y-4">
+                <div className="w-14 h-14 rounded-2xl bg-emerald-500 text-black flex items-center justify-center mx-auto shadow-lg shadow-emerald-500/30">
+                  <Clock className="w-7 h-7" />
+                </div>
+                <div className="space-y-1">
+                  <h3 className="text-lg sm:text-xl font-black text-white">
+                    आपका भुगतान UTR प्राप्त हो गया है!
+                  </h3>
+                  <p className="text-xs text-emerald-300 font-mono font-bold">
+                    UTR: {utrNumber}
+                  </p>
+                </div>
+                <p className="text-xs text-gray-300 max-w-md mx-auto leading-relaxed">
+                  हमारी टीम आपके भुगतान का सत्यापन कर रही है। अगले <strong>5 से 15 मिनट</strong> में आपका VIP पास स्वतः सक्रिय हो जाएगा।
+                </p>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs cursor-pointer shadow-lg shadow-emerald-600/30"
+                >
+                  ठीक है, धन्यवाद
+                </button>
               </div>
             ) : (
-              /* Main Upgrade Flow */
               <>
-                {/* A. Hero Value Proposition */}
-                <div className="text-center space-y-1.5 max-w-2xl mx-auto">
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#7045D8]/20 border border-[#7045D8]/40 text-[#A78BFA] text-[11px] font-bold">
-                    <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                {/* A. Hero Trigger Headline */}
+                <div className="text-center space-y-2">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#7045D8]/20 border border-[#7045D8]/40 text-[#A78BFA] text-[10px] font-black tracking-wider uppercase">
+                    <Sparkles className="w-3 h-3 text-amber-400" />
                     <span>{badge}</span>
                   </div>
-                  <h2 
-                    id="modal-premium-title"
-                    className="text-lg sm:text-2xl md:text-3xl font-black text-white tracking-tight leading-snug"
-                  >
+                  <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight leading-tight">
                     {title}
-                  </h2>
-                  <p className="text-xs sm:text-sm text-gray-300 leading-relaxed max-w-xl mx-auto">
+                  </h1>
+                  <p className="text-xs sm:text-sm text-gray-300 max-w-xl mx-auto leading-relaxed">
                     {subtitle}
                   </p>
                 </div>
 
-                {/* B. Limited-Time Offer Banner */}
-                <div className="p-3 sm:p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/15 via-[#7045D8]/25 to-amber-500/15 border border-amber-500/30 flex items-center justify-between gap-2 shadow-xs">
-                  <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
-                    <span className="text-lg sm:text-xl">⚡</span>
-                    <div className="min-w-0">
-                      <p className="text-xs sm:text-sm font-black text-white leading-tight">
-                        स्पेशल डिस्काउंट ऑफर • 70% तक की भारी बचत!
-                      </p>
-                      <p className="text-[10px] sm:text-[11px] text-[#A78BFA] leading-tight mt-0.5 truncate">
-                        RPSC RAS, 2nd Grade, 3rd Grade, CET और सभी राजस्थान भर्ती परीक्षाओं हेतु
-                      </p>
-                    </div>
-                  </div>
-                  <div className="shrink-0 text-right">
-                    <span className="text-[11px] sm:text-xs font-black px-2.5 py-1 rounded-lg bg-amber-400 text-black shadow-xs">
-                      सीमित समय
-                    </span>
-                  </div>
-                </div>
-
-                {/* C. PRICING CARDS — RESPONSIVE (Stacked on Mobile, 3-Columns on Laptop) */}
-
-                {/* MOBILE VIEW (< md) : Touch-Friendly Vertical Radio Cards */}
-                <div className="block md:hidden space-y-2.5">
+                {/* B. Plan Selector Cards (Monthly, Yearly, Lifetime) */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 sm:gap-4 items-stretch pt-2">
                   {plans.map((plan) => {
-                    const isSelected = selectedPlanId === plan.id;
+                    const isSelected = plan.id === selectedPlanId;
                     const savings = getSavingsPercent(plan.amount, plan.originalAmount);
                     const perDay = getPerDayCalculation(plan.id, plan.amount);
 
@@ -359,94 +500,10 @@ export const PremiumUpgradeModal: React.FC<PremiumUpgradeModalProps> = ({
                       <div
                         key={plan.id}
                         onClick={() => handleSelectPlan(plan.id)}
-                        className={`relative p-3.5 rounded-2xl border cursor-pointer transition-all active:scale-[0.99] select-none ${
+                        className={`relative rounded-2xl p-4 sm:p-5 flex flex-col justify-between transition-all duration-300 cursor-pointer border ${
                           isSelected
-                            ? "bg-gradient-to-r from-[#7045D8]/30 via-[#7045D8]/15 to-[#221C38] border-[#A78BFA] ring-2 ring-[#7045D8]/70 shadow-lg shadow-[#7045D8]/25"
-                            : "bg-[#221C38]/80 hover:bg-[#221C38] border-white/10"
-                        }`}
-                      >
-                        {/* Tag Badge */}
-                        {plan.tag && (
-                          <div className="absolute -top-2.5 left-4">
-                            <span className={`text-[9.5px] font-black px-2 py-0.5 rounded-full shadow-sm ${
-                              plan.isPopular 
-                                ? "bg-gradient-to-r from-amber-400 to-orange-500 text-black" 
-                                : "bg-gradient-to-r from-[#7045D8] to-purple-400 text-white"
-                            }`}>
-                              {plan.tag}
-                            </span>
-                          </div>
-                        )}
-
-                        <div className="flex items-center justify-between gap-3 pt-0.5">
-                          {/* Left: Radio + Name & Duration */}
-                          <div className="flex items-center gap-3 min-w-0">
-                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
-                              isSelected ? "border-amber-400 bg-amber-400" : "border-gray-500 bg-transparent"
-                            }`}>
-                              {isSelected && <div className="w-2 h-2 rounded-full bg-black" />}
-                            </div>
-                            <div className="min-w-0">
-                              <h4 className="font-black text-sm text-white truncate">
-                                {plan.name}
-                              </h4>
-                              <p className="text-[11px] text-[#A78BFA] font-medium leading-none mt-0.5">
-                                {perDay}
-                              </p>
-                            </div>
-                          </div>
-
-                          {/* Right: Price & Savings */}
-                          <div className="text-right shrink-0">
-                            <div className="flex items-baseline justify-end gap-1.5">
-                              <span className="text-xs text-gray-400 line-through">₹{plan.originalAmount}</span>
-                              <span className="text-lg font-black text-white">₹{plan.amount}</span>
-                            </div>
-                            <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/15 px-1.5 py-0.5 rounded-md">
-                              {savings}% OFF
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Selected Plan Features snippet */}
-                        {isSelected && (
-                          <motion.div 
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: "auto" }}
-                            className="mt-3 pt-2.5 border-t border-white/10 space-y-1 text-xs text-gray-200"
-                          >
-                            {plan.features.slice(0, 3).map((f, i) => (
-                              <div key={i} className="flex items-center gap-1.5 text-[11px]">
-                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                                <span className="truncate">{f}</span>
-                              </div>
-                            ))}
-                          </motion.div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* LAPTOP / DESKTOP VIEW (>= md) : 3-Column Side-by-Side Cards */}
-                <div className="hidden md:grid md:grid-cols-3 gap-4 lg:gap-5 items-stretch pt-2">
-                  {plans.map((plan) => {
-                    const isSelected = selectedPlanId === plan.id;
-                    const savings = getSavingsPercent(plan.amount, plan.originalAmount);
-                    const perDay = getPerDayCalculation(plan.id, plan.amount);
-
-                    return (
-                      <div
-                        key={plan.id}
-                        onClick={() => handleSelectPlan(plan.id)}
-                        className={`relative rounded-3xl p-5 border cursor-pointer transition-all duration-300 flex flex-col justify-between select-none ${
-                          plan.isPopular
-                            ? isSelected
-                              ? "bg-gradient-to-b from-[#7045D8]/35 via-[#221C38] to-[#171329] border-[#A78BFA] ring-2 ring-[#7045D8] shadow-2xl shadow-[#7045D8]/40 scale-[1.02]"
-                              : "bg-[#221C38] border-[#7045D8]/60 hover:border-[#7045D8] shadow-lg"
-                            : isSelected
-                              ? "bg-gradient-to-b from-[#7045D8]/20 via-[#221C38] to-[#171329] border-[#A78BFA] ring-2 ring-[#7045D8]/50 shadow-xl"
-                              : "bg-[#221C38]/70 hover:bg-[#221C38] border-white/10 hover:border-white/20"
+                            ? "bg-gradient-to-b from-[#251b47] to-[#1a1433] border-[#7045D8] shadow-xl shadow-[#7045D8]/30 scale-[1.02] ring-2 ring-[#7045D8]/50"
+                            : "bg-[#1E1833]/70 hover:bg-[#1E1833] border-white/10 hover:border-white/20"
                         }`}
                       >
                         {/* Floating Top Badge */}
@@ -526,6 +583,183 @@ export const PremiumUpgradeModal: React.FC<PremiumUpgradeModalProps> = ({
                   })}
                 </div>
 
+                {/* C. PAYMENT METHOD TABS (UPI QR Code vs Cashfree PG) */}
+                <div className="pt-2 space-y-4">
+                  <div className="flex items-center justify-center gap-2 p-1 bg-[#201838] rounded-2xl border border-white/10 max-w-md mx-auto">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        triggerHaptic("light");
+                        setPaymentMethodTab("upi");
+                      }}
+                      className={`flex-1 py-2 px-3 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                        paymentMethodTab === "upi"
+                          ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md"
+                          : "text-gray-400 hover:text-white"
+                      }`}
+                    >
+                      <QrCode className="w-4 h-4" />
+                      <span>⚡ UPI QR / Apps (100% कार्यशील)</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        triggerHaptic("light");
+                        setPaymentMethodTab("cashfree");
+                      }}
+                      className={`flex-1 py-2 px-3 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                        paymentMethodTab === "cashfree"
+                          ? "bg-gradient-to-r from-[#7045D8] to-[#855fe6] text-white shadow-md"
+                          : "text-gray-400 hover:text-white"
+                      }`}
+                    >
+                      <CreditCard className="w-4 h-4" />
+                      <span>💳 कार्ड / नेटबैंकिंग</span>
+                    </button>
+                  </div>
+
+                  {/* TAB 1: UPI QR CODE & DIRECT APP INTENT */}
+                  {paymentMethodTab === "upi" && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.98 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="p-5 sm:p-6 rounded-3xl bg-[#1C1630] border border-emerald-500/30 space-y-5"
+                    >
+                      <div className="flex flex-col sm:flex-row items-center gap-6">
+                        {/* Dynamic QR Code */}
+                        <div className="p-3 bg-white rounded-2xl shadow-xl flex flex-col items-center justify-center shrink-0 border border-white/20">
+                          <img
+                            src={upiQrUrl}
+                            alt="UPI QR Code"
+                            className="w-40 h-40 sm:w-44 sm:h-44 object-contain rounded-lg"
+                          />
+                          <span className="text-[10px] font-black text-slate-800 mt-1 uppercase tracking-wider">
+                            ₹{selectedPlan.amount} • स्कैन करें
+                          </span>
+                        </div>
+
+                        {/* Steps & Direct App Button */}
+                        <div className="flex-1 space-y-3.5 text-left w-full">
+                          <div>
+                            <span className="text-[10px] font-black uppercase tracking-widest text-emerald-400">
+                              आसान व सुरक्षित भुगतान
+                            </span>
+                            <h4 className="text-base sm:text-lg font-black text-white">
+                              Google Pay, PhonePe, Paytm या BHIM से पे करें
+                            </h4>
+                            <p className="text-xs text-gray-300 mt-0.5">
+                              QR कोड स्कैन करें या नीचे दिए बटन से सीधे अपनी UPI ऐप में खोलें:
+                            </p>
+                          </div>
+
+                          {/* Direct Mobile UPI App Button */}
+                          <button
+                            type="button"
+                            onClick={handleOpenUpiApp}
+                            className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:brightness-110 active:scale-95 text-white font-black text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/30 cursor-pointer"
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                            <span>📲 सीधे UPI ऐप में खोलें (Pay ₹{selectedPlan.amount})</span>
+                          </button>
+
+                          {/* Copy UPI ID Bar */}
+                          <div className="flex items-center gap-2 p-2.5 bg-black/40 rounded-xl border border-white/10 text-xs">
+                            <span className="text-gray-400 font-mono text-[11px]">UPI ID:</span>
+                            <strong className="text-white font-mono text-xs select-all flex-1 truncate">
+                              {upiId}
+                            </strong>
+                            <button
+                              type="button"
+                              onClick={handleCopyUpiId}
+                              className="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-gray-200 text-[11px] font-bold flex items-center gap-1 cursor-pointer"
+                            >
+                              <Copy className="w-3 h-3" />
+                              <span>{copiedUpi ? "कॉपी हो गया!" : "कॉपी"}</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* UTR Submission Form */}
+                      <form onSubmit={handleUpiSubmit} className="pt-3 border-t border-white/10 space-y-3">
+                        <div className="flex flex-col sm:flex-row items-center gap-3">
+                          <div className="flex-1 w-full">
+                            <label className="block text-xs font-bold text-gray-200 mb-1">
+                              भुगतान के बाद 12 अंकों का UTR / Transaction ID दर्ज करें:
+                            </label>
+                            <input
+                              type="text"
+                              value={utrNumber}
+                              onChange={(e) => setUtrNumber(e.target.value)}
+                              placeholder="उदा. 423456789012 या UPI Ref No."
+                              className="w-full px-4 py-2.5 rounded-xl bg-black/50 border border-white/20 text-white font-mono text-sm focus:outline-none focus:border-emerald-400 transition-colors"
+                            />
+                          </div>
+                          <button
+                            type="submit"
+                            disabled={isUpiSubmitting}
+                            className="w-full sm:w-auto mt-0 sm:mt-5 px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-black font-black text-xs flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-emerald-500/30 disabled:opacity-50 shrink-0"
+                          >
+                            {isUpiSubmitting ? (
+                              <>
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                                <span>सत्यापित हो रहा है...</span>
+                              </>
+                            ) : (
+                              <>
+                                <CheckCircle2 className="w-4 h-4" />
+                                <span>सबमिट करें व VIP अनलॉक करें</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+                        <p className="text-[11px] text-gray-400">
+                          ℹ️ UPI ऐप की रसीद में <strong>12 अंकों का UTR / UPI Ref No</strong> होता है। सबमिट करते ही VIP पास तुरंत सक्रिय हो जाएगा।
+                        </p>
+                      </form>
+                    </motion.div>
+                  )}
+
+                  {/* TAB 2: CASHFREE ONLINE GATEWAY */}
+                  {paymentMethodTab === "cashfree" && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.98 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="p-5 rounded-3xl bg-[#1C1630] border border-white/10 space-y-4 text-center"
+                    >
+                      <div className="max-w-md mx-auto space-y-2">
+                        <CreditCard className="w-8 h-8 text-[#A78BFA] mx-auto" />
+                        <h4 className="text-base font-black text-white">
+                          Cashfree ऑनलाइन पेमेंट गेटवे
+                        </h4>
+                        <p className="text-xs text-gray-300">
+                          क्रेडिट/डेबिट कार्ड्स, नेटबैंकिंग और वॉलेट्स द्वारा त्वरित स्वचालित भुगतान।
+                        </p>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={handlePay}
+                        disabled={isProcessing}
+                        className="px-8 py-3 rounded-2xl bg-gradient-to-r from-[#7045D8] to-[#855fe6] hover:brightness-110 active:scale-95 text-white font-black text-sm flex items-center justify-center gap-2 mx-auto cursor-pointer shadow-xl shadow-[#7045D8]/40 disabled:opacity-50"
+                      >
+                        {isProcessing ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <span>{statusMessage || "गेटवे लोड हो रहा है..."}</span>
+                          </>
+                        ) : (
+                          <>
+                            <Lock className="w-4 h-4" />
+                            <span>सुरक्षित गेटवे से पे करें (₹{selectedPlan.amount})</span>
+                          </>
+                        )}
+                      </button>
+                    </motion.div>
+                  )}
+                </div>
+
                 {/* D. Collapsible Free vs VIP Comparison Table */}
                 <div className="rounded-2xl border border-white/10 bg-[#221C38]/60 overflow-hidden">
                   <button
@@ -548,35 +782,40 @@ export const PremiumUpgradeModal: React.FC<PremiumUpgradeModalProps> = ({
                     >
                       <table className="w-full text-xs text-left">
                         <thead>
-                          <tr className="border-b border-white/10 text-gray-400">
-                            <th className="pb-2 font-medium">फ़ीचर (Feature)</th>
-                            <th className="pb-2 font-medium text-center">मुफ़्त (Free)</th>
-                            <th className="pb-2 font-medium text-center text-amber-400">VIP पास 👑</th>
+                          <tr className="border-b border-white/10 text-[#A78BFA]">
+                            <th className="py-2">सुविधा (Feature)</th>
+                            <th className="py-2 text-center">मुफ़्त (Free)</th>
+                            <th className="py-2 text-center text-amber-400 font-black">⭐ VIP पास</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-white/5 text-gray-200">
+                        <tbody className="divide-y divide-white/5 text-gray-300">
                           <tr>
-                            <td className="py-2 font-medium">Disha AI Tutor 24x7</td>
-                            <td className="py-2 text-center text-gray-400">3 प्रश्न/दिन</td>
-                            <td className="py-2 text-center text-emerald-400 font-bold">असीमित (Unlimited)</td>
+                            <td className="py-2 font-medium">Disha AI Tutor (24x7 डाउट सॉल्वर)</td>
+                            <td className="py-2 text-center text-gray-400">3 प्रश्न / दिन</td>
+                            <td className="py-2 text-center text-emerald-400 font-bold">✅ असीमित (Unlimited)</td>
                           </tr>
                           <tr>
-                            <td className="py-2 font-medium">RPSC / RSMSSB Mock Tests</td>
-                            <td className="py-2 text-center text-gray-400">केवल 1 टेस्ट</td>
-                            <td className="py-2 text-center text-emerald-400 font-bold">सभी 50+ टेस्ट पेपर्स</td>
+                            <td className="py-2 font-medium">RPSC / RSMSSB Mock Test सीरीज़</td>
+                            <td className="py-2 text-center text-gray-400">केवल 2 डेमो टेस्ट</td>
+                            <td className="py-2 text-center text-emerald-400 font-bold">✅ सभी 100+ पेपर्स</td>
                           </tr>
                           <tr>
-                            <td className="py-2 font-medium">All-Rajasthan Live Rank</td>
+                            <td className="py-2 font-medium">All-Rajasthan लाइव मेरिट रैंक</td>
                             <td className="py-2 text-center text-gray-400">❌ नहीं</td>
-                            <td className="py-2 text-center text-emerald-400 font-bold">✅ रीयलटाइम लाइव रैंक</td>
+                            <td className="py-2 text-center text-emerald-400 font-bold">✅ राज्य-स्तरीय रैंक</td>
                           </tr>
                           <tr>
-                            <td className="py-2 font-medium">विस्तृत व्याख्या व शॉर्ट ट्रिक्स</td>
-                            <td className="py-2 text-center text-gray-400">बुनियादी</td>
-                            <td className="py-2 text-center text-emerald-400 font-bold">✅ सम्पूर्ण व्याख्या</td>
+                            <td className="py-2 font-medium">प्रिंट-योग्य PDF टेस्ट पेपर एक्सपोर्ट</td>
+                            <td className="py-2 text-center text-gray-400">❌ नहीं</td>
+                            <td className="py-2 text-center text-emerald-400 font-bold">✅ असीमित A4 डाउनलोड</td>
                           </tr>
                           <tr>
-                            <td className="py-2 font-medium">मिस्टेक बैंक (गलत प्रश्नों का रिवीज़न)</td>
+                            <td className="py-2 font-medium">1v1 लाइव क्विज़ मुकाबला</td>
+                            <td className="py-2 text-center text-gray-400">सीमित</td>
+                            <td className="py-2 text-center text-emerald-400 font-bold">✅ असीमित रूम्स</td>
+                          </tr>
+                          <tr>
+                            <td className="py-2 font-medium">स्मार्ट मिस्टेक बैंक (गलतियों का रिवीज़न)</td>
                             <td className="py-2 text-center text-gray-400">❌ नहीं</td>
                             <td className="py-2 text-center text-emerald-400 font-bold">✅ ऑटो-रिवीज़न</td>
                           </tr>
@@ -598,13 +837,6 @@ export const PremiumUpgradeModal: React.FC<PremiumUpgradeModalProps> = ({
                   </div>
                 )}
 
-                {isProcessing && statusMessage && (
-                  <div className="p-3 rounded-2xl bg-[#7045D8]/20 border border-[#7045D8]/40 text-[#A78BFA] text-xs text-center flex items-center justify-center gap-2 animate-pulse">
-                    <Loader2 className="w-4 h-4 animate-spin text-[#A78BFA]" />
-                    <span>{statusMessage}</span>
-                  </div>
-                )}
-
                 {/* F. Trust & Social Proof Badges */}
                 <div className="pt-1 flex flex-wrap items-center justify-center gap-4 text-gray-300 text-[11px]">
                   <div className="flex items-center gap-1.5">
@@ -614,74 +846,17 @@ export const PremiumUpgradeModal: React.FC<PremiumUpgradeModalProps> = ({
                   <span>•</span>
                   <div className="flex items-center gap-1.5">
                     <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>RBI-Authorized Cashfree PG</span>
+                    <span>100% सुरक्षित UPI व PG</span>
                   </div>
                   <span>•</span>
                   <div className="flex items-center gap-1.5">
                     <Zap className="w-3.5 h-3.5 text-amber-400" />
-                    <span>तत्काल 5 सेकंड में एक्टिवेशन</span>
+                    <span>त्वरित एक्टिवेशन</span>
                   </div>
                 </div>
               </>
             )}
           </div>
-
-          {/* 3. STICKY BOTTOM CHECKOUT ACTION BAR */}
-          {!isAlreadyPremium && !isSuccessState && (
-            <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-t border-white/10 bg-[#120f21] z-20 shrink-0 flex flex-col gap-2 pb-[calc(env(safe-area-inset-bottom,0px)+12px)]">
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-                {/* Left: Summary of Selected Plan */}
-                <div className="w-full sm:w-auto text-center sm:text-left">
-                  <div className="flex items-center justify-center sm:justify-start gap-2">
-                    <span className="text-xs text-gray-300">चुना गया प्लान:</span>
-                    <strong className="text-xs sm:text-sm font-black text-white">
-                      {selectedPlan.name}
-                    </strong>
-                    <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/15 px-1.5 py-0.5 rounded">
-                      बचत ₹{selectedPlan.originalAmount - selectedPlan.amount}
-                    </span>
-                  </div>
-                  <p className="text-[10.5px] text-[#A78BFA] mt-0.5">
-                    {selectedPlan.duration} • कोई अतिरिक्त छुपा शुल्क नहीं
-                  </p>
-                </div>
-
-                {/* Right: Giant Action Button */}
-                <button
-                  type="button"
-                  onClick={handlePay}
-                  disabled={isProcessing}
-                  className="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-gradient-to-r from-[#7045D8] via-[#855fe6] to-[#7045D8] hover:brightness-110 active:scale-[0.98] text-white font-black text-sm sm:text-base shadow-xl shadow-[#7045D8]/40 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 transition-all min-w-[240px]"
-                >
-                  {isProcessing ? (
-                    <>
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                      <span>प्रक्रिया जारी है...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Zap className="w-5 h-5 text-amber-300 fill-amber-300 animate-bounce" />
-                      <span>अभी VIP अनलॉक करें — ₹{selectedPlan.amount}</span>
-                    </>
-                  )}
-                </button>
-              </div>
-
-              {/* Payment Methods Supported Icons / Bar */}
-              <div className="flex items-center justify-center gap-3 pt-1 text-[10px] text-gray-400 border-t border-white/5">
-                <span className="font-semibold text-gray-300">समर्थित:</span>
-                <span className="text-gray-300 font-medium">Google Pay</span>
-                <span>•</span>
-                <span className="text-gray-300 font-medium">PhonePe</span>
-                <span>•</span>
-                <span className="text-gray-300 font-medium">Paytm</span>
-                <span>•</span>
-                <span className="text-gray-300 font-medium">BHIM UPI</span>
-                <span>•</span>
-                <span className="text-gray-300 font-medium">Cards & NetBanking</span>
-              </div>
-            </div>
-          )}
         </motion.div>
       </div>
     </AnimatePresence>
