@@ -24,17 +24,28 @@ Deno.serve(async (req: Request) => {
       return new Response(JSON.stringify({ error: "Invalid JSON" }), { status: 400 });
     }
 
-    const eventType = payload.type || payload.event;
-    console.log("[Cashfree Webhook] Received event:", eventType, "for order:", payload.data?.order?.order_id);
+    const eventType = (payload.type || payload.event || "").toUpperCase();
+    console.log("[Cashfree Webhook] Received event:", eventType, "raw payload:", JSON.stringify(payload).slice(0, 300));
 
     const order = payload.data?.order;
     const payment = payload.data?.payment;
     const customer = payload.data?.customer_details;
 
-    const orderId = order?.order_id;
-    const paymentStatus = payment?.payment_status;
+    // Support both v3 nested format and legacy root format
+    const orderId = order?.order_id || payload.orderId || payload.order_id;
+    const paymentStatus = (payment?.payment_status || payload.txStatus || payload.payment_status || "").toUpperCase();
+    const orderStatus = (order?.order_status || "").toUpperCase();
 
-    if (orderId && (eventType === "PAYMENT_SUCCESS_WEBHOOK" || paymentStatus === "SUCCESS")) {
+    const isSuccess =
+      paymentStatus === "SUCCESS" ||
+      orderStatus === "PAID" ||
+      eventType === "PAYMENT_SUCCESS_WEBHOOK" ||
+      eventType === "PAYMENT.SUCCESS" ||
+      eventType === "PAYMENT_SUCCESS" ||
+      eventType === "ORDER.PAID" ||
+      eventType === "ORDER_PAID";
+
+    if (orderId && isSuccess) {
       const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
       // 1. Find user and plan from database
@@ -44,18 +55,34 @@ Deno.serve(async (req: Request) => {
         .eq("order_id", orderId)
         .maybeSingle();
 
-      const userId = dbOrder?.user_id || customer?.customer_id || order?.order_tags?.user_id;
-      const planId = dbOrder?.plan_id || order?.order_tags?.plan_id || "monthly";
+      const userId = dbOrder?.user_id || customer?.customer_id || order?.order_tags?.user_id || payload.userId;
+      const planId = dbOrder?.plan_id || order?.order_tags?.plan_id || payload.planId || "monthly";
 
+      // 2. Mark order as PAID in orders table
+      await supabaseAdmin
+        .from("orders")
+        .update({ status: "PAID", updated_at: new Date().toISOString() })
+        .eq("order_id", orderId);
+
+      // 3. Activate VIP Subscription for the user
       if (userId) {
-        // Activate subscription
-        await supabaseAdmin.rpc("activate_user_subscription", {
+        const { error: rpcErr } = await supabaseAdmin.rpc("activate_user_subscription", {
           p_user_id: userId,
           p_order_id: orderId,
           p_plan_id: planId,
-          p_cf_payment_id: payment?.cf_payment_id ? String(payment.cf_payment_id) : null,
-          p_payment_method: payment?.payment_group || "ONLINE",
+          p_cf_payment_id: payment?.cf_payment_id ? String(payment.cf_payment_id) : (payload.referenceId ? String(payload.referenceId) : null),
+          p_payment_method: payment?.payment_group || payload.paymentMode || "ONLINE",
         });
+
+        if (rpcErr) {
+          console.warn("[Cashfree Webhook] RPC note:", rpcErr);
+          // Fallback: update profiles table directly if RPC encountered a constraint
+          await supabaseAdmin
+            .from("profiles")
+            .update({ is_premium: true, subscription_tier: "vip", updated_at: new Date().toISOString() })
+            .eq("id", userId);
+        }
+
         console.log(`[Cashfree Webhook] Successfully activated subscription for user ${userId}, plan ${planId}`);
       }
     }
