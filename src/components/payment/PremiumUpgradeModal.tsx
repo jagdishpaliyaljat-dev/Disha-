@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   X, 
   Crown, 
@@ -6,17 +6,26 @@ import {
   Sparkles, 
   Zap, 
   ShieldCheck, 
-  Lock, 
   Check, 
   Flame, 
   Loader2, 
+  Award,
+  Star,
+  CheckCheck,
+  CreditCard,
+  Lock,
+  ChevronDown,
+  ChevronUp,
   HelpCircle,
-  Award
+  Smartphone,
+  Laptop
 } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
 import { PREMIUM_PLANS, PremiumPlan, initiateCashfreePayment } from "../../services/payment/cashfreeService";
 import { UserProfile } from "../../types";
+import { triggerHaptic, playClickSound } from "../../utils/audioFeedback";
 
-interface PremiumUpgradeModalProps {
+export interface PremiumUpgradeModalProps {
   isOpen: boolean;
   onClose: () => void;
   currentUser?: UserProfile | null;
@@ -36,13 +45,36 @@ export const PremiumUpgradeModal: React.FC<PremiumUpgradeModalProps> = ({
   const [statusMessage, setStatusMessage] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSuccessState, setIsSuccessState] = useState(false);
+  const [showComparison, setShowComparison] = useState(false);
+
+  // Close on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isOpen && !isProcessing) {
+        onClose();
+      }
+    };
+    if (isOpen) {
+      window.addEventListener("keydown", handleKeyDown);
+    }
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, isProcessing, onClose]);
 
   if (!isOpen) return null;
 
   const isAlreadyPremium = Boolean(currentUser?.isPremium);
   const selectedPlan = PREMIUM_PLANS.find((p) => p.id === selectedPlanId) || PREMIUM_PLANS[1];
 
+  const handleSelectPlan = (planId: "monthly" | "yearly" | "lifetime") => {
+    if (isProcessing) return;
+    triggerHaptic("light");
+    playClickSound();
+    setSelectedPlanId(planId);
+  };
+
   const handlePay = async () => {
+    triggerHaptic("medium");
+    playClickSound();
     setErrorMessage(null);
     setIsProcessing(true);
 
@@ -53,12 +85,14 @@ export const PremiumUpgradeModal: React.FC<PremiumUpgradeModalProps> = ({
     setIsProcessing(false);
 
     if (result.success) {
+      triggerHaptic("success");
       setIsSuccessState(true);
       setTimeout(() => {
         onSuccess?.();
         onClose();
       }, 2500);
     } else if (result.error) {
+      triggerHaptic("warning");
       setErrorMessage(result.error);
     }
   };
@@ -67,231 +101,545 @@ export const PremiumUpgradeModal: React.FC<PremiumUpgradeModalProps> = ({
     switch (featureTrigger) {
       case "ai_tutor":
         return {
-          title: "Disha AI Tutor अनलिमिटेड अनलॉक करें",
-          subtitle: "24x7 तत्काल समाधान, शंका निवारण और गहन परीक्षा तैयारी",
+          badge: "Disha AI Tutor • असीमित उपयोग",
+          title: "Disha AI Tutor को अनलिमिटेड अनलॉक करें",
+          subtitle: "24x7 कठिन प्रश्नों का तुरंत हल, संपूर्ण व्याख्या और शंका समाधान पाएं",
         };
       case "mock_tests":
         return {
-          title: "सभी RPSC & RSMSSB Mock Tests अनलॉक करें",
-          subtitle: "असीमित टेस्ट सीरीज़, मेरिट रैंकिंग और पूर्ण समाधान",
+          badge: "RPSC & RSMSSB Mock Tests • सम्पूर्ण एक्सेस",
+          title: "सभी टेस्ट पेपर्स व लाइव टेस्ट सीरीज़ अनलॉक करें",
+          subtitle: "राज्य-स्तरीय मेरिट रैंक, परसेंटाइल और पिछले वर्षों के पेपर्स का विस्तृत हल",
         };
       default:
         return {
-          title: "Disha PYQ VIP प्रीमियम में अपग्रेड करें",
-          subtitle: "राजस्थान प्रतियोगी परीक्षाओं में शत-प्रतिशत सफलता की दिशा",
+          badge: "Disha PYQ VIP Pass • सर्वोत्तम तैयारी",
+          title: "Disha PYQ VIP प्रीमियम पास में अपग्रेड करें",
+          subtitle: "राजस्थान की सभी प्रतियोगी परीक्षाओं में सफलता सुनिश्चित करने वाला एकमात्र पास",
         };
     }
   };
 
-  const { title, subtitle } = getHeadlineForTrigger();
+  const { badge, title, subtitle } = getHeadlineForTrigger();
+
+  const getPerDayCalculation = (planId: string, amount: number) => {
+    switch (planId) {
+      case "monthly":
+        return "₹1.60 / दिन";
+      case "yearly":
+        return "केवल ₹12 / माह (₹0.40 / दिन)";
+      case "lifetime":
+        return "एक बार भुगतान • आजीवन एक्सेस";
+      default:
+        return "";
+    }
+  };
+
+  const getSavingsPercent = (amount: number, original: number) => {
+    return Math.round(((original - amount) / original) * 100);
+  };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
+    <AnimatePresence>
       <div 
-        className="relative w-full max-w-lg bg-[#171329] border border-[#7045D8]/40 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]"
-        style={{
-          boxShadow: "0 20px 60px -15px rgba(112, 69, 216, 0.35)",
-        }}
+        className="fixed inset-0 z-[130] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/85 backdrop-blur-md overflow-hidden select-none"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-premium-title"
       >
-        {/* Glow Header Accent */}
-        <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-[#7045D8]/30 via-[#7045D8]/10 to-transparent pointer-events-none" />
+        {/* Backdrop overlay */}
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={() => !isProcessing && onClose()}
+          className="fixed inset-0 bg-transparent"
+        />
 
-        {/* Top Header Bar */}
-        <div className="relative flex items-center justify-between p-4 sm:p-5 border-b border-white/10 z-10">
-          <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-md shadow-amber-500/20">
-              <Crown className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <div className="flex items-center gap-1.5">
-                <span className="font-extrabold text-white text-base tracking-wide">Disha PYQ</span>
-                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-gradient-to-r from-amber-400 to-amber-600 text-black uppercase tracking-wider">
-                  VIP
-                </span>
+        {/* Modal Window Container */}
+        <motion.div
+          initial={{ opacity: 0, y: 30, scale: 0.96 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 30, scale: 0.96 }}
+          transition={{ type: "spring", damping: 26, stiffness: 320 }}
+          className="relative w-full sm:max-w-3xl md:max-w-4xl lg:max-w-5xl bg-[#171329] border-t sm:border border-[#7045D8]/40 rounded-t-3xl sm:rounded-3xl shadow-2xl flex flex-col max-h-[92dvh] sm:max-h-[88vh] overflow-hidden z-10 text-[#F4F1FA]"
+          style={{
+            boxShadow: "0 25px 70px -15px rgba(112, 69, 216, 0.45)",
+          }}
+        >
+          {/* Ambient Purple & Gold Radial Glow */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-36 bg-gradient-to-b from-[#7045D8]/30 via-[#7045D8]/10 to-transparent pointer-events-none blur-2xl" />
+
+          {/* 1. TOP HEADER (Sticky) */}
+          <div className="relative flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-white/10 bg-[#171329]/95 backdrop-blur-md z-20 shrink-0">
+            {/* Left: Brand + VIP Badge */}
+            <div className="flex items-center gap-2.5 sm:gap-3">
+              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/25 shrink-0 transform -rotate-2">
+                <Crown className="w-5 h-5 sm:w-6 sm:h-6 text-black fill-black" />
               </div>
-              <p className="text-xs text-[#A78BFA]">प्रीमियम एक्सेस पास</p>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="font-black text-white text-base sm:text-lg tracking-tight">Disha PYQ</span>
+                  <span className="text-[10px] sm:text-[11px] font-black px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 text-black uppercase tracking-wider shadow-xs">
+                    VIP PASS
+                  </span>
+                </div>
+                <p className="text-[11px] sm:text-xs text-[#A78BFA] font-medium leading-none mt-0.5">
+                  प्रीमियम परीक्षा तैयारी
+                </p>
+              </div>
+            </div>
+
+            {/* Right: Security Badge & Close Button */}
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[11px] font-semibold">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                <span>100% सुरक्षित भुगतान</span>
+              </div>
+
+              <button
+                type="button"
+                onClick={onClose}
+                disabled={isProcessing}
+                className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center text-gray-300 hover:text-white transition-all cursor-pointer"
+                aria-label="Close modal"
+              >
+                <X className="w-4 h-4 sm:w-5 sm:h-5" />
+              </button>
             </div>
           </div>
 
-          <button
-            onClick={onClose}
-            disabled={isProcessing}
-            className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-gray-300 hover:text-white transition-colors"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-
-        {/* Scrollable Body */}
-        <div className="p-4 sm:p-5 overflow-y-auto space-y-5 text-white z-10 flex-1">
-          {isSuccessState ? (
-            <div className="py-10 text-center space-y-4">
-              <div className="w-20 h-20 mx-auto rounded-full bg-emerald-500/20 border-2 border-emerald-500 flex items-center justify-center text-emerald-400 animate-bounce">
-                <Check className="w-10 h-10 stroke-[3]" />
-              </div>
-              <h3 className="text-2xl font-black text-white">बधाई हो! 🎉</h3>
-              <p className="text-sm text-gray-300 max-w-sm mx-auto">
-                आपका <strong>Disha PYQ VIP प्रीमियम</strong> सफलतापूर्वक सक्रिय कर दिया गया है। सभी टेस्ट और AI Tutor अब पूरी तरह अनलॉक हैं।
-              </p>
-            </div>
-          ) : isAlreadyPremium ? (
-            <div className="py-6 text-center space-y-4 bg-white/5 rounded-2xl border border-white/10 p-5">
-              <div className="w-16 h-16 mx-auto rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400">
-                <Award className="w-8 h-8" />
-              </div>
-              <h3 className="text-xl font-bold text-white">आप पहले से प्रीमियम VIP सदस्य हैं</h3>
-              <p className="text-xs text-gray-300">
-                सक्रिय प्लान: <strong className="text-amber-400 capitalize">{currentUser.premiumPlan || "Active VIP"}</strong>
-                {currentUser.premiumUntil && (
-                  <span className="block mt-1 text-gray-400">
-                    वैधता: {new Date(currentUser.premiumUntil).toLocaleDateString("hi-IN", { day: "numeric", month: "long", year: "numeric" })}
+          {/* 2. SCROLLABLE CONTENT BODY */}
+          <div className="p-4 sm:p-6 overflow-y-auto space-y-4 sm:space-y-6 flex-1 z-10 text-slate-100">
+            {isSuccessState ? (
+              /* Success Confirmation View */
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="py-12 text-center space-y-4 max-w-md mx-auto"
+              >
+                <div className="w-20 h-20 mx-auto rounded-full bg-emerald-500/20 border-2 border-emerald-500 flex items-center justify-center text-emerald-400 shadow-xl shadow-emerald-500/30 animate-bounce">
+                  <Check className="w-10 h-10 stroke-[3]" />
+                </div>
+                <h3 className="text-2xl sm:text-3xl font-black text-white">बधाई हो! 🎉</h3>
+                <p className="text-sm sm:text-base text-gray-200 leading-relaxed">
+                  आपका <strong className="text-amber-400">Disha PYQ VIP पास</strong> सफलतापूर्वक सक्रिय कर दिया गया है। 
+                  सभी Mock Tests, Test Series और Disha AI Tutor अब पूरी तरह अनलॉक हैं।
+                </p>
+                <div className="pt-2">
+                  <span className="inline-block text-xs font-bold px-3 py-1.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                    ऐप पर वापस रीडायरेक्ट हो रहे हैं...
                   </span>
+                </div>
+              </motion.div>
+            ) : isAlreadyPremium ? (
+              /* Already Active VIP View */
+              <div className="py-8 text-center space-y-4 bg-white/5 rounded-3xl border border-white/10 p-6 max-w-lg mx-auto">
+                <div className="w-16 h-16 mx-auto rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 shadow-lg">
+                  <Award className="w-8 h-8" />
+                </div>
+                <div>
+                  <h3 className="text-xl sm:text-2xl font-black text-white">आप पहले से VIP सदस्य हैं! 👑</h3>
+                  <p className="text-xs sm:text-sm text-gray-300 mt-1">
+                    सक्रिय प्लान: <strong className="text-amber-400 uppercase">{currentUser.premiumPlan || "VIP"}</strong>
+                  </p>
+                  {currentUser.premiumUntil && (
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      वैधता: <strong className="text-white">{new Date(currentUser.premiumUntil).toLocaleDateString("hi-IN", { day: "numeric", month: "long", year: "numeric" })}</strong> तक
+                    </p>
+                  )}
+                </div>
+                <p className="text-xs text-[#A78BFA] leading-relaxed max-w-sm mx-auto">
+                  आपकी सदस्यता सक्रिय है। सभी Mock Tests, State Merit Ranking और 24x7 AI Tutor का असीमित आनंद लें।
+                </p>
+                <div className="pt-3">
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    className="w-full sm:w-auto px-8 py-3 rounded-2xl bg-[#7045D8] hover:bg-[#5e34ca] text-white font-black text-sm shadow-lg shadow-[#7045D8]/30 transition-all cursor-pointer"
+                  >
+                    जारी रखें (Continue App)
+                  </button>
+                </div>
+              </div>
+            ) : (
+              /* Main Upgrade Flow */
+              <>
+                {/* A. Hero Value Proposition */}
+                <div className="text-center space-y-1.5 max-w-2xl mx-auto">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#7045D8]/20 border border-[#7045D8]/40 text-[#A78BFA] text-[11px] font-bold">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                    <span>{badge}</span>
+                  </div>
+                  <h2 
+                    id="modal-premium-title"
+                    className="text-lg sm:text-2xl md:text-3xl font-black text-white tracking-tight leading-snug"
+                  >
+                    {title}
+                  </h2>
+                  <p className="text-xs sm:text-sm text-gray-300 leading-relaxed max-w-xl mx-auto">
+                    {subtitle}
+                  </p>
+                </div>
+
+                {/* B. Limited-Time Offer Banner */}
+                <div className="p-3 sm:p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/15 via-[#7045D8]/25 to-amber-500/15 border border-amber-500/30 flex items-center justify-between gap-2 shadow-xs">
+                  <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
+                    <span className="text-lg sm:text-xl">⚡</span>
+                    <div className="min-w-0">
+                      <p className="text-xs sm:text-sm font-black text-white leading-tight">
+                        स्पेशल डिस्काउंट ऑफर • 70% तक की भारी बचत!
+                      </p>
+                      <p className="text-[10px] sm:text-[11px] text-[#A78BFA] leading-tight mt-0.5 truncate">
+                        RPSC RAS, 2nd Grade, 3rd Grade, CET और सभी राजस्थान भर्ती परीक्षाओं हेतु
+                      </p>
+                    </div>
+                  </div>
+                  <div className="shrink-0 text-right">
+                    <span className="text-[11px] sm:text-xs font-black px-2.5 py-1 rounded-lg bg-amber-400 text-black shadow-xs">
+                      सीमित समय
+                    </span>
+                  </div>
+                </div>
+
+                {/* C. PRICING CARDS — RESPONSIVE (Stacked on Mobile, 3-Columns on Laptop) */}
+
+                {/* MOBILE VIEW (< md) : Touch-Friendly Vertical Radio Cards */}
+                <div className="block md:hidden space-y-2.5">
+                  {PREMIUM_PLANS.map((plan) => {
+                    const isSelected = selectedPlanId === plan.id;
+                    const savings = getSavingsPercent(plan.amount, plan.originalAmount);
+                    const perDay = getPerDayCalculation(plan.id, plan.amount);
+
+                    return (
+                      <div
+                        key={plan.id}
+                        onClick={() => handleSelectPlan(plan.id)}
+                        className={`relative p-3.5 rounded-2xl border cursor-pointer transition-all active:scale-[0.99] select-none ${
+                          isSelected
+                            ? "bg-gradient-to-r from-[#7045D8]/30 via-[#7045D8]/15 to-[#221C38] border-[#A78BFA] ring-2 ring-[#7045D8]/70 shadow-lg shadow-[#7045D8]/25"
+                            : "bg-[#221C38]/80 hover:bg-[#221C38] border-white/10"
+                        }`}
+                      >
+                        {/* Tag Badge */}
+                        {plan.tag && (
+                          <div className="absolute -top-2.5 left-4">
+                            <span className={`text-[9.5px] font-black px-2 py-0.5 rounded-full shadow-sm ${
+                              plan.isPopular 
+                                ? "bg-gradient-to-r from-amber-400 to-orange-500 text-black" 
+                                : "bg-gradient-to-r from-[#7045D8] to-purple-400 text-white"
+                            }`}>
+                              {plan.tag}
+                            </span>
+                          </div>
+                        )}
+
+                        <div className="flex items-center justify-between gap-3 pt-0.5">
+                          {/* Left: Radio + Name & Duration */}
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
+                              isSelected ? "border-amber-400 bg-amber-400" : "border-gray-500 bg-transparent"
+                            }`}>
+                              {isSelected && <div className="w-2 h-2 rounded-full bg-black" />}
+                            </div>
+                            <div className="min-w-0">
+                              <h4 className="font-black text-sm text-white truncate">
+                                {plan.name}
+                              </h4>
+                              <p className="text-[11px] text-[#A78BFA] font-medium leading-none mt-0.5">
+                                {perDay}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Right: Price & Savings */}
+                          <div className="text-right shrink-0">
+                            <div className="flex items-baseline justify-end gap-1.5">
+                              <span className="text-xs text-gray-400 line-through">₹{plan.originalAmount}</span>
+                              <span className="text-lg font-black text-white">₹{plan.amount}</span>
+                            </div>
+                            <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/15 px-1.5 py-0.5 rounded-md">
+                              {savings}% OFF
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Selected Plan Features snippet */}
+                        {isSelected && (
+                          <motion.div 
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            className="mt-3 pt-2.5 border-t border-white/10 space-y-1 text-xs text-gray-200"
+                          >
+                            {plan.features.slice(0, 3).map((f, i) => (
+                              <div key={i} className="flex items-center gap-1.5 text-[11px]">
+                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                                <span className="truncate">{f}</span>
+                              </div>
+                            ))}
+                          </motion.div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* LAPTOP / DESKTOP VIEW (>= md) : 3-Column Side-by-Side Cards */}
+                <div className="hidden md:grid md:grid-cols-3 gap-4 lg:gap-5 items-stretch pt-2">
+                  {PREMIUM_PLANS.map((plan) => {
+                    const isSelected = selectedPlanId === plan.id;
+                    const savings = getSavingsPercent(plan.amount, plan.originalAmount);
+                    const perDay = getPerDayCalculation(plan.id, plan.amount);
+
+                    return (
+                      <div
+                        key={plan.id}
+                        onClick={() => handleSelectPlan(plan.id)}
+                        className={`relative rounded-3xl p-5 border cursor-pointer transition-all duration-300 flex flex-col justify-between select-none ${
+                          plan.isPopular
+                            ? isSelected
+                              ? "bg-gradient-to-b from-[#7045D8]/35 via-[#221C38] to-[#171329] border-[#A78BFA] ring-2 ring-[#7045D8] shadow-2xl shadow-[#7045D8]/40 scale-[1.02]"
+                              : "bg-[#221C38] border-[#7045D8]/60 hover:border-[#7045D8] shadow-lg"
+                            : isSelected
+                              ? "bg-gradient-to-b from-[#7045D8]/20 via-[#221C38] to-[#171329] border-[#A78BFA] ring-2 ring-[#7045D8]/50 shadow-xl"
+                              : "bg-[#221C38]/70 hover:bg-[#221C38] border-white/10 hover:border-white/20"
+                        }`}
+                      >
+                        {/* Floating Top Badge */}
+                        {plan.tag && (
+                          <div className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap z-10">
+                            <span className={`text-[10px] font-black px-3 py-1 rounded-full shadow-md ${
+                              plan.isPopular
+                                ? "bg-gradient-to-r from-amber-400 via-orange-500 to-amber-500 text-black ring-2 ring-black/40"
+                                : "bg-gradient-to-r from-[#7045D8] to-[#A78BFA] text-white"
+                            }`}>
+                              {plan.tag}
+                            </span>
+                          </div>
+                        )}
+
+                        <div>
+                          {/* Plan Header */}
+                          <div className="text-center pt-2 pb-3 border-b border-white/10">
+                            <h3 className="font-black text-base lg:text-lg text-white">
+                              {plan.name}
+                            </h3>
+                            <p className="text-xs text-[#A78BFA] font-medium mt-0.5">
+                              {plan.duration}
+                            </p>
+
+                            {/* Price */}
+                            <div className="mt-3 flex items-baseline justify-center gap-1.5">
+                              <span className="text-xs text-gray-400 line-through">₹{plan.originalAmount}</span>
+                              <span className="text-3xl lg:text-4xl font-black text-white tracking-tight">₹{plan.amount}</span>
+                            </div>
+
+                            {/* Savings Tag */}
+                            <div className="mt-1.5 flex items-center justify-center gap-1.5">
+                              <span className="text-[11px] font-bold text-emerald-400 bg-emerald-500/15 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                                {savings}% की सीधी बचत
+                              </span>
+                            </div>
+
+                            <p className="text-[11px] text-gray-300 font-semibold mt-2">
+                              {perDay}
+                            </p>
+                          </div>
+
+                          {/* Features List */}
+                          <div className="pt-4 space-y-2 text-xs text-gray-200">
+                            {plan.features.map((feat, idx) => (
+                              <div key={idx} className="flex items-start gap-2">
+                                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                                <span className="leading-tight">{feat}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Bottom Selection Button inside card */}
+                        <div className="pt-5 mt-4 border-t border-white/10">
+                          <button
+                            type="button"
+                            className={`w-full py-2.5 rounded-xl font-black text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                              isSelected
+                                ? "bg-gradient-to-r from-[#7045D8] to-[#A78BFA] text-white shadow-md shadow-[#7045D8]/40"
+                                : "bg-white/10 hover:bg-white/15 text-gray-200"
+                            }`}
+                          >
+                            {isSelected ? (
+                              <>
+                                <Check className="w-4 h-4 stroke-[3]" />
+                                <span>यह प्लान चुना गया</span>
+                              </>
+                            ) : (
+                              <span>यह प्लान चुनें</span>
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* D. Collapsible Free vs VIP Comparison Table */}
+                <div className="rounded-2xl border border-white/10 bg-[#221C38]/60 overflow-hidden">
+                  <button
+                    type="button"
+                    onClick={() => setShowComparison(!showComparison)}
+                    className="w-full p-3.5 flex items-center justify-between text-left text-xs font-bold text-gray-200 hover:bg-white/5 transition-colors cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2">
+                      <HelpCircle className="w-4 h-4 text-[#A78BFA]" />
+                      <span>मुफ़्त (Free) बनाम VIP पास में क्या अंतर है?</span>
+                    </div>
+                    {showComparison ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                  </button>
+
+                  {showComparison && (
+                    <motion.div 
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      className="p-3.5 pt-0 border-t border-white/10 overflow-x-auto"
+                    >
+                      <table className="w-full text-xs text-left">
+                        <thead>
+                          <tr className="border-b border-white/10 text-gray-400">
+                            <th className="pb-2 font-medium">फ़ीचर (Feature)</th>
+                            <th className="pb-2 font-medium text-center">मुफ़्त (Free)</th>
+                            <th className="pb-2 font-medium text-center text-amber-400">VIP पास 👑</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-white/5 text-gray-200">
+                          <tr>
+                            <td className="py-2 font-medium">Disha AI Tutor 24x7</td>
+                            <td className="py-2 text-center text-gray-400">3 प्रश्न/दिन</td>
+                            <td className="py-2 text-center text-emerald-400 font-bold">असीमित (Unlimited)</td>
+                          </tr>
+                          <tr>
+                            <td className="py-2 font-medium">RPSC / RSMSSB Mock Tests</td>
+                            <td className="py-2 text-center text-gray-400">केवल 1 टेस्ट</td>
+                            <td className="py-2 text-center text-emerald-400 font-bold">सभी 50+ टेस्ट पेपर्स</td>
+                          </tr>
+                          <tr>
+                            <td className="py-2 font-medium">All-Rajasthan Live Rank</td>
+                            <td className="py-2 text-center text-gray-400">❌ नहीं</td>
+                            <td className="py-2 text-center text-emerald-400 font-bold">✅ रीयलटाइम लाइव रैंक</td>
+                          </tr>
+                          <tr>
+                            <td className="py-2 font-medium">विस्तृत व्याख्या व शॉर्ट ट्रिक्स</td>
+                            <td className="py-2 text-center text-gray-400">बुनियादी</td>
+                            <td className="py-2 text-center text-emerald-400 font-bold">✅ सम्पूर्ण व्याख्या</td>
+                          </tr>
+                          <tr>
+                            <td className="py-2 font-medium">मिस्टेक बैंक (गलत प्रश्नों का रिवीज़न)</td>
+                            <td className="py-2 text-center text-gray-400">❌ नहीं</td>
+                            <td className="py-2 text-center text-emerald-400 font-bold">✅ ऑटो-रिवीज़न</td>
+                          </tr>
+                          <tr>
+                            <td className="py-2 font-medium">विज्ञापन-मुक्त अनुभव</td>
+                            <td className="py-2 text-center text-gray-400">सीमित</td>
+                            <td className="py-2 text-center text-emerald-400 font-bold">✅ 100% Ad-Free</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </motion.div>
+                  )}
+                </div>
+
+                {/* E. Error / Status Display */}
+                {errorMessage && (
+                  <div className="p-3 rounded-2xl bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs text-center flex items-center justify-center gap-2">
+                    <span>{errorMessage}</span>
+                  </div>
                 )}
-              </p>
-              <div className="pt-2">
+
+                {isProcessing && statusMessage && (
+                  <div className="p-3 rounded-2xl bg-[#7045D8]/20 border border-[#7045D8]/40 text-[#A78BFA] text-xs text-center flex items-center justify-center gap-2 animate-pulse">
+                    <Loader2 className="w-4 h-4 animate-spin text-[#A78BFA]" />
+                    <span>{statusMessage}</span>
+                  </div>
+                )}
+
+                {/* F. Trust & Social Proof Badges */}
+                <div className="pt-1 flex flex-wrap items-center justify-center gap-4 text-gray-300 text-[11px]">
+                  <div className="flex items-center gap-1.5">
+                    <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                    <span>4.9★ (12,000+ अभ्यर्थी)</span>
+                  </div>
+                  <span>•</span>
+                  <div className="flex items-center gap-1.5">
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>RBI-Authorized Cashfree PG</span>
+                  </div>
+                  <span>•</span>
+                  <div className="flex items-center gap-1.5">
+                    <Zap className="w-3.5 h-3.5 text-amber-400" />
+                    <span>तत्काल 5 सेकंड में एक्टिवेशन</span>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* 3. STICKY BOTTOM CHECKOUT ACTION BAR */}
+          {!isAlreadyPremium && !isSuccessState && (
+            <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-t border-white/10 bg-[#120f21] z-20 shrink-0 flex flex-col gap-2 pb-[calc(env(safe-area-inset-bottom,0px)+12px)]">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+                {/* Left: Summary of Selected Plan */}
+                <div className="w-full sm:w-auto text-center sm:text-left">
+                  <div className="flex items-center justify-center sm:justify-start gap-2">
+                    <span className="text-xs text-gray-300">चुना गया प्लान:</span>
+                    <strong className="text-xs sm:text-sm font-black text-white">
+                      {selectedPlan.name}
+                    </strong>
+                    <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/15 px-1.5 py-0.5 rounded">
+                      बचत ₹{selectedPlan.originalAmount - selectedPlan.amount}
+                    </span>
+                  </div>
+                  <p className="text-[10.5px] text-[#A78BFA] mt-0.5">
+                    {selectedPlan.duration} • कोई अतिरिक्त छुपा शुल्क नहीं
+                  </p>
+                </div>
+
+                {/* Right: Giant Action Button */}
                 <button
-                  onClick={onClose}
-                  className="w-full py-3 rounded-xl bg-[#7045D8] text-white font-bold hover:bg-[#5b34be] transition-colors"
+                  type="button"
+                  onClick={handlePay}
+                  disabled={isProcessing}
+                  className="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-gradient-to-r from-[#7045D8] via-[#855fe6] to-[#7045D8] hover:brightness-110 active:scale-[0.98] text-white font-black text-sm sm:text-base shadow-xl shadow-[#7045D8]/40 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 transition-all min-w-[240px]"
                 >
-                  ऐप जारी रखें
+                  {isProcessing ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span>प्रक्रिया जारी है...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Zap className="w-5 h-5 text-amber-300 fill-amber-300 animate-bounce" />
+                      <span>अभी VIP अनलॉक करें — ₹{selectedPlan.amount}</span>
+                    </>
+                  )}
                 </button>
               </div>
+
+              {/* Payment Methods Supported Icons / Bar */}
+              <div className="flex items-center justify-center gap-3 pt-1 text-[10px] text-gray-400 border-t border-white/5">
+                <span className="font-semibold text-gray-300">समर्थित:</span>
+                <span className="text-gray-300 font-medium">Google Pay</span>
+                <span>•</span>
+                <span className="text-gray-300 font-medium">PhonePe</span>
+                <span>•</span>
+                <span className="text-gray-300 font-medium">Paytm</span>
+                <span>•</span>
+                <span className="text-gray-300 font-medium">BHIM UPI</span>
+                <span>•</span>
+                <span className="text-gray-300 font-medium">Cards & NetBanking</span>
+              </div>
             </div>
-          ) : (
-            <>
-              {/* Headline */}
-              <div className="text-center space-y-1">
-                <h2 className="text-lg sm:text-xl font-black text-white">{title}</h2>
-                <p className="text-xs text-gray-300 leading-relaxed">{subtitle}</p>
-              </div>
-
-              {/* Pricing Cards Selector */}
-              <div className="grid grid-cols-3 gap-2 sm:gap-2.5">
-                {PREMIUM_PLANS.map((plan) => {
-                  const isSelected = selectedPlanId === plan.id;
-                  return (
-                    <div
-                      key={plan.id}
-                      onClick={() => !isProcessing && setSelectedPlanId(plan.id)}
-                      className={`relative p-3 rounded-2xl border cursor-pointer transition-all duration-200 flex flex-col justify-between text-center select-none ${
-                        isSelected
-                          ? "bg-gradient-to-b from-[#7045D8]/40 to-[#7045D8]/10 border-[#A78BFA] ring-2 ring-[#7045D8]/60 shadow-lg shadow-[#7045D8]/25"
-                          : "bg-white/5 border-white/10 hover:border-white/20 hover:bg-white/[0.08]"
-                      }`}
-                    >
-                      {/* Popular / Best Value Badge */}
-                      {plan.tag && (
-                        <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 whitespace-nowrap">
-                          <span className={`text-[9px] font-black px-1.5 py-0.5 rounded-full shadow-sm ${
-                            plan.isPopular 
-                              ? "bg-gradient-to-r from-amber-400 to-orange-500 text-black" 
-                              : "bg-gradient-to-r from-purple-400 to-indigo-500 text-white"
-                          }`}>
-                            {plan.tag}
-                          </span>
-                        </div>
-                      )}
-
-                      <div className="pt-1">
-                        <span className="text-[11px] font-medium text-gray-300 block line-clamp-1">{plan.name}</span>
-                        <div className="mt-1 flex items-baseline justify-center gap-1">
-                          <span className="text-lg sm:text-xl font-black text-white">₹{plan.amount}</span>
-                        </div>
-                        <span className="text-[10px] text-gray-400 line-through">₹{plan.originalAmount}</span>
-                      </div>
-
-                      <div className="mt-2 pt-2 border-t border-white/10 text-[10px] text-[#A78BFA] font-medium">
-                        {plan.duration}
-                      </div>
-
-                      {isSelected && (
-                        <div className="absolute -bottom-1.5 -right-1.5 w-5 h-5 rounded-full bg-[#7045D8] border border-white flex items-center justify-center text-white">
-                          <Check className="w-3 h-3 stroke-[3]" />
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Selected Plan Benefits */}
-              <div className="bg-white/5 rounded-2xl p-4 border border-white/10 space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-gray-200 flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                    {selectedPlan.name} के विशेष लाभ:
-                  </span>
-                  <span className="text-[11px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
-                    {Math.round(((selectedPlan.originalAmount - selectedPlan.amount) / selectedPlan.originalAmount) * 100)}% छूट
-                  </span>
-                </div>
-
-                <div className="space-y-1.5 pt-1">
-                  {selectedPlan.features.map((feat, idx) => (
-                    <div key={idx} className="flex items-start gap-2 text-xs text-gray-200">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 mt-0.5 shrink-0" />
-                      <span>{feat}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Error Message */}
-              {errorMessage && (
-                <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs text-center flex items-center justify-center gap-2">
-                  <span>{errorMessage}</span>
-                </div>
-              )}
-
-              {/* Status Notice */}
-              {isProcessing && statusMessage && (
-                <div className="p-2.5 rounded-xl bg-[#7045D8]/20 border border-[#7045D8]/40 text-[#A78BFA] text-xs text-center flex items-center justify-center gap-2 animate-pulse">
-                  <Loader2 className="w-3.5 h-3.5 animate-spin text-[#A78BFA]" />
-                  <span>{statusMessage}</span>
-                </div>
-              )}
-
-              {/* Trust & Payment Logos */}
-              <div className="pt-1 flex items-center justify-center gap-3 text-gray-400 text-[10px]">
-                <div className="flex items-center gap-1">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>Cashfree Verified PG</span>
-                </div>
-                <span>•</span>
-                <span>UPI (GPay / PhonePe / Paytm)</span>
-                <span>•</span>
-                <span>100% सुरक्षित</span>
-              </div>
-            </>
           )}
-        </div>
-
-        {/* Footer Checkout Action */}
-        {!isAlreadyPremium && !isSuccessState && (
-          <div className="p-4 sm:p-5 border-t border-white/10 bg-[#120f21] z-10 flex flex-col gap-2">
-            <button
-              onClick={handlePay}
-              disabled={isProcessing}
-              className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-[#7045D8] via-[#855fe6] to-[#7045D8] hover:from-[#5e34ca] hover:to-[#5e34ca] text-white font-extrabold text-sm sm:text-base shadow-lg shadow-[#7045D8]/30 hover:shadow-[#7045D8]/50 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-50"
-            >
-              {isProcessing ? (
-                <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>प्रक्रिया चल रही है...</span>
-                </>
-              ) : (
-                <>
-                  <Zap className="w-5 h-5 text-amber-300 fill-amber-300" />
-                  <span>अभी अनलॉक करें — केवल ₹{selectedPlan.amount}</span>
-                </>
-              )}
-            </button>
-            <p className="text-[10px] text-center text-gray-400">
-              सुरक्षित 256-बिट एन्क्रिप्शन द्वारा संचालित। तत्काल सक्रियता।
-            </p>
-          </div>
-        )}
+        </motion.div>
       </div>
-    </div>
+    </AnimatePresence>
   );
 };

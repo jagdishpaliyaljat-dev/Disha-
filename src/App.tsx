@@ -2160,6 +2160,8 @@ export default function App() {
             subjects={combinedSubjects}
             progressStore={progressStore}
             settings={settings}
+            userProfile={userProfile}
+            onOpenLogin={() => setIsLoginOpen(true)}
             onUpdateProgress={handleUpdateProgress}
             onToggleBookmark={handleToggleBookmark}
           />
@@ -2258,6 +2260,7 @@ export default function App() {
             userProfile={userProfile}
             questionsMap={questionsMap}
             chaptersMap={chaptersMap}
+            onOpenLogin={() => setIsLoginOpen(true)}
             onUpdateProgress={handleUpdateProgress}
             onToggleBookmark={handleToggleBookmark}
             onClose={handleCloseSession}

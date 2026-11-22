@@ -351,6 +351,7 @@ The app uses a versioned **Clean Slate** system (`src/utils/cleanSlate.ts`) that
 
 | Version | Date | Highlights |
 |---------|------|------------|
+| **v1.0.26** | Nov 2026 | 💎 Redesigned Mobile & Laptop Responsive Premium Plans UI (Modern responsive layout with thumb-friendly mobile cards, side-by-side 3-column desktop grid, interactive Free vs VIP comparison table, per-day cost breakdowns, trust proof badges, and instant Cashfree checkout) |
 | **v1.0.25** | Nov 2026 | 💳 Cashfree Payment Gateway & Multi-Tier VIP Pass (Seamless integration with Cashfree V3 SDK, ₹49/₹149/₹249 tiered plans, Supabase Edge Functions for order creation/verification/webhooks, Android UPI intent queries, and instant subscription unlock) |
 | **v1.0.24** | Nov 2026 | 🛡️ Live Database & Test Suite Hardening (Purged 3 duplicate questions from production questions table, aligned PostgREST RLS zero-row validation tests, and updated student session test suites for Google-Only Auth) |
 | **v1.0.23** | Nov 2026 | 💎 Complete Platform Rebranding: Disha PYQ (Modern visual identity with deep dark background `#171329`, royal purple `#7045D8` / `#A78BFA`, light background `#F4F1FA`, minimal Disha PYQ logo badge, full UI components purge of old branding, and unified Play Store / Android package metadata) |
@@ -426,6 +427,6 @@ Proprietary educational platform software. Unauthorized distribution, reproducti
 
 **Built with ❤️ for Rajasthan Competitive Exam Aspirants**
 
-[🌐 disha-2020.vercel.app](https://disha-2020.vercel.app) · [📱 Download APK v1.0.25](https://github.com/jagdishpaliyaljat-dev/Disha-Android-App/releases/tag/v1.0.25)
+[🌐 disha-2020.vercel.app](https://disha-2020.vercel.app) · [📱 Download APK v1.0.26](https://github.com/jagdishpaliyaljat-dev/Disha-Android-App/releases/tag/v1.0.26)
 
 </div>

@@ -1229,6 +1229,37 @@ export const FullExamModal: React.FC<FullExamModalProps> = ({
 
       {/* Result Body Content */}
       <div className="flex-1 max-w-4xl mx-auto w-full p-4 sm:p-6 space-y-6">
+        {/* Guest User Login CTA Banner */}
+        {!isProfileAuthenticated(userProfile) && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-[#800020]/15 via-[#F47B20]/20 to-[#800020]/15 border border-[#F47B20]/40 text-[#171923] dark:text-[#FFF9EF] flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs"
+          >
+            <div className="flex items-center gap-3 min-w-0 w-full sm:w-auto">
+              <div className="w-10 h-10 rounded-xl bg-[#800020] text-amber-300 flex items-center justify-center shrink-0 shadow-sm">
+                <Sparkles className="w-5 h-5" />
+              </div>
+              <div className="min-w-0 text-left">
+                <h4 className="text-xs sm:text-sm font-black text-[#171923] dark:text-[#FFF9EF]">
+                  अतिथि मोड: अपना स्कोर व रैंक सुरक्षित करें!
+                </h4>
+                <p className="text-[11px] text-[#52576A] dark:text-[#CBD2E1] mt-0.5">
+                  लॉगिन करने पर आपके अंक All-Rajasthan रैंक और मिस्टेक बैंक में हमेशा सुरक्षित रहेंगे।
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => onOpenLogin?.()}
+              className="w-full sm:w-auto px-4 py-2 rounded-xl bg-[#800020] hover:bg-[#600018] text-white text-xs font-black shrink-0 flex items-center justify-center gap-1.5 cursor-pointer shadow-sm active:scale-95 transition-transform"
+            >
+              <LogIn className="w-3.5 h-3.5" />
+              <span>लॉगिन करें</span>
+            </button>
+          </motion.div>
+        )}
+
         {/* Top Hero Score Card - Optimized */}
         <div className="relative overflow-hidden rounded-[32px] bg-slate-900 text-white p-6 sm:p-8 shadow-2xl border border-white/10">
           <div className="absolute inset-0 bg-gradient-to-br from-blue-900/40 via-transparent to-purple-900/40" />
@@ -1590,6 +1621,20 @@ export const FullExamModal: React.FC<FullExamModalProps> = ({
         setReportingQuestion(null);
       }}
       question={reportingQuestion}
+    />
+    <GuestLoginPromptModal
+      isOpen={showGuestLoginPrompt}
+      onClose={() => setShowGuestLoginPrompt(false)}
+      onLogin={() => {
+        setShowGuestLoginPrompt(false);
+        onOpenLogin?.();
+      }}
+      testTitle="Full Mock Exam"
+      scoreSummary={{
+        correct: correctCount,
+        total: totalQuestions,
+        accuracy: accuracy,
+      }}
     />
   </>
   );

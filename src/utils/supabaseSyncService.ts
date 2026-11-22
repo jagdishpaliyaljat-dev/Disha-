@@ -42,6 +42,51 @@ const inFlightTopicFetches = new Map<string, Promise<Question[]>>();
 const inFlightChapterFetches = new Map<string, Promise<Question[]>>();
 
 /**
+ * Fetches all questions from Supabase by paginating in 1,000-row chunks
+ * to safely bypass PostgREST's default max limit of 1,000 rows.
+ */
+export async function fetchAllServerQuestions(): Promise<any[]> {
+  try {
+    const { count, error } = await supabase
+      .from("questions")
+      .select("id", { count: "exact", head: true });
+
+    if (error) {
+      console.warn("[supabaseSyncService] Could not get questions count:", error);
+    }
+
+    const total = typeof count === "number" && count > 0 ? count : 10000;
+    const pageSize = 1000;
+    const totalPages = Math.max(1, Math.ceil(total / pageSize));
+
+    const pagePromises = [];
+    for (let page = 0; page < totalPages; page++) {
+      const from = page * pageSize;
+      const to = from + pageSize - 1;
+      pagePromises.push(
+        supabase
+          .from("questions")
+          .select("id, question, options, correct_answer, explanation, subject_id, chapter_id, topic_id, exam, year, level, created_at")
+          .order("id", { ascending: true })
+          .range(from, to)
+      );
+    }
+
+    const results = await Promise.all(pagePromises);
+    const allQuestions: any[] = [];
+    for (const res of results) {
+      if (res.data && Array.isArray(res.data)) {
+        allQuestions.push(...res.data);
+      }
+    }
+    return allQuestions;
+  } catch (err) {
+    console.warn("[supabaseSyncService] Error fetching paginated questions:", err);
+    return [];
+  }
+}
+
+/**
  * Performs authoritative bidirectional synchronization between Supabase PostgreSQL
  * and local IndexedDB cache:
  * 1. Fetches authoritative records from Supabase.
@@ -95,15 +140,12 @@ export async function syncCurriculumAuthoritative(options?: { force?: boolean })
       const qSubs = supabase.from("subjects").select("id, name, hindi_name, description, icon, color, order_index").order("order_index", { ascending: true });
       const qChaps = supabase.from("chapters").select("id, subject_id, name, hindi_name, order_index").order("order_index", { ascending: true });
       const qTops = supabase.from("topics").select("id, chapter_id, subject_id, name, hindi_name, order_index").order("order_index", { ascending: true });
-      // Bounded initial question seed (supports full question bank ingestion)
-      const qQuestionsBuilder = supabase.from("questions").select("id, question, options, correct_answer, explanation, subject_id, chapter_id, topic_id, exam, year, level, created_at");
-      const qQuestions = typeof (qQuestionsBuilder as any)?.limit === 'function' ? (qQuestionsBuilder as any).limit(5000) : qQuestionsBuilder;
 
-      const [subsRes, chapsRes, topsRes, questionsRes] = await Promise.all([
+      const [subsRes, chapsRes, topsRes, serverQuestions] = await Promise.all([
         typeof (qSubs as any).range === "function" ? (qSubs as any).range(0, 9999) : qSubs,
         typeof (qChaps as any).range === "function" ? (qChaps as any).range(0, 9999) : qChaps,
         typeof (qTops as any).range === "function" ? (qTops as any).range(0, 9999) : qTops,
-        qQuestions,
+        fetchAllServerQuestions(),
       ]);
 
       if (subsRes.error) throw new Error(`Failed to fetch subjects: ${subsRes.error.message}`);
@@ -117,7 +159,6 @@ export async function syncCurriculumAuthoritative(options?: { force?: boolean })
       const serverSubjects = subsRes.data || [];
       const serverChapters = chapsRes.data || [];
       const serverTopics = topsRes.data || [];
-      const serverQuestions = Array.isArray(questionsRes?.data) ? questionsRes.data : [];
 
       const topicQuestionCounts: Record<string, number> = {};
       const chapterQuestionCounts: Record<string, number> = {};
@@ -245,7 +286,7 @@ export async function syncCurriculumAuthoritative(options?: { force?: boolean })
           continue; // NEVER delete user-added topics!
         }
         const tName = (t as any).name || t.title;
-        if (!serverTopIds.has(t.id) || deletedTopSet.has(t.id) || tName === "X" || tName === "MCQ 01") {
+        if (!serverTopIds.has(t.id) || deletedTopSet.has(t.id) || tName === "X") {
           await idbDelete(STORES.TOPICS, t.id);
           result.prunedTopics++;
         }
@@ -363,11 +404,11 @@ export async function fetchFullAuthoritativeCurriculum(options?: { force?: boole
   // Direct network fallback if IndexedDB is blocked or private mode
   if ((!subs || subs.length === 0) && isSupabaseConfigured()) {
     try {
-      const [sRes, cRes, tRes, qRes] = await Promise.all([
+      const [sRes, cRes, tRes, serverQuestions] = await Promise.all([
         supabase.from("subjects").select("id,name,hindi_name,description,icon,color,order_index").order("order_index", { ascending: true }),
         supabase.from("chapters").select("id,subject_id,name,hindi_name,order_index").order("order_index", { ascending: true }),
         supabase.from("topics").select("id,chapter_id,subject_id,name,hindi_name,order_index").order("order_index", { ascending: true }),
-        supabase.from("questions").select("id,question,options,correct_answer,explanation,subject_id,chapter_id,topic_id,exam,year,level,created_at").order("created_at", { ascending: false }).limit(1000),
+        fetchAllServerQuestions(),
       ]);
       if (sRes.data && sRes.data.length > 0) {
         const directSubs: Subject[] = (sRes.data || []).map(s => ({
@@ -402,7 +443,7 @@ export async function fetchFullAuthoritativeCurriculum(options?: { force?: boole
           questions: [],
           isUserAdded: false,
         }));
-        const directQs: Question[] = (qRes.data || []).map(q => ({
+        const directQs: Question[] = (serverQuestions || []).map(q => ({
           id: q.id,
           text: q.question,
           options: Array.isArray(q.options) ? q.options : [],

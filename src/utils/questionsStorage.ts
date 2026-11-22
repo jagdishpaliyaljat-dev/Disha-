@@ -116,8 +116,8 @@ export async function hydrateUserQuestionsStoreFromIndexedDB(): Promise<UserQues
       }
     }
 
-    // Check quizpro-db-v5 snapshot database if curriculum is still incomplete (< 500 questions)
-    if (restoredCount < 500) {
+    // Check quizpro-db-v5 snapshot database if curriculum is still incomplete (< 5000 questions)
+    if (restoredCount < 5000) {
       try {
         const { getAllRecords, SNAPSHOT_STORES } = await import("../services/snapshot/indexedDbV5");
         const v5Mcqs = await getAllRecords(SNAPSHOT_STORES.MCQS);
@@ -170,8 +170,8 @@ export async function hydrateUserQuestionsStoreFromIndexedDB(): Promise<UserQues
       }
     }
 
-    // Hydrate directly from Supabase if configured
-    if ((inMemoryQuestionsStore.customSubjects?.length || 0) === 0 || (inMemoryQuestionsStore.cloudCacheQuestions?.length || 0) === 0) {
+    // Hydrate directly from Supabase if configured or incomplete (< 5000 questions)
+    if ((inMemoryQuestionsStore.customSubjects?.length || 0) === 0 || (inMemoryQuestionsStore.cloudCacheQuestions?.length || 0) < 5000) {
       try {
         const { isSupabaseConfigured } = await import("../lib/supabase");
         if (isSupabaseConfigured()) {
@@ -194,6 +194,8 @@ export async function hydrateUserQuestionsStoreFromIndexedDB(): Promise<UserQues
               cloudCacheQuestions: sbQuestions.length > 0 ? sbQuestions : (inMemoryQuestionsStore.cloudCacheQuestions || []),
             };
             isMemoryStoreHydrated = true;
+            restored = true;
+            restoredCount = inMemoryQuestionsStore.cloudCacheQuestions.length;
             dispatchStoreUpdated(inMemoryQuestionsStore);
           }
         }
@@ -202,8 +204,8 @@ export async function hydrateUserQuestionsStoreFromIndexedDB(): Promise<UserQues
       }
     }
 
-    // Direct Snapshot v1 fallback if still incomplete (< 500 questions)
-    if (restoredCount < 500 && typeof window !== "undefined" && typeof fetch !== "undefined") {
+    // Direct Snapshot v1 fallback if still incomplete (< 5000 questions)
+    if (restoredCount < 5000 && typeof window !== "undefined" && typeof fetch !== "undefined") {
       try {
         const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
         const timeoutId = controller ? setTimeout(() => controller.abort(), 1500) : null;
@@ -215,7 +217,7 @@ export async function hydrateUserQuestionsStoreFromIndexedDB(): Promise<UserQues
           const snap = await snapResp.json();
 
 
-          if (Array.isArray(snap.mcqs) && snap.mcqs.length >= 500) {
+          if (Array.isArray(snap.mcqs) && snap.mcqs.length >= 1000) {
             const current = inMemoryQuestionsStore;
             const deletedSet = new Set(current.deletedQuestionIds || []);
             const unwrappedMcqs = snap.mcqs.map((raw: any) => {

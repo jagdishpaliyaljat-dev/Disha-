@@ -268,6 +268,19 @@ export async function invalidateTopicCache(topicId: string): Promise<void> {
     const topicKey = `topic:${topicId}`;
     await questionBankStore.removeItem(topicKey);
     await questionMetaStore.removeItem(`meta:${topicKey}`);
+
+    // Also remove questions for this topic from global bank:all_questions
+    const allQuestions = await questionBankStore.getItem<Question[]>("bank:all_questions");
+    if (Array.isArray(allQuestions) && allQuestions.length > 0) {
+      const tIdLower = topicId.toLowerCase();
+      const filtered = allQuestions.filter((q) => {
+        if (!q) return false;
+        if (q.topicId && q.topicId.toLowerCase() === tIdLower) return false;
+        if ((q as any).topic && String((q as any).topic).toLowerCase() === tIdLower) return false;
+        return true;
+      });
+      await questionBankStore.setItem("bank:all_questions", filtered);
+    }
   } catch (err) {
     console.warn(`[QuestionBankCache] Error invalidating cache for topic ${topicId}:`, err);
   }
