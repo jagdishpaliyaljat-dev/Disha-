@@ -7,6 +7,7 @@ import {
   ProgressStore,
   AppSettings,
   FullExamPreset,
+  UserProfile,
 } from "../types";
 import {
   DEFAULT_EXAM_PRESETS,
@@ -36,6 +37,7 @@ import {
   ShieldAlert,
   Sliders,
   Flame,
+  LogIn,
 } from "lucide-react";
 import confetti from "canvas-confetti";
 import { MotionConfettiCelebration } from "./MotionConfettiCelebration";
@@ -44,6 +46,8 @@ import { flushStudentWriteBuffer } from "../utils/studentWriteBuffer";
 import { ParsedQuestion } from "./ParsedQuestion";
 import { QuestionReportModal } from "./QuestionReportModal";
 import { RichText } from "./RichText";
+import { GuestLoginPromptModal } from "./GuestLoginPromptModal";
+import { isProfileAuthenticated } from "../utils/userProfileStorage";
 import {
   playCorrectSound,
   playWrongSound,
@@ -59,6 +63,8 @@ interface FullExamModalProps {
   subjects: Subject[];
   progressStore: ProgressStore;
   settings: AppSettings;
+  userProfile?: UserProfile | null;
+  onOpenLogin?: () => void;
   onUpdateProgress: (
     questionId: string,
     isCorrect: boolean,
@@ -87,6 +93,8 @@ export const FullExamModal: React.FC<FullExamModalProps> = ({
   subjects,
   progressStore,
   settings,
+  userProfile,
+  onOpenLogin,
   onUpdateProgress,
   onToggleBookmark,
   onOpenPDFExport,
@@ -122,6 +130,19 @@ export const FullExamModal: React.FC<FullExamModalProps> = ({
   const [showPerfectCelebration, setShowPerfectCelebration] = useState<boolean>(false);
   const [showReportModal, setShowReportModal] = useState<boolean>(false);
   const [reportingQuestion, setReportingQuestion] = useState<Question | null>(null);
+  const [showGuestLoginPrompt, setShowGuestLoginPrompt] = useState<boolean>(false);
+
+  // Trigger guest login prompt on exam completion if user is guest
+  useEffect(() => {
+    if (screen === "result" && !isProfileAuthenticated(userProfile)) {
+      const timer = setTimeout(() => {
+        setShowGuestLoginPrompt(true);
+      }, 750);
+      return () => clearTimeout(timer);
+    } else {
+      setShowGuestLoginPrompt(false);
+    }
+  }, [screen, userProfile]);
 
   // Timer Ref
   const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);

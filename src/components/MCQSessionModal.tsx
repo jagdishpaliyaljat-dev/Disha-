@@ -43,9 +43,12 @@ import {
   Shield,
   Trophy,
   ChevronRight,
+  LogIn,
 } from "lucide-react";
 import confetti from "canvas-confetti";
 import { MotionConfettiCelebration } from "./MotionConfettiCelebration";
+import { GuestLoginPromptModal } from "./GuestLoginPromptModal";
+import { isProfileAuthenticated } from "../utils/userProfileStorage";
 import ShareModal, { ShareData } from "./ShareModal";
 import { getShareUrl, buildPYQShareData, buildLiveTestShareData, buildTopicShareData } from "../utils/shareService";
 import { SessionLeaderboard } from "./SessionLeaderboard";
@@ -99,6 +102,7 @@ interface MCQSessionModalProps {
   onClose: () => void;
   onStartNewSession: (newSession: MCQSession) => void;
   onUpdateSettings?: (newSettings: Partial<AppSettings>) => void;
+  onOpenLogin?: () => void;
 }
 
 export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
@@ -112,6 +116,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
   onClose,
   onStartNewSession,
   onUpdateSettings,
+  onOpenLogin,
 }) => {
   const { progressStore, updateProgress, toggleBookmark } = useProgress();
   const { questionsStore } = useQuestions();
@@ -174,6 +179,20 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
   const [showPerfectCelebration, setShowPerfectCelebration] = useState(false);
   const [shareData, setShareData] = useState<ShareData | null>(null);
   const hasTriggered100CelebrationRef = useRef(false);
+
+  // Guest login prompt popup when an unauthenticated user completes practice/test
+  const [showGuestLoginPrompt, setShowGuestLoginPrompt] = useState(false);
+  const hasPromptedGuestLoginRef = useRef(false);
+
+  useEffect(() => {
+    if (isCompleted && !isProfileAuthenticated(userProfile) && !hasPromptedGuestLoginRef.current) {
+      hasPromptedGuestLoginRef.current = true;
+      const timer = setTimeout(() => {
+        setShowGuestLoginPrompt(true);
+      }, 750);
+      return () => clearTimeout(timer);
+    }
+  }, [isCompleted, userProfile]);
 
   // Auto-advance state for Test Mode
   const [isAdvancing, setIsAdvancing] = useState(false);
@@ -1591,23 +1610,44 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
   // ──────────────────────────────────────────────────────────────────────────
   if (isCompleted) {
     if (isLiveOrPYQTest) {
+      const totalAttemptedLive = Object.keys(sessionResults).length;
+      const totalCorrectLive = Object.values(sessionResults).filter((r) => r.isCorrect).length;
+      const liveAccuracy = totalAttemptedLive > 0 ? Math.round((totalCorrectLive / totalAttemptedLive) * 100) : 0;
+
       return (
-        <RedesignedTestResultView
-          session={session}
-          questions={questions}
-          sessionResults={sessionResults}
-          elapsedSeconds={elapsedSeconds}
-          questionTimes={questionTimes}
-          shuffledOptionsOrder={shuffledOptionsOrder}
-          progressStore={progressStore}
-          userProfile={userProfile}
-          onToggleBookmark={onToggleBookmark}
-          onClose={onClose}
-          onRestart={handleStartSession}
-          serverSubmission={serverLiveSubmission}
-          isGradingLiveTest={isSubmittingLiveTest}
-          liveSubmitError={liveSubmitError}
-        />
+        <>
+          <RedesignedTestResultView
+            session={session}
+            questions={questions}
+            sessionResults={sessionResults}
+            elapsedSeconds={elapsedSeconds}
+            questionTimes={questionTimes}
+            shuffledOptionsOrder={shuffledOptionsOrder}
+            progressStore={progressStore}
+            userProfile={userProfile}
+            onToggleBookmark={onToggleBookmark}
+            onClose={onClose}
+            onRestart={handleStartSession}
+            serverSubmission={serverLiveSubmission}
+            isGradingLiveTest={isSubmittingLiveTest}
+            liveSubmitError={liveSubmitError}
+            onOpenLogin={onOpenLogin}
+          />
+          <GuestLoginPromptModal
+            isOpen={showGuestLoginPrompt}
+            onClose={() => setShowGuestLoginPrompt(false)}
+            onLogin={() => {
+              setShowGuestLoginPrompt(false);
+              onOpenLogin?.();
+            }}
+            testTitle={session.title}
+            scoreSummary={{
+              correct: totalCorrectLive,
+              total: questions.length,
+              accuracy: liveAccuracy,
+            }}
+          />
+        </>
       );
     }
 
@@ -1710,6 +1750,37 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
         </div>
 
         <div className="w-full max-w-2xl space-y-4 sm:space-y-6 pb-[calc(env(safe-area-inset-bottom,20px)+64px)] relative z-10">
+          {/* Guest User Login CTA Banner */}
+          {!isProfileAuthenticated(userProfile) && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-[#800020]/15 via-[#F47B20]/20 to-[#800020]/15 border border-[#F47B20]/40 text-[#171923] dark:text-[#FFF9EF] flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs"
+            >
+              <div className="flex items-center gap-3 min-w-0 w-full sm:w-auto">
+                <div className="w-10 h-10 rounded-xl bg-[#800020] text-amber-300 flex items-center justify-center shrink-0 shadow-sm">
+                  <Sparkles className="w-5 h-5" />
+                </div>
+                <div className="min-w-0 text-left">
+                  <h4 className="text-xs sm:text-sm font-black text-[#171923] dark:text-[#FFF9EF]">
+                    अतिथि मोड: अपना स्कोर व रैंक सुरक्षित करें!
+                  </h4>
+                  <p className="text-[11px] text-[#52576A] dark:text-[#CBD2E1] mt-0.5">
+                    लॉगिन करने पर आपके अंक All-Rajasthan रैंक और मिस्टेक बैंक में हमेशा सुरक्षित रहेंगे।
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => onOpenLogin?.()}
+                className="w-full sm:w-auto px-4 py-2 rounded-xl bg-[#800020] hover:bg-[#600018] text-white text-xs font-black shrink-0 flex items-center justify-center gap-1.5 cursor-pointer shadow-sm active:scale-95 transition-transform"
+              >
+                <LogIn className="w-3.5 h-3.5" />
+                <span>लॉगिन करें</span>
+              </button>
+            </motion.div>
+          )}
+
           {/* Top Results Card: High-Fidelity Performance Summary */}
           <motion.div 
             initial={{ y: 20, opacity: 0 }}
@@ -2351,6 +2422,22 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
             data={shareData}
           />
         )}
+
+        {/* Guest Login Prompt Popup Modal */}
+        <GuestLoginPromptModal
+          isOpen={showGuestLoginPrompt}
+          onClose={() => setShowGuestLoginPrompt(false)}
+          onLogin={() => {
+            setShowGuestLoginPrompt(false);
+            onOpenLogin?.();
+          }}
+          testTitle={session.title}
+          scoreSummary={{
+            correct: totalCorrect,
+            total: questions.length,
+            accuracy: sessionAccuracy,
+          }}
+        />
         </div>
       </motion.div>
     );
@@ -4150,6 +4237,7 @@ interface RedesignedTestResultViewProps {
   serverSubmission?: any | null;
   isGradingLiveTest?: boolean;
   liveSubmitError?: string | null;
+  onOpenLogin?: () => void;
 }
 
 const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
@@ -4166,6 +4254,7 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
   serverSubmission = null,
   isGradingLiveTest = false,
   liveSubmitError = null,
+  onOpenLogin,
 }) => {
   const optionLabels = ["A", "B", "C", "D", "E", "F"];
   const [filter, setFilter] = useState<"all" | "correct" | "wrong" | "skipped">("all");
@@ -4346,6 +4435,33 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
             <p className="text-[11px] sm:text-xs leading-relaxed text-rose-700 dark:text-rose-300">
               You left <strong>{totalCompletelyBlank} question(s)</strong> completely blank without filling Option E ({((totalCompletelyBlank / Math.max(1, totalQuestions)) * 100).toFixed(1)}%). Under official RPSC guidelines, leaving over 10% questions blank leads to disqualification.
             </p>
+          </div>
+        )}
+
+        {/* Guest User Sign-In Reminder Banner */}
+        {!isProfileAuthenticated(userProfile) && (
+          <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-[#800020]/15 via-[#F47B20]/20 to-[#800020]/15 border border-[#F47B20]/40 text-[#171923] dark:text-[#FFF9EF] flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-10 h-10 rounded-xl bg-[#800020] text-amber-300 flex items-center justify-center shrink-0 shadow-xs">
+                <Sparkles className="w-5 h-5" />
+              </div>
+              <div className="min-w-0 text-left">
+                <h4 className="text-xs sm:text-sm font-black text-[#171923] dark:text-[#FFF9EF] leading-tight">
+                  अतिथि मोड (Guest): अपना स्कोर व ऑल-राजस्थान रैंक सेव करें!
+                </h4>
+                <p className="text-[11px] text-[#52576A] dark:text-[#CBD2E1] mt-0.5 leading-tight">
+                  लॉगिन करने से आपका टेस्ट परिणाम हमेशा के लिए सुरक्षित रहेगा और गलत प्रश्न रिवीज़न में जुड़ेंगे।
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => onOpenLogin?.()}
+              className="px-4 py-2 rounded-xl bg-[#800020] hover:bg-[#600018] text-white text-xs font-black shrink-0 shadow-sm flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
+            >
+              <LogIn className="w-3.5 h-3.5" />
+              <span>लॉगिन करें</span>
+            </button>
           </div>
         )}
 
