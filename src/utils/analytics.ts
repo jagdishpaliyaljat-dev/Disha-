@@ -1,4 +1,5 @@
 import { SITE_CONFIG } from "../config/siteConfig";
+import { supabase, isSupabaseConfigured } from "../lib/supabase";
 
 declare global {
   interface Window {
@@ -194,6 +195,32 @@ async function logVisitorAnalyticsToFirestore(pagePath: string, isLoggedIn: bool
       if (typeof window !== "undefined" && window.sessionStorage) {
         window.sessionStorage.setItem(sessionKey, "1");
       }
+
+      const source = getTrafficSource();
+      const device = getDeviceCategory();
+      const uniqueKey = `${dateStr}_unique_vis`;
+      const isUnique = typeof window !== "undefined" && !window.localStorage?.getItem(uniqueKey);
+      if (isUnique && typeof window !== "undefined" && window.localStorage) {
+        try {
+          window.localStorage.setItem(uniqueKey, "1");
+        } catch {}
+      }
+
+      // 1. Record atomic visitor counter in Supabase Cloud
+      if (isSupabaseConfigured()) {
+        try {
+          supabase.rpc("record_site_visit", {
+            p_page: pagePath,
+            p_source: source,
+            p_device: device,
+            p_is_logged_in: isLoggedIn,
+            p_is_unique: isUnique,
+            p_is_download_click: false,
+          }).then(() => {}).catch(() => {});
+        } catch {}
+      }
+
+      // 2. Also keep local fallback cache
       try {
         const raw = localStorage.getItem(DAILY_ANALYTICS_STORAGE_KEY) || localStorage.getItem(LEGACY_DAILY_ANALYTICS_STORAGE_KEY) || "{}";
         const all = JSON.parse(raw);
@@ -208,11 +235,10 @@ async function logVisitorAnalyticsToFirestore(pagePath: string, isLoggedIn: bool
           topPages: {},
         };
         day.totalVisits = (day.totalVisits || 0) + 1;
-        day.uniqueVisitors = (day.uniqueVisitors || 0) + 1;
+        if (isUnique) day.uniqueVisitors = (day.uniqueVisitors || 0) + 1;
         if (isLoggedIn) day.loggedInCount = (day.loggedInCount || 0) + 1;
         else day.guestCount = (day.guestCount || 0) + 1;
 
-        const device = getDeviceCategory();
         day.deviceSplit = day.deviceSplit || { mobile: 0, desktop: 0 };
         day.deviceSplit[device] = (day.deviceSplit[device] || 0) + 1;
 
@@ -296,4 +322,19 @@ export function trackShareClick(articleSlug: string, platform: string, isUserAdm
 
 export function trackAppCtaClick(source: string, isUserAdmin?: boolean): void {
   trackCustomEvent("app_cta_click", { source }, isUserAdmin);
+
+  // Record APK download button click in Supabase
+  if (isSupabaseConfigured()) {
+    try {
+      supabase.rpc("record_site_visit", {
+        p_page: "/download-apk",
+        p_source: source || getTrafficSource(),
+        p_device: getDeviceCategory(),
+        p_is_logged_in: false,
+        p_is_unique: false,
+        p_is_download_click: true,
+      }).then(() => {}).catch(() => {});
+    } catch {}
+  }
 }
+
