@@ -243,9 +243,6 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
       setSpeakingId(null);
     }
 
-    // Increment daily AI counter for non-VIP
-    localStorage.setItem(storageKey, String(currentCount + 1));
-
     const userMsg: ChatMessage = {
       id: `user_${Date.now()}`,
       role: "user",

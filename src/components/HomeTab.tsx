@@ -61,6 +61,7 @@ import {
 } from "lucide-react";
 import { BannerSlides } from "./BannerSlides";
 import { AppLogo } from "./AppLogo";
+import { UserAvatar } from "./ui/UserAvatar";
 import type { ShareData } from "./ShareModal";
 import { subscribeToActiveBanners, getLocalBanners } from "../utils/bannerStorage";
 
@@ -249,27 +250,10 @@ export const HomeTab: React.FC<HomeTabProps> = ({
               )}
             </button>
 
-            {/* 100% Free Education Badge */}
-            <button
-              onClick={() => {
-                if (onOpenPremium) {
-                  onOpenPremium();
-                } else if (typeof window !== "undefined") {
-                  window.dispatchEvent(new CustomEvent("disha_open_premium_modal", { detail: { trigger: "general" } }));
-                }
-              }}
-              className="h-10 px-2.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-extrabold text-xs flex items-center gap-1.5 transition-all shadow-xs active:scale-95 cursor-pointer shrink-0"
-              aria-label="Disha PYQ 100% Free"
-              title="100% निःशुल्क शिक्षा पहल"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-              <span className="text-[11px] font-black">100% Free</span>
-            </button>
-
             {!isAuthenticated ? (
               <button
                 onClick={onOpenLogin}
-                className="flex items-center gap-1.5 h-10 px-3 rounded-xl bg-[#7045D8] hover:bg-[#5E0017] dark:bg-[#7045D8] text-white text-xs font-black shadow-xs transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap"
+                className="flex items-center gap-1.5 h-10 px-3 rounded-xl bg-[#7045D8] hover:bg-[#5B32BF] text-white text-xs font-black shadow-xs transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap"
                 aria-label="Login to Disha PYQ"
               >
                 <LogIn className="w-3.5 h-3.5 shrink-0" />
@@ -278,13 +262,13 @@ export const HomeTab: React.FC<HomeTabProps> = ({
             ) : (
               <button
                 onClick={() => onNavigateTab?.("profile")}
-                className="w-10 h-10 rounded-full ring-2 ring-[#C99A45]/60 hover:ring-[#800020] dark:hover:ring-[#F47B20] flex items-center justify-center overflow-hidden active:scale-95 transition-all cursor-pointer bg-[#F7EFE2] dark:bg-[#252A3A] shrink-0"
+                className="w-10 h-10 rounded-full ring-2 ring-[#7045D8]/40 hover:ring-[#7045D8] flex items-center justify-center overflow-hidden active:scale-95 transition-all cursor-pointer bg-slate-100 dark:bg-[#201B38] shrink-0"
                 aria-label="User Profile"
               >
-                <img
-                  src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${userName}`}
-                  alt="Avatar"
-                  className="w-full h-full object-cover"
+                <UserAvatar
+                  name={userName}
+                  photoURL={currentUserProfile?.photoURL}
+                  sizeClassName="w-full h-full"
                 />
               </button>
             )}
@@ -654,14 +638,12 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                   </button>
 
                   <div className="flex items-center gap-3.5 mt-2">
-                    <div className="w-12 h-12 rounded-full border-2 border-[#C99A45]/70 p-0.5 shrink-0">
-                      <div className="w-full h-full rounded-full overflow-hidden bg-white/15">
-                        <img
-                          src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${userName}`}
-                          alt="User"
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
+                    <div className="w-12 h-12 rounded-full border-2 border-[#C99A45]/70 p-0.5 shrink-0 overflow-hidden">
+                      <UserAvatar
+                        name={userName}
+                        photoURL={currentUserProfile?.photoURL}
+                        sizeClassName="w-full h-full"
+                      />
                     </div>
                     <div className="min-w-0">
                       <h3 className="text-base font-extrabold truncate leading-none mb-1.5">

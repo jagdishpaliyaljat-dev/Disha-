@@ -41,6 +41,7 @@ import { ToastNotificationContainer, ToastMessage } from './components/ToastNoti
 import { PWAUpdateToast } from './components/PWAUpdateToast';
 import { MobileAppReturnBanner } from './components/MobileAppReturnBanner';
 import { BrandSplashAndOnboarding } from './components/BrandSplashAndOnboarding';
+import { UserAvatar } from './components/ui/UserAvatar';
 import { ContentLoader } from './components/ui/LoadingScreen';
 import { AdminErrorBoundary } from './components/admin/AdminErrorBoundary';
 import { RouteErrorBoundary } from './components/RouteErrorBoundary';
@@ -1693,20 +1694,6 @@ export default function App() {
                 )}
               </button>
 
-              {/* 100% Free Education Badge */}
-              <button
-                type="button"
-                onClick={() => {
-                  setPremiumFeatureTrigger('general');
-                  setIsPremiumModalOpen(true);
-                }}
-                className="px-2.5 py-1.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-extrabold text-xs flex items-center gap-1.5 transition-all shadow-xs active:scale-95 cursor-pointer"
-                title="100% निःशुल्क शिक्षा पहल"
-              >
-                <Sparkles className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                <span>100% Free</span>
-              </button>
-
               {!isAuthenticated ? (
                 <button
                   type="button"
@@ -1724,10 +1711,10 @@ export default function App() {
                   aria-label="Profile"
                   title={userProfile?.name || 'User Profile'}
                 >
-                  <img
-                    src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(userProfile?.name || 'Scholar')}`}
-                    alt="Avatar"
-                    className="w-full h-full object-cover"
+                  <UserAvatar
+                    name={userProfile?.name}
+                    photoURL={userProfile?.photoURL}
+                    sizeClassName="w-full h-full"
                   />
                 </button>
               )}

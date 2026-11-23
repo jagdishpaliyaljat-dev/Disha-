@@ -161,8 +161,8 @@ export async function initiateCashfreePayment(
     // domain via Chrome Custom Tabs. No localhost/capacitor origin ever reaches
     // Cashfree, so the "https://localhost/ is not enabled" error cannot occur.
     if (Capacitor.isNativePlatform()) {
+      const checkoutBridgeUrl = getCheckoutBridgeUrl(paymentSessionId, orderId, mode);
       try {
-        const checkoutBridgeUrl = getCheckoutBridgeUrl(paymentSessionId, orderId, mode);
 
         // Automatically verify subscription as soon as user returns from payment window
         let finishedListener: any = null;

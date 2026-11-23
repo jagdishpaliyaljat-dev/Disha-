@@ -42,6 +42,7 @@ import ShareModal, { ShareData } from "./ShareModal";
 import { ApiSettingsModal } from "./ApiSettingsModal";
 import { AppSettingsModal } from "./AppSettingsModal";
 import { AppLogo } from "./AppLogo";
+import { UserAvatar } from "./ui/UserAvatar";
 
 interface ProfileTabProps {
   user?: UserProfile | null;
