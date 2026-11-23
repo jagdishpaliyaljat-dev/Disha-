@@ -43,15 +43,32 @@ export class AdminErrorBoundary extends React.Component<AdminErrorBoundaryProps,
             </svg>
           </div>
           <h3 className="text-base font-bold text-slate-900 dark:text-white">Admin Module Loading Notice</h3>
-          <p className="text-xs text-slate-500 max-w-sm mt-1 mb-4">
+          <p className="text-xs text-slate-500 max-w-sm mt-1 mb-3">
             The Admin Panel module encountered a temporary loading issue. Click retry to reload the panel.
           </p>
-          <button
-            onClick={this.handleRetry}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-sm transition-all active:scale-95 cursor-pointer"
-          >
-            Retry Loading
-          </button>
+          {this.state.error && (
+            <p className="text-[10px] font-mono text-rose-500 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/40 px-3 py-1.5 rounded-xl max-w-md truncate mb-4">
+              {this.state.error.message || String(this.state.error)}
+            </p>
+          )}
+          <div className="flex items-center gap-2.5">
+            <button
+              onClick={this.handleRetry}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-sm transition-all active:scale-95 cursor-pointer"
+            >
+              Retry Loading
+            </button>
+            <button
+              onClick={() => {
+                if (typeof window !== "undefined") {
+                  window.location.href = "/";
+                }
+              }}
+              className="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold transition-all active:scale-95 cursor-pointer"
+            >
+              Go to Home
+            </button>
+          </div>
         </div>
       );
     }

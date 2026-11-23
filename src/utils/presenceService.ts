@@ -1,5 +1,6 @@
 import { supabase, isSupabaseConfigured } from "../lib/supabase";
 import { getDeviceCategory, getVisitorId } from "./analytics";
+import type { RealtimeChannel } from "@supabase/supabase-js";
 
 export interface LivePresenceUser {
   visitorId: string;
@@ -21,11 +22,110 @@ export interface LivePresenceSummary {
 
 const PRESENCE_CHANNEL_NAME = "disha_live_presence_pulse";
 
-let activeStudentChannel: any = null;
+// Singleton channel & listener pool
+let sharedPresenceChannel: RealtimeChannel | null = null;
+let currentTrackedPayload: LivePresenceUser | null = null;
+const adminListeners = new Set<(summary: LivePresenceSummary) => void>();
+
+function calculatePresenceSummary(channel: RealtimeChannel): LivePresenceSummary {
+  try {
+    const state = channel.presenceState();
+    const users: LivePresenceUser[] = [];
+    let mobile = 0;
+    let desktop = 0;
+    const pages: Record<string, number> = {};
+
+    Object.values(state).forEach((presences: any) => {
+      if (Array.isArray(presences) && presences.length > 0) {
+        const user = presences[0] as LivePresenceUser;
+        users.push(user);
+        if (user.device === "desktop") desktop++;
+        else mobile++;
+
+        const readablePage = user.page || "Home";
+        pages[readablePage] = (pages[readablePage] || 0) + 1;
+      }
+    });
+
+    const onlineCount = users.length > 0 ? users.length : 1;
+    return {
+      onlineCount,
+      mobileCount: mobile,
+      desktopCount: desktop,
+      pageBreakdown: pages,
+      activeUsers: users,
+    };
+  } catch (err) {
+    console.warn("[Presence] Calculate error:", err);
+    return {
+      onlineCount: 1,
+      mobileCount: 1,
+      desktopCount: 0,
+      pageBreakdown: { Home: 1 },
+      activeUsers: [],
+    };
+  }
+}
+
+function notifyAdminListeners() {
+  if (!sharedPresenceChannel || adminListeners.size === 0) return;
+  const summary = calculatePresenceSummary(sharedPresenceChannel);
+  adminListeners.forEach((listener) => {
+    try {
+      listener(summary);
+    } catch (e) {
+      console.warn("[Presence] Listener notify error:", e);
+    }
+  });
+}
+
+function getOrCreatePresenceChannel(): RealtimeChannel | null {
+  if (!isSupabaseConfigured() || typeof window === "undefined") {
+    return null;
+  }
+
+  if (sharedPresenceChannel) {
+    return sharedPresenceChannel;
+  }
+
+  const visitorId = getVisitorId();
+
+  try {
+    const channel = supabase.channel(PRESENCE_CHANNEL_NAME, {
+      config: {
+        presence: {
+          key: visitorId,
+        },
+      },
+    });
+
+    // CRITICAL: Attach .on("presence", ...) BEFORE calling .subscribe()
+    channel
+      .on("presence", { event: "sync" }, () => notifyAdminListeners())
+      .on("presence", { event: "join" }, () => notifyAdminListeners())
+      .on("presence", { event: "leave" }, () => notifyAdminListeners());
+
+    channel.subscribe(async (status) => {
+      if (status === "SUBSCRIBED" && currentTrackedPayload) {
+        try {
+          await channel.track(currentTrackedPayload);
+        } catch (err) {
+          console.warn("[Presence] Track error on subscribe:", err);
+        }
+        notifyAdminListeners();
+      }
+    });
+
+    sharedPresenceChannel = channel;
+    return channel;
+  } catch (err) {
+    console.warn("[Presence] Channel creation error:", err);
+    return null;
+  }
+}
 
 /**
  * Initializes live presence tracking for a student/visitor on web or app.
- * Automatically untracks when the tab closes or becomes inactive.
  */
 export function initStudentPresence(info?: {
   page?: string;
@@ -37,73 +137,38 @@ export function initStudentPresence(info?: {
     return () => {};
   }
 
-  // Avoid duplicate channels
-  if (activeStudentChannel) {
-    try {
-      supabase.removeChannel(activeStudentChannel);
-    } catch {}
-    activeStudentChannel = null;
-  }
-
   const visitorId = getVisitorId();
   const device = getDeviceCategory();
 
-  const channel = supabase.channel(PRESENCE_CHANNEL_NAME, {
-    config: {
-      presence: {
-        key: visitorId,
-      },
-    },
-  });
-
-  const trackState = async (pageName?: string) => {
-    try {
-      const payload: LivePresenceUser = {
-        visitorId,
-        device,
-        page: pageName || info?.page || window.location.pathname || "Home",
-        onlineAt: new Date().toISOString(),
-        isLoggedIn: Boolean(info?.isLoggedIn),
-        targetExam: info?.targetExam || "General",
-        userName: info?.userName,
-      };
-      await channel.track(payload);
-    } catch (err) {
-      console.warn("[Presence] Track error:", err);
-    }
+  currentTrackedPayload = {
+    visitorId,
+    device,
+    page: info?.page || window.location.pathname || "Home",
+    onlineAt: new Date().toISOString(),
+    isLoggedIn: Boolean(info?.isLoggedIn),
+    targetExam: info?.targetExam || "General",
+    userName: info?.userName,
   };
 
-  channel.subscribe(async (status) => {
-    if (status === "SUBSCRIBED") {
-      await trackState();
-    }
-  });
+  const channel = getOrCreatePresenceChannel();
+  if (channel && channel.state === "joined") {
+    channel.track(currentTrackedPayload).catch(() => {});
+  }
 
-  activeStudentChannel = channel;
-
-  // Handle visibility changes (pause tracking if user switches apps/tabs)
   const handleVisibilityChange = () => {
+    if (!sharedPresenceChannel || !currentTrackedPayload) return;
     if (document.visibilityState === "visible") {
-      trackState();
+      sharedPresenceChannel.track(currentTrackedPayload).catch(() => {});
     } else {
-      try {
-        channel.untrack();
-      } catch {}
+      sharedPresenceChannel.untrack().catch(() => {});
     }
   };
 
   document.addEventListener("visibilitychange", handleVisibilityChange);
 
-  // Return cleanup function
   return () => {
     document.removeEventListener("visibilitychange", handleVisibilityChange);
-    try {
-      channel.untrack();
-      supabase.removeChannel(channel);
-    } catch {}
-    if (activeStudentChannel === channel) {
-      activeStudentChannel = null;
-    }
+    // Keep shared channel alive for admin or other listeners
   };
 }
 
@@ -111,85 +176,63 @@ export function initStudentPresence(info?: {
  * Updates the current student's active page in presence tracking (on SPA route change)
  */
 export function updateStudentPresencePage(newPage: string): void {
-  if (activeStudentChannel) {
-    try {
-      const visitorId = getVisitorId();
-      const device = getDeviceCategory();
-      activeStudentChannel.track({
-        visitorId,
-        device,
-        page: newPage,
-        onlineAt: new Date().toISOString(),
-      });
-    } catch {}
+  if (!currentTrackedPayload) {
+    currentTrackedPayload = {
+      visitorId: getVisitorId(),
+      device: getDeviceCategory(),
+      page: newPage,
+      onlineAt: new Date().toISOString(),
+      isLoggedIn: false,
+    };
+  } else {
+    currentTrackedPayload.page = newPage;
+  }
+
+  if (sharedPresenceChannel && sharedPresenceChannel.state === "joined") {
+    sharedPresenceChannel.track(currentTrackedPayload).catch(() => {});
   }
 }
 
 /**
  * Subscribes to live presence updates for the Admin Analytics Dashboard.
+ * Safe from "cannot add presence callbacks after subscribe" error.
  */
 export function subscribeToAdminLivePresence(
   onUpdate: (summary: LivePresenceSummary) => void
 ): () => void {
-  if (!isSupabaseConfigured() || typeof window === "undefined") {
-    onUpdate({
-      onlineCount: 1,
-      mobileCount: 1,
-      desktopCount: 0,
-      pageBreakdown: { Home: 1 },
-      activeUsers: [],
-    });
-    return () => {};
-  }
+  // Always register listener
+  adminListeners.add(onUpdate);
 
-  const channel = supabase.channel(PRESENCE_CHANNEL_NAME);
-
-  const calculateSummary = () => {
-    try {
-      const state = channel.presenceState();
-      const users: LivePresenceUser[] = [];
-      let mobile = 0;
-      let desktop = 0;
-      const pages: Record<string, number> = {};
-
-      Object.values(state).forEach((presences: any) => {
-        if (Array.isArray(presences) && presences.length > 0) {
-          const user = presences[0] as LivePresenceUser;
-          users.push(user);
-          if (user.device === "desktop") desktop++;
-          else mobile++;
-
-          const readablePage = user.page || "Home";
-          pages[readablePage] = (pages[readablePage] || 0) + 1;
-        }
-      });
-
-      const onlineCount = users.length > 0 ? users.length : 1; // At least admin themselves
-      onUpdate({
-        onlineCount,
-        mobileCount: mobile,
-        desktopCount: desktop,
-        pageBreakdown: pages,
-        activeUsers: users,
-      });
-    } catch (err) {
-      console.warn("[Presence] Calculate error:", err);
-    }
+  const fallbackSummary: LivePresenceSummary = {
+    onlineCount: 1,
+    mobileCount: 1,
+    desktopCount: 0,
+    pageBreakdown: { Home: 1 },
+    activeUsers: [],
   };
 
-  channel
-    .on("presence", { event: "sync" }, calculateSummary)
-    .on("presence", { event: "join" }, calculateSummary)
-    .on("presence", { event: "leave" }, calculateSummary)
-    .subscribe((status) => {
-      if (status === "SUBSCRIBED") {
-        calculateSummary();
-      }
-    });
+  if (!isSupabaseConfigured() || typeof window === "undefined") {
+    onUpdate(fallbackSummary);
+    return () => {
+      adminListeners.delete(onUpdate);
+    };
+  }
+
+  try {
+    const channel = getOrCreatePresenceChannel();
+    if (channel) {
+      // Immediately send current presence if available
+      const current = calculatePresenceSummary(channel);
+      onUpdate(current);
+    } else {
+      onUpdate(fallbackSummary);
+    }
+  } catch (err) {
+    console.warn("[Presence] subscribeToAdminLivePresence error:", err);
+    onUpdate(fallbackSummary);
+  }
 
   return () => {
-    try {
-      supabase.removeChannel(channel);
-    } catch {}
+    adminListeners.delete(onUpdate);
   };
 }

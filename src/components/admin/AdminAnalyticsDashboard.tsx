@@ -93,11 +93,18 @@ export const AdminAnalyticsDashboard: React.FC = () => {
   });
 
   React.useEffect(() => {
-    const unsubscribe = subscribeToAdminLivePresence((summary) => {
-      setLivePresence(summary);
-    });
+    let unsubscribe = () => {};
+    try {
+      unsubscribe = subscribeToAdminLivePresence((summary) => {
+        setLivePresence(summary);
+      });
+    } catch (err) {
+      console.warn("[AdminAnalytics] Presence subscribe note:", err);
+    }
     return () => {
-      unsubscribe();
+      try {
+        unsubscribe();
+      } catch {}
     };
   }, []);
 
