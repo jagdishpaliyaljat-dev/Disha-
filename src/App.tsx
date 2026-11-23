@@ -1585,7 +1585,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F4F1FA] dark:bg-[#171329] text-[#171329] dark:text-[#FFFFFF] flex flex-col font-sans selection:bg-[#7045D8] selection:text-white w-full max-w-full overflow-x-hidden">
+    <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#130E26] text-[#0F172A] dark:text-[#F8FAFC] flex flex-col font-sans selection:bg-[#7045D8] selection:text-white w-full max-w-full overflow-x-hidden">
       <OverlayErrorBoundary viewName="System Overlays" fallbackComponent={null}>
         <BrandSplashAndOnboarding />
         <ToastNotificationContainer toasts={toasts} onDismiss={handleDismissToast} />
@@ -1597,7 +1597,7 @@ export default function App() {
 
       {/* Desktop Top Navigation Header */}
       <OverlayErrorBoundary viewName="Desktop Navigation Header" fallbackComponent={null}>
-        <header className="hidden md:block sticky top-0 z-40 bg-[#F4F1FA]/95 dark:bg-[#171329]/95 backdrop-blur-md border-b border-[#E2DCF0] dark:border-[#362E5B] select-none shadow-xs">
+        <header className="hidden md:block sticky top-0 z-40 bg-white/95 dark:bg-[#171329]/95 backdrop-blur-md border-b border-slate-200 dark:border-[#2D264E] select-none shadow-xs">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
             {/* Brand Logo */}
             <div
@@ -1642,8 +1642,8 @@ export default function App() {
                     aria-current={isActive ? 'page' : undefined}
                     className={`px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
                       isActive
-                        ? 'bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] shadow-xs'
-                        : 'text-[#52576A] dark:text-[#929AB0] hover:text-[#171923] dark:hover:text-[#FFF9EF] hover:bg-[#F7EFE2] dark:hover:bg-[#252A3A]/60'
+                        ? 'bg-[#7045D8]/10 dark:bg-[#7045D8]/20 text-[#7045D8] dark:text-[#A78BFA] shadow-xs'
+                        : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#221B3E]'
                     }`}
                   >
                     <Icon className="w-4 h-4" />
@@ -1710,7 +1710,7 @@ export default function App() {
                 <button
                   type="button"
                   onClick={() => setIsLoginOpen(true)}
-                  className="flex items-center gap-1.5 h-9 px-3 rounded-xl bg-[#800020] hover:bg-[#5E0017] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] text-white text-xs font-extrabold shadow-xs transition-all active:scale-95 cursor-pointer"
+                  className="flex items-center gap-1.5 h-9 px-3 rounded-xl bg-[#7045D8] hover:bg-[#5B32BF] text-white text-xs font-extrabold shadow-xs transition-all active:scale-95 cursor-pointer"
                 >
                   <LogIn className="w-3.5 h-3.5" />
                   <span>Sign In</span>
@@ -1719,7 +1719,7 @@ export default function App() {
                 <button
                   type="button"
                   onClick={() => handleDesktopNavigateTab('profile')}
-                  className="w-9 h-9 rounded-full ring-2 ring-[#C99A45]/60 hover:ring-[#800020] dark:hover:ring-[#F47B20] flex items-center justify-center overflow-hidden active:scale-95 transition-all cursor-pointer bg-[#F7EFE2] dark:bg-[#252A3A]"
+                  className="w-9 h-9 rounded-full ring-2 ring-[#7045D8]/50 hover:ring-[#7045D8] flex items-center justify-center overflow-hidden active:scale-95 transition-all cursor-pointer bg-slate-100 dark:bg-[#201B38]"
                   aria-label="Profile"
                   title={userProfile?.name || 'User Profile'}
                 >

@@ -7,47 +7,70 @@
   --font-hindi: 'Hind', 'Mukta', 'Plus Jakarta Sans', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 
+  /* 30% Primary Institutional Brand */
   --color-disha-purple: #7045D8;
+  --color-disha-purple-deep: #5B32BF;
   --color-disha-purple-light: #A78BFA;
-  --color-disha-bg-dark: #171329;
-  --color-disha-bg-light: #F4F1FA;
+
+  /* 60% Canvas & Surface */
+  --color-disha-bg-dark: #130E26;
+  --color-disha-bg-light: #F8FAFC;
   --color-disha-white: #FFFFFF;
 
+  /* 10% High-Impact Accents */
+  --color-disha-emerald: #10B981;
+  --color-disha-emerald-deep: #059669;
+  --color-disha-gold: #F59E0B;
+  --color-disha-gold-deep: #D97706;
+  --color-disha-crimson: #EF4444;
+
+  /* Legacy Compatibility Aliases */
   --color-disha-maroon: #7045D8;
-  --color-disha-maroon-deep: #5528B8;
+  --color-disha-maroon-deep: #5B32BF;
   --color-disha-saffron: #A78BFA;
-  --color-disha-ivory: #F4F1FA;
-  --color-disha-charcoal: #171329;
-  --color-disha-gold: #A78BFA;
+  --color-disha-ivory: #F8FAFC;
+  --color-disha-charcoal: #130E26;
 }
 
 @layer base {
   :root {
     color-scheme: light;
-    --disha-bg-canvas: #F4F1FA;
+    /* 60% Eye-Comfort Canvas & Clean Slate Surfaces */
+    --disha-bg-canvas: #F8FAFC;
     --disha-bg-surface: #FFFFFF;
-    --disha-bg-subtle: #ECE6F8;
-    --disha-border-subtle: #E2DCF0;
-    --disha-text-primary: #171329;
-    --disha-text-secondary: #5E5873;
-    --disha-text-muted: #8A84A3;
+    --disha-bg-subtle: #F1F5F9;
+    --disha-border-subtle: #E2E8F0;
+    --disha-text-primary: #0F172A;
+    --disha-text-secondary: #475569;
+    --disha-text-muted: #94A3B8;
+
+    /* 30% Institutional Royal Purple Identity */
     --disha-accent-primary: #7045D8;
     --disha-accent-secondary: #A78BFA;
-    --disha-accent-gold: #A78BFA;
+
+    /* 10% High-Impact Trust & Rewards */
+    --disha-accent-emerald: #10B981;
+    --disha-accent-gold: #F59E0B;
   }
 
   :root.dark {
     color-scheme: dark;
-    --disha-bg-canvas: #171329;
-    --disha-bg-surface: #201B38;
-    --disha-bg-subtle: #292348;
-    --disha-border-subtle: #362E5B;
-    --disha-text-primary: #FFFFFF;
-    --disha-text-secondary: #D4CEE8;
-    --disha-text-muted: #A39DBE;
+    /* 60% High-Contrast Deep Charcoal-Purple Canvas */
+    --disha-bg-canvas: #130E26;
+    --disha-bg-surface: #1B1536;
+    --disha-bg-subtle: #241D48;
+    --disha-border-subtle: #31275E;
+    --disha-text-primary: #F8FAFC;
+    --disha-text-secondary: #CBD5E1;
+    --disha-text-muted: #94A3B8;
+
+    /* 30% Institutional Royal Purple Identity */
     --disha-accent-primary: #7045D8;
     --disha-accent-secondary: #A78BFA;
-    --disha-accent-gold: #A78BFA;
+
+    /* 10% High-Impact Trust & Rewards */
+    --disha-accent-emerald: #10B981;
+    --disha-accent-gold: #F59E0B;
   }
 
   html,
@@ -61,14 +84,10 @@
     max-width: 100vw;
   }
 
-  html.dark {
-    background-color: #171923;
-    color: #FFF9EF;
-  }
-
+  html.dark,
   html.dark body {
-    background-color: #171923;
-    color: #FFF9EF;
+    background-color: var(--disha-bg-canvas);
+    color: var(--disha-text-primary);
   }
 }
 
@@ -120,9 +139,9 @@
     background: linear-gradient(
       90deg,
       transparent 0%,
-      rgba(201, 154, 69, 0.35) 20%,
-      rgba(128, 0, 32, 0.45) 50%,
-      rgba(201, 154, 69, 0.35) 80%,
+      rgba(112, 69, 216, 0.25) 20%,
+      rgba(112, 69, 216, 0.45) 50%,
+      rgba(112, 69, 216, 0.25) 80%,
       transparent 100%
     );
   }
@@ -139,26 +158,26 @@
   .disha-card-surface {
     background-color: var(--disha-bg-surface);
     border: 1px solid var(--disha-border-subtle);
-    border-radius: 1.5rem;
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    border-radius: 1.25rem;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
   }
 
-  /* Premium Call-to-Action (CTA) Design System */
+  /* 30% Institutional Call-to-Action (CTA) Design System */
   .disha-btn-primary,
   .disha-cta-primary {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    background-color: #800020;
+    background-color: #7045D8;
     color: #ffffff !important;
-    font-weight: 600;
+    font-weight: 700;
     font-size: 0.875rem;
     line-height: 1.25rem;
     padding: 0.625rem 1.25rem;
     border-radius: 0.875rem; /* 14px */
-    border: 1px solid rgba(201, 154, 69, 0.3);
-    box-shadow: 0 2px 6px -1px rgba(128, 0, 32, 0.25), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(167, 139, 250, 0.35);
+    box-shadow: 0 2px 8px -1px rgba(112, 69, 216, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
     transition: all 180ms cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
     user-select: none;
@@ -167,9 +186,9 @@
   }
   .disha-btn-primary:hover,
   .disha-cta-primary:hover {
-    background-color: #5E0017;
-    border-color: rgba(201, 154, 69, 0.55);
-    box-shadow: 0 4px 12px -2px rgba(128, 0, 32, 0.35);
+    background-color: #5B32BF;
+    border-color: rgba(167, 139, 250, 0.6);
+    box-shadow: 0 4px 14px -2px rgba(112, 69, 216, 0.4);
     transform: translateY(-1px);
   }
   .disha-btn-primary svg,
@@ -182,25 +201,25 @@
   }
   .disha-btn-primary:active,
   .disha-cta-primary:active {
-    background-color: #4A0012;
+    background-color: #4C26A6;
     transform: scale(0.98);
-    box-shadow: 0 1px 3px 0 rgba(128, 0, 32, 0.3);
+    box-shadow: 0 1px 3px 0 rgba(112, 69, 216, 0.3);
   }
   .disha-btn-primary:focus-visible,
   .disha-cta-primary:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(244, 123, 32, 0.35);
+    box-shadow: 0 0 0 3px rgba(112, 69, 216, 0.35);
   }
   .dark .disha-btn-primary,
   .dark .disha-cta-primary {
-    background-color: #800020;
-    border-color: rgba(244, 123, 32, 0.35);
-    box-shadow: 0 2px 8px -1px rgba(0, 0, 0, 0.5);
+    background-color: #7045D8;
+    border-color: rgba(167, 139, 250, 0.4);
+    box-shadow: 0 2px 10px -1px rgba(0, 0, 0, 0.5);
   }
   .dark .disha-btn-primary:hover,
   .dark .disha-cta-primary:hover {
-    background-color: #650019;
-    border-color: rgba(244, 123, 32, 0.6);
+    background-color: #5B32BF;
+    border-color: rgba(167, 139, 250, 0.7);
   }
 
   .disha-btn-secondary,
@@ -210,12 +229,12 @@
     justify-content: center;
     gap: 0.5rem;
     background-color: #ffffff;
-    color: #171923;
+    color: #0F172A;
     font-weight: 600;
     font-size: 0.8125rem;
     padding: 0.5625rem 1.125rem;
     border-radius: 0.875rem;
-    border: 1px solid #E8D9C0;
+    border: 1px solid #E2E8F0;
     box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
     transition: all 180ms cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
@@ -225,9 +244,9 @@
   }
   .disha-btn-secondary:hover,
   .disha-cta-secondary:hover {
-    background-color: #F7EFE2;
-    border-color: #C99A45;
-    color: #800020;
+    background-color: #F8FAFC;
+    border-color: #7045D8;
+    color: #7045D8;
     transform: translateY(-1px);
   }
   .disha-btn-secondary:active,
@@ -236,33 +255,36 @@
   }
   .dark .disha-btn-secondary,
   .dark .disha-cta-secondary {
-    background-color: #252A3A;
-    color: #FFF9EF;
-    border-color: #31374A;
+    background-color: #1B1536;
+    color: #F8FAFC;
+    border-color: #31275E;
   }
   .dark .disha-btn-secondary:hover,
   .dark .disha-cta-secondary:hover {
-    background-color: #2E3448;
-    border-color: #F47B20;
-    color: #F47B20;
+    background-color: #241D48;
+    border-color: #A78BFA;
+    color: #A78BFA;
   }
 
-  /* Compact Editorial Category Pill (Distinct from Action CTA Buttons) */
+  /* Compact Editorial Category Pill */
   .disha-category-pill {
     display: inline-flex;
     align-items: center;
     gap: 0.375rem;
     padding: 0.25rem 0.75rem;
     font-size: 0.6875rem;
-    font-weight: 600;
+    font-weight: 700;
     line-height: 1rem;
     border-radius: 9999px;
     letter-spacing: 0.025em;
     user-select: none;
-    background-color: rgba(0, 0, 0, 0.25);
+    background-color: rgba(112, 69, 216, 0.15);
     backdrop-filter: blur(8px);
-    border: 1px solid rgba(201, 154, 69, 0.35);
-    color: #FFF9EF;
+    border: 1px solid rgba(167, 139, 250, 0.35);
+    color: #7045D8;
+  }
+  .dark .disha-category-pill {
+    color: #A78BFA;
   }
 
   .disha-input-field {
@@ -277,9 +299,56 @@
   }
   .disha-input-field:focus {
     border-color: var(--disha-accent-primary);
-    box-shadow: 0 0 0 2px rgba(128, 0, 32, 0.15);
+    box-shadow: 0 0 0 2px rgba(112, 69, 216, 0.2);
   }
   .dark .disha-input-field:focus {
-    box-shadow: 0 0 0 2px rgba(244, 123, 32, 0.25);
+    box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.25);
+  }
+
+  /* 60-30-10 Global Color Harmonization */
+  .bg-\[\#800020\],
+  .bg-\[\#5E0017\],
+  .bg-\[\#4A0012\] {
+    background-color: var(--color-disha-purple, #7045D8) !important;
+  }
+
+  .hover\:bg-\[\#5E0017\]:hover,
+  .hover\:bg-\[\#4A0012\]:hover {
+    background-color: var(--color-disha-purple-deep, #5B32BF) !important;
+  }
+
+  .text-\[\#800020\],
+  .text-\[\#5E0017\] {
+    color: var(--color-disha-purple, #7045D8) !important;
+  }
+
+  .border-\[\#800020\],
+  .border-\[\#800020\]\/25,
+  .border-\[\#800020\]\/30,
+  .border-\[\#800020\]\/40,
+  .border-\[\#800020\]\/50 {
+    border-color: rgba(112, 69, 216, 0.3) !important;
+  }
+
+  .bg-\[\#800020\]\/10,
+  .bg-\[\#800020\]\/15,
+  .bg-\[\#800020\]\/20 {
+    background-color: rgba(112, 69, 216, 0.1) !important;
+  }
+
+  .dark .dark\:text-\[\#F47B20\],
+  .dark .dark\:text-\[\#C99A45\] {
+    color: var(--color-disha-purple-light, #A78BFA) !important;
+  }
+
+  .dark .dark\:bg-\[\#F47B20\]\/15,
+  .dark .dark\:bg-\[\#C99A45\]\/15 {
+    background-color: rgba(112, 69, 216, 0.18) !important;
+  }
+
+  .dark .dark\:border-\[\#C99A45\]\/35,
+  .dark .dark\:border-\[\#C99A45\]\/40,
+  .dark .dark\:border-\[\#C99A45\]\/50 {
+    border-color: rgba(167, 139, 250, 0.35) !important;
   }
 }

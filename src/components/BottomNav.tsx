@@ -45,7 +45,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
     <nav
       id="bottom-navigation-bar"
       aria-label="Primary Navigation"
-      className="fixed bottom-0 left-0 right-0 z-50 bg-[#FFF9EF]/95 dark:bg-[#171923]/95 backdrop-blur-xl border-t border-[#E8D9C0] dark:border-[#31374A] shadow-[0_-2px_12px_rgba(23,25,35,0.05)] md:hidden"
+      className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-[#171329]/95 backdrop-blur-xl border-t border-slate-200 dark:border-[#2D264E] shadow-[0_-2px_12px_rgba(23,19,41,0.06)] md:hidden"
       style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
     >
       <div className="max-w-3xl mx-auto w-full flex items-center justify-around px-2 sm:px-4 h-[56px] sm:h-[60px]">
@@ -63,8 +63,8 @@ export const BottomNav: React.FC<BottomNavProps> = ({
               <div
                 className={`flex items-center justify-center transition-all duration-200 px-3 py-1 rounded-xl ${
                   isActive
-                    ? "bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20]"
-                    : "text-[#52576A] dark:text-[#929AB0] group-hover:text-[#171923] dark:group-hover:text-[#FFF9EF]"
+                    ? "bg-[#7045D8]/10 dark:bg-[#7045D8]/25 text-[#7045D8] dark:text-[#A78BFA]"
+                    : "text-slate-500 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white"
                 }`}
               >
                 <div className="relative">
@@ -73,15 +73,15 @@ export const BottomNav: React.FC<BottomNavProps> = ({
                     strokeWidth={isActive ? 2.4 : 1.9}
                   />
                   {item.hasLiveIndicator && !isActive && (
-                    <span className="absolute -top-0.5 -right-1 w-2 h-2 rounded-full bg-[#F47B20] ring-2 ring-[#FFF9EF] dark:ring-[#171923]" />
+                    <span className="absolute -top-0.5 -right-1 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-[#171329]" />
                   )}
                 </div>
               </div>
               <span
                 className={`text-[11px] sm:text-[11.5px] mt-0.5 tracking-tight transition-colors duration-150 truncate max-w-full px-0.5 leading-none ${
                   isActive
-                    ? "text-[#800020] dark:text-[#F47B20] font-black"
-                    : "text-[#52576A] dark:text-[#929AB0] font-semibold"
+                    ? "text-[#7045D8] dark:text-[#A78BFA] font-black"
+                    : "text-slate-500 dark:text-slate-400 font-semibold"
                 }`}
               >
                 {item.label}
