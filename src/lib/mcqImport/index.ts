@@ -504,9 +504,9 @@ export function processJSONImport(
     };
   }
 
-  const limit = options?.maxBatchSize || 25;
-  // Maximum questions per batch limit guard
-  if (rawList.length > limit) {
+  // Maximum questions per batch limit guard: only enforced if caller explicitly specified a positive limit
+  if (options?.maxBatchSize !== undefined && options.maxBatchSize > 0 && rawList.length > options.maxBatchSize) {
+    const limit = options.maxBatchSize;
     return {
       success: false,
       parseError: `Batch size exceeded: Maximum ${limit} questions allowed per import batch (found ${rawList.length}). Please split your questions into batches of ${limit} or fewer.`,

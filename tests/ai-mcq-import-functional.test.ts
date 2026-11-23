@@ -412,7 +412,7 @@ describe("DISHA2020 — AI MCQ Import Complete Functional Testing Suite", () => 
       expect(res.parseError).toContain("No questions detected");
     });
 
-    it("2.8 Enforces maximum batch limit (rejects batches exceeding 25 questions)", async () => {
+    it("2.8 Allows 26+ questions by default and enforces maxBatchSize only when explicitly configured", async () => {
       const oversizedQuestions = Array.from({ length: 26 }, (_, i) => ({
         type: "single_correct",
         question: `Oversized Batch Question #${i + 1}?`,
@@ -425,10 +425,16 @@ describe("DISHA2020 — AI MCQ Import Complete Functional Testing Suite", () => 
         questions: oversizedQuestions,
       });
 
-      const res = await smartJSONImport(oversizedJson, new Set(), { skipAIRecovery: true });
-      expect(res.success).toBe(false);
-      expect(res.parseError).toContain("Maximum 25 questions allowed per import batch");
-      expect(res.results.length).toBe(0);
+      // Default: No arbitrary 25 limit, 26 questions succeed
+      const resDefault = await smartJSONImport(oversizedJson, new Set(), { skipAIRecovery: true });
+      expect(resDefault.success).toBe(true);
+      expect(resDefault.results.length).toBe(26);
+
+      // Explicit maxBatchSize limit: Enforced when provided
+      const resLimited = await smartJSONImport(oversizedJson, new Set(), { maxBatchSize: 25, skipAIRecovery: true });
+      expect(resLimited.success).toBe(false);
+      expect(resLimited.parseError).toContain("Maximum 25 questions allowed per import batch");
+      expect(resLimited.results.length).toBe(0);
     });
   });
 
@@ -635,6 +641,37 @@ describe("DISHA2020 — AI MCQ Import Complete Functional Testing Suite", () => 
       expect(parsed.results.every((r) => r.isValid)).toBe(true);
       expect(parseDurationMs).toBeLessThan(350);
       console.log(`[Perf Benchmark: 25 MCQs] Parsing & Validation: ${parseDurationMs.toFixed(2)} ms`);
+    });
+
+    it("5.4 Supports 100+ MCQs batch import without arbitrary limit errors (JSON & Universal Text)", async () => {
+      // 120 questions batch test
+      const largeBatch = Array.from({ length: 120 }, (_, i) => ({
+        type: "single_correct",
+        question: `Question #${i + 1}: राजस्थान की कला एवं संस्कृति महत्वपूर्ण प्रश्न संख्या ${i + 1}?`,
+        options: ["विकल्प A", "विकल्प B", "विकल्प C", "विकल्प D"],
+        answer: ["A", "B", "C", "D"][i % 4],
+        explanation: `व्याख्या प्रश्न #${i + 1} के लिए।`,
+        subject: "Rajasthan GK",
+        chapter: "Culture",
+        topic: "Folk Arts",
+      }));
+
+      const largeJson = JSON.stringify({
+        schemaVersion: 1,
+        questions: largeBatch,
+      });
+
+      const parsedJson = await smartJSONImport(largeJson);
+      expect(parsedJson.success).toBe(true);
+      expect(parsedJson.results.length).toBe(120);
+      expect(parsedJson.summary.valid).toBe(120);
+      expect(parsedJson.summary.errors).toBe(0);
+
+      // Also test processJSONImport directly with 120 items
+      const parsedDirect = processJSONImport(largeJson);
+      expect(parsedDirect.success).toBe(true);
+      expect(parsedDirect.results.length).toBe(120);
+      expect(parsedDirect.summary.valid).toBe(120);
     });
   });
 

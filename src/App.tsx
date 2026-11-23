@@ -31,7 +31,8 @@ import {
   Ban,
   LogOut,
   Video,
-  Crown
+  Crown,
+  Sparkles,
 } from 'lucide-react';
 import { BottomNav } from './components/BottomNav';
 import { DishaAITutorModal, FloatingAIAssistant } from './components/DishaAITutorModal';
