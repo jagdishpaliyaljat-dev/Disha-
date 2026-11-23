@@ -11,6 +11,7 @@ import {
   Type,
   Sparkles,
   Zap,
+  Eye,
 } from "lucide-react";
 import {
   playCorrectSound,
@@ -82,22 +83,99 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
             </h4>
             <div className="bg-white dark:bg-[#1F2330] rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] shadow-2xs divide-y divide-[#E8D9C0]/60 dark:divide-[#31374A]">
               
-              {/* Dark Mode */}
-              <div className="p-4 flex items-center justify-between">
+              {/* Theme Selection: Light, Charcoal Dark, AMOLED Black */}
+              <div className="p-4 space-y-3">
                 <div className="flex items-center gap-3.5">
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${settings.darkMode ? 'bg-[#F47B20]/15 text-[#F47B20]' : 'bg-[#800020]/10 text-[#800020]'}`}>
                     {settings.darkMode ? <Moon size={20} /> : <Sun size={20} />}
                   </div>
                   <div>
-                    <span className="text-sm font-bold text-[#171923] dark:text-[#FFF9EF] block">Dark Mode</span>
-                    <span className="text-[10px] text-[#52576A] dark:text-[#CBD2E1] font-medium uppercase tracking-tight">Deep Charcoal Night Surface</span>
+                    <span className="text-sm font-bold text-[#171923] dark:text-[#FFF9EF] block">Theme & Night Mode</span>
+                    <span className="text-[10px] text-[#52576A] dark:text-[#CBD2E1] font-medium uppercase tracking-tight">
+                      {settings.darkMode ? (settings.amoledBlack ? "AMOLED Pitch Black (#000000)" : "Charcoal Dark Mode") : "Light Mode (Day)"}
+                    </span>
                   </div>
                 </div>
-                <button 
-                  onClick={() => toggleSetting('darkMode')}
-                  className={`w-12 h-6.5 rounded-full transition-all relative p-1 cursor-pointer ${settings.darkMode ? 'bg-[#F47B20]' : 'bg-[#E8D9C0] dark:bg-[#31374A]'}`}
+
+                <div className="grid grid-cols-3 gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      triggerHaptic("light");
+                      playClickSound();
+                      updateSetting({ darkMode: false, amoledBlack: false });
+                    }}
+                    className={`py-2 px-1 rounded-xl text-center transition-all cursor-pointer border ${
+                      !settings.darkMode
+                        ? 'bg-[#800020] text-white border-[#800020] shadow-sm font-black'
+                        : 'bg-[#FFF9EF] dark:bg-[#171923] text-[#52576A] dark:text-[#CBD2E1] border-[#E8D9C0] dark:border-[#31374A] font-semibold'
+                    }`}
+                  >
+                    <span className="text-[11px] block">Light</span>
+                    <span className="text-[9px] opacity-75 block">Day Mode</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      triggerHaptic("light");
+                      playClickSound();
+                      updateSetting({ darkMode: true, amoledBlack: false });
+                    }}
+                    className={`py-2 px-1 rounded-xl text-center transition-all cursor-pointer border ${
+                      settings.darkMode && !settings.amoledBlack
+                        ? 'bg-[#F47B20] text-white border-[#F47B20] shadow-sm font-black'
+                        : 'bg-[#FFF9EF] dark:bg-[#171923] text-[#52576A] dark:text-[#CBD2E1] border-[#E8D9C0] dark:border-[#31374A] font-semibold'
+                    }`}
+                  >
+                    <span className="text-[11px] block">Charcoal</span>
+                    <span className="text-[9px] opacity-75 block">Dark Mode</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      triggerHaptic("light");
+                      playClickSound();
+                      updateSetting({ darkMode: true, amoledBlack: true });
+                    }}
+                    className={`py-2 px-1 rounded-xl text-center transition-all cursor-pointer border relative overflow-hidden ${
+                      settings.darkMode && settings.amoledBlack
+                        ? 'bg-black text-amber-400 border-amber-500/70 shadow-sm font-black'
+                        : 'bg-[#FFF9EF] dark:bg-[#171923] text-[#52576A] dark:text-[#CBD2E1] border-[#E8D9C0] dark:border-[#31374A] font-semibold'
+                    }`}
+                  >
+                    <span className="text-[11px] block">AMOLED</span>
+                    <span className="text-[9px] opacity-75 block">Pitch Black</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Eye-Comfort Shield (Warm Amber Tint) */}
+              <div className="p-4 flex items-center justify-between">
+                <div className="flex items-center gap-3.5">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${settings.eyeComfort ? 'bg-amber-500/20 text-amber-500' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'}`}>
+                    <Eye size={20} />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-sm font-bold text-[#171923] dark:text-[#FFF9EF]">Eye-Comfort Shield</span>
+                      <span className="text-[9px] px-1.5 py-0.2 rounded font-extrabold bg-amber-500/15 text-amber-600 dark:text-amber-400">
+                        Night Reading
+                      </span>
+                    </div>
+                    <span className="text-[10px] text-[#52576A] dark:text-[#CBD2E1] font-medium block">
+                      गर्म अम्बर शील्ड — देर रात आँखों में जलन व नीली रोशनी से बचाव
+                    </span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => toggleSetting('eyeComfort')}
+                  aria-label="Toggle Eye Comfort Shield"
+                  className={`w-12 h-6.5 rounded-full transition-all relative p-1 cursor-pointer shrink-0 ml-2 ${settings.eyeComfort ? 'bg-amber-500' : 'bg-[#E8D9C0] dark:bg-[#31374A]'}`}
                 >
-                  <div className={`w-4.5 h-4.5 rounded-full bg-white shadow-sm transition-transform ${settings.darkMode ? 'translate-x-5.5' : 'translate-x-0'}`} />
+                  <div className={`w-4.5 h-4.5 rounded-full bg-white shadow-sm transition-transform ${settings.eyeComfort ? 'translate-x-5.5' : 'translate-x-0'}`} />
                 </button>
               </div>
 

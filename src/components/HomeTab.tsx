@@ -240,13 +240,15 @@ export const HomeTab: React.FC<HomeTabProps> = ({
             <button
               onClick={onToggleDarkMode}
               className="w-10 h-10 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] hover:bg-[#EFE3CF] dark:hover:bg-[#31374A] flex items-center justify-center text-[#171923] dark:text-[#C99A45] active:scale-95 transition-all cursor-pointer border border-[#E8D9C0] dark:border-[#31374A] shrink-0"
-              aria-label={settings.darkMode ? "Switch to Day Mode" : "Switch to Night Mode"}
-              title={settings.darkMode ? "Day Mode" : "Night Mode"}
+              aria-label={!settings.darkMode ? "Light Mode" : !settings.amoledBlack ? "Charcoal Dark" : "AMOLED Black"}
+              title={!settings.darkMode ? "Light Mode (Tap for Charcoal Dark)" : !settings.amoledBlack ? "Charcoal Dark (Tap for AMOLED Black)" : "AMOLED Black (Tap for Light)"}
             >
-              {settings.darkMode ? (
-                <Sun className="w-4.5 h-4.5 text-[#F47B20]" />
-              ) : (
+              {!settings.darkMode ? (
                 <Moon className="w-4.5 h-4.5 text-[#800020]" />
+              ) : settings.amoledBlack ? (
+                <Sparkles className="w-4.5 h-4.5 text-amber-400" />
+              ) : (
+                <Sun className="w-4.5 h-4.5 text-[#F47B20]" />
               )}
             </button>
 

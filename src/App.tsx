@@ -59,6 +59,7 @@ import { loadSettingsFromStorage, saveSettingsToStorage, loadProgressFromStorage
 import { loadNotifications, saveNotifications } from './utils/notificationsStorage';
 import { getTodayDateString, calculateNextProgress } from './utils/revision';
 import { trackPageView } from './utils/analytics';
+import { triggerHaptic } from './utils/audioFeedback';
 import { 
   loadUserQuestionsStore, 
   saveUserQuestionsStore, 
@@ -268,6 +269,38 @@ export default function App() {
     setNotifications(next);
     saveNotifications(next);
   }, []);
+
+  // Fetch active Supabase broadcast announcements and merge for student
+  React.useEffect(() => {
+    let active = true;
+    const syncBroadcastAnnouncements = async () => {
+      try {
+        const { fetchActiveBroadcasts, mergeBroadcastsIntoUserNotifications } = await import("./utils/broadcastNotificationService");
+        const cloudBroadcasts = await fetchActiveBroadcasts();
+        if (active && cloudBroadcasts.length > 0) {
+          setNotifications((prev) => {
+            const { updatedNotifications, newCount } = mergeBroadcastsIntoUserNotifications(
+              prev,
+              cloudBroadcasts,
+              userProfile?.targetExam
+            );
+            if (newCount > 0 || updatedNotifications.length !== prev.length) {
+              saveNotifications(updatedNotifications);
+              return updatedNotifications;
+            }
+            return prev;
+          });
+        }
+      } catch (err) {
+        console.warn("[App] Broadcast sync note:", err);
+      }
+    };
+
+    syncBroadcastAnnouncements();
+    return () => {
+      active = false;
+    };
+  }, [userProfile?.targetExam]);
 
   // Sync URL with Tab, Subject, Chapter, Topic and Session changes
   React.useEffect(() => {
@@ -853,7 +886,26 @@ export default function App() {
     } else {
       document.documentElement.classList.remove('dark');
     }
+
+    if (settings.darkMode && settings.amoledBlack) {
+      document.documentElement.classList.add('amoled-black');
+    } else {
+      document.documentElement.classList.remove('amoled-black');
+    }
   }, [settings]);
+
+  const handleCycleTheme = React.useCallback(() => {
+    triggerHaptic('light');
+    setSettings((prev) => {
+      if (!prev.darkMode) {
+        return { ...prev, darkMode: true, amoledBlack: false };
+      } else if (!prev.amoledBlack) {
+        return { ...prev, darkMode: true, amoledBlack: true };
+      } else {
+        return { ...prev, darkMode: false, amoledBlack: false };
+      }
+    });
+  }, []);
 
   React.useEffect(() => {
     let visits = 1240;
@@ -1682,15 +1734,17 @@ export default function App() {
 
               <button
                 type="button"
-                onClick={() => setSettings((prev) => ({ ...prev, darkMode: !prev.darkMode }))}
+                onClick={handleCycleTheme}
                 className="w-9 h-9 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] hover:bg-[#EFE3CF] dark:hover:bg-[#31374A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center text-[#171923] dark:text-[#C99A45] active:scale-95 transition-all cursor-pointer"
-                aria-label={settings.darkMode ? 'Switch to Day Mode' : 'Switch to Night Mode'}
-                title={settings.darkMode ? 'Day Mode' : 'Night Mode'}
+                aria-label={!settings.darkMode ? 'Light Mode' : !settings.amoledBlack ? 'Charcoal Dark' : 'AMOLED Black'}
+                title={!settings.darkMode ? 'Light Mode (Tap for Charcoal Dark)' : !settings.amoledBlack ? 'Charcoal Dark (Tap for AMOLED Black)' : 'AMOLED Black (Tap for Light)'}
               >
-                {settings.darkMode ? (
-                  <Sun className="w-4 h-4 text-[#F47B20]" />
-                ) : (
+                {!settings.darkMode ? (
                   <Moon className="w-4 h-4 text-[#800020]" />
+                ) : settings.amoledBlack ? (
+                  <Sparkles className="w-4 h-4 text-amber-400" />
+                ) : (
+                  <Sun className="w-4 h-4 text-[#F47B20]" />
                 )}
               </button>
 
@@ -1796,7 +1850,7 @@ export default function App() {
               setPremiumFeatureTrigger('general');
               setIsPremiumModalOpen(true);
             }}
-            onToggleDarkMode={() => setSettings(prev => ({ ...prev, darkMode: !prev.darkMode }))}
+            onToggleDarkMode={handleCycleTheme}
             onLogout={handleLogout}
           />
         )}
@@ -2517,6 +2571,15 @@ export default function App() {
       )}
 
 
+
+      {/* Eye Comfort Warm Reading Shield */}
+      {settings.eyeComfort && (
+        <div
+          id="eye-comfort-shield-layer"
+          aria-hidden="true"
+          className="eye-comfort-filter-layer pointer-events-none"
+        />
+      )}
 
       </React.Suspense>
     </div>

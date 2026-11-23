@@ -32,6 +32,8 @@ export const DEFAULT_SETTINGS: AppSettings = {
   aiMode: "platform_default",
   personalAiKeys: [],
   activePersonalKeyId: undefined,
+  amoledBlack: false,
+  eyeComfort: false,
 };
 
 // Generates an empty initial store (clean slate)

@@ -73,6 +73,14 @@
     --disha-accent-gold: #F59E0B;
   }
 
+  :root.dark.amoled-black {
+    /* 100% Pure Pitch Black Canvas for OLED Displays */
+    --disha-bg-canvas: #000000;
+    --disha-bg-surface: #070709;
+    --disha-bg-subtle: #0F0F14;
+    --disha-border-subtle: #1C1C24;
+  }
+
   html,
   body {
     background-color: var(--disha-bg-canvas);
@@ -88,6 +96,45 @@
   html.dark body {
     background-color: var(--disha-bg-canvas);
     color: var(--disha-text-primary);
+  }
+
+  html.dark.amoled-black,
+  html.dark.amoled-black body {
+    background-color: #000000 !important;
+  }
+
+  /* Deep Black Surface Adaptations for AMOLED */
+  html.dark.amoled-black .dark\:bg-\[\#130E26\],
+  html.dark.amoled-black .dark\:bg-\[\#171329\],
+  html.dark.amoled-black .dark\:bg-\[\#171923\],
+  html.dark.amoled-black .dark\:bg-\[\#1A1417\],
+  html.dark.amoled-black .dark\:bg-\[\#111A2E\] {
+    background-color: #000000 !important;
+  }
+
+  html.dark.amoled-black .dark\:bg-\[\#1B1536\],
+  html.dark.amoled-black .dark\:bg-\[\#1F2330\],
+  html.dark.amoled-black .dark\:bg-\[\#252A3A\],
+  html.dark.amoled-black .dark\:bg-\[\#1C1518\] {
+    background-color: #07070A !important;
+  }
+
+  html.dark.amoled-black .dark\:border-\[\#2D264E\],
+  html.dark.amoled-black .dark\:border-\[\#31374A\],
+  html.dark.amoled-black .dark\:border-\[\#31275E\],
+  html.dark.amoled-black .dark\:border-\[\#2F2227\],
+  html.dark.amoled-black .dark\:border-\[\#2D2226\] {
+    border-color: #171720 !important;
+  }
+
+  /* Eye Comfort Warm Reading Shield */
+  .eye-comfort-filter-layer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 999999;
+    background-color: rgba(245, 158, 11, 0.058);
+    transition: opacity 0.25s ease-in-out;
   }
 }
 

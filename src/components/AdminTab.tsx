@@ -62,7 +62,6 @@ const ExportDataWidget = adminSafeLazy<any>(() => import("./admin/ExportDataWidg
 const BackupRestoreSection = adminSafeLazy<any>(() => import("./admin/BackupRestoreSection"), "BackupRestoreSection");
 const AuditLogWidget = adminSafeLazy<any>(() => import("./admin/AuditLogWidget"), "AuditLogWidget");
 const AdminFeatureControlSection = adminSafeLazy<any>(() => import("./admin/AdminFeatureControlSection"), "AdminFeatureControlSection");
-const AdminPremiumPlansSection = adminSafeLazy<any>(() => import("./admin/AdminPremiumPlansSection"), "AdminPremiumPlansSection");
 const SyncProgressModal = adminSafeLazy<any>(() => import("./admin/SyncProgressModal"), "SyncProgressModal");
 const SyncConfirmationModal = adminSafeLazy<any>(() => import("./admin/SyncConfirmationModal"), "SyncConfirmationModal");
 const QATestRunnerModal = adminSafeLazy<any>(() => import("./QATestRunnerModal"), "QATestRunnerModal");
@@ -107,7 +106,6 @@ export type AdminGroupSection =
   | "tests"
   | "content"
   | "users"
-  | "plans"
   | "supabase"
   | "diagnostics"
   | "crashes"
@@ -799,14 +797,8 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
       ],
     },
     {
-      category: "VIP & Platform",
+      category: "Cloud & System Platform",
       items: [
-        {
-          id: "plans" as AdminGroupSection,
-          title: "VIP Plans & Paywalls",
-          icon: Crown,
-          badge: "VIP",
-        },
         {
           id: "supabase" as AdminGroupSection,
           title: "Supabase Cloud",
@@ -1853,19 +1845,6 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
               </div>
             )}
 
-            {/* VIP Plans & Paywalls Section */}
-            {activeGroup === "plans" && (
-              <React.Suspense fallback={<AdminSectionLoader type="cards" title="Loading VIP Plans & Paywalls..." />}>
-                <AdminPremiumPlansSection
-                  adminEmail={cloudAuthState.userEmail || props.userProfile?.email || "admin"}
-                  onOpenPreview={() => {
-                    if (typeof window !== "undefined") {
-                      window.dispatchEvent(new CustomEvent("disha_open_premium_modal", { detail: { trigger: "general" } }));
-                    }
-                  }}
-                />
-              </React.Suspense>
-            )}
 
             {/* Disaster Recovery: Backup & Restore Section */}
             {activeGroup === "backup" && (

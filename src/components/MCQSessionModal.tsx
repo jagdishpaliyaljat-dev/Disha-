@@ -44,6 +44,9 @@ import {
   Trophy,
   ChevronRight,
   LogIn,
+  Eye,
+  Moon,
+  Sun,
 } from "lucide-react";
 import confetti from "canvas-confetti";
 import { MotionConfettiCelebration } from "./MotionConfettiCelebration";
@@ -2801,6 +2804,48 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
               title="Bookmark Question"
             >
               <Bookmark className={`w-4 h-4 sm:w-4.5 sm:h-4.5 ${isBookmarked ? 'fill-current' : ''}`} />
+            </button>
+
+            {/* Quick Eye Comfort Shield */}
+            <button
+              onClick={() => {
+                triggerHaptic("light");
+                onUpdateSettings?.({ eyeComfort: !settings.eyeComfort });
+              }}
+              className={`w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl border flex items-center justify-center transition-all active:scale-90 cursor-pointer ${
+                settings.eyeComfort
+                  ? "bg-amber-500 border-amber-500 text-white shadow-md shadow-amber-500/25"
+                  : "bg-white dark:bg-[#252A3A] border-[#E8D9C0] dark:border-[#31374A] text-slate-500 dark:text-[#CBD2E1]"
+              }`}
+              title={settings.eyeComfort ? "Eye Comfort On (Tap to Turn Off)" : "Eye Comfort / Blue Light Shield (Tap to Turn On)"}
+              aria-label="Toggle Eye Comfort Shield"
+            >
+              <Eye className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
+            </button>
+
+            {/* Quick Theme Cycle */}
+            <button
+              onClick={() => {
+                triggerHaptic("light");
+                if (!settings.darkMode) {
+                  onUpdateSettings?.({ darkMode: true, amoledBlack: false });
+                } else if (!settings.amoledBlack) {
+                  onUpdateSettings?.({ darkMode: true, amoledBlack: true });
+                } else {
+                  onUpdateSettings?.({ darkMode: false, amoledBlack: false });
+                }
+              }}
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl border bg-white dark:bg-[#252A3A] border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center transition-all active:scale-90 cursor-pointer text-[#800020] dark:text-[#C99A45]"
+              title={!settings.darkMode ? "Light Mode (Tap for Charcoal Dark)" : !settings.amoledBlack ? "Charcoal Dark (Tap for AMOLED Black)" : "AMOLED Black (Tap for Light)"}
+              aria-label="Cycle Theme"
+            >
+              {!settings.darkMode ? (
+                <Moon className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-[#800020]" />
+              ) : settings.amoledBlack ? (
+                <Sparkles className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-amber-400" />
+              ) : (
+                <Sun className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-[#F47B20]" />
+              )}
             </button>
           </div>
         </header>

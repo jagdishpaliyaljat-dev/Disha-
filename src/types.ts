@@ -277,6 +277,8 @@ export interface AppSettings {
   personalAiKeys?: UserPersonalAIKey[];
   activePersonalKeyId?: string;
   selectedExam?: string;
+  amoledBlack?: boolean;
+  eyeComfort?: boolean;
 }
 
 export interface UserPersonalAIKey {

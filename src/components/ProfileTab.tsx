@@ -36,6 +36,7 @@ import {
   Zap,
   Crown,
   ArrowLeft,
+  Eye,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import ShareModal, { ShareData } from "./ShareModal";
@@ -224,21 +225,44 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
             </div>
           </div>
 
-          {/* Right: Theme Toggle + Settings Modal Button */}
+          {/* Right: Eye Comfort + Theme Toggle + Settings Modal Button */}
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             <button
               onClick={() => {
                 triggerHaptic("light");
-                onUpdateSettings({ darkMode: !settings.darkMode });
+                onUpdateSettings({ eyeComfort: !settings.eyeComfort });
+              }}
+              className={`w-10 h-10 rounded-xl border flex items-center justify-center active:scale-95 transition-all cursor-pointer shrink-0 ${
+                settings.eyeComfort
+                  ? "bg-amber-500/20 border-amber-500 text-amber-500 shadow-xs"
+                  : "bg-[#F7EFE2] dark:bg-[#252A3A] hover:bg-[#EFE3CF] dark:hover:bg-[#31374A] border-[#E8D9C0] dark:border-[#31374A] text-slate-500 dark:text-[#CBD2E1]"
+              }`}
+              aria-label="Toggle Eye Comfort"
+              title={settings.eyeComfort ? "Eye Comfort On (Tap to Turn Off)" : "Eye Comfort Off (Tap to Turn On)"}
+            >
+              <Eye className="w-4.5 h-4.5" />
+            </button>
+            <button
+              onClick={() => {
+                triggerHaptic("light");
+                if (!settings.darkMode) {
+                  onUpdateSettings({ darkMode: true, amoledBlack: false });
+                } else if (!settings.amoledBlack) {
+                  onUpdateSettings({ darkMode: true, amoledBlack: true });
+                } else {
+                  onUpdateSettings({ darkMode: false, amoledBlack: false });
+                }
               }}
               className="w-10 h-10 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] hover:bg-[#EFE3CF] dark:hover:bg-[#31374A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center text-[#171923] dark:text-[#C99A45] active:scale-95 transition-all cursor-pointer shrink-0"
               aria-label="Toggle Theme"
-              title={settings.darkMode ? "Light Mode" : "Dark Mode"}
+              title={!settings.darkMode ? "Light Mode (Tap for Charcoal Dark)" : !settings.amoledBlack ? "Charcoal Dark (Tap for AMOLED Black)" : "AMOLED Black (Tap for Light)"}
             >
-              {settings.darkMode ? (
-                <Sun className="w-4.5 h-4.5 text-[#F47B20]" />
-              ) : (
+              {!settings.darkMode ? (
                 <Moon className="w-4.5 h-4.5 text-[#800020]" />
+              ) : settings.amoledBlack ? (
+                <Sparkles className="w-4.5 h-4.5 text-amber-400" />
+              ) : (
+                <Sun className="w-4.5 h-4.5 text-[#F47B20]" />
               )}
             </button>
             <button
