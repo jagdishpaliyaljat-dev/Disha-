@@ -209,14 +209,16 @@ async function logVisitorAnalyticsToFirestore(pagePath: string, isLoggedIn: bool
       // 1. Record atomic visitor counter in Supabase Cloud
       if (isSupabaseConfigured()) {
         try {
-          supabase.rpc("record_site_visit", {
-            p_page: pagePath,
-            p_source: source,
-            p_device: device,
-            p_is_logged_in: isLoggedIn,
-            p_is_unique: isUnique,
-            p_is_download_click: false,
-          }).then(() => {}).catch(() => {});
+          Promise.resolve(
+            supabase.rpc("record_site_visit", {
+              p_page: pagePath,
+              p_source: source,
+              p_device: device,
+              p_is_logged_in: isLoggedIn,
+              p_is_unique: isUnique,
+              p_is_download_click: false,
+            })
+          ).catch(() => {});
         } catch {}
       }
 
@@ -326,14 +328,16 @@ export function trackAppCtaClick(source: string, isUserAdmin?: boolean): void {
   // Record APK download button click in Supabase
   if (isSupabaseConfigured()) {
     try {
-      supabase.rpc("record_site_visit", {
-        p_page: "/download-apk",
-        p_source: source || getTrafficSource(),
-        p_device: getDeviceCategory(),
-        p_is_logged_in: false,
-        p_is_unique: false,
-        p_is_download_click: true,
-      }).then(() => {}).catch(() => {});
+      Promise.resolve(
+        supabase.rpc("record_site_visit", {
+          p_page: "/download-apk",
+          p_source: source || getTrafficSource(),
+          p_device: getDeviceCategory(),
+          p_is_logged_in: false,
+          p_is_unique: false,
+          p_is_download_click: true,
+        })
+      ).catch(() => {});
     } catch {}
   }
 }

@@ -724,12 +724,6 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
       icon: Users,
     },
     {
-      id: "plans",
-      title: "VIP Plans & Paywalls",
-      icon: Crown,
-      badge: "VIP",
-    },
-    {
       id: "supabase",
       title: "Supabase Database",
       icon: HardDrive,
@@ -1888,13 +1882,6 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                     >
                       <Settings className="w-3.5 h-3.5" />
                       <span>Backup & Maintenance</span>
-                    </button>
-                    <button
-                      onClick={() => setActiveGroup("plans")}
-                      className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/40"
-                    >
-                      <Crown className="w-3.5 h-3.5" />
-                      <span>VIP Paywalls & Plans</span>
                     </button>
                   </div>
                 </div>
