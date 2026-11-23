@@ -332,6 +332,13 @@ export default function App() {
       .catch(() => {});
   }, [activeTab]);
 
+  // Background district detection for regional Rajasthan analytics
+  React.useEffect(() => {
+    import("./utils/analytics")
+      .then(({ detectAndCacheDistrict }) => detectAndCacheDistrict())
+      .catch(() => {});
+  }, []);
+
   // Sync URL with Tab, Subject, Chapter, Topic and Session changes
   React.useEffect(() => {
     if (typeof window === 'undefined') return;

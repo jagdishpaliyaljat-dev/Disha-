@@ -148,6 +148,69 @@ export function getDeviceCategory(): "mobile" | "desktop" {
 }
 
 /**
+ * Detect or retrieve the student's district/region (e.g. Jaipur, Sikar, Kota, Jodhpur).
+ * Privacy-safe: zero personal info or IP address stored.
+ */
+export function getVisitorDistrict(): string {
+  if (typeof window === "undefined") return "जयपुर";
+  try {
+    const saved = localStorage.getItem("disha_user_district") || sessionStorage.getItem("disha_detected_district");
+    if (saved && saved.trim()) return saved.trim();
+    return "जयपुर";
+  } catch {
+    return "जयपुर";
+  }
+}
+
+/**
+ * Lightweight, privacy-safe asynchronous detection of Rajasthan district.
+ */
+export async function detectAndCacheDistrict(): Promise<string> {
+  if (typeof window === "undefined") return "जयपुर";
+  try {
+    const cached = sessionStorage.getItem("disha_detected_district");
+    if (cached) return cached;
+
+    const resp = await fetch("https://freeipapi.com/api/json", { signal: AbortSignal.timeout(2500) });
+    if (resp.ok) {
+      const data = await resp.json();
+      const city = String(data?.cityName || "").toLowerCase();
+      const region = String(data?.regionName || "").toLowerCase();
+
+      let detected = "जयपुर";
+      if (city.includes("sikar")) detected = "सीकर";
+      else if (city.includes("kota")) detected = "कोटा";
+      else if (city.includes("jodhpur")) detected = "जोधपुर";
+      else if (city.includes("bikaner")) detected = "बीकानेर";
+      else if (city.includes("ajmer")) detected = "अजमेर";
+      else if (city.includes("udaipur")) detected = "उदयपुर";
+      else if (city.includes("alwar")) detected = "अलवर";
+      else if (city.includes("bhilwara")) detected = "भीलवाड़ा";
+      else if (city.includes("nagaur")) detected = "नागौर";
+      else if (city.includes("churu")) detected = "चूरू";
+      else if (city.includes("jhunjhunu")) detected = "झुंझुनू";
+      else if (city.includes("barmer")) detected = "बाड़मेर";
+      else if (city.includes("ganganagar")) detected = "श्रीगंगानगर";
+      else if (city.includes("hanumangarh")) detected = "हनुमानगढ़";
+      else if (city.includes("bharatpur")) detected = "भरतपुर";
+      else if (city.includes("pali")) detected = "पाली";
+      else if (city.includes("dausa")) detected = "दौसा";
+      else if (city.includes("tonk")) detected = "टोंक";
+      else if (city.includes("delhi")) detected = "दिल्ली / अन्य राज्य";
+      else if (region.includes("rajasthan") || city.includes("jaipur")) detected = "जयपुर";
+      else if (data?.countryName === "India") detected = `${data.regionName || "अन्य राज्य"}`;
+      else detected = "अन्य राज्य";
+
+      sessionStorage.setItem("disha_detected_district", detected);
+      return detected;
+    }
+  } catch {
+    // Fail gracefully
+  }
+  return "जयपुर";
+}
+
+/**
  * Track page view on route change for SPA.
  * Excludes /admin/* paths and admin users.
  */
@@ -209,6 +272,7 @@ async function logVisitorAnalyticsToFirestore(pagePath: string, isLoggedIn: bool
       // 1. Record atomic visitor counter in Supabase Cloud
       if (isSupabaseConfigured()) {
         try {
+          const district = getVisitorDistrict();
           Promise.resolve(
             supabase.rpc("record_site_visit", {
               p_page: pagePath,
@@ -217,6 +281,7 @@ async function logVisitorAnalyticsToFirestore(pagePath: string, isLoggedIn: bool
               p_is_logged_in: isLoggedIn,
               p_is_unique: isUnique,
               p_is_download_click: false,
+              p_district: district,
             })
           ).catch(() => {});
         } catch {}
@@ -328,6 +393,7 @@ export function trackAppCtaClick(source: string, isUserAdmin?: boolean): void {
   // Record APK download button click in Supabase
   if (isSupabaseConfigured()) {
     try {
+      const district = getVisitorDistrict();
       Promise.resolve(
         supabase.rpc("record_site_visit", {
           p_page: "/download-apk",
@@ -336,6 +402,7 @@ export function trackAppCtaClick(source: string, isUserAdmin?: boolean): void {
           p_is_logged_in: false,
           p_is_unique: false,
           p_is_download_click: true,
+          p_district: district,
         })
       ).catch(() => {});
     } catch {}

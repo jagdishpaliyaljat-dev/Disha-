@@ -29,7 +29,10 @@ import {
   Moon,
   Sunrise,
   Sunset,
-  Lightbulb
+  Lightbulb,
+  MapPin,
+  Search,
+  Landmark
 } from "lucide-react";
 import { AdminCard } from "./AdminCard";
 import { supabase, isSupabaseConfigured } from "../../lib/supabase";
@@ -63,6 +66,7 @@ interface SiteDailyRecord {
   sources: Record<string, number>;
   pages: Record<string, number>;
   hourly_distribution?: Record<string, number>;
+  district_distribution?: Record<string, number>;
   app_download_clicks: number;
 }
 
@@ -74,6 +78,7 @@ interface SiteTrafficSummary {
   desktop_visits: number;
   app_downloads: number;
   hourly_distribution?: Record<string, number>;
+  district_distribution?: Record<string, number>;
 }
 
 export const AdminAnalyticsDashboard: React.FC = () => {
@@ -83,6 +88,7 @@ export const AdminAnalyticsDashboard: React.FC = () => {
   const [trafficDays, setTrafficDays] = React.useState<number>(7);
   const [loading, setLoading] = React.useState(true);
   const [lastRefreshed, setLastRefreshed] = React.useState<string | null>(null);
+  const [districtSearchQuery, setDistrictSearchQuery] = React.useState("");
 
   const [livePresence, setLivePresence] = React.useState<LivePresenceSummary>({
     onlineCount: 1,
@@ -276,6 +282,37 @@ export const AdminAnalyticsDashboard: React.FC = () => {
       ],
     };
   }, [siteTraffic]);
+
+  // District-wise regional analytics calculations
+  const districtAnalytics = React.useMemo(() => {
+    const raw = siteTraffic?.district_distribution || {};
+    const allEntries = Object.entries(raw).sort((a, b) => b[1] - a[1]);
+    const totalHits = allEntries.reduce((acc, [, count]) => acc + count, 0);
+
+    const filteredEntries = allEntries.filter(([name]) =>
+      districtSearchQuery.trim()
+        ? name.toLowerCase().includes(districtSearchQuery.trim().toLowerCase())
+        : true
+    );
+
+    // Major Rajasthan coaching clusters for quick stats
+    const sikarHits = raw["सीकर"] || 0;
+    const jaipurHits = raw["जयपुर"] || 0;
+    const kotaHits = raw["कोटा"] || 0;
+    const jodhpurHits = raw["जोधपुर"] || 0;
+
+    return {
+      allEntries,
+      filteredEntries,
+      totalHits,
+      sikarHits,
+      jaipurHits,
+      kotaHits,
+      jodhpurHits,
+      topDistrict: allEntries[0] ? allEntries[0][0] : "जयपुर",
+      topCount: allEntries[0] ? allEntries[0][1] : 0,
+    };
+  }, [siteTraffic, districtSearchQuery]);
 
   // Student exam & subject lists
   const examList = React.useMemo(() => {
@@ -701,6 +738,153 @@ export const AdminAnalyticsDashboard: React.FC = () => {
                 </p>
                 <p className="text-amber-800/90 dark:text-amber-300/90 font-bold leading-relaxed text-[11px]">
                   {hourlyActivity.recommendation}
+                </p>
+              </div>
+            </div>
+          </AdminCard>
+
+          {/* ────────────────────────────────────────────────────────── */}
+          {/* RAJASTHAN DISTRICT-WISE STUDENT & VISITOR ANALYTICS */}
+          {/* ────────────────────────────────────────────────────────── */}
+          <AdminCard className="p-4 sm:p-6 space-y-5 border-[#E8D9C0] dark:border-[#31374A]">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-rose-500/10 text-[#800020] dark:text-[#F47B20] flex items-center justify-center">
+                    <MapPin className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight flex items-center gap-2">
+                      <span>राजस्थान जिलावार छात्र व ट्रैफिक वितरण</span>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950/60 text-[#800020] dark:text-rose-300 border border-rose-200 dark:border-rose-900/50">
+                        District Footprint
+                      </span>
+                    </h3>
+                  </div>
+                </div>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-bold">
+                  सीकर, जयपुर, कोटा, जोधपुर सहित राजस्थान के विभिन्न जिलों से आने वाले छात्रों का लाइव विश्लेषण
+                </p>
+              </div>
+
+              {/* Top District Pill */}
+              <div className="flex items-center gap-2.5 bg-[#FFF9EF] dark:bg-[#1C202F] p-2.5 px-3.5 rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] shadow-2xs self-start sm:self-auto">
+                <Landmark className="w-4 h-4 text-[#800020] dark:text-[#F47B20]" />
+                <div className="text-left">
+                  <span className="text-[9px] font-black uppercase text-slate-400 tracking-wider block">
+                    शीर्ष सक्रिय जिला
+                  </span>
+                  <span className="text-xs font-black text-slate-900 dark:text-white">
+                    📍 {districtAnalytics.topDistrict} ({districtAnalytics.topCount} विजिट्स)
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* 4 Major Rajasthan Coaching Hubs Quick Strip */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
+              {[
+                { name: "जयपुर (Jaipur)", count: districtAnalytics.jaipurHits, tag: "राजधानी व मुख्य केंद्र", bg: "bg-blue-500/10 text-blue-600" },
+                { name: "सीकर (Sikar)", count: districtAnalytics.sikarHits, tag: "कोचिंग हब (REET/CET/NDA)", bg: "bg-rose-500/10 text-rose-600" },
+                { name: "कोटा (Kota)", count: districtAnalytics.kotaHits, tag: "एजुकेशन सिटी (NEET/JEE)", bg: "bg-emerald-500/10 text-emerald-600" },
+                { name: "जोधपुर (Jodhpur)", count: districtAnalytics.jodhpurHits, tag: "पश्चिमी संभाग केंद्र", bg: "bg-purple-500/10 text-purple-600" },
+              ].map((hub) => {
+                const total = districtAnalytics.totalHits || 1;
+                const percent = Math.round((hub.count / total) * 100);
+                return (
+                  <div
+                    key={hub.name}
+                    className="p-3 rounded-2xl bg-[#FFFDF9] dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] space-y-1.5"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-black text-slate-800 dark:text-slate-200 truncate">{hub.name}</span>
+                      <span className="text-[10px] font-bold text-slate-400 font-mono">{percent}%</span>
+                    </div>
+                    <div className="flex items-baseline gap-1.5">
+                      <span className="text-lg font-black text-slate-900 dark:text-white font-mono">{hub.count}</span>
+                      <span className="text-[9px] font-bold text-slate-400">विजिट्स</span>
+                    </div>
+                    <p className="text-[9.5px] font-bold text-slate-500 dark:text-slate-400 truncate">{hub.tag}</p>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* District Search & Distribution List */}
+            <div className="space-y-3 pt-1">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                <span className="text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+                  सभी सक्रिय जिले ({districtAnalytics.allEntries.length})
+                </span>
+                
+                {/* Search Input */}
+                <div className="relative w-full sm:w-64">
+                  <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="text"
+                    value={districtSearchQuery}
+                    onChange={(e) => setDistrictSearchQuery(e.target.value)}
+                    placeholder="जिला खोजें (उदा. सीकर, कोटा)..."
+                    className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl bg-white dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] focus:outline-hidden focus:border-[#800020] text-slate-900 dark:text-white"
+                  />
+                </div>
+              </div>
+
+              {districtAnalytics.filteredEntries.length === 0 ? (
+                <div className="py-8 text-center text-xs text-slate-400 font-bold">
+                  {districtSearchQuery ? `"${districtSearchQuery}" नाम से कोई जिला नहीं मिला` : "अभी तक कोई जिलावार डेटा दर्ज नहीं हुआ है।"}
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 max-h-72 overflow-y-auto pr-1 no-scrollbar">
+                  {districtAnalytics.filteredEntries.map(([district, count], idx) => {
+                    const total = districtAnalytics.totalHits || 1;
+                    const percent = Math.round((count / total) * 100);
+                    const medal = idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : `#${idx + 1}`;
+
+                    return (
+                      <div
+                        key={district}
+                        className="p-3 rounded-2xl bg-[#FFF9EF]/50 dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-between gap-3 group hover:border-[#800020] transition-colors"
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                          <span className="text-xs font-bold text-slate-400 font-mono shrink-0 w-6 text-center">
+                            {medal}
+                          </span>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center justify-between text-xs font-bold mb-1">
+                              <span className="text-slate-900 dark:text-white truncate">
+                                📍 {district}
+                              </span>
+                              <span className="text-slate-500 font-mono text-[11px] shrink-0">
+                                {count} ({percent}%)
+                              </span>
+                            </div>
+                            <div className="w-full h-1.5 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
+                              <div
+                                style={{ width: `${Math.max(percent, 4)}%` }}
+                                className="h-full bg-gradient-to-r from-[#800020] to-[#F47B20] rounded-full transition-all duration-700"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Actionable Regional Strategy Box */}
+            <div className="flex items-start gap-3 p-3.5 rounded-2xl bg-rose-500/10 border border-rose-300/60 dark:border-rose-900/50">
+              <Landmark className="w-4 h-4 text-[#800020] dark:text-[#F47B20] shrink-0 mt-0.5" />
+              <div className="space-y-0.5 text-xs">
+                <p className="font-black text-rose-950 dark:text-rose-200">
+                  रणनीतिक क्षेत्रीय सुझाव (Regional Strategy Insight)
+                </p>
+                <p className="text-rose-900/90 dark:text-rose-300/90 font-bold leading-relaxed text-[11px]">
+                  {districtAnalytics.sikarHits + districtAnalytics.jaipurHits > 0
+                    ? `📍 जयपुर व सीकर संभाग से कुल ${Math.round(((districtAnalytics.sikarHits + districtAnalytics.jaipurHits) / (districtAnalytics.totalHits || 1)) * 100)}% छात्र एक्टिव हैं! आगामी भर्ती परीक्षाओं (REET, 2nd Grade, CET) के लिए इन जिलों के टेलीग्राम स्टडी ग्रुप्स में लाइव टेस्ट की पूर्व-सूचना देने पर उच्चतम परिणाम मिलेंगे।`
+                    : "💡 जैसे-जैसे राजस्थान के विभिन्न जिलों से छात्र टेस्ट हल करेंगे, जिलेवार सटीक सहभागिता इस डैशबोर्ड में रियल-टाइम अपडेट होती रहेगी।"}
                 </p>
               </div>
             </div>
