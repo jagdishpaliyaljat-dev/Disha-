@@ -343,13 +343,6 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
           </div>
 
           <div className="flex items-center gap-1.5">
-            <div
-              title="100% निःशुल्क शिक्षा पहल"
-              className="px-2 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 font-black text-[10px] flex items-center gap-1 shadow-xs border border-emerald-400/30 select-none"
-            >
-              <Sparkles className="w-3 h-3 text-emerald-300" />
-              <span>100% Free</span>
-            </div>
             <button
               onClick={handleResetChat}
               title="Reset Chat"

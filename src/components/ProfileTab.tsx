@@ -278,19 +278,11 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
             <div className="relative shrink-0">
               <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl p-0.5 sm:p-1 bg-gradient-to-tr from-[#800020] via-[#F47B20] to-[#C99A45] shadow-sm">
                 <div className="w-full h-full rounded-[14px] sm:rounded-[18px] border border-white dark:border-[#1F2330] overflow-hidden bg-[#FFF9EF] dark:bg-[#171923] flex items-center justify-center">
-                  {activeProfile?.photoURL ? (
-                    <img
-                      src={activeProfile.photoURL}
-                      alt={userName}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <img
-                      src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(userName)}&backgroundColor=ffdfbf,ffd5dc,c0aede`}
-                      alt={userName}
-                      className="w-full h-full object-cover"
-                    />
-                  )}
+                  <UserAvatar
+                    name={userName}
+                    photoURL={activeProfile?.photoURL}
+                    sizeClassName="w-full h-full"
+                  />
                 </div>
               </div>
               <button
@@ -394,45 +386,6 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
             </div>
           </motion.div>
 
-        {/* 100% Free Education Status Card */}
-        <motion.div
-          variants={itemVariants}
-          className="p-4 rounded-2xl border shadow-sm relative overflow-hidden flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-gradient-to-r from-emerald-500/15 via-[#7045D8]/20 to-emerald-500/10 border-emerald-500/40"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 shadow-md bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-emerald-500/30">
-              <Sparkles className="w-6 h-6" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h3 className="font-extrabold text-sm sm:text-base text-[#171923] dark:text-white flex items-center gap-1.5">
-                  दिशा 100% निःशुल्क शिक्षा योजना
-                </h3>
-                <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-500 text-white uppercase tracking-wider">
-                  आजीवन मुफ़्त (Active)
-                </span>
-              </div>
-              <p className="text-xs text-slate-600 dark:text-[#CBD2E1] mt-0.5">
-                सभी RPSC & RSMSSB Mock Tests, Disha AI Tutor व State Merit Ranking आपके लिए हमेशा 100% निःशुल्क अनलॉक हैं।
-              </p>
-            </div>
-          </div>
-
-          <button
-            onClick={() => {
-              triggerHaptic("medium");
-              if (onOpenPremium) {
-                onOpenPremium();
-              } else if (typeof window !== "undefined") {
-                window.dispatchEvent(new CustomEvent("disha_open_premium_modal", { detail: { trigger: "profile" } }));
-              }
-            }}
-            className="px-4 py-2.5 rounded-xl font-bold text-xs shadow-md transition-all active:scale-95 shrink-0 flex items-center gap-1.5 cursor-pointer bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-600 dark:text-emerald-400 border border-emerald-500/40"
-          >
-            <Sparkles size={14} className="text-emerald-500" />
-            <span>सुविधाएं विवरण</span>
-          </button>
-        </motion.div>
 
         {!isAuthenticated && (
           <motion.div

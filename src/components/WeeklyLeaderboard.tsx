@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { UserProfile } from "../types";
 import { ContentLoader } from "./ui/LoadingScreen";
+import { UserAvatar } from "./ui/UserAvatar";
 
 function getStartOfWeekId(): string {
   const d = new Date();
@@ -174,11 +175,11 @@ const WeeklyLeaderboard: React.FC<WeeklyLeaderboardProps> = ({
                     </div>
                     
                     {/* User Avatar */}
-                    <div className="w-8 h-8 rounded-full border-2 border-white dark:border-slate-800 overflow-hidden shrink-0 bg-slate-100 dark:bg-slate-800 shadow-sm">
-                      <img 
-                        src={entry.userPhoto || `https://api.dicebear.com/7.x/avataaars/svg?seed=${entry.userName}`} 
-                        alt="Avatar" 
-                        className="w-full h-full object-cover"
+                    <div className="w-8 h-8 rounded-full border-2 border-white dark:border-slate-800 overflow-hidden shrink-0 shadow-sm">
+                      <UserAvatar
+                        name={entry.userName}
+                        photoURL={entry.userPhoto}
+                        sizeClassName="w-full h-full"
                       />
                     </div>
 
