@@ -23,10 +23,17 @@ import {
   Smartphone,
   ExternalLink,
   Download,
-  Share2
+  Share2,
+  Clock,
+  Sun,
+  Moon,
+  Sunrise,
+  Sunset,
+  Lightbulb
 } from "lucide-react";
 import { AdminCard } from "./AdminCard";
 import { supabase, isSupabaseConfigured } from "../../lib/supabase";
+import { subscribeToAdminLivePresence, LivePresenceSummary } from "../../utils/presenceService";
 
 interface CloudTelemetrySummary {
   timestamp: string;
@@ -55,6 +62,7 @@ interface SiteDailyRecord {
   guest_visits: number;
   sources: Record<string, number>;
   pages: Record<string, number>;
+  hourly_distribution?: Record<string, number>;
   app_download_clicks: number;
 }
 
@@ -65,6 +73,7 @@ interface SiteTrafficSummary {
   mobile_visits: number;
   desktop_visits: number;
   app_downloads: number;
+  hourly_distribution?: Record<string, number>;
 }
 
 export const AdminAnalyticsDashboard: React.FC = () => {
@@ -74,6 +83,23 @@ export const AdminAnalyticsDashboard: React.FC = () => {
   const [trafficDays, setTrafficDays] = React.useState<number>(7);
   const [loading, setLoading] = React.useState(true);
   const [lastRefreshed, setLastRefreshed] = React.useState<string | null>(null);
+
+  const [livePresence, setLivePresence] = React.useState<LivePresenceSummary>({
+    onlineCount: 1,
+    mobileCount: 1,
+    desktopCount: 0,
+    pageBreakdown: { Home: 1 },
+    activeUsers: [],
+  });
+
+  React.useEffect(() => {
+    const unsubscribe = subscribeToAdminLivePresence((summary) => {
+      setLivePresence(summary);
+    });
+    return () => {
+      unsubscribe();
+    };
+  }, []);
 
   // Fetch student telemetry
   const fetchCloudTelemetry = React.useCallback(async () => {
@@ -172,6 +198,78 @@ export const AdminAnalyticsDashboard: React.FC = () => {
     return max > 0 ? max : 10;
   }, [siteTraffic]);
 
+  // 24-hour peak study hours and activity distribution
+  const hourlyActivity = React.useMemo(() => {
+    const hours = Array.from({ length: 24 }, (_, i) => {
+      const hStr = String(i).padStart(2, "0");
+      const hits = Number(
+        siteTraffic?.hourly_distribution?.[hStr] ||
+        siteTraffic?.hourly_distribution?.[String(i)] ||
+        0
+      );
+      return {
+        hour: i,
+        hourLabel: `${String(i).padStart(2, "0")}:00`,
+        displayLabel: i === 0 ? "12 AM" : i < 12 ? `${i} AM` : i === 12 ? "12 PM" : `${i - 12} PM`,
+        hits,
+      };
+    });
+
+    const maxHits = Math.max(...hours.map((h) => h.hits), 1);
+    const totalHits = hours.reduce((acc, h) => acc + h.hits, 0);
+
+    // Peak hour
+    const sorted = [...hours].sort((a, b) => b.hits - a.hits);
+    const peakSlot = sorted[0];
+    const hasData = totalHits > 0;
+
+    // Time Slot Aggregations (दिन के 4 मुख्य अध्ययन प्रहर)
+    const morningHits = hours.filter((h) => h.hour >= 5 && h.hour < 9).reduce((acc, h) => acc + h.hits, 0);
+    const dayHits = hours.filter((h) => h.hour >= 9 && h.hour < 17).reduce((acc, h) => acc + h.hits, 0);
+    const eveningHits = hours.filter((h) => h.hour >= 17 && h.hour < 21).reduce((acc, h) => acc + h.hits, 0);
+    const nightHits = hours.filter((h) => h.hour >= 21 || h.hour === 0).reduce((acc, h) => acc + h.hits, 0);
+
+    // Current IST Hour
+    const nowIST = new Date();
+    let currentHourIST = 0;
+    try {
+      const istStr = nowIST.toLocaleTimeString("en-US", { timeZone: "Asia/Kolkata", hour12: false, hour: "numeric" });
+      currentHourIST = parseInt(istStr, 10);
+    } catch {
+      currentHourIST = (nowIST.getUTCHours() + 5 + Math.floor((nowIST.getUTCMinutes() + 30) / 60)) % 24;
+    }
+
+    // Recommendation logic based on highest traffic slot
+    let recommendation = "💡 डेटा टिप: जैसे-जैसे छात्र वेबसाइट और ऐप पर अभ्यास करेंगे, हर घंटे का लाइव ट्रैफिक इस हीटमैप में रियल-टाइम अपडेट होता रहेगा।";
+    if (hasData) {
+      if (eveningHits >= morningHits && eveningHits >= dayHits && eveningHits >= nightHits) {
+        recommendation = "🔥 सर्वाधिक छात्र शाम 05:00 PM से 09:00 PM के बीच पढ़ाई करते हैं। लाइव टेस्ट आयोजित करने या नया टेस्ट ब्रॉडकास्ट भेजने का यह सबसे प्रभावशाली समय है।";
+      } else if (nightHits >= morningHits && nightHits >= dayHits) {
+        recommendation = "🌙 छात्र रात 09:00 PM से 12:00 AM (नाइट स्टडी) में सबसे ज्यादा टेस्ट हल करते हैं। इस समय नए PYQ सेट्स रिलीज करना अत्यधिक फलदायी होगा।";
+      } else if (morningHits >= dayHits) {
+        recommendation = "🌅 छात्र सुबह 05:00 AM से 09:00 AM (मॉर्निंग फोकस) में रिवीजन पसंद करते हैं। दैनिक करेंट अफेयर्स व फॉर्मूला टेस्ट सुबह जारी करना श्रेष्ठ रहेगा।";
+      } else {
+        recommendation = "☀️ छात्र दोपहर के समय 09:00 AM से 05:00 PM के बीच सक्रिय हैं। दोपहर में विशेष अभ्यास सत्र आयोजित किए जा सकते हैं।";
+      }
+    }
+
+    return {
+      hours,
+      maxHits,
+      totalHits,
+      hasData,
+      peakSlot,
+      currentHourIST,
+      recommendation,
+      slots: [
+        { label: "🌅 सुबह (05:00 - 09:00)", hits: morningHits, percent: totalHits ? Math.round((morningHits / totalHits) * 100) : 0, desc: "रिवीजन व फॉर्मूला अभ्यास" },
+        { label: "☀️ दोपहर (09:00 - 17:00)", hits: dayHits, percent: totalHits ? Math.round((dayHits / totalHits) * 100) : 0, desc: "लाइब्रेरी व सामान्य अध्ययन" },
+        { label: "🌇 शाम (17:00 - 21:00)", hits: eveningHits, percent: totalHits ? Math.round((eveningHits / totalHits) * 100) : 0, desc: "मॉक टेस्ट व PYQ प्रैक्टिस" },
+        { label: "🌙 नाइट स्टडी (21:00 - 01:00)", hits: nightHits, percent: totalHits ? Math.round((nightHits / totalHits) * 100) : 0, desc: "गहन अध्ययन व टेस्ट रिवीजन" },
+      ],
+    };
+  }, [siteTraffic]);
+
   // Student exam & subject lists
   const examList = React.useMemo(() => {
     if (!telemetry?.exam_breakdown) return [];
@@ -241,33 +339,54 @@ export const AdminAnalyticsDashboard: React.FC = () => {
           </div>
 
           {/* Quick Realtime Pill Badges */}
-          <div className="flex flex-col sm:flex-row lg:flex-col gap-3 min-w-[240px]">
-            <div className="flex items-center justify-between gap-3 bg-white/80 dark:bg-[#252A3A]/80 p-3 rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] shadow-xs">
-              <div>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">वेबसाइट पेज व्यूज</p>
-                <p className="text-xl font-black text-slate-900 dark:text-white tabular-nums">
-                  {loading ? "..." : (siteTraffic?.total_visits ?? 0).toLocaleString()}
-                </p>
+          <div className="flex flex-col sm:flex-row lg:flex-col gap-2.5 min-w-[260px]">
+            {/* Live Online Presence Pulse Card */}
+            <div className="flex items-center justify-between gap-3 bg-emerald-50/90 dark:bg-emerald-950/40 p-3 rounded-2xl border border-emerald-300 dark:border-emerald-800/60 shadow-xs">
+              <div className="flex items-center gap-2.5">
+                <div className="relative flex items-center justify-center">
+                  <span className="w-3.5 h-3.5 rounded-full bg-emerald-500 animate-ping absolute" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-600 relative" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-black text-emerald-800 dark:text-emerald-300 uppercase tracking-wider">
+                    🟢 लाइव सक्रिय छात्र (Right Now)
+                  </p>
+                  <div className="flex items-baseline gap-1.5">
+                    <span className="text-xl font-black text-emerald-700 dark:text-emerald-300 tabular-nums">
+                      {livePresence.onlineCount}
+                    </span>
+                    <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
+                      (📱 {livePresence.mobileCount} मोबाइल • 💻 {livePresence.desktopCount} डेस्कटॉप)
+                    </span>
+                  </div>
+                </div>
               </div>
               <button
                 onClick={refreshAll}
                 disabled={loading}
-                className="p-2 bg-[#800020]/10 text-[#800020] dark:text-[#F47B20] rounded-xl hover:bg-[#800020]/20 transition-all cursor-pointer disabled:opacity-50"
-                title="रीफ्रेश"
+                className="p-2 bg-emerald-600/10 text-emerald-700 dark:text-emerald-300 rounded-xl hover:bg-emerald-600/20 transition-all cursor-pointer disabled:opacity-50"
+                title="रीफ्रेश डेटा"
               >
-                <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
+                <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
               </button>
             </div>
 
-            <div className="flex items-center justify-between gap-3 bg-white/80 dark:bg-[#252A3A]/80 p-3 rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] shadow-xs">
+            <div className="flex items-center justify-between gap-3 bg-white/80 dark:bg-[#252A3A]/80 p-2.5 px-3 rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] shadow-xs">
               <div>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">APK डाउनलोड क्लिक्स</p>
-                <p className="text-xl font-black text-emerald-600 dark:text-emerald-400 tabular-nums">
+                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">कुल पेज व्यूज</p>
+                <p className="text-base font-black text-slate-900 dark:text-white tabular-nums">
+                  {loading ? "..." : (siteTraffic?.total_visits ?? 0).toLocaleString()}
+                </p>
+              </div>
+              <div className="h-6 w-[1px] bg-slate-200 dark:bg-slate-700" />
+              <div>
+                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">APK डाउनलोड्स</p>
+                <p className="text-base font-black text-emerald-600 dark:text-emerald-400 tabular-nums">
                   {loading ? "..." : (siteTraffic?.app_downloads ?? 0).toLocaleString()}
                 </p>
               </div>
-              <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center">
-                <Download className="w-4 h-4" />
+              <div className="w-6 h-6 rounded-lg bg-emerald-500/10 text-emerald-600 flex items-center justify-center">
+                <Download className="w-3.5 h-3.5" />
               </div>
             </div>
           </div>
@@ -419,6 +538,165 @@ export const AdminAnalyticsDashboard: React.FC = () => {
                 })}
               </div>
             )}
+          </AdminCard>
+
+          {/* ────────────────────────────────────────────────────────── */}
+          {/* PEAK STUDY HOURS & 24-HOUR ACTIVITY HEATMAP */}
+          {/* ────────────────────────────────────────────────────────── */}
+          <AdminCard className="p-4 sm:p-6 space-y-5 border-[#E8D9C0] dark:border-[#31374A]">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-orange-500/10 text-orange-600 dark:text-orange-400 flex items-center justify-center">
+                    <Clock className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight flex items-center gap-2">
+                      <span>पीक स्टडी आवर्स व 24-घंटे एक्टिविटी हीटमैप</span>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-orange-100 dark:bg-orange-950/60 text-orange-700 dark:text-orange-300 border border-orange-200 dark:border-orange-800/50">
+                        IST Timezone
+                      </span>
+                    </h3>
+                  </div>
+                </div>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-bold">
+                  दिन के किस प्रहर व समय छात्र सबसे ज्यादा वेबसाइट व ऐप पर पढ़ाई करते हैं (लाइव टेस्ट शेड्यूल करने का सर्वोत्तम समय)
+                </p>
+              </div>
+
+              {/* Peak Hour Highlight Pill */}
+              <div className="flex items-center gap-2.5 bg-[#FFF9EF] dark:bg-[#1C202F] p-2.5 px-3.5 rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] shadow-2xs self-start sm:self-auto">
+                <Flame className="w-4 h-4 text-[#F47B20] animate-pulse" />
+                <div className="text-left">
+                  <span className="text-[9px] font-black uppercase text-slate-400 tracking-wider block">
+                    सर्वाधिक सक्रिय समय
+                  </span>
+                  <span className="text-xs font-black text-slate-900 dark:text-white">
+                    {hourlyActivity.hasData
+                      ? `${hourlyActivity.peakSlot.displayLabel} (${hourlyActivity.peakSlot.hits} विजिट्स)`
+                      : "रात 08:00 - 10:00 PM (अनुमानित)"}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* 4 Time Periods (अध्ययन प्रहर) */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-3">
+              {hourlyActivity.slots.map((slot, idx) => (
+                <div
+                  key={idx}
+                  className="p-3 rounded-2xl bg-[#FFFDF9] dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] space-y-1.5"
+                >
+                  <div className="flex items-center justify-between text-xs font-black text-slate-800 dark:text-slate-200">
+                    <span className="truncate text-[11px]">{slot.label}</span>
+                    <span className="text-orange-600 dark:text-orange-400 tabular-nums font-mono text-[11px]">
+                      {slot.percent}%
+                    </span>
+                  </div>
+                  <div className="w-full h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                    <div
+                      style={{ width: `${slot.percent}%` }}
+                      className="h-full bg-gradient-to-r from-amber-500 to-[#F47B20] rounded-full transition-all duration-700"
+                    />
+                  </div>
+                  <div className="flex items-center justify-between text-[10px] text-slate-400 font-bold">
+                    <span>{slot.hits} विजिट्स</span>
+                    <span className="truncate max-w-[90px]">{slot.desc}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* 24-Hour Bar Histogram */}
+            <div className="space-y-2 pt-2">
+              <div className="flex items-center justify-between text-[10px] font-black text-slate-400 uppercase tracking-wider px-1">
+                <span>00:00 (12 AM)</span>
+                <span>06:00 (6 AM)</span>
+                <span>12:00 (12 PM)</span>
+                <span>18:00 (6 PM)</span>
+                <span>23:00 (11 PM)</span>
+              </div>
+
+              <div className="h-28 flex items-end justify-between gap-1 sm:gap-1.5 pt-2 border-b border-slate-100 dark:border-slate-800 pb-1">
+                {hourlyActivity.hours.map((h) => {
+                  const isCurrent = h.hour === hourlyActivity.currentHourIST;
+                  const isPeak = hourlyActivity.hasData && h.hour === hourlyActivity.peakSlot.hour;
+                  const heightPercent = hourlyActivity.hasData
+                    ? Math.max(Math.round((h.hits / hourlyActivity.maxHits) * 100), 8)
+                    : 12;
+
+                  return (
+                    <div
+                      key={h.hour}
+                      className="flex-1 flex flex-col items-center gap-1 group h-full justify-end relative cursor-pointer"
+                      title={`${h.hourLabel} (${h.displayLabel}): ${h.hits} विजिट्स`}
+                    >
+                      {/* Tooltip on hover */}
+                      <div className="absolute -top-7 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900 text-white text-[9px] font-mono font-black py-0.5 px-1.5 rounded-md shadow-lg pointer-events-none whitespace-nowrap z-10">
+                        {h.displayLabel}: {h.hits}
+                      </div>
+
+                      <div
+                        style={{ height: `${heightPercent}%` }}
+                        className={`w-full max-w-[18px] sm:max-w-[22px] rounded-t-lg transition-all shadow-2xs ${
+                          isPeak
+                            ? "bg-gradient-to-t from-red-600 via-orange-500 to-amber-400 animate-pulse shadow-orange-500/20"
+                            : isCurrent
+                            ? "bg-gradient-to-t from-emerald-600 to-teal-400"
+                            : h.hits > 0
+                            ? "bg-gradient-to-t from-[#800020] to-[#F47B20] opacity-80 hover:opacity-100"
+                            : "bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700"
+                        }`}
+                      />
+                      <span
+                        className={`text-[7px] sm:text-[8px] font-mono font-black uppercase ${
+                          isCurrent
+                            ? "text-emerald-600 dark:text-emerald-400 font-black"
+                            : isPeak
+                            ? "text-orange-600 dark:text-orange-400 font-black"
+                            : "text-slate-400"
+                        }`}
+                      >
+                        {h.hour % 3 === 0 ? String(h.hour).padStart(2, "0") : ""}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 px-1">
+                <div className="flex items-center gap-3">
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-2.5 h-2.5 rounded-xs bg-gradient-to-t from-red-600 to-amber-400" />
+                    <span>पीक घंटा</span>
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-2.5 h-2.5 rounded-xs bg-emerald-500" />
+                    <span>वर्तमान समय ({hourlyActivity.currentHourIST}:00)</span>
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-2.5 h-2.5 rounded-xs bg-gradient-to-t from-[#800020] to-[#F47B20]" />
+                    <span>सामान्य ट्रैफिक</span>
+                  </span>
+                </div>
+                <span className="font-mono text-[9px] text-slate-400">
+                  कुल दर्ज गतिविधियां: {hourlyActivity.totalHits.toLocaleString()}
+                </span>
+              </div>
+            </div>
+
+            {/* Smart Actionable Admin Recommendation Box */}
+            <div className="flex items-start gap-3 p-3.5 rounded-2xl bg-amber-500/10 border border-amber-300/60 dark:border-amber-800/50">
+              <Lightbulb className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+              <div className="space-y-0.5 text-xs">
+                <p className="font-black text-amber-900 dark:text-amber-200">
+                  स्मार्ट एडमिन सुझाव (Actionable Recommendation)
+                </p>
+                <p className="text-amber-800/90 dark:text-amber-300/90 font-bold leading-relaxed text-[11px]">
+                  {hourlyActivity.recommendation}
+                </p>
+              </div>
+            </div>
           </AdminCard>
 
           {/* Acquisition Channels & Top Pages Grid */}

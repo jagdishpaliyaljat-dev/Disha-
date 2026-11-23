@@ -186,12 +186,26 @@ export function extractExamsFromText(text: string): {
       continue; // Skip line from remaining text
     }
 
-    // Bracketed exam line e.g. "[CET 12th Level - 2023]" or "(RAS Pre 2021)"
-    const bracketMatch = trimmed.match(/^[\[(]([A-Za-z\u0900-\u097F0-9\s.,–\-]+(?:\b(?:19\d{2}|20\d{2})\b)[^\])]*)[\])]$/);
+    // Bracketed exam line e.g. "[CET 12th Level - 2023]" or "(RAS Pre 2021)" or "(पटवार २०२१)"
+    const bracketMatch = trimmed.match(/^[\[(]([A-Za-z\u0900-\u097F0-9\s.,–\-]+?(?:\b(?:19\d{2}|20\d{2})\b|[१२][०-९]{3})[^\])]*)[\])]$/);
     if (bracketMatch && !/^[A-Ea-e1-5क-ङ][.)]/.test(trimmed)) {
       const parsed = parseSingleExamString(bracketMatch[1]);
       if (parsed) {
         extracted.push(parsed);
+        continue;
+      }
+    }
+
+    // Trailing bracketed exam at end of question line e.g. "Question text? [RAS Pre 2021]"
+    const trailingBracketMatch = line.match(/(?:[\s\u00A0]*)[\[(]([A-Za-z\u0900-\u097F0-9\s.,–\-\/]+?(?:\b(?:19\d{2}|20\d{2})\b|[१२][०-९]{3})[^\])]*)[\])]\s*$/);
+    if (trailingBracketMatch && !/^[A-Ea-e1-5क-ङ][.)]/.test(trimmed)) {
+      const parsed = parseSingleExamString(trailingBracketMatch[1]);
+      if (parsed) {
+        extracted.push(parsed);
+        const cleanedLine = line.slice(0, trailingBracketMatch.index).trimEnd();
+        if (cleanedLine) {
+          remainingLines.push(cleanedLine);
+        }
         continue;
       }
     }

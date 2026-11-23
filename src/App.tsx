@@ -302,6 +302,36 @@ export default function App() {
     };
   }, [userProfile?.targetExam]);
 
+  // Real-Time Online Presence Tracking via Supabase
+  React.useEffect(() => {
+    let cleanup: (() => void) | undefined;
+    (async () => {
+      try {
+        const { initStudentPresence } = await import("./utils/presenceService");
+        cleanup = initStudentPresence({
+          page: activeTab,
+          isLoggedIn: isAuthenticated,
+          targetExam: userProfile?.targetExam,
+          userName: userProfile?.name,
+        });
+      } catch (err) {
+        console.warn("[App] Presence init note:", err);
+      }
+    })();
+    return () => {
+      if (cleanup) cleanup();
+    };
+  }, [isAuthenticated, userProfile?.targetExam, userProfile?.name]);
+
+  // Update presence active page on tab change
+  React.useEffect(() => {
+    import("./utils/presenceService")
+      .then(({ updateStudentPresencePage }) => {
+        updateStudentPresencePage(activeTab);
+      })
+      .catch(() => {});
+  }, [activeTab]);
+
   // Sync URL with Tab, Subject, Chapter, Topic and Session changes
   React.useEffect(() => {
     if (typeof window === 'undefined') return;
