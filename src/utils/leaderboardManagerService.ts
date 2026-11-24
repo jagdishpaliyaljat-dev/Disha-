@@ -5,7 +5,7 @@
  * penalizing/banning cheaters, seeding, and resetting weekly & all-time leaderboards.
  */
 
-import { supabase } from '../services/supabase';
+import { supabase } from '../lib/supabase';
 
 export interface LeaderboardUserEntry {
   userId: string;

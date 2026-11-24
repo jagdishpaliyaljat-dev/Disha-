@@ -83,6 +83,9 @@ const QuestionRecycleBinModal = adminSafeLazy<any>(() => import("./admin/Questio
 const StaffManagementSection = adminSafeLazy<any>(() => import("./admin/StaffManagementSection"), "StaffManagementSection");
 const QuestionApprovalWorkflowSection = adminSafeLazy<any>(() => import("./admin/QuestionApprovalWorkflowSection"), "QuestionApprovalWorkflowSection");
 const QuestionHealthAuditor = adminSafeLazy<any>(() => import("./admin/QuestionHealthAuditor"), "QuestionHealthAuditor");
+const EnterpriseAdminCategoryGrid = adminSafeLazy<any>(() => import("./admin/EnterpriseAdminCategoryGrid"), "EnterpriseAdminCategoryGrid");
+const LeaderboardManagerSection = adminSafeLazy<any>(() => import("./admin/LeaderboardManagerSection"), "LeaderboardManagerSection");
+const AppConfigMaintenanceSection = adminSafeLazy<any>(() => import("./admin/AppConfigMaintenanceSection"), "AppConfigMaintenanceSection");
 
 interface AdminTabProps {
   userProfile: UserProfile | null;
@@ -144,13 +147,13 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
   });
 
   // Sub-tab toggles for multi-view groups
-  const [subTabDashboard, setSubTabDashboard] = React.useState<"overview" | "analytics">("overview");
+  const [subTabDashboard, setSubTabDashboard] = React.useState<"overview" | "analytics" | "categories">("categories");
   const [subTabContent, setSubTabContent] = React.useState<"news" | "banners">("news");
   const [subTabUsers, setSubTabUsers] = React.useState<"directory" | "messages" | "reports" | "notifications">("directory");
   const [subTabSupabase, setSubTabSupabase] = React.useState<"overview" | "explorer" | "diagnostics" | "report" | "audit" | "sync">("overview");
   const [subTabAI, setSubTabAI] = React.useState<"dashboard" | "configs">("dashboard");
   const [subTabTests, setSubTabTests] = React.useState<"mock" | "battle">("mock");
-  const [subTabSettings, setSubTabSettings] = React.useState<"features" | "maintenance">("features");
+  const [subTabSettings, setSubTabSettings] = React.useState<"features" | "maintenance" | "leaderboard" | "appconfig">("features");
 
   const [selectedUserForDetails, setSelectedUserForDetails] = React.useState<UserProfile | null>(null);
   const [showQATestRunner, setShowQATestRunner] = React.useState(false);
@@ -1243,6 +1246,16 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                   
                   <div className="flex items-center p-1 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xs self-start sm:self-auto overflow-x-auto max-w-full no-scrollbar">
                     <button
+                      onClick={() => setSubTabDashboard("categories")}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                        subTabDashboard === "categories"
+                          ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs"
+                          : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                      }`}
+                    >
+                      21 Institutional Categories
+                    </button>
+                    <button
                       onClick={() => setSubTabDashboard("overview")}
                       className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
                         subTabDashboard === "overview"
@@ -1266,7 +1279,28 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                 </div>
 
                 <React.Suspense fallback={<AdminSectionLoader type="metrics" title="Loading Dashboard..." />}>
-                  {subTabDashboard === "overview" ? (
+                  {subTabDashboard === "categories" ? (
+                    <EnterpriseAdminCategoryGrid
+                      onSelectCategory={(cat: any) => {
+                        if (cat.id === "leaderboard") {
+                          setActiveGroup("settings");
+                          setSubTabSettings("leaderboard");
+                        } else if (cat.id === "maintenance" || cat.id === "config") {
+                          setActiveGroup("settings");
+                          setSubTabSettings("appconfig");
+                        } else if (cat.id === "objections") {
+                          setActiveGroup("users");
+                          setSubTabUsers("reports");
+                        } else if (cat.id === "analytics") {
+                          setSubTabDashboard("analytics");
+                        } else {
+                          setActiveGroup(cat.targetGroup);
+                        }
+                      }}
+                      onNavigateToGroup={(group: any) => setActiveGroup(group)}
+                      activeGroup={activeGroup}
+                    />
+                  ) : subTabDashboard === "overview" ? (
                     <AdminDashboardSection
                       onNavigateSection={handleLegacyNavigateSection}
                       onSelectUser={(user: any) => {
@@ -1915,6 +1949,28 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                       <span>App Feature Toggles</span>
                     </button>
                     <button
+                      onClick={() => setSubTabSettings("leaderboard")}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
+                        subTabSettings === "leaderboard"
+                          ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs"
+                          : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                      }`}
+                    >
+                      <Trophy className="w-3.5 h-3.5 text-amber-400" />
+                      <span>Leaderboard Manager</span>
+                    </button>
+                    <button
+                      onClick={() => setSubTabSettings("appconfig")}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
+                        subTabSettings === "appconfig"
+                          ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs"
+                          : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                      }`}
+                    >
+                      <AlertTriangle className="w-3.5 h-3.5 text-rose-400" />
+                      <span>App Config & Maintenance</span>
+                    </button>
+                    <button
                       onClick={() => setSubTabSettings("maintenance")}
                       className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
                         subTabSettings === "maintenance"
@@ -1931,6 +1987,14 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                 {subTabSettings === "features" ? (
                   <React.Suspense fallback={<AdminSectionLoader type="cards" title="Loading Feature Controls..." />}>
                     <AdminFeatureControlSection adminEmail={cloudAuthState.userEmail || props.userProfile?.email || "admin"} />
+                  </React.Suspense>
+                ) : subTabSettings === "leaderboard" ? (
+                  <React.Suspense fallback={<AdminSectionLoader type="list" title="Loading Leaderboard Manager..." />}>
+                    <LeaderboardManagerSection />
+                  </React.Suspense>
+                ) : subTabSettings === "appconfig" ? (
+                  <React.Suspense fallback={<AdminSectionLoader type="cards" title="Loading App Config & Maintenance..." />}>
+                    <AppConfigMaintenanceSection />
                   </React.Suspense>
                 ) : (
                   <React.Suspense fallback={<AdminSectionLoader type="list" title="Loading Settings..." />}>

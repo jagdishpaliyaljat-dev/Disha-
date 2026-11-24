@@ -5,7 +5,7 @@
  * feature kill switches, and cloud sync.
  */
 
-import { supabase } from '../services/supabase';
+import { supabase } from '../lib/supabase';
 
 export interface MaintenanceWindow {
   enabled: boolean;
