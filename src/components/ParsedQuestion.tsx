@@ -13,7 +13,14 @@ import {
   Calendar,
   Flame,
   Award,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
+import { 
+  speakEnglishText, 
+  stopPronunciation, 
+  subscribePronunciation 
+} from "../services/britishPronunciationService";
 
 export interface ParsedQuestionData {
   type: string;
@@ -60,6 +67,7 @@ export const ParsedQuestion: React.FC<ParsedQuestionProps> = ({
   question 
 }) => {
   const [isExpandedExams, setIsExpandedExams] = useState(false);
+  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const rawText = (question?.text || question?.question || text || "").trim();
 
   // Dynamically extract all verified exam history or legacy exam/year from question metadata or text
@@ -73,6 +81,13 @@ export const ParsedQuestion: React.FC<ParsedQuestionProps> = ({
     question?.questionClassification === "pyq_practice"
   );
   const fullText = detection.cleanText || rawText;
+  const hasEnglishWords = /[a-zA-Z]{2,}/.test(fullText);
+
+  React.useEffect(() => {
+    return subscribePronunciation((current) => {
+      setIsPlayingAudio(current === '__full_question_speech__');
+    });
+  }, []);
 
   const tableData = question?.table || question?.tableData;
   const matchTable = question?.matchTable || question?.matchData;
@@ -160,6 +175,30 @@ export const ParsedQuestion: React.FC<ParsedQuestionProps> = ({
           </div>
         )}
         <div className="flex-1 min-w-0">
+          {hasEnglishWords && (
+            <div className="flex justify-end mb-1.5">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (isPlayingAudio) {
+                    stopPronunciation();
+                  } else {
+                    speakEnglishText(fullText);
+                  }
+                }}
+                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold transition-all shadow-2xs ${
+                  isPlayingAudio
+                    ? "bg-indigo-600 text-white shadow-md animate-pulse"
+                    : "bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/40 dark:hover:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200/60 dark:border-indigo-800/60"
+                }`}
+                title={isPlayingAudio ? "Stop pronunciation" : "Listen question in English"}
+              >
+                {isPlayingAudio ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+                <span>{isPlayingAudio ? "Stop Audio" : "Listen (English)"}</span>
+              </button>
+            </div>
+          )}
           <RichText 
             text={fullText} 
             enablePronunciation={true}

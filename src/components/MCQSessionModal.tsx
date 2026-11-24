@@ -2371,7 +2371,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                                   {optionLabels[displayIdx]}
                                 </span>
                                 <div className="font-hindi flex-1 leading-snug pt-0.5 min-w-0 font-bold text-xs sm:text-sm">
-                                  <RichText text={optText} />
+                                  <RichText text={optText} enablePronunciation={true} />
                                 </div>
                                 {isThisCorrect && <Check size={16} className="text-emerald-600 shrink-0 mt-1" strokeWidth={3} />}
                                 {isUserSelection && !isThisCorrect && <X size={16} className="text-rose-600 shrink-0 mt-1" strokeWidth={3} />}
@@ -2952,7 +2952,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                       {optionLabels[idx]}
                     </span>
                     <div className={`flex-1 pt-0.5 font-hindi leading-snug font-bold min-w-0 break-words [overflow-wrap:anywhere] ${textStyles} ${optionFontSizeClass}`}>
-                      <RichText text={opt.text} />
+                      <RichText text={opt.text} enablePronunciation={true} />
                     </div>
                   </div>
 
@@ -3703,7 +3703,7 @@ function RedesignedLiveAndPYQTestView({
                     <div className={`flex-1 pt-0.5 font-hindi font-bold min-w-0 break-words [overflow-wrap:anywhere] text-[0.965rem] sm:text-[1.03rem] leading-snug ${
                       isSelected ? 'text-white' : 'text-[#171923] dark:text-[#FFF9EF]'
                     }`}>
-                      <RichText text={opt.text} />
+                      <RichText text={opt.text} enablePronunciation={true} />
                     </div>
                     {isSelected && (
                       <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 400 }} className="mt-1">
@@ -5041,7 +5041,7 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
                                 {optionLabels[displayIdx]}
                               </span>
                               <div className="font-hindi flex-1 leading-snug pt-0.5 min-w-0 font-bold text-xs sm:text-sm">
-                                <RichText text={optText} />
+                                <RichText text={optText} enablePronunciation={true} />
                               </div>
                               {isThisCorrect && <Check size={16} className="text-emerald-600 shrink-0 mt-1" strokeWidth={3} />}
                               {isUserSelection && !isThisCorrect && <X size={16} className="text-rose-600 shrink-0 mt-1" strokeWidth={3} />}

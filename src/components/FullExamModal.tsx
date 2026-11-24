@@ -886,7 +886,7 @@ export const FullExamModal: React.FC<FullExamModalProps> = ({
                           {optionLetter}
                         </div>
 
-                        <RichText text={optionText} className={`text-[0.86rem] sm:text-[0.96rem] leading-snug flex-1 min-w-0 break-words [overflow-wrap:anywhere] transition-all ${
+                        <RichText text={optionText} enablePronunciation={true} className={`text-[0.86rem] sm:text-[0.96rem] leading-snug flex-1 min-w-0 break-words [overflow-wrap:anywhere] transition-all ${
                           isSelected
                             ? "font-black text-blue-900 dark:text-white"
                             : "font-bold text-slate-700 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white"
@@ -1567,7 +1567,7 @@ export const FullExamModal: React.FC<FullExamModalProps> = ({
                           <span className="font-mono font-bold shrink-0">
                             {["A", "B", "C", "D"][oIdx]}.
                           </span>
-                          <RichText text={optText} className="flex-1 min-w-0 break-words [overflow-wrap:anywhere]" />
+                          <RichText text={optText} enablePronunciation={true} className="flex-1 min-w-0 break-words [overflow-wrap:anywhere]" />
                           {isCorrectOpt && <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />}
                           {isUserChoice && !isCorrect && <X className="w-3.5 h-3.5 text-rose-600 shrink-0" />}
                         </div>

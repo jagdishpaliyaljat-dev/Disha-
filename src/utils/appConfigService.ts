@@ -49,7 +49,7 @@ export interface GlobalAppConfig {
 const APP_CONFIG_STORAGE_KEY = 'disha_global_app_config_v1';
 
 export const DEFAULT_APP_CONFIG: GlobalAppConfig = {
-  version: '1.0.51',
+  version: '1.0.52',
   maintenance: {
     enabled: false,
     title: 'Platform Scheduled Maintenance',

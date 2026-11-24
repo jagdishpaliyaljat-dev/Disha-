@@ -13,7 +13,7 @@ export const MathText: React.FC<MathTextProps> = ({
   text, 
   className = '', 
   inline = false,
-  enablePronunciation = false 
+  enablePronunciation = true 
 }) => {
   return <RichText text={text} className={className} inline={inline} enablePronunciation={enablePronunciation} />;
 };

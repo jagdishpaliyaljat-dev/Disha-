@@ -125,7 +125,7 @@ export const RichText: React.FC<RichTextProps> = ({
   content, 
   className = '', 
   inline = false,
-  enablePronunciation = false 
+  enablePronunciation = true 
 }) => {
   const targetText = content || text || "";
   if (!targetText) return null;
@@ -154,7 +154,7 @@ export const RichText: React.FC<RichTextProps> = ({
           if (!enablePronunciation) {
             return <span key={idx}>{segment.content}</span>;
           }
-          const tokens = segment.content.split(/([a-zA-Z]+(?:-[a-zA-Z]+)*)/g);
+          const tokens = segment.content.split(/([a-zA-Z]+(?:['’-][a-zA-Z]+)*)/g);
           return (
             <span key={idx}>
               {tokens.map((token, tIdx) => {
