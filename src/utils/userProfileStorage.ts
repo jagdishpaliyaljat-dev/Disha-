@@ -67,7 +67,7 @@ export function isSuperAdmin(profileOrIdentifier?: UserProfile | StaffMember | {
       ADMIN_UIDS.includes(profileOrIdentifier)
     );
   }
-  if (profileOrIdentifier.role === "super_admin" || profileOrIdentifier.staffRole === "super_admin") return true;
+  if (profileOrIdentifier.role === "super_admin" || (profileOrIdentifier as any).staffRole === "super_admin") return true;
   const email = profileOrIdentifier.email ? normalize(profileOrIdentifier.email) : "";
   if (email && ADMIN_EMAILS.some((e) => normalize(e) === email)) return true;
   if (profileOrIdentifier.id && ADMIN_UIDS.includes(profileOrIdentifier.id)) return true;

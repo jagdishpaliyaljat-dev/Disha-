@@ -679,7 +679,7 @@ export const QuestionHealthAuditor: React.FC<QuestionHealthAuditorProps> = ({
               <option value="all">All Chapters</option>
               {chapters.map((ch) => (
                 <option key={ch.id} value={ch.id}>
-                  {ch.title || ch.name}
+                  {ch.title || (ch as any).name}
                 </option>
               ))}
             </select>

@@ -393,9 +393,9 @@ export const validateQuestion = (
     (context?.targetTopicId && context.targetTopicId.trim()) ||
     (context?.targetChapterId && context.targetChapterId.trim()) ||
     (context?.targetSubjectId && context.targetSubjectId.trim() && context.targetSubjectId !== "all") ||
-    (q.topicId && String(q.topicId).trim()) ||
-    (q.chapterId && String(q.chapterId).trim()) ||
-    (q.subjectId && String(q.subjectId).trim())
+    ((q as any).topicId && String((q as any).topicId).trim()) ||
+    ((q as any).chapterId && String((q as any).chapterId).trim()) ||
+    ((q as any).subjectId && String((q as any).subjectId).trim())
   );
 
   // If a target topic or chapter has been explicitly selected in the UI or set on the question,

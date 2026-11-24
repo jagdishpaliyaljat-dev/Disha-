@@ -13,8 +13,8 @@ import {
   Activity,
   AlertTriangle,
 } from 'lucide-react';
-import { usePerformanceOptimization } from '../../hooks/usePerformanceOptimization';
-import { PerformanceTier } from '../../utils/performanceOptimizer';
+import { usePerformanceOptimization } from '../hooks/usePerformanceOptimization';
+import { PerformanceTier } from '../utils/performanceOptimizer';
 
 interface BatteryPerformanceOptimizerModalProps {
   isOpen: boolean;

@@ -488,7 +488,7 @@ export const QuestionEditorModal: React.FC<QuestionEditorModalProps> = ({
                       <option value="">-- Select Subject --</option>
                       {subjects.map((sub) => (
                         <option key={sub.id} value={sub.id}>
-                          {sub.title || sub.name}
+                          {(sub as any).title || sub.name}
                         </option>
                       ))}
                     </select>
@@ -507,7 +507,7 @@ export const QuestionEditorModal: React.FC<QuestionEditorModalProps> = ({
                       <option value="">-- Select Chapter --</option>
                       {availableChapters.map((ch) => (
                         <option key={ch.id} value={ch.id}>
-                          {ch.title || ch.name}
+                          {ch.title || (ch as any).name}
                         </option>
                       ))}
                     </select>
@@ -523,7 +523,7 @@ export const QuestionEditorModal: React.FC<QuestionEditorModalProps> = ({
                       <option value="">-- Select Topic --</option>
                       {availableTopics.map((top) => (
                         <option key={top.id} value={top.id}>
-                          {top.title || top.name}
+                          {top.title || (top as any).name}
                         </option>
                       ))}
                     </select>

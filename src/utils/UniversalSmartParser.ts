@@ -116,9 +116,9 @@ export class UniversalSmartParser {
             rawInput: trimmed,
           });
           const validation = validateQuestion(normalized, idx + 1, {
-          targetChapterId: q.chapterId || chapterId,
-          targetTopicId: q.topicId || topicId,
-        });
+            targetChapterId: (q as any).chapterId || chapterId,
+            targetTopicId: (q as any).topicId || topicId,
+          });
 
           return {
             ...normalized,

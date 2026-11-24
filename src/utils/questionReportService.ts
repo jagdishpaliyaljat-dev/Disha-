@@ -335,7 +335,9 @@ export async function submitQuestionReport(input: SubmitReportInput): Promise<{
         ]);
         if (repErr) {
           if (repErr.message.includes("audit_logs") || repErr.message.includes("schema cache")) {
-            await supabase.from("question_reports").upsert([baseRow]).catch(() => {});
+            try {
+              await supabase.from("question_reports").upsert([baseRow]);
+            } catch (_) {}
           } else {
             console.info("[QuestionReportService] Cloud report staging notice:", repErr.message);
           }

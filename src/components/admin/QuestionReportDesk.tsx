@@ -149,11 +149,8 @@ export const QuestionReportDesk: React.FC<QuestionReportDeskProps> = ({
     try {
       const adminEmail = loadUserProfile()?.email || "Admin";
       await updateReportStatus(report.id, action, quickActionNote.trim() || undefined, {
-        adminEmail,
-        studentUid: report.studentUid,
-        studentEmail: report.studentEmail,
-        questionId: report.questionId,
-        questionText: report.questionText,
+        actor: adminEmail,
+        notifyStudent: true,
       });
 
       // Update in local state
@@ -224,7 +221,7 @@ export const QuestionReportDesk: React.FC<QuestionReportDeskProps> = ({
           : 0
       );
       setQExplanation(targetQ.explanation || report.explanationSnapshot || "");
-      setQImportantFacts(targetQ.importantFacts || report.importantFactSnapshot || "");
+      setQImportantFacts(targetQ.importantFact || (targetQ as any).importantFacts || report.importantFactSnapshot || "");
       setQSubjectId(targetQ.subjectId || report.subjectIdSnapshot || "");
       setQChapterId(targetQ.chapterId || report.chapterIdSnapshot || "");
       setQTopicId(targetQ.topicId || report.topicIdSnapshot || "");
@@ -282,13 +279,12 @@ export const QuestionReportDesk: React.FC<QuestionReportDeskProps> = ({
         options: qOptions.map((o) => o.trim()),
         correctIndex: qCorrectIndex,
         explanation: qExplanation.trim(),
-        importantFacts: qImportantFacts.trim(),
+        importantFact: qImportantFacts.trim() || undefined,
         subjectId: qSubjectId || undefined,
         chapterId: qChapterId || undefined,
         topicId: qTopicId || undefined,
         difficulty: qDifficulty,
         updatedAt: nowIso,
-        updated_at: nowIso,
       };
 
       // 1. Update in authoritative store
@@ -305,20 +301,18 @@ export const QuestionReportDesk: React.FC<QuestionReportDeskProps> = ({
 
       // 2. Update report status and add audit entry
       await updateReportStatus(editingReport.id, targetStatus, adminNotes.trim() || undefined, {
-        adminEmail,
-        studentUid: editingReport.studentUid,
-        studentEmail: editingReport.studentEmail,
-        questionId: editingReport.questionId,
-        questionText: qText.trim(),
+        actor: adminEmail,
+        notifyStudent,
+        updatedQuestion,
       });
 
       // 3. Notify student if checked
       if (notifyStudent && editingReport.studentUid) {
         await notifyStudentOnObjectionAction({
-          studentUid: editingReport.studentUid,
-          questionId: editingReport.questionId,
-          action: targetStatus,
+          report: editingReport,
+          status: targetStatus,
           adminNotes: adminNotes.trim(),
+          updatedQuestion,
         });
       }
 
@@ -834,7 +828,7 @@ export const QuestionReportDesk: React.FC<QuestionReportDeskProps> = ({
                         <option value="">(अपरिवर्तित रखें)</option>
                         {subjects.map((sub) => (
                           <option key={sub.id} value={sub.id}>
-                            {sub.title || sub.name}
+                            {(sub as any).title || sub.name}
                           </option>
                         ))}
                       </select>
@@ -852,7 +846,7 @@ export const QuestionReportDesk: React.FC<QuestionReportDeskProps> = ({
                         <option value="">(अपरिवर्तित रखें)</option>
                         {chapters.map((ch) => (
                           <option key={ch.id} value={ch.id}>
-                            {ch.title || ch.name}
+                            {ch.title || (ch as any).name}
                           </option>
                         ))}
                       </select>
