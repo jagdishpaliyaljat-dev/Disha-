@@ -46,6 +46,43 @@ export function saveNotifications(notifications: AppNotification[]): void {
   }
 }
 
+export const NOTIFICATIONS_UPDATED_EVENT = "disha_notifications_updated";
+
+/**
+ * Prepend a new student notification and broadcast event to subscribers.
+ */
+export function addNotification(
+  notifInput: Omit<AppNotification, "id" | "timestamp" | "read"> & Partial<Pick<AppNotification, "id" | "timestamp" | "read">>
+): AppNotification {
+  const newNotif: AppNotification = {
+    id: notifInput.id || `notif_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+    title: notifInput.title,
+    hindiTitle: notifInput.hindiTitle || notifInput.title,
+    message: notifInput.message,
+    hindiMessage: notifInput.hindiMessage || notifInput.message,
+    category: notifInput.category || "study",
+    timestamp: notifInput.timestamp || new Date().toISOString(),
+    read: notifInput.read ?? false,
+    priority: notifInput.priority || "normal",
+    actionType: notifInput.actionType || "none",
+    actionData: notifInput.actionData,
+  };
+
+  try {
+    const current = loadNotifications();
+    const updated = [newNotif, ...current.filter((n) => n.id !== newNotif.id)].slice(0, 150);
+    saveNotifications(updated);
+
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent(NOTIFICATIONS_UPDATED_EVENT, { detail: newNotif }));
+    }
+  } catch (err) {
+    console.warn("[NotificationsStorage] Error adding notification:", err);
+  }
+
+  return newNotif;
+}
+
 export function loadNotificationSettings(): NotificationSettings {
   try {
     const raw = localStorage.getItem(SETTINGS_KEY);

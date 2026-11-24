@@ -270,6 +270,19 @@ export default function App() {
     saveNotifications(next);
   }, []);
 
+  // React to live notifications from student objection resolutions & broadcasts
+  React.useEffect(() => {
+    const handleNotificationsUpdate = () => {
+      setNotifications(loadNotifications());
+    };
+    window.addEventListener("disha_notifications_updated", handleNotificationsUpdate);
+    window.addEventListener("storage", handleNotificationsUpdate);
+    return () => {
+      window.removeEventListener("disha_notifications_updated", handleNotificationsUpdate);
+      window.removeEventListener("storage", handleNotificationsUpdate);
+    };
+  }, []);
+
   // Fetch active Supabase broadcast announcements and merge for student
   React.useEffect(() => {
     let active = true;

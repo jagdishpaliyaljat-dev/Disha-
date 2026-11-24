@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { Subject, Chapter, UserQuestionsStore, UserProfile } from "../types";
 import { ConfirmDialog } from "./admin/ConfirmDialog";
-import { deleteSubject, deleteChapter, saveUserQuestionsStore, loadUserQuestionsStore } from "../utils/questionsStorage";
+import { deleteSubject, deleteChapter, saveUserQuestionsStore, loadUserQuestionsStore, editQuestionInStore } from "../utils/questionsStorage";
 import { AdminSectionLoader } from "./admin/AdminSkeletonLoaders";
 import type { SyncProgressState } from "./admin/SyncProgressModal";
 import { isUserAdmin, clearUserProfile } from "../utils/userProfileStorage";
@@ -1745,19 +1745,19 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                   {subTabUsers === "messages" && <AdminMessagesSection onBackToAdmin={() => handleSelectGroup("dashboard")} />}
                   {subTabUsers === "reports" && (
                     <QuestionReportDesk
-                      questions={props.questionsStore?.customQuestions || []}
+                      questions={getCombinedQuestions(combinedChaptersList, props.questionsStore)}
                       subjects={combinedSubjectsList}
                       chapters={combinedChaptersList}
                       onUpdateQuestion={(updatedQ) => {
-                        if (props.onStoreUpdated && props.questionsStore) {
-                          const custom = props.questionsStore.customQuestions || [];
-                          const idx = custom.findIndex(q => q.id === updatedQ.id);
-                          let updatedCustom = [...custom];
-                          if (idx !== -1) updatedCustom[idx] = updatedQ;
-                          else updatedCustom.push(updatedQ);
-                          const updatedStore: UserQuestionsStore = { ...props.questionsStore, customQuestions: updatedCustom };
-                          props.onStoreUpdated(updatedStore);
+                        if (props.questionsStore) {
+                          const updatedStore = editQuestionInStore(props.questionsStore, updatedQ);
                           saveUserQuestionsStore(updatedStore);
+                          if (props.onStoreUpdated) {
+                            props.onStoreUpdated(updatedStore);
+                          }
+                          import("../utils/supabaseSyncService").then(({ upsertQuestionsToSupabase }) => {
+                            upsertQuestionsToSupabase([updatedQ]).catch(console.warn);
+                          });
                         }
                       }}
                     />
