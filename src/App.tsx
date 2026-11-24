@@ -58,6 +58,9 @@ import { prefetchCoreRoutes } from './utils/routePrefetcher';
 import { loadSettingsFromStorage, saveSettingsToStorage, loadProgressFromStorage, saveProgressToStorage, recordStudyAnswerToHistory, loadStudyHistoryFromStorage, saveStudyHistoryToStorage, mergeRealtimeProgressDelta } from './utils/storage';
 import { loadNotifications, saveNotifications } from './utils/notificationsStorage';
 import { getTodayDateString, calculateNextProgress } from './utils/revision';
+import { AppUpdateModal } from './components/AppUpdateModal';
+import { appConfigService, GlobalAppConfig } from './utils/appConfigService';
+import { CURRENT_APP_VERSION, checkAppUpdateStatus } from './utils/versionUtils';
 import { trackPageView } from './utils/analytics';
 import { triggerHaptic } from './utils/audioFeedback';
 import { 
@@ -259,6 +262,22 @@ export default function App() {
       setActiveTab('home');
     }
   }, [activeTab, isFeatureEnabled, setActiveTab]);
+
+  // Remote App Configuration & Version Control State
+  const [appConfig, setAppConfig] = React.useState<GlobalAppConfig>(() => appConfigService.getConfig());
+  const [isUpdateDismissed, setIsUpdateDismissed] = React.useState(false);
+
+  React.useEffect(() => {
+    const unsub = appConfigService.subscribe(setAppConfig);
+    appConfigService.fetchFromCloud().then(setAppConfig).catch(() => {});
+    return unsub;
+  }, []);
+
+  const updateInfo = React.useMemo(() => {
+    return checkAppUpdateStatus(CURRENT_APP_VERSION, appConfig);
+  }, [appConfig]);
+
+  const isUpdateModalOpen = updateInfo.status !== 'UP_TO_DATE' && (updateInfo.isHardLock || !isUpdateDismissed);
 
   const [notifications, setNotifications] = React.useState<AppNotification[]>(() => loadNotifications());
   const unreadNotificationsCount = React.useMemo(() => {
@@ -2619,6 +2638,13 @@ export default function App() {
           />
         </OverlayErrorBoundary>
       )}
+
+      {/* Remote Version Control & Force Update Modal */}
+      <AppUpdateModal
+        isOpen={isUpdateModalOpen}
+        updateInfo={updateInfo}
+        onDismiss={() => setIsUpdateDismissed(true)}
+      />
 
 
 

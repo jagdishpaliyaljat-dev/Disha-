@@ -28,6 +28,16 @@ export interface SystemBroadcast {
   updatedAt: string;
 }
 
+export interface VersionControlConfig {
+  latestVersion: string;
+  minSupportedVersion: string;
+  forceUpdate: boolean;
+  downloadUrl: string;
+  releaseNotes: string;
+  title: string;
+  message: string;
+}
+
 export interface GlobalAppConfig {
   version: string;
   maintenance: MaintenanceWindow;
@@ -42,6 +52,7 @@ export interface GlobalAppConfig {
   };
   minSupportedVersion: string;
   forceUpdateUrl?: string;
+  versionControl?: VersionControlConfig;
   updatedAt: string;
   updatedBy: string;
 }
@@ -73,6 +84,15 @@ export const DEFAULT_APP_CONFIG: GlobalAppConfig = {
     pyqVaultEnabled: true,
   },
   minSupportedVersion: '1.0.0',
+  versionControl: {
+    latestVersion: '1.0.52',
+    minSupportedVersion: '1.0.51',
+    forceUpdate: false,
+    downloadUrl: 'https://github.com/jagdishpaliyaljat-dev/disha-20-20-app/releases/latest',
+    releaseNotes: '• Fixed English vocabulary audio pronunciation in MCQs\n• High performance native Speech Synthesis engine\n• Offline stability and crash safeguards',
+    title: 'New Update Available!',
+    message: 'A newer, faster version of Disha 20-20 is available with new exam features and bug fixes.',
+  },
   updatedAt: new Date().toISOString(),
   updatedBy: 'System',
 };
