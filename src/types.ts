@@ -96,6 +96,9 @@ export interface Question {
   reviewed_at?: string;
   reviewNotes?: string;
   review_notes?: string;
+  healthScore?: number;
+  healthIssues?: string[];
+  lastAuditedAt?: string;
 }
 
 export type QuestionApprovalStatus = "draft" | "pending_review" | "approved" | "rejected" | "published";

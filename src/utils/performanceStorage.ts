@@ -26,6 +26,9 @@ export function generateInitialPerformanceSeed(progressStore?: ProgressStore): P
  */
 export function loadPerformanceStore(progressStore?: ProgressStore): PerformanceStore {
   try {
+    if (typeof localStorage === "undefined" || !localStorage) {
+      return generateInitialPerformanceSeed(progressStore);
+    }
     const raw = localStorage.getItem(PERFORMANCE_STORAGE_KEY);
     if (!raw) {
       const seed = generateInitialPerformanceSeed(progressStore);
@@ -44,6 +47,7 @@ export function loadPerformanceStore(progressStore?: ProgressStore): Performance
  */
 export function savePerformanceStore(store: PerformanceStore): void {
   try {
+    if (typeof localStorage === "undefined" || !localStorage) return;
     localStorage.setItem(PERFORMANCE_STORAGE_KEY, JSON.stringify(store));
   } catch (e) {
     console.error("Failed to save performance store", e);

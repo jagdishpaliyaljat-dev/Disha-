@@ -82,6 +82,7 @@ const DuplicateQuestionsHubModal = adminSafeLazy<any>(() => import("./admin/Dupl
 const QuestionRecycleBinModal = adminSafeLazy<any>(() => import("./admin/QuestionRecycleBinModal"), "QuestionRecycleBinModal");
 const StaffManagementSection = adminSafeLazy<any>(() => import("./admin/StaffManagementSection"), "StaffManagementSection");
 const QuestionApprovalWorkflowSection = adminSafeLazy<any>(() => import("./admin/QuestionApprovalWorkflowSection"), "QuestionApprovalWorkflowSection");
+const QuestionHealthAuditor = adminSafeLazy<any>(() => import("./admin/QuestionHealthAuditor"), "QuestionHealthAuditor");
 
 interface AdminTabProps {
   userProfile: UserProfile | null;
@@ -113,6 +114,7 @@ export type AdminGroupSection =
   | "dashboard"
   | "syllabus"
   | "questions"
+  | "content-health"
   | "approval"
   | "staff"
   | "tests"
@@ -136,6 +138,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
       const h = window.location.hash;
       if (p.includes("/admin/database") || h.includes("#admin/database") || p.includes("/admin/supabase") || h.includes("#admin/supabase")) return "supabase";
       if (p.includes("/admin/news") || h.includes("#admin/news")) return "content";
+      if (p.includes("/admin/content-health") || h.includes("#admin/content-health") || p.includes("/admin/health-auditor") || h.includes("#admin/health-auditor")) return "content-health";
     }
     return "dashboard";
   });
@@ -488,6 +491,11 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
       case "questions":
         setActiveGroup("questions");
         break;
+      case "content-health":
+      case "health-auditor":
+      case "question-health":
+        setActiveGroup("content-health");
+        break;
       case "tests":
       case "live-tests":
       case "pyq":
@@ -758,6 +766,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
     if (isSuper || role === "sme_teacher" || role === "content_reviewer" || role === "admin") {
       academicItems.push({ id: "syllabus", title: "Syllabus", icon: Layers, badge: subjectCount > 0 ? `${subjectCount}` : undefined });
       academicItems.push({ id: "questions", title: "Question Bank", icon: Database, badge: questionCount > 0 ? `${questionCount}` : undefined });
+      academicItems.push({ id: "content-health", title: "Content Health Auditor", icon: Activity, badge: "AI Audit" });
       academicItems.push({ id: "tests", title: "Exams & Tests", icon: Trophy });
     }
     groups.push({ category: "Academic Engine", items: academicItems });
@@ -1301,6 +1310,17 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
               </React.Suspense>
             )}
 
+            {/* Content Health & Error Auditor Section */}
+            {activeGroup === "content-health" && (
+              <React.Suspense fallback={<AdminSectionLoader type="cards" title="Auditing Content Health & Error Scanner..." />}>
+                <QuestionHealthAuditor
+                  questionsStore={props.questionsStore}
+                  chapters={props.chapters}
+                  onStoreUpdated={props.onStoreUpdated}
+                />
+              </React.Suspense>
+            )}
+
             {/* Question Bank Section */}
             {activeGroup === "questions" && (
               <div className="space-y-5 sm:space-y-6">
@@ -1310,6 +1330,14 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                     <p className="text-xs sm:text-sm text-slate-500 font-medium">Manage thousands of MCQs and batch imports.</p>
                   </div>
                   <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                    <button
+                      onClick={() => setActiveGroup("content-health")}
+                      className="px-3.5 py-2 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white text-xs font-black rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                      title="AI-Powered Content Health & Question Error Auditor"
+                    >
+                      <Activity className="w-3.5 h-3.5" />
+                      <span>Health Auditor</span>
+                    </button>
                     <button
                       onClick={() => setShowExcelCsvImporter(true)}
                       className="px-3.5 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
@@ -1360,9 +1388,10 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5 sm:gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-9 gap-2.5 sm:gap-3">
                   {[
                     { label: "Directory", action: props.onShowManageQuestions, icon: Database, isSpecial: false },
+                    { label: "Health Auditor", action: () => setActiveGroup("content-health"), icon: Activity, isSpecial: true, specialColor: "emerald" },
                     { label: "Excel / CSV", action: () => setShowExcelCsvImporter(true), icon: FileSpreadsheet, isSpecial: true, specialColor: "emerald" },
                     { label: "AI Import", action: props.onShowAIImport, icon: Sparkles, isSpecial: true, specialColor: "amber" },
                     { label: "HTML Import", action: props.onShowHTMLImport, icon: FileCode, isSpecial: true, specialColor: "orange" },
