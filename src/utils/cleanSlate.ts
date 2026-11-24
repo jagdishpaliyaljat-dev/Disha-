@@ -445,6 +445,7 @@ export function sanitizeUserQuestionsStore(store: UserQuestionsStore): { sanitiz
       deletedChapterIds: cleanDeletedChapters,
       deletedTopicIds: cleanDeletedTopics,
       deletedQuestionIds: cleanDeletedQuestions,
+      recycleBinQuestions: (store.recycleBinQuestions || []).filter((q) => !isTestOrMockQuestion(q)),
     },
     changed,
   };

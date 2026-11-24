@@ -1579,15 +1579,15 @@ export default function App() {
     const res = await deleteQuestionFromSupabase(questionId);
     if (res.success) {
       if (res.cloudSynced) {
-        addToast('success', 'Backend Sync Success', 'Question removed from Supabase!');
+        addToast('success', 'Moved to Recycle Bin', 'Question moved to Recycle Bin (Supabase synced)!');
         const { triggerAdminToast } = await import('./utils/adminToast');
         triggerAdminToast(
           "delete",
-          "Question Removed from Supabase",
-          "The question has been deleted from Supabase database.",
+          "Question Moved to Recycle Bin",
+          "The question has been safely moved to Question Recycle Bin for recovery.",
         );
       } else {
-        addToast('info', 'Deleted Locally', res.message);
+        addToast('info', 'Moved to Recycle Bin Locally', res.message);
       }
     } else {
       addToast('error', 'Delete Error', res.message);
@@ -1605,16 +1605,16 @@ export default function App() {
     const res = await deleteQuestionsBulkFromSupabase(questionIds);
     if (res.success) {
       if (res.cloudSynced) {
-        addToast('success', 'Backend Sync Success', `${questionIds.length} question(s) removed from Supabase!`);
+        addToast('success', 'Moved to Recycle Bin', `${questionIds.length} question(s) moved to Recycle Bin!`);
         const { triggerAdminToast } = await import('./utils/adminToast');
         triggerAdminToast(
           "delete",
-          "Questions Bulk Deleted (Supabase Live)",
-          `${questionIds.length} question(s) deleted from Supabase database.`,
+          "Questions Moved to Recycle Bin",
+          `${questionIds.length} question(s) moved to Recycle Bin. You can restore them anytime.`,
           { count: questionIds.length }
         );
       } else {
-        addToast('info', 'Deleted Locally', res.message || `${questionIds.length} question(s) deleted locally.`);
+        addToast('info', 'Moved to Recycle Bin Locally', res.message || `${questionIds.length} question(s) moved to Recycle Bin.`);
       }
     } else {
       addToast('error', 'Delete Error', res.message || 'Failed to delete questions');

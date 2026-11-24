@@ -56,7 +56,8 @@ CREATE TABLE IF NOT EXISTS public.questions (
     level TEXT DEFAULT 'medium',
     verified BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW()
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    deleted_at TIMESTAMPTZ DEFAULT NULL
 );
 
 -- 5. PROFILES TABLE (Linked with Supabase Auth)
@@ -114,6 +115,7 @@ CREATE INDEX IF NOT EXISTS idx_topics_subject_id ON public.topics(subject_id);
 CREATE INDEX IF NOT EXISTS idx_questions_topic_id ON public.questions(topic_id);
 CREATE INDEX IF NOT EXISTS idx_questions_chapter_id ON public.questions(chapter_id);
 CREATE INDEX IF NOT EXISTS idx_questions_subject_id ON public.questions(subject_id);
+CREATE INDEX IF NOT EXISTS idx_questions_deleted_at ON public.questions(deleted_at);
 CREATE INDEX IF NOT EXISTS idx_attempts_user_id ON public.attempts(user_id);
 CREATE INDEX IF NOT EXISTS idx_bookmarks_user_id ON public.bookmarks(user_id);
 CREATE INDEX IF NOT EXISTS idx_contact_messages_created ON public.contact_messages(created_at DESC);
@@ -205,7 +207,7 @@ CREATE POLICY "Admin Update Topics" ON public.topics FOR UPDATE USING (public.is
 CREATE POLICY "Admin Delete Topics" ON public.topics FOR DELETE USING (public.is_admin());
 
 -- Questions
-CREATE POLICY "Public Read Questions" ON public.questions FOR SELECT USING (COALESCE(verified, true) = true OR public.is_admin());
+CREATE POLICY "Public Read Questions" ON public.questions FOR SELECT USING ((deleted_at IS NULL AND COALESCE(verified, true) = true) OR public.is_admin());
 CREATE POLICY "Admin Insert Questions" ON public.questions FOR INSERT WITH CHECK (public.is_admin());
 CREATE POLICY "Admin Update Questions" ON public.questions FOR UPDATE USING (public.is_admin()) WITH CHECK (public.is_admin());
 CREATE POLICY "Admin Delete Questions" ON public.questions FOR DELETE USING (public.is_admin());

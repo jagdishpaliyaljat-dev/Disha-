@@ -5,7 +5,7 @@ import {
   Upload, Sparkles, Menu, ChevronRight, ChevronLeft, HardDrive, Activity, Cpu, RefreshCw, Newspaper,
   Trophy, CheckCircle2, ListFilter, ChevronDown, Trash2, AlertCircle, Building2,
   FileCode, Archive, LogOut, ArrowRight, Timer, FileText, FileSpreadsheet, Home, Bot, Swords, ShieldAlert,
-  Crown
+  Crown, ArchiveRestore
 } from "lucide-react";
 import { Subject, Chapter, UserQuestionsStore, UserProfile } from "../types";
 import { ConfirmDialog } from "./admin/ConfirmDialog";
@@ -72,6 +72,7 @@ const QuestionReportDesk = adminSafeLazy<any>(() => import("./admin/QuestionRepo
 const MeritListPdfModal = adminSafeLazy<any>(() => import("./admin/MeritListPdfModal"), "MeritListPdfModal");
 const LiveBattleDashboard = adminSafeLazy<any>(() => import("./admin/LiveBattleDashboard"), "LiveBattleDashboard");
 const DuplicateQuestionsHubModal = adminSafeLazy<any>(() => import("./admin/DuplicateQuestionsHubModal"), "DuplicateQuestionsHubModal");
+const QuestionRecycleBinModal = adminSafeLazy<any>(() => import("./admin/QuestionRecycleBinModal"), "QuestionRecycleBinModal");
 
 interface AdminTabProps {
   userProfile: UserProfile | null;
@@ -142,6 +143,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
   const [showCoachingHierarchyModal, setShowCoachingHierarchyModal] = React.useState(false);
   const [showExcelCsvImporter, setShowExcelCsvImporter] = React.useState(false);
   const [showBulkDeleteModal, setShowBulkDeleteModal] = React.useState(false);
+  const [showRecycleBinModal, setShowRecycleBinModal] = React.useState(false);
   const [showMeritListModal, setShowMeritListModal] = React.useState(false);
   const [showDuplicateHubModal, setShowDuplicateHubModal] = React.useState(false);
   const [isAdminMenuOpen, setIsAdminMenuOpen] = React.useState(false);
@@ -1352,16 +1354,25 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                       <Trash2 className="w-3.5 h-3.5" />
                       <span>Bulk Delete</span>
                     </button>
+                    <button
+                      onClick={() => setShowRecycleBinModal(true)}
+                      className="px-3.5 py-2 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                      title="क्वेश्चन रीसायकल बिन - हटाये गये प्रश्नों की सूची व रीस्टोर टूल"
+                    >
+                      <ArchiveRestore className="w-3.5 h-3.5" />
+                      <span>Recycle Bin ({props.questionsStore?.recycleBinQuestions?.length || 0})</span>
+                    </button>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-2.5 sm:gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5 sm:gap-3">
                   {[
                     { label: "Directory", action: props.onShowManageQuestions, icon: Database, isSpecial: false },
                     { label: "Excel / CSV", action: () => setShowExcelCsvImporter(true), icon: FileSpreadsheet, isSpecial: true, specialColor: "emerald" },
                     { label: "AI Import", action: props.onShowAIImport, icon: Sparkles, isSpecial: true, specialColor: "amber" },
                     { label: "HTML Import", action: props.onShowHTMLImport, icon: FileCode, isSpecial: true, specialColor: "orange" },
                     { label: "Bulk Delete", action: () => setShowBulkDeleteModal(true), icon: Trash2, isSpecial: true, specialColor: "rose" },
+                    { label: "Recycle Bin", action: () => setShowRecycleBinModal(true), icon: ArchiveRestore, isSpecial: true, specialColor: "amber" },
                     { label: "Quick Add", action: () => props.onShowAddQuestions(undefined, undefined, undefined, "paste"), icon: PlusCircle, isSpecial: false },
                     { 
                       label: "Duplicates (≥90%)", 
@@ -2005,6 +2016,22 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
             chapters={combinedChaptersList}
             questionsStore={props.questionsStore}
             onBulkDeleteQuestions={props.onBulkDeleteQuestions}
+            onStoreUpdated={props.onStoreUpdated}
+            onOpenRecycleBin={() => {
+              setShowBulkDeleteModal(false);
+              setShowRecycleBinModal(true);
+            }}
+          />
+        </React.Suspense>
+      )}
+      {showRecycleBinModal && (
+        <React.Suspense fallback={null}>
+          <QuestionRecycleBinModal
+            isOpen={showRecycleBinModal}
+            onClose={() => setShowRecycleBinModal(false)}
+            subjects={combinedSubjectsList}
+            chapters={combinedChaptersList}
+            questionsStore={props.questionsStore}
             onStoreUpdated={props.onStoreUpdated}
           />
         </React.Suspense>

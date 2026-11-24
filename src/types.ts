@@ -78,6 +78,10 @@ export interface Question {
   isPYQ?: boolean;
   questionClassification?: QuestionClassification;
   examHistory?: ExamHistoryEntry[];
+  deletedAt?: string | null;
+  deleted_at?: string | null;
+  isDeleted?: boolean;
+  is_deleted?: boolean;
 }
 
 export type QuestionClassification = "pyq" | "practice" | "pyq_practice";
@@ -686,6 +690,7 @@ export interface UserQuestionsStore {
   cloudCacheQuestions?: Question[];
   syncedTopicIds?: string[];
   syncedTopicVersions?: Record<string, number>;
+  recycleBinQuestions?: Question[];
 }
 
 export interface DailyStudyRecord {

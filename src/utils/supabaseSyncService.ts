@@ -49,7 +49,8 @@ export async function fetchAllServerQuestions(): Promise<any[]> {
   try {
     const { count, error } = await supabase
       .from("questions")
-      .select("id", { count: "exact", head: true });
+      .select("id", { count: "exact", head: true })
+      .is("deleted_at", null);
 
     if (error) {
       console.warn("[supabaseSyncService] Could not get questions count:", error);
@@ -67,6 +68,7 @@ export async function fetchAllServerQuestions(): Promise<any[]> {
         supabase
           .from("questions")
           .select("id, question, options, correct_answer, explanation, subject_id, chapter_id, topic_id, exam, year, level, created_at")
+          .is("deleted_at", null)
           .order("id", { ascending: true })
           .range(from, to)
       );
@@ -599,6 +601,7 @@ export function fetchQuestionsByTopic(topicId: string): Promise<Question[]> {
         .from("questions")
         .select("id, question, options, correct_answer, explanation, subject_id, chapter_id, topic_id, exam, year, level, verified, created_at")
         .eq("topic_id", topicId)
+        .is("deleted_at", null)
         .order("id", { ascending: true });
 
       if (error) throw error;
@@ -666,6 +669,7 @@ export function fetchQuestionsByChapter(chapterId: string): Promise<Question[]> 
         .from("questions")
         .select("id, question, options, correct_answer, explanation, subject_id, chapter_id, topic_id, exam, year, level, verified, created_at")
         .eq("chapter_id", chapterId)
+        .is("deleted_at", null)
         .order("id", { ascending: true });
 
       if (error) throw error;
@@ -1190,7 +1194,8 @@ export async function upsertQuestionsToSupabase(questions: Question[]): Promise<
           year: q.year !== undefined && q.year !== null && String(q.year).trim() !== '' ? String(q.year).trim() : null,
           level: q.difficulty || 'medium',
           verified: true,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
+          deleted_at: q.deleted_at || q.deletedAt || null
         }));
 
         const { error } = await supabase.from('questions').upsert(rows, { onConflict: 'id' });
@@ -1247,7 +1252,21 @@ export async function deleteQuestionFromSupabase(questionId: string): Promise<{ 
   const existing = await idbGet<Question>(STORES.MCQS, questionId);
   const isDraft = isUserDraftOrCustom(existing || { id: questionId });
 
-  if (isDraft) {
+  // Update local IndexedDB with soft-deletion marker or clean from active set
+  if (existing) {
+    try {
+      const nowIso = new Date().toISOString();
+      await idbPut(STORES.MCQS, {
+        ...existing,
+        deletedAt: nowIso,
+        deleted_at: nowIso,
+        isDeleted: true,
+        is_deleted: true,
+      });
+      const { removeQuestionsFromCache } = await import('./questionBankCache');
+      await removeQuestionsFromCache([questionId]);
+    } catch (_) {}
+  } else if (isDraft) {
     try {
       await idbDelete(STORES.MCQS, questionId);
       const { removeQuestionsFromCache } = await import('./questionBankCache');
@@ -1259,10 +1278,15 @@ export async function deleteQuestionFromSupabase(questionId: string): Promise<{ 
   let cloudErrorMsg = '';
   if (isSupabaseConfigured()) {
     try {
-      const { error } = await supabase.from('questions').delete().eq('id', questionId);
+      const nowIso = new Date().toISOString();
+      const { error } = await supabase
+        .from('questions')
+        .update({ deleted_at: nowIso })
+        .eq('id', questionId);
+
       if (error) {
         cloudErrorMsg = error.message;
-        console.warn('[Supabase] Failed to delete question from cloud:', error);
+        console.warn('[Supabase] Failed to soft-delete question from cloud:', error);
       } else {
         cloudSynced = true;
       }
@@ -1272,25 +1296,18 @@ export async function deleteQuestionFromSupabase(questionId: string): Promise<{ 
   }
 
   if (cloudSynced) {
-    if (!isDraft) {
-      await idbDelete(STORES.MCQS, questionId);
-      try {
-        const { removeQuestionsFromCache } = await import('./questionBankCache');
-        await removeQuestionsFromCache([questionId]);
-      } catch (_) {}
-    }
     return { 
       success: true, 
       cloudSynced: true,
-      message: 'Question deleted from Supabase & local storage!' 
+      message: 'Question moved to Recycle Bin (Supabase & local cache)!' 
     };
   }
 
-  if (isDraft) {
+  if (isDraft || existing) {
     return { 
       success: true, 
       cloudSynced: false,
-      message: 'Question deleted locally! Sign in with Admin to sync deletion to cloud.' 
+      message: 'Question moved to Recycle Bin locally! Sign in with Admin to sync deletion to cloud.' 
     };
   }
 
@@ -1301,21 +1318,273 @@ export async function deleteQuestionFromSupabase(questionId: string): Promise<{ 
   };
 }
 
+export const softDeleteQuestionInSupabase = deleteQuestionFromSupabase;
+
 export async function deleteQuestionsBulkFromSupabase(questionIds: string[]): Promise<{ success: boolean; count: number; cloudSynced: boolean; message?: string }> {
   if (!questionIds || questionIds.length === 0) {
     return { success: true, count: 0, cloudSynced: true };
   }
 
   await openLocalDatabase();
-  const anyDraft = questionIds.some(id => isUserDraftOrCustom({ id }));
+  const nowIso = new Date().toISOString();
 
-  if (anyDraft) {
+  // Mark in local cache
+  try {
+    const { removeQuestionsFromCache } = await import('./questionBankCache');
+    await removeQuestionsFromCache(questionIds);
+  } catch (_) {}
+
+  let cloudSynced = false;
+  let cloudErrorMsg = '';
+  if (isSupabaseConfigured()) {
     try {
-      await idbDeleteBatch(STORES.MCQS, questionIds);
-      const { removeQuestionsFromCache } = await import('./questionBankCache');
-      await removeQuestionsFromCache(questionIds);
-    } catch (_) {}
+      const BATCH_SIZE = 100;
+      for (let i = 0; i < questionIds.length; i += BATCH_SIZE) {
+        const chunk = questionIds.slice(i, i + BATCH_SIZE);
+        const { error } = await supabase
+          .from('questions')
+          .update({ deleted_at: nowIso })
+          .in('id', chunk);
+        if (error) throw error;
+      }
+      cloudSynced = true;
+    } catch (err: any) {
+      cloudErrorMsg = err?.message || 'Cloud bulk delete error';
+    }
   }
+
+  if (cloudSynced) {
+    return { 
+      success: true, 
+      count: questionIds.length, 
+      cloudSynced: true,
+      message: `${questionIds.length} question(s) moved to Recycle Bin in Supabase!` 
+    };
+  }
+
+  return { 
+    success: true, 
+    count: questionIds.length, 
+    cloudSynced: false,
+    message: `${questionIds.length} question(s) soft-deleted locally!` 
+  };
+}
+
+export const softDeleteQuestionsBulkFromSupabase = deleteQuestionsBulkFromSupabase;
+
+/**
+ * Restores a soft-deleted question from the Supabase Recycle Bin
+ */
+export async function restoreQuestionFromSupabase(questionId: string): Promise<{ success: boolean; cloudSynced: boolean; message: string; question?: Question }> {
+  await openLocalDatabase();
+  let cloudSynced = false;
+  let cloudErrorMsg = '';
+  let restoredQuestion: Question | undefined = undefined;
+
+  if (isSupabaseConfigured()) {
+    try {
+      const { data, error } = await supabase
+        .from('questions')
+        .update({ deleted_at: null })
+        .eq('id', questionId)
+        .select()
+        .single();
+
+      if (error) {
+        cloudErrorMsg = error.message;
+        console.warn('[Supabase] Failed to restore question from cloud:', error);
+      } else {
+        cloudSynced = true;
+        if (data) {
+          restoredQuestion = {
+            id: data.id,
+            text: data.question,
+            options: Array.isArray(data.options) ? data.options : [],
+            correctIndex: data.correct_answer ?? 0,
+            explanation: data.explanation || '',
+            subjectId: data.subject_id,
+            chapterId: data.chapter_id,
+            topicId: data.topic_id,
+            exam: data.exam,
+            year: data.year,
+            difficulty: data.level || 'medium',
+            isUserAdded: false,
+            updatedAt: data.created_at,
+          };
+          await idbPut(STORES.MCQS, restoredQuestion);
+        }
+      }
+    } catch (err: any) {
+      cloudErrorMsg = err?.message || 'Cloud restore error';
+    }
+  }
+
+  // Restore locally in IndexedDB if marked as deleted
+  const existing = await idbGet<Question>(STORES.MCQS, questionId);
+  if (existing) {
+    const clean: Question = {
+      ...existing,
+      deletedAt: undefined,
+      deleted_at: undefined,
+      isDeleted: false,
+      is_deleted: false,
+    };
+    delete (clean as any).deletedAt;
+    delete (clean as any).deleted_at;
+    delete (clean as any).isDeleted;
+    delete (clean as any).is_deleted;
+    await idbPut(STORES.MCQS, clean);
+    if (!restoredQuestion) restoredQuestion = clean;
+  }
+
+  return {
+    success: cloudSynced || Boolean(existing),
+    cloudSynced,
+    message: cloudSynced
+      ? 'Question restored from Recycle Bin in Supabase!'
+      : (existing ? 'Question restored locally!' : cloudErrorMsg || 'Failed to restore question'),
+    question: restoredQuestion,
+  };
+}
+
+export const restoreQuestionInSupabase = restoreQuestionFromSupabase;
+export const restoreQuestion = restoreQuestionFromSupabase;
+
+/**
+ * Restores multiple soft-deleted questions from the Supabase Recycle Bin
+ */
+export async function restoreQuestionsBulkFromSupabase(questionIds: string[]): Promise<{ success: boolean; count: number; cloudSynced: boolean; message?: string }> {
+  if (!questionIds || questionIds.length === 0) {
+    return { success: true, count: 0, cloudSynced: true };
+  }
+
+  await openLocalDatabase();
+  let cloudSynced = false;
+  let cloudErrorMsg = '';
+
+  if (isSupabaseConfigured()) {
+    try {
+      const BATCH_SIZE = 100;
+      for (let i = 0; i < questionIds.length; i += BATCH_SIZE) {
+        const chunk = questionIds.slice(i, i + BATCH_SIZE);
+        const { data, error } = await supabase
+          .from('questions')
+          .update({ deleted_at: null })
+          .in('id', chunk)
+          .select();
+
+        if (error) throw error;
+        if (data && Array.isArray(data)) {
+          for (const row of data) {
+            const restoredQ: Question = {
+              id: row.id,
+              text: row.question,
+              options: Array.isArray(row.options) ? row.options : [],
+              correctIndex: row.correct_answer ?? 0,
+              explanation: row.explanation || '',
+              subjectId: row.subject_id,
+              chapterId: row.chapter_id,
+              topicId: row.topic_id,
+              exam: row.exam,
+              year: row.year,
+              difficulty: row.level || 'medium',
+              isUserAdded: false,
+              updatedAt: row.created_at,
+            };
+            await idbPut(STORES.MCQS, restoredQ);
+          }
+        }
+      }
+      cloudSynced = true;
+    } catch (err: any) {
+      cloudErrorMsg = err?.message || 'Cloud bulk restore error';
+    }
+  }
+
+  // Restore local IndexedDB records
+  for (const id of questionIds) {
+    const existing = await idbGet<Question>(STORES.MCQS, id);
+    if (existing) {
+      const clean: Question = {
+        ...existing,
+        deletedAt: undefined,
+        deleted_at: undefined,
+        isDeleted: false,
+        is_deleted: false,
+      };
+      delete (clean as any).deletedAt;
+      delete (clean as any).deleted_at;
+      delete (clean as any).isDeleted;
+      delete (clean as any).is_deleted;
+      await idbPut(STORES.MCQS, clean);
+    }
+  }
+
+  return {
+    success: cloudSynced || questionIds.length > 0,
+    count: questionIds.length,
+    cloudSynced,
+    message: cloudSynced
+      ? `${questionIds.length} question(s) restored from Supabase Recycle Bin!`
+      : `${questionIds.length} question(s) restored locally!`,
+  };
+}
+
+export const restoreQuestionsBulkInSupabase = restoreQuestionsBulkFromSupabase;
+
+/**
+ * Permanently deletes a single question from Supabase (hard deletion)
+ */
+export async function permanentDeleteQuestionFromSupabase(questionId: string): Promise<{ success: boolean; cloudSynced: boolean; message: string }> {
+  await openLocalDatabase();
+  try {
+    await idbDelete(STORES.MCQS, questionId);
+    const { removeQuestionsFromCache } = await import('./questionBankCache');
+    await removeQuestionsFromCache([questionId]);
+  } catch (_) {}
+
+  let cloudSynced = false;
+  let cloudErrorMsg = '';
+  if (isSupabaseConfigured()) {
+    try {
+      const { error } = await supabase.from('questions').delete().eq('id', questionId);
+      if (error) {
+        cloudErrorMsg = error.message;
+        console.warn('[Supabase] Failed to permanently delete question from cloud:', error);
+      } else {
+        cloudSynced = true;
+      }
+    } catch (err: any) {
+      cloudErrorMsg = err?.message || 'Cloud permanent deletion error';
+    }
+  }
+
+  return {
+    success: true,
+    cloudSynced,
+    message: cloudSynced
+      ? 'Question permanently deleted from Supabase & local storage!'
+      : (cloudErrorMsg ? `Deleted locally (${cloudErrorMsg})` : 'Question permanently deleted locally!'),
+  };
+}
+
+export const permanentDeleteQuestion = permanentDeleteQuestionFromSupabase;
+export const permanentDeleteQuestionInSupabase = permanentDeleteQuestionFromSupabase;
+
+/**
+ * Permanently deletes multiple questions from Supabase in bulk (hard deletion)
+ */
+export async function permanentDeleteQuestionsBulkFromSupabase(questionIds: string[]): Promise<{ success: boolean; count: number; cloudSynced: boolean; message?: string }> {
+  if (!questionIds || questionIds.length === 0) {
+    return { success: true, count: 0, cloudSynced: true };
+  }
+
+  await openLocalDatabase();
+  try {
+    await idbDeleteBatch(STORES.MCQS, questionIds);
+    const { removeQuestionsFromCache } = await import('./questionBankCache');
+    await removeQuestionsFromCache(questionIds);
+  } catch (_) {}
 
   let cloudSynced = false;
   let cloudErrorMsg = '';
@@ -1329,41 +1598,66 @@ export async function deleteQuestionsBulkFromSupabase(questionIds: string[]): Pr
       }
       cloudSynced = true;
     } catch (err: any) {
-      cloudErrorMsg = err?.message || 'Cloud bulk delete error';
+      cloudErrorMsg = err?.message || 'Cloud bulk permanent delete error';
     }
   }
 
-  if (cloudSynced) {
-    if (!anyDraft) {
-      await idbDeleteBatch(STORES.MCQS, questionIds);
-      try {
-        const { removeQuestionsFromCache } = await import('./questionBankCache');
-        await removeQuestionsFromCache(questionIds);
-      } catch (_) {}
-    }
-    return { 
-      success: true, 
-      count: questionIds.length, 
-      cloudSynced: true,
-      message: `${questionIds.length} question(s) deleted from Supabase!` 
-    };
-  }
-
-  if (anyDraft) {
-    return { 
-      success: true, 
-      count: questionIds.length, 
-      cloudSynced: false,
-      message: `${questionIds.length} question(s) deleted locally!` 
-    };
-  }
-
-  return { 
-    success: false, 
-    count: 0, 
-    cloudSynced: false,
-    message: cloudErrorMsg || 'Failed to delete questions in bulk' 
+  return {
+    success: true,
+    count: questionIds.length,
+    cloudSynced,
+    message: cloudSynced
+      ? `${questionIds.length} question(s) permanently deleted from Supabase!`
+      : (cloudErrorMsg ? `Deleted locally (${cloudErrorMsg})` : `${questionIds.length} question(s) permanently deleted locally!`),
   };
+}
+
+export const permanentDeleteQuestionsBulkInSupabase = permanentDeleteQuestionsBulkFromSupabase;
+
+/**
+ * Fetches soft-deleted questions from the Supabase Recycle Bin
+ */
+export async function fetchRecycleBinQuestionsFromSupabase(): Promise<Question[]> {
+  if (!isSupabaseConfigured()) return [];
+  try {
+    const { data, error } = await supabase
+      .from('questions')
+      .select('id, question, options, correct_answer, explanation, subject_id, chapter_id, topic_id, exam, year, level, created_at, deleted_at')
+      .not('deleted_at', 'is', null)
+      .order('deleted_at', { ascending: false })
+      .limit(500);
+
+    if (error) {
+      console.warn('[supabaseSyncService] fetchRecycleBinQuestionsFromSupabase error:', error);
+      return [];
+    }
+
+    if (data && Array.isArray(data)) {
+      return data.map(q => ({
+        id: q.id,
+        text: q.question,
+        options: Array.isArray(q.options) ? q.options : [],
+        correctIndex: q.correct_answer ?? 0,
+        explanation: q.explanation || '',
+        subjectId: q.subject_id,
+        chapterId: q.chapter_id,
+        topicId: q.topic_id,
+        exam: q.exam,
+        year: q.year,
+        difficulty: q.level || 'medium',
+        isUserAdded: false,
+        updatedAt: q.created_at,
+        deletedAt: q.deleted_at,
+        deleted_at: q.deleted_at,
+        isDeleted: true,
+        is_deleted: true,
+      }));
+    }
+    return [];
+  } catch (err) {
+    console.warn('[supabaseSyncService] fetchRecycleBinQuestionsFromSupabase exception:', err);
+    return [];
+  }
 }
 
 export interface MoveQuestionsResult {
@@ -1694,7 +1988,10 @@ export async function fetchPYQQuestionsFromSupabase(params?: {
 }): Promise<Question[]> {
   if (!isSupabaseConfigured()) return [];
   try {
-    let query = supabase.from("questions").select("id,question,options,correct_answer,explanation,subject_id,chapter_id,topic_id,exam,year,level,created_at");
+    let query = supabase
+      .from("questions")
+      .select("id,question,options,correct_answer,explanation,subject_id,chapter_id,topic_id,exam,year,level,created_at")
+      .is("deleted_at", null);
     if (params?.exam) {
       query = query.ilike("exam", `%${params.exam}%`);
     }
@@ -1737,7 +2034,10 @@ export async function fetchMockTestQuestions(params?: {
   if (!isSupabaseConfigured()) return [];
   try {
     const limit = Math.min(params?.count || 25, 100);
-    let query = supabase.from("questions").select("id,question,options,correct_answer,explanation,subject_id,chapter_id,topic_id,exam,year,level,created_at");
+    let query = supabase
+      .from("questions")
+      .select("id,question,options,correct_answer,explanation,subject_id,chapter_id,topic_id,exam,year,level,created_at")
+      .is("deleted_at", null);
     if (params?.subjectId && params.subjectId !== "all") {
       query = query.eq("subject_id", params.subjectId);
     }
@@ -1787,7 +2087,8 @@ export async function fetchPaginatedQuestions(params: {
   try {
     let query = supabase
       .from("questions")
-      .select("id, question, options, correct_answer, explanation, subject_id, chapter_id, topic_id, exam, year, level, verified, created_at", { count: "exact" });
+      .select("id, question, options, correct_answer, explanation, subject_id, chapter_id, topic_id, exam, year, level, verified, created_at", { count: "exact" })
+      .is("deleted_at", null);
 
     if (params.subjectId && params.subjectId !== "all") {
       query = query.eq("subject_id", params.subjectId);

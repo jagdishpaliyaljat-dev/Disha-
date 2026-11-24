@@ -18,6 +18,7 @@ import {
   FolderMinus,
   Sparkles,
   FileSpreadsheet,
+  ArchiveRestore,
 } from "lucide-react";
 import { Chapter, Question, Subject, UserQuestionsStore } from "../../types";
 import { getChapterDisplayName, getTopicDisplayName } from "../../utils/curriculumUtils";
@@ -50,6 +51,7 @@ interface BulkQuestionDeleteModalProps {
   questionsStore: UserQuestionsStore;
   onBulkDeleteQuestions?: (ids: string[]) => Promise<void> | void;
   onStoreUpdated?: (updatedStore: UserQuestionsStore) => void;
+  onOpenRecycleBin?: () => void;
 }
 
 export const BulkQuestionDeleteModal: React.FC<BulkQuestionDeleteModalProps> = ({
@@ -60,6 +62,7 @@ export const BulkQuestionDeleteModal: React.FC<BulkQuestionDeleteModalProps> = (
   questionsStore,
   onBulkDeleteQuestions,
   onStoreUpdated,
+  onOpenRecycleBin,
 }) => {
   // Filters
   const [selectedSubjectId, setSelectedSubjectId] = React.useState<string>("ALL");
@@ -379,8 +382,8 @@ export const BulkQuestionDeleteModal: React.FC<BulkQuestionDeleteModalProps> = (
 
       triggerAdminToast(
         "success",
-        "Bulk Deletion Successful",
-        `Permanently deleted ${idsToDelete.length} question(s) from local cache and cloud.`
+        "Moved to Recycle Bin",
+        `${idsToDelete.length} question(s) moved to Recycle Bin. You can restore them anytime from Question Recycle Bin.`
       );
 
       setSelectedIds(new Set());
@@ -420,7 +423,7 @@ export const BulkQuestionDeleteModal: React.FC<BulkQuestionDeleteModalProps> = (
         return next;
       });
 
-      triggerAdminToast("success", "Question Deleted", `Question ID ${id} deleted successfully.`);
+      triggerAdminToast("success", "Moved to Recycle Bin", `Question ID ${id} moved to Question Recycle Bin.`);
       setSingleDeleteId(null);
     } catch (err: any) {
       triggerAdminToast("error", "Delete Failed", err?.message || "Failed to delete question.");
@@ -459,6 +462,16 @@ export const BulkQuestionDeleteModal: React.FC<BulkQuestionDeleteModalProps> = (
           </div>
 
           <div className="flex items-center gap-2">
+            {onOpenRecycleBin && (
+              <button
+                onClick={onOpenRecycleBin}
+                className="px-3 py-1.5 bg-amber-50 dark:bg-amber-950/60 hover:bg-amber-100 dark:hover:bg-amber-900/60 border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                title="View Question Recycle Bin & Restore Accidentally Deleted Questions"
+              >
+                <ArchiveRestore className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Recycle Bin ({questionsStore?.recycleBinQuestions?.length || 0})</span>
+              </button>
+            )}
             <button
               onClick={onClose}
               className="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-800 dark:hover:text-white flex items-center justify-center transition-all cursor-pointer active:scale-95 shrink-0"

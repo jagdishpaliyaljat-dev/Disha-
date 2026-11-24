@@ -58,6 +58,7 @@ let inMemoryQuestionsStore: UserQuestionsStore = {
   customTopics: [],
   cloudCacheQuestions: [],
   syncedTopicIds: [],
+  recycleBinQuestions: [],
 };
 
 export function dispatchStoreUpdated(detail: any): void {
@@ -312,6 +313,7 @@ export function loadUserQuestionsStore(): UserQuestionsStore {
       cloudCacheQuestions: Array.isArray(parsed.cloudCacheQuestions) ? parsed.cloudCacheQuestions : [],
       syncedTopicIds: Array.isArray(parsed.syncedTopicIds) ? parsed.syncedTopicIds : [],
       syncedTopicVersions: parsed.syncedTopicVersions && typeof parsed.syncedTopicVersions === "object" ? parsed.syncedTopicVersions : {},
+      recycleBinQuestions: Array.isArray(parsed.recycleBinQuestions) ? parsed.recycleBinQuestions : [],
     };
 
     const { sanitized, changed } = sanitizeUserQuestionsStore(store);
@@ -1251,15 +1253,78 @@ export function getCombinedTopicsMap(chapters: Chapter[]): Record<string, Topic>
   return map;
 }
 
-// Bulk delete questions helper
+// Bulk delete questions helper (Soft Deletion with Question Recycle Bin preservation)
 export function bulkDeleteQuestions(
   store: UserQuestionsStore,
-  questionIds: string[]
+  questionIds: string[],
+  fallbackQuestionsMap?: Record<string, Question>
 ): UserQuestionsStore {
   if (!questionIds || questionIds.length === 0) return store;
   const idsToDeleteSet = new Set(questionIds);
   const existingDeletedSet = new Set(store.deletedQuestionIds || []);
   questionIds.forEach((id) => existingDeletedSet.add(id));
+
+  // Extract deleted questions to preserve in recycleBinQuestions for accidental recovery
+  const nowStr = new Date().toISOString();
+  const existingRecycleBin = store.recycleBinQuestions || [];
+  const existingRecycleBinIds = new Set(existingRecycleBin.map(q => q.id));
+
+  const questionMap = new Map<string, Question>();
+  (store.customQuestions || []).forEach(q => { if (q && q.id) questionMap.set(q.id, q); });
+  (store.cloudCacheQuestions || []).forEach(q => { if (q && q.id && !questionMap.has(q.id)) questionMap.set(q.id, q); });
+  Object.values(store.editedQuestions || {}).forEach(q => { if (q && q.id && !questionMap.has(q.id)) questionMap.set(q.id, q); });
+  (store.customTopics || []).forEach(t => {
+    (t.questions || []).forEach(q => { if (q && q.id && !questionMap.has(q.id)) questionMap.set(q.id, q); });
+  });
+  // Also collect base questions from CHAPTERS_DATA for full metadata preservation
+  (CHAPTERS_DATA || []).forEach(ch => {
+    (ch.topics || []).forEach(t => {
+      (t.questions || []).forEach(q => {
+        if (q && q.id && !questionMap.has(q.id)) {
+          questionMap.set(q.id, {
+            ...q,
+            chapterId: q.chapterId || ch.id,
+            topicId: q.topicId || t.id,
+            subjectId: q.subjectId || ch.subjectId,
+          });
+        }
+      });
+    });
+  });
+  if (fallbackQuestionsMap) {
+    Object.entries(fallbackQuestionsMap).forEach(([id, q]) => {
+      if (q && id && !questionMap.has(id)) questionMap.set(id, q);
+    });
+  }
+
+  const newlyDeletedQuestions: Question[] = [];
+  questionIds.forEach(id => {
+    if (existingRecycleBinIds.has(id)) return;
+    const original = questionMap.get(id);
+    if (original) {
+      newlyDeletedQuestions.push({
+        ...original,
+        deletedAt: nowStr,
+        deleted_at: nowStr,
+        isDeleted: true,
+        is_deleted: true,
+      });
+    } else {
+      newlyDeletedQuestions.push({
+        id,
+        text: `Question #${id}`,
+        options: [],
+        correctIndex: 0,
+        explanation: "",
+        deletedAt: nowStr,
+        deleted_at: nowStr,
+        isDeleted: true,
+        is_deleted: true,
+      });
+    }
+  });
+
+  const updatedRecycleBin = [...existingRecycleBin, ...newlyDeletedQuestions];
 
   const newCustom = (store.customQuestions || []).filter(
     (q) => !idsToDeleteSet.has(q.id)
@@ -1295,8 +1360,127 @@ export function bulkDeleteQuestions(
     customChapters: newCustomChapters,
     editedQuestions: newEdited,
     deletedQuestionIds: Array.from(existingDeletedSet),
+    recycleBinQuestions: updatedRecycleBin,
   };
 }
+
+// Single question deletion (soft delete to recycle bin)
+export function deleteQuestion(
+  store: UserQuestionsStore,
+  questionId: string,
+  fallbackQuestion?: Question
+): UserQuestionsStore {
+  const fallbackMap = fallbackQuestion ? { [questionId]: fallbackQuestion } : undefined;
+  return bulkDeleteQuestions(store, [questionId], fallbackMap);
+}
+
+// Alias for explicit soft deletion
+export const softDeleteQuestion = deleteQuestion;
+export const softDeleteQuestions = bulkDeleteQuestions;
+
+// Restore single question from Recycle Bin
+export function restoreQuestion(
+  store: UserQuestionsStore,
+  questionId: string
+): { nextStore: UserQuestionsStore; restoredQuestion: Question | null } {
+  const { nextStore, restoredQuestions } = restoreQuestionsFromRecycleBin(store, [questionId]);
+  return {
+    nextStore,
+    restoredQuestion: restoredQuestions[0] || null,
+  };
+}
+
+// Restore multiple questions from Recycle Bin
+export function restoreQuestionsFromRecycleBin(
+  store: UserQuestionsStore,
+  questionIds: string[]
+): { nextStore: UserQuestionsStore; restoredQuestions: Question[] } {
+  if (!questionIds || questionIds.length === 0) {
+    return { nextStore: store, restoredQuestions: [] };
+  }
+  const idsToRestore = new Set(questionIds);
+  const existingDeleted = new Set(store.deletedQuestionIds || []);
+  questionIds.forEach(id => existingDeleted.delete(id));
+
+  const restoredQuestions: Question[] = [];
+  const remainingRecycleBin: Question[] = [];
+
+  (store.recycleBinQuestions || []).forEach(q => {
+    if (idsToRestore.has(q.id)) {
+      const cleanQ: Question = {
+        ...q,
+        deletedAt: undefined,
+        deleted_at: undefined,
+        isDeleted: false,
+        is_deleted: false,
+      };
+      delete (cleanQ as any).deletedAt;
+      delete (cleanQ as any).deleted_at;
+      delete (cleanQ as any).isDeleted;
+      delete (cleanQ as any).is_deleted;
+      restoredQuestions.push(cleanQ);
+    } else {
+      remainingRecycleBin.push(q);
+    }
+  });
+
+  // Re-add restored questions to customQuestions (avoiding duplicates)
+  const existingCustomIds = new Set((store.customQuestions || []).map(q => q.id));
+  const newCustomQuestions = [...(store.customQuestions || [])];
+  restoredQuestions.forEach(q => {
+    if (!existingCustomIds.has(q.id)) {
+      newCustomQuestions.push(q);
+    }
+  });
+
+  const nextStore: UserQuestionsStore = {
+    ...store,
+    deletedQuestionIds: Array.from(existingDeleted),
+    recycleBinQuestions: remainingRecycleBin,
+    customQuestions: newCustomQuestions,
+  };
+
+  return { nextStore, restoredQuestions };
+}
+
+// Permanently delete single question from Recycle Bin
+export function permanentDeleteQuestion(
+  store: UserQuestionsStore,
+  questionId: string
+): UserQuestionsStore {
+  return permanentDeleteQuestionsFromRecycleBin(store, [questionId]);
+}
+
+// Permanently delete multiple questions from Recycle Bin
+export function permanentDeleteQuestionsFromRecycleBin(
+  store: UserQuestionsStore,
+  questionIds: string[]
+): UserQuestionsStore {
+  if (!questionIds || questionIds.length === 0) return store;
+  const idsToDelete = new Set(questionIds);
+  const remainingRecycleBin = (store.recycleBinQuestions || []).filter(
+    q => !idsToDelete.has(q.id)
+  );
+
+  return {
+    ...store,
+    recycleBinQuestions: remainingRecycleBin,
+  };
+}
+
+// Empty the entire Recycle Bin
+export function emptyRecycleBin(store: UserQuestionsStore): UserQuestionsStore {
+  return {
+    ...store,
+    recycleBinQuestions: [],
+  };
+}
+
+// Helper to get all recycle bin questions
+export function getRecycleBinQuestions(store: UserQuestionsStore): Question[] {
+  return store.recycleBinQuestions || [];
+}
+
 
 // Bulk move questions helper (categorization move)
 export function bulkMoveQuestions(
