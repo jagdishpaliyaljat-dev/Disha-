@@ -34,6 +34,32 @@ export interface AccuracyHeatmapSummary {
   metrics: TopicAccuracyMetric[];
 }
 
+export interface HeatmapSubjectInput {
+  id: string;
+  name?: string;
+  hindiName?: string;
+  [key: string]: any;
+}
+
+export interface HeatmapTopicInput {
+  id: string;
+  name?: string;
+  title?: string;
+  hindiTitle?: string;
+  questions?: Array<{ id: string; text?: string; [key: string]: any }>;
+  [key: string]: any;
+}
+
+export interface HeatmapChapterInput {
+  id: string;
+  subjectId?: string;
+  name?: string;
+  title?: string;
+  hindiTitle?: string;
+  topics?: HeatmapTopicInput[];
+  [key: string]: any;
+}
+
 /**
  * Classifies an accuracy percentage into a health tier:
  * - Critical (< 50%): Urgently needs question & explanation audit
@@ -51,17 +77,8 @@ export function classifyHealthTier(accuracy: number): HealthTier {
  * Tolerates empty or incomplete datasets, preventing NaN and crashes.
  */
 export function calculateTopicAccuracyMetrics(
-  subjects: Array<{ id: string; name: string }>,
-  chapters: Array<{
-    id: string;
-    subjectId: string;
-    name: string;
-    topics?: Array<{
-      id: string;
-      name: string;
-      questions?: Array<{ id: string; text?: string }>;
-    }>;
-  }>,
+  subjects: HeatmapSubjectInput[],
+  chapters: HeatmapChapterInput[],
   perfStore: Record<string, any> = {},
   attemptLogs: Array<{
     questionId?: string;
@@ -74,7 +91,9 @@ export function calculateTopicAccuracyMetrics(
 ): AccuracyHeatmapSummary {
   const subjectMap = new Map<string, string>();
   subjects.forEach((s) => {
-    if (s?.id) subjectMap.set(s.id, s.name || s.id);
+    if (s?.id) {
+      subjectMap.set(s.id, s.hindiName || s.name || s.id);
+    }
   });
 
   const metrics: TopicAccuracyMetric[] = [];
@@ -96,14 +115,14 @@ export function calculateTopicAccuracyMetrics(
 
   chapters.forEach((chapter) => {
     const chapterId = chapter?.id || "unknown-chap";
-    const chapterName = chapter?.name || "Chapter";
+    const chapterName = chapter?.hindiTitle || chapter?.title || chapter?.name || "Chapter";
     const subjectId = chapter?.subjectId || "unknown-sub";
     const subjectName = subjectMap.get(subjectId) || "Subject";
     const topics = chapter?.topics || [];
 
     topics.forEach((topic) => {
       const topicId = topic?.id || "unknown-top";
-      const topicName = topic?.name || "Topic";
+      const topicName = topic?.hindiTitle || topic?.title || topic?.name || "Topic";
       const questions = topic?.questions || [];
       const totalQuestions = questions.length;
 
