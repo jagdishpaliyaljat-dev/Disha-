@@ -3,6 +3,7 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import { validateQuestion } from "../src/lib/mcqImport/validate";
 import { processJSONImport } from "../src/lib/mcqImport";
 import { commitQuestions } from "../src/lib/mcqImport/commit";
+import { saveUserProfile } from "../src/utils/userProfileStorage";
 import * as supabaseSyncService from "../src/utils/supabaseSyncService";
 import * as localDatabaseEngine from "../src/utils/localDatabaseEngine";
 import { Question } from "../src/types";
@@ -10,15 +11,24 @@ import { Question } from "../src/types";
 describe("Bulk MCQ Import - Target Curriculum Mapping & Local DB Resilience", () => {
   beforeEach(() => {
     localStorage.clear();
-    // Set up mock admin profile
-    localStorage.setItem(
-      "disha2020_user_profile",
-      JSON.stringify({
-        email: "jagdishpaliyaljat@gmail.com",
-        isAdmin: true,
-        role: "admin",
-      })
-    );
+    // Set up authoritative admin profile
+    saveUserProfile({
+      id: "admin_test_user",
+      name: "Admin User",
+      email: "jagdishpaliyaljat@gmail.com",
+      role: "admin",
+      isAdmin: true,
+      hasFullAccess: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      targetExam: "General",
+      dailyGoal: 50,
+      streak: 1,
+      lastActiveDate: new Date().toISOString(),
+      bookmarkedQuestions: [],
+      attemptedQuestions: {},
+      isGuest: false,
+    });
   });
 
   it("marks questions as 'ready' and does not throw unmapped chapter warnings when target curriculum is explicitly provided", () => {
