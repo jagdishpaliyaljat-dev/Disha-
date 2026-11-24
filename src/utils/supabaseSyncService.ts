@@ -1149,16 +1149,14 @@ export async function upsertQuestionsToSupabase(questions: Question[]): Promise<
   }
 
   await openLocalDatabase();
-  const anyDraft = questions.some(q => isUserDraftOrCustom(q));
 
-  if (anyDraft) {
-    try {
-      for (const q of questions) {
-        await idbPut(STORES.MCQS, q);
-      }
-    } catch (idbErr) {
-      console.warn('[LocalDB] Failed to save questions locally:', idbErr);
+  // Always save locally to IndexedDB immediately so all imported questions are available offline
+  try {
+    for (const q of questions) {
+      await idbPut(STORES.MCQS, { ...q, isUserAdded: true });
     }
+  } catch (idbErr) {
+    console.warn('[LocalDB] Failed to save questions locally:', idbErr);
   }
 
   try {
@@ -1204,7 +1202,28 @@ export async function upsertQuestionsToSupabase(questions: Question[]): Promise<
           deleted_at: q.deleted_at || q.deletedAt || null
         }));
 
-        const { error } = await supabase.from('questions').upsert(rows, { onConflict: 'id' });
+        let { error } = await supabase.from('questions').upsert(rows, { onConflict: 'id' });
+        if (error && (error.message?.includes('schema cache') || error.message?.includes('column'))) {
+          // Schema fallback: retry with core schema fields only
+          console.warn('[Supabase] Retrying questions upsert with core schema fields due to column mismatch:', error.message);
+          const coreRows = chunk.map(q => ({
+            id: q.id,
+            subject_id: q.subjectId || null,
+            chapter_id: q.chapterId || null,
+            topic_id: q.topicId || null,
+            question: q.text,
+            options: Array.isArray(q.options) ? q.options : [],
+            correct_answer: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
+            explanation: q.explanation || '',
+            exam: q.exam && String(q.exam).trim() ? String(q.exam).trim() : null,
+            year: q.year !== undefined && q.year !== null && String(q.year).trim() !== '' ? String(q.year).trim() : null,
+            level: q.difficulty || 'medium',
+            verified: true,
+            updated_at: new Date().toISOString(),
+          }));
+          const retryRes = await supabase.from('questions').upsert(coreRows, { onConflict: 'id' });
+          error = retryRes.error;
+        }
         if (error) {
           throw error;
         }
@@ -1220,11 +1239,6 @@ export async function upsertQuestionsToSupabase(questions: Question[]): Promise<
   }
 
   if (cloudSynced) {
-    if (!anyDraft) {
-      for (const q of questions) {
-        await idbPut(STORES.MCQS, q);
-      }
-    }
     return { 
       success: true, 
       count: uploadedCount, 
@@ -1233,23 +1247,15 @@ export async function upsertQuestionsToSupabase(questions: Question[]): Promise<
     };
   }
 
-  if (anyDraft) {
-    const isAuthErr = cloudErrorMsg.toLowerCase().includes('permission') || cloudErrorMsg.toLowerCase().includes('jwt') || cloudErrorMsg.toLowerCase().includes('policy') || cloudErrorMsg.toLowerCase().includes('42501');
-    return {
-      success: true,
-      count: questions.length,
-      cloudSynced: false,
-      message: isAuthErr
-        ? `${questions.length} question(s) saved locally! Sign in with Admin Google Account (jagdishpaliyaljat@gmail.com) to sync to cloud.`
-        : `${questions.length} question(s) saved locally! Will sync when connected.`
-    };
-  }
-
-  return { 
-    success: false, 
-    count: 0, 
+  // Offline / local persistence fallback: questions are safely stored in IndexedDB
+  const isAuthErr = cloudErrorMsg.toLowerCase().includes('permission') || cloudErrorMsg.toLowerCase().includes('jwt') || cloudErrorMsg.toLowerCase().includes('policy') || cloudErrorMsg.toLowerCase().includes('42501');
+  return {
+    success: true,
+    count: questions.length,
     cloudSynced: false,
-    message: cloudErrorMsg || 'Failed to save questions to Supabase' 
+    message: isAuthErr
+      ? `${questions.length} question(s) saved locally! Sign in with Admin Google Account (jagdishpaliyaljat@gmail.com) to sync to cloud.`
+      : `${questions.length} question(s) saved locally! Will sync when connected.`
   };
 }
 

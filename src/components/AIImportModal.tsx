@@ -565,6 +565,8 @@ export const AIImportModal: React.FC<AIImportModalProps> = ({
     importedCount: number; 
     failedCount: number;
     batchId: string;
+    cloudSynced?: boolean;
+    message?: string;
     errors: { chunkIndex: number; error: string; affectedIds: string[] }[];
   } | null>(null);
 
@@ -783,7 +785,11 @@ export const AIImportModal: React.FC<AIImportModalProps> = ({
             ambiguousAnswerWarning: undefined,
             matchingErrorWarning: undefined,
           });
-          const validation = validateQuestion(normalized);
+          const validation = validateQuestion(normalized, 1, {
+            targetSubjectId: selectedSubjectId,
+            targetChapterId: selectedChapterId,
+            targetTopicId: selectedTopicId,
+          });
           const hash = generateQuestionHash(normalized);
           const isDup = item.isDuplicate;
           let reviewCat = validation.reviewCategory;
@@ -972,6 +978,9 @@ export const AIImportModal: React.FC<AIImportModalProps> = ({
             chapters: fetchedChapters,
             topics: allCurriculumTopics,
           },
+          targetSubjectId: selectedSubjectId,
+          targetChapterId: selectedChapterId,
+          targetTopicId: selectedTopicId,
           onProgress: (info) => {
             if (info?.message) setProcessingStatus(info.message);
           },
@@ -1085,7 +1094,19 @@ export const AIImportModal: React.FC<AIImportModalProps> = ({
             rawInput: d.rawInput,
           })),
         };
-        const parsed = processJSONImport(JSON.stringify(schemaObj), existingHashes);
+        const allCurriculumTopics = fetchedChapters.flatMap((c) =>
+          (c.topics || []).map((t) => ({ ...t, chapterId: c.id, subjectId: c.subjectId }))
+        );
+        const parsed = processJSONImport(JSON.stringify(schemaObj), existingHashes, {
+          curriculum: {
+            subjects: availableSubjects,
+            chapters: fetchedChapters,
+            topics: allCurriculumTopics,
+          },
+          targetSubjectId: selectedSubjectId,
+          targetChapterId: selectedChapterId,
+          targetTopicId: selectedTopicId,
+        });
         if (parsed.success && parsed.results.length > 0) {
           // Restore rawInput and multi-exam fields from drafts
           parsed.results.forEach((res, idx) => {
@@ -1133,7 +1154,19 @@ export const AIImportModal: React.FC<AIImportModalProps> = ({
               rawInput: rawInput,
             })),
           };
-          const parsed = processJSONImport(JSON.stringify(schemaObj), existingHashes);
+          const allCurriculumTopics = fetchedChapters.flatMap((c) =>
+          (c.topics || []).map((t) => ({ ...t, chapterId: c.id, subjectId: c.subjectId }))
+        );
+        const parsed = processJSONImport(JSON.stringify(schemaObj), existingHashes, {
+          curriculum: {
+            subjects: availableSubjects,
+            chapters: fetchedChapters,
+            topics: allCurriculumTopics,
+          },
+          targetSubjectId: selectedSubjectId,
+          targetChapterId: selectedChapterId,
+          targetTopicId: selectedTopicId,
+        });
           if (parsed.success && parsed.results.length > 0) {
             setParseResult(parsed);
             const validIds = new Set<string>();
@@ -1280,31 +1313,31 @@ export const AIImportModal: React.FC<AIImportModalProps> = ({
         let resolvedChapterId = selectedChapterId || availableChapters[0]?.id || fetchedChapters[0]?.id || "";
         let resolvedTopicId = selectedTopicId || availableTopics[0]?.id || "";
 
-        if (d.topic && allCurriculumTopics.length > 0) {
+        if (!selectedTopicId && d.topic && allCurriculumTopics.length > 0) {
           const tLower = String(d.topic).trim().toLowerCase();
           const matchT = allCurriculumTopics.find(
             (t) => (t.id && t.id.toLowerCase() === tLower) || (t.title && t.title.toLowerCase() === tLower) || (t.hindiTitle && t.hindiTitle.toLowerCase() === tLower)
           );
           if (matchT) {
             resolvedTopicId = matchT.id;
-            if (matchT.chapterId) resolvedChapterId = matchT.chapterId;
-            if (matchT.subjectId) resolvedSubjectId = matchT.subjectId;
+            if (matchT.chapterId && !selectedChapterId) resolvedChapterId = matchT.chapterId;
+            if (matchT.subjectId && (!selectedSubjectId || selectedSubjectId === "all")) resolvedSubjectId = matchT.subjectId;
           }
         }
-        if (d.chapter && fetchedChapters.length > 0) {
+        if (!selectedChapterId && d.chapter && fetchedChapters.length > 0) {
           const cLower = String(d.chapter).trim().toLowerCase();
           const matchC = fetchedChapters.find(
             (c) => (c.id && c.id.toLowerCase() === cLower) || (c.title && c.title.toLowerCase() === cLower) || (c.hindiTitle && c.hindiTitle.toLowerCase() === cLower)
           );
           if (matchC) {
             resolvedChapterId = matchC.id;
-            if (matchC.subjectId) resolvedSubjectId = matchC.subjectId;
+            if (matchC.subjectId && (!selectedSubjectId || selectedSubjectId === "all")) resolvedSubjectId = matchC.subjectId;
             if (!resolvedTopicId && matchC.topics && matchC.topics.length > 0) {
               resolvedTopicId = matchC.topics[0].id;
             }
           }
         }
-        if (d.subject && availableSubjects.length > 0) {
+        if ((!selectedSubjectId || selectedSubjectId === "all") && d.subject && availableSubjects.length > 0) {
           const sLower = String(d.subject).trim().toLowerCase();
           const matchS = availableSubjects.find(
             (s) => (s.id && s.id.toLowerCase() === sLower) || (s.name && s.name.toLowerCase() === sLower) || (s.hindiName && s.hindiName.toLowerCase() === sLower)
@@ -1481,6 +1514,8 @@ export const AIImportModal: React.FC<AIImportModalProps> = ({
           importedCount: commitResult.committedCount,
           failedCount: commitResult.failedCount,
           batchId: commitResult.batchId || batchId,
+          cloudSynced: commitResult.cloudSynced,
+          message: commitResult.message,
           errors: commitResult.batchErrors || [],
         });
         setActiveStep("summary");
@@ -2459,7 +2494,7 @@ export const AIImportModal: React.FC<AIImportModalProps> = ({
                         if (r.reviewCategory === "unsupported") return { text: "Unsupported Type", cls: "bg-purple-100 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300" };
                         if (!r.isValid || r.reviewCategory === "invalid") return { text: "Invalid Question", cls: "bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300" };
                         if (r.isDuplicate || r.reviewCategory === "duplicate") return { text: "Possible Duplicate", cls: "bg-orange-100 text-orange-700 dark:bg-orange-950/60 dark:text-orange-300" };
-                        if (r.reviewCategory === "needs_review" || r.warnings.length > 0) return { text: "Needs Review", cls: "bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300" };
+                        if (r.reviewCategory === "needs_review") return { text: "Needs Review", cls: "bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300" };
                         return { text: "Ready to Import", cls: "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400" };
                       })();
 
@@ -2960,6 +2995,11 @@ export const AIImportModal: React.FC<AIImportModalProps> = ({
                 <p className="text-xs font-bold text-slate-500">
                   Successfully imported <span className="text-emerald-600 font-black">{commitSummary.importedCount}</span> questions into the database.
                 </p>
+                {commitSummary.message && (
+                  <p className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 p-2.5 rounded-xl border border-emerald-200 dark:border-emerald-800/50 mt-2">
+                    {commitSummary.message}
+                  </p>
+                )}
               </div>
               <button
                 onClick={onClose}

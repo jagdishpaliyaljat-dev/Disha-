@@ -23,6 +23,9 @@ export interface AIRecoveryOptions {
     chapters?: any[];
     topics?: any[];
   };
+  targetSubjectId?: string;
+  targetChapterId?: string;
+  targetTopicId?: string;
   maxBatchSize?: number;
 }
 

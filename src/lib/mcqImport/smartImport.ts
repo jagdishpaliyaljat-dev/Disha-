@@ -130,7 +130,12 @@ export async function smartJSONImport(
   const initialResults: ValidatedQuestionResult[] = rawList.map((rawQ, idx) => {
     const qNum = idx + 1;
     const normalized = normalizeQuestion(rawQ);
-    const validation = validateQuestion(normalized, qNum, { curriculum: options.curriculum });
+    const validation = validateQuestion(normalized, qNum, {
+      curriculum: options.curriculum,
+      targetSubjectId: options.targetSubjectId,
+      targetChapterId: options.targetChapterId,
+      targetTopicId: options.targetTopicId,
+    });
     const hash = generateQuestionHash(normalized);
     const isDbDupe = existingHashes.has(hash);
     const isBatchDupe = !isDbDupe && Boolean(normalized.question?.trim()) && seenBatchHashes.has(hash);

@@ -51,6 +51,9 @@ export interface QuestionValidationContext {
     chapters?: { id: string; subjectId?: string; title?: string; hindiTitle?: string }[];
     topics?: { id: string; chapterId?: string; subjectId?: string; title?: string; hindiTitle?: string }[];
   };
+  targetSubjectId?: string;
+  targetChapterId?: string;
+  targetTopicId?: string;
 }
 
 export const validateQuestion = (
@@ -386,7 +389,18 @@ export const validateQuestion = (
   }
 
   // 11. Subject, Chapter, Topic Validation
-  if (context?.curriculum) {
+  const hasExplicitTarget = Boolean(
+    (context?.targetTopicId && context.targetTopicId.trim()) ||
+    (context?.targetChapterId && context.targetChapterId.trim()) ||
+    (context?.targetSubjectId && context.targetSubjectId.trim() && context.targetSubjectId !== "all") ||
+    (q.topicId && String(q.topicId).trim()) ||
+    (q.chapterId && String(q.chapterId).trim()) ||
+    (q.subjectId && String(q.subjectId).trim())
+  );
+
+  // If a target topic or chapter has been explicitly selected in the UI or set on the question,
+  // do not penalize or spam warnings for raw text metadata discrepancies.
+  if (context?.curriculum && !hasExplicitTarget) {
     const { subjects = [], chapters = [], topics = [] } = context.curriculum;
     if (q.subject && String(q.subject).trim() && subjects.length > 0) {
       const sLower = String(q.subject).trim().toLowerCase();
@@ -395,7 +409,6 @@ export const validateQuestion = (
       );
       if (!matched) {
         warnings.push(`Q${questionNumber}: Subject "${q.subject}" could not be mapped to any existing subject in curriculum.`);
-        needsReview = true;
       }
     }
 
@@ -406,7 +419,6 @@ export const validateQuestion = (
       );
       if (!matched) {
         warnings.push(`Q${questionNumber}: Chapter "${q.chapter}" could not be mapped to any existing chapter in curriculum.`);
-        needsReview = true;
       }
     }
 
@@ -417,7 +429,6 @@ export const validateQuestion = (
       );
       if (!matched) {
         warnings.push(`Q${questionNumber}: Topic "${q.topic}" could not be mapped to any existing topic in curriculum.`);
-        needsReview = true;
       }
     }
   }

@@ -55,7 +55,10 @@ export class UniversalSmartParser {
           isPYQ: q.isPYQ,
           rawInput: q.rawInput || trimmed,
         });
-        const validation = validateQuestion(normalized, idx + 1);
+        const validation = validateQuestion(normalized, idx + 1, {
+          targetChapterId: q.chapterId || chapterId,
+          targetTopicId: q.topicId || topicId,
+        });
 
         return {
           ...normalized,
@@ -112,7 +115,10 @@ export class UniversalSmartParser {
                 : (q as any).answer || "",
             rawInput: trimmed,
           });
-          const validation = validateQuestion(normalized, idx + 1);
+          const validation = validateQuestion(normalized, idx + 1, {
+          targetChapterId: q.chapterId || chapterId,
+          targetTopicId: q.topicId || topicId,
+        });
 
           return {
             ...normalized,
@@ -162,7 +168,10 @@ export class UniversalSmartParser {
 
     return rawQuestions.map((q: any, idx: number) => {
       const normalized = normalizeQuestion(q);
-      const validation = validateQuestion(normalized, idx + 1);
+      const validation = validateQuestion(normalized, idx + 1, {
+        targetChapterId: chapterId,
+        targetTopicId: topicId,
+      });
 
       return {
         ...normalized,

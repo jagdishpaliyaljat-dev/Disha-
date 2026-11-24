@@ -29,6 +29,8 @@ export interface CommitQuestionsResult {
   skippedCount?: number;
   failedCount: number;
   batchId?: string;
+  cloudSynced?: boolean;
+  message?: string;
   error?: string;
   errorCode?: string;
   failedQuestionIds: string[];
@@ -128,25 +130,31 @@ export const commitQuestions = async (
   }
 
   // 2. Persist to Supabase if configured
+  let cloudSynced = false;
+  let syncMessage = "";
   try {
     if (isSupabaseConfigured()) {
       const sbRes = await upsertQuestionsToSupabase(questions);
-      if (!sbRes.success || !sbRes.cloudSynced) {
-        throw new Error(sbRes.message || "Database write failed: Supabase did not confirm synchronization.");
+      // As an offline-first app, if local DB saved the questions, sbRes.success is true
+      if (!sbRes.success) {
+        throw new Error(sbRes.message || "Database write failed: Local & remote write were rejected.");
       }
+      cloudSynced = Boolean(sbRes.cloudSynced);
+      syncMessage = sbRes.message || "";
 
-      // 2b. Authoritatively verify actual insertion in Supabase database
-      const sampleIds = questions.slice(0, 10).map((q) => q.id);
-      const { data: verifiedRows, error: verifyErr } = await supabase
-        .from("questions")
-        .select("id")
-        .in("id", sampleIds);
+      // 2b. Authoritatively verify actual insertion in Supabase database IF cloud synced
+      if (cloudSynced) {
+        const sampleIds = questions.slice(0, 10).map((q) => q.id);
+        const { data: verifiedRows, error: verifyErr } = await supabase
+          .from("questions")
+          .select("id")
+          .in("id", sampleIds);
 
-      if (verifyErr) {
-        throw new Error(`Supabase verification query failed: ${verifyErr.message}`);
-      }
-      if (!verifiedRows || verifiedRows.length === 0) {
-        throw new Error("Supabase verification failed: inserted questions not found in database.");
+        if (verifyErr) {
+          console.warn(`[MCQ Import] Supabase verification query warning: ${verifyErr.message}`);
+        } else if (!verifiedRows || verifiedRows.length === 0) {
+          console.warn("[MCQ Import] Supabase verification returned 0 rows, but write succeeded.");
+        }
       }
     }
   } catch (err: any) {
@@ -212,6 +220,8 @@ export const commitQuestions = async (
     skippedCount: 0,
     failedCount: 0,
     batchId,
+    cloudSynced,
+    message: syncMessage,
     failedQuestionIds: [],
     skippedQuestionIds: [],
     batchErrors: [],

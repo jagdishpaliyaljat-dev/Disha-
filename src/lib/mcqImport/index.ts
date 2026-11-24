@@ -428,6 +428,9 @@ export function processJSONImport(
       chapters?: any[];
       topics?: any[];
     };
+    targetSubjectId?: string;
+    targetChapterId?: string;
+    targetTopicId?: string;
     maxBatchSize?: number;
   }
 ): {
@@ -532,7 +535,12 @@ export function processJSONImport(
     const hasNormTable = normKeysObj.includes("table") || normKeysObj.includes("tableData") || normKeysObj.includes("matchTable");
     const normKeysStr = hasNormTable ? normKeysObj.join(", ") : `${normKeysObj.join(", ")}, NO TABLE KEY`;
 
-    const validation = validateQuestion(normalized, qNum, { curriculum: options?.curriculum });
+    const validation = validateQuestion(normalized, qNum, {
+      curriculum: options?.curriculum,
+      targetSubjectId: options?.targetSubjectId,
+      targetChapterId: options?.targetChapterId,
+      targetTopicId: options?.targetTopicId,
+    });
     const hash = generateQuestionHash(normalized);
     const isDbDupe = existingHashes.has(hash);
     const isBatchDupe = !isDbDupe && Boolean(normalized.question?.trim()) && seenBatchHashes.has(hash);
