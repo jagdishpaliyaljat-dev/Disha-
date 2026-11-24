@@ -36,6 +36,7 @@ import {
   UserActivitySummary 
 } from "../../utils/userManagementStorage";
 import { isSuperAdmin, loadUserProfile } from "../../utils/userProfileStorage";
+import { ROLE_CONFIGS, getStaffRole } from "../../utils/rbac";
 import { CardGridSkeleton } from "./AdminSkeletonLoaders";
 
 interface AdminUserManagementSectionProps {
@@ -96,9 +97,9 @@ const UserDetailView: React.FC<{
                 <span className="px-2.5 py-0.5 rounded text-[10px] font-black uppercase tracking-tight bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1">
                   <Crown className="w-3 h-3 text-amber-600" /> Super Admin
                 </span>
-              ) : user.role === 'admin' ? (
-                <span className="px-2.5 py-0.5 rounded text-[10px] font-black uppercase tracking-tight bg-indigo-100 text-indigo-700 border border-indigo-200 flex items-center gap-1">
-                  <ShieldCheck className="w-3 h-3 text-indigo-600" /> Admin
+              ) : user.role && user.role !== "student" && user.role !== "user" ? (
+                <span className={`px-2.5 py-0.5 rounded text-[10px] font-black uppercase tracking-tight border flex items-center gap-1 ${ROLE_CONFIGS[getStaffRole(user)]?.badgeBg || "bg-indigo-100"} ${ROLE_CONFIGS[getStaffRole(user)]?.badgeText || "text-indigo-700"} ${ROLE_CONFIGS[getStaffRole(user)]?.badgeBorder || "border-indigo-200"}`}>
+                  <ShieldCheck className="w-3 h-3" /> {ROLE_CONFIGS[getStaffRole(user)]?.label || user.role}
                 </span>
               ) : (
                 <span className="px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-tight bg-slate-100 text-slate-600 border border-slate-200">
@@ -721,9 +722,9 @@ export const AdminUserManagementSection: React.FC<AdminUserManagementSectionProp
                         <span className="px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-tight bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1">
                           <Crown className="w-2.5 h-2.5 text-amber-600" /> Super Admin
                         </span>
-                      ) : user.role === 'admin' ? (
-                        <span className="px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-tight bg-indigo-100 text-indigo-700 border border-indigo-200 flex items-center gap-1">
-                          <ShieldCheck className="w-2.5 h-2.5 text-indigo-600" /> Admin
+                      ) : user.role && user.role !== "student" && user.role !== "user" ? (
+                        <span className={`px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-tight border flex items-center gap-1 ${ROLE_CONFIGS[getStaffRole(user)]?.badgeBg || "bg-indigo-100"} ${ROLE_CONFIGS[getStaffRole(user)]?.badgeText || "text-indigo-700"} ${ROLE_CONFIGS[getStaffRole(user)]?.badgeBorder || "border-indigo-200"}`}>
+                          <ShieldCheck className="w-2.5 h-2.5" /> {ROLE_CONFIGS[getStaffRole(user)]?.shortLabel || user.role}
                         </span>
                       ) : (
                         <span className="px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-tight bg-slate-100 text-slate-600 border border-slate-200">

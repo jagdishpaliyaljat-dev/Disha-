@@ -1312,6 +1312,8 @@ export function bulkDeleteQuestions(
     } else {
       newlyDeletedQuestions.push({
         id,
+        topicId: "custom",
+        chapterId: "custom",
         text: `Question #${id}`,
         options: [],
         correctIndex: 0,

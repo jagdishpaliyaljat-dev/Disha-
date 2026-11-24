@@ -1194,6 +1194,12 @@ export async function upsertQuestionsToSupabase(questions: Question[]): Promise<
           year: q.year !== undefined && q.year !== null && String(q.year).trim() !== '' ? String(q.year).trim() : null,
           level: q.difficulty || 'medium',
           verified: true,
+          approval_status: q.approvalStatus || (q as any).approval_status || 'published',
+          submitted_by: q.submittedBy || (q as any).submitted_by || null,
+          submitted_at: q.submittedAt || (q as any).submitted_at || null,
+          reviewed_by: q.reviewedBy || (q as any).reviewed_by || null,
+          reviewed_at: q.reviewedAt || (q as any).reviewed_at || null,
+          review_notes: q.reviewNotes || (q as any).review_notes || null,
           updated_at: new Date().toISOString(),
           deleted_at: q.deleted_at || q.deletedAt || null
         }));
@@ -1898,12 +1904,14 @@ export async function fetchUserProfileFromSupabase(userId?: string): Promise<any
 
     const { data, error } = await supabase
       .from("profiles")
-      .select("id,email,display_name,photo_url,role,is_premium,premium_plan,premium_until,created_at,updated_at")
+      .select("id,email,display_name,photo_url,role,staff_role,staff_status,staff_permissions,assigned_subjects,is_premium,premium_plan,premium_until,created_at,updated_at")
       .eq("id", uid)
       .maybeSingle();
 
     if (error) throw error;
     if (!data) return null;
+
+    const staffRole = data.staff_role || (data.role === "admin" ? "admin" : "student");
 
     return {
       id: data.id,
@@ -1912,7 +1920,11 @@ export async function fetchUserProfileFromSupabase(userId?: string): Promise<any
       name: data.display_name || "Student",
       displayName: data.display_name || "Student",
       photoURL: data.photo_url || "",
-      role: data.role || "student",
+      role: staffRole,
+      staffRole: data.staff_role,
+      staffStatus: data.staff_status || "active",
+      staffPermissions: data.staff_permissions,
+      assignedSubjects: data.assigned_subjects,
       isPremium: Boolean(data.is_premium),
       premiumPlan: data.premium_plan || undefined,
       premiumUntil: data.premium_until || undefined,
@@ -1944,24 +1956,31 @@ export async function syncUserProfileToSupabase(profile: any): Promise<boolean> 
     const isSuper = isSuperAdmin(userEmail) || isSuperAdmin(uid);
 
     let assignedRole: "admin" | "student" = "student";
+    let staffRole: string = profile.staffRole || profile.role || "student";
+
     if (isSuper && hasValidSession) {
       assignedRole = "admin";
+      staffRole = "super_admin";
     } else if (hasValidSession) {
-      // Check existing row in profiles table so we never demote an admin promoted by Super Admin!
+      // Check existing row in profiles table so we never demote a staff member promoted by Super Admin!
       const { data: existingRow } = await supabase
         .from("profiles")
-        .select("role")
+        .select("role, staff_role")
         .eq("id", uid)
         .maybeSingle();
 
-      if (existingRow?.role === "admin" || profile.role === "admin") {
-        assignedRole = "admin";
+      const existingRole = existingRow?.staff_role || existingRow?.role || profile.staffRole || profile.role;
+      if (existingRole && ["super_admin", "admin", "sme_teacher", "content_reviewer", "support_agent"].includes(existingRole)) {
+        staffRole = existingRole;
+        assignedRole = (existingRole === "super_admin" || existingRole === "admin") ? "admin" : "student";
       } else {
         assignedRole = "student";
+        staffRole = "student";
       }
     } else {
       // Unauthenticated / guest student profiles are strictly assigned 'student' role
       assignedRole = "student";
+      staffRole = "student";
     }
 
     const { error } = await supabase.from("profiles").upsert({
@@ -1970,6 +1989,7 @@ export async function syncUserProfileToSupabase(profile: any): Promise<boolean> 
       display_name: profile.name || profile.displayName || session?.user?.user_metadata?.full_name || "Student",
       photo_url: profile.photoURL || session?.user?.user_metadata?.avatar_url || session?.user?.user_metadata?.picture || null,
       role: assignedRole,
+      staff_role: staffRole,
       status: profile.status || "active",
       updated_at: new Date().toISOString()
     }, { onConflict: "id" });

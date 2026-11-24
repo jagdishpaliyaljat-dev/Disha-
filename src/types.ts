@@ -69,8 +69,10 @@ export interface Question {
   rawInput?: string;
   subject?: string;
   chapter?: string;
+  chapterTitle?: string;
   section?: string;
   topic?: string;
+  topicTitle?: string;
   year?: string | number;
   exam?: string;
   examName?: string;
@@ -82,7 +84,21 @@ export interface Question {
   deleted_at?: string | null;
   isDeleted?: boolean;
   is_deleted?: boolean;
+  approvalStatus?: QuestionApprovalStatus;
+  approval_status?: QuestionApprovalStatus;
+  submittedBy?: string;
+  submitted_by?: string;
+  submittedAt?: string;
+  submitted_at?: string;
+  reviewedBy?: string;
+  reviewed_by?: string;
+  reviewedAt?: string;
+  reviewed_at?: string;
+  reviewNotes?: string;
+  review_notes?: string;
 }
+
+export type QuestionApprovalStatus = "draft" | "pending_review" | "approved" | "rejected" | "published";
 
 export type QuestionClassification = "pyq" | "practice" | "pyq_practice";
 
@@ -721,6 +737,41 @@ export interface AppBanner {
   updatedAt?: string;
 }
 
+export type StaffRole = 
+  | "super_admin" 
+  | "admin" 
+  | "sme_teacher" 
+  | "content_reviewer" 
+  | "support_agent" 
+  | "student" 
+  | "user";
+
+export type StaffStatus = "active" | "suspended" | "invited";
+
+export type PermissionAction = 
+  | "view" 
+  | "create" 
+  | "edit" 
+  | "delete" 
+  | "approve" 
+  | "publish" 
+  | "export" 
+  | "manage";
+
+export type PermissionResource = 
+  | "curriculum" 
+  | "questions" 
+  | "question_approval" 
+  | "tests" 
+  | "content" 
+  | "users" 
+  | "support" 
+  | "staff" 
+  | "system_settings" 
+  | "database" 
+  | "audit_logs" 
+  | "export";
+
 export interface UserProfile {
   id: string;
   name: string;
@@ -729,9 +780,16 @@ export interface UserProfile {
   email?: string;
   photoURL?: string;
   avatar?: string;
-  role: "admin" | "student" | "user";
+  role: "admin" | "student" | "user" | StaffRole;
+  staffRole?: StaffRole;
+  staffStatus?: StaffStatus;
+  staffPermissions?: Partial<Record<PermissionResource, PermissionAction[]>>;
+  assignedSubjects?: string[];
+  invitedBy?: string;
+  invitedAt?: string;
+  lastActiveAt?: string;
   blocked?: boolean;
-  status?: "active" | "inactive" | "blocked";
+  status?: "active" | "inactive" | "blocked" | "suspended";
   targetExam?: string;
   dailyGoalQuestions?: number;
   streakDays?: number;
@@ -744,11 +802,59 @@ export interface UserProfile {
   premiumUntil?: string;
 }
 
+export interface StaffMember {
+  id: string;
+  email: string;
+  name: string;
+  displayName?: string;
+  avatar?: string;
+  photoURL?: string;
+  role: StaffRole;
+  status: StaffStatus;
+  permissions?: Partial<Record<PermissionResource, PermissionAction[]>>;
+  assignedSubjects?: string[];
+  invitedBy?: string;
+  invitedByName?: string;
+  invitedAt?: string;
+  lastActiveAt?: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface StaffInvitation {
+  id: string;
+  email: string;
+  name?: string;
+  role: StaffRole;
+  permissions?: Partial<Record<PermissionResource, PermissionAction[]>>;
+  assignedSubjects?: string[];
+  token: string;
+  invitedBy: string;
+  invitedByName?: string;
+  status: "pending" | "accepted" | "expired" | "revoked";
+  createdAt: string;
+  expiresAt: string;
+}
+
+export interface StaffAuditLog {
+  id: string;
+  actorId: string;
+  actorEmail: string;
+  actorRole: StaffRole;
+  action: string;
+  resourceType: PermissionResource | string;
+  resourceId?: string;
+  details?: Record<string, any>;
+  ipAddress?: string;
+  timestamp: string;
+  createdAt?: string;
+}
+
 export interface AdminAuditLog {
   id: string;
   adminId: string;
   adminEmail: string;
-  action: "activate_account" | "deactivate_account" | "block_user" | "unblock_user" | "delete_user" | "update_role" | "bulk_import" | "delete_subject" | "update_banner";
+  action: "activate_account" | "deactivate_account" | "block_user" | "unblock_user" | "delete_user" | "update_role" | "bulk_import" | "delete_subject" | "update_banner" | string;
   targetUserId: string;
   targetUserEmail?: string;
   targetUserName?: string;

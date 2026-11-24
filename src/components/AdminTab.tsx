@@ -5,7 +5,7 @@ import {
   Upload, Sparkles, Menu, ChevronRight, ChevronLeft, HardDrive, Activity, Cpu, RefreshCw, Newspaper,
   Trophy, CheckCircle2, ListFilter, ChevronDown, Trash2, AlertCircle, Building2,
   FileCode, Archive, LogOut, ArrowRight, Timer, FileText, FileSpreadsheet, Home, Bot, Swords, ShieldAlert,
-  Crown, ArchiveRestore
+  Crown, ArchiveRestore, FileCheck, GraduationCap, Headphones
 } from "lucide-react";
 import { Subject, Chapter, UserQuestionsStore, UserProfile } from "../types";
 import { ConfirmDialog } from "./admin/ConfirmDialog";
@@ -13,6 +13,13 @@ import { deleteSubject, deleteChapter, saveUserQuestionsStore, loadUserQuestions
 import { AdminSectionLoader } from "./admin/AdminSkeletonLoaders";
 import type { SyncProgressState } from "./admin/SyncProgressModal";
 import { isUserAdmin, clearUserProfile } from "../utils/userProfileStorage";
+import { 
+  ROLE_CONFIGS, 
+  getStaffRole, 
+  isSuperAdminRole, 
+  isStaffUser, 
+  hasPermission 
+} from "../utils/rbac";
 import { getTotalDisplayCount, getCombinedSubjects, getCombinedChapters, getCombinedQuestions } from "../utils/questionsStorage";
 import { loadLocalPYQPapers, getDeletedPYQIds } from "../utils/pyqStorage";
 import { loadLocalLiveTests, getDeletedLiveTestIds } from "../utils/liveTestStorage";
@@ -73,6 +80,8 @@ const MeritListPdfModal = adminSafeLazy<any>(() => import("./admin/MeritListPdfM
 const LiveBattleDashboard = adminSafeLazy<any>(() => import("./admin/LiveBattleDashboard"), "LiveBattleDashboard");
 const DuplicateQuestionsHubModal = adminSafeLazy<any>(() => import("./admin/DuplicateQuestionsHubModal"), "DuplicateQuestionsHubModal");
 const QuestionRecycleBinModal = adminSafeLazy<any>(() => import("./admin/QuestionRecycleBinModal"), "QuestionRecycleBinModal");
+const StaffManagementSection = adminSafeLazy<any>(() => import("./admin/StaffManagementSection"), "StaffManagementSection");
+const QuestionApprovalWorkflowSection = adminSafeLazy<any>(() => import("./admin/QuestionApprovalWorkflowSection"), "QuestionApprovalWorkflowSection");
 
 interface AdminTabProps {
   userProfile: UserProfile | null;
@@ -104,6 +113,8 @@ export type AdminGroupSection =
   | "dashboard"
   | "syllabus"
   | "questions"
+  | "approval"
+  | "staff"
   | "tests"
   | "content"
   | "users"
@@ -686,146 +697,116 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
     }, 0);
   }, [combinedChaptersList]);
 
-  // Nav Groups definition mapping to the requested professional structure
+  // Nav Groups definition mapping to the requested professional structure with RBAC filtering
   const navGroupItems: {
     id: AdminGroupSection;
     title: string;
     icon: any;
     badge?: string;
-  }[] = React.useMemo(() => [
-    {
-      id: "dashboard",
-      title: "Overview",
-      icon: LayoutDashboard,
-    },
-    {
-      id: "syllabus",
-      title: "Syllabus",
-      icon: Layers,
-      badge: `${subjectCount}`,
-    },
-    {
-      id: "questions",
-      title: "Question Bank",
-      icon: Database,
-      badge: `${questionCount}`,
-    },
-    {
-      id: "tests",
-      title: "Exams & Tests",
-      icon: Trophy,
-    },
-    {
-      id: "content",
-      title: "News & Banners",
-      icon: Newspaper,
-    },
-    {
-      id: "users",
-      title: "Students & Doubts",
-      icon: Users,
-    },
-    {
-      id: "supabase",
-      title: "Supabase Database",
-      icon: HardDrive,
-      badge: "PG",
-    },
-    {
-      id: "integrations",
-      title: "Disha AI & APIs",
-      icon: Bot,
-      badge: "AI",
-    },
-    {
-      id: "backup",
-      title: "Backup & Restore",
-      icon: Archive,
-    },
-    {
-      id: "settings",
-      title: "System Settings",
-      icon: Settings,
-    },
-  ], [subjectCount, questionCount]);
+  }[] = React.useMemo(() => {
+    const isSuper = isSuperAdminRole(props.userProfile);
+    const role = getStaffRole(props.userProfile);
+    const items: { id: AdminGroupSection; title: string; icon: any; badge?: string }[] = [
+      { id: "dashboard", title: "Overview", icon: LayoutDashboard },
+    ];
 
-  const categorizedNavGroups = React.useMemo(() => [
-    {
-      category: "Academic Engine",
-      items: [
-        {
-          id: "dashboard" as AdminGroupSection,
-          title: "Overview",
-          icon: LayoutDashboard,
-        },
-        {
-          id: "syllabus" as AdminGroupSection,
-          title: "Syllabus",
-          icon: Layers,
-          badge: subjectCount > 0 ? `${subjectCount}` : undefined,
-        },
-        {
-          id: "questions" as AdminGroupSection,
-          title: "Question Bank",
-          icon: Database,
-          badge: questionCount > 0 ? `${questionCount}` : undefined,
-        },
-        {
-          id: "tests" as AdminGroupSection,
-          title: "Exams & Tests",
-          icon: Trophy,
-        },
-      ],
-    },
-    {
-      category: "Community & Editorial",
-      items: [
-        {
-          id: "content" as AdminGroupSection,
-          title: "News & Banners",
-          icon: Newspaper,
-        },
-        {
-          id: "users" as AdminGroupSection,
-          title: "Students & Doubts",
-          icon: Users,
-        },
-      ],
-    },
-    {
-      category: "Cloud & System Platform",
-      items: [
-        {
-          id: "supabase" as AdminGroupSection,
-          title: "Supabase Cloud",
-          icon: HardDrive,
-          badge: "PG",
-        },
-        {
-          id: "crashes" as AdminGroupSection,
-          title: "Crash Reports",
-          icon: ShieldAlert,
-          badge: "Live",
-        },
-        {
-          id: "integrations" as AdminGroupSection,
-          title: "Disha AI & APIs",
-          icon: Bot,
-          badge: "AI",
-        },
-        {
-          id: "backup" as AdminGroupSection,
-          title: "Backup & Restore",
-          icon: Archive,
-        },
-        {
-          id: "settings" as AdminGroupSection,
-          title: "System Settings",
-          icon: Settings,
-        },
-      ],
-    },
-  ], [subjectCount, questionCount]);
+    if (isSuper || role === "content_reviewer" || role === "sme_teacher" || role === "admin") {
+      items.push({ id: "approval", title: "Review Queue", icon: FileCheck, badge: "QA" });
+    }
+    if (isSuper || role === "sme_teacher" || role === "content_reviewer" || role === "admin") {
+      items.push({ id: "syllabus", title: "Syllabus", icon: Layers, badge: subjectCount > 0 ? `${subjectCount}` : undefined });
+      items.push({ id: "questions", title: "Question Bank", icon: Database, badge: questionCount > 0 ? `${questionCount}` : undefined });
+      items.push({ id: "tests", title: "Exams & Tests", icon: Trophy });
+    }
+    if (isSuper || role === "content_reviewer" || role === "admin") {
+      items.push({ id: "content", title: "News & Banners", icon: Newspaper });
+    }
+    if (isSuper || role === "support_agent" || role === "admin") {
+      items.push({ id: "users", title: "Students & Doubts", icon: Users });
+    }
+    if (isSuper || role === "admin") {
+      items.push({ id: "staff", title: "Staff & RBAC", icon: ShieldCheck, badge: "RBAC" });
+      items.push({ id: "supabase", title: "Supabase DB", icon: HardDrive, badge: "PG" });
+      items.push({ id: "integrations", title: "Disha AI", icon: Bot, badge: "AI" });
+      items.push({ id: "backup", title: "Backup & Restore", icon: Archive });
+      items.push({ id: "settings", title: "System Settings", icon: Settings });
+    }
+    return items;
+  }, [subjectCount, questionCount, props.userProfile]);
+
+  const categorizedNavGroups = React.useMemo(() => {
+    const isSuper = isSuperAdminRole(props.userProfile);
+    const role = getStaffRole(props.userProfile);
+
+    const groups: {
+      category: string;
+      items: {
+        id: AdminGroupSection;
+        title: string;
+        icon: any;
+        badge?: string;
+      }[];
+    }[] = [];
+
+    // Academic Engine
+    const academicItems: { id: AdminGroupSection; title: string; icon: any; badge?: string }[] = [
+      { id: "dashboard", title: "Overview", icon: LayoutDashboard },
+    ];
+    if (isSuper || role === "content_reviewer" || role === "sme_teacher" || role === "admin") {
+      academicItems.push({ id: "approval", title: "Review Queue", icon: FileCheck, badge: "QA" });
+    }
+    if (isSuper || role === "sme_teacher" || role === "content_reviewer" || role === "admin") {
+      academicItems.push({ id: "syllabus", title: "Syllabus", icon: Layers, badge: subjectCount > 0 ? `${subjectCount}` : undefined });
+      academicItems.push({ id: "questions", title: "Question Bank", icon: Database, badge: questionCount > 0 ? `${questionCount}` : undefined });
+      academicItems.push({ id: "tests", title: "Exams & Tests", icon: Trophy });
+    }
+    groups.push({ category: "Academic Engine", items: academicItems });
+
+    // Community & Editorial
+    const communityItems: { id: AdminGroupSection; title: string; icon: any; badge?: string }[] = [];
+    if (isSuper || role === "content_reviewer" || role === "admin") {
+      communityItems.push({ id: "content", title: "News & Banners", icon: Newspaper });
+    }
+    if (isSuper || role === "support_agent" || role === "admin") {
+      communityItems.push({ id: "users", title: "Students & Doubts", icon: Users });
+    }
+    if (communityItems.length > 0) {
+      groups.push({ category: "Community & Editorial", items: communityItems });
+    }
+
+    // Team & Security (Governance)
+    if (isSuper || role === "admin") {
+      groups.push({
+        category: "Team & Security",
+        items: [
+          { id: "staff", title: "Staff & RBAC", icon: ShieldCheck, badge: "RBAC" },
+        ],
+      });
+    }
+
+    // Cloud & System Platform
+    if (isSuper || role === "admin") {
+      groups.push({
+        category: "Cloud & System Platform",
+        items: [
+          { id: "supabase", title: "Supabase Cloud", icon: HardDrive, badge: "PG" },
+          { id: "crashes", title: "Crash Reports", icon: ShieldAlert, badge: "Live" },
+          { id: "integrations", title: "Disha AI & APIs", icon: Bot, badge: "AI" },
+          { id: "backup", title: "Backup & Restore", icon: Archive },
+          { id: "settings", title: "System Settings", icon: Settings },
+        ],
+      });
+    } else if (role === "support_agent") {
+      groups.push({
+        category: "Telemetry",
+        items: [
+          { id: "crashes", title: "Crash Reports", icon: ShieldAlert, badge: "Live" },
+        ],
+      });
+    }
+
+    return groups;
+  }, [subjectCount, questionCount, props.userProfile]);
 
   const mobileBottomShortcuts: { id: AdminGroupSection; label: string; icon: any }[] = React.useMemo(() => [
     { id: "dashboard", label: "Overview", icon: LayoutDashboard },
@@ -835,7 +816,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
     { id: "supabase", label: "Supabase", icon: HardDrive },
   ], []);
 
-  if (!isUserAdmin(props.userProfile)) {
+  if (!isStaffUser(props.userProfile) && !isUserAdmin(props.userProfile)) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center p-6 text-center">
         <div className="w-16 h-16 rounded-2xl bg-rose-500/10 text-rose-600 flex items-center justify-center mb-4">
@@ -843,7 +824,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
         </div>
         <h2 className="text-xl font-black text-slate-900 dark:text-white">Access Denied</h2>
         <p className="text-xs text-slate-500 max-w-sm mt-1">
-          This portal is restricted to Disha PYQ Administrators. Please sign in with an authorized account.
+          This portal is restricted to authorized Disha 20-20 staff and administrators. Please sign in with an authorized account.
         </p>
       </div>
     );
@@ -918,14 +899,21 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
               <button
                 onClick={() => setIsAdminMenuOpen(!isAdminMenuOpen)}
                 className="flex items-center gap-1.5 sm:gap-2 pl-1 pr-1 sm:pr-2 py-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-                title="Admin Account Profile"
+                title="Staff Account Profile"
                 aria-expanded={isAdminMenuOpen}
                 aria-haspopup="true"
               >
                 <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-xs font-bold text-slate-600 dark:text-slate-400">
                   {props.userProfile?.name?.charAt(0) || "A"}
                 </div>
-                <span className="text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300 hidden sm:inline">{props.userProfile?.name?.split(' ')[0] || "Admin"}</span>
+                <div className="hidden sm:flex flex-col text-left">
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300 leading-tight">
+                    {props.userProfile?.name?.split(' ')[0] || "Staff"}
+                  </span>
+                  <span className="text-[10px] text-indigo-600 dark:text-indigo-400 font-black leading-tight">
+                    {ROLE_CONFIGS[getStaffRole(props.userProfile)]?.shortLabel || "Admin"}
+                  </span>
+                </div>
                 <ChevronDown className={`w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400 hidden sm:inline transition-transform duration-200 ${isAdminMenuOpen ? "rotate-180" : ""}`} />
               </button>
 
@@ -936,16 +924,16 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                       {props.userProfile?.name?.charAt(0) || "A"}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-1.5 flex-wrap">
                         <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
-                          {props.userProfile?.name || "System Admin"}
+                          {props.userProfile?.name || "Staff Member"}
                         </p>
-                        <span className="px-1.5 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300 shrink-0">
-                          {props.userProfile?.role || "Admin"}
+                        <span className={`px-1.5 py-0.5 rounded text-[10px] font-black uppercase tracking-wider shrink-0 ${ROLE_CONFIGS[getStaffRole(props.userProfile)]?.badgeBg || "bg-indigo-50"} ${ROLE_CONFIGS[getStaffRole(props.userProfile)]?.badgeText || "text-indigo-700"}`}>
+                          {ROLE_CONFIGS[getStaffRole(props.userProfile)]?.label || "Admin"}
                         </span>
                       </div>
                       <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
-                        {props.userProfile?.email || "admin@disha2020.in"}
+                        {props.userProfile?.email || "staff@disha2020.in"}
                       </p>
                     </div>
                   </div>
@@ -1303,6 +1291,13 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                   syllabusViewTab={syllabusViewTab}
                   setSyllabusViewTab={setSyllabusViewTab}
                 />
+              </React.Suspense>
+            )}
+
+            {/* Question Review Queue Section */}
+            {activeGroup === "approval" && (
+              <React.Suspense fallback={<AdminSectionLoader type="list" title="Loading Question Review Queue..." />}>
+                <QuestionApprovalWorkflowSection currentUserProfile={props.userProfile} />
               </React.Suspense>
             )}
 
@@ -1741,6 +1736,13 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                   {subTabUsers === "notifications" && <AdminNotificationBroadcastSection />}
                 </React.Suspense>
               </div>
+            )}
+
+            {/* Staff Management & RBAC Section */}
+            {activeGroup === "staff" && (
+              <React.Suspense fallback={<AdminSectionLoader type="cards" title="Loading Staff Directory..." />}>
+                <StaffManagementSection currentUserProfile={props.userProfile} />
+              </React.Suspense>
             )}
 
             {/* Supabase PostgreSQL Section */}

@@ -1,4 +1,4 @@
-import type { UserProfile } from "../types";
+import type { UserProfile, StaffMember } from "../types";
 import {
   safeGetLocalStorageItem,
   safeSetLocalStorageItem,
@@ -48,16 +48,26 @@ export function setInMemoryProfile(profile: UserProfile | null): void {
   inMemoryProfile = profile;
 }
 
-export function isSuperAdmin(profileOrIdentifier?: UserProfile | string | null): boolean {
+export const KNOWN_STAFF_ROLES: string[] = [
+  "super_admin",
+  "admin",
+  "sme_teacher",
+  "content_reviewer",
+  "support_agent",
+];
+
+export function isSuperAdmin(profileOrIdentifier?: UserProfile | StaffMember | { id?: string; email?: string; role?: string; staffRole?: string } | string | null): boolean {
   if (!profileOrIdentifier) return false;
   const normalize = (s: string) => s.trim().toLowerCase();
   if (typeof profileOrIdentifier === "string") {
     const cleaned = normalize(profileOrIdentifier);
+    if (cleaned === "super_admin") return true;
     return (
       ADMIN_EMAILS.some((e) => normalize(e) === cleaned) ||
       ADMIN_UIDS.includes(profileOrIdentifier)
     );
   }
+  if (profileOrIdentifier.role === "super_admin" || profileOrIdentifier.staffRole === "super_admin") return true;
   const email = profileOrIdentifier.email ? normalize(profileOrIdentifier.email) : "";
   if (email && ADMIN_EMAILS.some((e) => normalize(e) === email)) return true;
   if (profileOrIdentifier.id && ADMIN_UIDS.includes(profileOrIdentifier.id)) return true;
@@ -141,16 +151,18 @@ export function loadUserProfile(): UserProfile | null {
       } catch (_) {}
     }
     
-    // Check super admins or persistent admin role
-    const isActuallyAdmin = Boolean(
-      !isExplicitNonAdmin(profile) && (
-        isSuperAdmin(profile) ||
-        parsed.role === "admin"
-      )
-    );
-    
-    if (isActuallyAdmin) {
-      profile.role = "admin";
+    // Check super admins or staff roles
+    const rawRole = parsed.staffRole || parsed.role;
+    if (!isExplicitNonAdmin(profile)) {
+      if (isSuperAdmin(profile) || rawRole === "super_admin") {
+        profile.role = "super_admin";
+        profile.staffRole = "super_admin";
+      } else if (KNOWN_STAFF_ROLES.includes(rawRole)) {
+        profile.role = rawRole as any;
+        profile.staffRole = rawRole as any;
+      } else {
+        profile.role = "student";
+      }
     } else {
       profile.role = "student";
     }
@@ -169,15 +181,17 @@ export function loadUserProfile(): UserProfile | null {
 }
 
 export function saveUserProfile(profile: UserProfile): void {
-  const isActuallyAdmin = Boolean(
-    !isExplicitNonAdmin(profile) && (
-      isSuperAdmin(profile) ||
-      profile.role === "admin"
-    )
-  );
-  
-  if (isActuallyAdmin) {
-    profile.role = "admin";
+  const rawRole = profile.staffRole || profile.role;
+  if (!isExplicitNonAdmin(profile)) {
+    if (isSuperAdmin(profile) || rawRole === "super_admin") {
+      profile.role = "super_admin";
+      profile.staffRole = "super_admin";
+    } else if (KNOWN_STAFF_ROLES.includes(rawRole)) {
+      profile.role = rawRole as any;
+      profile.staffRole = rawRole as any;
+    } else {
+      profile.role = "student";
+    }
   } else {
     profile.role = "student";
   }
@@ -202,7 +216,11 @@ export function clearUserProfile(): void {
 export function isUserAdmin(profileOrRole?: UserProfile | string | null): boolean {
   if (profileOrRole === undefined) {
     const stored = loadUserProfile();
-    return Boolean(stored && !isExplicitNonAdmin(stored) && (isSuperAdmin(stored) || stored.role === "admin"));
+    return Boolean(
+      stored && 
+      !isExplicitNonAdmin(stored) && 
+      (isSuperAdmin(stored) || KNOWN_STAFF_ROLES.includes(stored.role) || (stored.staffRole && KNOWN_STAFF_ROLES.includes(stored.staffRole)))
+    );
   }
   if (!profileOrRole) return false;
   if (isExplicitNonAdmin(profileOrRole)) return false;
@@ -211,11 +229,11 @@ export function isUserAdmin(profileOrRole?: UserProfile | string | null): boolea
   // 1. If passed a string (email or UID or role string)
   if (typeof profileOrRole === "string") {
     const cleaned = normalize(profileOrRole);
-    if (cleaned === "admin") return true;
+    if (KNOWN_STAFF_ROLES.includes(cleaned)) return true;
     if (isSuperAdmin(cleaned)) return true;
     try {
       const stored = loadUserProfile();
-      if (stored?.role === "admin" && !isExplicitNonAdmin(stored)) {
+      if (stored && !isExplicitNonAdmin(stored) && (KNOWN_STAFF_ROLES.includes(stored.role) || (stored.staffRole && KNOWN_STAFF_ROLES.includes(stored.staffRole)))) {
         if (stored.email && normalize(stored.email) === cleaned) return true;
         if (stored.id === profileOrRole) return true;
       }
@@ -225,8 +243,12 @@ export function isUserAdmin(profileOrRole?: UserProfile | string | null): boolea
 
   // 2. Handle UserProfile object
   if (profileOrRole && typeof profileOrRole === "object") {
+    if (profileOrRole.status === "suspended" || profileOrRole.staffStatus === "suspended" || profileOrRole.blocked) {
+      return false;
+    }
     if (isSuperAdmin(profileOrRole)) return true;
-    if (profileOrRole.role === "admin" && !isExplicitNonAdmin(profileOrRole)) return true;
+    if (KNOWN_STAFF_ROLES.includes(profileOrRole.role) && !isExplicitNonAdmin(profileOrRole)) return true;
+    if (profileOrRole.staffRole && KNOWN_STAFF_ROLES.includes(profileOrRole.staffRole) && !isExplicitNonAdmin(profileOrRole)) return true;
     return false;
   }
 

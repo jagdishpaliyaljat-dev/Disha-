@@ -1,5 +1,5 @@
 import { supabase } from "../lib/supabase";
-import { UserProfile, AdminAuditLog } from "../types";
+import { UserProfile, AdminAuditLog, StaffRole } from "../types";
 import { ADMIN_UIDS, ADMIN_EMAILS, isUserAdmin, loadUserProfile, isSuperAdmin } from "./userProfileStorage";
 import { fetchAllBanners } from "./bannerStorage";
 
@@ -155,8 +155,10 @@ export type UserActivitySummary = {
 export function mapRowToUserProfile(row: any): UserProfile {
   const id = row.id;
   const email = (row.email || "").trim().toLowerCase();
-  const isSuperAdmin = ADMIN_UIDS.includes(id) || ADMIN_EMAILS.includes(email);
-  const role = isSuperAdmin ? "admin" : (row.role || "student");
+  const isSuper = ADMIN_UIDS.includes(id) || ADMIN_EMAILS.includes(email);
+  const effectiveRole: StaffRole = isSuper 
+    ? "super_admin" 
+    : (row.staff_role || (row.role === "admin" ? "admin" : "student"));
 
   return {
     id,
@@ -164,9 +166,13 @@ export function mapRowToUserProfile(row: any): UserProfile {
     email,
     photoURL: row.photo_url || row.avatar_url || row.photoURL || "",
     avatar: row.photo_url || row.avatar_url || row.avatar || "",
-    role,
-    status: row.status || "active",
-    blocked: Boolean(row.blocked),
+    role: effectiveRole,
+    staffRole: effectiveRole,
+    staffStatus: row.staff_status || "active",
+    staffPermissions: row.staff_permissions || undefined,
+    assignedSubjects: row.assigned_subjects || undefined,
+    status: row.status || (row.staff_status === "suspended" ? "blocked" : "active"),
+    blocked: Boolean(row.blocked || row.staff_status === "suspended"),
     targetExam: row.target_exam || row.targetExam || "Competitive Exams",
     dailyGoalQuestions: row.daily_goal_questions || 30,
     streakDays: row.streak_days || 0,
@@ -325,29 +331,29 @@ export async function updateUserAccountStatus(
  * Update user role (admin / student).
  * Security Rule: Strictly restricted to Super Administrators.
  */
-export async function updateUserRole(userId: string, newRole: "admin" | "student" | "user"): Promise<void> {
+export async function updateUserRole(userId: string, newRole: StaffRole | "admin" | "student" | "user"): Promise<void> {
   const currentAdmin = loadUserProfile();
   if (!isSuperAdmin(currentAdmin)) {
     throw new Error("Unauthorized: Only super administrators can update user roles.");
   }
 
   // Prevent demoting a Super Admin
-  if (isSuperAdmin(userId) && newRole !== "admin") {
+  if (isSuperAdmin(userId) && newRole !== "admin" && newRole !== "super_admin") {
     throw new Error("Forbidden: The primary Super Admin cannot be demoted.");
   }
 
-  if ((userId === currentAdmin?.id || userId === "admin1") && newRole !== "admin") {
+  if ((userId === currentAdmin?.id || userId === "admin1") && newRole !== "admin" && newRole !== "super_admin") {
     throw new Error("Action Restricted: Administrators cannot demote their own account.");
   }
 
-  const normalizedRole = newRole === "admin" ? "admin" : "student";
+  const normalizedRole = newRole;
 
   // 1. Try secure Supabase RPC which updates both public.profiles and auth.users metadata
   let rpcSuccess = false;
   try {
     const { data, error } = await supabase.rpc("promote_user_to_admin", {
       target_user_id: userId,
-      target_role: normalizedRole,
+      target_role: normalizedRole === "super_admin" || normalizedRole === "admin" ? "admin" : "student",
     });
     if (!error && data?.success) {
       rpcSuccess = true;
@@ -360,7 +366,11 @@ export async function updateUserRole(userId: string, newRole: "admin" | "student
   if (!rpcSuccess) {
     const { error } = await supabase
       .from("profiles")
-      .update({ role: normalizedRole, updated_at: new Date().toISOString() })
+      .update({ 
+        role: normalizedRole === "super_admin" || normalizedRole === "admin" ? "admin" : "student",
+        staff_role: normalizedRole,
+        updated_at: new Date().toISOString() 
+      })
       .eq("id", userId);
 
     if (error) {

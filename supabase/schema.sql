@@ -372,4 +372,54 @@ CREATE TRIGGER on_auth_user_created
   FOR EACH ROW
   EXECUTE FUNCTION public.handle_new_user();
 
+-- ----------------------------------------------------------------------------
+-- 11. ENTERPRISE MULTI-ROLE STAFF MANAGEMENT & RBAC
+-- ----------------------------------------------------------------------------
+ALTER TABLE public.profiles
+  ADD COLUMN IF NOT EXISTS staff_role TEXT DEFAULT 'student',
+  ADD COLUMN IF NOT EXISTS staff_status TEXT DEFAULT 'active',
+  ADD COLUMN IF NOT EXISTS staff_permissions JSONB DEFAULT '{}'::jsonb,
+  ADD COLUMN IF NOT EXISTS assigned_subjects TEXT[] DEFAULT '{}',
+  ADD COLUMN IF NOT EXISTS invited_by UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  ADD COLUMN IF NOT EXISTS invited_at TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS last_active_at TIMESTAMPTZ;
+
+ALTER TABLE public.questions
+  ADD COLUMN IF NOT EXISTS approval_status TEXT DEFAULT 'published',
+  ADD COLUMN IF NOT EXISTS submitted_by UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  ADD COLUMN IF NOT EXISTS submitted_at TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS reviewed_by UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  ADD COLUMN IF NOT EXISTS reviewed_at TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS review_notes TEXT;
+
+CREATE TABLE IF NOT EXISTS public.staff_invitations (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  email TEXT NOT NULL,
+  role TEXT NOT NULL DEFAULT 'sme_teacher',
+  permissions JSONB DEFAULT '{}'::jsonb,
+  assigned_subjects TEXT[] DEFAULT '{}',
+  token TEXT NOT NULL UNIQUE,
+  invited_by UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  status TEXT NOT NULL DEFAULT 'pending',
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  expires_at TIMESTAMPTZ DEFAULT (NOW() + INTERVAL '7 days')
+);
+
+CREATE TABLE IF NOT EXISTS public.staff_audit_logs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  actor_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  actor_email TEXT NOT NULL,
+  actor_role TEXT NOT NULL,
+  action TEXT NOT NULL,
+  resource_type TEXT NOT NULL,
+  resource_id TEXT,
+  details JSONB DEFAULT '{}'::jsonb,
+  ip_address TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.staff_invitations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.staff_audit_logs ENABLE ROW LEVEL SECURITY;
+
+
 
