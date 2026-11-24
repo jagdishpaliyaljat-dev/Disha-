@@ -37,6 +37,7 @@ import {
 import { AdminCard } from "./AdminCard";
 import { supabase, isSupabaseConfigured } from "../../lib/supabase";
 import { subscribeToAdminLivePresence, LivePresenceSummary } from "../../utils/presenceService";
+import { SubjectTopicAccuracyHeatmap } from "./SubjectTopicAccuracyHeatmap";
 
 interface CloudTelemetrySummary {
   timestamp: string;
@@ -81,8 +82,14 @@ interface SiteTrafficSummary {
   district_distribution?: Record<string, number>;
 }
 
-export const AdminAnalyticsDashboard: React.FC = () => {
-  const [activeSection, setActiveSection] = React.useState<"students" | "website">("website");
+export interface AdminAnalyticsDashboardProps {
+  initialSection?: "students" | "website" | "heatmap";
+}
+
+export const AdminAnalyticsDashboard: React.FC<AdminAnalyticsDashboardProps> = ({
+  initialSection = "website",
+}) => {
+  const [activeSection, setActiveSection] = React.useState<"students" | "website" | "heatmap">(initialSection);
   const [telemetry, setTelemetry] = React.useState<CloudTelemetrySummary | null>(null);
   const [siteTraffic, setSiteTraffic] = React.useState<SiteTrafficSummary | null>(null);
   const [trafficDays, setTrafficDays] = React.useState<number>(7);
@@ -355,7 +362,7 @@ export const AdminAnalyticsDashboard: React.FC = () => {
             </p>
 
             {/* Sub-Tab Navigation Toggle */}
-            <div className="flex items-center gap-2 pt-2">
+            <div className="flex flex-wrap items-center gap-2 pt-2">
               <button
                 onClick={() => setActiveSection("website")}
                 className={`px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-2 ${
@@ -378,6 +385,18 @@ export const AdminAnalyticsDashboard: React.FC = () => {
               >
                 <Users className="w-3.5 h-3.5" />
                 <span>🎓 छात्र अभ्यास व सहभागिता</span>
+              </button>
+
+              <button
+                onClick={() => setActiveSection("heatmap")}
+                className={`px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-2 ${
+                  activeSection === "heatmap"
+                    ? "bg-[#800020] dark:bg-[#F47B20] text-white shadow-sm"
+                    : "bg-white dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] text-slate-600 dark:text-slate-300 hover:bg-[#F7EFE2]"
+                }`}
+              >
+                <Target className="w-3.5 h-3.5" />
+                <span>🎯 एक्यूरेसी हीटमैप (Quality Control)</span>
               </button>
             </div>
           </div>
@@ -1159,6 +1178,10 @@ export const AdminAnalyticsDashboard: React.FC = () => {
           </div>
 
         </div>
+      )}
+
+      {activeSection === "heatmap" && (
+        <SubjectTopicAccuracyHeatmap />
       )}
 
     </div>

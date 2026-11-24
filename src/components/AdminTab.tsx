@@ -147,7 +147,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
   });
 
   // Sub-tab toggles for multi-view groups
-  const [subTabDashboard, setSubTabDashboard] = React.useState<"overview" | "analytics" | "categories">("categories");
+  const [subTabDashboard, setSubTabDashboard] = React.useState<"overview" | "analytics" | "categories" | "heatmap">("categories");
   const [subTabContent, setSubTabContent] = React.useState<"news" | "banners">("news");
   const [subTabUsers, setSubTabUsers] = React.useState<"directory" | "messages" | "reports" | "notifications">("directory");
   const [subTabSupabase, setSubTabSupabase] = React.useState<"overview" | "explorer" | "diagnostics" | "report" | "audit" | "sync">("overview");
@@ -1275,6 +1275,16 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                     >
                       Analytics
                     </button>
+                    <button
+                      onClick={() => setSubTabDashboard("heatmap")}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                        subTabDashboard === "heatmap"
+                          ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs"
+                          : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                      }`}
+                    >
+                      🎯 Accuracy Heatmap
+                    </button>
                   </div>
                 </div>
 
@@ -1311,6 +1321,8 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                       onOpenQARunner={() => setShowQATestRunner(true)}
                       questionsStore={props.questionsStore}
                     />
+                  ) : subTabDashboard === "heatmap" ? (
+                    <AdminAnalyticsDashboard initialSection="heatmap" />
                   ) : (
                     <AdminAnalyticsDashboard />
                   )}
