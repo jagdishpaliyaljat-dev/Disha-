@@ -41,6 +41,7 @@ import { ToastNotificationContainer, ToastMessage } from './components/ToastNoti
 import { PWAUpdateToast } from './components/PWAUpdateToast';
 import { MobileAppReturnBanner } from './components/MobileAppReturnBanner';
 import { BrandSplashAndOnboarding } from './components/BrandSplashAndOnboarding';
+import { AppLogo } from './components/AppLogo';
 import { UserAvatar } from './components/ui/UserAvatar';
 import { ContentLoader } from './components/ui/LoadingScreen';
 import { AdminErrorBoundary } from './components/admin/AdminErrorBoundary';
@@ -1706,6 +1707,52 @@ export default function App() {
       setActiveTab(tab);
     }
   };
+
+  // ─── ROOT AUTH GATE ──────────────────────────────────────────────────────────
+  // 1. Session check in-flight: Show branded splash screen (prevents unauthenticated flicker)
+  if (!isAuthReady) {
+    return (
+      <div className="fixed inset-0 z-[999] bg-[#F4F1FA] dark:bg-[#171329] flex flex-col items-center justify-center p-6 text-center select-none">
+        <div className="w-16 h-16 rounded-2xl bg-white dark:bg-[#201B38] shadow-md flex items-center justify-center mb-4 p-2 border border-[#E2DCF0] dark:border-[#362E5B]">
+          <AppLogo size="md" variant="symbol" />
+        </div>
+        <div className="w-6 h-6 border-3 border-[#7045D8] border-t-transparent rounded-full animate-spin mb-3" />
+        <p className="text-xs font-bold text-[#5E5873] dark:text-[#A39DBE] tracking-wider uppercase">
+          Initializing Disha PYQ...
+        </p>
+      </div>
+    );
+  }
+
+  // 2. Unauthenticated Gate: Show ONLY the full-screen Google Login Screen
+  if (!isAuthenticated || !userProfile || !isProfileAuthenticated(userProfile)) {
+    return (
+      <React.Suspense
+        fallback={
+          <div className="fixed inset-0 z-[999] bg-[#F4F1FA] dark:bg-[#171329] flex flex-col items-center justify-center p-6 text-center">
+            <div className="w-6 h-6 border-3 border-[#7045D8] border-t-transparent rounded-full animate-spin mb-3" />
+            <p className="text-xs font-bold text-[#5E5873] dark:text-[#A39DBE]">Loading Sign In...</p>
+          </div>
+        }
+      >
+        <ToastNotificationContainer toasts={toasts} onDismiss={handleDismissToast} />
+        <LoginPage
+          isMandatory={true}
+          onLoginSuccess={(profile: UserProfile) => {
+            setUserProfile(profile);
+            setIsAuthenticated(true);
+            saveUserProfile(profile);
+            setIsLoginOpen(false);
+            if (isUserAdmin(profile)) {
+              setActiveTab('admin');
+            } else {
+              setActiveTab('home');
+            }
+          }}
+        />
+      </React.Suspense>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#130E26] text-[#0F172A] dark:text-[#F8FAFC] flex flex-col font-sans selection:bg-[#7045D8] selection:text-white w-full max-w-full overflow-x-hidden">

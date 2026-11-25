@@ -59,6 +59,8 @@ let inMemoryQuestionsStore: UserQuestionsStore = {
   cloudCacheQuestions: [],
   syncedTopicIds: [],
   recycleBinQuestions: [],
+  archivedQuestions: [],
+  archivedQuestionIds: [],
 };
 
 export function dispatchStoreUpdated(detail: any): void {
@@ -314,6 +316,8 @@ export function loadUserQuestionsStore(): UserQuestionsStore {
       syncedTopicIds: Array.isArray(parsed.syncedTopicIds) ? parsed.syncedTopicIds : [],
       syncedTopicVersions: parsed.syncedTopicVersions && typeof parsed.syncedTopicVersions === "object" ? parsed.syncedTopicVersions : {},
       recycleBinQuestions: Array.isArray(parsed.recycleBinQuestions) ? parsed.recycleBinQuestions : [],
+      archivedQuestions: Array.isArray(parsed.archivedQuestions) ? parsed.archivedQuestions : [],
+      archivedQuestionIds: Array.isArray(parsed.archivedQuestionIds) ? parsed.archivedQuestionIds : [],
     };
 
     const { sanitized, changed } = sanitizeUserQuestionsStore(store);
@@ -1162,15 +1166,23 @@ export function deduplicateQuestions(questions: Question[]): Question[] {
 }
 
 // Extract flat array of all combined questions (deduplicated by ID)
-export function getCombinedQuestions(chapters: Chapter[], store?: UserQuestionsStore): Question[] {
+export function getCombinedQuestions(
+  chapters: Chapter[],
+  store?: UserQuestionsStore,
+  options?: { includeArchived?: boolean }
+): Question[] {
   try {
     const effectiveStore = store || loadUserQuestionsStore();
     const deletedSet = new Set(effectiveStore?.deletedQuestionIds || []);
+    const archivedSet = new Set(effectiveStore?.archivedQuestionIds || []);
+    const includeArchived = Boolean(options?.includeArchived);
+
     const isCompleteQ = (q: any): boolean =>
       Boolean(
         q &&
         q.id &&
         !deletedSet.has(q.id) &&
+        (includeArchived || (!archivedSet.has(q.id) && !q.isArchived)) &&
         (q.text || q.question) &&
         Array.isArray(q.options) &&
         q.options.length >= 2
@@ -1189,7 +1201,7 @@ export function getCombinedQuestions(chapters: Chapter[], store?: UserQuestionsS
         (Array.isArray(chapters) ? chapters : []).map((c) => (c?.subjectId || "").toLowerCase().replace(/[-_]/g, "")).filter(Boolean)
       );
       const allStoreChaptersCount = (effectiveStore.customChapters || []).length;
-      const isGlobalQuery = chapters.length >= allStoreChaptersCount && chapters.length > 0;
+      const isGlobalQuery = chapters.length === 0 || chapters.length >= allStoreChaptersCount;
 
       const storeQuestions = [
         ...(Array.isArray(effectiveStore.customQuestions) ? effectiveStore.customQuestions : []),
@@ -1207,10 +1219,10 @@ export function getCombinedQuestions(chapters: Chapter[], store?: UserQuestionsS
       });
 
       return deduplicateQuestions([...allRaw, ...matchingStoreQuestions])
-        .filter(q => q && !deletedSet.has(q.id) && !isTestOrMockQuestion(q));
+        .filter(q => q && !deletedSet.has(q.id) && (includeArchived || (!archivedSet.has(q.id) && !q.isArchived)) && !isTestOrMockQuestion(q));
     }
 
-    return deduplicateQuestions(allRaw).filter(q => q && !deletedSet.has(q.id) && !isTestOrMockQuestion(q));
+    return deduplicateQuestions(allRaw).filter(q => q && !deletedSet.has(q.id) && (includeArchived || (!archivedSet.has(q.id) && !q.isArchived)) && !isTestOrMockQuestion(q));
   } catch (err) {
     console.error("[getCombinedQuestions] Fallback triggered due to error:", err);
     return [];

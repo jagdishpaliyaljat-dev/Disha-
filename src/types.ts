@@ -99,6 +99,13 @@ export interface Question {
   healthScore?: number;
   healthIssues?: string[];
   lastAuditedAt?: string;
+  isArchived?: boolean;
+  archivedAt?: string;
+  archivedReason?: string;
+  outdatedFactType?: "critical_superseded" | "needs_refresh" | "historical_pyq" | "evergreen";
+  historicalYear?: number | string;
+  historicalProvenanceBadge?: string;
+  refreshedToYear?: number | string;
 }
 
 export type QuestionApprovalStatus = "draft" | "pending_review" | "approved" | "rejected" | "published";
@@ -710,6 +717,8 @@ export interface UserQuestionsStore {
   syncedTopicIds?: string[];
   syncedTopicVersions?: Record<string, number>;
   recycleBinQuestions?: Question[];
+  archivedQuestions?: Question[];
+  archivedQuestionIds?: string[];
 }
 
 export interface DailyStudyRecord {

@@ -502,6 +502,12 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
       case "question-health":
         setActiveGroup("content-health");
         break;
+      case "outdated-archiver":
+      case "outdated":
+      case "fact-archiver":
+      case "archiver":
+        setActiveGroup("outdated-archiver");
+        break;
       case "tests":
       case "live-tests":
       case "pyq":
@@ -773,6 +779,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
       academicItems.push({ id: "syllabus", title: "Syllabus", icon: Layers, badge: subjectCount > 0 ? `${subjectCount}` : undefined });
       academicItems.push({ id: "questions", title: "Question Bank", icon: Database, badge: questionCount > 0 ? `${questionCount}` : undefined });
       academicItems.push({ id: "content-health", title: "Content Health Auditor", icon: Activity, badge: "AI Audit" });
+      academicItems.push({ id: "outdated-archiver", title: "Outdated Facts Archiver", icon: CalendarClock, badge: "2024-25" });
       academicItems.push({ id: "tests", title: "Exams & Tests", icon: Trophy });
     }
     groups.push({ category: "Academic Engine", items: academicItems });
@@ -1379,6 +1386,17 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
               </React.Suspense>
             )}
 
+            {/* Outdated Data & Fact Expiry Controller Section */}
+            {activeGroup === "outdated-archiver" && (
+              <React.Suspense fallback={<AdminSectionLoader type="cards" title="Scanning Question Bank for Outdated Facts..." />}>
+                <OutdatedQuestionArchiver
+                  questionsStore={props.questionsStore}
+                  chapters={props.chapters}
+                  onStoreUpdated={props.onStoreUpdated}
+                />
+              </React.Suspense>
+            )}
+
             {/* Question Bank Section */}
             {activeGroup === "questions" && (
               <div className="space-y-5 sm:space-y-6">
@@ -1395,6 +1413,14 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                     >
                       <Activity className="w-3.5 h-3.5" />
                       <span>Health Auditor</span>
+                    </button>
+                    <button
+                      onClick={() => setActiveGroup("outdated-archiver")}
+                      className="px-3.5 py-2 bg-gradient-to-r from-amber-600 to-rose-600 hover:from-amber-700 hover:to-rose-700 text-white text-xs font-black rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                      title="Outdated Data & Fact Expiry Controller (2024-25 Freshness)"
+                    >
+                      <CalendarClock className="w-3.5 h-3.5" />
+                      <span>Outdated Facts (2024-25)</span>
                     </button>
                     <button
                       onClick={() => setShowExcelCsvImporter(true)}
@@ -1446,10 +1472,11 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-9 gap-2.5 sm:gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-10 gap-2.5 sm:gap-3">
                   {[
                     { label: "Directory", action: props.onShowManageQuestions, icon: Database, isSpecial: false },
                     { label: "Health Auditor", action: () => setActiveGroup("content-health"), icon: Activity, isSpecial: true, specialColor: "emerald" },
+                    { label: "Fact Archiver", action: () => setActiveGroup("outdated-archiver"), icon: CalendarClock, isSpecial: true, specialColor: "amber" },
                     { label: "Excel / CSV", action: () => setShowExcelCsvImporter(true), icon: FileSpreadsheet, isSpecial: true, specialColor: "emerald" },
                     { label: "AI Import", action: props.onShowAIImport, icon: Sparkles, isSpecial: true, specialColor: "amber" },
                     { label: "HTML Import", action: props.onShowHTMLImport, icon: FileCode, isSpecial: true, specialColor: "orange" },

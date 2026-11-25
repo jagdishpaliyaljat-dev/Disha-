@@ -23,9 +23,10 @@ import {
 interface LoginPageProps {
   onLoginSuccess: (profile: UserProfile) => void;
   onClose?: () => void;
+  isMandatory?: boolean;
 }
 
-export function LoginPage({ onLoginSuccess, onClose }: LoginPageProps) {
+export function LoginPage({ onLoginSuccess, onClose, isMandatory = false }: LoginPageProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [configNotice, setConfigNotice] = useState<string | null>(null);
   const [successNotice, setSuccessNotice] = useState<string | null>(null);
@@ -146,7 +147,7 @@ export function LoginPage({ onLoginSuccess, onClose }: LoginPageProps) {
         <span className="text-[11px] font-extrabold text-[#5E5873] dark:text-[#A39DBE] uppercase tracking-wider">
           Disha PYQ Account
         </span>
-        {onClose && (
+        {!isMandatory && onClose && (
           <button
             onClick={onClose}
             className="min-h-[38px] px-3 py-1.5 rounded-xl bg-white dark:bg-[#201B38] border border-[#E2DCF0] dark:border-[#362E5B] text-[#171329] dark:text-[#FFFFFF] transition-all shadow-2xs cursor-pointer text-xs font-bold flex items-center gap-1"
