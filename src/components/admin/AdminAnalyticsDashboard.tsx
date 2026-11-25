@@ -84,12 +84,21 @@ interface SiteTrafficSummary {
 
 export interface AdminAnalyticsDashboardProps {
   initialSection?: "students" | "website" | "heatmap";
+  onInspectTopic?: (topicId: string, chapterId: string, subjectId: string) => void;
 }
 
 export const AdminAnalyticsDashboard: React.FC<AdminAnalyticsDashboardProps> = ({
   initialSection = "website",
+  onInspectTopic,
 }) => {
   const [activeSection, setActiveSection] = React.useState<"students" | "website" | "heatmap">(initialSection);
+
+  // Synchronize active tab whenever initialSection prop updates from parent navigation
+  React.useEffect(() => {
+    if (initialSection) {
+      setActiveSection(initialSection);
+    }
+  }, [initialSection]);
   const [telemetry, setTelemetry] = React.useState<CloudTelemetrySummary | null>(null);
   const [siteTraffic, setSiteTraffic] = React.useState<SiteTrafficSummary | null>(null);
   const [trafficDays, setTrafficDays] = React.useState<number>(7);
@@ -1181,7 +1190,7 @@ export const AdminAnalyticsDashboard: React.FC<AdminAnalyticsDashboardProps> = (
       )}
 
       {activeSection === "heatmap" && (
-        <SubjectTopicAccuracyHeatmap />
+        <SubjectTopicAccuracyHeatmap onInspectTopic={onInspectTopic} />
       )}
 
     </div>

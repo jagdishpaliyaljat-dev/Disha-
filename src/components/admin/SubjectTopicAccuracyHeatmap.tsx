@@ -8,16 +8,12 @@ import {
   AlertTriangle,
   CheckCircle2,
   HelpCircle,
-  TrendingDown,
-  TrendingUp,
   BarChart3,
   BookOpen,
-  ArrowUpDown,
   ChevronRight,
   Eye,
   X,
-  Sparkles,
-  Zap,
+  FileQuestion,
 } from "lucide-react";
 import { AdminCard } from "./AdminCard";
 import {
@@ -34,6 +30,7 @@ import {
 } from "../../utils/questionsStorage";
 import { loadPerformanceStore } from "../../utils/performanceStorage";
 import { triggerAdminToast } from "../../utils/adminToast";
+import { isSupabaseConfigured, supabase } from "../../lib/supabase";
 import { Chapter, Question, Subject } from "../../types";
 
 export interface SubjectTopicAccuracyHeatmapProps {
@@ -59,28 +56,83 @@ export const SubjectTopicAccuracyHeatmap: React.FC<SubjectTopicAccuracyHeatmapPr
 
   // Topic Inspector modal
   const [inspectingMetric, setInspectingMetric] = React.useState<TopicAccuracyMetric | null>(null);
+  const perfStoreRef = React.useRef<Record<string, any>>({});
 
-  // Load and aggregate data
-  const loadHeatmapData = React.useCallback(() => {
+  // Load and aggregate data from local store + Supabase
+  const loadHeatmapData = React.useCallback(async () => {
     setIsLoading(true);
     try {
       const store = loadUserQuestionsStore();
       const loadedSubjects = getCombinedSubjects(store);
       const loadedChapters = getCombinedChapters(store);
       const perfStore = loadPerformanceStore();
+      perfStoreRef.current = perfStore;
 
       setSubjects(loadedSubjects);
       setChapters(loadedChapters);
 
+      let cloudAttemptLogs: Array<{
+        questionId?: string;
+        topicId?: string;
+        chapterId?: string;
+        subjectId?: string;
+        isCorrect?: boolean;
+        timeTakenSeconds?: number;
+      }> = [];
+
+      // Query multi-student attempts from Supabase when cloud is active
+      if (isSupabaseConfigured()) {
+        try {
+          const { data: cloudAttempts } = await supabase
+            .from("attempts")
+            .select("topic_id, subject_id, score, total_questions, time_spent_seconds, answers")
+            .limit(500);
+
+          if (cloudAttempts && Array.isArray(cloudAttempts)) {
+            cloudAttempts.forEach((att) => {
+              // Extract question answers if structured
+              if (att.answers && typeof att.answers === "object") {
+                Object.entries(att.answers).forEach(([qId, ans]: [string, any]) => {
+                  cloudAttemptLogs.push({
+                    questionId: qId,
+                    topicId: att.topic_id || undefined,
+                    subjectId: att.subject_id || undefined,
+                    isCorrect: ans === true || ans?.isCorrect === true,
+                    timeTakenSeconds: Number(ans?.timeSpent) || undefined,
+                  });
+                });
+              } else if (att.topic_id && Number.isFinite(att.total_questions)) {
+                // If question-level breakdown is absent, aggregate topic-level summary
+                const score = Number(att.score) || 0;
+                const total = Number(att.total_questions) || 1;
+                for (let i = 0; i < total; i++) {
+                  cloudAttemptLogs.push({
+                    topicId: att.topic_id,
+                    subjectId: att.subject_id || undefined,
+                    isCorrect: i < score,
+                    timeTakenSeconds: att.time_spent_seconds ? Math.round(att.time_spent_seconds / total) : undefined,
+                  });
+                }
+              }
+            });
+          }
+        } catch (cloudErr) {
+          console.warn("[Heatmap] Cloud attempts query note:", cloudErr);
+        }
+      }
+
       const computedSummary = calculateTopicAccuracyMetrics(
         loadedSubjects,
         loadedChapters,
-        perfStore
+        perfStore,
+        cloudAttemptLogs
       );
       setSummary(computedSummary);
+      return true;
     } catch (err) {
       console.error("[Heatmap] Failed to compute accuracy metrics:", err);
       triggerAdminToast("Failed to load accuracy heatmap data", "error");
+      return false;
     } finally {
       setIsLoading(false);
     }
@@ -89,6 +141,29 @@ export const SubjectTopicAccuracyHeatmap: React.FC<SubjectTopicAccuracyHeatmapPr
   React.useEffect(() => {
     loadHeatmapData();
   }, [loadHeatmapData]);
+
+  // Subscribe to asynchronous store hydration events
+  React.useEffect(() => {
+    const handleStoreUpdated = () => {
+      loadHeatmapData();
+    };
+    window.addEventListener("disha2020_store_updated", handleStoreUpdated);
+    return () => {
+      window.removeEventListener("disha2020_store_updated", handleStoreUpdated);
+    };
+  }, [loadHeatmapData]);
+
+  // Handle modal keyboard close (Escape)
+  React.useEffect(() => {
+    if (!inspectingMetric) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setInspectingMetric(null);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [inspectingMetric]);
 
   // Filtered & Sorted Metrics
   const filteredMetrics = React.useMemo(() => {
@@ -103,12 +178,12 @@ export const SubjectTopicAccuracyHeatmap: React.FC<SubjectTopicAccuracyHeatmapPr
       if (selectedTier !== "all" && m.healthTier !== selectedTier) {
         return false;
       }
-      // Search query filter (matches topic name, chapter name, or subject name)
+      // Search query filter (matches topic name, chapter name, or subject name with null safety)
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase().trim();
-        const matchesTopic = m.topicName.toLowerCase().includes(q);
-        const matchesChap = m.chapterName.toLowerCase().includes(q);
-        const matchesSub = m.subjectName.toLowerCase().includes(q);
+        const matchesTopic = String(m.topicName ?? "").toLowerCase().includes(q);
+        const matchesChap = String(m.chapterName ?? "").toLowerCase().includes(q);
+        const matchesSub = String(m.subjectName ?? "").toLowerCase().includes(q);
         if (!matchesTopic && !matchesChap && !matchesSub) return false;
       }
       return true;
@@ -117,6 +192,9 @@ export const SubjectTopicAccuracyHeatmap: React.FC<SubjectTopicAccuracyHeatmapPr
     // Apply sorting
     list = [...list].sort((a, b) => {
       if (sortBy === "accuracy_asc") {
+        // Prioritize actual failures with attempts > 0 over unattempted
+        if (a.totalAttempts > 0 && b.totalAttempts === 0) return -1;
+        if (b.totalAttempts > 0 && a.totalAttempts === 0) return 1;
         return a.accuracyPercentage - b.accuracyPercentage;
       }
       if (sortBy === "accuracy_desc") {
@@ -149,9 +227,13 @@ export const SubjectTopicAccuracyHeatmap: React.FC<SubjectTopicAccuracyHeatmapPr
       triggerAdminToast("No metrics available to export", "info");
       return;
     }
+    if (filteredMetrics.length === 0) {
+      triggerAdminToast("No topics match your current filter to export", "info");
+      return;
+    }
     try {
-      downloadAccuracyHeatmapCSV(filteredMetrics.length > 0 ? filteredMetrics : summary.metrics);
-      triggerAdminToast("Heatmap CSV exported successfully", "success");
+      downloadAccuracyHeatmapCSV(filteredMetrics);
+      triggerAdminToast(`Exported ${filteredMetrics.length} topics to CSV`, "success");
     } catch {
       triggerAdminToast("Failed to export CSV report", "error");
     }
@@ -175,9 +257,9 @@ export const SubjectTopicAccuracyHeatmap: React.FC<SubjectTopicAccuracyHeatmapPr
               <span className="hidden sm:inline">Export CSV</span>
             </button>
             <button
-              onClick={() => {
-                loadHeatmapData();
-                triggerAdminToast("Telemetry refreshed", "success");
+              onClick={async () => {
+                const ok = await loadHeatmapData();
+                if (ok) triggerAdminToast("Telemetry refreshed", "success");
               }}
               disabled={isLoading}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl border border-[#E8D9C0] dark:border-[#31374A] bg-white dark:bg-[#252A38] text-[#171923] dark:text-[#FFF9EF] hover:bg-neutral-50 dark:hover:bg-[#2F3546] transition-colors shadow-xs"
@@ -221,7 +303,15 @@ export const SubjectTopicAccuracyHeatmap: React.FC<SubjectTopicAccuracyHeatmapPr
 
           {/* Card 3: Critical Attention (<50%) */}
           <div
+            role="button"
+            tabIndex={0}
+            aria-pressed={selectedTier === "critical"}
             onClick={() => setSelectedTier(selectedTier === "critical" ? "all" : "critical")}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                setSelectedTier(selectedTier === "critical" ? "all" : "critical");
+              }
+            }}
             className={`p-4 rounded-2xl border transition-all cursor-pointer ${
               selectedTier === "critical"
                 ? "bg-rose-100 dark:bg-rose-950/60 border-rose-500 shadow-sm"
@@ -242,7 +332,15 @@ export const SubjectTopicAccuracyHeatmap: React.FC<SubjectTopicAccuracyHeatmapPr
 
           {/* Card 4: High Mastery (>70%) */}
           <div
+            role="button"
+            tabIndex={0}
+            aria-pressed={selectedTier === "healthy"}
             onClick={() => setSelectedTier(selectedTier === "healthy" ? "all" : "healthy")}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                setSelectedTier(selectedTier === "healthy" ? "all" : "healthy");
+              }
+            }}
             className={`p-4 rounded-2xl border transition-all cursor-pointer ${
               selectedTier === "healthy"
                 ? "bg-emerald-100 dark:bg-emerald-950/60 border-emerald-500 shadow-sm"
@@ -278,6 +376,7 @@ export const SubjectTopicAccuracyHeatmap: React.FC<SubjectTopicAccuracyHeatmapPr
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery("")}
+                  aria-label="Clear search input"
                   className="absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200"
                 >
                   <X className="w-3.5 h-3.5" />
@@ -295,7 +394,7 @@ export const SubjectTopicAccuracyHeatmap: React.FC<SubjectTopicAccuracyHeatmapPr
                 <option value="all">All Subjects ({subjects.length})</option>
                 {subjects.map((sub) => (
                   <option key={sub.id} value={sub.id}>
-                    {sub.name}
+                    {sub.hindiName || sub.name || sub.id}
                   </option>
                 ))}
               </select>
@@ -364,6 +463,16 @@ export const SubjectTopicAccuracyHeatmap: React.FC<SubjectTopicAccuracyHeatmapPr
             >
               Mastered &gt;70% ({summary?.healthyCount ?? 0})
             </button>
+            <button
+              onClick={() => setSelectedTier("unattempted")}
+              className={`px-2.5 py-1 text-xs font-bold rounded-lg transition-colors ${
+                selectedTier === "unattempted"
+                  ? "bg-slate-700 text-white shadow-xs"
+                  : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
+              }`}
+            >
+              Unattempted ({summary?.unattemptedCount ?? 0})
+            </button>
 
             {(selectedSubject !== "all" || selectedTier !== "all" || searchQuery) && (
               <button
@@ -394,17 +503,22 @@ export const SubjectTopicAccuracyHeatmap: React.FC<SubjectTopicAccuracyHeatmapPr
             {filteredMetrics.map((item) => {
               const isCrit = item.healthTier === "critical";
               const isMod = item.healthTier === "moderate";
+              const isUnattempted = item.healthTier === "unattempted";
 
               const badgeColor = isCrit
                 ? "bg-rose-100 text-rose-800 border-rose-200 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-800"
                 : isMod
                 ? "bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800"
+                : isUnattempted
+                ? "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700"
                 : "bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800";
 
               const meterColor = isCrit
                 ? "bg-rose-500"
                 : isMod
                 ? "bg-amber-500"
+                : isUnattempted
+                ? "bg-slate-300 dark:bg-slate-600"
                 : "bg-emerald-500";
 
               return (
@@ -423,7 +537,7 @@ export const SubjectTopicAccuracyHeatmap: React.FC<SubjectTopicAccuracyHeatmapPr
                         {item.subjectName}
                       </span>
                       <span className={`text-[10px] font-black px-2 py-0.5 rounded-full border ${badgeColor}`}>
-                        {item.accuracyPercentage}% Accuracy
+                        {isUnattempted ? "No Attempts Yet" : `${item.accuracyPercentage}% Accuracy`}
                       </span>
                     </div>
 
@@ -440,7 +554,11 @@ export const SubjectTopicAccuracyHeatmap: React.FC<SubjectTopicAccuracyHeatmapPr
                       <div className="h-2 w-full rounded-full bg-neutral-100 dark:bg-[#252A38] overflow-hidden">
                         <div
                           className={`h-full rounded-full transition-all duration-500 ${meterColor}`}
-                          style={{ width: `${Math.min(100, Math.max(4, item.accuracyPercentage))}%` }}
+                          style={{
+                            width: isUnattempted
+                              ? "0%"
+                              : `${Math.min(100, Math.max(4, item.accuracyPercentage))}%`,
+                          }}
                         />
                       </div>
                       <div className="flex justify-between items-center text-[10px] text-[#8A92A6]">
@@ -504,8 +622,17 @@ export const SubjectTopicAccuracyHeatmap: React.FC<SubjectTopicAccuracyHeatmapPr
 
       {/* Inline Topic Questions Inspector Modal */}
       {inspectingMetric && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-3 sm:p-4">
-          <div className="bg-white dark:bg-[#1F2330] rounded-3xl max-w-2xl w-full max-h-[85vh] flex flex-col border border-[#E8D9C0] dark:border-[#31374A] shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="topic-inspector-title"
+          onClick={() => setInspectingMetric(null)}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-3 sm:p-4"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white dark:bg-[#1F2330] rounded-3xl max-w-2xl w-full max-h-[85vh] flex flex-col border border-[#E8D9C0] dark:border-[#31374A] shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+          >
             {/* Modal Header */}
             <div className="p-4 sm:p-5 border-b border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-between">
               <div>
@@ -517,12 +644,13 @@ export const SubjectTopicAccuracyHeatmap: React.FC<SubjectTopicAccuracyHeatmapPr
                     {inspectingMetric.chapterName}
                   </span>
                 </div>
-                <h3 className="text-base sm:text-lg font-black text-[#171923] dark:text-[#FFF9EF] font-hindi">
+                <h3 id="topic-inspector-title" className="text-base sm:text-lg font-black text-[#171923] dark:text-[#FFF9EF] font-hindi">
                   {inspectingMetric.topicName}
                 </h3>
               </div>
               <button
                 onClick={() => setInspectingMetric(null)}
+                aria-label="Close Inspector Modal"
                 className="w-8 h-8 rounded-full bg-neutral-100 dark:bg-[#252A38] text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 flex items-center justify-center transition-colors"
               >
                 <X className="w-4 h-4" />
@@ -532,25 +660,47 @@ export const SubjectTopicAccuracyHeatmap: React.FC<SubjectTopicAccuracyHeatmapPr
             {/* Modal Body: Question List */}
             <div className="p-4 sm:p-5 overflow-y-auto space-y-4 divide-y divide-[#E8D9C0]/50 dark:divide-[#31374A]/50">
               {inspectedTopicQuestions.length === 0 ? (
-                <div className="py-8 text-center text-xs text-[#52576A] dark:text-[#A0AEC0]">
-                  No questions currently loaded in this topic store.
+                <div className="py-8 text-center text-xs text-[#52576A] dark:text-[#A0AEC0] flex flex-col items-center gap-2">
+                  <FileQuestion className="w-8 h-8 text-[#8A92A6] opacity-60" />
+                  <span>No questions currently loaded in this topic store.</span>
                 </div>
               ) : (
                 inspectedTopicQuestions.map((q: Question, idx: number) => {
+                  const qPerf = perfStoreRef.current[q.id];
+                  const qAttempts = qPerf?.attemptCount ?? 0;
+                  const qAccuracy = qPerf?.accuracy ?? (qAttempts > 0 ? Math.round(((qPerf?.correctCount ?? 0) / qAttempts) * 100) : null);
+
                   return (
                     <div key={q.id || idx} className={idx > 0 ? "pt-4" : ""}>
                       <div className="flex items-start justify-between gap-2 mb-2">
-                        <span className="text-xs font-black text-[#800020] dark:text-[#F47B20]">
-                          Q{idx + 1}.
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-black text-[#800020] dark:text-[#F47B20]">
+                            Q{idx + 1}.
+                          </span>
+                          {qAttempts > 0 && qAccuracy !== null && (
+                            <span
+                              className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                                qAccuracy < 50
+                                  ? "bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300"
+                                  : qAccuracy <= 70
+                                  ? "bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300"
+                                  : "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300"
+                              }`}
+                            >
+                              {qAccuracy}% Acc ({qAttempts} att)
+                            </span>
+                          )}
+                        </div>
                         {q.difficulty && (
                           <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-neutral-100 dark:bg-[#252A38] text-[#52576A] dark:text-[#CBD2E1]">
                             {q.difficulty}
                           </span>
                         )}
                       </div>
+
+                      {/* Question Text with compatibility fallback */}
                       <p className="text-xs sm:text-sm font-semibold text-[#171923] dark:text-[#FFF9EF] font-hindi mb-2.5 leading-relaxed">
-                        {q.text}
+                        {q.text || q.question || "Untitled Question"}
                       </p>
 
                       {/* Options Preview */}

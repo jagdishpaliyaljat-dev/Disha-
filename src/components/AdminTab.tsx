@@ -5,7 +5,7 @@ import {
   Upload, Sparkles, Menu, ChevronRight, ChevronLeft, HardDrive, Activity, Cpu, RefreshCw, Newspaper,
   Trophy, CheckCircle2, ListFilter, ChevronDown, Trash2, AlertCircle, Building2,
   FileCode, Archive, LogOut, ArrowRight, Timer, FileText, FileSpreadsheet, Home, Bot, Swords, ShieldAlert,
-  Crown, ArchiveRestore, FileCheck, GraduationCap, Headphones, AlertTriangle
+  Crown, ArchiveRestore, FileCheck, GraduationCap, Headphones, AlertTriangle, CalendarClock
 } from "lucide-react";
 import { Subject, Chapter, UserQuestionsStore, UserProfile } from "../types";
 import { ConfirmDialog } from "./admin/ConfirmDialog";
@@ -83,6 +83,7 @@ const QuestionRecycleBinModal = adminSafeLazy<any>(() => import("./admin/Questio
 const StaffManagementSection = adminSafeLazy<any>(() => import("./admin/StaffManagementSection"), "StaffManagementSection");
 const QuestionApprovalWorkflowSection = adminSafeLazy<any>(() => import("./admin/QuestionApprovalWorkflowSection"), "QuestionApprovalWorkflowSection");
 const QuestionHealthAuditor = adminSafeLazy<any>(() => import("./admin/QuestionHealthAuditor"), "QuestionHealthAuditor");
+const OutdatedQuestionArchiver = adminSafeLazy<any>(() => import("./admin/OutdatedQuestionArchiver"), "OutdatedQuestionArchiver");
 const EnterpriseAdminCategoryGrid = adminSafeLazy<any>(() => import("./admin/EnterpriseAdminCategoryGrid"), "EnterpriseAdminCategoryGrid");
 const LeaderboardManagerSection = adminSafeLazy<any>(() => import("./admin/LeaderboardManagerSection"), "LeaderboardManagerSection");
 const AppConfigMaintenanceSection = adminSafeLazy<any>(() => import("./admin/AppConfigMaintenanceSection"), "AppConfigMaintenanceSection");
@@ -118,6 +119,7 @@ export type AdminGroupSection =
   | "syllabus"
   | "questions"
   | "content-health"
+  | "outdated-archiver"
   | "approval"
   | "staff"
   | "tests"
@@ -142,6 +144,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
       if (p.includes("/admin/database") || h.includes("#admin/database") || p.includes("/admin/supabase") || h.includes("#admin/supabase")) return "supabase";
       if (p.includes("/admin/news") || h.includes("#admin/news")) return "content";
       if (p.includes("/admin/content-health") || h.includes("#admin/content-health") || p.includes("/admin/health-auditor") || h.includes("#admin/health-auditor")) return "content-health";
+      if (p.includes("/admin/outdated") || h.includes("#admin/outdated") || p.includes("/admin/archiver") || h.includes("#admin/archiver")) return "outdated-archiver";
     }
     return "dashboard";
   });
@@ -1322,9 +1325,18 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                       questionsStore={props.questionsStore}
                     />
                   ) : subTabDashboard === "heatmap" ? (
-                    <AdminAnalyticsDashboard initialSection="heatmap" />
+                    <AdminAnalyticsDashboard
+                      initialSection="heatmap"
+                      onInspectTopic={(_topicId, _chapterId, _subjectId) => {
+                        setActiveGroup("content-health");
+                      }}
+                    />
                   ) : (
-                    <AdminAnalyticsDashboard />
+                    <AdminAnalyticsDashboard
+                      onInspectTopic={(_topicId, _chapterId, _subjectId) => {
+                        setActiveGroup("content-health");
+                      }}
+                    />
                   )}
                 </React.Suspense>
               </div>

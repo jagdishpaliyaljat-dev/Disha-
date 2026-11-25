@@ -6,7 +6,7 @@
  * classifies content quality health tiers, and generates audit reports.
  */
 
-export type HealthTier = "critical" | "moderate" | "healthy";
+export type HealthTier = "critical" | "moderate" | "healthy" | "unattempted";
 
 export interface TopicAccuracyMetric {
   topicId: string;
@@ -30,6 +30,7 @@ export interface AccuracyHeatmapSummary {
   criticalCount: number;
   moderateCount: number;
   healthyCount: number;
+  unattemptedCount: number;
   totalAttempts: number;
   metrics: TopicAccuracyMetric[];
 }
@@ -62,12 +63,14 @@ export interface HeatmapChapterInput {
 
 /**
  * Classifies an accuracy percentage into a health tier:
- * - Critical (< 50%): Urgently needs question & explanation audit
+ * - Unattempted (0 attempts): Needs student attempts before diagnostic rating
+ * - Critical (< 50%): Urgently needs question & explanation audit (high failure rate)
  * - Moderate (50% - 70%): Average comprehension, candidate for more practice MCQs
  * - Healthy (> 70%): High mastery, solid question framing
  */
-export function classifyHealthTier(accuracy: number): HealthTier {
-  if (accuracy < 50) return "critical";
+export function classifyHealthTier(accuracy: number, totalAttempts = 1): HealthTier {
+  if (totalAttempts <= 0) return "unattempted";
+  if (!Number.isFinite(accuracy) || accuracy < 50) return "critical";
   if (accuracy <= 70) return "moderate";
   return "healthy";
 }
@@ -77,8 +80,8 @@ export function classifyHealthTier(accuracy: number): HealthTier {
  * Tolerates empty or incomplete datasets, preventing NaN and crashes.
  */
 export function calculateTopicAccuracyMetrics(
-  subjects: HeatmapSubjectInput[],
-  chapters: HeatmapChapterInput[],
+  subjects: HeatmapSubjectInput[] = [],
+  chapters: HeatmapChapterInput[] = [],
   perfStore: Record<string, any> = {},
   attemptLogs: Array<{
     questionId?: string;
@@ -89,10 +92,43 @@ export function calculateTopicAccuracyMetrics(
     timeTakenSeconds?: number;
   }> = []
 ): AccuracyHeatmapSummary {
+  const safeSubjects = Array.isArray(subjects) ? subjects : [];
+  const safeChapters = Array.isArray(chapters) ? chapters : [];
+  const safePerf = perfStore && typeof perfStore === "object" ? perfStore : {};
+  const safeLogs = Array.isArray(attemptLogs) ? attemptLogs : [];
+
   const subjectMap = new Map<string, string>();
-  subjects.forEach((s) => {
+  safeSubjects.forEach((s) => {
     if (s?.id) {
-      subjectMap.set(s.id, s.hindiName || s.name || s.id);
+      subjectMap.set(s.id, String(s.hindiName || s.name || s.id));
+    }
+  });
+
+  // Map questionId -> topicId for resolving logs missing explicit topicId
+  const questionToTopicMap = new Map<string, string>();
+  safeChapters.forEach((chapter) => {
+    const topics = Array.isArray(chapter?.topics) ? chapter.topics : [];
+    topics.forEach((topic) => {
+      const topicId = String(topic?.id || "");
+      const questions = Array.isArray(topic?.questions) ? topic.questions : [];
+      questions.forEach((q) => {
+        if (q?.id && topicId) {
+          questionToTopicMap.set(String(q.id), topicId);
+        }
+      });
+    });
+  });
+
+  // Index attempt logs by topicId
+  const topicLogsMap = new Map<string, typeof safeLogs>();
+  safeLogs.forEach((log) => {
+    const resolvedTopicId = String(
+      log?.topicId || (log?.questionId ? questionToTopicMap.get(String(log.questionId)) : "") || ""
+    );
+    if (resolvedTopicId) {
+      const list = topicLogsMap.get(resolvedTopicId) || [];
+      list.push(log);
+      topicLogsMap.set(resolvedTopicId, list);
     }
   });
 
@@ -102,29 +138,22 @@ export function calculateTopicAccuracyMetrics(
   let criticalCount = 0;
   let moderateCount = 0;
   let healthyCount = 0;
+  let unattemptedCount = 0;
 
-  // Index attempt logs by topicId for fast lookups
-  const topicLogsMap = new Map<string, typeof attemptLogs>();
-  attemptLogs.forEach((log) => {
-    if (log?.topicId) {
-      const list = topicLogsMap.get(log.topicId) || [];
-      list.push(log);
-      topicLogsMap.set(log.topicId, list);
-    }
-  });
-
-  chapters.forEach((chapter) => {
-    const chapterId = chapter?.id || "unknown-chap";
-    const chapterName = chapter?.hindiTitle || chapter?.title || chapter?.name || "Chapter";
-    const subjectId = chapter?.subjectId || "unknown-sub";
+  safeChapters.forEach((chapter) => {
+    const chapterId = String(chapter?.id || "unknown-chap");
+    const chapterName = String(chapter?.hindiTitle || chapter?.title || chapter?.name || "Chapter");
+    const subjectId = String(chapter?.subjectId || "unknown-sub");
     const subjectName = subjectMap.get(subjectId) || "Subject";
-    const topics = chapter?.topics || [];
+    const topics = Array.isArray(chapter?.topics) ? chapter.topics : [];
 
     topics.forEach((topic) => {
-      const topicId = topic?.id || "unknown-top";
-      const topicName = topic?.hindiTitle || topic?.title || topic?.name || "Topic";
-      const questions = topic?.questions || [];
-      const totalQuestions = questions.length;
+      const topicId = String(topic?.id || "unknown-top");
+      const topicName = String(topic?.hindiTitle || topic?.title || topic?.name || "Topic");
+      const questions = Array.isArray(topic?.questions) ? topic.questions : [];
+      const totalQuestions = Number.isFinite(topic?.questionCount)
+        ? Math.max(topic.questionCount, questions.length)
+        : questions.length;
 
       let topicAttempts = 0;
       let topicCorrect = 0;
@@ -134,12 +163,16 @@ export function calculateTopicAccuracyMetrics(
       // 1. Aggregate from QuestionPerformance store
       questions.forEach((q) => {
         if (!q?.id) return;
-        const perf = perfStore[q.id];
+        const perf = safePerf[q.id];
         if (perf) {
-          const attempts = Number(perf.attemptCount) || 0;
-          const correct = Number(perf.correctCount) || 0;
-          const wrong = Number(perf.wrongCount) || (attempts >= correct ? attempts - correct : 0);
-          const time = Number(perf.totalTimeSeconds) || (Number(perf.averageTimeSeconds) || 0) * attempts;
+          const attempts = Number.isFinite(perf.attemptCount) ? Math.max(0, perf.attemptCount) : 0;
+          const correct = Number.isFinite(perf.correctCount) ? Math.max(0, perf.correctCount) : 0;
+          const wrong = Number.isFinite(perf.wrongCount)
+            ? Math.max(0, perf.wrongCount)
+            : Math.max(0, attempts - correct);
+          const time = Number.isFinite(perf.totalTimeSeconds)
+            ? Math.max(0, perf.totalTimeSeconds)
+            : Math.max(0, (Number(perf.averageTimeSeconds) || 0) * attempts);
 
           topicAttempts += attempts;
           topicCorrect += correct;
@@ -158,20 +191,23 @@ export function calculateTopicAccuracyMetrics(
           } else {
             topicWrong += 1;
           }
-          topicTimeSeconds += Number(log.timeTakenSeconds) || 0;
+          topicTimeSeconds += Number.isFinite(log.timeTakenSeconds) ? Math.max(0, log.timeTakenSeconds!) : 0;
         });
       }
 
-      // Safe percentage calculation
-      const accuracyPercentage =
+      // Safe percentage calculation clamped to 0-100
+      const rawAccuracy =
         topicAttempts > 0
-          ? Math.round((topicCorrect / topicAttempts) * 1000) / 10
+          ? Math.min(100, Math.max(0, Math.round((topicCorrect / topicAttempts) * 1000) / 10))
           : 0;
+      const accuracyPercentage = Number.isFinite(rawAccuracy) ? rawAccuracy : 0;
 
       const avgTimeSeconds =
-        topicAttempts > 0 ? Math.round(topicTimeSeconds / topicAttempts) : 0;
+        topicAttempts > 0 && Number.isFinite(topicTimeSeconds)
+          ? Math.round(topicTimeSeconds / topicAttempts)
+          : 0;
 
-      const healthTier = classifyHealthTier(accuracyPercentage);
+      const healthTier = classifyHealthTier(accuracyPercentage, topicAttempts);
 
       // Accumulate summary counters
       totalGlobalAttempts += topicAttempts;
@@ -179,7 +215,8 @@ export function calculateTopicAccuracyMetrics(
 
       if (healthTier === "critical") criticalCount++;
       else if (healthTier === "moderate") moderateCount++;
-      else healthyCount++;
+      else if (healthTier === "healthy") healthyCount++;
+      else unattemptedCount++;
 
       metrics.push({
         topicId,
@@ -201,13 +238,25 @@ export function calculateTopicAccuracyMetrics(
 
   const overallAccuracy =
     totalGlobalAttempts > 0
-      ? Math.round((totalGlobalCorrect / totalGlobalAttempts) * 1000) / 10
+      ? Math.min(100, Math.max(0, Math.round((totalGlobalCorrect / totalGlobalAttempts) * 1000) / 10))
       : 0;
 
-  // Sort: Critical issues first, then lowest accuracy, then highest attempts
+  // Sorting hierarchy:
+  // 1. Critical topics with real failures (accuracy < 50% and attempts > 0) at the very top
+  // 2. Moderate topics (50% - 70%)
+  // 3. Healthy topics (> 70%)
+  // 4. Unattempted topics at the bottom of audit
   metrics.sort((a, b) => {
     if (a.healthTier === "critical" && b.healthTier !== "critical") return -1;
     if (b.healthTier === "critical" && a.healthTier !== "critical") return 1;
+
+    if (a.healthTier === "moderate" && b.healthTier !== "moderate" && b.healthTier !== "critical") return -1;
+    if (b.healthTier === "moderate" && a.healthTier !== "moderate" && a.healthTier !== "critical") return 1;
+
+    // Prioritize topics with actual attempt evidence over 0 attempts
+    if (a.totalAttempts > 0 && b.totalAttempts === 0) return -1;
+    if (b.totalAttempts > 0 && a.totalAttempts === 0) return 1;
+
     if (a.accuracyPercentage !== b.accuracyPercentage) {
       return a.accuracyPercentage - b.accuracyPercentage;
     }
@@ -220,17 +269,23 @@ export function calculateTopicAccuracyMetrics(
     criticalCount,
     moderateCount,
     healthyCount,
+    unattemptedCount,
     totalAttempts: totalGlobalAttempts,
     metrics,
   };
 }
 
 /**
- * Escapes a cell for CSV formatting, handling commas, newlines, and quotes.
+ * Escapes a cell for CSV formatting, handling commas, newlines, quotes,
+ * and hardens against CSV formula injection (CWE-1236).
  */
 function escapeCSVCell(val: string | number | undefined | null): string {
   if (val === undefined || val === null) return '""';
-  const str = String(val);
+  let str = String(val);
+  // Hardening against formula injection in Excel/Calc: prefix leading formula characters with '
+  if (/^[=+\-@\t\r]/.test(str)) {
+    str = `'${str}`;
+  }
   return `"${str.replace(/"/g, '""')}"`;
 }
 
@@ -271,6 +326,7 @@ export function exportAccuracyHeatmapCSV(metrics: TopicAccuracyMetric[]): string
 
 /**
  * Initiates a browser download of the Accuracy Heatmap CSV file.
+ * Defers URL object revocation to prevent premature abort on mobile WebViews.
  */
 export function downloadAccuracyHeatmapCSV(
   metrics: TopicAccuracyMetric[],
@@ -287,5 +343,9 @@ export function downloadAccuracyHeatmapCSV(
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
-  URL.revokeObjectURL(url);
+  setTimeout(() => {
+    try {
+      URL.revokeObjectURL(url);
+    } catch {}
+  }, 1500);
 }
