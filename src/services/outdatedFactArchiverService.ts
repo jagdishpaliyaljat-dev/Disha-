@@ -453,7 +453,7 @@ export async function applyRefreshedDataToQuestion(
     });
   } catch {}
 
-  return { nextStore, updatedQuestion, taggedQuestion: updatedQuestion };
+  return { nextStore, updatedQuestion };
 }
 
 /**
@@ -463,7 +463,7 @@ export async function tagHistoricalProvenanceBadge(
   store: UserQuestionsStore,
   questionId: string,
   year?: string | number
-): Promise<{ nextStore: UserQuestionsStore; updatedQuestion: Question }> {
+): Promise<{ nextStore: UserQuestionsStore; updatedQuestion: Question; taggedQuestion: Question }> {
   const allCurrent = [
     ...(store.customQuestions || []),
     ...(store.cloudCacheQuestions || []),
