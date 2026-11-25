@@ -163,6 +163,12 @@ export interface Chapter {
   isUserAdded?: boolean;
 }
 
+export type BookmarkReasonTag =
+  | "mug_up"
+  | "confusing"
+  | "silly_mistake"
+  | "high_yield";
+
 export interface QuestionProgress {
   status: "unattempted" | "correct" | "wrong" | "mastered";
   stage: number; // 0–4
@@ -170,6 +176,7 @@ export interface QuestionProgress {
   nextReviewAt: string; // YYYY-MM-DD
   wrongCount: number;
   bookmarked: boolean;
+  bookmarkTag?: BookmarkReasonTag;
   isBookmarked?: boolean; // Alias for bookmarked
   lastAnsweredAt: string | null;
   lastAttemptedAt?: string; // Alias for lastAnsweredAt

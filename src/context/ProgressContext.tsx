@@ -1,11 +1,11 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode } from "react";
-import { ProgressStore, QuestionProgress } from '../types';
+import { BookmarkReasonTag, ProgressStore, QuestionProgress } from '../types';
 import { loadProgressFromStorage, saveProgressToStorage } from '../utils/storage';
 
 interface ProgressContextType {
   progressStore: ProgressStore;
   updateProgress: (updater: (prev: ProgressStore) => ProgressStore) => void;
-  toggleBookmark: (questionId: string) => void;
+  toggleBookmark: (questionId: string, tag?: BookmarkReasonTag | null) => void;
 }
 
 const ProgressContext = createContext<ProgressContextType | undefined>(undefined);
@@ -21,7 +21,7 @@ export const ProgressProvider: React.FC<{ children: ReactNode }> = ({ children }
     });
   }, []);
 
-  const toggleBookmark = useCallback((questionId: string) => {
+  const toggleBookmark = useCallback((questionId: string, tag?: BookmarkReasonTag | null) => {
     updateProgress((prev) => {
       const defaultProgress: QuestionProgress = {
         status: "unattempted",
@@ -32,7 +32,14 @@ export const ProgressProvider: React.FC<{ children: ReactNode }> = ({ children }
         lastAnsweredAt: null,
       };
       const existing = prev[questionId] || defaultProgress;
-      const newStatus = !existing.bookmarked;
+      const newStatus = tag !== undefined ? true : !existing.bookmarked;
+      const nextTag = tag === null
+        ? undefined
+        : tag !== undefined
+        ? tag
+        : newStatus
+        ? existing.bookmarkTag
+        : undefined;
       
       // Persist in local IndexedDB bookmarks repository and sync to Supabase
       import("../utils/localDatabaseEngine").then(({ setLocalBookmark }) => {
@@ -40,17 +47,17 @@ export const ProgressProvider: React.FC<{ children: ReactNode }> = ({ children }
           if (isSupabaseConfigured()) {
             supabase.auth.getUser().then(({ data: { user } }) => {
               const uid = user?.id || "guest";
-              setLocalBookmark(questionId, newStatus, uid).catch(() => {});
+              setLocalBookmark(questionId, newStatus, uid, nextTag).catch(() => {});
               if (user?.id) {
                 import("../utils/supabaseSyncService").then(({ toggleBookmarkInSupabase }) => {
                   toggleBookmarkInSupabase(questionId, newStatus, user.id).catch(() => {});
                 }).catch(() => {});
               }
             }).catch(() => {
-              setLocalBookmark(questionId, newStatus, "guest").catch(() => {});
+              setLocalBookmark(questionId, newStatus, "guest", nextTag).catch(() => {});
             });
           } else {
-            setLocalBookmark(questionId, newStatus, "guest").catch(() => {});
+            setLocalBookmark(questionId, newStatus, "guest", nextTag).catch(() => {});
           }
         }).catch(() => {});
       }).catch(() => {});
@@ -60,6 +67,8 @@ export const ProgressProvider: React.FC<{ children: ReactNode }> = ({ children }
         [questionId]: {
           ...existing,
           bookmarked: newStatus,
+          bookmarkTag: nextTag,
+          updatedAt: new Date().toISOString(),
         },
       };
     });

@@ -79,6 +79,7 @@ export interface LocalBookmarkRecord {
   questionId: string;
   userId: string;
   bookmarked: boolean;
+  bookmarkTag?: string;
   createdAt: number;
   updatedAt: number;
   syncStatus: "pending" | "synced";
@@ -740,13 +741,19 @@ export async function getLocalAttempts(userId?: string): Promise<QuestionAttempt
 }
 
 // Bookmarks
-export async function setLocalBookmark(questionId: string, bookmarked: boolean, userId: string): Promise<void> {
+export async function setLocalBookmark(
+  questionId: string,
+  bookmarked: boolean,
+  userId: string,
+  bookmarkTag?: string
+): Promise<void> {
   const now = Date.now();
   const existing = await idbGet<LocalBookmarkRecord>(STORES.BOOKMARKS, questionId);
   const record: LocalBookmarkRecord = {
     questionId,
     userId,
     bookmarked,
+    bookmarkTag: bookmarked ? (bookmarkTag !== undefined ? bookmarkTag : existing?.bookmarkTag) : undefined,
     createdAt: existing?.createdAt || now,
     updatedAt: now,
     syncStatus: "pending",

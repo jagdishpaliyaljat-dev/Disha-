@@ -14,6 +14,7 @@ import {
   QuestionProgress,
   ProgressStore,
   AppNotification,
+  BookmarkReasonTag,
 } from './types';
 import { 
   Home, 
@@ -510,23 +511,34 @@ export default function App() {
     }).catch(() => {});
   };
 
-  const handleToggleBookmark = (questionId: string) => {
+  const handleToggleBookmark = (questionId: string, tag?: BookmarkReasonTag | null) => {
     const nowIso = new Date().toISOString();
     const existing = progressStore[questionId] || ({} as Partial<QuestionProgress>);
-    const nextBookmarked = !existing.bookmarked;
+    const nextBookmarked = tag !== undefined ? true : !existing.bookmarked;
+    const nextTag =
+      tag === null
+        ? undefined
+        : tag !== undefined
+        ? tag
+        : nextBookmarked
+        ? existing.bookmarkTag
+        : undefined;
+
     const updatedItem: QuestionProgress = {
       ...existing,
       bookmarked: nextBookmarked,
+      bookmarkTag: nextTag,
       updatedAt: nowIso,
     } as QuestionProgress;
 
     updateProgress((prev) => {
-      const prevExisting = prev[questionId] || {};
+      const prevExisting = prev[questionId] || ({} as Partial<QuestionProgress>);
       return {
         ...prev,
         [questionId]: {
           ...prevExisting,
           bookmarked: nextBookmarked,
+          bookmarkTag: nextTag,
           updatedAt: nowIso,
         } as QuestionProgress,
       };
@@ -536,7 +548,7 @@ export default function App() {
 
     import("./utils/localDatabaseEngine").then(({ setLocalBookmark }) => {
       const uid = userProfile?.id || "guest";
-      setLocalBookmark(questionId, nextBookmarked, uid).catch(() => {});
+      setLocalBookmark(questionId, nextBookmarked, uid, nextTag).catch(() => {});
     }).catch(() => {});
   };
   const [isLoginOpen, setIsLoginOpen] = React.useState(false);

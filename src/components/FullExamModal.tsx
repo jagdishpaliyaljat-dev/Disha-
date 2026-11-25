@@ -8,7 +8,9 @@ import {
   AppSettings,
   FullExamPreset,
   UserProfile,
+  BookmarkReasonTag,
 } from "../types";
+import { SmartBookmarkButton } from "./SmartBookmarkButton";
 import {
   DEFAULT_EXAM_PRESETS,
   generateFullExamQuestionIds,
@@ -27,7 +29,6 @@ import {
   ChevronRight,
   ArrowRight,
   ArrowLeft,
-  Bookmark,
   Layers,
   BookOpen,
   Filter,
@@ -70,7 +71,7 @@ interface FullExamModalProps {
     isCorrect: boolean,
     selectedOption: number
   ) => void;
-  onToggleBookmark: (questionId: string) => void;
+  onToggleBookmark: (questionId: string, tag?: BookmarkReasonTag | null) => void;
   onOpenPDFExport?: (config?: {
     filterType?: "all" | "wrong" | "bookmarked";
   }) => void;
@@ -1530,14 +1531,13 @@ export const FullExamModal: React.FC<FullExamModalProps> = ({
                         <Flag className="w-4 h-4" />
                       </button>
 
-                      <button
-                        type="button"
-                        onClick={() => onToggleBookmark(qId)}
-                        className="p-1 rounded text-slate-400 hover:text-amber-500 transition-colors cursor-pointer"
-                        title="Bookmark Question"
-                      >
-                        <Bookmark className={`w-4 h-4 ${isBookmarked ? "text-amber-500 fill-amber-500" : ""}`} />
-                      </button>
+                      <SmartBookmarkButton
+                        questionId={qId}
+                        isBookmarked={isBookmarked}
+                        currentTag={progressStore[qId]?.bookmarkTag}
+                        onToggleBookmark={onToggleBookmark}
+                        size="sm"
+                      />
                     </div>
                   </div>
 

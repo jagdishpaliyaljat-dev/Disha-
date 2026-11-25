@@ -1,12 +1,21 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { ProgressStore, MCQSession, Chapter, Question } from "../types";
+import { ProgressStore, MCQSession, Chapter, Question, BookmarkReasonTag } from "../types";
 import { CHAPTERS_DATA, ALL_QUESTIONS } from "../data/questions";
 import { getTodayDateString, sortQuestionsForRevision } from "../utils/revision";
 import { getAllCachedBundles } from "../utils/indexedDbCache";
 import { getAllCachedQuestions } from "../utils/questionBankCache";
 import { triggerHaptic, playClickSound } from "../utils/audioFeedback";
 import { useProgress } from "../context/ProgressContext";
+import {
+  BOOKMARK_REASON_TAGS,
+  BookmarkTagFilter,
+  buildBookmarkTagSession,
+  computeBookmarkTagCounts,
+  filterBookmarkedQuestionsByTag,
+  getBookmarkTagMeta,
+} from "../utils/bookmarkTags";
+import { SmartBookmarkButton } from "./SmartBookmarkButton";
 import {
   Clock,
   ChevronRight,
@@ -34,7 +43,7 @@ interface WrongTabProps {
   questions?: Question[];
   onSelectWrongChapter: (chapterId: string) => void;
   onStartSession: (session: MCQSession) => void;
-  onToggleBookmark?: (questionId: string) => void;
+  onToggleBookmark?: (questionId: string, tag?: BookmarkReasonTag | null) => void;
   onOpenPDFExport?: (config?: {
     chapterId?: string | null;
     filterType?: "all" | "wrong" | "bookmarked";
@@ -50,6 +59,7 @@ export const WrongTab: React.FC<WrongTabProps> = ({
 }) => {
   const { toggleBookmark: contextToggleBookmark } = useProgress();
   const [activeFilter, setActiveFilter] = useState<"bookmarked" | "mistakes" | "by-chapter">("bookmarked");
+  const [bookmarkTagFilter, setBookmarkTagFilter] = useState<BookmarkTagFilter>("all");
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportingQuestion, setReportingQuestion] = useState<Question | null>(null);
@@ -239,6 +249,16 @@ export const WrongTab: React.FC<WrongTabProps> = ({
   const totalWrongCount = wrongQuestions.length;
   const totalBookmarkedCount = bookmarkedQuestions.length;
 
+  const bookmarkTagCounts = useMemo(
+    () => computeBookmarkTagCounts(bookmarkedQuestions, progressStore),
+    [bookmarkedQuestions, progressStore]
+  );
+
+  const filteredBookmarkedQuestions = useMemo(
+    () => filterBookmarkedQuestionsByTag(bookmarkedQuestions, progressStore, bookmarkTagFilter),
+    [bookmarkedQuestions, progressStore, bookmarkTagFilter]
+  );
+
   // Chapter-wise breakdown (grouping both from ch.topics and from allQuestionsMap via chapterId/topicId)
   const chaptersBreakdown = useMemo(() => {
     return (chapters || [])
@@ -277,12 +297,12 @@ export const WrongTab: React.FC<WrongTabProps> = ({
       });
   }, [chapters, allQuestionsMap, activeFilter, progressStore]);
 
-  const handleBookmarkClick = (questionId: string) => {
+  const handleBookmarkClick = (questionId: string, tag?: BookmarkReasonTag | null) => {
     triggerHaptic("light");
     if (onToggleBookmark) {
-      onToggleBookmark(questionId);
+      onToggleBookmark(questionId, tag);
     } else {
-      contextToggleBookmark(questionId);
+      contextToggleBookmark(questionId, tag);
     }
   };
 
@@ -328,27 +348,18 @@ export const WrongTab: React.FC<WrongTabProps> = ({
     });
   };
 
-  // Start practice of all bookmarked questions
+  // Start practice of all bookmarked questions (filtered by active reason tag)
   const handleStartAllBookmarksPractice = (startFromQuestionId?: string) => {
-    if (bookmarkedQuestions.length === 0) return;
+    const session = buildBookmarkTagSession(
+      bookmarkedQuestions,
+      progressStore,
+      bookmarkTagFilter,
+      startFromQuestionId
+    );
+    if (!session) return;
     triggerHaptic("light");
     playClickSound();
-
-    let ordered = [...bookmarkedQuestions];
-    if (startFromQuestionId) {
-      const idx = ordered.findIndex((q) => q.id === startFromQuestionId);
-      if (idx > 0) {
-        ordered = [...ordered.slice(idx), ...ordered.slice(0, idx)];
-      }
-    }
-
-    onStartSession({
-      title: "Bookmarked Questions Revision",
-      subtitle: `${ordered.length} Saved Questions`,
-      questionIds: ordered.map((q) => q.id),
-      extraQuestions: ordered,
-      source: "all-wrong",
-    });
+    onStartSession(session);
   };
 
   // Start practice for a specific chapter
@@ -381,8 +392,10 @@ export const WrongTab: React.FC<WrongTabProps> = ({
   };
 
   const renderQuestionCard = (q: Question, index: number, badgeType: "bookmarked" | "wrong") => {
-    const isBookmarked = Boolean(progressStore[q.id]?.bookmarked);
-    const isWrong = progressStore[q.id]?.status === "wrong";
+    const prog = progressStore[q.id];
+    const isBookmarked = Boolean(prog?.bookmarked);
+    const bookmarkTagMeta = isBookmarked ? getBookmarkTagMeta(prog?.bookmarkTag) : null;
+    const isWrong = prog?.status === "wrong";
     const isRevealed = Boolean(revealedIds[q.id]);
     const ch = getQuestionChapter(q);
     const qText = q.text || (q as any).question || "Question";
@@ -404,6 +417,13 @@ export const WrongTab: React.FC<WrongTabProps> = ({
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#C99A45]/15 text-[#946B1E] dark:text-[#E5BC6B] border border-[#C99A45]/30 text-[10px] font-extrabold uppercase tracking-wider">
                 <Bookmark size={10} className="fill-current" />
                 Bookmarked
+              </span>
+            )}
+            {bookmarkTagMeta && (
+              <span
+                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md border text-[10px] font-extrabold ${bookmarkTagMeta.badgeClass}`}
+              >
+                {bookmarkTagMeta.shortLabel}
               </span>
             )}
             {isWrong && (
@@ -435,18 +455,13 @@ export const WrongTab: React.FC<WrongTabProps> = ({
               <Flag size={14} />
             </button>
 
-            <button
-              type="button"
-              onClick={() => handleBookmarkClick(q.id)}
-              title={isBookmarked ? "Remove Bookmark" : "Bookmark Question"}
-              className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-all cursor-pointer active:scale-90 ${
-                isBookmarked
-                  ? "bg-[#C99A45]/20 text-[#946B1E] dark:text-[#E5BC6B] border border-[#C99A45]/40"
-                  : "bg-[#F7EFE2] dark:bg-[#252A3A] text-[#787D91] dark:text-[#929AB0] border border-[#E8D9C0] dark:border-[#31374A]"
-              }`}
-            >
-              <Bookmark size={15} className={isBookmarked ? "fill-current" : ""} />
-            </button>
+            <SmartBookmarkButton
+              questionId={q.id}
+              isBookmarked={isBookmarked}
+              currentTag={prog?.bookmarkTag}
+              onToggleBookmark={handleBookmarkClick}
+              size="sm"
+            />
           </div>
         </div>
 
@@ -690,24 +705,87 @@ export const WrongTab: React.FC<WrongTabProps> = ({
         {/* 1. BOOKMARKED QUESTIONS SECTION */}
         {activeFilter === "bookmarked" && (
           <section className="space-y-3">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2 flex-wrap">
               <div className="flex items-center gap-2">
                 <Bookmark size={16} className="text-[#C99A45] fill-[#C99A45]" />
                 <h2 className="text-sm font-black text-[#171923] dark:text-[#FFF9EF]">
-                  Bookmarked Questions ({totalBookmarkedCount})
+                  Bookmarked Questions ({filteredBookmarkedQuestions.length})
                 </h2>
               </div>
-              {totalBookmarkedCount > 0 && (
+              {filteredBookmarkedQuestions.length > 0 && (
                 <button
                   type="button"
                   onClick={() => handleStartAllBookmarksPractice()}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#800020] dark:bg-[#F47B20] text-white text-xs font-extrabold shadow-2xs active:scale-95 transition-all cursor-pointer"
                 >
                   <Play size={12} className="fill-white" />
-                  <span>Practice All ({totalBookmarkedCount})</span>
+                  <span>
+                    {bookmarkTagFilter === "all"
+                      ? `Practice All (${filteredBookmarkedQuestions.length})`
+                      : bookmarkTagFilter === "untagged"
+                      ? `Practice Untagged (${filteredBookmarkedQuestions.length})`
+                      : `Practice ${getBookmarkTagMeta(bookmarkTagFilter)?.labelHi || ""} (${filteredBookmarkedQuestions.length})`}
+                  </span>
                 </button>
               )}
             </div>
+
+            {/* Reason-Based Smart Bookmark Tag Filter Bar */}
+            {totalBookmarkedCount > 0 && (
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+                <button
+                  type="button"
+                  onClick={() => {
+                    triggerHaptic("light");
+                    setBookmarkTagFilter("all");
+                  }}
+                  className={`px-2.5 py-1.5 rounded-xl text-[11px] font-black border whitespace-nowrap transition-all cursor-pointer ${
+                    bookmarkTagFilter === "all"
+                      ? "bg-[#800020] dark:bg-[#F47B20] text-white border-transparent shadow-2xs"
+                      : "bg-white dark:bg-[#1F2330] text-[#52576A] dark:text-[#CBD2E1] border-[#E8D9C0] dark:border-[#31374A]"
+                  }`}
+                >
+                  All ({bookmarkTagCounts.all})
+                </button>
+                {BOOKMARK_REASON_TAGS.map((tag) => {
+                  const count = bookmarkTagCounts[tag.id];
+                  const isActive = bookmarkTagFilter === tag.id;
+                  return (
+                    <button
+                      key={tag.id}
+                      type="button"
+                      onClick={() => {
+                        triggerHaptic("light");
+                        setBookmarkTagFilter(tag.id);
+                      }}
+                      className={`px-2.5 py-1.5 rounded-xl text-[11px] font-black border whitespace-nowrap transition-all cursor-pointer ${
+                        isActive
+                          ? tag.activeButtonClass
+                          : "bg-white dark:bg-[#1F2330] text-[#52576A] dark:text-[#CBD2E1] border-[#E8D9C0] dark:border-[#31374A]"
+                      }`}
+                    >
+                      {tag.shortLabel} ({count})
+                    </button>
+                  );
+                })}
+                {bookmarkTagCounts.untagged > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      triggerHaptic("light");
+                      setBookmarkTagFilter("untagged");
+                    }}
+                    className={`px-2.5 py-1.5 rounded-xl text-[11px] font-black border whitespace-nowrap transition-all cursor-pointer ${
+                      bookmarkTagFilter === "untagged"
+                        ? "bg-slate-700 text-white border-slate-700"
+                        : "bg-white dark:bg-[#1F2330] text-[#52576A] dark:text-[#CBD2E1] border-[#E8D9C0] dark:border-[#31374A]"
+                    }`}
+                  >
+                    Untagged ({bookmarkTagCounts.untagged})
+                  </button>
+                )}
+              </div>
+            )}
 
             {bookmarkedQuestions.length === 0 ? (
               <div className="p-6 text-center bg-white dark:bg-[#1F2330] rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] flex flex-col items-center">
@@ -718,12 +796,21 @@ export const WrongTab: React.FC<WrongTabProps> = ({
                   No Bookmarked Questions Yet
                 </p>
                 <p className="text-[#52576A] dark:text-[#CBD2E1] text-xs max-w-xs">
-                  Tap the bookmark icon on any question during a quiz or test to save it here for quick revision.
+                  Tap the bookmark icon on any question during a quiz or test to save it with a reason tag for quick revision.
+                </p>
+              </div>
+            ) : filteredBookmarkedQuestions.length === 0 ? (
+              <div className="p-5 text-center bg-white dark:bg-[#1F2330] rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] space-y-2">
+                <p className="font-extrabold text-xs text-[#171923] dark:text-[#FFF9EF]">
+                  इस टैग में कोई बुकमार्क प्रश्न नहीं है
+                </p>
+                <p className="text-[11px] text-[#52576A] dark:text-[#CBD2E1]">
+                  किसी भी प्रश्न के बुकमार्क बटन पर टैप करके उसे &quot;रटना है&quot;, &quot;कन्फ्यूजिंग पेयर&quot;, &quot;सिल्ली मिस्टेक&quot; या &quot;हाई-यील्ड PYQ&quot; टैग दे सकते हैं।
                 </p>
               </div>
             ) : (
               <div className="space-y-3">
-                {bookmarkedQuestions.map((q, idx) => renderQuestionCard(q, idx, "bookmarked"))}
+                {filteredBookmarkedQuestions.map((q, idx) => renderQuestionCard(q, idx, "bookmarked"))}
               </div>
             )}
           </section>

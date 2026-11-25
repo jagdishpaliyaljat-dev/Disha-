@@ -104,7 +104,20 @@ export function mergeRealtimeProgressDelta(
 
     // Bookmarks can be toggled independently of answer timestamps.
     if (next.bookmarked && !prev.bookmarked) {
-      merged[questionId] = { ...prev, bookmarked: true };
+      merged[questionId] = {
+        ...prev,
+        bookmarked: true,
+        ...(next.bookmarkTag ? { bookmarkTag: next.bookmarkTag } : {}),
+      };
+      changedCount++;
+    } else if (
+      next.bookmarked &&
+      prev.bookmarked &&
+      next.bookmarkTag &&
+      next.bookmarkTag !== prev.bookmarkTag &&
+      timestampOf(next) >= timestampOf(prev)
+    ) {
+      merged[questionId] = { ...prev, bookmarkTag: next.bookmarkTag };
       changedCount++;
     }
   }

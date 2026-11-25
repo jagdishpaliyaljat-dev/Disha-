@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
-import { MCQSession, AppSettings, Question, Chapter, UserProfile, ProgressStore } from "../types";
+import { MCQSession, AppSettings, Question, Chapter, UserProfile, ProgressStore, BookmarkReasonTag } from "../types";
+import { SmartBookmarkButton } from "./SmartBookmarkButton";
 import { useProgress } from "../context/ProgressContext";
 import { useQuestions } from "../context/QuestionsContext";
 import { QUESTIONS_MAP, CHAPTERS_MAP, TOPICS_MAP } from "../data/questions";
@@ -101,7 +102,7 @@ interface MCQSessionModalProps {
     isCorrect: boolean,
     selectedOption: number
   ) => void;
-  onToggleBookmark: (questionId: string) => void;
+  onToggleBookmark: (questionId: string, tag?: BookmarkReasonTag | null) => void;
   onClose: () => void;
   onStartNewSession: (newSession: MCQSession) => void;
   onUpdateSettings?: (newSettings: Partial<AppSettings>) => void;
@@ -2311,18 +2312,18 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                         </div>
                       </div>
 
-                      <motion.button
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                        onClick={() => onToggleBookmark(q.id)}
-                        className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl border flex items-center justify-center transition-all cursor-pointer ${
+                      <SmartBookmarkButton
+                        questionId={q.id}
+                        isBookmarked={isQBookmarked}
+                        currentTag={progressStore[q.id]?.bookmarkTag}
+                        onToggleBookmark={onToggleBookmark}
+                        size="md"
+                        className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl border flex items-center justify-center transition-all cursor-pointer relative ${
                           isQBookmarked
                             ? "bg-[#C99A45] border-[#C99A45] text-white shadow-md shadow-[#C99A45]/20"
                             : "bg-white dark:bg-[#20181B] border-[#E8D9C0] dark:border-[#33252A] text-[#718096]"
                         }`}
-                      >
-                        <Bookmark className={`w-4 h-4 sm:w-5 sm:h-5 ${isQBookmarked ? 'fill-current' : ''}`} />
-                      </motion.button>
+                      />
                     </div>
 
                     <div className="p-4 sm:p-6 space-y-5">
@@ -2794,17 +2795,15 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
               <Flag className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
             </button>
 
-            <button
-              onClick={() => currentQuestion && onToggleBookmark(currentQuestion.id)}
-              className={`w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl border flex items-center justify-center transition-all active:scale-90 cursor-pointer ${
-                isBookmarked
-                  ? "bg-[#C99A45] border-[#C99A45] text-white shadow-lg shadow-[#C99A45]/25"
-                  : "bg-white dark:bg-[#252A3A] border-[#E8D9C0] dark:border-[#31374A] text-[#52576A] dark:text-[#CBD2E1]"
-              }`}
-              title="Bookmark Question"
-            >
-              <Bookmark className={`w-4 h-4 sm:w-4.5 sm:h-4.5 ${isBookmarked ? 'fill-current' : ''}`} />
-            </button>
+            {currentQuestion && (
+              <SmartBookmarkButton
+                questionId={currentQuestion.id}
+                isBookmarked={isBookmarked}
+                currentTag={currentProgress?.bookmarkTag}
+                onToggleBookmark={onToggleBookmark}
+                size="sm"
+              />
+            )}
 
             {/* Quick Eye Comfort Shield */}
             <button
@@ -3307,7 +3306,7 @@ interface RedesignedLiveAndPYQTestViewProps {
   setVisitedStates: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
   elapsedSeconds: number;
   onUpdateProgress: (questionId: string, isCorrect: boolean, selectedOption: number) => void;
-  onToggleBookmark: (questionId: string) => void;
+  onToggleBookmark: (questionId: string, tag?: BookmarkReasonTag | null) => void;
   isBookmarked: boolean;
   onClose: () => void;
   showSubmitConfirm: boolean;
@@ -4276,7 +4275,7 @@ interface RedesignedTestResultViewProps {
   shuffledOptionsOrder: Record<string, number[]>;
   progressStore?: ProgressStore;
   userProfile?: UserProfile | null;
-  onToggleBookmark?: (questionId: string) => void;
+  onToggleBookmark?: (questionId: string, tag?: BookmarkReasonTag | null) => void;
   onClose: () => void;
   onRestart: () => void;
   serverSubmission?: any | null;
@@ -4979,19 +4978,18 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
                         <Flag className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
                       </motion.button>
 
-                      <motion.button
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                        onClick={() => onToggleBookmark(q.id)}
-                        className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl border flex items-center justify-center transition-all cursor-pointer ${
+                      <SmartBookmarkButton
+                        questionId={q.id}
+                        isBookmarked={isQBookmarked}
+                        currentTag={progressStore[q.id]?.bookmarkTag}
+                        onToggleBookmark={onToggleBookmark}
+                        size="md"
+                        className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl border flex items-center justify-center transition-all cursor-pointer relative ${
                           isQBookmarked
                             ? "bg-[#C99A45] border-[#C99A45] text-white shadow-md shadow-[#C99A45]/20"
                             : "bg-white dark:bg-[#20181B] border-[#E8D9C0] dark:border-[#33252A] text-[#718096]"
                         }`}
-                        title={isQBookmarked ? "Remove Bookmark" : "Bookmark Question"}
-                      >
-                        <Bookmark className={`w-4 h-4 sm:w-5 sm:h-5 ${isQBookmarked ? 'fill-current' : ''}`} />
-                      </motion.button>
+                      />
                     </div>
                   </div>
 
