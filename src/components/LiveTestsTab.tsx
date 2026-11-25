@@ -271,36 +271,37 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
 
   return (
     <div
-      className="flex flex-col w-full min-h-screen bg-[#FFF9EF] dark:bg-[#171923] text-[#171923] dark:text-[#FFF9EF] select-none antialiased pb-32"
+      className="flex flex-col w-full min-h-screen bg-[#F8FAFC] dark:bg-[#130E26] text-slate-900 dark:text-slate-50 select-none antialiased pb-32"
       id="tests-hub-mobile-view"
     >
-      <header className="sticky top-0 z-30 bg-[#FFF9EF]/95 dark:bg-[#1F2330]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] shadow-xs px-3.5 sm:px-4 pt-[env(safe-area-inset-top,0px)] py-2.5 transition-colors">
-        <div className="flex items-center justify-between gap-3 max-w-4xl mx-auto w-full">
+      <header className="sticky top-0 md:top-14 z-30 bg-white/95 dark:bg-[#130E26]/95 backdrop-blur-md border-b border-slate-200 dark:border-[#31275E] shadow-xs transition-colors pt-[env(safe-area-inset-top,0px)] md:pt-0">
+        <div className="px-3.5 sm:px-4 py-2.5 min-h-[60px] flex items-center justify-between gap-3 max-w-4xl mx-auto w-full">
           {/* Back & Title */}
           <div className="flex items-center gap-2.5 min-w-0">
             {onNavigateTab && (
               <button
+                type="button"
                 onClick={() => {
                   triggerHaptic("light");
                   onNavigateTab("home");
                 }}
-                className="w-9 h-9 rounded-xl bg-white dark:bg-[#252A3A] hover:bg-[#F7EFE2] dark:hover:bg-[#31374A] flex items-center justify-center text-[#171923] dark:text-[#FFF9EF] border border-[#E8D9C0] dark:border-[#31374A] shadow-xs active:scale-95 transition-all cursor-pointer shrink-0"
+                className="md:hidden w-11 h-11 rounded-xl bg-slate-100 dark:bg-[#241D48] hover:bg-slate-200/80 dark:hover:bg-[#31275E] flex items-center justify-center text-slate-900 dark:text-slate-50 border border-slate-200 dark:border-[#31275E] shadow-xs active:scale-95 transition-all cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
                 aria-label="Back to home"
               >
-                <ArrowLeft size={17} />
+                <ArrowLeft size={18} />
               </button>
             )}
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <h1 className="text-sm sm:text-base font-black text-[#171923] dark:text-[#FFF9EF] leading-tight truncate tracking-tight">
+                <h1 className="text-sm sm:text-base font-black text-slate-900 dark:text-slate-50 leading-tight truncate tracking-tight">
                   Live Tests &amp; Test Series
                 </h1>
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#800020]/10 dark:bg-[#C99A45]/15 border border-[#800020]/25 dark:border-[#C99A45]/30 text-[9.5px] font-black text-[#800020] dark:text-[#F47B20] shrink-0">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#991B1B] animate-pulse" />
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-500/10 dark:bg-rose-500/15 border border-rose-500/25 text-[11px] font-black text-rose-600 dark:text-rose-400 shrink-0">
+                  <span className="w-1.5 h-1.5 rounded-full bg-rose-600 animate-pulse" />
                   LIVE
                 </span>
               </div>
-              <p className="text-[10.5px] text-[#800020] dark:text-[#C99A45] font-bold leading-none mt-0.5 truncate tracking-wide">
+              <p className="text-[11px] text-[#7045D8] dark:text-[#A78BFA] font-bold leading-none mt-1 truncate tracking-wide">
                 Official RPSC &amp; RSMSSB Simulation · All-Rajasthan Merit
               </p>
             </div>
@@ -309,13 +310,14 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
           {/* Admin Create Action */}
           {isAdmin && onOpenAdminManage && (
             <button
+              type="button"
               onClick={() => {
                 triggerHaptic("light");
                 onOpenAdminManage();
               }}
-              className="px-3 py-1.5 rounded-xl bg-[#800020] hover:bg-[#5E0017] dark:bg-[#800020] dark:hover:bg-[#5E0017] text-[#FFF9EF] font-black text-[11px] shadow-sm border border-[#C99A45]/40 active:scale-95 transition-all cursor-pointer shrink-0 flex items-center gap-1.5"
+              className="min-h-[44px] px-3.5 py-2 rounded-xl bg-[#7045D8] hover:bg-[#5B32BF] text-white font-black text-xs shadow-sm active:scale-95 transition-all cursor-pointer shrink-0 flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
             >
-              <Zap size={12} className="text-[#C99A45] fill-current" />
+              <Zap size={13} className="fill-current" />
               <span>+ Create</span>
             </button>
           )}
@@ -327,7 +329,7 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
         {/* ── 2. NAVIGATION TABS (PILL BAR) ─────────────────────────────────── */}
         <nav
           aria-label="Exam Portal Sections"
-          className="p-1 bg-[#F7EFE2] dark:bg-[#252A3A] rounded-2xl flex items-center border border-[#E8D9C0] dark:border-[#31374A] shadow-xs"
+          className="p-1 bg-slate-100 dark:bg-[#241D48] rounded-2xl flex items-center border border-slate-200 dark:border-[#31275E] shadow-xs"
         >
           {/* Tab 1: Live Tests */}
           <button
@@ -338,18 +340,18 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
             }}
             className={`flex-1 py-2 sm:py-2.5 rounded-xl text-[11.5px] font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer min-h-[40px] ${
               activeSubTab === "live"
-                ? "bg-[#800020] text-[#FFF9EF] shadow-sm border border-[#C99A45]/40"
-                : "text-stone-600 dark:text-stone-300 hover:text-[#171923] dark:hover:text-[#FFF9EF]"
+                ? "bg-[#7045D8] text-white shadow-sm border border-[#A78BFA]/40"
+                : "text-stone-600 dark:text-stone-300 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
-            <Radio size={13} className={activeSubTab === "live" ? "text-[#C99A45]" : ""} />
+            <Radio size={13} className={activeSubTab === "live" ? "text-amber-500" : ""} />
             <span>Live Tests</span>
             {liveAndUpcoming.length > 0 && (
               <span
-                className={`ml-0.5 px-1.5 py-0.2 rounded-full text-[9px] font-mono tabular-nums ${
+                className={`ml-0.5 px-1.5 py-0.2 rounded-full text-[11px] font-mono tabular-nums ${
                   activeSubTab === "live"
-                    ? "bg-[#C99A45] text-[#171923] font-black"
-                    : "bg-[#800020]/10 text-[#800020] dark:bg-[#1F2330] dark:text-[#C99A45]"
+                    ? "bg-[#A78BFA] text-slate-900 font-black"
+                    : "bg-[#7045D8]/10 text-[#7045D8] dark:bg-[#1B1536] dark:text-[#A78BFA]"
                 }`}
               >
                 {liveAndUpcoming.length}
@@ -370,11 +372,11 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
             }}
             className={`flex-1 py-2 sm:py-2.5 rounded-xl text-[11.5px] font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer min-h-[40px] ${
               activeSubTab === "series"
-                ? "bg-[#800020] text-[#FFF9EF] shadow-sm border border-[#C99A45]/40"
-                : "text-stone-600 dark:text-stone-300 hover:text-[#171923] dark:hover:text-[#FFF9EF]"
+                ? "bg-[#7045D8] text-white shadow-sm border border-[#A78BFA]/40"
+                : "text-stone-600 dark:text-stone-300 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
-            <Layers size={13} className={activeSubTab === "series" ? "text-[#C99A45]" : ""} />
+            <Layers size={13} className={activeSubTab === "series" ? "text-amber-500" : ""} />
             <span>Test Series</span>
           </button>
 
@@ -387,18 +389,18 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
             }}
             className={`flex-1 py-2 sm:py-2.5 rounded-xl text-[11.5px] font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer min-h-[40px] ${
               activeSubTab === "results"
-                ? "bg-[#800020] text-[#FFF9EF] shadow-sm border border-[#C99A45]/40"
-                : "text-stone-600 dark:text-stone-300 hover:text-[#171923] dark:hover:text-[#FFF9EF]"
+                ? "bg-[#7045D8] text-white shadow-sm border border-[#A78BFA]/40"
+                : "text-stone-600 dark:text-stone-300 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
-            <Award size={13} className={activeSubTab === "results" ? "text-[#C99A45]" : ""} />
+            <Award size={13} className={activeSubTab === "results" ? "text-amber-500" : ""} />
             <span>Scores</span>
             {submissions.length > 0 && (
               <span
-                className={`ml-0.5 px-1.5 py-0.2 rounded-full text-[9px] font-mono tabular-nums ${
+                className={`ml-0.5 px-1.5 py-0.2 rounded-full text-[11px] font-mono tabular-nums ${
                   activeSubTab === "results"
-                    ? "bg-[#C99A45] text-[#171923] font-black"
-                    : "bg-[#800020]/10 text-[#800020] dark:bg-[#1F2330] dark:text-[#C99A45]"
+                    ? "bg-[#A78BFA] text-slate-900 font-black"
+                    : "bg-[#7045D8]/10 text-[#7045D8] dark:bg-[#1B1536] dark:text-[#A78BFA]"
                 }`}
               >
                 {submissions.length}
@@ -415,11 +417,11 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
             }}
             className={`flex-1 py-2 sm:py-2.5 rounded-xl text-[11.5px] font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer min-h-[40px] ${
               activeSubTab === "leaderboard"
-                ? "bg-[#800020] text-[#FFF9EF] shadow-sm border border-[#C99A45]/40"
-                : "text-stone-600 dark:text-stone-300 hover:text-[#171923] dark:hover:text-[#FFF9EF]"
+                ? "bg-[#7045D8] text-white shadow-sm border border-[#A78BFA]/40"
+                : "text-stone-600 dark:text-stone-300 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
-            <Trophy size={13} className={activeSubTab === "leaderboard" ? "text-[#C99A45]" : ""} />
+            <Trophy size={13} className={activeSubTab === "leaderboard" ? "text-amber-500" : ""} />
             <span>Ranks</span>
           </button>
         </nav>
@@ -428,9 +430,9 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
         {activeSubTab === "live" && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
             {isLoading ? (
-              <div className="md:col-span-2 p-10 text-center bg-white dark:bg-[#1F2330] rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] flex flex-col items-center shadow-xs">
-                <RefreshCw size={24} className="text-[#800020] dark:text-[#C5A059] animate-spin mb-2.5" />
-                <p className="font-black text-xs sm:text-sm text-[#171923] dark:text-[#FFF9EF]">
+              <div className="md:col-span-2 p-10 text-center bg-white dark:bg-[#1B1536] rounded-2xl border border-slate-200 dark:border-[#31275E] flex flex-col items-center shadow-xs">
+                <RefreshCw size={24} className="text-[#7045D8] dark:text-[#C5A059] animate-spin mb-2.5" />
+                <p className="font-black text-xs sm:text-sm text-slate-900 dark:text-slate-50">
                   Syncing Live Tests...
                 </p>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
@@ -438,11 +440,11 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
                 </p>
               </div>
             ) : liveAndUpcoming.length === 0 ? (
-              <div className="md:col-span-2 p-8 text-center bg-white dark:bg-[#1F2330] rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] flex flex-col items-center shadow-xs">
-                <div className="w-12 h-12 rounded-2xl bg-[#800020]/10 dark:bg-[#C99A45]/15 flex items-center justify-center text-[#800020] dark:text-[#C99A45] mb-2.5 border border-[#800020]/15 dark:border-[#C99A45]/30">
+              <div className="md:col-span-2 p-8 text-center bg-white dark:bg-[#1B1536] rounded-2xl border border-slate-200 dark:border-[#31275E] flex flex-col items-center shadow-xs">
+                <div className="w-12 h-12 rounded-2xl bg-[#7045D8]/10 dark:bg-[#7045D8]/15 flex items-center justify-center text-[#7045D8] dark:text-[#A78BFA] mb-2.5 border border-[#7045D8]/15 dark:border-[#A78BFA]/30">
                   <Radio size={22} />
                 </div>
-                <h3 className="font-black text-sm text-[#171923] dark:text-[#FFF9EF] mb-1">
+                <h3 className="font-black text-sm text-slate-900 dark:text-slate-50 mb-1">
                   No Active Live Tests Scheduled
                 </h3>
                 <p className="text-stone-500 dark:text-stone-400 text-xs mb-3.5 max-w-xs leading-relaxed">
@@ -453,9 +455,9 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
                     triggerHaptic("light");
                     setActiveSubTab("series");
                   }}
-                  className="px-4 py-2 rounded-xl bg-[#800020] hover:bg-[#5E0017] dark:bg-[#800020] text-[#FFF9EF] text-xs font-black border border-[#C99A45]/40 active:scale-95 transition-all shadow-xs cursor-pointer flex items-center gap-1.5"
+                  className="px-4 py-2 rounded-xl bg-[#7045D8] hover:bg-[#5B32BF] dark:bg-[#7045D8] text-white text-xs font-black border border-[#A78BFA]/40 active:scale-95 transition-all shadow-xs cursor-pointer flex items-center gap-1.5"
                 >
-                  <Layers size={13} className="text-[#C99A45]" />
+                  <Layers size={13} className="text-amber-500" />
                   <span>Explore Test Series</span>
                 </button>
               </div>
@@ -471,17 +473,17 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
                 return (
                   <article
                     key={test.id}
-                    className="bg-white dark:bg-[#1F2330] rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] p-4 shadow-xs hover:border-[#800020]/50 dark:hover:border-[#C99A45]/50 transition-all flex flex-col justify-between space-y-3"
+                    className="bg-white dark:bg-[#1B1536] rounded-2xl border border-slate-200 dark:border-[#31275E] p-4 shadow-xs hover:border-[#7045D8]/50 dark:hover:border-[#A78BFA]/50 transition-all flex flex-col justify-between space-y-3"
                   >
                     <div className="space-y-2.5">
                       {/* Top Badges Row */}
                       <div className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-1.5 min-w-0">
-                          <span className="bg-[#800020]/10 text-[#800020] dark:bg-[#C99A45]/15 dark:text-[#C99A45] text-[9.5px] font-black uppercase px-2 py-0.5 rounded-lg border border-[#800020]/25 dark:border-[#C99A45]/35 truncate">
+                          <span className="bg-[#7045D8]/10 text-[#7045D8] dark:bg-[#7045D8]/15 dark:text-[#A78BFA] text-[11px] font-black uppercase px-2 py-0.5 rounded-lg border border-[#7045D8]/25 dark:border-[#A78BFA]/35 truncate">
                             {test.examCategory || "General Exam"}
                           </span>
-                          <span className="bg-[#C99A45]/15 text-[#800020] dark:text-[#C99A45] text-[9.5px] font-black uppercase px-1.5 py-0.5 rounded-lg border border-[#C99A45]/30 shrink-0 flex items-center gap-1">
-                            <ShieldCheck size={11} className="text-[#C99A45]" />
+                          <span className="bg-[#A78BFA]/15 text-[#7045D8] dark:text-[#A78BFA] text-[11px] font-black uppercase px-1.5 py-0.5 rounded-lg border border-[#A78BFA]/30 shrink-0 flex items-center gap-1">
+                            <ShieldCheck size={11} className="text-amber-500" />
                             Option E
                           </span>
                         </div>
@@ -490,27 +492,27 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
                           {isTestLocked ? (
                             <div className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500/15 dark:bg-amber-500/25 border border-amber-500/40 text-amber-700 dark:text-amber-400 shrink-0">
                               <Lock size={10} className="text-amber-600 dark:text-amber-400" />
-                              <span className="text-[9px] font-black uppercase tracking-wider">
+                              <span className="text-[11px] font-black uppercase tracking-wider">
                                 VIP PASS
                               </span>
                             </div>
                           ) : (
                             <div className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-500/10 dark:bg-emerald-500/20 border border-emerald-500/30 text-emerald-700 dark:text-emerald-400 shrink-0">
-                              <span className="text-[9px] font-black uppercase tracking-wider">
+                              <span className="text-[11px] font-black uppercase tracking-wider">
                                 FREE DEMO
                               </span>
                             </div>
                           )}
 
-                          <div className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#991B1B]/10 dark:bg-[#991B1B]/25 border border-[#991B1B]/30 text-[#991B1B] dark:text-[#F47B20] shrink-0">
+                          <div className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#991B1B]/10 dark:bg-[#991B1B]/25 border border-[#991B1B]/30 text-[#991B1B] dark:text-[#A78BFA] shrink-0">
                             <span className="w-1.5 h-1.5 rounded-full bg-[#991B1B] animate-ping" />
-                            <span className="text-[9px] font-black uppercase tracking-wider">
+                            <span className="text-[11px] font-black uppercase tracking-wider">
                               LIVE
                             </span>
                           </div>
                           <button
                             onClick={() => handleShareLiveTest(test)}
-                            className="p-1.5 rounded-lg bg-[#F7EFE2] dark:bg-[#252A3A] text-[#800020] dark:text-[#C99A45] hover:bg-[#E8D9C0]/60 transition-all cursor-pointer border border-[#E8D9C0] dark:border-[#31374A] active:scale-95"
+                            className="p-1.5 rounded-lg bg-slate-100 dark:bg-[#241D48] text-[#7045D8] dark:text-[#A78BFA] hover:bg-slate-200/60 transition-all cursor-pointer border border-slate-200 dark:border-[#31275E] active:scale-95"
                             title="Share Test"
                             aria-label="Share test"
                           >
@@ -521,7 +523,7 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
 
                       {/* Title & Instructions */}
                       <div>
-                        <h3 className="text-sm sm:text-base font-black text-[#171923] dark:text-[#FFF9EF] leading-snug font-hindi">
+                        <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-slate-50 leading-snug font-hindi">
                           {test.title}
                         </h3>
                         {test.hindiTitle && (
@@ -536,48 +538,48 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
                         )}
 
                         {/* RPSC 5th Option Rule Notice */}
-                        <div className="mt-2 p-2 rounded-xl bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] text-[10px] leading-relaxed text-[#171923] dark:text-[#E8D9C0] flex items-start gap-1.5">
-                          <AlertCircle size={13} className="shrink-0 text-[#800020] dark:text-[#C99A45] mt-0.5" />
+                        <div className="mt-2 p-2 rounded-xl bg-[#F8FAFC] dark:bg-[#130E26] border border-slate-200 dark:border-[#31275E] text-[11px] leading-relaxed text-slate-900 dark:text-slate-200 flex items-start gap-1.5">
+                          <AlertCircle size={13} className="shrink-0 text-[#7045D8] dark:text-[#A78BFA] mt-0.5" />
                           <div>
-                            <strong className="text-[#800020] dark:text-[#C99A45]">RPSC Option E Rule:</strong> If you do not wish to attempt a question, select Option E ('Unattempted'). Leaving it blank deducts {negMark} marks, and leaving &gt;10% blank results in disqualification.
+                            <strong className="text-[#7045D8] dark:text-[#A78BFA]">RPSC Option E Rule:</strong> If you do not wish to attempt a question, select Option E ('Unattempted'). Leaving it blank deducts {negMark} marks, and leaving &gt;10% blank results in disqualification.
                           </div>
                         </div>
                       </div>
 
                       {/* Stats Micro-Cards */}
                       <div className="grid grid-cols-4 gap-1.5 text-center pt-1">
-                        <div className="bg-[#F7EFE2]/60 dark:bg-[#171923] p-2 rounded-xl border border-[#E8D9C0] dark:border-[#31374A] flex flex-col items-center justify-center">
-                          <span className="text-[8.5px] font-black text-stone-500 dark:text-stone-400 uppercase tracking-wider">
+                        <div className="bg-slate-100/60 dark:bg-[#130E26] p-2 rounded-xl border border-slate-200 dark:border-[#31275E] flex flex-col items-center justify-center">
+                          <span className="text-[11px] font-black text-stone-500 dark:text-stone-400 uppercase tracking-wider">
                             Questions
                           </span>
-                          <span className="text-xs sm:text-sm font-black text-[#171923] dark:text-[#FFF9EF] tabular-nums mt-0.5">
+                          <span className="text-xs sm:text-sm font-black text-slate-900 dark:text-slate-50 tabular-nums mt-0.5">
                             {questionCount}
                           </span>
                         </div>
 
-                        <div className="bg-[#F7EFE2]/60 dark:bg-[#171923] p-2 rounded-xl border border-[#E8D9C0] dark:border-[#31374A] flex flex-col items-center justify-center">
-                          <span className="text-[8.5px] font-black text-stone-500 dark:text-stone-400 uppercase tracking-wider">
+                        <div className="bg-slate-100/60 dark:bg-[#130E26] p-2 rounded-xl border border-slate-200 dark:border-[#31275E] flex flex-col items-center justify-center">
+                          <span className="text-[11px] font-black text-stone-500 dark:text-stone-400 uppercase tracking-wider">
                             Duration
                           </span>
-                          <span className="text-xs sm:text-sm font-black text-[#171923] dark:text-[#FFF9EF] tabular-nums mt-0.5">
+                          <span className="text-xs sm:text-sm font-black text-slate-900 dark:text-slate-50 tabular-nums mt-0.5">
                             {durationMinutes}m
                           </span>
                         </div>
 
-                        <div className="bg-[#F7EFE2]/60 dark:bg-[#171923] p-2 rounded-xl border border-[#E8D9C0] dark:border-[#31374A] flex flex-col items-center justify-center">
-                          <span className="text-[8.5px] font-black text-stone-500 dark:text-stone-400 uppercase tracking-wider">
+                        <div className="bg-slate-100/60 dark:bg-[#130E26] p-2 rounded-xl border border-slate-200 dark:border-[#31275E] flex flex-col items-center justify-center">
+                          <span className="text-[11px] font-black text-stone-500 dark:text-stone-400 uppercase tracking-wider">
                             Marks
                           </span>
-                          <span className="text-xs sm:text-sm font-black text-[#800020] dark:text-[#C99A45] tabular-nums mt-0.5">
+                          <span className="text-xs sm:text-sm font-black text-[#7045D8] dark:text-[#A78BFA] tabular-nums mt-0.5">
                             {totalMarks}
                           </span>
                         </div>
 
-                        <div className="bg-[#F7EFE2]/60 dark:bg-[#171923] p-2 rounded-xl border border-[#E8D9C0] dark:border-[#31374A] flex flex-col items-center justify-center">
-                          <span className="text-[8.5px] font-black text-stone-500 dark:text-stone-400 uppercase tracking-wider">
+                        <div className="bg-slate-100/60 dark:bg-[#130E26] p-2 rounded-xl border border-slate-200 dark:border-[#31275E] flex flex-col items-center justify-center">
+                          <span className="text-[11px] font-black text-stone-500 dark:text-stone-400 uppercase tracking-wider">
                             Negative
                           </span>
-                          <span className="text-xs sm:text-sm font-black text-[#991B1B] dark:text-[#F47B20] tabular-nums mt-0.5">
+                          <span className="text-xs sm:text-sm font-black text-[#991B1B] dark:text-[#A78BFA] tabular-nums mt-0.5">
                             {negMark}
                           </span>
                         </div>
@@ -585,14 +587,14 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
                     </div>
 
                     {/* Action Area */}
-                    <div className="space-y-2 pt-1 border-t border-[#E8D9C0]/70 dark:border-[#31374A]/70">
+                    <div className="space-y-2 pt-1 border-t border-slate-200/70 dark:border-[#31275E]/70">
                       {existingSub ? (
                         <div className="p-2.5 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200/70 dark:border-emerald-800/50 rounded-xl flex items-center justify-between gap-2">
                           <div className="min-w-0">
-                            <span className="text-[9px] font-black text-emerald-700 dark:text-emerald-400 uppercase tracking-wider block">
+                            <span className="text-[11px] font-black text-emerald-700 dark:text-emerald-400 uppercase tracking-wider block">
                               ALREADY ATTEMPTED
                             </span>
-                            <p className="text-xs font-black text-[#171923] dark:text-[#FFF9EF] mt-0.5 tabular-nums">
+                            <p className="text-xs font-black text-slate-900 dark:text-slate-50 mt-0.5 tabular-nums">
                               Score: {existingSub.score}/{existingSub.totalMarks} ({existingSub.accuracy.toFixed(0)}%)
                             </p>
                           </div>
@@ -628,12 +630,12 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
                       ) : (
                         <button
                           onClick={() => handleStartLiveTest(test)}
-                          className="w-full bg-gradient-to-r from-[#800020] via-[#5E0017] to-[#800020] hover:brightness-110 active:scale-[0.99] text-[#FFF9EF] py-2.5 px-4 rounded-xl font-black text-xs sm:text-sm flex items-center justify-center gap-2 border border-[#C99A45]/40 shadow-md shadow-[#800020]/25 transition-all duration-150 cursor-pointer min-h-[44px] group"
+                          className="w-full bg-gradient-to-r from-[#7045D8] via-[#5B32BF] to-[#7045D8] hover:brightness-110 active:scale-[0.99] text-white py-2.5 px-4 rounded-xl font-black text-xs sm:text-sm flex items-center justify-center gap-2 border border-[#A78BFA]/40 shadow-md shadow-[#7045D8]/25 transition-all duration-150 cursor-pointer min-h-[44px] group"
                         >
                           {fetchingTestId === test.id ? (
-                            <RefreshCw size={15} className="animate-spin text-[#C99A45]" />
+                            <RefreshCw size={15} className="animate-spin text-amber-500" />
                           ) : (
-                            <Play size={15} fill="currentColor" className="text-[#C99A45] group-hover:scale-110 transition-transform" />
+                            <Play size={15} fill="currentColor" className="text-amber-500 group-hover:scale-110 transition-transform" />
                           )}
                           <span>{fetchingTestId === test.id ? "Preparing Exam Simulation..." : "Start Live Test"}</span>
                         </button>
@@ -647,7 +649,7 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
                               e.stopPropagation();
                               onOpenAdminManage?.();
                             }}
-                            className="flex-1 py-1.5 bg-[#F7EFE2] dark:bg-[#252A3A] text-[#800020] dark:text-[#C99A45] font-black rounded-lg text-xs flex items-center justify-center gap-1.5 cursor-pointer border border-[#E8D9C0] dark:border-[#31374A]"
+                            className="flex-1 py-1.5 bg-slate-100 dark:bg-[#241D48] text-[#7045D8] dark:text-[#A78BFA] font-black rounded-lg text-xs flex items-center justify-center gap-1.5 cursor-pointer border border-slate-200 dark:border-[#31275E]"
                           >
                             <Edit2 size={12} />
                             <span>Manage Test</span>
@@ -660,7 +662,7 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
                                 setTests(updated.filter((t) => t.status !== "draft"));
                               }
                             }}
-                            className="px-2.5 py-1.5 bg-[#991B1B]/10 dark:bg-[#991B1B]/20 hover:bg-[#991B1B]/20 text-[#991B1B] dark:text-[#F47B20] font-black rounded-lg text-xs flex items-center justify-center gap-1 cursor-pointer border border-[#991B1B]/30"
+                            className="px-2.5 py-1.5 bg-[#991B1B]/10 dark:bg-[#991B1B]/20 hover:bg-[#991B1B]/20 text-[#991B1B] dark:text-[#A78BFA] font-black rounded-lg text-xs flex items-center justify-center gap-1 cursor-pointer border border-[#991B1B]/30"
                             title="Delete Live Test"
                           >
                             <Trash2 size={12} />
@@ -692,11 +694,11 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
         {activeSubTab === "results" && (
           <div className="space-y-3">
             {submissions.length === 0 ? (
-              <div className="p-8 text-center bg-white dark:bg-[#1F2330] rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] flex flex-col items-center shadow-xs">
-                <div className="w-12 h-12 rounded-2xl bg-[#F7EFE2] dark:bg-[#252A3A] flex items-center justify-center text-[#C99A45] mb-2.5 border border-[#E8D9C0] dark:border-[#31374A]">
+              <div className="p-8 text-center bg-white dark:bg-[#1B1536] rounded-2xl border border-slate-200 dark:border-[#31275E] flex flex-col items-center shadow-xs">
+                <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-[#241D48] flex items-center justify-center text-amber-500 mb-2.5 border border-slate-200 dark:border-[#31275E]">
                   <Trophy size={24} />
                 </div>
-                <h3 className="font-black text-sm text-[#171923] dark:text-[#FFF9EF] mb-1">
+                <h3 className="font-black text-sm text-slate-900 dark:text-slate-50 mb-1">
                   No Exam Records Found
                 </h3>
                 <p className="text-stone-500 dark:text-stone-400 text-xs mb-3.5 max-w-xs leading-relaxed">
@@ -707,9 +709,9 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
                     triggerHaptic("light");
                     setActiveSubTab("live");
                   }}
-                  className="px-4 py-2 rounded-xl bg-[#800020] hover:bg-[#5E0017] dark:bg-[#800020] text-[#FFF9EF] text-xs font-black border border-[#C99A45]/40 active:scale-95 transition-all shadow-xs cursor-pointer flex items-center gap-1.5"
+                  className="px-4 py-2 rounded-xl bg-[#7045D8] hover:bg-[#5B32BF] dark:bg-[#7045D8] text-white text-xs font-black border border-[#A78BFA]/40 active:scale-95 transition-all shadow-xs cursor-pointer flex items-center gap-1.5"
                 >
-                  <Play size={13} fill="currentColor" className="text-[#C99A45]" />
+                  <Play size={13} fill="currentColor" className="text-amber-500" />
                   <span>Attempt a Live Test Now</span>
                 </button>
               </div>
@@ -717,10 +719,10 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
               submissions.map((sub) => (
                 <article
                   key={sub.submissionId}
-                  className="bg-white dark:bg-[#1F2330] rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] p-4 shadow-xs space-y-2.5"
+                  className="bg-white dark:bg-[#1B1536] rounded-2xl border border-slate-200 dark:border-[#31275E] p-4 shadow-xs space-y-2.5"
                 >
                   <div className="flex justify-between items-center">
-                    <span className="text-[10px] font-black text-stone-500 dark:text-stone-400 uppercase tracking-wider flex items-center gap-1">
+                    <span className="text-[11px] font-black text-stone-500 dark:text-stone-400 uppercase tracking-wider flex items-center gap-1">
                       <Calendar size={11} />
                       {new Date(sub.submittedAt).toLocaleDateString(undefined, {
                         month: "short",
@@ -728,54 +730,54 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
                         year: "numeric",
                       })}
                     </span>
-                    <span className="bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 text-[10px] font-black px-2 py-0.5 rounded-lg border border-emerald-200/50 dark:border-emerald-800/40 tabular-nums">
+                    <span className="bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 text-[11px] font-black px-2 py-0.5 rounded-lg border border-emerald-200/50 dark:border-emerald-800/40 tabular-nums">
                       {sub.accuracy.toFixed(0)}% Accuracy
                     </span>
                   </div>
 
-                  <h3 className="text-sm font-black text-[#171923] dark:text-[#FFF9EF] leading-snug">
+                  <h3 className="text-sm font-black text-slate-900 dark:text-slate-50 leading-snug">
                     {sub.testTitle}
                   </h3>
 
                   {sub.isRpscDisqualified && (
-                    <div className="p-2 rounded-xl bg-[#991B1B]/10 border border-[#991B1B]/30 text-[#991B1B] dark:text-[#F47B20] text-[11px] font-bold flex items-center gap-1.5">
-                      <AlertCircle size={14} className="shrink-0 text-[#991B1B] dark:text-[#F47B20]" />
+                    <div className="p-2 rounded-xl bg-[#991B1B]/10 border border-[#991B1B]/30 text-[#991B1B] dark:text-[#A78BFA] text-[11px] font-bold flex items-center gap-1.5">
+                      <AlertCircle size={14} className="shrink-0 text-[#991B1B] dark:text-[#A78BFA]" />
                       <span>RPSC Disqualified: More than 10% questions left blank</span>
                     </div>
                   )}
 
-                  <div className="grid grid-cols-4 gap-1.5 bg-[#FFF9EF] dark:bg-[#171923] p-2.5 rounded-xl border border-[#E8D9C0] dark:border-[#31374A] text-center">
+                  <div className="grid grid-cols-4 gap-1.5 bg-[#F8FAFC] dark:bg-[#130E26] p-2.5 rounded-xl border border-slate-200 dark:border-[#31275E] text-center">
                     <div>
-                      <p className="text-[8.5px] text-stone-500 dark:text-stone-400 font-black uppercase">
+                      <p className="text-[11px] text-stone-500 dark:text-stone-400 font-black uppercase">
                         Score
                       </p>
-                      <p className="text-xs font-black text-[#800020] dark:text-[#C99A45] tabular-nums mt-0.5">
+                      <p className="text-xs font-black text-[#7045D8] dark:text-[#A78BFA] tabular-nums mt-0.5">
                         {sub.score}/{sub.totalMarks}
                       </p>
                     </div>
                     <div>
-                      <p className="text-[8.5px] text-stone-500 dark:text-stone-400 font-black uppercase">
+                      <p className="text-[11px] text-stone-500 dark:text-stone-400 font-black uppercase">
                         Correct / Wrong
                       </p>
                       <p className="text-xs font-black tabular-nums mt-0.5">
                         <span className="text-emerald-700 dark:text-emerald-400">{sub.correctCount}</span>
                         <span className="text-stone-400 mx-0.5">/</span>
-                        <span className="text-[#991B1B] dark:text-[#F47B20]">{sub.wrongCount}</span>
+                        <span className="text-[#991B1B] dark:text-[#A78BFA]">{sub.wrongCount}</span>
                       </p>
                     </div>
                     <div>
-                      <p className="text-[8.5px] text-stone-500 dark:text-stone-400 font-black uppercase">
+                      <p className="text-[11px] text-stone-500 dark:text-stone-400 font-black uppercase">
                         Option E
                       </p>
-                      <p className="text-xs font-black text-[#C99A45] tabular-nums mt-0.5">
+                      <p className="text-xs font-black text-amber-500 tabular-nums mt-0.5">
                         {sub.unattemptedECount ?? 0}
                       </p>
                     </div>
                     <div>
-                      <p className="text-[8.5px] text-stone-500 dark:text-stone-400 font-black uppercase">
+                      <p className="text-[11px] text-stone-500 dark:text-stone-400 font-black uppercase">
                         Time
                       </p>
-                      <p className="text-xs font-black text-[#171923] dark:text-[#FFF9EF] tabular-nums mt-0.5">
+                      <p className="text-xs font-black text-slate-900 dark:text-slate-50 tabular-nums mt-0.5">
                         {Math.floor(sub.timeSpentSeconds / 60)}m
                       </p>
                     </div>
@@ -790,17 +792,18 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
         {activeSubTab === "leaderboard" && (
           <div className="space-y-3.5">
             {/* Filter Selector Header */}
-            <div className="bg-white dark:bg-[#1F2330] p-3 rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] shadow-xs flex items-center justify-between gap-3">
+            <div className="bg-white dark:bg-[#1B1536] p-3 rounded-2xl border border-slate-200 dark:border-[#31275E] shadow-xs flex items-center justify-between gap-3">
               <div className="flex items-center gap-2 min-w-0">
-                <Trophy size={16} className="text-[#C99A45] shrink-0" />
-                <span className="text-xs font-black text-[#171923] dark:text-[#FFF9EF] truncate">
+                <Trophy size={16} className="text-amber-500 shrink-0" />
+                <span className="text-xs font-black text-slate-900 dark:text-slate-50 truncate">
                   State Merit Ranks
                 </span>
               </div>
               <select
                 value={leaderboardFilterTestId}
                 onChange={(e) => setLeaderboardFilterTestId(e.target.value)}
-                className="bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] text-xs font-black rounded-xl px-2.5 py-1.5 text-[#171923] dark:text-[#FFF9EF] outline-none max-w-[200px] truncate cursor-pointer"
+                aria-label="Filter leaderboard by live test"
+                className="min-h-[40px] bg-slate-100 dark:bg-[#130E26] border border-slate-200 dark:border-[#31275E] text-xs font-black rounded-xl px-3 py-1.5 text-slate-900 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#7045D8] max-w-[200px] truncate cursor-pointer"
               >
                 <option value="all">All Live Tests (Cumulative)</option>
                 {tests.map((t) => (
@@ -813,11 +816,11 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
 
             {/* Empty State vs Standings */}
             {leaderboardEntries.length === 0 ? (
-              <div className="p-8 text-center bg-white dark:bg-[#1F2330] rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] flex flex-col items-center shadow-xs">
-                <div className="w-12 h-12 rounded-2xl bg-[#800020]/10 dark:bg-[#C99A45]/15 flex items-center justify-center text-[#800020] dark:text-[#C99A45] mb-2.5 border border-[#800020]/15 dark:border-[#C99A45]/30">
+              <div className="p-8 text-center bg-white dark:bg-[#1B1536] rounded-2xl border border-slate-200 dark:border-[#31275E] flex flex-col items-center shadow-xs">
+                <div className="w-12 h-12 rounded-2xl bg-[#7045D8]/10 dark:bg-[#7045D8]/15 flex items-center justify-center text-[#7045D8] dark:text-[#A78BFA] mb-2.5 border border-[#7045D8]/15 dark:border-[#A78BFA]/30">
                   <Trophy size={22} />
                 </div>
-                <h3 className="font-black text-sm text-[#171923] dark:text-[#FFF9EF] mb-1">
+                <h3 className="font-black text-sm text-slate-900 dark:text-slate-50 mb-1">
                   No Test Attempts Yet
                 </h3>
                 <p className="text-stone-500 dark:text-stone-400 text-xs max-w-xs leading-relaxed">
@@ -828,7 +831,7 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
               <>
                 {/* Podium for Top 3 */}
                 {leaderboardEntries.length >= 3 && (
-                  <div className="bg-gradient-to-b from-[#800020]/15 via-[#C99A45]/10 to-transparent dark:from-[#800020]/30 p-4 rounded-2xl border border-[#C99A45]/40 shadow-sm">
+                  <div className="bg-gradient-to-b from-[#7045D8]/15 via-[#A78BFA]/10 to-transparent dark:from-[#7045D8]/30 p-4 rounded-2xl border border-[#A78BFA]/40 shadow-sm">
                     <div className="flex items-end justify-center gap-2 pt-2 pb-1">
                       {/* Rank 2 - Silver */}
                       <div className="flex-1 max-w-[95px] flex flex-col items-center">
@@ -836,10 +839,10 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
                           <Medal size={15} className="text-slate-500 absolute -top-2 -left-1" />
                           {leaderboardEntries[1].userName.charAt(0)}
                         </div>
-                        <span className="text-[10.5px] font-black text-[#171923] dark:text-[#FFF9EF] mt-1 truncate max-w-full text-center">
+                        <span className="text-[11px] font-black text-slate-900 dark:text-slate-50 mt-1 truncate max-w-full text-center">
                           {leaderboardEntries[1].userName}
                         </span>
-                        <span className="text-[9.5px] font-black text-stone-500 dark:text-stone-400 tabular-nums">
+                        <span className="text-[11px] font-black text-stone-500 dark:text-stone-400 tabular-nums">
                           {leaderboardEntries[1].score} pts
                         </span>
                         <div className="w-full bg-slate-200 dark:bg-slate-700/80 rounded-t-xl h-11 mt-1.5 flex items-center justify-center font-black text-slate-700 dark:text-slate-200 text-xs tabular-nums">
@@ -849,19 +852,19 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
 
                       {/* Rank 1 - Gold (Elevated) */}
                       <div className="flex-1 max-w-[105px] flex flex-col items-center -mt-3">
-                        <div className="w-12 h-12 rounded-full bg-[#C99A45]/25 border-2 border-[#C99A45] flex items-center justify-center font-black text-[#800020] dark:text-[#C99A45] text-sm shadow-lg relative">
-                          <Trophy size={17} className="text-[#C99A45] absolute -top-2.5 left-1/2 -translate-x-1/2" />
+                        <div className="w-12 h-12 rounded-full bg-[#A78BFA]/25 border-2 border-[#A78BFA] flex items-center justify-center font-black text-[#7045D8] dark:text-[#A78BFA] text-sm shadow-lg relative">
+                          <Trophy size={17} className="text-amber-500 absolute -top-2.5 left-1/2 -translate-x-1/2" />
                           {leaderboardEntries[0].userName.charAt(0)}
                         </div>
-                        <span className="text-[11px] font-black text-[#171923] dark:text-[#FFF9EF] mt-1 truncate max-w-full text-center">
+                        <span className="text-[11px] font-black text-slate-900 dark:text-slate-50 mt-1 truncate max-w-full text-center">
                           {leaderboardEntries[0].userName}
                         </span>
-                        <span className="text-[10px] font-black text-[#800020] dark:text-[#C99A45] tabular-nums">
+                        <span className="text-[11px] font-black text-[#7045D8] dark:text-[#A78BFA] tabular-nums">
                           {leaderboardEntries[0].score} pts
                         </span>
-                        <div className="w-full bg-gradient-to-t from-[#B8860B] to-[#C99A45] rounded-t-2xl h-16 mt-1.5 flex flex-col items-center justify-center font-black text-[#171923] text-xs shadow-md tabular-nums">
+                        <div className="w-full bg-gradient-to-t from-[#B8860B] to-[#A78BFA] rounded-t-2xl h-16 mt-1.5 flex flex-col items-center justify-center font-black text-slate-900 text-xs shadow-md tabular-nums">
                           <span>#1</span>
-                          <span className="text-[8px] font-black uppercase tracking-wider">TOPPER</span>
+                          <span className="text-[11px] font-black uppercase tracking-wider">TOPPER</span>
                         </div>
                       </div>
 
@@ -871,13 +874,13 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
                           <Award size={15} className="text-amber-600 absolute -top-2 -right-1" />
                           {leaderboardEntries[2].userName.charAt(0)}
                         </div>
-                        <span className="text-[10.5px] font-black text-[#171923] dark:text-[#FFF9EF] mt-1 truncate max-w-full text-center">
+                        <span className="text-[11px] font-black text-slate-900 dark:text-slate-50 mt-1 truncate max-w-full text-center">
                           {leaderboardEntries[2].userName}
                         </span>
-                        <span className="text-[9.5px] font-black text-stone-500 dark:text-stone-400 tabular-nums">
+                        <span className="text-[11px] font-black text-stone-500 dark:text-stone-400 tabular-nums">
                           {leaderboardEntries[2].score} pts
                         </span>
-                        <div className="w-full bg-amber-700/20 dark:bg-amber-900/40 rounded-t-xl h-9 mt-1.5 flex items-center justify-center font-black text-[#800020] dark:text-amber-300 text-xs tabular-nums">
+                        <div className="w-full bg-amber-700/20 dark:bg-amber-900/40 rounded-t-xl h-9 mt-1.5 flex items-center justify-center font-black text-[#7045D8] dark:text-amber-300 text-xs tabular-nums">
                           #3
                         </div>
                       </div>
@@ -887,7 +890,7 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
 
                 {/* Standings List */}
                 <div className="space-y-1.5">
-                  <h3 className="text-[10px] font-black uppercase tracking-wider text-stone-500 dark:text-stone-400 px-1">
+                  <h3 className="text-[11px] font-black uppercase tracking-wider text-stone-500 dark:text-stone-400 px-1">
                     Full Merit Standings
                   </h3>
 
@@ -897,7 +900,7 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
                         <Lock size={18} />
                       </div>
                       <div>
-                        <h4 className="text-sm font-black text-[#171923] dark:text-[#FFF9EF]">
+                        <h4 className="text-sm font-black text-slate-900 dark:text-slate-50">
                           All-Rajasthan Realtime Merit Rank
                         </h4>
                         <p className="text-xs text-stone-500 dark:text-stone-400 mt-1 max-w-sm mx-auto">
@@ -932,46 +935,46 @@ export const LiveTestsTab: React.FC<LiveTestsTabProps> = ({
                         key={entry.id}
                         className={`p-2.5 sm:p-3 rounded-2xl border transition-all flex items-center justify-between gap-3 ${
                           entry.isCurrentUser
-                            ? "bg-[#800020]/10 dark:bg-[#800020]/25 border-[#800020]/50 dark:border-[#C99A45]/50 shadow-xs"
-                            : "bg-white dark:bg-[#1F2330] border-[#E8D9C0] dark:border-[#31374A] shadow-xs"
+                            ? "bg-[#7045D8]/10 dark:bg-[#7045D8]/25 border-[#7045D8]/50 dark:border-[#A78BFA]/50 shadow-xs"
+                            : "bg-white dark:bg-[#1B1536] border-slate-200 dark:border-[#31275E] shadow-xs"
                         }`}
                       >
                         <div className="flex items-center gap-2.5 min-w-0">
                           <div
                             className={`w-7 h-7 rounded-xl flex items-center justify-center font-black text-xs shrink-0 tabular-nums ${
                               entry.rank === 1
-                                ? "bg-[#C99A45] text-[#171923]"
+                                ? "bg-[#A78BFA] text-slate-900"
                                 : entry.rank === 2
                                 ? "bg-slate-300 text-slate-800 dark:bg-slate-600 dark:text-white"
                                 : entry.rank === 3
                                 ? "bg-amber-700/30 text-amber-900 dark:text-amber-200"
-                                : "bg-[#F7EFE2] dark:bg-[#252A3A] text-stone-600 dark:text-stone-300"
+                                : "bg-slate-100 dark:bg-[#241D48] text-stone-600 dark:text-stone-300"
                             }`}
                           >
                             #{entry.rank}
                           </div>
                           <div className="min-w-0">
                             <div className="flex items-center gap-1.5">
-                              <p className="text-xs font-black text-[#171923] dark:text-[#FFF9EF] truncate">
+                              <p className="text-xs font-black text-slate-900 dark:text-slate-50 truncate">
                                 {entry.userName}
                               </p>
                               {entry.isCurrentUser && (
-                                <span className="text-[8px] font-black uppercase px-1.5 py-0.2 rounded bg-[#800020] text-[#FFF9EF] border border-[#C99A45]/30">
+                                <span className="text-[11px] font-black uppercase px-1.5 py-0.2 rounded bg-[#7045D8] text-white border border-[#A78BFA]/30">
                                   YOU
                                 </span>
                               )}
                             </div>
-                            <p className="text-[10px] text-stone-500 dark:text-stone-400 truncate">
+                            <p className="text-[11px] text-stone-500 dark:text-stone-400 truncate">
                               {entry.testTitle}
                             </p>
                           </div>
                         </div>
 
                         <div className="text-right shrink-0">
-                          <p className="text-xs font-black text-[#171923] dark:text-[#FFF9EF] tabular-nums">
+                          <p className="text-xs font-black text-slate-900 dark:text-slate-50 tabular-nums">
                             {entry.score} pts
                           </p>
-                          <p className="text-[9px] text-emerald-700 dark:text-emerald-400 font-black tabular-nums">
+                          <p className="text-[11px] text-emerald-700 dark:text-emerald-400 font-black tabular-nums">
                             {entry.accuracy}% Acc
                           </p>
                         </div>

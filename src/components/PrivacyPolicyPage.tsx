@@ -63,19 +63,19 @@ export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({
   };
 
   return (
-    <div className="min-h-full bg-[#FFF9EF] dark:bg-[#171923] text-[#171923] dark:text-[#FFF9EF] flex flex-col pb-24 select-text">
+    <div className="min-h-full bg-[#F8FAFC] dark:bg-[#130E26] text-slate-900 dark:text-slate-50 flex flex-col pb-24 select-text">
       {/* Top Header / Sticky Navigation Bar */}
-      <header className="sticky top-0 z-40 bg-white/95 dark:bg-[#1F2330]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] px-4 py-3 flex items-center justify-between">
+      <header className="sticky top-0 z-40 bg-white/95 dark:bg-[#1B1536]/95 backdrop-blur-md border-b border-slate-200 dark:border-[#31275E] px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           <button
             onClick={onNavigateHome}
             aria-label="Back to Homepage"
-            className="p-2 -ml-1 rounded-xl text-[#52576A] dark:text-[#CBD2E1] hover:bg-[#F7EFE2] dark:hover:bg-[#252A3A] transition-colors active:scale-95 cursor-pointer flex items-center gap-1.5 text-xs font-bold"
+            className="p-2 -ml-1 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#241D48] transition-colors active:scale-95 cursor-pointer flex items-center gap-1.5 text-xs font-bold"
           >
             <ArrowLeft className="w-4 h-4" />
             <span className="hidden sm:inline">Home</span>
           </button>
-          <div className="h-4 w-px bg-[#E8D9C0] dark:bg-[#31374A]" />
+          <div className="h-4 w-px bg-slate-200 dark:bg-[#31275E]" />
           <div
             className="flex items-center gap-2 cursor-pointer"
             onClick={onNavigateHome}
@@ -84,17 +84,17 @@ export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({
           >
             <AppLogo size="sm" />
             <div className="flex flex-col">
-              <span className="text-sm font-black text-[#171923] dark:text-[#FFF9EF] leading-tight tracking-tight">
+              <span className="text-sm font-black text-slate-900 dark:text-slate-50 leading-tight tracking-tight">
                 DISHA <span className="text-[#7045D8] dark:text-[#A78BFA]">PYQ</span>
               </span>
-              <span className="text-[10px] text-[#7045D8] dark:text-[#A78BFA] font-semibold leading-none">Privacy Policy</span>
+              <span className="text-[11px] text-[#7045D8] dark:text-[#A78BFA] font-semibold leading-none">Privacy Policy</span>
             </div>
           </div>
         </div>
 
         <button
           onClick={onNavigateHome}
-          className="w-10 h-10 rounded-2xl bg-[#F7EFE2] dark:bg-[#252A3A] text-[#52576A] dark:text-[#CBD2E1] flex items-center justify-center hover:bg-[#EFE3CF] dark:hover:bg-[#31374A] border border-[#E8D9C0] dark:border-[#31374A] transition-all active:scale-90 cursor-pointer"
+          className="w-10 h-10 rounded-2xl bg-slate-100 dark:bg-[#241D48] text-slate-600 dark:text-slate-300 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-[#31275E] border border-slate-200 dark:border-[#31275E] transition-all active:scale-90 cursor-pointer"
           aria-label="Close"
         >
           <ChevronRight className="w-5 h-5 rotate-90" />
@@ -104,8 +104,8 @@ export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({
       {/* Main Content Area */}
       <main className="max-w-3xl mx-auto w-full px-4 pt-6 space-y-6">
         {/* Hero & Document Metadata Card */}
-        <section className="bg-white dark:bg-[#1F2330] rounded-3xl p-5 sm:p-7 border border-[#E8D9C0] dark:border-[#31374A] shadow-xs space-y-4">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#800020]/10 dark:bg-[#F47B20]/15 border border-[#800020]/20 dark:border-[#F47B20]/30 text-[#800020] dark:text-[#F47B20] text-[11px] font-black uppercase tracking-wider">
+        <section className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-7 border border-slate-200 dark:border-[#31275E] shadow-xs space-y-4">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#7045D8]/10 dark:bg-[#7045D8]/15 border border-[#7045D8]/20 dark:border-[#A78BFA]/30 text-[#7045D8] dark:text-[#A78BFA] text-[11px] font-black uppercase tracking-wider">
             <ShieldCheck className="w-3.5 h-3.5" />
             <span>Legal &amp; Privacy</span>
           </div>
@@ -157,7 +157,7 @@ export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({
         {/* Section 1: Information We Collect */}
         <section
           id="info-collect"
-          className="bg-white dark:bg-[#111A2E] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
+          className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
         >
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
@@ -238,7 +238,7 @@ export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({
         {/* Section 2: How We Use Your Information */}
         <section
           id="how-we-use"
-          className="bg-white dark:bg-[#111A2E] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
+          className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
         >
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
@@ -286,7 +286,7 @@ export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({
         {/* Section 3: Account Information and Authentication */}
         <section
           id="account-auth"
-          className="bg-white dark:bg-[#111A2E] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
+          className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
         >
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
@@ -316,7 +316,7 @@ export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({
         {/* Section 4: Cookies and Similar Technologies */}
         <section
           id="cookies-storage"
-          className="bg-white dark:bg-[#111A2E] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
+          className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
         >
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0">
@@ -350,7 +350,7 @@ export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({
         {/* Section 5: Data Storage and Security */}
         <section
           id="storage-security"
-          className="bg-white dark:bg-[#111A2E] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
+          className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
         >
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
@@ -377,7 +377,7 @@ export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({
         {/* Section 6: Sharing and Disclosure of Information */}
         <section
           id="sharing-disclosure"
-          className="bg-white dark:bg-[#111A2E] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
+          className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
         >
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0">
@@ -431,7 +431,7 @@ export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({
         {/* Section 7: Third-Party Links and Services */}
         <section
           id="third-party"
-          className="bg-white dark:bg-[#111A2E] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
+          className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
         >
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-sky-500/10 text-sky-600 dark:text-sky-400 flex items-center justify-center shrink-0">
@@ -453,7 +453,7 @@ export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({
         {/* Section 8: Data Retention */}
         <section
           id="retention"
-          className="bg-white dark:bg-[#111A2E] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
+          className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
         >
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-orange-500/10 text-orange-600 dark:text-orange-400 flex items-center justify-center shrink-0">
@@ -486,7 +486,7 @@ export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({
         {/* Section 9: Your Privacy Rights and Choices */}
         <section
           id="privacy-rights"
-          className="bg-white dark:bg-[#111A2E] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
+          className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
         >
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
@@ -530,7 +530,7 @@ export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({
         {/* Section 10: Children's Privacy */}
         <section
           id="children-privacy"
-          className="bg-white dark:bg-[#111A2E] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
+          className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
         >
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-pink-500/10 text-pink-600 dark:text-pink-400 flex items-center justify-center shrink-0">
@@ -557,7 +557,7 @@ export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({
         {/* Section 11: Educational and Performance Data */}
         <section
           id="educational-data"
-          className="bg-white dark:bg-[#111A2E] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
+          className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
         >
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
@@ -579,7 +579,7 @@ export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({
         {/* Section 12: Changes to This Privacy Policy */}
         <section
           id="changes-policy"
-          className="bg-white dark:bg-[#111A2E] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
+          className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
         >
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-violet-500/10 text-violet-600 dark:text-violet-400 flex items-center justify-center shrink-0">
@@ -606,7 +606,7 @@ export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({
         {/* Section 13: Contact Us */}
         <section
           id="contact-us"
-          className="bg-white dark:bg-[#111A2E] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
+          className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
         >
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
@@ -735,7 +735,7 @@ export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({
             </button>
           </div>
 
-          <p className="text-[10px] text-slate-400 dark:text-slate-500">
+          <p className="text-[11px] text-slate-400 dark:text-slate-500">
             © 2026 Disha PYQ. All rights reserved. Online MCQ Practice Platform.
           </p>
         </footer>

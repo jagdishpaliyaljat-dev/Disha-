@@ -103,14 +103,14 @@ export const ParsedQuestion: React.FC<ParsedQuestionProps> = ({
       {verifiedHistory.length > 0 ? (
         <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap pb-1.5 pt-0.5">
           {/* Certified PYQ Stamp Badge */}
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-amber-500/15 to-[#C99A45]/25 dark:from-amber-400/20 dark:to-[#C99A45]/30 text-[#800020] dark:text-amber-300 border border-amber-500/30 text-[10px] font-black uppercase tracking-wider shrink-0 shadow-2xs">
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-amber-500/15 to-[#A78BFA]/25 dark:from-amber-400/20 dark:to-[#A78BFA]/30 text-[#7045D8] dark:text-amber-300 border border-amber-500/30 text-[11px] font-black uppercase tracking-wider shrink-0 shadow-2xs">
             <BadgeCheck className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
             <span>PYQ Verified</span>
           </span>
 
           {/* Repeat Frequency Indicator (if asked multiple times) */}
           {verifiedHistory.length > 1 && (
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-rose-500/15 dark:bg-rose-500/25 text-rose-700 dark:text-rose-300 border border-rose-500/30 text-[10px] font-black shrink-0">
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-rose-500/15 dark:bg-rose-500/25 text-rose-700 dark:text-rose-300 border border-rose-500/30 text-[11px] font-black shrink-0">
               <Flame className="w-3.5 h-3.5 text-rose-500" />
               <span>{verifiedHistory.length} बार पूछा गया</span>
             </span>
@@ -120,18 +120,18 @@ export const ParsedQuestion: React.FC<ParsedQuestionProps> = ({
           {visibleExams.map((entry: any, eIdx: number) => (
             <span
               key={eIdx}
-              className="inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-lg bg-white dark:bg-[#1A1428] text-slate-800 dark:text-[#E8D9C0] border border-[#E8D9C0] dark:border-[#3A2E56] shadow-2xs text-[11px] font-bold shrink-0 max-w-[260px] sm:max-w-none truncate group hover:border-[#800020] dark:hover:border-amber-400/50 transition-colors"
+              className="inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-lg bg-white dark:bg-[#1B1536] text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-[#31275E] shadow-2xs text-[11px] font-bold shrink-0 max-w-[260px] sm:max-w-none truncate group hover:border-[#7045D8] dark:hover:border-amber-400/50 transition-colors"
             >
-              <Landmark className="w-3.5 h-3.5 text-[#800020] dark:text-amber-400 shrink-0" />
+              <Landmark className="w-3.5 h-3.5 text-[#7045D8] dark:text-amber-400 shrink-0" />
               <span className="truncate">{entry.examName}</span>
               {entry.year && (
-                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-[#C99A45]/15 dark:bg-[#C99A45]/25 text-[#800020] dark:text-amber-300 font-mono font-extrabold text-[10px]">
+                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-[#A78BFA]/15 dark:bg-[#7045D8]/25 text-[#7045D8] dark:text-amber-300 font-mono font-extrabold text-[11px]">
                   <Calendar className="w-2.5 h-2.5 text-amber-600 dark:text-amber-400" />
                   <span>{entry.year}</span>
                 </span>
               )}
               {entry.shift && (
-                <span className="text-[9.5px] font-medium text-slate-500 dark:text-slate-400">
+                <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
                   ({entry.shift})
                 </span>
               )}
@@ -143,7 +143,7 @@ export const ParsedQuestion: React.FC<ParsedQuestionProps> = ({
             <button
               type="button"
               onClick={() => setIsExpandedExams(!isExpandedExams)}
-              className="inline-flex items-center gap-1 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 text-[10.5px] font-black cursor-pointer transition-colors shrink-0"
+              className="inline-flex items-center gap-1 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 text-[11px] font-black cursor-pointer transition-colors shrink-0"
               title={isExpandedExams ? "Collapse exam list" : "Show all exams"}
             >
               <span>{isExpandedExams ? "Show Less" : `+${hiddenCount}`}</span>
@@ -157,7 +157,7 @@ export const ParsedQuestion: React.FC<ParsedQuestionProps> = ({
         </div>
       ) : isPYQ ? (
         <div className="flex items-center gap-1.5 pb-1 pt-0.5">
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-amber-500/15 to-[#C99A45]/25 dark:from-amber-400/20 dark:to-[#C99A45]/30 text-[#800020] dark:text-amber-300 border border-amber-500/30 text-[10px] font-black uppercase tracking-wider shrink-0 shadow-2xs">
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-amber-500/15 to-[#A78BFA]/25 dark:from-amber-400/20 dark:to-[#A78BFA]/30 text-[#7045D8] dark:text-amber-300 border border-amber-500/30 text-[11px] font-black uppercase tracking-wider shrink-0 shadow-2xs">
             <Award className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
             <span>प्रमाणित पूर्व वर्ष प्रश्न (Official PYQ)</span>
           </span>

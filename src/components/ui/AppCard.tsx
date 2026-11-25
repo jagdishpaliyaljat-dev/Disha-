@@ -24,15 +24,15 @@ export const AppCard: React.FC<AppCardProps> = ({
 }) => {
   const variantClasses = {
     default:
-      "bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] shadow-xs",
+      "bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] shadow-xs",
     elevated:
-      "bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] shadow-md shadow-[#171923]/5 dark:shadow-black/20",
+      "bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] shadow-md shadow-slate-900/5 dark:shadow-black/25",
     subtle:
-      "bg-[#F7EFE2]/60 dark:bg-[#252A3A]/60 border border-[#E8D9C0]/70 dark:border-[#31374A]/70",
+      "bg-slate-100/80 dark:bg-[#241D48]/70 border border-slate-200/80 dark:border-[#31275E]/80",
     interactive:
-      "bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] hover:border-[#800020]/60 dark:hover:border-[#F47B20]/60 shadow-xs hover:shadow-md transition-all active:scale-[0.99] cursor-pointer",
+      "bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] hover:border-[#7045D8]/60 dark:hover:border-[#A78BFA]/60 shadow-xs hover:shadow-md transition-all active:scale-[0.99] cursor-pointer",
     heritage:
-      "bg-gradient-to-br from-[#800020] via-[#5E0017] to-[#171923] text-white border border-[#C99A45]/40 shadow-lg shadow-[#800020]/20",
+      "bg-gradient-to-br from-[#7045D8] via-[#5B32BF] to-[#130E26] text-white border border-[#A78BFA]/40 shadow-lg shadow-[#7045D8]/20",
   }[variant];
 
   const hasHeader = Boolean(header || title || Icon || headerAction);
@@ -43,24 +43,24 @@ export const AppCard: React.FC<AppCardProps> = ({
       className={`rounded-2xl sm:rounded-3xl overflow-hidden ${variantClasses} ${className}`}
     >
       {hasHeader && (
-        <div className="px-4 py-3 sm:px-6 sm:py-4 flex items-center justify-between border-b border-[#E8D9C0]/70 dark:border-[#31374A]/70">
+        <div className="px-4 py-3 sm:px-6 sm:py-4 flex items-center justify-between border-b border-slate-200/80 dark:border-[#31275E]">
           {header ? (
             header
           ) : (
             <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
               {Icon && (
-                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] flex items-center justify-center shrink-0">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#7045D8]/10 dark:bg-[#A78BFA]/15 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center shrink-0">
                   <Icon className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
                 </div>
               )}
               <div className="min-w-0">
                 {title && (
-                  <h3 className="text-sm sm:text-base font-extrabold text-[#171923] dark:text-[#FFF9EF] tracking-tight truncate leading-tight font-hindi">
+                  <h3 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-slate-50 tracking-tight truncate leading-tight font-hindi">
                     {title}
                   </h3>
                 )}
                 {subtitle && (
-                  <p className="text-[10px] sm:text-xs text-[#52576A] dark:text-[#CBD2E1] font-medium mt-0.5 truncate">
+                  <p className="text-[11px] sm:text-xs text-slate-600 dark:text-slate-300 font-medium mt-0.5 truncate">
                     {subtitle}
                   </p>
                 )}
@@ -98,38 +98,48 @@ export const AppStatCard: React.FC<AppStatCardProps> = ({
 }) => {
   const accentStyles = {
     brand: {
-      iconBg: "bg-[#800020]/10 dark:bg-[#800020]/20 text-[#800020] dark:text-[#F47B20]",
-      borderHover: "hover:border-[#800020]/50",
+      iconBg: "bg-[#7045D8]/10 dark:bg-[#7045D8]/25 text-[#7045D8] dark:text-[#A78BFA]",
+      borderHover: "hover:border-[#7045D8]/50",
     },
     saffron: {
-      iconBg: "bg-[#F47B20]/10 dark:bg-[#F47B20]/20 text-[#F47B20]",
-      borderHover: "hover:border-[#F47B20]/50",
+      iconBg: "bg-amber-500/12 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400",
+      borderHover: "hover:border-amber-500/50",
     },
     gold: {
-      iconBg: "bg-[#C99A45]/15 dark:bg-[#C99A45]/25 text-[#C99A45]",
-      borderHover: "hover:border-[#C99A45]/50",
+      iconBg: "bg-amber-500/15 dark:bg-amber-500/25 text-amber-600 dark:text-amber-400",
+      borderHover: "hover:border-amber-500/50",
     },
     emerald: {
       iconBg: "bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400",
       borderHover: "hover:border-emerald-500/50",
     },
     charcoal: {
-      iconBg: "bg-[#171923]/10 dark:bg-[#FFF9EF]/10 text-[#171923] dark:text-[#FFF9EF]",
-      borderHover: "hover:border-[#171923]/50",
+      iconBg: "bg-slate-900/10 dark:bg-slate-100/10 text-slate-900 dark:text-slate-100",
+      borderHover: "hover:border-slate-500/50",
     },
   }[accent];
 
   return (
     <div
       onClick={onClick}
+      onKeyDown={
+        onClick
+          ? (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onClick();
+              }
+            }
+          : undefined
+      }
       role={onClick ? "button" : undefined}
       tabIndex={onClick ? 0 : undefined}
-      className={`p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] shadow-xs flex flex-col justify-between transition-all ${
-        onClick ? `cursor-pointer active:scale-95 ${accentStyles.borderHover}` : ""
+      className={`p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] shadow-xs flex flex-col justify-between transition-all ${
+        onClick ? `cursor-pointer active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8] ${accentStyles.borderHover}` : ""
       } ${className}`}
     >
       <div className="flex items-center justify-between gap-2">
-        <span className="text-[11px] font-black uppercase tracking-wider text-[#52576A] dark:text-[#CBD2E1] truncate">
+        <span className="text-[11px] font-black uppercase tracking-wider text-slate-600 dark:text-slate-300 truncate">
           {label}
         </span>
         {Icon && (
@@ -141,17 +151,17 @@ export const AppStatCard: React.FC<AppStatCardProps> = ({
 
       <div className="mt-2">
         <div className="flex items-baseline gap-2">
-          <span className="text-xl sm:text-2xl font-black text-[#171923] dark:text-[#FFF9EF] tracking-tight tabular-nums">
+          <span className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-50 tracking-tight tabular-nums">
             {value}
           </span>
           {badge && (
-            <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded-md bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20]">
+            <span className="text-[11px] font-extrabold px-1.5 py-0.5 rounded-md bg-[#7045D8]/10 dark:bg-[#A78BFA]/15 text-[#7045D8] dark:text-[#A78BFA]">
               {badge}
             </span>
           )}
         </div>
         {subtitle && (
-          <p className="text-[10px] text-[#787D91] dark:text-[#929AB0] mt-0.5 truncate font-medium">
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 truncate font-medium">
             {subtitle}
           </p>
         )}

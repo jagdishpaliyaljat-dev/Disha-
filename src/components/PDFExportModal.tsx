@@ -347,14 +347,14 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
   return (
     <div
       id="pdf-export-modal-backdrop"
-      className="fixed inset-0 z-60 bg-[#171923]/80 backdrop-blur-xs flex flex-col sm:items-center sm:justify-center animate-in fade-in duration-200"
+      className="fixed inset-0 z-60 bg-[#130E26]/80 backdrop-blur-xs flex flex-col sm:items-center sm:justify-center animate-in fade-in duration-200"
     >
       <div
         id="pdf-export-modal-dialog"
-        className="w-full h-full sm:h-[92vh] sm:max-w-3xl bg-[#FFF9EF] dark:bg-[#171923] sm:rounded-3xl border border-[#E8D9C0] dark:border-[#31374A] shadow-2xl flex flex-col overflow-hidden animate-in fade-in sm:zoom-in-95 duration-200"
+        className="w-full h-full sm:h-[92vh] sm:max-w-3xl bg-[#F8FAFC] dark:bg-[#130E26] sm:rounded-3xl border border-slate-200 dark:border-[#31275E] shadow-2xl flex flex-col overflow-hidden animate-in fade-in sm:zoom-in-95 duration-200"
       >
         {/* STICKY HEADER */}
-        <header className="px-4 py-3 bg-gradient-to-r from-[#800020] via-[#6A001A] to-[#4A0012] text-white shrink-0 flex flex-col gap-2.5 z-10 border-b border-[#C99A45]/30">
+        <header className="px-4 py-3 bg-gradient-to-r from-[#7045D8] via-[#5B32BF] to-[#5B32BF] text-white shrink-0 flex flex-col gap-2.5 z-10 border-b border-[#A78BFA]/30">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3 min-w-0">
               <button
@@ -370,11 +370,11 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
               <div className="min-w-0">
                 <h2 className="text-base sm:text-lg font-black tracking-tight text-white flex items-center gap-2 flex-wrap">
                   <span>Download Your PDF</span>
-                  <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-[#7045D8] text-white shrink-0 shadow-xs">
+                  <span className="text-[11px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-[#7045D8] text-white shrink-0 shadow-xs">
                     Disha PYQ
                   </span>
                 </h2>
-                <p className="text-xs text-[#F7EFE2]/90 truncate font-medium">
+                <p className="text-xs text-slate-100/90 truncate font-medium">
                   Create your personalized practice paper • Printable MCQ Exam PDF
                 </p>
               </div>
@@ -382,7 +382,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
 
             {/* Quick Action Badges */}
             <div className="flex items-center gap-2 shrink-0">
-              <span className="text-xs font-bold tabular-nums text-[#FFF9EF] bg-[#F47B20]/25 border border-[#C99A45]/40 px-2.5 py-1 rounded-lg">
+              <span className="text-xs font-bold tabular-nums text-white bg-[#7045D8]/25 border border-[#A78BFA]/40 px-2.5 py-1 rounded-lg">
                 {filteredResult.count} Questions
               </span>
             </div>
@@ -395,7 +395,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
               onClick={() => setActiveTab("config")}
               className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                 activeTab === "config"
-                  ? "bg-[#FFF9EF] text-[#800020] shadow-xs font-black"
+                  ? "bg-[#F8FAFC] text-[#7045D8] shadow-xs font-black"
                   : "text-white/80 hover:text-white"
               }`}
             >
@@ -409,7 +409,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
               disabled={filteredResult.count === 0}
               className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                 activeTab === "preview"
-                  ? "bg-[#FFF9EF] text-[#800020] shadow-xs font-black"
+                  ? "bg-[#F8FAFC] text-[#7045D8] shadow-xs font-black"
                   : "text-white/80 hover:text-white disabled:opacity-40"
               }`}
             >
@@ -447,15 +447,15 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
 
         {/* TAB 1: CONFIGURATION SCREEN */}
         {activeTab === "config" ? (
-          <div className="flex-1 overflow-y-auto overscroll-contain p-4 sm:p-6 space-y-6 text-[#171923] dark:text-[#FFF9EF]">
+          <div className="flex-1 overflow-y-auto overscroll-contain p-4 sm:p-6 space-y-6 text-slate-900 dark:text-slate-50">
             {/* SECTION A: SELECT CONTENT */}
             <section className="space-y-3">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-xs font-black text-[#800020] dark:text-[#F47B20] uppercase tracking-wider">
-                  <Layers className="w-4 h-4 text-[#F47B20]" />
+                <div className="flex items-center gap-2 text-xs font-black text-[#7045D8] dark:text-[#A78BFA] uppercase tracking-wider">
+                  <Layers className="w-4 h-4 text-[#7045D8]" />
                   <span>A. Select Content Source</span>
                 </div>
-                <span className="text-[11px] font-bold text-[#6E6254] dark:text-[#A39887]">
+                <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400">
                   Dynamic Database
                 </span>
               </div>
@@ -525,14 +525,14 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
                     }}
                     className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer active:scale-95 flex flex-col ${
                       contentType === item.id
-                        ? "bg-[#800020] text-white border-[#800020] shadow-md"
-                        : "bg-white dark:bg-[#1F2330] border-[#E8D9C0] dark:border-[#31374A] text-[#171923] dark:text-[#FFF9EF] hover:border-[#C99A45]"
+                        ? "bg-[#7045D8] text-white border-[#7045D8] shadow-md"
+                        : "bg-white dark:bg-[#1B1536] border-slate-200 dark:border-[#31275E] text-slate-900 dark:text-slate-50 hover:border-[#A78BFA]"
                     }`}
                   >
                     <span className="text-xs font-bold truncate">{item.label}</span>
                     <span
-                      className={`text-[10px] ${
-                        contentType === item.id ? "text-[#F7EFE2]/80" : "text-[#6E6254] dark:text-[#A39887]"
+                      className={`text-[11px] ${
+                        contentType === item.id ? "text-slate-100/80" : "text-slate-500 dark:text-slate-400"
                       }`}
                     >
                       {item.sub}
@@ -542,11 +542,11 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
               </div>
 
               {/* Dynamic Select Dropdowns based on Content Type */}
-              <div className="p-3.5 bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-2xl space-y-3 shadow-2xs">
+              <div className="p-3.5 bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] rounded-2xl space-y-3 shadow-2xs">
                 {/* Subject Selector */}
                 {(contentType === "subject" || contentType === "chapter" || contentType === "topic" || contentType === "question_bank") && (
                   <div className="space-y-1">
-                    <label className="text-[11px] font-bold text-[#5C5346] dark:text-[#C4B9A8]">
+                    <label className="text-[11px] font-bold text-slate-600 dark:text-slate-300">
                       Subject
                     </label>
                     <select
@@ -556,7 +556,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
                         setSelectedChapterId("all");
                         setSelectedTopicId("all");
                       }}
-                      className="w-full h-10 px-3 bg-[#FFF9EF] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] rounded-xl text-xs font-bold text-[#171923] dark:text-white focus:outline-none focus:border-[#800020] dark:focus:border-[#F47B20]"
+                      className="w-full h-10 px-3 bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] rounded-xl text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8] focus:border-[#7045D8] dark:focus:border-[#A78BFA]"
                     >
                       <option value="all">★ All Subjects</option>
                       {subjects.map((s) => (
@@ -571,7 +571,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
                 {/* Chapter Selector */}
                 {(contentType === "chapter" || contentType === "topic") && (
                   <div className="space-y-1">
-                    <label className="text-[11px] font-bold text-[#5C5346] dark:text-[#C4B9A8]">
+                    <label className="text-[11px] font-bold text-slate-600 dark:text-slate-300">
                       Chapter
                     </label>
                     <select
@@ -580,7 +580,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
                         setSelectedChapterId(e.target.value);
                         setSelectedTopicId("all");
                       }}
-                      className="w-full h-10 px-3 bg-[#FFF9EF] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] rounded-xl text-xs font-bold text-[#171923] dark:text-white focus:outline-none focus:border-[#800020] dark:focus:border-[#F47B20]"
+                      className="w-full h-10 px-3 bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] rounded-xl text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8] focus:border-[#7045D8] dark:focus:border-[#A78BFA]"
                     >
                       <option value="all">★ All Chapters</option>
                       {availableChapters.map((ch) => (
@@ -595,13 +595,13 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
                 {/* Topic Selector */}
                 {contentType === "topic" && availableTopics.length > 0 && (
                   <div className="space-y-1">
-                    <label className="text-[11px] font-bold text-[#5C5346] dark:text-[#C4B9A8]">
+                    <label className="text-[11px] font-bold text-slate-600 dark:text-slate-300">
                       Topic
                     </label>
                     <select
                       value={selectedTopicId}
                       onChange={(e) => setSelectedTopicId(e.target.value)}
-                      className="w-full h-10 px-3 bg-[#FFF9EF] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] rounded-xl text-xs font-bold text-[#171923] dark:text-white focus:outline-none focus:border-[#800020] dark:focus:border-[#F47B20]"
+                      className="w-full h-10 px-3 bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] rounded-xl text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8] focus:border-[#7045D8] dark:focus:border-[#A78BFA]"
                     >
                       <option value="all">★ All Topics in Chapter</option>
                       {availableTopics.map((top, topIdx) => (
@@ -616,13 +616,13 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
                 {/* PYQ Paper Selector */}
                 {contentType === "pyq" && (
                   <div className="space-y-1">
-                    <label className="text-[11px] font-bold text-[#5C5346] dark:text-[#C4B9A8]">
+                    <label className="text-[11px] font-bold text-slate-600 dark:text-slate-300">
                       Previous Year Exam Paper
                     </label>
                     <select
                       value={selectedPYQId}
                       onChange={(e) => setSelectedPYQId(e.target.value)}
-                      className="w-full h-10 px-3 bg-[#FFF9EF] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] rounded-xl text-xs font-bold text-[#171923] dark:text-white focus:outline-none focus:border-[#800020] dark:focus:border-[#F47B20]"
+                      className="w-full h-10 px-3 bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] rounded-xl text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8] focus:border-[#7045D8] dark:focus:border-[#A78BFA]"
                     >
                       {pyqPapers.map((paper) => (
                         <option key={paper.id} value={paper.id}>
@@ -636,13 +636,13 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
                 {/* Test Selector */}
                 {(contentType === "practice_test" || contentType === "mock_test" || contentType === "live_test") && (
                   <div className="space-y-1">
-                    <label className="text-[11px] font-bold text-[#5C5346] dark:text-[#C4B9A8]">
+                    <label className="text-[11px] font-bold text-slate-600 dark:text-slate-300">
                       Select Test Series
                     </label>
                     <select
                       value={selectedTestId}
                       onChange={(e) => setSelectedTestId(e.target.value)}
-                      className="w-full h-10 px-3 bg-[#FFF9EF] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] rounded-xl text-xs font-bold text-[#171923] dark:text-white focus:outline-none focus:border-[#800020] dark:focus:border-[#F47B20]"
+                      className="w-full h-10 px-3 bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] rounded-xl text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8] focus:border-[#7045D8] dark:focus:border-[#A78BFA]"
                     >
                       {liveTests.map((t) => (
                         <option key={t.id} value={t.id}>
@@ -658,8 +658,8 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
             {/* SECTION B: QUESTION COUNT */}
             <section className="space-y-3">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-xs font-black text-[#800020] dark:text-[#F47B20] uppercase tracking-wider">
-                  <Hash className="w-4 h-4 text-[#F47B20]" />
+                <div className="flex items-center gap-2 text-xs font-black text-[#7045D8] dark:text-[#A78BFA] uppercase tracking-wider">
+                  <Hash className="w-4 h-4 text-[#7045D8]" />
                   <span>B. Question Count</span>
                 </div>
                 <span className="text-xs font-black tabular-nums text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-900/50 px-2 py-0.5 rounded-md">
@@ -694,8 +694,8 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
                       }}
                       className={`py-2 rounded-xl text-xs font-bold tabular-nums transition-all border cursor-pointer active:scale-95 disabled:opacity-30 ${
                         isSelected
-                          ? "bg-[#F47B20] text-white border-[#F47B20] shadow-xs"
-                          : "bg-white dark:bg-[#1F2330] border-[#E8D9C0] dark:border-[#31374A] text-[#171923] dark:text-[#FFF9EF] hover:border-[#C99A45]"
+                          ? "bg-[#7045D8] text-white border-[#7045D8] shadow-xs"
+                          : "bg-white dark:bg-[#1B1536] border-slate-200 dark:border-[#31275E] text-slate-900 dark:text-slate-50 hover:border-[#A78BFA]"
                       }`}
                     >
                       {lim.label}
@@ -706,28 +706,28 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
 
               {/* Custom Range Inputs */}
               {useCustomRange && (
-                <div className="p-3 bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-xl flex items-center gap-3 animate-in fade-in duration-150">
+                <div className="p-3 bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] rounded-xl flex items-center gap-3 animate-in fade-in duration-150">
                   <div className="flex-1 space-y-1">
-                    <label className="text-[10px] font-bold text-[#6E6254] dark:text-[#A39887] uppercase block">From Question</label>
+                    <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase block">From Question</label>
                     <input
                       type="number"
                       min={1}
                       max={filteredResult.totalCandidateCount || 1}
                       value={customRangeStart}
                       onChange={(e) => setCustomRangeStart(Math.max(1, parseInt(e.target.value) || 1))}
-                      className="w-full h-9 px-3 bg-[#FFF9EF] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] rounded-lg text-xs font-bold tabular-nums text-[#171923] dark:text-white"
+                      className="w-full h-9 px-3 bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] rounded-lg text-xs font-bold tabular-nums text-slate-900 dark:text-white"
                     />
                   </div>
-                  <span className="text-[#6E6254] font-bold pt-4">to</span>
+                  <span className="text-slate-500 font-bold pt-4">to</span>
                   <div className="flex-1 space-y-1">
-                    <label className="text-[10px] font-bold text-[#6E6254] dark:text-[#A39887] uppercase block">To Question</label>
+                    <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase block">To Question</label>
                     <input
                       type="number"
                       min={customRangeStart}
                       max={filteredResult.totalCandidateCount || 1}
                       value={customRangeEnd}
                       onChange={(e) => setCustomRangeEnd(Math.min(filteredResult.totalCandidateCount, parseInt(e.target.value) || customRangeStart))}
-                      className="w-full h-9 px-3 bg-[#FFF9EF] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] rounded-lg text-xs font-bold tabular-nums text-[#171923] dark:text-white"
+                      className="w-full h-9 px-3 bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] rounded-lg text-xs font-bold tabular-nums text-slate-900 dark:text-white"
                     />
                   </div>
                 </div>
@@ -737,11 +737,11 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
             {/* SECTION C: PDF FORMAT (THE 5 SELECTION CARDS) */}
             <section className="space-y-3">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-xs font-black text-[#800020] dark:text-[#F47B20] uppercase tracking-wider">
-                  <FileText className="w-4 h-4 text-[#F47B20]" />
+                <div className="flex items-center gap-2 text-xs font-black text-[#7045D8] dark:text-[#A78BFA] uppercase tracking-wider">
+                  <FileText className="w-4 h-4 text-[#7045D8]" />
                   <span>C. PDF Format Selection</span>
                 </div>
-                <span className="text-[11px] font-bold text-[#F47B20]">
+                <span className="text-[11px] font-bold text-[#7045D8]">
                   Select Format
                 </span>
               </div>
@@ -753,27 +753,27 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
                   onClick={() => setFormatCard("question_paper")}
                   className={`p-3.5 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between relative overflow-hidden ${
                     formatCard === "question_paper"
-                      ? "bg-white dark:bg-[#1F2330] border-[#800020] dark:border-[#F47B20] shadow-md ring-2 ring-[#800020]/15 dark:ring-[#F47B20]/20"
-                      : "bg-white/70 dark:bg-[#1F2330]/60 border-[#E8D9C0] dark:border-[#31374A] hover:border-[#C99A45]"
+                      ? "bg-white dark:bg-[#1B1536] border-[#7045D8] dark:border-[#A78BFA] shadow-md ring-2 ring-[#7045D8]/15 dark:ring-[#A78BFA]/20"
+                      : "bg-white/70 dark:bg-[#1B1536]/60 border-slate-200 dark:border-[#31275E] hover:border-[#A78BFA]"
                   }`}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-9 h-9 rounded-xl bg-[#800020]/10 dark:bg-[#800020]/25 text-[#800020] dark:text-[#F47B20] flex items-center justify-center font-bold">
+                      <div className="w-9 h-9 rounded-xl bg-[#7045D8]/10 dark:bg-[#7045D8]/25 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center font-bold">
                         <FileQuestion className="w-5 h-5" />
                       </div>
                       <div>
-                        <h4 className="text-xs font-black text-[#171923] dark:text-white">Question Paper Only</h4>
-                        <span className="text-[10px] font-extrabold text-[#800020] dark:text-[#F47B20] uppercase">No Answers</span>
+                        <h4 className="text-xs font-black text-slate-900 dark:text-white">Question Paper Only</h4>
+                        <span className="text-[11px] font-extrabold text-[#7045D8] dark:text-[#A78BFA] uppercase">No Answers</span>
                       </div>
                     </div>
                     {formatCard === "question_paper" && (
-                      <div className="w-5 h-5 rounded-full bg-[#800020] dark:bg-[#F47B20] text-white flex items-center justify-center">
+                      <div className="w-5 h-5 rounded-full bg-[#7045D8] dark:bg-[#7045D8] text-white flex items-center justify-center">
                         <Check className="w-3.5 h-3.5" />
                       </div>
                     )}
                   </div>
-                  <p className="text-[11px] font-medium text-[#5C5346] dark:text-[#A39887] mt-2.5">
+                  <p className="text-[11px] font-medium text-slate-600 dark:text-slate-400 mt-2.5">
                     Questions and options without answers for offline solving.
                   </p>
                 </div>
@@ -784,27 +784,27 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
                   onClick={() => setFormatCard("question_paper_omr")}
                   className={`p-3.5 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between relative overflow-hidden ${
                     formatCard === "question_paper_omr"
-                      ? "bg-white dark:bg-[#1F2330] border-[#800020] dark:border-[#F47B20] shadow-md ring-2 ring-[#800020]/15 dark:ring-[#F47B20]/20"
-                      : "bg-white/70 dark:bg-[#1F2330]/60 border-[#E8D9C0] dark:border-[#31374A] hover:border-[#C99A45]"
+                      ? "bg-white dark:bg-[#1B1536] border-[#7045D8] dark:border-[#A78BFA] shadow-md ring-2 ring-[#7045D8]/15 dark:ring-[#A78BFA]/20"
+                      : "bg-white/70 dark:bg-[#1B1536]/60 border-slate-200 dark:border-[#31275E] hover:border-[#A78BFA]"
                   }`}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-9 h-9 rounded-xl bg-[#F47B20]/15 text-[#F47B20] flex items-center justify-center font-bold">
+                      <div className="w-9 h-9 rounded-xl bg-[#7045D8]/15 text-[#7045D8] flex items-center justify-center font-bold">
                         <FileCode className="w-5 h-5" />
                       </div>
                       <div>
-                        <h4 className="text-xs font-black text-[#171923] dark:text-white">Question Paper + Answer Sheet</h4>
-                        <span className="text-[10px] font-extrabold text-[#F47B20] uppercase">Printable OMR</span>
+                        <h4 className="text-xs font-black text-slate-900 dark:text-white">Question Paper + Answer Sheet</h4>
+                        <span className="text-[11px] font-extrabold text-[#7045D8] uppercase">Printable OMR</span>
                       </div>
                     </div>
                     {formatCard === "question_paper_omr" && (
-                      <div className="w-5 h-5 rounded-full bg-[#800020] dark:bg-[#F47B20] text-white flex items-center justify-center">
+                      <div className="w-5 h-5 rounded-full bg-[#7045D8] dark:bg-[#7045D8] text-white flex items-center justify-center">
                         <Check className="w-3.5 h-3.5" />
                       </div>
                     )}
                   </div>
-                  <p className="text-[11px] font-medium text-[#5C5346] dark:text-[#A39887] mt-2.5">
+                  <p className="text-[11px] font-medium text-slate-600 dark:text-slate-400 mt-2.5">
                     Printable question paper with a separate OMR answer sheet.
                   </p>
                 </div>
@@ -815,8 +815,8 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
                   onClick={() => setFormatCard("answer_key")}
                   className={`p-3.5 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between relative overflow-hidden ${
                     formatCard === "answer_key"
-                      ? "bg-white dark:bg-[#1F2330] border-[#800020] dark:border-[#F47B20] shadow-md ring-2 ring-[#800020]/15 dark:ring-[#F47B20]/20"
-                      : "bg-white/70 dark:bg-[#1F2330]/60 border-[#E8D9C0] dark:border-[#31374A] hover:border-[#C99A45]"
+                      ? "bg-white dark:bg-[#1B1536] border-[#7045D8] dark:border-[#A78BFA] shadow-md ring-2 ring-[#7045D8]/15 dark:ring-[#A78BFA]/20"
+                      : "bg-white/70 dark:bg-[#1B1536]/60 border-slate-200 dark:border-[#31275E] hover:border-[#A78BFA]"
                   }`}
                 >
                   <div className="flex items-start justify-between">
@@ -825,17 +825,17 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
                         <FileCheck className="w-5 h-5" />
                       </div>
                       <div>
-                        <h4 className="text-xs font-black text-[#171923] dark:text-white">Answer Key Only</h4>
-                        <span className="text-[10px] font-extrabold text-emerald-600 uppercase">Verification Table</span>
+                        <h4 className="text-xs font-black text-slate-900 dark:text-white">Answer Key Only</h4>
+                        <span className="text-[11px] font-extrabold text-emerald-600 uppercase">Verification Table</span>
                       </div>
                     </div>
                     {formatCard === "answer_key" && (
-                      <div className="w-5 h-5 rounded-full bg-[#800020] dark:bg-[#F47B20] text-white flex items-center justify-center">
+                      <div className="w-5 h-5 rounded-full bg-[#7045D8] dark:bg-[#7045D8] text-white flex items-center justify-center">
                         <Check className="w-3.5 h-3.5" />
                       </div>
                     )}
                   </div>
-                  <p className="text-[11px] font-medium text-[#5C5346] dark:text-[#A39887] mt-2.5">
+                  <p className="text-[11px] font-medium text-slate-600 dark:text-slate-400 mt-2.5">
                     Correct answers for checking your responses quickly.
                   </p>
                 </div>
@@ -846,27 +846,27 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
                   onClick={() => setFormatCard("detailed_solutions")}
                   className={`p-3.5 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between relative overflow-hidden ${
                     formatCard === "detailed_solutions"
-                      ? "bg-white dark:bg-[#1F2330] border-[#800020] dark:border-[#F47B20] shadow-md ring-2 ring-[#800020]/15 dark:ring-[#F47B20]/20"
-                      : "bg-white/70 dark:bg-[#1F2330]/60 border-[#E8D9C0] dark:border-[#31374A] hover:border-[#C99A45]"
+                      ? "bg-white dark:bg-[#1B1536] border-[#7045D8] dark:border-[#A78BFA] shadow-md ring-2 ring-[#7045D8]/15 dark:ring-[#A78BFA]/20"
+                      : "bg-white/70 dark:bg-[#1B1536]/60 border-slate-200 dark:border-[#31275E] hover:border-[#A78BFA]"
                   }`}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-9 h-9 rounded-xl bg-[#C99A45]/20 text-[#9A7026] dark:text-[#C99A45] flex items-center justify-center font-bold">
+                      <div className="w-9 h-9 rounded-xl bg-[#A78BFA]/20 text-[#9A7026] dark:text-[#A78BFA] flex items-center justify-center font-bold">
                         <BookOpen className="w-5 h-5" />
                       </div>
                       <div>
-                        <h4 className="text-xs font-black text-[#171923] dark:text-white">Detailed Solutions</h4>
-                        <span className="text-[10px] font-extrabold text-[#9A7026] dark:text-[#C99A45] uppercase">Complete Explanations</span>
+                        <h4 className="text-xs font-black text-slate-900 dark:text-white">Detailed Solutions</h4>
+                        <span className="text-[11px] font-extrabold text-[#9A7026] dark:text-[#A78BFA] uppercase">Complete Explanations</span>
                       </div>
                     </div>
                     {formatCard === "detailed_solutions" && (
-                      <div className="w-5 h-5 rounded-full bg-[#800020] dark:bg-[#F47B20] text-white flex items-center justify-center">
+                      <div className="w-5 h-5 rounded-full bg-[#7045D8] dark:bg-[#7045D8] text-white flex items-center justify-center">
                         <Check className="w-3.5 h-3.5" />
                       </div>
                     )}
                   </div>
-                  <p className="text-[11px] font-medium text-[#5C5346] dark:text-[#A39887] mt-2.5">
+                  <p className="text-[11px] font-medium text-slate-600 dark:text-slate-400 mt-2.5">
                     Questions, correct answers, and detailed explanations.
                   </p>
                 </div>
@@ -877,27 +877,27 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
                   onClick={() => setFormatCard("json")}
                   className={`p-3.5 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between relative overflow-hidden ${
                     formatCard === "json"
-                      ? "bg-white dark:bg-[#1F2330] border-[#800020] dark:border-[#F47B20] shadow-md ring-2 ring-[#800020]/15 dark:ring-[#F47B20]/20"
-                      : "bg-white/70 dark:bg-[#1F2330]/60 border-[#E8D9C0] dark:border-[#31374A] hover:border-[#C99A45]"
+                      ? "bg-white dark:bg-[#1B1536] border-[#7045D8] dark:border-[#A78BFA] shadow-md ring-2 ring-[#7045D8]/15 dark:ring-[#A78BFA]/20"
+                      : "bg-white/70 dark:bg-[#1B1536]/60 border-slate-200 dark:border-[#31275E] hover:border-[#A78BFA]"
                   }`}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-9 h-9 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] text-[#5C5346] dark:text-[#C4B9A8] flex items-center justify-center font-bold">
+                      <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-[#241D48] text-slate-600 dark:text-slate-300 flex items-center justify-center font-bold">
                         <FileCode className="w-5 h-5" />
                       </div>
                       <div>
-                        <h4 className="text-xs font-black text-[#171923] dark:text-white">JSON Export</h4>
-                        <span className="text-[10px] font-extrabold text-[#6E6254] dark:text-[#A39887] uppercase">Raw Data</span>
+                        <h4 className="text-xs font-black text-slate-900 dark:text-white">JSON Export</h4>
+                        <span className="text-[11px] font-extrabold text-slate-500 dark:text-slate-400 uppercase">Raw Data</span>
                       </div>
                     </div>
                     {formatCard === "json" && (
-                      <div className="w-5 h-5 rounded-full bg-[#800020] dark:bg-[#F47B20] text-white flex items-center justify-center">
+                      <div className="w-5 h-5 rounded-full bg-[#7045D8] dark:bg-[#7045D8] text-white flex items-center justify-center">
                         <Check className="w-3.5 h-3.5" />
                       </div>
                     )}
                   </div>
-                  <p className="text-[11px] font-medium text-[#5C5346] dark:text-[#A39887] mt-2.5">
+                  <p className="text-[11px] font-medium text-slate-600 dark:text-slate-400 mt-2.5">
                     Download raw question data in JSON format.
                   </p>
                 </div>
@@ -907,75 +907,75 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
 
             {/* SECTION D: DOCUMENT SETTINGS */}
             <section className="space-y-3">
-              <div className="flex items-center gap-2 text-xs font-black text-[#800020] dark:text-[#F47B20] uppercase tracking-wider">
-                <Sliders className="w-4 h-4 text-[#F47B20]" />
+              <div className="flex items-center gap-2 text-xs font-black text-[#7045D8] dark:text-[#A78BFA] uppercase tracking-wider">
+                <Sliders className="w-4 h-4 text-[#7045D8]" />
                 <span>D. Document Toggles & Settings</span>
               </div>
 
-              <div className="p-3.5 bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-2xl grid grid-cols-1 sm:grid-cols-2 gap-2.5 shadow-2xs">
+              <div className="p-3.5 bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] rounded-2xl grid grid-cols-1 sm:grid-cols-2 gap-2.5 shadow-2xs">
                 {/* Toggle: Cover Page */}
-                <label className="flex items-center justify-between p-2.5 rounded-xl bg-[#FFF9EF] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] cursor-pointer">
-                  <span className="text-xs font-bold text-[#171923] dark:text-[#FFF9EF]">Include A4 Cover Page</span>
+                <label className="flex items-center justify-between p-2.5 rounded-xl bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] cursor-pointer">
+                  <span className="text-xs font-bold text-slate-900 dark:text-slate-50">Include A4 Cover Page</span>
                   <input
                     type="checkbox"
                     checked={includeCoverPage}
                     onChange={(e) => setIncludeCoverPage(e.target.checked)}
-                    className="w-4 h-4 accent-[#800020] dark:accent-[#F47B20] rounded cursor-pointer"
+                    className="w-4 h-4 accent-[#7045D8] dark:accent-[#7045D8] rounded cursor-pointer"
                   />
                 </label>
 
                 {/* Toggle: Page Numbers */}
-                <label className="flex items-center justify-between p-2.5 rounded-xl bg-[#FFF9EF] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] cursor-pointer">
-                  <span className="text-xs font-bold text-[#171923] dark:text-[#FFF9EF]">Show Page Numbers</span>
+                <label className="flex items-center justify-between p-2.5 rounded-xl bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] cursor-pointer">
+                  <span className="text-xs font-bold text-slate-900 dark:text-slate-50">Show Page Numbers</span>
                   <input
                     type="checkbox"
                     checked={showPageNumbers}
                     onChange={(e) => setShowPageNumbers(e.target.checked)}
-                    className="w-4 h-4 accent-[#800020] dark:accent-[#F47B20] rounded cursor-pointer"
+                    className="w-4 h-4 accent-[#7045D8] dark:accent-[#7045D8] rounded cursor-pointer"
                   />
                 </label>
 
                 {/* Toggle: Header and Footer */}
-                <label className="flex items-center justify-between p-2.5 rounded-xl bg-[#FFF9EF] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] cursor-pointer">
-                  <span className="text-xs font-bold text-[#171923] dark:text-[#FFF9EF]">Show Header and Footer</span>
+                <label className="flex items-center justify-between p-2.5 rounded-xl bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] cursor-pointer">
+                  <span className="text-xs font-bold text-slate-900 dark:text-slate-50">Show Header and Footer</span>
                   <input
                     type="checkbox"
                     checked={showHeaderFooter}
                     onChange={(e) => setShowHeaderFooter(e.target.checked)}
-                    className="w-4 h-4 accent-[#800020] dark:accent-[#F47B20] rounded cursor-pointer"
+                    className="w-4 h-4 accent-[#7045D8] dark:accent-[#7045D8] rounded cursor-pointer"
                   />
                 </label>
 
                 {/* Toggle: Test Instructions */}
-                <label className="flex items-center justify-between p-2.5 rounded-xl bg-[#FFF9EF] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] cursor-pointer">
-                  <span className="text-xs font-bold text-[#171923] dark:text-[#FFF9EF]">Include Test Instructions</span>
+                <label className="flex items-center justify-between p-2.5 rounded-xl bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] cursor-pointer">
+                  <span className="text-xs font-bold text-slate-900 dark:text-slate-50">Include Test Instructions</span>
                   <input
                     type="checkbox"
                     checked={includeTestInstructions}
                     onChange={(e) => setIncludeTestInstructions(e.target.checked)}
-                    className="w-4 h-4 accent-[#800020] dark:accent-[#F47B20] rounded cursor-pointer"
+                    className="w-4 h-4 accent-[#7045D8] dark:accent-[#7045D8] rounded cursor-pointer"
                   />
                 </label>
 
                 {/* Toggle: Subject and Topic Names */}
-                <label className="flex items-center justify-between p-2.5 rounded-xl bg-[#FFF9EF] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] cursor-pointer">
-                  <span className="text-xs font-bold text-[#171923] dark:text-[#FFF9EF]">Include Subject & Topic Names</span>
+                <label className="flex items-center justify-between p-2.5 rounded-xl bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] cursor-pointer">
+                  <span className="text-xs font-bold text-slate-900 dark:text-slate-50">Include Subject & Topic Names</span>
                   <input
                     type="checkbox"
                     checked={includeSubjectTopicNames}
                     onChange={(e) => setIncludeSubjectTopicNames(e.target.checked)}
-                    className="w-4 h-4 accent-[#800020] dark:accent-[#F47B20] rounded cursor-pointer"
+                    className="w-4 h-4 accent-[#7045D8] dark:accent-[#7045D8] rounded cursor-pointer"
                   />
                 </label>
 
                 {/* Toggle: Blank Answer Sheet Append */}
-                <label className="flex items-center justify-between p-2.5 rounded-xl bg-[#FFF9EF] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] cursor-pointer">
-                  <span className="text-xs font-bold text-[#171923] dark:text-[#FFF9EF]">Append Blank Answer Sheet</span>
+                <label className="flex items-center justify-between p-2.5 rounded-xl bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] cursor-pointer">
+                  <span className="text-xs font-bold text-slate-900 dark:text-slate-50">Append Blank Answer Sheet</span>
                   <input
                     type="checkbox"
                     checked={includeBlankAnswerSheet}
                     onChange={(e) => setIncludeBlankAnswerSheet(e.target.checked)}
-                    className="w-4 h-4 accent-[#800020] dark:accent-[#F47B20] rounded cursor-pointer"
+                    className="w-4 h-4 accent-[#7045D8] dark:accent-[#7045D8] rounded cursor-pointer"
                   />
                 </label>
               </div>
@@ -987,25 +987,25 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
                   placeholder="Candidate Name (Optional)"
                   value={studentName}
                   onChange={(e) => setStudentName(e.target.value)}
-                  className="px-3 py-2.5 bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-xl text-xs font-bold text-[#171923] dark:text-white focus:outline-none focus:border-[#800020] dark:focus:border-[#F47B20]"
+                  className="px-3 py-2.5 bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] rounded-xl text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8] focus:border-[#7045D8] dark:focus:border-[#A78BFA]"
                 />
                 <input
                   type="text"
                   placeholder="Roll Number (Optional)"
                   value={rollNumber}
                   onChange={(e) => setRollNumber(e.target.value)}
-                  className="px-3 py-2.5 bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-xl text-xs font-bold text-[#171923] dark:text-white focus:outline-none focus:border-[#800020] dark:focus:border-[#F47B20]"
+                  className="px-3 py-2.5 bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] rounded-xl text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8] focus:border-[#7045D8] dark:focus:border-[#A78BFA]"
                 />
               </div>
             </section>
           </div>
         ) : (
           /* TAB 2: LIVE PDF PREVIEW SCREEN */
-          <div className="flex-1 flex flex-col bg-[#F7EFE2] dark:bg-[#171923] overflow-hidden relative">
+          <div className="flex-1 flex flex-col bg-slate-100 dark:bg-[#130E26] overflow-hidden relative">
             {/* Preview Toolbar */}
-            <div className="px-4 py-2.5 bg-white dark:bg-[#1F2330] border-b border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-between shrink-0">
-              <div className="flex items-center gap-2 text-xs font-bold text-[#171923] dark:text-[#FFF9EF]">
-                <Eye className="w-4 h-4 text-[#800020] dark:text-[#F47B20]" />
+            <div className="px-4 py-2.5 bg-white dark:bg-[#1B1536] border-b border-slate-200 dark:border-[#31275E] flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-2 text-xs font-bold text-slate-900 dark:text-slate-50">
+                <Eye className="w-4 h-4 text-[#7045D8] dark:text-[#A78BFA]" />
                 <span>Page Preview ({filteredResult.count} Questions)</span>
               </div>
 
@@ -1013,24 +1013,24 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
               <div className="flex items-center gap-1.5">
                 <button
                   onClick={() => setPreviewZoom((z) => Math.max(50, z - 15))}
-                  className="w-7 h-7 rounded-lg bg-[#FFF9EF] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center text-[#171923] dark:text-[#FFF9EF] hover:border-[#800020]"
+                  className="w-7 h-7 rounded-lg bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] flex items-center justify-center text-slate-900 dark:text-slate-50 hover:border-[#7045D8]"
                   title="Zoom Out"
                 >
                   <ZoomOut className="w-3.5 h-3.5" />
                 </button>
-                <span className="text-[11px] font-bold tabular-nums text-[#5C5346] dark:text-[#C4B9A8] w-10 text-center">
+                <span className="text-[11px] font-bold tabular-nums text-slate-600 dark:text-slate-300 w-10 text-center">
                   {previewZoom}%
                 </span>
                 <button
                   onClick={() => setPreviewZoom((z) => Math.min(150, z + 15))}
-                  className="w-7 h-7 rounded-lg bg-[#FFF9EF] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center text-[#171923] dark:text-[#FFF9EF] hover:border-[#800020]"
+                  className="w-7 h-7 rounded-lg bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] flex items-center justify-center text-slate-900 dark:text-slate-50 hover:border-[#7045D8]"
                   title="Zoom In"
                 >
                   <ZoomIn className="w-3.5 h-3.5" />
                 </button>
                 <button
                   onClick={() => setPreviewZoom(100)}
-                  className="w-8 h-7 rounded-lg bg-[#FFF9EF] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center text-[#171923] dark:text-[#FFF9EF] hover:border-[#800020] text-[10px] font-extrabold tabular-nums"
+                  className="w-8 h-7 rounded-lg bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] flex items-center justify-center text-slate-900 dark:text-slate-50 hover:border-[#7045D8] text-[11px] font-extrabold tabular-nums"
                   title="Reset Zoom"
                 >
                   100%
@@ -1041,7 +1041,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
             {/* Live Render Frame */}
             <div className="flex-1 overflow-auto p-4 flex justify-center items-start">
               <div
-                className="bg-white shadow-2xl transition-all duration-150 origin-top rounded-md overflow-hidden border border-[#E8D9C0]"
+                className="bg-white shadow-2xl transition-all duration-150 origin-top rounded-md overflow-hidden border border-slate-200"
                 style={{
                   width: `${(794 * previewZoom) / 100}px`,
                   minHeight: `${(1123 * previewZoom) / 100}px`,
@@ -1058,17 +1058,17 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
         )}
 
         {/* SECTION E: ACTION BUTTONS (STICKY FOOTER) */}
-        <footer className="p-4 bg-white dark:bg-[#1F2330] border-t border-[#E8D9C0] dark:border-[#31374A] shrink-0 flex flex-col gap-2">
+        <footer className="p-4 bg-white dark:bg-[#1B1536] border-t border-slate-200 dark:border-[#31275E] shrink-0 flex flex-col gap-2">
           {/* Progress Indicator */}
           {isGeneratingPDF && pdfProgress && (
             <div className="space-y-1">
-              <div className="flex items-center justify-between text-xs font-bold tabular-nums text-[#800020] dark:text-[#F47B20]">
+              <div className="flex items-center justify-between text-xs font-bold tabular-nums text-[#7045D8] dark:text-[#A78BFA]">
                 <span>{pdfProgress.message}</span>
                 <span>{pdfProgress.percent}%</span>
               </div>
-              <div className="w-full h-2 bg-[#F7EFE2] dark:bg-[#252A3A] rounded-full overflow-hidden">
+              <div className="w-full h-2 bg-slate-100 dark:bg-[#241D48] rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-[#800020] to-[#F47B20] transition-all duration-200"
+                  className="h-full bg-gradient-to-r from-[#7045D8] to-[#7045D8] transition-all duration-200"
                   style={{ width: `${pdfProgress.percent}%` }}
                 />
               </div>
@@ -1082,7 +1082,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
               type="button"
               disabled={filteredResult.count === 0 || isGeneratingPDF}
               onClick={handleExport}
-              className="col-span-2 py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#800020] to-[#5E0017] hover:from-[#5E0017] hover:to-[#4A0012] dark:from-[#800020] dark:to-[#5E0017] dark:hover:from-[#650019] dark:hover:to-[#4A0012] text-white font-semibold text-xs sm:text-sm border border-[#C99A45]/35 shadow-sm active:scale-98 transition-all duration-180 cursor-pointer flex items-center justify-center gap-2 disabled:opacity-40 group"
+              className="col-span-2 py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#7045D8] to-[#5B32BF] hover:from-[#5B32BF] hover:to-[#5B32BF] dark:from-[#7045D8] dark:to-[#5B32BF] dark:hover:from-[#5B32BF] dark:hover:to-[#5B32BF] text-white font-semibold text-xs sm:text-sm border border-[#A78BFA]/35 shadow-sm active:scale-98 transition-all duration-180 cursor-pointer flex items-center justify-center gap-2 disabled:opacity-40 group"
             >
               {isGeneratingPDF ? (
                 <>
@@ -1091,7 +1091,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
                 </>
               ) : (
                 <>
-                  <Download className="w-4 h-4 text-[#C99A45] dark:text-white" />
+                  <Download className="w-4 h-4 text-amber-500 dark:text-white" />
                   <span>Generate & Download {formatCard === "json" ? "JSON" : "PDF"}</span>
                 </>
               )}
@@ -1102,9 +1102,9 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
               type="button"
               disabled={filteredResult.count === 0}
               onClick={() => setActiveTab(activeTab === "config" ? "preview" : "config")}
-              className="py-3 px-3 rounded-xl bg-[#FFF9EF] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] text-[#800020] dark:text-[#FFF9EF] font-bold text-xs hover:bg-[#F7EFE2] dark:hover:bg-[#31374A] transition-all cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-40"
+              className="py-3 px-3 rounded-xl bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] text-[#7045D8] dark:text-slate-50 font-bold text-xs hover:bg-slate-100 dark:hover:bg-[#31275E] transition-all cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-40"
             >
-              <Eye className="w-4 h-4 text-[#F47B20]" />
+              <Eye className="w-4 h-4 text-[#7045D8]" />
               <span>{activeTab === "config" ? "Preview PDF" : "Edit Config"}</span>
             </button>
 
@@ -1113,9 +1113,9 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
               type="button"
               disabled={filteredResult.count === 0}
               onClick={handleOpenNewTab}
-              className="py-3 px-3 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] text-[#171923] dark:text-[#FFF9EF] font-bold text-xs hover:bg-[#E8D9C0]/60 dark:hover:bg-[#31374A] transition-all cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-40"
+              className="py-3 px-3 rounded-xl bg-slate-100 dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] text-slate-900 dark:text-slate-50 font-bold text-xs hover:bg-slate-200/60 dark:hover:bg-[#31275E] transition-all cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-40"
             >
-              <Printer className="w-4 h-4 text-[#F47B20]" />
+              <Printer className="w-4 h-4 text-[#7045D8]" />
               <span>Print / Open</span>
             </button>
           </div>

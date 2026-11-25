@@ -30,7 +30,7 @@ export const StatementBlock: React.FC<{ statements: string[] | Statement[] }> = 
               className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-[0.7875rem] sm:p-[0.9rem] rounded-xl sm:rounded-2xl shadow-sm transition-colors flex flex-col gap-2.5"
             >
               <div className="flex items-center gap-2.5">
-                <span className="shrink-0 px-2.5 py-0.5 rounded-lg bg-blue-600 text-white font-black text-[10px] sm:text-[11px] uppercase tracking-wider shadow-sm">
+                <span className="shrink-0 px-2.5 py-0.5 rounded-lg bg-blue-600 text-white font-black text-[11px] sm:text-[11px] uppercase tracking-wider shadow-sm">
                   {label}
                 </span>
                 <div className="h-[1px] flex-grow bg-slate-100 dark:bg-slate-800/80" />
@@ -85,13 +85,13 @@ export const MatchFollowingBlock: React.FC<{
     <div className="my-4 sm:my-6 w-full border border-slate-200 dark:border-slate-800 rounded-xl sm:rounded-3xl overflow-hidden bg-white dark:bg-[#0D1425] shadow-sm">
       <div className="grid grid-cols-2 divide-x divide-slate-100 dark:divide-slate-800/60">
         <div className="bg-slate-50/80 dark:bg-slate-900/40 px-[0.675rem] sm:px-[1.125rem] py-[0.675rem] sm:py-[0.9rem] border-b border-slate-200 dark:border-slate-800/60">
-          <span className="text-[10px] sm:text-[11px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest flex items-center gap-1.5 sm:gap-2">
+          <span className="text-[11px] sm:text-[11px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest flex items-center gap-1.5 sm:gap-2">
             <div className="w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0" />
             <span className="whitespace-normal leading-tight font-black">{lTitle}</span>
           </span>
         </div>
         <div className="bg-slate-50/80 dark:bg-slate-900/40 px-[0.675rem] sm:px-[1.125rem] py-[0.675rem] sm:py-[0.9rem] border-b border-slate-200 dark:border-slate-800/60">
-          <span className="text-[10px] sm:text-[11px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest flex items-center gap-1.5 sm:gap-2">
+          <span className="text-[11px] sm:text-[11px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest flex items-center gap-1.5 sm:gap-2">
             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
             <span className="whitespace-normal leading-tight font-black">{rTitle}</span>
           </span>
@@ -103,7 +103,7 @@ export const MatchFollowingBlock: React.FC<{
           return (
             <React.Fragment key={idx}>
               <div className={`px-[0.675rem] sm:px-[1.125rem] py-[0.7875rem] sm:py-[1.125rem] flex gap-2 sm:gap-3.5 items-start ${idx !== rows.length - 1 ? 'border-b border-slate-100 dark:border-slate-800/40' : ''}`}>
-                <span className="shrink-0 w-[1.125rem] h-[1.125rem] sm:w-[1.35rem] sm:h-[1.35rem] rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center text-[9px] sm:text-[10px] font-black font-mono border border-blue-100/50 dark:border-blue-800/50 mt-0.5">
+                <span className="shrink-0 w-[1.125rem] h-[1.125rem] sm:w-[1.35rem] sm:h-[1.35rem] rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center text-[11px] sm:text-[11px] font-black font-mono border border-blue-100/50 dark:border-blue-800/50 mt-0.5">
                   {leftParsed.badge}
                 </span>
                 <div className="text-[1.07rem] sm:text-[1.2rem] font-black text-slate-800 dark:text-slate-200 leading-relaxed break-words overflow-hidden w-full">
@@ -111,7 +111,7 @@ export const MatchFollowingBlock: React.FC<{
                 </div>
               </div>
               <div className={`px-[0.675rem] sm:px-[1.125rem] py-[0.7875rem] sm:py-[1.125rem] flex gap-2 sm:gap-3.5 items-start ${idx !== rows.length - 1 ? 'border-b border-slate-100 dark:border-slate-800/40' : ''}`}>
-                <span className="shrink-0 w-[1.125rem] h-[1.125rem] sm:w-[1.35rem] sm:h-[1.35rem] rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-[9px] sm:text-[10px] font-black font-mono border border-emerald-100/50 dark:border-emerald-800/50 mt-0.5">
+                <span className="shrink-0 w-[1.125rem] h-[1.125rem] sm:w-[1.35rem] sm:h-[1.35rem] rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-[11px] sm:text-[11px] font-black font-mono border border-emerald-100/50 dark:border-emerald-800/50 mt-0.5">
                   {rightParsed.badge || getRoman(idx + 1)}
                 </span>
                 <div className="text-[1.07rem] sm:text-[1.2rem] font-black text-slate-800 dark:text-slate-200 leading-relaxed break-words overflow-hidden w-full">
@@ -159,7 +159,7 @@ export const PassageBlock: React.FC<{ passage: string; title?: string }> = ({ pa
     <div className="my-4 sm:my-6 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl sm:rounded-[28px] p-[0.9rem] sm:p-[1.575rem]">
       <div className="flex items-center gap-2 mb-3 sm:mb-4">
         <FileText className="w-4 h-4 text-slate-400" />
-        <h3 className="text-[10px] sm:text-xs font-black text-slate-500 uppercase tracking-widest">{title}</h3>
+        <h3 className="text-[11px] sm:text-xs font-black text-slate-500 uppercase tracking-widest">{title}</h3>
       </div>
       <div className="text-[1.07rem] sm:text-[1.2rem] text-slate-800 dark:text-slate-200 leading-[1.5] sm:leading-relaxed border-l-4 border-blue-600 dark:border-blue-400 pl-3.5 sm:pl-4 py-0.5 sm:py-1 font-black">
         <RichText text={passage} enablePronunciation={true} />
@@ -176,7 +176,7 @@ export const SequenceBlock: React.FC<{ items: (string | { number?: number; text:
 
   return (
     <div className="space-y-2 sm:space-y-2.5 my-2.5 sm:my-3.5 w-full">
-      <div className="text-[10px] sm:text-[11px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest pb-0.5 flex items-center gap-1.5">
+      <div className="text-[11px] sm:text-[11px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest pb-0.5 flex items-center gap-1.5">
         <Layers className="w-3.5 h-3.5 text-indigo-500" />
         <span>Arrange in Sequence:</span>
       </div>
@@ -193,7 +193,7 @@ export const SequenceBlock: React.FC<{ items: (string | { number?: number; text:
               key={idx}
               className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 p-[0.5625rem] sm:p-[0.7875rem] rounded-xl sm:rounded-2xl flex items-start gap-2.5 sm:gap-3"
             >
-              <span className="w-[1.35rem] h-[1.35rem] sm:w-[1.575rem] sm:h-[1.575rem] rounded-lg sm:rounded-xl bg-indigo-50 dark:bg-indigo-950/70 border border-indigo-200/60 dark:border-indigo-800/50 flex items-center justify-center text-[10px] sm:text-xs font-black text-indigo-700 dark:text-indigo-300 font-mono shrink-0 mt-0.5">
+              <span className="w-[1.35rem] h-[1.35rem] sm:w-[1.575rem] sm:h-[1.575rem] rounded-lg sm:rounded-xl bg-indigo-50 dark:bg-indigo-950/70 border border-indigo-200/60 dark:border-indigo-800/50 flex items-center justify-center text-[11px] sm:text-xs font-black text-indigo-700 dark:text-indigo-300 font-mono shrink-0 mt-0.5">
                 {displayNumber}.
               </span>
               <div className="text-[13.9px] sm:text-[15px] font-bold text-slate-850 dark:text-slate-100 leading-[1.5] sm:leading-relaxed pt-0.5 flex-1 min-w-0">
@@ -290,8 +290,8 @@ export const ImageBlock: React.FC<{ url?: string; svgContent?: string; caption?:
         {hasError ? (
           <div className="flex flex-col items-center justify-center p-8 text-slate-400 bg-slate-50 dark:bg-slate-900/50 w-full h-full">
             <X className="w-8 h-8 mb-2 opacity-20" />
-            <p className="text-[10px] font-black uppercase tracking-widest text-center">Diagram Unavailable</p>
-            <p className="text-[9px] mt-1 opacity-60 text-center">Failed to load visual resource.</p>
+            <p className="text-[11px] font-black uppercase tracking-widest text-center">Diagram Unavailable</p>
+            <p className="text-[11px] mt-1 opacity-60 text-center">Failed to load visual resource.</p>
           </div>
         ) : (
           <div className="w-full h-full flex items-center justify-center relative">
@@ -333,7 +333,7 @@ export const ImageBlock: React.FC<{ url?: string; svgContent?: string; caption?:
       </div>
       
       {caption && (
-        <p className="text-center text-[10px] font-black text-slate-500 uppercase tracking-widest italic px-4">
+        <p className="text-center text-[11px] font-black text-slate-500 uppercase tracking-widest italic px-4">
           {caption}
         </p>
       )}

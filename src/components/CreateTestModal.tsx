@@ -279,10 +279,10 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#171923]/70 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 overflow-y-auto overscroll-y-contain">
-      <div className="bg-[#FFF9EF] dark:bg-[#171923] rounded-2xl w-full max-w-2xl max-h-[92vh] flex flex-col shadow-2xl border border-[#E8D9C0] dark:border-[#31374A] overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+    <div className="fixed inset-0 z-50 bg-[#130E26]/70 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 overflow-y-auto overscroll-y-contain">
+      <div className="bg-[#F8FAFC] dark:bg-[#130E26] rounded-2xl w-full max-w-2xl max-h-[92vh] flex flex-col shadow-2xl border border-slate-200 dark:border-[#31275E] overflow-hidden animate-in fade-in zoom-in-95 duration-150">
         {/* Top Header */}
-        <div className="px-5 py-3.5 border-b border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-between bg-white dark:bg-[#1F2330] flex-shrink-0">
+        <div className="px-5 py-3.5 border-b border-slate-200 dark:border-[#31275E] flex items-center justify-between bg-white dark:bg-[#1B1536] flex-shrink-0">
           <div className="flex items-center gap-3">
             {scope !== "options" && (
               <button
@@ -297,16 +297,16 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({
                     setScope("options");
                   }
                 }}
-                className="p-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:text-[#171923] dark:hover:text-[#FFF9EF] hover:bg-[#F7EFE2] dark:hover:bg-[#252A3A] transition-colors cursor-pointer"
+                className="p-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#241D48] transition-colors cursor-pointer"
               >
                 <ArrowLeft className="w-4 h-4" />
               </button>
             )}
-            <div className="w-8 h-8 rounded-xl bg-[#800020] flex items-center justify-center text-[#FFF9EF] shadow-sm">
-              <Sparkles className="w-4 h-4 text-[#F47B20]" />
+            <div className="w-8 h-8 rounded-xl bg-[#7045D8] flex items-center justify-center text-white shadow-sm">
+              <Sparkles className="w-4 h-4 text-[#7045D8]" />
             </div>
             <div>
-              <h3 className="font-bold text-[#171923] dark:text-[#FFF9EF] text-sm sm:text-base">
+              <h3 className="font-bold text-slate-900 dark:text-slate-50 text-sm sm:text-base">
                 {scope === "options"
                   ? "Create Test"
                   : scope === "all-chapters"
@@ -327,7 +327,7 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({
 
           <button
             onClick={handleClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-[#171923] dark:hover:text-[#FFF9EF] hover:bg-[#F7EFE2] dark:hover:bg-[#252A3A] transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#241D48] transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -337,8 +337,8 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({
         <div className="flex-1 overflow-y-auto overscroll-y-contain p-3.5 sm:p-6 pb-[calc(env(safe-area-inset-bottom,16px)+36px)] sm:pb-8 space-y-4 overflow-x-hidden">
           {scope === "options" && (
             <div className="space-y-2.5">
-              <div className="p-3 bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-xl text-[11px] text-[#171923] dark:text-[#FFF9EF] flex items-center gap-2">
-                <Sparkles className="w-3.5 h-3.5 text-[#800020] dark:text-[#F47B20] flex-shrink-0" />
+              <div className="p-3 bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] rounded-xl text-[11px] text-slate-900 dark:text-slate-50 flex items-center gap-2">
+                <Sparkles className="w-3.5 h-3.5 text-[#7045D8] dark:text-[#A78BFA] flex-shrink-0" />
                 <span>
                   All tests support <strong>Smart Balanced Selection</strong>, <strong>Custom Question Selection</strong>, and <strong>All Questions</strong>.
                 </span>
@@ -346,62 +346,62 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({
 
               <button
                 onClick={() => handleSelectScope("all-chapters")}
-                className="w-full text-left p-3.5 rounded-xl border border-[#E8D9C0] dark:border-[#31374A] bg-white dark:bg-[#1F2330] hover:border-[#800020]/50 dark:hover:border-[#F47B20]/50 hover:shadow-md transition-all group flex items-center justify-between cursor-pointer"
+                className="w-full text-left p-3.5 rounded-xl border border-slate-200 dark:border-[#31275E] bg-white dark:bg-[#1B1536] hover:border-[#7045D8]/50 dark:hover:border-[#A78BFA]/50 hover:shadow-md transition-all group flex items-center justify-between cursor-pointer"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] flex items-center justify-center font-bold">
+                  <div className="w-9 h-9 rounded-xl bg-[#7045D8]/10 dark:bg-[#7045D8]/15 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center font-bold">
                     <BookOpen className="w-4.5 h-4.5" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-xs sm:text-sm text-[#171923] dark:text-[#FFF9EF] group-hover:text-[#800020] dark:group-hover:text-[#F47B20] transition-colors">
+                    <h4 className="font-bold text-xs sm:text-sm text-slate-900 dark:text-slate-50 group-hover:text-[#7045D8] dark:group-hover:text-[#7045D8] transition-colors">
                       All Chapters Test
                     </h4>
-                    <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 tabular-nums">
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 tabular-nums">
                       Full coverage ({questions.length} total questions)
                     </p>
                   </div>
                 </div>
-                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#800020] dark:group-hover:text-[#F47B20] transition-colors" />
+                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#7045D8] dark:group-hover:text-[#7045D8] transition-colors" />
               </button>
 
               <button
                 onClick={() => handleSelectScope("chapter-wise")}
-                className="w-full text-left p-3.5 rounded-xl border border-[#E8D9C0] dark:border-[#31374A] bg-white dark:bg-[#1F2330] hover:border-[#800020]/50 dark:hover:border-[#F47B20]/50 hover:shadow-md transition-all group flex items-center justify-between cursor-pointer"
+                className="w-full text-left p-3.5 rounded-xl border border-slate-200 dark:border-[#31275E] bg-white dark:bg-[#1B1536] hover:border-[#7045D8]/50 dark:hover:border-[#A78BFA]/50 hover:shadow-md transition-all group flex items-center justify-between cursor-pointer"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-[#F47B20]/15 text-[#F47B20] flex items-center justify-center font-bold">
+                  <div className="w-9 h-9 rounded-xl bg-[#7045D8]/15 text-[#7045D8] flex items-center justify-center font-bold">
                     <Layers className="w-4.5 h-4.5" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-xs sm:text-sm text-[#171923] dark:text-[#FFF9EF] group-hover:text-[#800020] dark:group-hover:text-[#F47B20] transition-colors">
+                    <h4 className="font-bold text-xs sm:text-sm text-slate-900 dark:text-slate-50 group-hover:text-[#7045D8] dark:group-hover:text-[#7045D8] transition-colors">
                       Chapter-wise Test
                     </h4>
-                    <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                       Focus on a specific chapter
                     </p>
                   </div>
                 </div>
-                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#800020] dark:group-hover:text-[#F47B20] transition-colors" />
+                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#7045D8] dark:group-hover:text-[#7045D8] transition-colors" />
               </button>
 
               <button
                 onClick={() => handleSelectScope("topic")}
-                className="w-full text-left p-3.5 rounded-xl border border-[#E8D9C0] dark:border-[#31374A] bg-white dark:bg-[#1F2330] hover:border-[#800020]/50 dark:hover:border-[#F47B20]/50 hover:shadow-md transition-all group flex items-center justify-between cursor-pointer"
+                className="w-full text-left p-3.5 rounded-xl border border-slate-200 dark:border-[#31275E] bg-white dark:bg-[#1B1536] hover:border-[#7045D8]/50 dark:hover:border-[#A78BFA]/50 hover:shadow-md transition-all group flex items-center justify-between cursor-pointer"
               >
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 flex items-center justify-center font-bold">
                     <Target className="w-4.5 h-4.5" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-xs sm:text-sm text-[#171923] dark:text-[#FFF9EF] group-hover:text-[#800020] dark:group-hover:text-[#F47B20] transition-colors">
+                    <h4 className="font-bold text-xs sm:text-sm text-slate-900 dark:text-slate-50 group-hover:text-[#7045D8] dark:group-hover:text-[#7045D8] transition-colors">
                       Topic-wise Test
                     </h4>
-                    <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                       Micro-targeted practice
                     </p>
                   </div>
                 </div>
-                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#800020] dark:group-hover:text-[#F47B20] transition-colors" />
+                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#7045D8] dark:group-hover:text-[#7045D8] transition-colors" />
               </button>
             </div>
           )}
@@ -418,7 +418,7 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({
                   value={chapterSearchQuery}
                   onChange={(e) => setChapterSearchQuery(e.target.value)}
                   placeholder="Search chapters..."
-                  className="w-full pl-9 pr-3 py-2 bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-xl text-xs focus:ring-2 focus:ring-[#800020]/30 dark:focus:ring-[#F47B20]/30 focus:outline-none text-[#171923] dark:text-[#FFF9EF]"
+                  className="w-full pl-9 pr-3 py-2 bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] rounded-xl text-xs focus:ring-2 focus:ring-[#7045D8]/30 dark:focus:ring-[#A78BFA]/30 focus:outline-none text-slate-900 dark:text-slate-50"
                 />
               </div>
 
@@ -434,20 +434,20 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({
                       <button
                         key={ch.id}
                         onClick={() => setSelectedChapter(ch)}
-                        className="w-full text-left p-3.5 rounded-xl border border-[#E8D9C0] dark:border-[#31374A] bg-white dark:bg-[#1F2330] hover:border-[#800020]/50 dark:hover:border-[#F47B20]/50 hover:shadow-sm transition-all flex items-center justify-between cursor-pointer"
+                        className="w-full text-left p-3.5 rounded-xl border border-slate-200 dark:border-[#31275E] bg-white dark:bg-[#1B1536] hover:border-[#7045D8]/50 dark:hover:border-[#A78BFA]/50 hover:shadow-sm transition-all flex items-center justify-between cursor-pointer"
                       >
                         <div>
-                          <span className="text-[10px] font-bold text-[#800020] dark:text-[#C99A45] uppercase">
+                          <span className="text-[11px] font-bold text-[#7045D8] dark:text-[#A78BFA] uppercase">
                             Chapter {ch.number}
                           </span>
-                          <h4 className="text-xs font-bold text-[#171923] dark:text-[#FFF9EF]">
+                          <h4 className="text-xs font-bold text-slate-900 dark:text-slate-50">
                             {ch.title}
                           </h4>
-                          <span className="text-[10px] text-slate-500 font-hindi">
+                          <span className="text-[11px] text-slate-500 font-hindi">
                             {ch.hindiTitle}
                           </span>
                         </div>
-                        <span className="px-2.5 py-1 rounded-lg bg-[#F7EFE2] dark:bg-[#252A3A] text-[#171923] dark:text-slate-300 text-xs font-semibold tabular-nums">
+                        <span className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-[#241D48] text-slate-900 dark:text-slate-300 text-xs font-semibold tabular-nums">
                           {qCount} Questions
                         </span>
                       </button>
@@ -466,7 +466,7 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({
                   value={topicSearchQuery}
                   onChange={(e) => setTopicSearchQuery(e.target.value)}
                   placeholder="Search topics..."
-                  className="w-full pl-9 pr-3 py-2 bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-xl text-xs focus:ring-2 focus:ring-[#800020]/30 dark:focus:ring-[#F47B20]/30 focus:outline-none text-[#171923] dark:text-[#FFF9EF]"
+                  className="w-full pl-9 pr-3 py-2 bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] rounded-xl text-xs focus:ring-2 focus:ring-[#7045D8]/30 dark:focus:ring-[#A78BFA]/30 focus:outline-none text-slate-900 dark:text-slate-50"
                 />
               </div>
 
@@ -481,7 +481,7 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({
 
                   return (
                     <div key={ch.id} className="space-y-1.5">
-                      <div className="text-[10px] font-bold text-[#800020] dark:text-[#C99A45] uppercase px-1">
+                      <div className="text-[11px] font-bold text-[#7045D8] dark:text-[#A78BFA] uppercase px-1">
                         Chapter {ch.number}: {ch.title}
                       </div>
                       <div className="space-y-1.5">
@@ -492,13 +492,13 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({
                               setSelectedChapter(ch);
                               setSelectedTopic(top);
                             }}
-                            className="w-full text-left p-3 rounded-xl border border-[#E8D9C0] dark:border-[#31374A] bg-white dark:bg-[#1F2330] hover:border-[#800020]/50 dark:hover:border-[#F47B20]/50 transition-all flex items-center justify-between cursor-pointer"
+                            className="w-full text-left p-3 rounded-xl border border-slate-200 dark:border-[#31275E] bg-white dark:bg-[#1B1536] hover:border-[#7045D8]/50 dark:hover:border-[#A78BFA]/50 transition-all flex items-center justify-between cursor-pointer"
                           >
                             <div>
-                              <h5 className="text-xs font-bold text-[#171923] dark:text-[#FFF9EF]">
+                              <h5 className="text-xs font-bold text-slate-900 dark:text-slate-50">
                                 {top.title}
                               </h5>
-                              <span className="text-[10px] text-slate-500 font-hindi">
+                              <span className="text-[11px] text-slate-500 font-hindi">
                                 {top.hindiTitle}
                               </span>
                             </div>
@@ -520,12 +520,12 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({
             (scope === "topic" && selectedTopic)) && (
             <div className="space-y-5">
               {/* Mode Toggle */}
-              <div className="flex rounded-xl p-1 bg-[#F7EFE2] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A]">
+              <div className="flex rounded-xl p-1 bg-slate-100 dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E]">
                 <button
                   onClick={() => setSubMode("smart")}
                   className={`flex-1 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                     subMode === "smart"
-                      ? "bg-white dark:bg-[#1F2330] text-[#800020] dark:text-[#F47B20] shadow-sm"
+                      ? "bg-white dark:bg-[#1B1536] text-[#7045D8] dark:text-[#A78BFA] shadow-sm"
                       : "text-slate-600 dark:text-slate-400"
                   }`}
                 >
@@ -544,7 +544,7 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({
                   }}
                   className={`flex-1 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                     subMode === "custom-select"
-                      ? "bg-white dark:bg-[#1F2330] text-[#800020] dark:text-[#F47B20] shadow-sm"
+                      ? "bg-white dark:bg-[#1B1536] text-[#7045D8] dark:text-[#A78BFA] shadow-sm"
                       : "text-slate-600 dark:text-slate-400"
                   }`}
                 >
@@ -554,9 +554,9 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({
               </div>
 
               {subMode === "smart" && (
-                <div className="bg-white dark:bg-[#1F2330] rounded-2xl p-5 border border-[#E8D9C0] dark:border-[#31374A] shadow-sm space-y-5">
+                <div className="bg-white dark:bg-[#1B1536] rounded-2xl p-5 border border-slate-200 dark:border-[#31275E] shadow-sm space-y-5">
                   <div>
-                    <h4 className="text-xs font-bold text-[#171923] dark:text-[#FFF9EF] uppercase tracking-wider">
+                    <h4 className="text-xs font-bold text-slate-900 dark:text-slate-50 uppercase tracking-wider">
                       Select Question Count
                     </h4>
                     <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
@@ -576,8 +576,8 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({
                           }}
                           className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer tabular-nums ${
                             !isCustomCount && selectedQuestionCount === cnt
-                              ? "bg-[#800020] dark:bg-[#F47B20] text-white shadow-sm"
-                              : "bg-[#F7EFE2] dark:bg-[#252A3A] text-[#171923] dark:text-slate-300 hover:bg-[#E8D9C0]/60"
+                              ? "bg-[#7045D8] dark:bg-[#7045D8] text-white shadow-sm"
+                              : "bg-slate-100 dark:bg-[#241D48] text-slate-900 dark:text-slate-300 hover:bg-slate-200/60"
                           }`}
                         >
                           {cnt} Questions
@@ -591,8 +591,8 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({
                       }}
                       className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer tabular-nums ${
                         !isCustomCount && selectedQuestionCount === "all"
-                          ? "bg-[#800020] dark:bg-[#F47B20] text-white shadow-sm"
-                          : "bg-[#F7EFE2] dark:bg-[#252A3A] text-[#171923] dark:text-slate-300 hover:bg-[#E8D9C0]/60"
+                          ? "bg-[#7045D8] dark:bg-[#7045D8] text-white shadow-sm"
+                          : "bg-slate-100 dark:bg-[#241D48] text-slate-900 dark:text-slate-300 hover:bg-slate-200/60"
                       }`}
                     >
                       All Questions ({activeQuestionPool.length})
@@ -602,8 +602,8 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({
                       onClick={() => setIsCustomCount(true)}
                       className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                         isCustomCount
-                          ? "bg-[#800020] dark:bg-[#F47B20] text-white shadow-sm"
-                          : "bg-[#F7EFE2] dark:bg-[#252A3A] text-[#171923] dark:text-slate-300 hover:bg-[#E8D9C0]/60"
+                          ? "bg-[#7045D8] dark:bg-[#7045D8] text-white shadow-sm"
+                          : "bg-slate-100 dark:bg-[#241D48] text-slate-900 dark:text-slate-300 hover:bg-slate-200/60"
                       }`}
                     >
                       Custom Count
@@ -611,8 +611,8 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({
                   </div>
 
                   {isCustomCount && (
-                    <div className="p-3 bg-[#FFF9EF] dark:bg-[#252A3A] rounded-xl border border-[#E8D9C0] dark:border-[#31374A] flex items-center gap-3">
-                      <span className="text-xs font-semibold text-[#171923] dark:text-slate-300 whitespace-nowrap tabular-nums">
+                    <div className="p-3 bg-[#F8FAFC] dark:bg-[#241D48] rounded-xl border border-slate-200 dark:border-[#31275E] flex items-center gap-3">
+                      <span className="text-xs font-semibold text-slate-900 dark:text-slate-300 whitespace-nowrap tabular-nums">
                         Enter count (1 - {activeQuestionPool.length}):
                       </span>
                       <input
@@ -621,14 +621,14 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({
                         max={activeQuestionPool.length}
                         value={customCountInput}
                         onChange={(e) => setCustomCountInput(e.target.value)}
-                        className="w-24 px-3 py-1.5 bg-white dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] rounded-lg text-xs font-bold text-center text-[#171923] dark:text-[#FFF9EF] tabular-nums"
+                        className="w-24 px-3 py-1.5 bg-white dark:bg-[#130E26] border border-slate-200 dark:border-[#31275E] rounded-lg text-xs font-bold text-center text-slate-900 dark:text-slate-50 tabular-nums"
                       />
                     </div>
                   )}
 
                   <button
                     onClick={handleStartSmartTest}
-                    className="w-full py-3 bg-[#800020] hover:bg-[#5E0017] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] text-white font-bold text-xs sm:text-sm rounded-xl shadow-lg shadow-[#800020]/20 dark:shadow-[#F47B20]/20 flex items-center justify-center gap-2 transition-all active:scale-98 cursor-pointer"
+                    className="w-full py-3 bg-[#7045D8] hover:bg-[#5B32BF] dark:bg-[#7045D8] dark:hover:bg-[#5B32BF] text-white font-bold text-xs sm:text-sm rounded-xl shadow-lg shadow-[#7045D8]/20 dark:shadow-[#7045D8]/20 flex items-center justify-center gap-2 transition-all active:scale-98 cursor-pointer"
                   >
                     <Play className="w-4 h-4 fill-white" />
                     Start Smart Test ({getActiveQuestionCount(activeQuestionPool.length)} Questions)
@@ -638,7 +638,7 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({
 
               {subMode === "custom-select" && (
                 <div className="space-y-4">
-                  <div className="bg-white dark:bg-[#1F2330] rounded-2xl p-4 border border-[#E8D9C0] dark:border-[#31374A] shadow-sm space-y-3">
+                  <div className="bg-white dark:bg-[#1B1536] rounded-2xl p-4 border border-slate-200 dark:border-[#31275E] shadow-sm space-y-3">
                     <div className="flex flex-col sm:flex-row gap-2">
                       <div className="relative flex-1">
                         <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -647,14 +647,14 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({
                           value={questionSearchQuery}
                           onChange={(e) => setQuestionSearchQuery(e.target.value)}
                           placeholder="Search questions or concepts..."
-                          className="w-full pl-9 pr-3 py-2 bg-[#FFF9EF] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] rounded-xl text-xs text-[#171923] dark:text-[#FFF9EF]"
+                          className="w-full pl-9 pr-3 py-2 bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] rounded-xl text-xs text-slate-900 dark:text-slate-50"
                         />
                       </div>
 
                       <select
                         value={questionFilterTag}
                         onChange={(e) => setQuestionFilterTag(e.target.value)}
-                        className="bg-[#FFF9EF] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] rounded-xl text-xs px-3 py-2 text-[#171923] dark:text-slate-300"
+                        className="bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] rounded-xl text-xs px-3 py-2 text-slate-900 dark:text-slate-300"
                       >
                         <option value="all">All Tags</option>
                         <option value="weak-area">Weak Areas</option>
@@ -662,23 +662,23 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({
                       </select>
                     </div>
 
-                    <div className="flex items-center justify-between pt-2 border-t border-[#E8D9C0] dark:border-[#31374A] text-xs">
+                    <div className="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-[#31275E] text-xs">
                       <div className="flex items-center gap-2">
                         <button
                           onClick={handleSelectAllQuestions}
-                          className="px-2.5 py-1 rounded-lg bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] font-bold hover:opacity-80 cursor-pointer"
+                          className="px-2.5 py-1 rounded-lg bg-[#7045D8]/10 dark:bg-[#7045D8]/15 text-[#7045D8] dark:text-[#A78BFA] font-bold hover:opacity-80 cursor-pointer"
                         >
                           Select All ({filteredActiveQuestions.length})
                         </button>
                         <button
                           onClick={handleDeselectAllQuestions}
-                          className="px-2.5 py-1 rounded-lg bg-[#F7EFE2] dark:bg-[#252A3A] text-slate-600 dark:text-slate-400 cursor-pointer"
+                          className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-[#241D48] text-slate-600 dark:text-slate-400 cursor-pointer"
                         >
                           Clear
                         </button>
                       </div>
 
-                      <span className="font-bold text-[#800020] dark:text-[#F47B20] tabular-nums">
+                      <span className="font-bold text-[#7045D8] dark:text-[#A78BFA] tabular-nums">
                         {manuallySelectedIds.size} Selected
                       </span>
                     </div>
@@ -696,35 +696,35 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({
                           onClick={() => handleToggleQuestion(q.id)}
                           className={`p-3.5 rounded-xl border transition-all cursor-pointer shadow-xs space-y-2 ${
                             isSelected
-                              ? "bg-[#800020]/5 dark:bg-[#F47B20]/10 border-[#800020] dark:border-[#F47B20]"
-                              : "bg-white dark:bg-[#1F2330] border-[#E8D9C0] dark:border-[#31374A] hover:border-[#C99A45]"
+                              ? "bg-[#7045D8]/5 dark:bg-[#7045D8]/10 border-[#7045D8] dark:border-[#A78BFA]"
+                              : "bg-white dark:bg-[#1B1536] border-slate-200 dark:border-[#31275E] hover:border-[#A78BFA]"
                           }`}
                         >
                           <div className="flex items-start gap-3">
                             <button
                               type="button"
-                              className="mt-0.5 text-[#800020] dark:text-[#F47B20] flex-shrink-0"
+                              className="mt-0.5 text-[#7045D8] dark:text-[#A78BFA] flex-shrink-0"
                             >
                               {isSelected ? (
-                                <CheckSquare className="w-4 h-4 fill-[#800020] dark:fill-[#F47B20] text-white" />
+                                <CheckSquare className="w-4 h-4 fill-[#7045D8] dark:fill-[#7045D8] text-white" />
                               ) : (
                                 <Square className="w-4 h-4 text-slate-400" />
                               )}
                             </button>
 
                             <div className="flex-1 space-y-1">
-                              <p className="text-xs font-medium text-[#171923] dark:text-[#FFF9EF] font-hindi leading-relaxed">
+                              <p className="text-xs font-medium text-slate-900 dark:text-slate-50 font-hindi leading-relaxed">
                                 {q.text}
                               </p>
 
                               <div className="flex flex-wrap items-center gap-1.5 pt-1">
                                 {q.conceptName && (
-                                  <span className="px-1.5 py-0.5 rounded bg-[#F7EFE2] dark:bg-[#252A3A] text-[#800020] dark:text-[#C99A45] text-[10px] font-semibold">
+                                  <span className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-[#241D48] text-[#7045D8] dark:text-[#A78BFA] text-[11px] font-semibold">
                                     {q.conceptName}
                                   </span>
                                 )}
                                 {isWeak && (
-                                  <span className="px-1.5 py-0.5 rounded bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 text-[10px] font-bold">
+                                  <span className="px-1.5 py-0.5 rounded bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 text-[11px] font-bold">
                                     Weak Area
                                   </span>
                                 )}
@@ -739,7 +739,7 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({
                   <button
                     onClick={handleStartManualTest}
                     disabled={manuallySelectedIds.size === 0}
-                    className="w-full py-3 bg-[#800020] hover:bg-[#5E0017] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] text-white font-bold text-xs sm:text-sm rounded-xl shadow-lg flex items-center justify-center gap-2 transition-all active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                    className="w-full py-3 bg-[#7045D8] hover:bg-[#5B32BF] dark:bg-[#7045D8] dark:hover:bg-[#5B32BF] text-white font-bold text-xs sm:text-sm rounded-xl shadow-lg flex items-center justify-center gap-2 transition-all active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                   >
                     <Play className="w-4 h-4 fill-white" />
                     Start Test with Selected ({manuallySelectedIds.size} Questions)

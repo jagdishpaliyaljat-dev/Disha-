@@ -70,7 +70,7 @@ export const BatteryPerformanceOptimizerModal: React.FC<BatteryPerformanceOptimi
               <span className="text-base font-semibold text-slate-200">
                 ~{hardware.deviceMemoryGB} GB
               </span>
-              <span className="text-[10px] text-slate-500 mt-0.5">
+              <span className="text-[11px] text-slate-500 mt-0.5">
                 {hardware.isLowEndDevice ? 'Low-RAM Mode Enabled' : 'Standard Device'}
               </span>
             </div>
@@ -88,7 +88,7 @@ export const BatteryPerformanceOptimizerModal: React.FC<BatteryPerformanceOptimi
               <span className="text-base font-semibold text-slate-200">
                 {battery.isSupported ? `${batteryPercent}%` : 'Standard'}
               </span>
-              <span className="text-[10px] text-slate-500 mt-0.5">
+              <span className="text-[11px] text-slate-500 mt-0.5">
                 {battery.charging ? 'Charging' : 'On Battery'}
               </span>
             </div>
@@ -101,7 +101,7 @@ export const BatteryPerformanceOptimizerModal: React.FC<BatteryPerformanceOptimi
               <span className="text-base font-semibold text-slate-200">
                 {hardware.hardwareConcurrency} Cores
               </span>
-              <span className="text-[10px] text-slate-500 mt-0.5">
+              <span className="text-[11px] text-slate-500 mt-0.5">
                 {hardware.effectiveConnectionType?.toUpperCase() || 'Wi-Fi/4G'}
               </span>
             </div>

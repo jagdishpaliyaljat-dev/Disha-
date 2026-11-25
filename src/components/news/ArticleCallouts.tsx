@@ -27,20 +27,20 @@ export const CALLOUT_CONFIGS: Record<CalloutVariant, CalloutStyleConfig> = {
   warning: {
     variant: "warning",
     containerClass:
-      "bg-[#F47B20]/10 dark:bg-[#F47B20]/15 border border-[#F47B20]/30 dark:border-[#F47B20]/35 text-[#171923] dark:text-[#FFF9EF]",
-    badgeClass: "text-[#D4620E] dark:text-[#F47B20]",
-    iconClass: "text-[#F47B20] dark:text-[#F47B20]",
-    icon: <Lightbulb className="w-5 h-5 text-[#F47B20] shrink-0 mt-0.5" />,
+      "bg-[#7045D8]/10 dark:bg-[#7045D8]/15 border border-[#7045D8]/30 dark:border-[#A78BFA]/35 text-slate-900 dark:text-slate-50",
+    badgeClass: "text-[#D4620E] dark:text-[#A78BFA]",
+    iconClass: "text-[#7045D8] dark:text-[#A78BFA]",
+    icon: <Lightbulb className="w-5 h-5 text-[#7045D8] shrink-0 mt-0.5" />,
     defaultTitle: "EXAM TIP",
     hindiTitle: "Exam Tip",
   },
   info: {
     variant: "info",
     containerClass:
-      "bg-[#800020]/[0.06] dark:bg-[#800020]/20 border border-[#800020]/25 dark:border-[#C99A45]/30 text-[#171923] dark:text-[#FFF9EF]",
-    badgeClass: "text-[#800020] dark:text-[#F47B20]",
-    iconClass: "text-[#800020] dark:text-[#F47B20]",
-    icon: <Info className="w-5 h-5 text-[#800020] dark:text-[#F47B20] shrink-0 mt-0.5" />,
+      "bg-[#7045D8]/[0.06] dark:bg-[#7045D8]/20 border border-[#7045D8]/25 dark:border-[#A78BFA]/30 text-slate-900 dark:text-slate-50",
+    badgeClass: "text-[#7045D8] dark:text-[#A78BFA]",
+    iconClass: "text-[#7045D8] dark:text-[#A78BFA]",
+    icon: <Info className="w-5 h-5 text-[#7045D8] dark:text-[#A78BFA] shrink-0 mt-0.5" />,
     defaultTitle: "IMPORTANT NOTE",
     hindiTitle: "Important Note",
   },

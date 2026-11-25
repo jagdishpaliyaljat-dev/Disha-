@@ -123,38 +123,43 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-start justify-center p-3 sm:p-6 sm:pt-16 animate-in fade-in duration-150">
       <div
-        className="bg-white dark:bg-[#1E2230] rounded-2xl sm:rounded-3xl border border-[#E8D9C0] dark:border-[#31374A] w-full max-w-2xl shadow-2xl flex flex-col overflow-hidden max-h-[85vh] animate-in zoom-in-95 duration-150"
+        className="bg-white dark:bg-[#1B1536] rounded-2xl sm:rounded-3xl border border-slate-200 dark:border-[#31275E] w-full max-w-2xl shadow-2xl flex flex-col overflow-hidden max-h-[85vh] animate-in zoom-in-95 duration-150"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Search Input Bar */}
-        <div className="flex items-center gap-3 px-4 py-3.5 border-b border-[#E8D9C0] dark:border-[#31374A] bg-[#FFFDF9] dark:bg-[#252A3A]">
-          <Search className="w-5 h-5 text-[#800020] dark:text-[#E8D9C0] shrink-0" />
+        <div className="flex items-center gap-3 px-4 py-3.5 border-b border-slate-200 dark:border-[#31275E] bg-[#F8FAFC] dark:bg-[#241D48]">
+          <Search className="w-5 h-5 text-[#7045D8] dark:text-[#A78BFA] shrink-0" />
           <input
             ref={inputRef}
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search: Questions, Topics, History, Geography, PYQs..."
-            className="flex-1 bg-transparent border-none outline-none text-sm sm:text-base font-semibold text-[#171923] dark:text-white placeholder-slate-400"
+            aria-label="Search questions, topics, exams, and PYQs"
+            className="flex-1 bg-transparent border-none outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8] rounded-lg px-1.5 py-1 text-sm sm:text-base font-semibold text-slate-900 dark:text-white placeholder-slate-400"
           />
           {query && (
             <button
+              type="button"
               onClick={() => setQuery("")}
-              className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white"
+              aria-label="Clear search query"
+              className="w-10 h-10 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8] cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
           )}
           <button
+            type="button"
             onClick={onClose}
-            className="px-2.5 py-1 text-xs font-bold rounded-lg bg-[#F7EFE2] dark:bg-[#31374A] text-[#171923] dark:text-[#FFF9EF] hover:opacity-80 shrink-0"
+            aria-label="Close search modal"
+            className="min-h-[40px] px-3 py-1 text-xs font-bold rounded-lg bg-slate-200/80 dark:bg-[#31275E] text-slate-900 dark:text-slate-50 hover:opacity-80 shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8] cursor-pointer"
           >
             Esc
           </button>
         </div>
 
         {/* Filter Pills & Metric Info */}
-        <div className="flex items-center justify-between px-4 py-2 border-b border-[#E8D9C0]/50 dark:border-[#31374A]/50 bg-white/50 dark:bg-[#1E2230]/50 text-xs">
+        <div className="flex items-center justify-between px-4 py-2 border-b border-slate-200/70 dark:border-[#31275E]/70 bg-white/50 dark:bg-[#1B1536]/50 text-xs">
           <div className="flex items-center gap-1.5 overflow-x-auto py-0.5">
             {[
               { id: "all", label: "All" },
@@ -164,11 +169,12 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
             ].map((f) => (
               <button
                 key={f.id}
+                type="button"
                 onClick={() => setActiveFilter(f.id as any)}
-                className={`px-2.5 py-1 rounded-full text-xs font-bold transition-all shrink-0 cursor-pointer ${
+                className={`min-h-[36px] px-3 py-1 rounded-full text-xs font-bold transition-all shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8] ${
                   activeFilter === f.id
-                    ? "bg-[#800020] text-white shadow-sm"
-                    : "bg-[#F7EFE2] dark:bg-[#252A3A] text-slate-600 dark:text-slate-300 hover:bg-[#E8D9C0]/70"
+                    ? "bg-[#7045D8] text-white shadow-sm"
+                    : "bg-slate-100 dark:bg-[#241D48] text-slate-600 dark:text-slate-300 hover:bg-slate-200/80 dark:hover:bg-[#31275E]"
                 }`}
               >
                 {f.label}
@@ -196,7 +202,7 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
             </div>
           ) : !query.trim() ? (
             <div className="py-8 px-4 text-center">
-              <Sparkles className="w-8 h-8 text-[#800020] dark:text-amber-400 mx-auto mb-2 opacity-60" />
+              <Sparkles className="w-8 h-8 text-[#7045D8] dark:text-[#A78BFA] mx-auto mb-2 opacity-70" />
               <p className="text-xs font-bold text-slate-700 dark:text-slate-300">
                 Ultra-Fast Search Engine (10,000+ MCQs & Topics)
               </p>
@@ -212,17 +218,17 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
                 onMouseEnter={() => setSelectedIndex(idx)}
                 className={`p-3 rounded-xl cursor-pointer transition-all flex items-start gap-3 select-none ${
                   selectedIndex === idx
-                    ? "bg-[#FFF9EF] dark:bg-[#2A3042] border border-[#E8D9C0] dark:border-[#3D445A]"
-                    : "hover:bg-slate-50 dark:hover:bg-[#252A3A]"
+                    ? "bg-[#F8FAFC] dark:bg-[#241D48] border border-[#7045D8]/30 dark:border-[#A78BFA]/30"
+                    : "hover:bg-slate-50 dark:hover:bg-[#241D48]/60"
                 }`}
               >
-                <div className="p-2 rounded-xl bg-white dark:bg-[#1E2230] shadow-sm border border-slate-200/50 dark:border-slate-700/50 shrink-0 mt-0.5">
+                <div className="p-2 rounded-xl bg-white dark:bg-[#130E26] shadow-sm border border-slate-200/50 dark:border-[#31275E] shrink-0 mt-0.5">
                   {getItemIcon(item.type)}
                 </div>
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
-                    <span className="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                    <span className="text-[11px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
                       {item.type}
                     </span>
                     {item.subtitle && (
@@ -250,13 +256,13 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
         </div>
 
         {/* Footer shortcuts hint */}
-        <div className="px-4 py-2 border-t border-[#E8D9C0]/50 dark:border-[#31374A]/50 bg-[#FFFDF9] dark:bg-[#252A3A] text-[11px] text-slate-400 flex items-center justify-between">
+        <div className="px-4 py-2 border-t border-slate-200/70 dark:border-[#31275E] bg-[#F8FAFC] dark:bg-[#241D48] text-[11px] text-slate-400 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <span>↑↓ Navigate</span>
             <span>↵ Select</span>
             <span>Esc Close</span>
           </div>
-          <span className="font-semibold text-[#800020] dark:text-[#E8D9C0]">Disha PYQ FastSearch</span>
+          <span className="font-semibold text-[#7045D8] dark:text-[#A78BFA]">Disha PYQ FastSearch</span>
         </div>
       </div>
     </div>

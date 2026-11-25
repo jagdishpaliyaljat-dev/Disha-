@@ -128,7 +128,7 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
   const readyCount = players.filter((p) => p.isHost || p.isReady || p.isBot).length;
 
   return (
-    <div className="flex flex-col h-full bg-[#FFFDF9] dark:bg-[#171923] text-stone-900 dark:text-[#FFF9EF] select-none overflow-hidden">
+    <div className="flex flex-col h-full bg-[#F8FAFC] dark:bg-[#130E26] text-stone-900 dark:text-slate-50 select-none overflow-hidden">
       {/* Top Minimal Premium Header */}
       <div className="flex items-center justify-between px-4 py-3 bg-stone-900 text-white shadow-sm border-b border-stone-800">
         <button
@@ -156,15 +156,15 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
 
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
         {/* Room Code & Direct Link Invite Card */}
-        <div className="relative bg-white dark:bg-[#1F2330] rounded-3xl p-4 sm:p-5 shadow-sm border border-stone-200 dark:border-[#31374A] text-center">
+        <div className="relative bg-white dark:bg-[#1B1536] rounded-3xl p-4 sm:p-5 shadow-sm border border-stone-200 dark:border-[#31275E] text-center">
           <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider mb-2">
-            <Globe className="w-3.5 h-3.5 text-[#800020] dark:text-amber-400" />
+            <Globe className="w-3.5 h-3.5 text-[#7045D8] dark:text-amber-400" />
             <span>Open Link Battle • Anyone can join directly</span>
           </div>
 
           <div className="flex items-center justify-center gap-3 my-2">
-            <div className="relative px-6 py-2.5 rounded-2xl bg-stone-50 dark:bg-[#252A3A] border border-stone-300 dark:border-[#31374A] shadow-inner">
-              <span className="text-3xl sm:text-4xl font-black tracking-widest font-mono text-[#800020] dark:text-amber-400">
+            <div className="relative px-6 py-2.5 rounded-2xl bg-stone-50 dark:bg-[#241D48] border border-stone-300 dark:border-[#31275E] shadow-inner">
+              <span className="text-3xl sm:text-4xl font-black tracking-widest font-mono text-[#7045D8] dark:text-amber-400">
                 {roomConfig.roomCode}
               </span>
             </div>
@@ -172,7 +172,7 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
             <button
               onClick={handleCopyCode}
               title="Copy Code"
-              className="p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/60 text-[#800020] dark:text-amber-300 active:scale-90 transition border border-amber-200 dark:border-amber-800/60 shadow-xs flex items-center justify-center"
+              className="p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/60 text-[#7045D8] dark:text-amber-300 active:scale-90 transition border border-amber-200 dark:border-amber-800/60 shadow-xs flex items-center justify-center"
             >
               {copied ? (
                 <Check className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
@@ -202,14 +202,14 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
         </div>
 
         {/* Room Settings Card (Host Configurable) */}
-        <div className="bg-white dark:bg-[#1F2330] rounded-3xl p-4 shadow-sm border border-stone-200 dark:border-[#31374A] space-y-4">
-          <div className="flex items-center justify-between border-b border-stone-100 dark:border-[#31374A] pb-2.5">
+        <div className="bg-white dark:bg-[#1B1536] rounded-3xl p-4 shadow-sm border border-stone-200 dark:border-[#31275E] space-y-4">
+          <div className="flex items-center justify-between border-b border-stone-100 dark:border-[#31275E] pb-2.5">
             <h3 className="text-xs font-bold text-stone-700 dark:text-stone-200 flex items-center gap-1.5 uppercase tracking-wider">
-              <Sliders className="w-3.5 h-3.5 text-[#800020] dark:text-amber-400" />
+              <Sliders className="w-3.5 h-3.5 text-[#7045D8] dark:text-amber-400" />
               <span>Battle Settings</span>
             </h3>
             {!isHost && (
-              <span className="text-[10px] font-bold text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/50 px-2.5 py-0.5 rounded-full border border-amber-200 dark:border-amber-800/50">
+              <span className="text-[11px] font-bold text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/50 px-2.5 py-0.5 rounded-full border border-amber-200 dark:border-amber-800/50">
                 Host Configured
               </span>
             )}
@@ -219,7 +219,7 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
           <div>
             <label className="block text-xs font-bold text-stone-700 dark:text-stone-200 mb-2 flex items-center justify-between">
               <span>Question Source</span>
-              <span className="text-[10px] font-semibold text-stone-500 dark:text-stone-400">
+              <span className="text-[11px] font-semibold text-stone-500 dark:text-stone-400">
                 {roomConfig.questionSource === "curated" && "Curated Pool"}
                 {roomConfig.questionSource === "subject" && "Subject-Wise"}
                 {roomConfig.questionSource === "chapter" && "Chapter-Wise"}
@@ -236,12 +236,12 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
                   onClick={() => onUpdateConfig({ questionSource: "curated" })}
                   className={`p-2.5 rounded-2xl text-left border transition text-xs ${
                     roomConfig.questionSource === "curated"
-                      ? "bg-amber-50/80 dark:bg-amber-950/40 border-[#800020] dark:border-amber-400 text-[#800020] dark:text-amber-300 font-bold shadow-xs"
-                      : "bg-stone-50 dark:bg-[#252A3A] border-stone-200 dark:border-[#31374A] text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-[#2E3448]"
+                      ? "bg-amber-50/80 dark:bg-amber-950/40 border-[#7045D8] dark:border-amber-400 text-[#7045D8] dark:text-amber-300 font-bold shadow-xs"
+                      : "bg-stone-50 dark:bg-[#241D48] border-stone-200 dark:border-[#31275E] text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-[#2E3448]"
                   }`}
                 >
                   <span className="block font-bold">Curated GK</span>
-                  <span className="text-[10px] text-stone-500 dark:text-stone-400 block truncate">High-Yield</span>
+                  <span className="text-[11px] text-stone-500 dark:text-stone-400 block truncate">High-Yield</span>
                 </button>
 
                 <button
@@ -249,12 +249,12 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
                   onClick={() => onUpdateConfig({ questionSource: "subject" })}
                   className={`p-2.5 rounded-2xl text-left border transition text-xs ${
                     roomConfig.questionSource === "subject"
-                      ? "bg-amber-50/80 dark:bg-amber-950/40 border-[#800020] dark:border-amber-400 text-[#800020] dark:text-amber-300 font-bold shadow-xs"
-                      : "bg-stone-50 dark:bg-[#252A3A] border-stone-200 dark:border-[#31374A] text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-[#2E3448]"
+                      ? "bg-amber-50/80 dark:bg-amber-950/40 border-[#7045D8] dark:border-amber-400 text-[#7045D8] dark:text-amber-300 font-bold shadow-xs"
+                      : "bg-stone-50 dark:bg-[#241D48] border-stone-200 dark:border-[#31275E] text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-[#2E3448]"
                   }`}
                 >
                   <span className="block font-bold">By Subject</span>
-                  <span className="text-[10px] text-stone-500 dark:text-stone-400 block truncate">Select Sub</span>
+                  <span className="text-[11px] text-stone-500 dark:text-stone-400 block truncate">Select Sub</span>
                 </button>
 
                 <button
@@ -262,12 +262,12 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
                   onClick={() => onUpdateConfig({ questionSource: "chapter" })}
                   className={`p-2.5 rounded-2xl text-left border transition text-xs ${
                     roomConfig.questionSource === "chapter"
-                      ? "bg-amber-50/80 dark:bg-amber-950/40 border-[#800020] dark:border-amber-400 text-[#800020] dark:text-amber-300 font-bold shadow-xs"
-                      : "bg-stone-50 dark:bg-[#252A3A] border-stone-200 dark:border-[#31374A] text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-[#2E3448]"
+                      ? "bg-amber-50/80 dark:bg-amber-950/40 border-[#7045D8] dark:border-amber-400 text-[#7045D8] dark:text-amber-300 font-bold shadow-xs"
+                      : "bg-stone-50 dark:bg-[#241D48] border-stone-200 dark:border-[#31275E] text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-[#2E3448]"
                   }`}
                 >
                   <span className="block font-bold">By Chapter</span>
-                  <span className="text-[10px] text-stone-500 dark:text-stone-400 block truncate">Select Chap</span>
+                  <span className="text-[11px] text-stone-500 dark:text-stone-400 block truncate">Select Chap</span>
                 </button>
 
                 <button
@@ -275,12 +275,12 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
                   onClick={() => onUpdateConfig({ questionSource: "topic" })}
                   className={`p-2.5 rounded-2xl text-left border transition text-xs ${
                     roomConfig.questionSource === "topic"
-                      ? "bg-amber-50/80 dark:bg-amber-950/40 border-[#800020] dark:border-amber-400 text-[#800020] dark:text-amber-300 font-bold shadow-xs"
-                      : "bg-stone-50 dark:bg-[#252A3A] border-stone-200 dark:border-[#31374A] text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-[#2E3448]"
+                      ? "bg-amber-50/80 dark:bg-amber-950/40 border-[#7045D8] dark:border-amber-400 text-[#7045D8] dark:text-amber-300 font-bold shadow-xs"
+                      : "bg-stone-50 dark:bg-[#241D48] border-stone-200 dark:border-[#31275E] text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-[#2E3448]"
                   }`}
                 >
                   <span className="block font-bold">By Topic</span>
-                  <span className="text-[10px] text-stone-500 dark:text-stone-400 block truncate">Specific Topic</span>
+                  <span className="text-[11px] text-stone-500 dark:text-stone-400 block truncate">Specific Topic</span>
                 </button>
 
                 <button
@@ -291,12 +291,12 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
                   }}
                   className={`p-2.5 rounded-2xl text-left border transition text-xs ${
                     roomConfig.questionSource === "manual_pick"
-                      ? "bg-amber-50/80 dark:bg-amber-950/40 border-[#800020] dark:border-amber-400 text-[#800020] dark:text-amber-300 font-bold shadow-xs"
-                      : "bg-stone-50 dark:bg-[#252A3A] border-stone-200 dark:border-[#31374A] text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-[#2E3448]"
+                      ? "bg-amber-50/80 dark:bg-amber-950/40 border-[#7045D8] dark:border-amber-400 text-[#7045D8] dark:text-amber-300 font-bold shadow-xs"
+                      : "bg-stone-50 dark:bg-[#241D48] border-stone-200 dark:border-[#31275E] text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-[#2E3448]"
                   }`}
                 >
                   <span className="block font-bold">Hand-Pick</span>
-                  <span className="text-[10px] text-stone-500 dark:text-stone-400 block truncate">
+                  <span className="text-[11px] text-stone-500 dark:text-stone-400 block truncate">
                     {roomConfig.selectedQuestionIds?.length || 0} Picked
                   </span>
                 </button>
@@ -306,16 +306,16 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
                   onClick={() => onUpdateConfig({ questionSource: "custom_bank" })}
                   className={`p-2.5 rounded-2xl text-left border transition text-xs ${
                     roomConfig.questionSource === "custom_bank"
-                      ? "bg-amber-50/80 dark:bg-amber-950/40 border-[#800020] dark:border-amber-400 text-[#800020] dark:text-amber-300 font-bold shadow-xs"
-                      : "bg-stone-50 dark:bg-[#252A3A] border-stone-200 dark:border-[#31374A] text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-[#2E3448]"
+                      ? "bg-amber-50/80 dark:bg-amber-950/40 border-[#7045D8] dark:border-amber-400 text-[#7045D8] dark:text-amber-300 font-bold shadow-xs"
+                      : "bg-stone-50 dark:bg-[#241D48] border-stone-200 dark:border-[#31275E] text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-[#2E3448]"
                   }`}
                 >
                   <span className="block font-bold">Custom Bank</span>
-                  <span className="text-[10px] text-stone-500 dark:text-stone-400 block truncate">My Questions</span>
+                  <span className="text-[11px] text-stone-500 dark:text-stone-400 block truncate">My Questions</span>
                 </button>
               </div>
             ) : (
-              <div className="text-xs font-semibold text-stone-800 dark:text-[#FFF9EF] bg-stone-50 dark:bg-[#252A3A] p-3 rounded-2xl border border-stone-200 dark:border-[#31374A]">
+              <div className="text-xs font-semibold text-stone-800 dark:text-slate-50 bg-stone-50 dark:bg-[#241D48] p-3 rounded-2xl border border-stone-200 dark:border-[#31275E]">
                 {roomConfig.questionSource === "subject" &&
                   `Subject: ${roomConfig.selectedSubjectTitle || "Selected Subject"}`}
                 {roomConfig.questionSource === "chapter" &&
@@ -345,7 +345,7 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
                     selectedSubjectTitle: s?.title || "",
                   });
                 }}
-                className="w-full text-xs font-semibold bg-white dark:bg-[#252A3A] border border-amber-300 dark:border-amber-500/50 rounded-xl p-2.5 text-stone-800 dark:text-[#FFF9EF] focus:outline-none focus:ring-2 focus:ring-[#800020] dark:focus:ring-amber-400"
+                className="w-full text-xs font-semibold bg-white dark:bg-[#241D48] border border-amber-300 dark:border-amber-500/50 rounded-xl p-2.5 text-stone-800 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#7045D8] dark:focus:ring-amber-400"
               >
                 <option value="">-- Choose Subject --</option>
                 {availableSubjects.map((sub) => (
@@ -371,7 +371,7 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
                     selectedChapterTitle: ch?.title || "",
                   });
                 }}
-                className="w-full text-xs font-semibold bg-white dark:bg-[#252A3A] border border-amber-300 dark:border-amber-500/50 rounded-xl p-2.5 text-stone-800 dark:text-[#FFF9EF] focus:outline-none focus:ring-2 focus:ring-[#800020] dark:focus:ring-amber-400"
+                className="w-full text-xs font-semibold bg-white dark:bg-[#241D48] border border-amber-300 dark:border-amber-500/50 rounded-xl p-2.5 text-stone-800 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#7045D8] dark:focus:ring-amber-400"
               >
                 <option value="">-- Choose Chapter --</option>
                 {availableChapters.map((ch) => (
@@ -400,7 +400,7 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
                       selectedTopicTitle: "",
                     });
                   }}
-                  className="w-full text-xs font-semibold bg-white dark:bg-[#252A3A] border border-amber-300 dark:border-amber-500/50 rounded-xl p-2 text-stone-800 dark:text-[#FFF9EF] focus:outline-none focus:ring-2 focus:ring-[#800020] dark:focus:ring-amber-400"
+                  className="w-full text-xs font-semibold bg-white dark:bg-[#241D48] border border-amber-300 dark:border-amber-500/50 rounded-xl p-2 text-stone-800 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#7045D8] dark:focus:ring-amber-400"
                 >
                   <option value="">-- All Chapters --</option>
                   {availableChapters.map((ch) => (
@@ -424,7 +424,7 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
                       selectedTopicTitle: top?.title || "",
                     });
                   }}
-                  className="w-full text-xs font-semibold bg-white dark:bg-[#252A3A] border border-amber-300 dark:border-amber-500/50 rounded-xl p-2 text-stone-800 dark:text-[#FFF9EF] focus:outline-none focus:ring-2 focus:ring-[#800020] dark:focus:ring-amber-400"
+                  className="w-full text-xs font-semibold bg-white dark:bg-[#241D48] border border-amber-300 dark:border-amber-500/50 rounded-xl p-2 text-stone-800 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#7045D8] dark:focus:ring-amber-400"
                 >
                   <option value="">-- Choose Topic --</option>
                   {availableTopics.map((top) => (
@@ -440,7 +440,7 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
           {isHost && roomConfig.questionSource === "manual_pick" && (
             <div className="bg-amber-50/60 dark:bg-amber-950/30 p-3 rounded-2xl border border-amber-200/80 dark:border-amber-800/40 flex items-center justify-between">
               <div>
-                <p className="text-xs font-bold text-stone-800 dark:text-[#FFF9EF]">
+                <p className="text-xs font-bold text-stone-800 dark:text-slate-50">
                   {roomConfig.selectedQuestionIds?.length || 0} questions selected
                 </p>
                 <p className="text-[11px] text-stone-500 dark:text-stone-400">Hand-picked by host</p>
@@ -448,7 +448,7 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
               <button
                 type="button"
                 onClick={() => setIsQuestionPickerOpen(true)}
-                className="px-3 py-1.5 rounded-xl bg-[#800020] text-white text-xs font-bold shadow-xs active:scale-95 transition"
+                className="px-3 py-1.5 rounded-xl bg-[#7045D8] text-white text-xs font-bold shadow-xs active:scale-95 transition"
               >
                 Modify Questions
               </button>
@@ -456,13 +456,13 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
           )}
 
           {/* Time Per Question (5s, 10s, 15s) */}
-          <div className="bg-stone-50 dark:bg-[#252A3A] p-3 rounded-2xl border border-stone-200 dark:border-[#31374A]">
+          <div className="bg-stone-50 dark:bg-[#241D48] p-3 rounded-2xl border border-stone-200 dark:border-[#31275E]">
             <label className="block text-xs font-bold text-stone-700 dark:text-stone-200 mb-2 flex items-center justify-between">
               <span className="flex items-center gap-1">
-                <Clock className="w-3.5 h-3.5 text-[#800020] dark:text-amber-400" />
+                <Clock className="w-3.5 h-3.5 text-[#7045D8] dark:text-amber-400" />
                 <span>Time per Question</span>
               </span>
-              <span className="text-[10px] text-stone-500 dark:text-stone-400">
+              <span className="text-[11px] text-stone-500 dark:text-stone-400">
                 {roomConfig.timePerQuestionSec || 10} seconds
               </span>
             </label>
@@ -475,8 +475,8 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
                     onClick={() => onUpdateConfig({ timePerQuestionSec: sec })}
                     className={`flex-1 py-2 text-xs font-bold rounded-xl border transition ${
                       (roomConfig.timePerQuestionSec || 10) === sec
-                        ? "bg-[#800020] text-white border-[#800020] shadow-xs"
-                        : "bg-white dark:bg-[#1F2330] text-stone-700 dark:text-stone-200 border-stone-200 dark:border-[#31374A] hover:bg-stone-100 dark:hover:bg-[#2E3448]"
+                        ? "bg-[#7045D8] text-white border-[#7045D8] shadow-xs"
+                        : "bg-white dark:bg-[#1B1536] text-stone-700 dark:text-stone-200 border-stone-200 dark:border-[#31275E] hover:bg-stone-100 dark:hover:bg-[#2E3448]"
                     }`}
                   >
                     {sec}s {sec === 10 && "⚡"}
@@ -484,17 +484,17 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
                 ))}
               </div>
             ) : (
-              <div className="text-xs font-semibold text-stone-800 dark:text-[#FFF9EF] bg-white dark:bg-[#1F2330] px-3 py-2 rounded-xl border border-stone-200 dark:border-[#31374A]">
+              <div className="text-xs font-semibold text-stone-800 dark:text-slate-50 bg-white dark:bg-[#1B1536] px-3 py-2 rounded-xl border border-stone-200 dark:border-[#31275E]">
                 {roomConfig.timePerQuestionSec || 10} seconds per question
               </div>
             )}
           </div>
 
           {/* Total Questions: 30, 50, 60, or Customize */}
-          <div className="bg-stone-50 dark:bg-[#252A3A] p-3 rounded-2xl border border-stone-200 dark:border-[#31374A]">
+          <div className="bg-stone-50 dark:bg-[#241D48] p-3 rounded-2xl border border-stone-200 dark:border-[#31275E]">
             <label className="block text-xs font-bold text-stone-700 dark:text-stone-200 mb-2 flex items-center justify-between">
               <span>Total Questions</span>
-              <span className="text-[10px] font-bold text-[#800020] dark:text-amber-400">
+              <span className="text-[11px] font-bold text-[#7045D8] dark:text-amber-400">
                 {roomConfig.questionCount} Questions
               </span>
             </label>
@@ -511,8 +511,8 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
                       }}
                       className={`py-2 text-xs font-bold rounded-xl border transition ${
                         !isCustomCountMode && roomConfig.questionCount === cnt
-                          ? "bg-[#800020] text-white border-[#800020] shadow-xs"
-                          : "bg-white dark:bg-[#1F2330] text-stone-700 dark:text-stone-200 border-stone-200 dark:border-[#31374A] hover:bg-stone-100 dark:hover:bg-[#2E3448]"
+                          ? "bg-[#7045D8] text-white border-[#7045D8] shadow-xs"
+                          : "bg-white dark:bg-[#1B1536] text-stone-700 dark:text-stone-200 border-stone-200 dark:border-[#31275E] hover:bg-stone-100 dark:hover:bg-[#2E3448]"
                       }`}
                     >
                       {cnt}
@@ -523,8 +523,8 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
                     onClick={() => setIsCustomCountMode(true)}
                     className={`py-2 text-xs font-bold rounded-xl border transition ${
                       isCustomCountMode
-                        ? "bg-[#800020] text-white border-[#800020] shadow-xs"
-                        : "bg-white dark:bg-[#1F2330] text-stone-700 dark:text-stone-200 border-stone-200 dark:border-[#31374A] hover:bg-stone-100 dark:hover:bg-[#2E3448]"
+                        ? "bg-[#7045D8] text-white border-[#7045D8] shadow-xs"
+                        : "bg-white dark:bg-[#1B1536] text-stone-700 dark:text-stone-200 border-stone-200 dark:border-[#31275E] hover:bg-stone-100 dark:hover:bg-[#2E3448]"
                     }`}
                   >
                     Custom
@@ -547,14 +547,14 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
                         }
                       }}
                       placeholder="e.g. 40"
-                      className="flex-1 px-3 py-2 text-xs font-bold bg-white dark:bg-[#1F2330] border border-stone-300 dark:border-[#31374A] rounded-xl text-stone-800 dark:text-[#FFF9EF] focus:outline-none focus:ring-2 focus:ring-[#800020] dark:focus:ring-amber-400"
+                      className="flex-1 px-3 py-2 text-xs font-bold bg-white dark:bg-[#1B1536] border border-stone-300 dark:border-[#31275E] rounded-xl text-stone-800 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#7045D8] dark:focus:ring-amber-400"
                     />
                     <span className="text-xs text-stone-500 dark:text-stone-400 font-medium">questions</span>
                   </div>
                 )}
               </div>
             ) : (
-              <div className="text-xs font-semibold text-stone-800 dark:text-[#FFF9EF] bg-white dark:bg-[#1F2330] px-3 py-2 rounded-xl border border-stone-200 dark:border-[#31374A]">
+              <div className="text-xs font-semibold text-stone-800 dark:text-slate-50 bg-white dark:bg-[#1B1536] px-3 py-2 rounded-xl border border-stone-200 dark:border-[#31275E]">
                 {roomConfig.questionCount} Questions
               </div>
             )}
@@ -562,12 +562,12 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
         </div>
 
         {/* Players List Card with Anime Avatars */}
-        <div className="bg-white dark:bg-[#1F2330] rounded-3xl p-4 shadow-sm border border-stone-200 dark:border-[#31374A]">
+        <div className="bg-white dark:bg-[#1B1536] rounded-3xl p-4 shadow-sm border border-stone-200 dark:border-[#31275E]">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-xs font-bold text-stone-800 dark:text-[#FFF9EF] flex items-center gap-1.5 uppercase tracking-wider">
-              <Users className="w-3.5 h-3.5 text-[#800020] dark:text-amber-400" />
+            <h3 className="text-xs font-bold text-stone-800 dark:text-slate-50 flex items-center gap-1.5 uppercase tracking-wider">
+              <Users className="w-3.5 h-3.5 text-[#7045D8] dark:text-amber-400" />
               <span>Joined Players</span>
-              <span className="text-[10px] font-bold text-[#800020] dark:text-amber-300 bg-amber-50 dark:bg-amber-950/50 px-2 py-0.5 rounded-full border border-amber-200 dark:border-amber-800/50">
+              <span className="text-[11px] font-bold text-[#7045D8] dark:text-amber-300 bg-amber-50 dark:bg-amber-950/50 px-2 py-0.5 rounded-full border border-amber-200 dark:border-amber-800/50">
                 {players.length} Active
               </span>
             </h3>
@@ -575,9 +575,9 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
             {isHost && (
               <button
                 onClick={onAddBot}
-                className="flex items-center gap-1 text-xs font-semibold px-3 py-1 rounded-xl bg-stone-100 dark:bg-[#252A3A] hover:bg-stone-200 dark:hover:bg-[#2E3448] text-stone-800 dark:text-[#FFF9EF] active:scale-95 transition border border-stone-200 dark:border-[#31374A]"
+                className="flex items-center gap-1 text-xs font-semibold px-3 py-1 rounded-xl bg-stone-100 dark:bg-[#241D48] hover:bg-stone-200 dark:hover:bg-[#2E3448] text-stone-800 dark:text-slate-50 active:scale-95 transition border border-stone-200 dark:border-[#31275E]"
               >
-                <Bot className="w-3.5 h-3.5 text-[#800020] dark:text-amber-400" />
+                <Bot className="w-3.5 h-3.5 text-[#7045D8] dark:text-amber-400" />
                 <span>+ Add Bot</span>
               </button>
             )}
@@ -592,7 +592,7 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
                 value={playerSearch}
                 onChange={(e) => setPlayerSearch(e.target.value)}
                 placeholder="Search players..."
-                className="w-full pl-8 pr-3 py-1.5 text-xs bg-stone-50 dark:bg-[#252A3A] border border-stone-200 dark:border-[#31374A] rounded-xl text-stone-800 dark:text-[#FFF9EF] focus:outline-none focus:ring-1 focus:ring-[#800020] dark:focus:ring-amber-400"
+                className="w-full pl-8 pr-3 py-1.5 text-xs bg-stone-50 dark:bg-[#241D48] border border-stone-200 dark:border-[#31275E] rounded-xl text-stone-800 dark:text-slate-50 focus:outline-none focus:ring-1 focus:ring-[#7045D8] dark:focus:ring-amber-400"
               />
             </div>
           )}
@@ -606,7 +606,7 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
                   className={`flex items-center justify-between p-2.5 rounded-2xl border transition ${
                     isMe
                       ? "bg-amber-50/60 dark:bg-amber-950/40 border-amber-300 dark:border-amber-400/60 ring-1 ring-amber-300/40"
-                      : "bg-stone-50 dark:bg-[#252A3A] border-stone-200 dark:border-[#31374A]"
+                      : "bg-stone-50 dark:bg-[#241D48] border-stone-200 dark:border-[#31275E]"
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
@@ -629,16 +629,16 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
 
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5">
-                        <span className="font-bold text-xs sm:text-sm text-stone-800 dark:text-[#FFF9EF] truncate">
+                        <span className="font-bold text-xs sm:text-sm text-stone-800 dark:text-slate-50 truncate">
                           {player.name}
                         </span>
                         {isMe && (
-                          <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-[#800020] text-white">
+                          <span className="text-[11px] font-bold px-1.5 py-0.2 rounded-full bg-[#7045D8] text-white">
                             You
                           </span>
                         )}
                         {player.isBot && (
-                          <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800/60">
+                          <span className="text-[11px] font-bold px-1.5 py-0.2 rounded-full bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800/60">
                             AI
                           </span>
                         )}
@@ -677,7 +677,7 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
         </div>
 
         {/* Quick Reactions Bar */}
-        <div className="bg-white dark:bg-[#1F2330] rounded-2xl p-2.5 shadow-sm border border-stone-200 dark:border-[#31374A] flex items-center justify-between">
+        <div className="bg-white dark:bg-[#1B1536] rounded-2xl p-2.5 shadow-sm border border-stone-200 dark:border-[#31275E] flex items-center justify-between">
           <span className="text-xs font-semibold text-stone-500 dark:text-stone-400 flex items-center gap-1">
             <Sparkles className="w-3.5 h-3.5 text-amber-500" />
             <span>Reactions:</span>
@@ -690,7 +690,7 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
                   triggerHaptic("light");
                   onSendEmoji(emoji);
                 }}
-                className="w-8 h-8 flex items-center justify-center text-lg rounded-xl bg-stone-50 dark:bg-[#252A3A] hover:bg-amber-100 dark:hover:bg-[#2E3448] active:scale-125 transition border border-stone-200 dark:border-[#31374A]"
+                className="w-8 h-8 flex items-center justify-center text-lg rounded-xl bg-stone-50 dark:bg-[#241D48] hover:bg-amber-100 dark:hover:bg-[#2E3448] active:scale-125 transition border border-stone-200 dark:border-[#31275E]"
               >
                 {emoji}
               </button>
@@ -700,7 +700,7 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
       </div>
 
       {/* Sticky Action Footer */}
-      <div className="p-4 bg-white dark:bg-[#1F2330] border-t border-stone-200 dark:border-[#31374A] shadow-md">
+      <div className="p-4 bg-white dark:bg-[#1B1536] border-t border-stone-200 dark:border-[#31275E] shadow-md">
         {isHost ? (
           <div>
             <button
@@ -708,7 +708,7 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
               disabled={!canStart}
               className={`w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl font-bold text-base shadow-sm active:scale-98 transition ${
                 canStart
-                  ? "bg-[#800020] hover:bg-[#68001a] text-white shadow-[#800020]/20"
+                  ? "bg-[#7045D8] hover:bg-[#68001a] text-white shadow-[#7045D8]/20"
                   : "bg-stone-200 dark:bg-stone-800 text-stone-400 dark:text-stone-500 cursor-not-allowed"
               }`}
             >

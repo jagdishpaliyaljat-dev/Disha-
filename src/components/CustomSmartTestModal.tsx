@@ -139,20 +139,20 @@ export const CustomSmartTestModal: React.FC<CustomSmartTestModalProps> = ({
   return (
     <div
       id="custom-smart-test-modal"
-      className="fixed inset-0 z-50 bg-[#171923]/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 bg-[#130E26]/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-in fade-in duration-200"
     >
-      <div className="bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] rounded-3xl max-w-xl w-full my-auto shadow-2xl overflow-hidden flex flex-col max-h-[92dvh]">
+      <div className="bg-[#F8FAFC] dark:bg-[#130E26] border border-slate-200 dark:border-[#31275E] rounded-3xl max-w-xl w-full my-auto shadow-2xl overflow-hidden flex flex-col max-h-[92dvh]">
         {/* Header */}
-        <div className="p-4 sm:p-5 border-b border-[#E8D9C0] dark:border-[#31374A] flex items-start justify-between bg-white dark:bg-[#1F2330] shrink-0">
+        <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-[#31275E] flex items-start justify-between bg-white dark:bg-[#1B1536] shrink-0">
           <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#800020] text-[#FFF9EF] flex items-center justify-center shadow-md shadow-[#800020]/20 shrink-0 mt-0.5">
-              <Sparkles className="w-5 h-5 text-[#F47B20]" />
+            <div className="w-10 h-10 rounded-2xl bg-[#7045D8] text-white flex items-center justify-center shadow-md shadow-[#7045D8]/20 shrink-0 mt-0.5">
+              <Sparkles className="w-5 h-5 text-[#7045D8]" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-base sm:text-lg font-black text-[#171923] dark:text-[#FFF9EF] flex items-center gap-1.5">
+                <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-slate-50 flex items-center gap-1.5">
                   <span>Custom Smart Test</span>
-                  <span className="text-[10px] font-mono font-bold bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] px-2 py-0.5 rounded-md border border-[#F47B20]/30">
+                  <span className="text-[11px] font-mono font-bold bg-[#7045D8]/15 text-[#7045D8] dark:text-[#A78BFA] px-2 py-0.5 rounded-md border border-[#7045D8]/30">
                     SMART PRIORITY
                   </span>
                 </h2>
@@ -165,7 +165,7 @@ export const CustomSmartTestModal: React.FC<CustomSmartTestModalProps> = ({
           <button
             id="btn-close-smart-test-modal"
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-[#F7EFE2] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] text-slate-500 hover:text-[#171923] dark:hover:text-[#FFF9EF] flex items-center justify-center transition-colors cursor-pointer shrink-0"
+            className="w-8 h-8 rounded-full bg-slate-100 dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] text-slate-500 hover:text-slate-900 dark:hover:text-white flex items-center justify-center transition-colors cursor-pointer shrink-0"
           >
             <X className="w-4 h-4" />
           </button>
@@ -175,8 +175,8 @@ export const CustomSmartTestModal: React.FC<CustomSmartTestModalProps> = ({
         <div className="p-4 sm:p-5 space-y-4 sm:space-y-5 overflow-y-auto flex-1">
           {/* 1. Subject Selector */}
           <div className="space-y-1.5" id="section-subject">
-            <label className="text-xs font-bold text-[#171923] dark:text-[#FFF9EF] flex items-center gap-1.5">
-              <BookOpen className="w-3.5 h-3.5 text-[#800020] dark:text-[#F47B20]" />
+            <label className="text-xs font-bold text-slate-900 dark:text-slate-50 flex items-center gap-1.5">
+              <BookOpen className="w-3.5 h-3.5 text-[#7045D8] dark:text-[#A78BFA]" />
               <span>Subject</span>
             </label>
             <div className="relative">
@@ -184,7 +184,7 @@ export const CustomSmartTestModal: React.FC<CustomSmartTestModalProps> = ({
                 id="select-smart-test-subject"
                 value={selectedSubject}
                 onChange={(e) => setSelectedSubject(e.target.value)}
-                className="w-full bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-2xl p-3 text-xs sm:text-sm font-semibold text-[#171923] dark:text-[#FFF9EF] focus:ring-2 focus:ring-[#800020]/30 dark:focus:ring-[#F47B20]/30 focus:outline-none transition-all cursor-pointer"
+                className="w-full bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] rounded-2xl p-3 text-xs sm:text-sm font-semibold text-slate-900 dark:text-slate-50 focus:ring-2 focus:ring-[#7045D8]/30 dark:focus:ring-[#A78BFA]/30 focus:outline-none transition-all cursor-pointer"
               >
                 <option value="all">★ All Subjects Combined</option>
                 {subjects.map((sub) => (
@@ -198,8 +198,8 @@ export const CustomSmartTestModal: React.FC<CustomSmartTestModalProps> = ({
 
           {/* 2. Chapter Selector */}
           <div className="space-y-1.5" id="section-chapter">
-            <label className="text-xs font-bold text-[#171923] dark:text-[#FFF9EF] flex items-center gap-1.5">
-              <Folder className="w-3.5 h-3.5 text-[#800020] dark:text-[#C99A45]" />
+            <label className="text-xs font-bold text-slate-900 dark:text-slate-50 flex items-center gap-1.5">
+              <Folder className="w-3.5 h-3.5 text-[#7045D8] dark:text-[#A78BFA]" />
               <span>Chapter</span>
             </label>
             <select
@@ -209,7 +209,7 @@ export const CustomSmartTestModal: React.FC<CustomSmartTestModalProps> = ({
                 setSelectedChapterId(e.target.value);
                 setSelectedTopicId("all");
               }}
-              className="w-full bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-2xl p-3 text-xs sm:text-sm font-medium text-[#171923] dark:text-[#FFF9EF] focus:ring-2 focus:ring-[#800020]/30 dark:focus:ring-[#F47B20]/30 focus:outline-none transition-all cursor-pointer"
+              className="w-full bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] rounded-2xl p-3 text-xs sm:text-sm font-medium text-slate-900 dark:text-slate-50 focus:ring-2 focus:ring-[#7045D8]/30 dark:focus:ring-[#A78BFA]/30 focus:outline-none transition-all cursor-pointer"
             >
               <option value="all">All Chapters ({chapters.length} Chapters Combined)</option>
               {chapters.map((ch) => (
@@ -223,15 +223,15 @@ export const CustomSmartTestModal: React.FC<CustomSmartTestModalProps> = ({
           {/* 3. Topic Selector (conditionally enabled or populated) */}
           {selectedChapterId !== "all" && (
             <div className="space-y-1.5 animate-in fade-in duration-150" id="section-topic">
-              <label className="text-xs font-bold text-[#171923] dark:text-[#FFF9EF] flex items-center gap-1.5">
-                <Layers className="w-3.5 h-3.5 text-[#F47B20]" />
+              <label className="text-xs font-bold text-slate-900 dark:text-slate-50 flex items-center gap-1.5">
+                <Layers className="w-3.5 h-3.5 text-[#7045D8]" />
                 <span>Topic</span>
               </label>
               <select
                 id="select-smart-test-topic"
                 value={selectedTopicId}
                 onChange={(e) => setSelectedTopicId(e.target.value)}
-                className="w-full bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-2xl p-3 text-xs sm:text-sm font-medium text-[#171923] dark:text-[#FFF9EF] focus:ring-2 focus:ring-[#800020]/30 dark:focus:ring-[#F47B20]/30 focus:outline-none transition-all cursor-pointer"
+                className="w-full bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] rounded-2xl p-3 text-xs sm:text-sm font-medium text-slate-900 dark:text-slate-50 focus:ring-2 focus:ring-[#7045D8]/30 dark:focus:ring-[#A78BFA]/30 focus:outline-none transition-all cursor-pointer"
               >
                 <option value="all">All Topics in this Chapter ({availableTopics.length} Topics)</option>
                 {availableTopics.map((tp, tpIdx) => (
@@ -246,8 +246,8 @@ export const CustomSmartTestModal: React.FC<CustomSmartTestModalProps> = ({
           {/* 4. Number of Questions */}
           <div className="space-y-2" id="section-question-count">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-bold text-[#171923] dark:text-[#FFF9EF] flex items-center gap-1.5">
-                <Sliders className="w-3.5 h-3.5 text-[#800020] dark:text-[#F47B20]" />
+              <label className="text-xs font-bold text-slate-900 dark:text-slate-50 flex items-center gap-1.5">
+                <Sliders className="w-3.5 h-3.5 text-[#7045D8] dark:text-[#A78BFA]" />
                 <span>Number of Questions</span>
               </label>
               <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400 font-bold tabular-nums">
@@ -264,8 +264,8 @@ export const CustomSmartTestModal: React.FC<CustomSmartTestModalProps> = ({
                   onClick={() => setQuestionCountType(count)}
                   className={`py-2 sm:py-2.5 rounded-xl font-bold font-mono text-xs sm:text-sm transition-all cursor-pointer tabular-nums ${
                     questionCountType === count
-                      ? "bg-[#800020] dark:bg-[#F47B20] text-white shadow-sm"
-                      : "bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] text-[#171923] dark:text-slate-300 hover:border-[#800020]/40"
+                      ? "bg-[#7045D8] dark:bg-[#7045D8] text-white shadow-sm"
+                      : "bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] text-slate-900 dark:text-slate-300 hover:border-[#7045D8]/40"
                   }`}
                 >
                   {count}
@@ -278,8 +278,8 @@ export const CustomSmartTestModal: React.FC<CustomSmartTestModalProps> = ({
                 onClick={() => setQuestionCountType("custom")}
                 className={`py-2 sm:py-2.5 rounded-xl font-bold text-xs transition-all cursor-pointer ${
                   questionCountType === "custom"
-                    ? "bg-[#800020] dark:bg-[#F47B20] text-white shadow-sm"
-                    : "bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] text-[#171923] dark:text-slate-300 hover:border-[#800020]/40"
+                    ? "bg-[#7045D8] dark:bg-[#7045D8] text-white shadow-sm"
+                    : "bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] text-slate-900 dark:text-slate-300 hover:border-[#7045D8]/40"
                 }`}
               >
                 Custom
@@ -288,8 +288,8 @@ export const CustomSmartTestModal: React.FC<CustomSmartTestModalProps> = ({
 
             {/* Inline Custom Input */}
             {questionCountType === "custom" && (
-              <div className="flex items-center gap-3 p-3 rounded-2xl bg-[#F7EFE2] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] mt-2">
-                <span className="text-xs font-semibold text-[#800020] dark:text-[#C99A45]">
+              <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-100 dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] mt-2">
+                <span className="text-xs font-semibold text-[#7045D8] dark:text-[#A78BFA]">
                   Custom Question Count:
                 </span>
                 <input
@@ -299,7 +299,7 @@ export const CustomSmartTestModal: React.FC<CustomSmartTestModalProps> = ({
                   max={Math.min(100, Math.max(5, totalAvailable))}
                   value={customCount}
                   onChange={(e) => setCustomCount(Math.max(5, parseInt(e.target.value) || 5))}
-                  className="w-20 bg-white dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] rounded-xl px-2.5 py-1 text-xs font-mono font-bold text-center text-[#171923] dark:text-[#FFF9EF] focus:ring-2 focus:ring-[#800020]/30 focus:outline-none tabular-nums"
+                  className="w-20 bg-white dark:bg-[#130E26] border border-slate-200 dark:border-[#31275E] rounded-xl px-2.5 py-1 text-xs font-mono font-bold text-center text-slate-900 dark:text-slate-50 focus:ring-2 focus:ring-[#7045D8]/30 focus:outline-none tabular-nums"
                 />
                 <span className="text-[11px] text-slate-600 dark:text-slate-400 tabular-nums">(5 - {totalAvailable} MCQs)</span>
               </div>
@@ -308,8 +308,8 @@ export const CustomSmartTestModal: React.FC<CustomSmartTestModalProps> = ({
 
           {/* 5. Difficulty Selection */}
           <div className="space-y-2" id="section-difficulty">
-            <label className="text-xs font-bold text-[#171923] dark:text-[#FFF9EF] flex items-center gap-1.5">
-              <Zap className="w-3.5 h-3.5 text-[#F47B20]" />
+            <label className="text-xs font-bold text-slate-900 dark:text-slate-50 flex items-center gap-1.5">
+              <Zap className="w-3.5 h-3.5 text-[#7045D8]" />
               <span>Difficulty</span>
             </label>
             <div className="grid grid-cols-4 gap-1.5">
@@ -326,8 +326,8 @@ export const CustomSmartTestModal: React.FC<CustomSmartTestModalProps> = ({
                   onClick={() => setDifficulty(diff.id as any)}
                   className={`py-2 px-1 rounded-xl text-xs font-bold transition-all cursor-pointer capitalize ${
                     difficulty === diff.id
-                      ? "bg-[#171923] dark:bg-[#FFF9EF] text-[#FFF9EF] dark:text-[#171923] shadow-xs"
-                      : "bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] text-slate-600 dark:text-slate-300"
+                      ? "bg-[#130E26] dark:bg-[#F8FAFC] text-white dark:text-slate-900 shadow-xs"
+                      : "bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] text-slate-600 dark:text-slate-300"
                   }`}
                 >
                   {diff.label}
@@ -338,7 +338,7 @@ export const CustomSmartTestModal: React.FC<CustomSmartTestModalProps> = ({
 
           {/* 6. Question Source */}
           <div className="space-y-2" id="section-question-source">
-            <label className="text-xs font-bold text-[#171923] dark:text-[#FFF9EF] flex items-center gap-1.5">
+            <label className="text-xs font-bold text-slate-900 dark:text-slate-50 flex items-center gap-1.5">
               <BarChart2 className="w-3.5 h-3.5 text-[#15803D] dark:text-emerald-400" />
               <span>Question Source</span>
             </label>
@@ -355,12 +355,12 @@ export const CustomSmartTestModal: React.FC<CustomSmartTestModalProps> = ({
                   onClick={() => setQuestionSource(src.id as any)}
                   className={`p-2.5 rounded-2xl border text-left transition-all cursor-pointer ${
                     questionSource === src.id
-                      ? "bg-[#800020]/10 dark:bg-[#F47B20]/15 border-[#800020] dark:border-[#F47B20] text-[#800020] dark:text-[#FFF9EF] shadow-xs"
-                      : "bg-white dark:bg-[#1F2330] border-[#E8D9C0] dark:border-[#31374A] text-[#171923] dark:text-slate-300 hover:border-[#C99A45]"
+                      ? "bg-[#7045D8]/10 dark:bg-[#7045D8]/15 border-[#7045D8] dark:border-[#A78BFA] text-[#7045D8] dark:text-slate-50 shadow-xs"
+                      : "bg-white dark:bg-[#1B1536] border-slate-200 dark:border-[#31275E] text-slate-900 dark:text-slate-300 hover:border-[#A78BFA]"
                   }`}
                 >
                   <div className="text-xs font-bold leading-tight">{src.label}</div>
-                  <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
+                  <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                     {src.desc}
                   </div>
                 </button>
@@ -371,21 +371,21 @@ export const CustomSmartTestModal: React.FC<CustomSmartTestModalProps> = ({
           {/* 7. Smart Priority Card & Switch */}
           <div
             id="card-smart-priority"
-            className="p-4 rounded-3xl bg-white dark:bg-[#1F2330] border border-[#C99A45]/50 dark:border-[#C99A45]/40 space-y-3"
+            className="p-4 rounded-3xl bg-white dark:bg-[#1B1536] border border-[#A78BFA]/50 dark:border-[#A78BFA]/40 space-y-3"
           >
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-start gap-2.5 min-w-0">
-                <div className="w-8 h-8 rounded-xl bg-[#F47B20]/15 text-[#F47B20] flex items-center justify-center shrink-0 mt-0.5">
+                <div className="w-8 h-8 rounded-xl bg-[#7045D8]/15 text-[#7045D8] flex items-center justify-center shrink-0 mt-0.5">
                   <Flame className="w-4 h-4" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-[#171923] dark:text-[#FFF9EF]">
+                    <span className="text-xs font-bold text-slate-900 dark:text-slate-50">
                       Smart Priority Engine
                     </span>
                     <span
                       id="badge-smart-priority-status"
-                      className={`text-[9.5px] font-mono font-bold px-2 py-0.5 rounded-md ${
+                      className={`text-[11px] font-mono font-bold px-2 py-0.5 rounded-md ${
                         smartPriorityEnabled
                           ? "bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800"
                           : "bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
@@ -407,14 +407,14 @@ export const CustomSmartTestModal: React.FC<CustomSmartTestModalProps> = ({
                 role="switch"
                 aria-checked={smartPriorityEnabled}
                 onClick={() => setSmartPriorityEnabled(!smartPriorityEnabled)}
-                className={`w-12 h-6 rounded-full transition-colors relative p-0.5 shrink-0 focus:outline-none cursor-pointer ${
-                  smartPriorityEnabled ? "bg-[#F47B20]" : "bg-slate-300 dark:bg-slate-700"
+                className={`w-12 h-7 rounded-full transition-colors relative p-1 shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8] focus-visible:ring-offset-2 cursor-pointer ${
+                  smartPriorityEnabled ? "bg-[#7045D8]" : "bg-slate-300 dark:bg-slate-700"
                 }`}
                 title={smartPriorityEnabled ? "Disable Smart Priority" : "Enable Smart Priority"}
               >
                 <div
                   className={`w-5 h-5 rounded-full bg-white shadow-xs transition-transform ${
-                    smartPriorityEnabled ? "translate-x-6" : "translate-x-0"
+                    smartPriorityEnabled ? "translate-x-5" : "translate-x-0"
                   }`}
                 />
               </button>
@@ -422,20 +422,20 @@ export const CustomSmartTestModal: React.FC<CustomSmartTestModalProps> = ({
 
             {/* Real-time Priority Breakdown Bar */}
             {smartPriorityEnabled && totalAvailable > 0 && (
-              <div className="pt-2 border-t border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-between text-[11px]">
+              <div className="pt-2 border-t border-slate-200 dark:border-[#31275E] flex items-center justify-between text-[11px]">
                 <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
                   <span className="flex items-center gap-1 font-semibold">
-                    <span className="w-2 h-2 rounded-full bg-[#800020] dark:bg-[#F47B20] inline-block" />
+                    <span className="w-2 h-2 rounded-full bg-[#7045D8] dark:bg-[#7045D8] inline-block" />
                     High/Med Priority:{" "}
-                    <strong className="text-[#171923] dark:text-[#FFF9EF] font-mono tabular-nums">
+                    <strong className="text-slate-900 dark:text-slate-50 font-mono tabular-nums">
                       {priorityQuestionsCount}
                     </strong>
                   </span>
                   <span className="text-slate-400">·</span>
                   <span className="flex items-center gap-1 font-semibold">
-                    <span className="w-2 h-2 rounded-full bg-[#C99A45] inline-block" />
+                    <span className="w-2 h-2 rounded-full bg-[#A78BFA] inline-block" />
                     New:{" "}
-                    <strong className="text-[#171923] dark:text-[#FFF9EF] font-mono tabular-nums">
+                    <strong className="text-slate-900 dark:text-slate-50 font-mono tabular-nums">
                       {categoryCounts.new}
                     </strong>
                   </span>
@@ -448,11 +448,11 @@ export const CustomSmartTestModal: React.FC<CustomSmartTestModalProps> = ({
           {isPoolLimited && (
             <div
               id="banner-pool-limited-warning"
-              className="p-3.5 rounded-2xl bg-[#F47B20]/10 border border-[#F47B20]/30 flex items-start gap-2.5 animate-in fade-in"
+              className="p-3.5 rounded-2xl bg-[#7045D8]/10 border border-[#7045D8]/30 flex items-start gap-2.5 animate-in fade-in"
             >
-              <AlertCircle className="w-4 h-4 text-[#F47B20] shrink-0 mt-0.5" />
+              <AlertCircle className="w-4 h-4 text-[#7045D8] shrink-0 mt-0.5" />
               <div className="flex-1 min-w-0">
-                <h4 className="text-xs font-bold text-[#171923] dark:text-[#FFF9EF]">
+                <h4 className="text-xs font-bold text-slate-900 dark:text-slate-50">
                   Limited Question Pool
                 </h4>
                 <p className="text-[11px] text-slate-700 dark:text-slate-300 mt-0.5">
@@ -463,7 +463,7 @@ export const CustomSmartTestModal: React.FC<CustomSmartTestModalProps> = ({
                     type="button"
                     id="btn-create-limited-pool-test"
                     onClick={() => handleCreateTest(totalAvailable)}
-                    className="px-3 py-1.5 rounded-xl bg-[#F47B20] hover:bg-[#E06A12] text-white font-bold text-[11px] cursor-pointer transition-colors"
+                    className="px-3 py-1.5 rounded-xl bg-[#7045D8] hover:bg-[#5B32BF] text-white font-bold text-[11px] cursor-pointer transition-colors"
                   >
                     CREATE {totalAvailable}-QUESTION TEST
                   </button>
@@ -476,7 +476,7 @@ export const CustomSmartTestModal: React.FC<CustomSmartTestModalProps> = ({
                       setQuestionSource("both");
                       setDifficulty("mixed");
                     }}
-                    className="px-3 py-1.5 rounded-xl bg-white dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] text-[#171923] dark:text-[#FFF9EF] text-[11px] font-semibold cursor-pointer transition-colors"
+                    className="px-3 py-1.5 rounded-xl bg-white dark:bg-[#130E26] border border-slate-200 dark:border-[#31275E] text-slate-900 dark:text-slate-50 text-[11px] font-semibold cursor-pointer transition-colors"
                   >
                     CHANGE FILTERS (Expand Pool)
                   </button>
@@ -487,11 +487,11 @@ export const CustomSmartTestModal: React.FC<CustomSmartTestModalProps> = ({
         </div>
 
         {/* Footer Actions */}
-        <div className="p-4 sm:p-5 border-t border-[#E8D9C0] dark:border-[#31374A] bg-white dark:bg-[#1F2330] shrink-0 flex items-center justify-between gap-3">
+        <div className="p-4 sm:p-5 border-t border-slate-200 dark:border-[#31275E] bg-white dark:bg-[#1B1536] shrink-0 flex items-center justify-between gap-3">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-3 rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] text-[#171923] dark:text-slate-300 text-xs font-bold hover:bg-[#F7EFE2] dark:hover:bg-[#252A3A] transition-colors cursor-pointer"
+            className="px-4 py-3 rounded-2xl border border-slate-200 dark:border-[#31275E] text-slate-900 dark:text-slate-300 text-xs font-bold hover:bg-slate-100 dark:hover:bg-[#241D48] transition-colors cursor-pointer"
           >
             Cancel
           </button>
@@ -501,9 +501,9 @@ export const CustomSmartTestModal: React.FC<CustomSmartTestModalProps> = ({
             id="btn-create-smart-test"
             disabled={selectedQuestions.length === 0}
             onClick={() => handleCreateTest()}
-            className="flex-1 py-3.5 px-4 bg-[#800020] hover:bg-[#5E0017] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-2xl font-bold text-xs sm:text-sm shadow-lg shadow-[#800020]/20 dark:shadow-[#F47B20]/20 flex items-center justify-center gap-2 transition-all cursor-pointer"
+            className="flex-1 py-3.5 px-4 bg-[#7045D8] hover:bg-[#5B32BF] dark:bg-[#7045D8] dark:hover:bg-[#5B32BF] active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-2xl font-bold text-xs sm:text-sm shadow-lg shadow-[#7045D8]/20 dark:shadow-[#7045D8]/20 flex items-center justify-center gap-2 transition-all cursor-pointer"
           >
-            <Sparkles className="w-4 h-4 text-[#C99A45] dark:text-white" />
+            <Sparkles className="w-4 h-4 text-amber-500 dark:text-white" />
             <span>
               CREATE {Math.min(requestedCount, selectedQuestions.length)}-QUESTION SMART TEST
             </span>

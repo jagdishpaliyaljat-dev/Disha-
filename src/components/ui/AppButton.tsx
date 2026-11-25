@@ -34,28 +34,27 @@ export const AppButton: React.FC<AppButtonProps> = ({
     onClick?.(e);
   };
 
-  // Base sizing
+  // Base sizing (minimum 44px touch targets)
   const sizeClasses = {
-    sm: "px-3 py-1.5 text-xs rounded-xl gap-1.5",
-    md: "px-4 py-2.5 text-xs sm:text-sm rounded-xl gap-2",
-    lg: "px-5 py-3 text-sm sm:text-base rounded-2xl gap-2.5",
+    sm: "min-h-[38px] px-3 py-1.5 text-xs rounded-xl gap-1.5",
+    md: "min-h-[44px] px-4 py-2.5 text-xs sm:text-sm rounded-xl gap-2",
+    lg: "min-h-[48px] px-5 py-3 text-sm sm:text-base rounded-2xl gap-2.5",
   }[size];
 
-  // Variant styling matching next-level DISHA 20-20 color theory:
-  // Kesariya (#F47B20) focused intentionally on primary button, paired with royal gold rim (#C99A45)
+  // Unified Royal Purple + Clean Slate Design System
   const variantClasses = {
     primary:
-      "bg-gradient-to-r from-[#F47B20] to-[#E06716] hover:brightness-105 text-white font-extrabold shadow-[0_4px_14px_rgba(244,123,32,0.32)] hover:shadow-[0_6px_20px_rgba(244,123,32,0.42)] border border-[#C99A45]/40 active:scale-95 transition-all select-none cursor-pointer disabled:opacity-50 disabled:pointer-events-none",
+      "bg-[#7045D8] hover:bg-[#5B32BF] text-white font-extrabold shadow-sm shadow-[#7045D8]/25 border border-[#A78BFA]/35 active:scale-95 transition-all select-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8] disabled:opacity-50 disabled:pointer-events-none",
     secondary:
-      "bg-[#F7EFE2] hover:bg-[#EFE3CF] dark:bg-[#1C2333] dark:hover:bg-[#252E42] text-[#171923] dark:text-[#FFF9EF] border border-[#E8D9C0] dark:border-[#2C374E] font-bold active:scale-95 transition-all select-none cursor-pointer disabled:opacity-50 disabled:pointer-events-none",
+      "bg-slate-100 hover:bg-slate-200/80 dark:bg-[#241D48] dark:hover:bg-[#31275E] text-slate-900 dark:text-slate-50 border border-slate-200 dark:border-[#31275E] font-bold active:scale-95 transition-all select-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8] disabled:opacity-50 disabled:pointer-events-none",
     gold:
-      "bg-gradient-to-r from-[#C99A45] to-[#B38536] hover:brightness-105 text-[#171923] font-black shadow-sm border border-[#E2B755]/40 active:scale-95 transition-all select-none cursor-pointer disabled:opacity-50 disabled:pointer-events-none",
+      "bg-amber-500 hover:bg-amber-600 text-slate-950 font-black shadow-sm border border-amber-400/50 active:scale-95 transition-all select-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 disabled:opacity-50 disabled:pointer-events-none",
     ghost:
-      "bg-transparent hover:bg-[#F7EFE2] dark:hover:bg-[#1C2333] text-[#52576A] dark:text-[#CBD2E1] hover:text-[#171923] dark:hover:text-[#FFF9EF] font-bold active:scale-95 transition-all select-none cursor-pointer disabled:opacity-50 disabled:pointer-events-none",
+      "bg-transparent hover:bg-slate-100 dark:hover:bg-[#241D48] text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white font-bold active:scale-95 transition-all select-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8] disabled:opacity-50 disabled:pointer-events-none",
     danger:
-      "bg-rose-600 hover:bg-rose-700 text-white font-bold shadow-sm active:scale-95 transition-all select-none cursor-pointer disabled:opacity-50 disabled:pointer-events-none",
+      "bg-rose-600 hover:bg-rose-700 text-white font-bold shadow-sm active:scale-95 transition-all select-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 disabled:opacity-50 disabled:pointer-events-none",
     icon:
-      "p-2 w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#F7EFE2] hover:bg-[#EFE3CF] dark:bg-[#1C2333] dark:hover:bg-[#252E42] text-[#171923] dark:text-[#FFF9EF] border border-[#E8D9C0] dark:border-[#2C374E] flex items-center justify-center active:scale-95 transition-all select-none cursor-pointer shrink-0 disabled:opacity-50 disabled:pointer-events-none",
+      "p-2 w-11 h-11 rounded-xl bg-slate-100 hover:bg-slate-200/80 dark:bg-[#241D48] dark:hover:bg-[#31275E] text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-[#31275E] flex items-center justify-center active:scale-95 transition-all select-none cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8] disabled:opacity-50 disabled:pointer-events-none",
   }[variant];
 
   return (

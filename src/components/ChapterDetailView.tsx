@@ -22,6 +22,7 @@ import {
 import { AddTopicModal } from "./AddTopicModal";
 import ShareModal, { ShareData } from "./ShareModal";
 import { buildChapterShareData } from "../utils/shareService";
+import { showAppToast } from "../utils/adminToast";
 import { TopicInteractionModal } from "./TopicInteractionModal";
 import { getChapterDisplayName, getTopicDisplayName } from "../utils/curriculumUtils";
 import { getCombinedSubjects } from "../utils/questionsStorage";
@@ -73,7 +74,7 @@ export const ChapterDetailView: React.FC<ChapterDetailViewProps> = ({
         <p className="text-sm text-slate-500">Chapter not found</p>
         <button
           onClick={onBack}
-          className="mt-3 text-xs text-[#800020] dark:text-[#F47B20] font-bold"
+          className="mt-3 text-xs text-[#7045D8] dark:text-[#A78BFA] font-bold"
         >
           Go Back
         </button>
@@ -155,7 +156,11 @@ export const ChapterDetailView: React.FC<ChapterDetailViewProps> = ({
     }
 
     if (extraQs.length === 0) {
-      alert("Local content is currently unavailable. Please connect to the internet during your next 24-hour sync cycle to download this topic's questions.");
+      showAppToast(
+        "Local content is currently unavailable. Connect to the internet during your sync cycle to download this topic.",
+        "info",
+        "Topic Content Unavailable"
+      );
       return;
     }
 
@@ -173,9 +178,9 @@ export const ChapterDetailView: React.FC<ChapterDetailViewProps> = ({
   };
 
   return (
-    <div id="chapter-detail-screen" className="fixed inset-0 z-50 flex flex-col h-full bg-[#FFF9EF] dark:bg-[#171923] text-[#171923] dark:text-[#FFF9EF] overflow-y-auto pb-24 select-none">
+    <div id="chapter-detail-screen" className="fixed inset-0 z-50 flex flex-col h-full bg-[#F8FAFC] dark:bg-[#130E26] text-slate-900 dark:text-slate-50 overflow-y-auto pb-24 select-none">
       {/* Header */}
-      <div className="bg-white/95 dark:bg-[#1F2330]/95 backdrop-blur-md px-5 pt-4 pb-4 border-b border-[#E8D9C0] dark:border-[#31374A] sticky top-0 z-10 shadow-xs">
+      <div className="bg-white/95 dark:bg-[#1B1536]/95 backdrop-blur-md px-5 pt-4 pb-4 border-b border-slate-200 dark:border-[#31275E] sticky top-0 z-10 shadow-xs">
         <div className="flex items-center justify-between max-w-3xl mx-auto w-full">
           <button
             onClick={() => {
@@ -190,22 +195,22 @@ export const ChapterDetailView: React.FC<ChapterDetailViewProps> = ({
                 window.history.back();
               }
             }}
-            className="w-11 h-11 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center text-[#171923] dark:text-[#FFF9EF] active:scale-95 transition-transform cursor-pointer"
+            className="w-11 h-11 rounded-xl bg-slate-100 dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] flex items-center justify-center text-slate-900 dark:text-slate-50 active:scale-95 transition-transform cursor-pointer"
           >
             <ArrowLeft size={18} />
           </button>
           <div className="flex flex-col items-center min-w-0 px-2">
-            <h1 className="text-sm font-bold text-[#171923] dark:text-[#FFF9EF] truncate max-w-[200px] sm:max-w-md font-hindi">
+            <h1 className="text-sm font-bold text-slate-900 dark:text-slate-50 truncate max-w-[200px] sm:max-w-md font-hindi">
               {getChapterDisplayName(chapter)}
             </h1>
-            <p className="text-[10px] font-bold text-[#800020] dark:text-[#C99A45] uppercase tracking-widest mt-0.5 tabular-nums">
+            <p className="text-[11px] font-bold text-[#7045D8] dark:text-[#A78BFA] uppercase tracking-widest mt-0.5 tabular-nums">
               Chapter {chapter.number}
             </p>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={handleShareChapter}
-              className="w-11 h-11 rounded-xl bg-[#800020]/10 dark:bg-[#F47B20]/15 border border-[#800020]/20 dark:border-[#F47B20]/30 flex items-center justify-center text-[#800020] dark:text-[#F47B20] hover:bg-[#800020]/15 active:scale-95 transition-transform cursor-pointer"
+              className="w-11 h-11 rounded-xl bg-[#7045D8]/10 dark:bg-[#7045D8]/15 border border-[#7045D8]/20 dark:border-[#A78BFA]/30 flex items-center justify-center text-[#7045D8] dark:text-[#A78BFA] hover:bg-[#7045D8]/15 active:scale-95 transition-transform cursor-pointer"
               title="Share Chapter"
               aria-label="Share chapter"
             >
@@ -238,23 +243,23 @@ export const ChapterDetailView: React.FC<ChapterDetailViewProps> = ({
                   setLocalTopicForModal(topic);
                 }
               }}
-              className="w-full bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-xl p-3.5 shadow-xs hover:border-[#800020]/50 dark:hover:border-[#F47B20]/60 active:scale-[0.99] transition-all flex items-center justify-between group cursor-pointer min-h-[56px]"
+              className="w-full bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] rounded-xl p-3.5 shadow-xs hover:border-[#7045D8]/50 dark:hover:border-[#A78BFA]/60 active:scale-[0.99] transition-all flex items-center justify-between group cursor-pointer min-h-[56px]"
             >
               <div className="flex items-center gap-3 min-w-0 flex-1 pr-3">
-                <div className="w-9 h-9 rounded-xl bg-[#800020]/10 dark:bg-[#F47B20]/15 border border-[#800020]/20 dark:border-[#F47B20]/30 flex items-center justify-center text-xs font-black text-[#800020] dark:text-[#F47B20] shrink-0 font-mono tabular-nums">
+                <div className="w-9 h-9 rounded-xl bg-[#7045D8]/10 dark:bg-[#7045D8]/15 border border-[#7045D8]/20 dark:border-[#A78BFA]/30 flex items-center justify-center text-xs font-black text-[#7045D8] dark:text-[#A78BFA] shrink-0 font-mono tabular-nums">
                   {topicNum}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <h4 className="text-sm font-bold text-[#171923] dark:text-[#FFF9EF] group-hover:text-[#800020] dark:group-hover:text-[#F47B20] transition-colors truncate font-hindi">
+                  <h4 className="text-sm font-bold text-slate-900 dark:text-slate-50 group-hover:text-[#7045D8] dark:group-hover:text-[#7045D8] transition-colors truncate font-hindi">
                     {getTopicDisplayName(topic)}
                   </h4>
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mt-0.5 tabular-nums">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mt-0.5 tabular-nums">
                     {qCount} {qCount === 1 ? "Question" : "Questions"}
                   </p>
                 </div>
               </div>
 
-              <ChevronRight size={18} className="text-slate-400 group-hover:text-[#800020] dark:group-hover:text-[#F47B20] group-hover:translate-x-0.5 transition-all shrink-0" />
+              <ChevronRight size={18} className="text-slate-400 group-hover:text-[#7045D8] dark:group-hover:text-[#7045D8] group-hover:translate-x-0.5 transition-all shrink-0" />
             </div>
           );
         })}

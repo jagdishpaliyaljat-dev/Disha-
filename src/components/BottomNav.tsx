@@ -45,10 +45,10 @@ export const BottomNav: React.FC<BottomNavProps> = ({
     <nav
       id="bottom-navigation-bar"
       aria-label="Primary Navigation"
-      className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-[#171329]/95 backdrop-blur-xl border-t border-slate-200 dark:border-[#2D264E] shadow-[0_-2px_12px_rgba(23,19,41,0.06)] md:hidden"
+      className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-[#130E26]/95 backdrop-blur-xl border-t border-slate-200 dark:border-[#31275E] shadow-[0_-2px_12px_rgba(23,19,41,0.06)] md:hidden"
       style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
     >
-      <div className="max-w-3xl mx-auto w-full flex items-center justify-around px-2 sm:px-4 h-[56px] sm:h-[60px]">
+      <div className="max-w-3xl mx-auto w-full flex items-center justify-around px-2 sm:px-4 min-h-[58px]">
         {items.map((item) => {
           const isActive = activeTab === item.id;
           const Icon = item.icon;
@@ -58,13 +58,13 @@ export const BottomNav: React.FC<BottomNavProps> = ({
               type="button"
               onClick={() => handleTabClick(item.id)}
               aria-current={isActive ? "page" : undefined}
-              className="flex-1 min-h-[44px] flex flex-col items-center justify-center py-1 transition-all duration-150 select-none active:scale-95 cursor-pointer relative group"
+              className="flex-1 min-h-[48px] flex flex-col items-center justify-center py-1 transition-all duration-150 select-none active:scale-95 cursor-pointer relative group rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
             >
               <div
                 className={`flex items-center justify-center transition-all duration-200 px-3 py-1 rounded-xl ${
                   isActive
-                    ? "bg-[#7045D8]/10 dark:bg-[#7045D8]/25 text-[#7045D8] dark:text-[#A78BFA]"
-                    : "text-slate-500 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white"
+                    ? "bg-[#7045D8]/12 dark:bg-[#7045D8]/25 text-[#7045D8] dark:text-[#A78BFA]"
+                    : "text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white"
                 }`}
               >
                 <div className="relative">
@@ -78,10 +78,10 @@ export const BottomNav: React.FC<BottomNavProps> = ({
                 </div>
               </div>
               <span
-                className={`text-[11px] sm:text-[11.5px] mt-0.5 tracking-tight transition-colors duration-150 truncate max-w-full px-0.5 leading-none ${
+                className={`text-[11px] sm:text-xs mt-0.5 tracking-tight transition-colors duration-150 truncate max-w-full px-0.5 leading-none ${
                   isActive
                     ? "text-[#7045D8] dark:text-[#A78BFA] font-black"
-                    : "text-slate-500 dark:text-slate-400 font-semibold"
+                    : "text-slate-600 dark:text-slate-400 font-semibold"
                 }`}
               >
                 {item.label}

@@ -203,7 +203,7 @@ export const RichText: React.FC<RichTextProps> = ({
               ) : (
                 <div className="p-3 sm:p-4 border border-indigo-200/80 dark:border-indigo-900/60 rounded-2xl bg-indigo-50/40 dark:bg-indigo-950/20 flex flex-col gap-1.5 shadow-2xs">
                   <div className="flex items-center gap-2">
-                    <span className="px-2 py-0.5 rounded-md bg-indigo-600 text-white font-black text-[10px] uppercase">
+                    <span className="px-2 py-0.5 rounded-md bg-indigo-600 text-white font-black text-[11px] uppercase">
                       📐 Diagram
                     </span>
                   </div>

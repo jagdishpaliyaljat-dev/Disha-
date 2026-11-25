@@ -532,9 +532,9 @@ export const FullExamModal: React.FC<FullExamModalProps> = ({
         id="full-exam-modal-container"
         className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5 overflow-y-auto animate-in fade-in duration-200"
       >
-        <div className="w-full max-w-xl bg-white dark:bg-[#111A2E] rounded-[24px] border border-slate-200/80 dark:border-slate-800 shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+        <div className="w-full max-w-xl bg-white dark:bg-[#1B1536] rounded-[24px] border border-slate-200/80 dark:border-slate-800 shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
           {/* Header - Sleek */}
-          <div className="p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0 bg-white dark:bg-[#111A2E] sticky top-0 z-10">
+          <div className="p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0 bg-white dark:bg-[#1B1536] sticky top-0 z-10">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-2xl bg-blue-600 text-white flex items-center justify-center shadow-lg shadow-blue-500/20">
                 <Award className="w-5 h-5" />
@@ -543,7 +543,7 @@ export const FullExamModal: React.FC<FullExamModalProps> = ({
                 <h2 className="text-base font-black text-slate-900 dark:text-white leading-none">
                   Exam Center
                 </h2>
-                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">
+                <p className="text-[11px] text-slate-400 font-bold uppercase tracking-widest mt-1">
                   Full Length Mock Simulation
                 </p>
               </div>
@@ -566,7 +566,7 @@ export const FullExamModal: React.FC<FullExamModalProps> = ({
                 onClick={() => setIsCustomMode(false)}
                 className={`flex-1 py-2.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
                   !isCustomMode
-                    ? "bg-white dark:bg-[#111A2E] text-blue-600 dark:text-blue-400 shadow-md"
+                    ? "bg-white dark:bg-[#1B1536] text-blue-600 dark:text-blue-400 shadow-md"
                     : "text-slate-500 hover:text-slate-700 dark:text-slate-400"
                 }`}
               >
@@ -577,7 +577,7 @@ export const FullExamModal: React.FC<FullExamModalProps> = ({
                 onClick={() => setIsCustomMode(true)}
                 className={`flex-1 py-2.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
                   isCustomMode
-                    ? "bg-white dark:bg-[#111A2E] text-blue-600 dark:text-blue-400 shadow-md"
+                    ? "bg-white dark:bg-[#1B1536] text-blue-600 dark:text-blue-400 shadow-md"
                     : "text-slate-500 hover:text-slate-700 dark:text-slate-400"
                 }`}
               >
@@ -610,9 +610,9 @@ export const FullExamModal: React.FC<FullExamModalProps> = ({
                           {preset.hindiTitle}
                         </h3>
                         <div className="flex items-center gap-3 mt-1">
-                          <span className="text-[10px] font-black text-slate-400 uppercase">{preset.durationMinutes} Mins</span>
+                          <span className="text-[11px] font-black text-slate-400 uppercase">{preset.durationMinutes} Mins</span>
                           <span className="w-1 h-1 rounded-full bg-slate-300" />
-                          <span className="text-[10px] font-black text-rose-500 uppercase">-{preset.negativeMarking} Neg</span>
+                          <span className="text-[11px] font-black text-rose-500 uppercase">-{preset.negativeMarking} Neg</span>
                         </div>
                       </div>
                       {isSelected && (
@@ -628,7 +628,7 @@ export const FullExamModal: React.FC<FullExamModalProps> = ({
               /* 2. Custom Exam Controls - Simplified */
               <div className="space-y-5 bg-slate-50 dark:bg-slate-900/30 p-5 rounded-[28px] border border-slate-100 dark:border-slate-800">
                 <div>
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3 block">Question Count</label>
+                  <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-3 block">Question Count</label>
                   <div className="grid grid-cols-4 gap-2">
                     {[30, 50, 80, 100].map((cnt) => (
                       <button
@@ -645,7 +645,7 @@ export const FullExamModal: React.FC<FullExamModalProps> = ({
                 </div>
 
                 <div>
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3 block">Duration (Mins)</label>
+                  <label className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-3 block">Duration (Mins)</label>
                   <div className="grid grid-cols-4 gap-2">
                     {[30, 60, 90, 120].map((mins) => (
                       <button
@@ -665,7 +665,7 @@ export const FullExamModal: React.FC<FullExamModalProps> = ({
           </div>
 
           {/* Footer - Sticky */}
-          <div className="p-5 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-[#111A2E] flex flex-col gap-3">
+          <div className="p-5 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-[#1B1536] flex flex-col gap-3">
             <button
               id="btn-start-full-exam"
               onClick={handleStartExam}
@@ -674,7 +674,7 @@ export const FullExamModal: React.FC<FullExamModalProps> = ({
               <Play className="w-4 h-4 fill-current" />
               <span>START EXAMINATION</span>
             </button>
-            <p className="text-center text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+            <p className="text-center text-[11px] font-bold text-slate-400 uppercase tracking-tighter">
               By starting, you agree to follow the exam rules.
             </p>
           </div>
@@ -693,16 +693,17 @@ export const FullExamModal: React.FC<FullExamModalProps> = ({
     return (
       <div
         id="full-exam-active-viewport"
-        className="fixed inset-0 z-50 bg-[#F8FAFC] dark:bg-[#0B1220] flex flex-col w-full h-[100dvh] overflow-hidden select-none font-sans"
+        className="fixed inset-0 z-50 bg-[#F8FAFC] dark:bg-[#130E26] flex flex-col w-full h-[100dvh] overflow-hidden select-none font-sans"
       >
-        <header className="min-h-[3.5rem] sm:min-h-[4rem] pt-[env(safe-area-inset-top,0px)] px-3 sm:px-6 bg-white dark:bg-[#111A2E] border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-2 shrink-0 shadow-sm sticky top-0 z-30 py-2">
+        <header className="bg-white/95 dark:bg-[#130E26]/95 backdrop-blur-md border-b border-slate-200 dark:border-[#31275E] shrink-0 shadow-sm sticky top-0 z-30 pt-[env(safe-area-inset-top,0px)]">
+          <div className="min-h-[3.5rem] sm:min-h-[4rem] px-3 sm:px-6 py-2 flex items-center justify-between gap-2">
           {/* Left: Progress Info */}
           <div className="flex items-center gap-2 min-w-0">
-            <div className="hidden sm:flex w-9 h-9 rounded-xl bg-blue-600 text-white items-center justify-center shrink-0 font-bold text-xs shadow-xs">
+            <div className="hidden sm:flex w-9 h-9 rounded-xl bg-[#7045D8] text-white items-center justify-center shrink-0 font-bold text-xs shadow-xs">
               CBT
             </div>
             <div className="min-w-0">
-              <p className="text-[10px] sm:text-[11px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest leading-none mb-1">
+              <p className="text-[11px] font-black text-[#7045D8] dark:text-[#A78BFA] uppercase tracking-widest leading-none mb-1">
                 Question
               </p>
               <p className="text-xs sm:text-sm font-black text-slate-900 dark:text-white font-mono leading-none">
@@ -717,10 +718,10 @@ export const FullExamModal: React.FC<FullExamModalProps> = ({
               className={`px-3 sm:px-5 py-1.5 rounded-2xl border flex items-center gap-1.5 font-mono font-black text-sm sm:text-lg tracking-tighter shadow-xs transition-all duration-300 ${
                 isTimeUrgent
                   ? "bg-rose-50 dark:bg-rose-950/60 border-rose-300 dark:border-rose-800 text-rose-600 dark:text-rose-400 animate-pulse scale-105"
-                  : "bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100"
+                  : "bg-slate-100 dark:bg-[#241D48] border-slate-200 dark:border-[#31275E] text-slate-800 dark:text-slate-100"
               }`}
             >
-              <Clock className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isTimeUrgent ? "text-rose-600 animate-spin" : "text-amber-500"}`} />
+              <Clock className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isTimeUrgent ? "text-rose-600 dark:text-rose-400" : "text-amber-500"}`} />
               <span>{formatCountdown(remainingSeconds)}</span>
             </div>
           </div>
@@ -729,41 +730,45 @@ export const FullExamModal: React.FC<FullExamModalProps> = ({
           <div className="flex items-center gap-1.5 sm:gap-2">
             <button
               id="btn-toggle-omr-palette"
+              type="button"
               onClick={() => setShowPaletteDrawer(true)}
-              className="h-9 px-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200/50 dark:border-slate-700/50 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shrink-0 active:scale-95"
+              aria-label="Open Question Palette"
+              className="min-h-[44px] px-3 bg-slate-100 dark:bg-[#241D48] hover:bg-slate-200 dark:hover:bg-[#31275E] text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-[#31275E] rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shrink-0 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
             >
-              <Grid className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+              <Grid className="w-4 h-4 text-[#7045D8] dark:text-[#A78BFA]" />
               <span className="hidden sm:inline">OMR</span>
             </button>
 
             <button
               id="btn-submit-exam"
+              type="button"
               onClick={() => setShowSubmitConfirm(true)}
-              className="h-9 px-3 sm:px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black flex items-center gap-1 shadow-md shadow-emerald-500/20 active:scale-95 transition-all cursor-pointer shrink-0"
+              className="min-h-[44px] px-3.5 sm:px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black flex items-center gap-1 shadow-md shadow-emerald-500/20 active:scale-95 transition-all cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
             >
               <CheckCircle2 className="w-4 h-4" />
               <span className="hidden sm:inline">Finish</span>
               <span className="inline sm:hidden">End</span>
             </button>
           </div>
+          </div>
         </header>
 
         {/* Dynamic Progress Indicator */}
-        <div className="w-full h-1 bg-slate-100 dark:bg-slate-800/80 shrink-0">
+        <div className="w-full h-1 bg-slate-100 dark:bg-[#241D48] shrink-0">
           <div
-            className="h-full bg-blue-600 dark:bg-blue-500 transition-all duration-300 ease-out"
+            className="h-full bg-gradient-to-r from-[#7045D8] to-[#A78BFA] transition-all duration-300 ease-out"
             style={{ width: `${((currentIdx + 1) / activeQuestionIds.length) * 100}%` }}
           />
         </div>
 
         {/* SWIPEABLE QUESTION NAVIGATION BAR */}
-        <div className="w-full bg-white dark:bg-[#111A2E] border-b border-slate-200/80 dark:border-slate-800/80 py-2 px-3 shrink-0 z-20 shadow-2xs">
+        <div className="w-full bg-white dark:bg-[#1B1536] border-b border-slate-200/80 dark:border-[#31275E] py-2 px-3 shrink-0 z-20 shadow-2xs">
           <div className="flex items-center justify-between gap-2 mb-1 px-1">
-            <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 font-mono flex items-center gap-1">
+            <span className="text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 font-mono flex items-center gap-1">
               <span>OMR Navigation</span>
-              <span className="text-blue-600 dark:text-blue-400 font-bold">({currentIdx + 1}/{activeQuestionIds.length})</span>
+              <span className="text-[#7045D8] dark:text-[#A78BFA] font-bold">({currentIdx + 1}/{activeQuestionIds.length})</span>
             </span>
-            <div className="flex items-center gap-2 text-[9px] font-bold text-slate-400 font-mono">
+            <div className="flex items-center gap-2 text-[11px] font-bold text-slate-400 font-mono">
               <span className="flex items-center gap-1">
                 <span className="w-2 h-2 rounded-full bg-blue-600 inline-block" /> Active
               </span>
@@ -829,7 +834,7 @@ export const FullExamModal: React.FC<FullExamModalProps> = ({
                       {currentChapter?.title || "Syllabus Question"}
                     </span>
                     {qState?.isMarkedForReview && (
-                      <span className="text-[10px] font-extrabold bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400 border border-purple-200/50 dark:border-purple-800/50 px-2.5 py-1 rounded-xl flex items-center gap-1 animate-pulse">
+                      <span className="text-[11px] font-extrabold bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400 border border-purple-200/50 dark:border-purple-800/50 px-2.5 py-1 rounded-xl flex items-center gap-1 animate-pulse">
                         <Flag className="w-3.5 h-3.5 fill-current" />
                         <span>Marked for Review</span>
                       </span>
@@ -847,11 +852,11 @@ export const FullExamModal: React.FC<FullExamModalProps> = ({
                 </div>
 
                 {/* Question Statement Card - Compact Refinement */}
-                <div className="bg-white dark:bg-[#111A2E]/50 border border-slate-200/50 dark:border-slate-800/50 shadow-sm rounded-[24px] p-[0.96rem] sm:p-[1.34rem] relative overflow-hidden">
+                <div className="bg-white dark:bg-[#1B1536]/50 border border-slate-200/50 dark:border-slate-800/50 shadow-sm rounded-[24px] p-[0.96rem] sm:p-[1.34rem] relative overflow-hidden">
                   <div className="absolute top-0 left-0 w-1 h-full bg-blue-600" />
                   <div className="flex flex-col gap-3">
                     <div className="flex items-center gap-2">
-                      <span className="px-2.5 py-0.5 rounded-lg bg-blue-600 text-white font-mono font-black text-[10px] uppercase tracking-tighter">
+                      <span className="px-2.5 py-0.5 rounded-lg bg-blue-600 text-white font-mono font-black text-[11px] uppercase tracking-tighter">
                         Question {currentIdx + 1}
                       </span>
                     </div>
@@ -874,7 +879,7 @@ export const FullExamModal: React.FC<FullExamModalProps> = ({
                         className={`group w-full p-[0.77rem] sm:p-[0.96rem] rounded-[20px] border-2 text-left transition-all duration-200 flex items-center gap-3 select-none relative overflow-hidden active:scale-[0.98] ${
                           isSelected
                             ? "bg-blue-50 dark:bg-blue-900/20 border-blue-600 dark:border-blue-500 shadow-md shadow-blue-500/10"
-                            : "bg-white dark:bg-[#111A2E] border-slate-100 dark:border-slate-800 hover:border-blue-200 dark:hover:border-blue-800"
+                            : "bg-white dark:bg-[#1B1536] border-slate-100 dark:border-slate-800 hover:border-blue-200 dark:hover:border-blue-800"
                         }`}
                       >
                         <div
@@ -910,13 +915,13 @@ export const FullExamModal: React.FC<FullExamModalProps> = ({
             )}
 
             {/* Bottom Navigation - Fixed/Sticky on Mobile */}
-            <div className="sticky bottom-0 left-0 right-0 py-4 bg-[#F8FAFC]/95 dark:bg-[#0B1220]/95 backdrop-blur-sm border-t border-slate-200/50 dark:border-slate-800/50 mt-auto flex items-center justify-between gap-3 shrink-0 z-20">
+            <div className="sticky bottom-0 left-0 right-0 py-4 bg-[#F8FAFC]/95 dark:bg-[#130E26]/95 backdrop-blur-sm border-t border-slate-200/50 dark:border-slate-800/50 mt-auto flex items-center justify-between gap-3 shrink-0 z-20">
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={handlePrevious}
                   disabled={currentIdx === 0}
-                  className="h-12 w-12 sm:w-auto sm:px-5 bg-white dark:bg-[#111A2E] border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 rounded-2xl disabled:opacity-30 flex items-center justify-center gap-2 font-black transition-all active:scale-95 disabled:cursor-not-allowed shadow-sm"
+                  className="h-12 w-12 sm:w-auto sm:px-5 bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 rounded-2xl disabled:opacity-30 flex items-center justify-center gap-2 font-black transition-all active:scale-95 disabled:cursor-not-allowed shadow-sm"
                 >
                   <ArrowLeft className="w-5 h-5" />
                   <span className="hidden sm:inline text-xs">Prev</span>
@@ -928,7 +933,7 @@ export const FullExamModal: React.FC<FullExamModalProps> = ({
                   className={`h-12 w-12 sm:w-auto sm:px-5 rounded-2xl flex items-center justify-center gap-2 border-2 transition-all active:scale-95 shadow-sm ${
                     qState?.isMarkedForReview
                       ? "bg-purple-600 border-purple-600 text-white"
-                      : "bg-white dark:bg-[#111A2E] border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400"
+                      : "bg-white dark:bg-[#1B1536] border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400"
                   }`}
                 >
                   <Flag className={`w-5 h-5 ${qState?.isMarkedForReview ? "fill-current" : ""}`} />
@@ -939,7 +944,7 @@ export const FullExamModal: React.FC<FullExamModalProps> = ({
                   type="button"
                   onClick={handleClearSelection}
                   disabled={qState?.selectedIndex === null}
-                  className="h-12 w-12 sm:w-auto sm:px-5 bg-white dark:bg-[#111A2E] border border-slate-200 dark:border-slate-800 text-rose-500 rounded-2xl disabled:opacity-30 flex items-center justify-center gap-2 transition-all active:scale-95 shadow-sm"
+                  className="h-12 w-12 sm:w-auto sm:px-5 bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-slate-800 text-rose-500 rounded-2xl disabled:opacity-30 flex items-center justify-center gap-2 transition-all active:scale-95 shadow-sm"
                 >
                   <RotateCcw className="w-5 h-5" />
                   <span className="hidden sm:inline text-xs font-black">Clear</span>
@@ -961,7 +966,7 @@ export const FullExamModal: React.FC<FullExamModalProps> = ({
         {/* ── QUESTION PALETTE SLIDE-OVER DRAWER (OMR SHEET) ── */}
         {showPaletteDrawer && (
           <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-2xs flex justify-end animate-in fade-in duration-150">
-            <div className="w-full max-w-sm sm:max-w-md bg-white dark:bg-[#111A2E] h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-200 border-l border-slate-200 dark:border-slate-800">
+            <div className="w-full max-w-sm sm:max-w-md bg-white dark:bg-[#1B1536] h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-200 border-l border-slate-200 dark:border-slate-800">
               {/* Drawer Header */}
               <div className="p-4 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -1054,7 +1059,7 @@ export const FullExamModal: React.FC<FullExamModalProps> = ({
         {/* ── SUBMISSION CONFIRMATION MODAL ── */}
         {showSubmitConfirm && (
           <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-2xs flex items-center justify-center p-4 animate-in fade-in duration-150">
-            <div className="w-full max-w-md bg-white dark:bg-[#111A2E] rounded-3xl p-5 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4">
+            <div className="w-full max-w-md bg-white dark:bg-[#1B1536] rounded-3xl p-5 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-2xl bg-amber-100 dark:bg-amber-950/60 text-amber-600 flex items-center justify-center">
                   <ShieldAlert className="w-5 h-5" />
@@ -1119,7 +1124,7 @@ export const FullExamModal: React.FC<FullExamModalProps> = ({
         {/* ── TIME UP AUTO-SUBMIT ALERT ── */}
         {showTimeUpAlert && (
           <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
-            <div className="w-full max-w-sm bg-white dark:bg-[#111A2E] rounded-3xl p-6 text-center space-y-3 shadow-2xl">
+            <div className="w-full max-w-sm bg-white dark:bg-[#1B1536] rounded-3xl p-6 text-center space-y-3 shadow-2xl">
               <div className="w-14 h-14 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto animate-bounce">
                 <Clock className="w-8 h-8" />
               </div>
@@ -1188,7 +1193,7 @@ export const FullExamModal: React.FC<FullExamModalProps> = ({
       exit={{ opacity: 0, scale: 0.96, y: -20, filter: "blur(8px)" }}
       transition={{ duration: 0.48, ease: [0.16, 1, 0.3, 1] }}
       id="full-exam-result-viewport"
-      className="fixed inset-0 z-50 bg-[#F8FAFC] dark:bg-[#0B1220] flex flex-col w-full h-[100dvh] overflow-y-auto"
+      className="fixed inset-0 z-50 bg-[#F8FAFC] dark:bg-[#130E26] flex flex-col w-full h-[100dvh] overflow-y-auto"
     >
       {/* Framer-Motion Confetti Animation for 100% Accuracy Perfect Score */}
       {showPerfectCelebration && (
@@ -1203,28 +1208,32 @@ export const FullExamModal: React.FC<FullExamModalProps> = ({
         />
       )}
 
-      <header className="min-h-[3.5rem] sm:min-h-[4rem] pt-[env(safe-area-inset-top,0px)] px-4 sm:px-6 bg-white dark:bg-[#111A2E] border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between gap-3 shrink-0 sticky top-0 z-20 shadow-xs py-2">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-xs">
+      <header className="bg-white/95 dark:bg-[#130E26]/95 backdrop-blur-md border-b border-slate-200 dark:border-[#31275E] shrink-0 sticky top-0 z-20 shadow-xs pt-[env(safe-area-inset-top,0px)]">
+        <div className="min-h-[3.5rem] sm:min-h-[4rem] px-4 sm:px-6 py-2 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5">
+          <div className="w-9 h-9 rounded-xl bg-[#7045D8] text-white flex items-center justify-center font-bold text-xs shadow-xs">
             <Award className="w-4 h-4" />
           </div>
           <div>
             <h2 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white">
               Mock Test Scorecard
             </h2>
-            <p className="text-[11px] text-slate-500">
-              {totalQuestions} Questions • Real Negative Marking Analysis
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+              {totalQuestions} Questions · Real Negative Marking Analysis
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
           <button
+            type="button"
             onClick={onClose}
-            className="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 flex items-center justify-center cursor-pointer"
+            aria-label="Close scorecard"
+            className="w-11 h-11 rounded-full bg-slate-100 dark:bg-[#241D48] text-slate-500 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white flex items-center justify-center cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
           >
             <X className="w-5 h-5" />
           </button>
+        </div>
         </div>
       </header>
 
@@ -1235,38 +1244,38 @@ export const FullExamModal: React.FC<FullExamModalProps> = ({
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-[#800020]/15 via-[#F47B20]/20 to-[#800020]/15 border border-[#F47B20]/40 text-[#171923] dark:text-[#FFF9EF] flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs"
+            className="p-3.5 sm:p-4 rounded-2xl bg-[#7045D8]/10 dark:bg-[#7045D8]/20 border border-[#7045D8]/25 dark:border-[#A78BFA]/30 text-slate-900 dark:text-slate-50 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs"
           >
             <div className="flex items-center gap-3 min-w-0 w-full sm:w-auto">
-              <div className="w-10 h-10 rounded-xl bg-[#800020] text-amber-300 flex items-center justify-center shrink-0 shadow-sm">
+              <div className="w-10 h-10 rounded-xl bg-[#7045D8] text-white flex items-center justify-center shrink-0 shadow-sm">
                 <Sparkles className="w-5 h-5" />
               </div>
               <div className="min-w-0 text-left">
-                <h4 className="text-xs sm:text-sm font-black text-[#171923] dark:text-[#FFF9EF]">
-                  अतिथि मोड: अपना स्कोर व रैंक सुरक्षित करें!
+                <h4 className="text-xs sm:text-sm font-black text-slate-900 dark:text-slate-50">
+                  Guest Mode: Save Your Score &amp; Rank
                 </h4>
-                <p className="text-[11px] text-[#52576A] dark:text-[#CBD2E1] mt-0.5">
-                  लॉगिन करने पर आपके अंक All-Rajasthan रैंक और मिस्टेक बैंक में हमेशा सुरक्षित रहेंगे।
+                <p className="text-[11px] text-slate-600 dark:text-slate-300 mt-0.5">
+                  Sign in to sync your marks to the All-Rajasthan leaderboard and save wrong questions to your Mistake Bank.
                 </p>
               </div>
             </div>
             <button
               type="button"
               onClick={() => onOpenLogin?.()}
-              className="w-full sm:w-auto px-4 py-2 rounded-xl bg-[#800020] hover:bg-[#600018] text-white text-xs font-black shrink-0 flex items-center justify-center gap-1.5 cursor-pointer shadow-sm active:scale-95 transition-transform"
+              className="w-full sm:w-auto min-h-[44px] px-4 py-2 rounded-xl bg-[#7045D8] hover:bg-[#5B32BF] text-white text-xs font-black shrink-0 flex items-center justify-center gap-1.5 cursor-pointer shadow-sm active:scale-95 transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
             >
               <LogIn className="w-3.5 h-3.5" />
-              <span>लॉगिन करें</span>
+              <span>Sign In</span>
             </button>
           </motion.div>
         )}
 
         {/* Top Hero Score Card - Optimized */}
-        <div className="relative overflow-hidden rounded-[32px] bg-slate-900 text-white p-6 sm:p-8 shadow-2xl border border-white/10">
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-900/40 via-transparent to-purple-900/40" />
+        <div className="relative overflow-hidden rounded-[32px] bg-[#130E26] text-white p-6 sm:p-8 shadow-2xl border border-[#31275E]">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#7045D8]/35 via-transparent to-[#A78BFA]/20" />
           <div className="relative z-10 flex flex-col items-center text-center gap-6">
             <div className="space-y-1">
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] bg-blue-600 text-white px-3 py-1.5 rounded-full shadow-lg">
+              <span className="text-[11px] font-black uppercase tracking-[0.2em] bg-[#7045D8] text-white px-3 py-1.5 rounded-full shadow-lg">
                 Scorecard
               </span>
               <h1 className="text-5xl sm:text-6xl font-black font-mono tracking-tighter mt-4 text-white">
@@ -1281,17 +1290,17 @@ export const FullExamModal: React.FC<FullExamModalProps> = ({
             <div className="grid grid-cols-3 gap-6 w-full max-w-sm pt-4 border-t border-white/10">
               <div className="space-y-1">
                 <p className="text-xl font-black font-mono text-emerald-400">{percentage}%</p>
-                <p className="text-[10px] font-black text-slate-500 uppercase tracking-tighter">Score</p>
+                <p className="text-[11px] font-black text-slate-500 uppercase tracking-tighter">Score</p>
               </div>
               <div className="space-y-1">
                 <p className="text-xl font-black font-mono text-blue-400">{accuracy}%</p>
-                <p className="text-[10px] font-black text-slate-500 uppercase tracking-tighter">Accuracy</p>
+                <p className="text-[11px] font-black text-slate-500 uppercase tracking-tighter">Accuracy</p>
               </div>
               <div className="space-y-1">
                 <p className="text-xl font-black font-mono text-amber-400">
                   {Math.floor(totalSecondsSpent / 60)}m
                 </p>
-                <p className="text-[10px] font-black text-slate-500 uppercase tracking-tighter">Time</p>
+                <p className="text-[11px] font-black text-slate-500 uppercase tracking-tighter">Time</p>
               </div>
             </div>
           </div>
@@ -1314,7 +1323,7 @@ export const FullExamModal: React.FC<FullExamModalProps> = ({
                   <span className="text-xs font-black uppercase tracking-wider text-amber-700 dark:text-amber-300 font-mono">
                     100% Accuracy • Perfect Exam Score!
                   </span>
-                  <span className="px-2 py-0.5 rounded-full bg-amber-400/30 text-[9px] font-black text-amber-900 dark:text-amber-200 uppercase">
+                  <span className="px-2 py-0.5 rounded-full bg-amber-400/30 text-[11px] font-black text-amber-900 dark:text-amber-200 uppercase">
                     Flawless
                   </span>
                 </div>
@@ -1336,7 +1345,7 @@ export const FullExamModal: React.FC<FullExamModalProps> = ({
 
         {/* 4 Score Metrics Bento Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div className="p-3.5 rounded-2xl bg-white dark:bg-[#111A2E] border border-slate-200/60 dark:border-slate-800 shadow-xs flex flex-col justify-between">
+          <div className="p-3.5 rounded-2xl bg-white dark:bg-[#1B1536] border border-slate-200/60 dark:border-slate-800 shadow-xs flex flex-col justify-between">
             <div className="flex items-center justify-between gap-1">
               <span className="text-xs font-bold text-slate-500 truncate">Correct Answers</span>
               <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
@@ -1345,13 +1354,13 @@ export const FullExamModal: React.FC<FullExamModalProps> = ({
               <div className="text-xl sm:text-2xl font-black font-mono text-emerald-600 dark:text-emerald-400">
                 +{correctCount}
               </div>
-              <span className="text-[10px] text-slate-400 font-bold block mt-0.5">
+              <span className="text-[11px] text-slate-400 font-bold block mt-0.5">
                 +{marksGained} Marks
               </span>
             </div>
           </div>
 
-          <div className="p-3.5 rounded-2xl bg-white dark:bg-[#111A2E] border border-slate-200/60 dark:border-slate-800 shadow-xs flex flex-col justify-between">
+          <div className="p-3.5 rounded-2xl bg-white dark:bg-[#1B1536] border border-slate-200/60 dark:border-slate-800 shadow-xs flex flex-col justify-between">
             <div className="flex items-center justify-between gap-1">
               <span className="text-xs font-bold text-slate-500 truncate">Incorrect</span>
               <XCircle className="w-4 h-4 text-rose-500 shrink-0" />
@@ -1360,13 +1369,13 @@ export const FullExamModal: React.FC<FullExamModalProps> = ({
               <div className="text-xl sm:text-2xl font-black font-mono text-rose-600 dark:text-rose-400">
                 -{wrongCount}
               </div>
-              <span className="text-[10px] text-rose-500 font-bold block mt-0.5">
+              <span className="text-[11px] text-rose-500 font-bold block mt-0.5">
                 -{marksDeducted.toFixed(2)} Marks
               </span>
             </div>
           </div>
 
-          <div className="p-3.5 rounded-2xl bg-white dark:bg-[#111A2E] border border-slate-200/60 dark:border-slate-800 shadow-xs flex flex-col justify-between">
+          <div className="p-3.5 rounded-2xl bg-white dark:bg-[#1B1536] border border-slate-200/60 dark:border-slate-800 shadow-xs flex flex-col justify-between">
             <div className="flex items-center justify-between gap-1">
               <span className="text-xs font-bold text-slate-500 truncate">Skipped</span>
               <HelpCircle className="w-4 h-4 text-amber-500 shrink-0" />
@@ -1375,13 +1384,13 @@ export const FullExamModal: React.FC<FullExamModalProps> = ({
               <div className="text-xl sm:text-2xl font-black font-mono text-amber-600 dark:text-amber-400">
                 {skippedCount}
               </div>
-              <span className="text-[10px] text-slate-400 font-bold block mt-0.5">
+              <span className="text-[11px] text-slate-400 font-bold block mt-0.5">
                 0 Penalty
               </span>
             </div>
           </div>
 
-          <div className="p-3.5 rounded-2xl bg-white dark:bg-[#111A2E] border border-slate-200/60 dark:border-slate-800 shadow-xs flex flex-col justify-between">
+          <div className="p-3.5 rounded-2xl bg-white dark:bg-[#1B1536] border border-slate-200/60 dark:border-slate-800 shadow-xs flex flex-col justify-between">
             <div className="flex items-center justify-between gap-1">
               <span className="text-xs font-bold text-slate-500 truncate">Total Questions</span>
               <Award className="w-4 h-4 text-blue-500 shrink-0" />
@@ -1390,7 +1399,7 @@ export const FullExamModal: React.FC<FullExamModalProps> = ({
               <div className="text-xl sm:text-2xl font-black font-mono text-slate-800 dark:text-slate-200">
                 {totalQuestions}
               </div>
-              <span className="text-[10px] text-slate-400 font-bold block mt-0.5">
+              <span className="text-[11px] text-slate-400 font-bold block mt-0.5">
                 100% Target
               </span>
             </div>
@@ -1399,7 +1408,7 @@ export const FullExamModal: React.FC<FullExamModalProps> = ({
 
         {/* Chapter-wise Breakdown */}
         {Object.keys(breakdownByChapter).length > 1 && (
-          <div className="bg-white dark:bg-[#111A2E] border border-slate-200 dark:border-slate-800 rounded-2xl p-4 space-y-3">
+          <div className="bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-slate-800 rounded-2xl p-4 space-y-3">
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
               Subject-wise Analysis
             </h3>
@@ -1502,15 +1511,15 @@ export const FullExamModal: React.FC<FullExamModalProps> = ({
                         Q.{activeQuestionIds.indexOf(qId) + 1}
                       </span>
                       {!isAnswered ? (
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-700 dark:bg-amber-900/60 dark:text-amber-300">
+                        <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-700 dark:bg-amber-900/60 dark:text-amber-300">
                           Not Attempted
                         </span>
                       ) : isCorrect ? (
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-700 dark:bg-emerald-900/60 dark:text-emerald-300 flex items-center gap-1">
+                        <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-700 dark:bg-emerald-900/60 dark:text-emerald-300 flex items-center gap-1">
                           <CheckCircle2 className="w-3 h-3" /> Correct (+1.0)
                         </span>
                       ) : (
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-100 text-rose-700 dark:bg-rose-900/60 dark:text-rose-300 flex items-center gap-1">
+                        <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-rose-100 text-rose-700 dark:bg-rose-900/60 dark:text-rose-300 flex items-center gap-1">
                           <XCircle className="w-3 h-3" /> Incorrect (-{negativeMarkValue})
                         </span>
                       )}

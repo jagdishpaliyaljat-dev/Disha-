@@ -364,7 +364,7 @@ export const RawHtmlArticleViewer: React.FC<RawHtmlArticleViewerProps> = ({
           max-width: 100%;
         }
         .blogger-raw-html-content a {
-          color: #800020;
+          color: #7045D8;
           text-decoration: underline;
           text-underline-offset: 3px;
           font-weight: 600;
@@ -611,7 +611,7 @@ export const RawHtmlArticleViewer: React.FC<RawHtmlArticleViewerProps> = ({
           height: 42px;
           border-radius: 12px;
           background: rgba(128, 0, 32, 0.08);
-          color: #800020;
+          color: #7045D8;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -632,7 +632,7 @@ export const RawHtmlArticleViewer: React.FC<RawHtmlArticleViewerProps> = ({
           align-items: center;
           justify-content: center;
           gap: 6px;
-          background: #800020;
+          background: #7045D8;
           color: #ffffff !important;
           font-weight: 600;
           font-size: 12.5px;
@@ -667,7 +667,7 @@ export const RawHtmlArticleViewer: React.FC<RawHtmlArticleViewerProps> = ({
           padding: 3px 10px;
           border-radius: 999px;
           background: rgba(128, 0, 32, 0.08);
-          color: #800020;
+          color: #7045D8;
           font-size: 11px;
           font-weight: 800;
           margin-bottom: 10px;

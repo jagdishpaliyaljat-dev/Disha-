@@ -276,25 +276,25 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-[120] flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
-      <div className="fixed inset-0 bg-[#171923]/80 backdrop-blur-sm" onClick={onClose} />
+      <div className="fixed inset-0 bg-[#130E26]/80 backdrop-blur-sm" onClick={onClose} />
       
-      <div className="relative w-full max-w-xl bg-[#FFF9EF] dark:bg-[#171923] rounded-t-[32px] sm:rounded-[32px] shadow-2xl border border-[#E8D9C0] dark:border-[#31374A] overflow-hidden flex flex-col max-h-[92vh] animate-in slide-in-from-bottom duration-300">
-        <div className="h-1 w-full bg-gradient-to-r from-[#800020] via-[#F47B20] to-[#C99A45] shrink-0" />
+      <div className="relative w-full max-w-xl bg-[#F8FAFC] dark:bg-[#130E26] rounded-t-[32px] sm:rounded-[32px] shadow-2xl border border-slate-200 dark:border-[#31275E] overflow-hidden flex flex-col max-h-[92vh] animate-in slide-in-from-bottom duration-300">
+        <div className="h-1 w-full bg-gradient-to-r from-[#7045D8] via-[#7045D8] to-[#A78BFA] shrink-0" />
 
         {/* Header */}
-        <header className="px-6 pt-5 pb-4 bg-white dark:bg-[#1F2330] flex items-center justify-between border-b border-[#E8D9C0] dark:border-[#31374A]">
+        <header className="px-6 pt-5 pb-4 bg-white dark:bg-[#1B1536] flex items-center justify-between border-b border-slate-200 dark:border-[#31275E]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#800020] dark:bg-[#F47B20] text-white flex items-center justify-center shadow-sm">
+            <div className="w-10 h-10 rounded-2xl bg-[#7045D8] dark:bg-[#7045D8] text-white flex items-center justify-center shadow-sm">
               <Key size={18} />
             </div>
             <div>
-              <h3 className="text-base font-black text-[#171923] dark:text-[#FFF9EF] flex items-center gap-2">
+              <h3 className="text-base font-black text-slate-900 dark:text-slate-50 flex items-center gap-2">
                 <span>Study Assistant Setup</span>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-[#F7EFE2] dark:bg-[#252A3A] text-[#800020] dark:text-[#F47B20] border border-[#E8D9C0] dark:border-[#31374A]">
+                <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-[#241D48] text-[#7045D8] dark:text-[#A78BFA] border border-slate-200 dark:border-[#31275E]">
                   Disha PYQ
                 </span>
               </h3>
-              <p className="text-[11px] font-medium text-[#52576A] dark:text-[#CBD2E1]">
+              <p className="text-[11px] font-medium text-slate-600 dark:text-slate-300">
                 Choose between Disha PYQ Platform Engine or your personal keys
               </p>
             </div>
@@ -302,7 +302,7 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
           <button 
             onClick={onClose}
             aria-label="Close"
-            className="w-9 h-9 rounded-full bg-[#F7EFE2] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center text-[#52576A] dark:text-[#CBD2E1] hover:text-[#800020] dark:hover:text-[#F47B20] transition-colors cursor-pointer"
+            className="w-9 h-9 rounded-full bg-slate-100 dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-[#7045D8] dark:hover:text-[#A78BFA] transition-colors cursor-pointer"
           >
             <X size={18} />
           </button>
@@ -321,7 +321,7 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
 
           {/* Two-Way Mode Selector: Platform Default vs Personal Keys */}
           <div className="space-y-2">
-            <label className="text-[11px] font-black uppercase tracking-wider text-[#800020] dark:text-[#F47B20]">
+            <label className="text-[11px] font-black uppercase tracking-wider text-[#7045D8] dark:text-[#A78BFA]">
               Select Engine Source
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -332,27 +332,27 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
                 onClick={() => handleModeChange("platform_default")}
                 className={`p-4 rounded-2xl border text-left transition-all relative cursor-pointer ${
                   aiMode === "platform_default"
-                    ? "bg-white dark:bg-[#1F2330] border-[#800020] dark:border-[#F47B20] shadow-xs ring-2 ring-[#800020]/15 dark:ring-[#F47B20]/20"
-                    : "bg-white/70 dark:bg-[#1F2330]/60 border-[#E8D9C0] dark:border-[#31374A] hover:border-[#800020]/50"
+                    ? "bg-white dark:bg-[#1B1536] border-[#7045D8] dark:border-[#A78BFA] shadow-xs ring-2 ring-[#7045D8]/15 dark:ring-[#A78BFA]/20"
+                    : "bg-white/70 dark:bg-[#1B1536]/60 border-slate-200 dark:border-[#31275E] hover:border-[#7045D8]/50"
                 }`}
               >
                 <div className="flex items-center justify-between mb-2">
-                  <div className="w-8 h-8 rounded-xl bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-xl bg-[#7045D8]/10 dark:bg-[#7045D8]/15 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center">
                     <ShieldCheck size={18} />
                   </div>
                   {aiMode === "platform_default" && (
-                    <span className="w-5 h-5 rounded-full bg-[#800020] dark:bg-[#F47B20] text-white flex items-center justify-center text-[10px]">
+                    <span className="w-5 h-5 rounded-full bg-[#7045D8] dark:bg-[#7045D8] text-white flex items-center justify-center text-[11px]">
                       <Check size={12} />
                     </span>
                   )}
                 </div>
-                <h4 className="text-xs font-black text-[#171923] dark:text-[#FFF9EF]">
+                <h4 className="text-xs font-black text-slate-900 dark:text-slate-50">
                   Disha PYQ Platform Engine
                 </h4>
-                <p className="text-[10px] text-[#52576A] dark:text-[#CBD2E1] mt-1 leading-snug">
+                <p className="text-[11px] text-slate-600 dark:text-slate-300 mt-1 leading-snug">
                   Zero setup required. Powered by the high-speed shared key managed by Admin.
                 </p>
-                <span className="inline-block mt-2 text-[9px] font-extrabold px-2 py-0.5 rounded-md bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20]">
+                <span className="inline-block mt-2 text-[11px] font-extrabold px-2 py-0.5 rounded-md bg-[#7045D8]/10 dark:bg-[#7045D8]/15 text-[#7045D8] dark:text-[#A78BFA]">
                   Recommended for Aspirants
                 </span>
               </button>
@@ -363,27 +363,27 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
                 onClick={() => handleModeChange("personal_keys")}
                 className={`p-4 rounded-2xl border text-left transition-all relative cursor-pointer ${
                   aiMode === "personal_keys"
-                    ? "bg-white dark:bg-[#1F2330] border-[#F47B20] shadow-xs ring-2 ring-[#F47B20]/20"
-                    : "bg-white/70 dark:bg-[#1F2330]/60 border-[#E8D9C0] dark:border-[#31374A] hover:border-[#F47B20]/50"
+                    ? "bg-white dark:bg-[#1B1536] border-[#7045D8] shadow-xs ring-2 ring-[#7045D8]/20"
+                    : "bg-white/70 dark:bg-[#1B1536]/60 border-slate-200 dark:border-[#31275E] hover:border-[#7045D8]/50"
                 }`}
               >
                 <div className="flex items-center justify-between mb-2">
-                  <div className="w-8 h-8 rounded-xl bg-[#F47B20]/15 text-[#F47B20] flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-xl bg-[#7045D8]/15 text-[#7045D8] flex items-center justify-center">
                     <Layers size={18} />
                   </div>
                   {aiMode === "personal_keys" && (
-                    <span className="w-5 h-5 rounded-full bg-[#F47B20] text-white flex items-center justify-center text-[10px]">
+                    <span className="w-5 h-5 rounded-full bg-[#7045D8] text-white flex items-center justify-center text-[11px]">
                       <Check size={12} />
                     </span>
                   )}
                 </div>
-                <h4 className="text-xs font-black text-[#171923] dark:text-[#FFF9EF]">
+                <h4 className="text-xs font-black text-slate-900 dark:text-slate-50">
                   My Personal Keys
                 </h4>
-                <p className="text-[10px] text-[#52576A] dark:text-[#CBD2E1] mt-1 leading-snug">
+                <p className="text-[11px] text-slate-600 dark:text-slate-300 mt-1 leading-snug">
                   Upload multiple keys (Gemini, Groq, OpenAI). Stored strictly on your device.
                 </p>
-                <span className="inline-block mt-2 text-[9px] font-extrabold px-2 py-0.5 rounded-md bg-[#F47B20]/15 text-[#F47B20] font-mono tabular-nums">
+                <span className="inline-block mt-2 text-[11px] font-extrabold px-2 py-0.5 rounded-md bg-[#7045D8]/15 text-[#7045D8] font-mono tabular-nums">
                   {personalKeys.length} Personal Key{personalKeys.length === 1 ? "" : "s"}
                 </span>
               </button>
@@ -392,22 +392,22 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
 
           {/* Section A: Platform Default Details */}
           {aiMode === "platform_default" && (
-            <div className="p-4 rounded-2xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] space-y-2.5 animate-in fade-in">
+            <div className="p-4 rounded-2xl bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] space-y-2.5 animate-in fade-in">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-[#171923] dark:text-[#FFF9EF] flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-[#800020] dark:text-[#F47B20]" />
+                <span className="text-xs font-bold text-slate-900 dark:text-slate-50 flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-[#7045D8] dark:text-[#A78BFA]" />
                   <span>Disha PYQ Status: Active</span>
                 </span>
-                <span className="text-[10px] font-extrabold text-[#15803D] dark:text-emerald-400 flex items-center gap-1.5">
+                <span className="text-[11px] font-extrabold text-[#15803D] dark:text-emerald-400 flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-[#15803D] dark:bg-emerald-400" />
                   <span>Ready for MCQs</span>
                 </span>
               </div>
-              <p className="text-[11px] text-[#52576A] dark:text-[#CBD2E1] leading-relaxed">
+              <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed">
                 You are currently using the default study engine provided by Disha PYQ Admin. MCQ explanations, hints, and smart practice run seamlessly without needing any personal API key.
               </p>
-              <div className="flex items-center gap-1.5 text-[10px] text-[#787D91] dark:text-[#929AB0] border-t border-[#E8D9C0]/70 dark:border-[#31374A] pt-2">
-                <Lock className="w-3 h-3 text-[#800020] dark:text-[#F47B20] shrink-0" />
+              <div className="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400 border-t border-slate-200/70 dark:border-[#31275E] pt-2">
+                <Lock className="w-3 h-3 text-[#7045D8] dark:text-[#A78BFA] shrink-0" />
                 <span>Admin server keys are managed centrally and are never exposed to client browsers.</span>
               </div>
             </div>
@@ -420,10 +420,10 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
               {/* Header with Add Button */}
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="text-xs font-black text-[#171923] dark:text-[#FFF9EF] uppercase tracking-wider">
+                  <h4 className="text-xs font-black text-slate-900 dark:text-slate-50 uppercase tracking-wider">
                     Your Personal API Keys ({personalKeys.length})
                   </h4>
-                  <p className="text-[10px] text-[#52576A] dark:text-[#CBD2E1]">
+                  <p className="text-[11px] text-slate-600 dark:text-slate-300">
                     Switch between keys or add multiple keys for high throughput
                   </p>
                 </div>
@@ -435,7 +435,7 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
                       setNewProvider("gemini");
                       setNewModel(PROVIDER_META.gemini.defaultModel);
                     }}
-                    className="px-3 py-1.5 bg-[#800020] hover:bg-[#5E0017] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] text-white rounded-xl text-xs font-black flex items-center gap-1.5 shadow-xs transition-all active:scale-95 cursor-pointer"
+                    className="px-3 py-1.5 bg-[#7045D8] hover:bg-[#5B32BF] dark:bg-[#7045D8] dark:hover:bg-[#5B32BF] text-white rounded-xl text-xs font-black flex items-center gap-1.5 shadow-xs transition-all active:scale-95 cursor-pointer"
                   >
                     <Plus size={14} />
                     <span>Add Key</span>
@@ -445,15 +445,15 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
 
               {/* Add Key Inline Form */}
               {showAddForm && (
-                <form onSubmit={handleAddKeySubmit} className="p-4 rounded-2xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] space-y-3 animate-in fade-in">
-                  <div className="flex items-center justify-between pb-1 border-b border-[#E8D9C0] dark:border-[#31374A]">
-                    <span className="text-xs font-black text-[#171923] dark:text-[#FFF9EF]">
+                <form onSubmit={handleAddKeySubmit} className="p-4 rounded-2xl bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] space-y-3 animate-in fade-in">
+                  <div className="flex items-center justify-between pb-1 border-b border-slate-200 dark:border-[#31275E]">
+                    <span className="text-xs font-black text-slate-900 dark:text-slate-50">
                       Add New Personal API Key
                     </span>
                     <button
                       type="button"
                       onClick={() => setShowAddForm(false)}
-                      className="text-[#52576A] dark:text-[#CBD2E1] hover:text-[#800020] text-xs font-bold cursor-pointer"
+                      className="text-slate-600 dark:text-slate-300 hover:text-[#7045D8] text-xs font-bold cursor-pointer"
                     >
                       Cancel
                     </button>
@@ -461,7 +461,7 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
 
                   {/* Provider Selector Tabs */}
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-[#52576A] dark:text-[#CBD2E1] uppercase">Provider</label>
+                    <label className="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase">Provider</label>
                     <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5">
                       {(["gemini", "groq", "openai", "claude", "openrouter"] as AIProvider[]).map((prov) => {
                         const isSel = newProvider === prov;
@@ -477,12 +477,12 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
                             }}
                             className={`p-2 rounded-xl border text-center transition-all cursor-pointer ${
                               isSel 
-                                ? "bg-[#FFF9EF] dark:bg-[#171923] border-[#800020] dark:border-[#F47B20] text-[#800020] dark:text-[#F47B20] shadow-xs font-black"
-                                : "bg-[#F7EFE2] dark:bg-[#252A3A] border-transparent text-[#52576A] dark:text-[#CBD2E1] hover:text-[#171923] dark:hover:text-white"
+                                ? "bg-[#F8FAFC] dark:bg-[#130E26] border-[#7045D8] dark:border-[#A78BFA] text-[#7045D8] dark:text-[#A78BFA] shadow-xs font-black"
+                                : "bg-slate-100 dark:bg-[#241D48] border-transparent text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
                             }`}
                           >
                             <Icon className="w-3.5 h-3.5 mx-auto mb-0.5" />
-                            <span className="text-[10px] block capitalize">{prov}</span>
+                            <span className="text-[11px] block capitalize">{prov}</span>
                           </button>
                         );
                       })}
@@ -491,27 +491,27 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
 
                   {/* Key Label Name */}
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-[#52576A] dark:text-[#CBD2E1] uppercase">Key Label</label>
+                    <label className="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase">Key Label</label>
                     <input
                       type="text"
                       placeholder={`e.g. My Personal ${PROVIDER_META[newProvider].name}`}
                       value={newName}
                       onChange={e => setNewName(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] text-xs text-[#171923] dark:text-[#FFF9EF] font-medium focus:outline-none focus:ring-2 focus:ring-[#800020]/20 dark:focus:ring-[#F47B20]/20"
+                      className="w-full px-3 py-2 rounded-xl bg-[#F8FAFC] dark:bg-[#130E26] border border-slate-200 dark:border-[#31275E] text-xs text-slate-900 dark:text-slate-50 font-medium focus:outline-none focus:ring-2 focus:ring-[#7045D8]/20 dark:focus:ring-[#A78BFA]/20"
                     />
                   </div>
 
                   {/* API Key Input */}
                   <div className="space-y-1">
                     <div className="flex items-center justify-between">
-                      <label className="text-[10px] font-bold text-[#52576A] dark:text-[#CBD2E1] uppercase">
+                      <label className="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase">
                         {PROVIDER_META[newProvider].name} Key
                       </label>
                       <a
                         href={PROVIDER_META[newProvider].docsUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-[10px] text-[#800020] dark:text-[#F47B20] font-bold hover:underline flex items-center gap-0.5"
+                        className="text-[11px] text-[#7045D8] dark:text-[#A78BFA] font-bold hover:underline flex items-center gap-0.5"
                       >
                         <span>Get key</span>
                         <ExternalLink size={10} />
@@ -524,12 +524,12 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
                         placeholder={PROVIDER_META[newProvider].keyPlaceholder}
                         value={newKey}
                         onChange={e => setNewKey(e.target.value)}
-                        className="w-full px-3 py-2 pr-9 rounded-xl bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] text-xs font-mono font-medium text-[#171923] dark:text-[#FFF9EF] focus:outline-none focus:ring-2 focus:ring-[#800020]/20 dark:focus:ring-[#F47B20]/20"
+                        className="w-full px-3 py-2 pr-9 rounded-xl bg-[#F8FAFC] dark:bg-[#130E26] border border-slate-200 dark:border-[#31275E] text-xs font-mono font-medium text-slate-900 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#7045D8]/20 dark:focus:ring-[#A78BFA]/20"
                       />
                       <button
                         type="button"
                         onClick={() => setShowNewKeyText(!showNewKeyText)}
-                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#787D91] hover:text-[#171923] dark:hover:text-white"
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-900 dark:hover:text-white"
                       >
                         {showNewKeyText ? <EyeOff size={14} /> : <Eye size={14} />}
                       </button>
@@ -538,11 +538,11 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
 
                   {/* Model Selector */}
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-[#52576A] dark:text-[#CBD2E1] uppercase">Model</label>
+                    <label className="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase">Model</label>
                     <select
                       value={newModel}
                       onChange={e => setNewModel(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] text-xs text-[#171923] dark:text-[#FFF9EF] font-medium focus:outline-none"
+                      className="w-full min-h-[44px] px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#130E26] border border-slate-200 dark:border-[#31275E] text-xs text-slate-900 dark:text-slate-50 font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
                     >
                       {(DEFAULT_PROVIDER_MODELS[newProvider] || []).map(m => (
                         <option key={m.id} value={m.id}>
@@ -554,27 +554,27 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
 
                   <button
                     type="submit"
-                    className="w-full py-2.5 bg-[#800020] hover:bg-[#5E0017] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] text-white rounded-xl text-xs font-black shadow-xs active:scale-95 transition-all cursor-pointer"
+                    className="w-full min-h-[44px] py-2.5 bg-[#7045D8] hover:bg-[#5B32BF] text-white rounded-xl text-xs font-black shadow-xs active:scale-95 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
                   >
-                    Save & Activate This Key
+                    Save &amp; Activate This Key
                   </button>
                 </form>
               )}
 
               {/* Personal Keys Table / Cards */}
               {personalKeys.length === 0 ? (
-                <div className="p-8 text-center rounded-2xl bg-white dark:bg-[#1F2330] border border-dashed border-[#E8D9C0] dark:border-[#31374A] space-y-2">
-                  <Key className="w-8 h-8 mx-auto text-[#C99A45]" />
-                  <p className="text-xs font-bold text-[#171923] dark:text-[#FFF9EF]">
+                <div className="p-8 text-center rounded-2xl bg-white dark:bg-[#1B1536] border border-dashed border-slate-200 dark:border-[#31275E] space-y-2">
+                  <Key className="w-8 h-8 mx-auto text-amber-500" />
+                  <p className="text-xs font-bold text-slate-900 dark:text-slate-50">
                     No personal keys added yet
                   </p>
-                  <p className="text-[10px] text-[#52576A] dark:text-[#CBD2E1] max-w-xs mx-auto">
+                  <p className="text-[11px] text-slate-600 dark:text-slate-300 max-w-xs mx-auto">
                     You can add your personal Gemini, Groq, or OpenAI keys for dedicated quota.
                   </p>
                   <button
                     type="button"
                     onClick={() => setShowAddForm(true)}
-                    className="px-4 py-1.5 bg-[#800020] dark:bg-[#F47B20] text-white rounded-xl text-xs font-black shadow-xs inline-flex items-center gap-1.5 mt-2 cursor-pointer"
+                    className="px-4 py-1.5 bg-[#7045D8] dark:bg-[#7045D8] text-white rounded-xl text-xs font-black shadow-xs inline-flex items-center gap-1.5 mt-2 cursor-pointer"
                   >
                     <Plus size={14} />
                     <span>Add Your First Key</span>
@@ -594,8 +594,8 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
                         key={k.id}
                         className={`p-3.5 rounded-2xl border transition-all ${
                           isActive
-                            ? "bg-white dark:bg-[#1F2330] border-[#800020] dark:border-[#F47B20] shadow-xs"
-                            : "bg-white/70 dark:bg-[#1F2330]/60 border-[#E8D9C0] dark:border-[#31374A]"
+                            ? "bg-white dark:bg-[#1B1536] border-[#7045D8] dark:border-[#A78BFA] shadow-xs"
+                            : "bg-white/70 dark:bg-[#1B1536]/60 border-slate-200 dark:border-[#31275E]"
                         }`}
                       >
                         <div className="flex items-center justify-between gap-3">
@@ -610,26 +610,26 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
                               name="activePersonalKey"
                               checked={isActive}
                               onChange={() => handleSetActiveKey(k.id)}
-                              className="w-4 h-4 text-[#800020] dark:text-[#F47B20] focus:ring-[#800020] cursor-pointer"
+                              className="w-4 h-4 text-[#7045D8] dark:text-[#A78BFA] focus:ring-[#7045D8] cursor-pointer"
                             />
-                            <div className="w-7 h-7 rounded-lg bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center shrink-0">
-                              <Icon size={14} className="text-[#800020] dark:text-[#F47B20]" />
+                            <div className="w-7 h-7 rounded-lg bg-[#F8FAFC] dark:bg-[#130E26] border border-slate-200 dark:border-[#31275E] flex items-center justify-center shrink-0">
+                              <Icon size={14} className="text-[#7045D8] dark:text-[#A78BFA]" />
                             </div>
                             <div className="min-w-0 flex-1">
                               <div className="flex items-center gap-1.5">
-                                <span className="text-xs font-black text-[#171923] dark:text-[#FFF9EF] truncate">
+                                <span className="text-xs font-black text-slate-900 dark:text-slate-50 truncate">
                                   {k.name}
                                 </span>
                                 {isActive && (
-                                  <span className="text-[9px] font-black px-1.5 py-0.2 rounded bg-[#800020] dark:bg-[#F47B20] text-white uppercase">
+                                  <span className="text-[11px] font-black px-1.5 py-0.2 rounded bg-[#7045D8] dark:bg-[#7045D8] text-white uppercase">
                                     Active
                                   </span>
                                 )}
                               </div>
-                              <div className="flex items-center gap-2 text-[10px] text-[#52576A] dark:text-[#CBD2E1] mt-0.5">
+                              <div className="flex items-center gap-2 text-[11px] text-slate-600 dark:text-slate-300 mt-0.5">
                                 <span className="font-semibold uppercase">{k.provider}</span>
                                 <span>·</span>
-                                <span className="font-mono text-[9px] truncate">{k.model}</span>
+                                <span className="font-mono text-[11px] truncate">{k.model}</span>
                               </div>
                             </div>
                           </div>
@@ -640,9 +640,9 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
                               type="button"
                               disabled={isTesting}
                               onClick={() => handleTestKey(k)}
-                              className="px-2.5 py-1 bg-[#FFF9EF] dark:bg-[#171923] hover:border-[#800020] border border-[#E8D9C0] dark:border-[#31374A] text-[#171923] dark:text-[#FFF9EF] rounded-lg text-[10px] font-bold flex items-center gap-1 active:scale-95 disabled:opacity-50 cursor-pointer"
+                              className="px-2.5 py-1 bg-[#F8FAFC] dark:bg-[#130E26] hover:border-[#7045D8] border border-slate-200 dark:border-[#31275E] text-slate-900 dark:text-slate-50 rounded-lg text-[11px] font-bold flex items-center gap-1 active:scale-95 disabled:opacity-50 cursor-pointer"
                             >
-                              <Activity className={`w-3 h-3 ${isTesting ? "animate-spin text-[#F47B20]" : "text-[#15803D] dark:text-emerald-400"}`} />
+                              <Activity className={`w-3 h-3 ${isTesting ? "animate-spin text-[#7045D8]" : "text-[#15803D] dark:text-emerald-400"}`} />
                               <span>{isTesting ? "Testing..." : "Test"}</span>
                             </button>
 
@@ -654,7 +654,7 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
                                     setConfirmDeletePersonalId(null);
                                     handleDeleteKey(k.id);
                                   }}
-                                  className="px-2 py-0.5 bg-[#DC2626] hover:bg-rose-700 text-white rounded-lg text-[9px] font-bold flex items-center gap-0.5 active:scale-95 cursor-pointer shadow-xs"
+                                  className="px-2 py-0.5 bg-[#DC2626] hover:bg-rose-700 text-white rounded-lg text-[11px] font-bold flex items-center gap-0.5 active:scale-95 cursor-pointer shadow-xs"
                                 >
                                   <Trash2 size={10} />
                                   <span>Delete?</span>
@@ -662,7 +662,7 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
                                 <button
                                   type="button"
                                   onClick={() => setConfirmDeletePersonalId(null)}
-                                  className="p-1 text-[#787D91] hover:text-[#171923] text-xs font-bold cursor-pointer"
+                                  className="p-1 text-slate-500 hover:text-slate-900 text-xs font-bold cursor-pointer"
                                   title="Cancel"
                                 >
                                   <X size={12} />
@@ -672,7 +672,7 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
                               <button
                                 type="button"
                                 onClick={() => setConfirmDeletePersonalId(k.id)}
-                                className="p-1.5 text-[#787D91] hover:text-[#DC2626] hover:bg-[#DC2626]/10 rounded-lg transition-colors cursor-pointer"
+                                className="p-1.5 text-slate-500 hover:text-[#DC2626] hover:bg-[#DC2626]/10 rounded-lg transition-colors cursor-pointer"
                                 title="Delete key"
                               >
                                 <Trash2 size={14} />
@@ -683,7 +683,7 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
 
                         {/* Inline Test Result for this Key */}
                         {feedback && (
-                          <div className={`mt-2 p-2 rounded-xl border text-[10px] flex items-center justify-between gap-2 animate-in fade-in ${
+                          <div className={`mt-2 p-2 rounded-xl border text-[11px] flex items-center justify-between gap-2 animate-in fade-in ${
                             feedback.success
                               ? "bg-[#15803D]/10 border-[#15803D]/30 text-[#15803D] dark:text-emerald-300"
                               : "bg-[#DC2626]/10 border-[#DC2626]/30 text-[#DC2626] dark:text-rose-300"
@@ -696,7 +696,7 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
                               )}
                               <span className="truncate font-medium">{feedback.message}</span>
                               {feedback.latencyMs && (
-                                <span className="text-[9px] font-mono tabular-nums opacity-80">({feedback.latencyMs}ms)</span>
+                                <span className="text-[11px] font-mono tabular-nums opacity-80">({feedback.latencyMs}ms)</span>
                               )}
                             </div>
                             <button
@@ -719,15 +719,15 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
         </div>
 
         {/* Footer */}
-        <footer className="px-6 py-4 border-t border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-between bg-white dark:bg-[#1F2330]">
-          <p className="text-[10px] text-[#52576A] dark:text-[#CBD2E1] flex items-center gap-1 font-medium">
-            <Lock size={12} className="text-[#800020] dark:text-[#F47B20]" />
+        <footer className="px-6 py-4 border-t border-slate-200 dark:border-[#31275E] flex items-center justify-between bg-white dark:bg-[#1B1536]">
+          <p className="text-[11px] text-slate-600 dark:text-slate-300 flex items-center gap-1 font-medium">
+            <Lock size={12} className="text-[#7045D8] dark:text-[#A78BFA]" />
             <span>Personal keys stay private on this device.</span>
           </p>
           <button
             type="button"
             onClick={onClose}
-            className="px-5 py-2 bg-[#800020] hover:bg-[#5E0017] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] text-white rounded-xl text-xs font-black active:scale-95 transition-all cursor-pointer"
+            className="px-5 py-2 bg-[#7045D8] hover:bg-[#5B32BF] dark:bg-[#7045D8] dark:hover:bg-[#5B32BF] text-white rounded-xl text-xs font-black active:scale-95 transition-all cursor-pointer"
           >
             Done
           </button>

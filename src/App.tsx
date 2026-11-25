@@ -1,4 +1,5 @@
 import * as React from "react";
+import { MotionConfig } from 'motion/react';
 import { Analytics } from '@vercel/analytics/react';
 import { useQuestions } from './context/QuestionsContext';
 import { useProgress } from './context/ProgressContext';
@@ -34,8 +35,11 @@ import {
   Video,
   Crown,
   Sparkles,
+  FileText,
+  RotateCcw,
 } from 'lucide-react';
 import { BottomNav } from './components/BottomNav';
+import { StudentNavigationDrawer } from './components/StudentNavigationDrawer';
 import { DishaAITutorModal, FloatingAIAssistant } from './components/DishaAITutorModal';
 import { OfflineIndicator } from './components/OfflineIndicator';
 import { ToastNotificationContainer, ToastMessage } from './components/ToastNotification';
@@ -192,6 +196,7 @@ const HTMLImportMCQModal = safeLazy<typeof import('./components/admin/HTMLImport
 const GlobalSearchModal = safeLazy<typeof import('./components/GlobalSearchModal').GlobalSearchModal>(() => import('./components/GlobalSearchModal'), 'GlobalSearchModal');
 const LiveBattleModal = safeLazy<typeof import('./components/battle/LiveBattleModal').LiveBattleModal>(() => import('./components/battle/LiveBattleModal'), 'LiveBattleModal');
 const PremiumUpgradeModal = safeLazy<typeof import('./components/payment/PremiumUpgradeModal').PremiumUpgradeModal>(() => import('./components/payment/PremiumUpgradeModal'), 'PremiumUpgradeModal');
+const WeeklyLeaderboard = safeLazy<typeof import('./components/WeeklyLeaderboard').WeeklyLeaderboard>(() => import('./components/WeeklyLeaderboard'), 'WeeklyLeaderboard');
 
 export default function App() {
   const initialNavState = React.useMemo(() => {
@@ -562,6 +567,8 @@ export default function App() {
   const [battleInitialRoomCode, setBattleInitialRoomCode] = React.useState<string>("");
   const [isAITutorOpen, setIsAITutorOpen] = React.useState(false);
   const [aiTutorContextQuestion, setAiTutorContextQuestion] = React.useState<Question | null>(null);
+  const [isStudentDrawerOpen, setIsStudentDrawerOpen] = React.useState(false);
+  const [isLeaderboardOpen, setIsLeaderboardOpen] = React.useState(false);
   const [isPremiumModalOpen, setIsPremiumModalOpen] = React.useState(false);
   const [premiumFeatureTrigger, setPremiumFeatureTrigger] = React.useState<"ai_tutor" | "mock_tests" | "profile" | "general" | "pdf_export" | "live_battle" | "mistake_bank" | "state_merit_rank">("general");
   const [viewCount, setViewCount] = React.useState<number>(1240);
@@ -749,7 +756,7 @@ export default function App() {
   }, []);
 
   const isAnyModalOpen = Boolean(
-    isAITutorOpen || isLoginOpen || isSettingsOpen || isApiSettingsOpen || isPDFOpen ||
+    isAITutorOpen || isStudentDrawerOpen || isLeaderboardOpen || isLoginOpen || isSettingsOpen || isApiSettingsOpen || isPDFOpen ||
     isFullExamOpen || isCustomTestOpen || isExamAnalyzerOpen ||
     isLiveBattleOpen || isAddSubjectOpen || isAddChapterOpen ||
     isAddTopicOpen || isAddQuestionsOpen || isManageSyllabusOpen || isManageQuestionsOpen ||
@@ -807,6 +814,8 @@ export default function App() {
       }
 
       // 3. Close open modal overlays first to prevent unwanted page navigation
+      if (isStudentDrawerOpen) { setIsStudentDrawerOpen(false); return; }
+      if (isLeaderboardOpen) { setIsLeaderboardOpen(false); return; }
       if (isAITutorOpen) { setIsAITutorOpen(false); setAiTutorContextQuestion(null); return; }
       if (isLoginOpen) { setIsLoginOpen(false); return; }
       if (isSettingsOpen) { setIsSettingsOpen(false); return; }
@@ -850,7 +859,7 @@ export default function App() {
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, [
-    activeSession, isLoginOpen, isSettingsOpen, isApiSettingsOpen, isPDFOpen, isFullExamOpen,
+    activeSession, isStudentDrawerOpen, isLeaderboardOpen, isLoginOpen, isSettingsOpen, isApiSettingsOpen, isPDFOpen, isFullExamOpen,
     isCustomTestOpen, isExamAnalyzerOpen, isLiveBattleOpen, isAddSubjectOpen, isAddChapterOpen,
     isAddTopicOpen, isAddQuestionsOpen, isManageSyllabusOpen, isManageQuestionsOpen,
     isManageCategoriesOpen, isManagePYQVaultOpen, isManageLiveTestsOpen,
@@ -1221,9 +1230,7 @@ export default function App() {
             try {
               const { showAdminToast } = await import('./utils/adminToast');
               showAdminToast("Congratulations! You have been granted Admin privileges. Admin Panel is now active.", "success");
-            } catch {
-              alert("Congratulations! You have been granted Admin privileges. Admin Panel is now active.");
-            }
+            } catch {}
           }
         } catch (e) {
           console.warn("[ProfileSync] Auto-refresh check note:", e);
@@ -1724,8 +1731,8 @@ export default function App() {
   // 1. Session check in-flight: Show branded splash screen (prevents unauthenticated flicker)
   if (!isAuthReady) {
     return (
-      <div className="fixed inset-0 z-[999] bg-[#F4F1FA] dark:bg-[#171329] flex flex-col items-center justify-center p-6 text-center select-none">
-        <div className="w-16 h-16 rounded-2xl bg-white dark:bg-[#201B38] shadow-md flex items-center justify-center mb-4 p-2 border border-[#E2DCF0] dark:border-[#362E5B]">
+      <div className="fixed inset-0 z-[999] bg-[#F8FAFC] dark:bg-[#130E26] flex flex-col items-center justify-center p-6 text-center select-none">
+        <div className="w-16 h-16 rounded-2xl bg-white dark:bg-[#241D48] shadow-md flex items-center justify-center mb-4 p-2 border border-[#E2DCF0] dark:border-[#31275E]">
           <AppLogo size="md" variant="symbol" />
         </div>
         <div className="w-6 h-6 border-3 border-[#7045D8] border-t-transparent rounded-full animate-spin mb-3" />
@@ -1741,7 +1748,7 @@ export default function App() {
     return (
       <React.Suspense
         fallback={
-          <div className="fixed inset-0 z-[999] bg-[#F4F1FA] dark:bg-[#171329] flex flex-col items-center justify-center p-6 text-center">
+          <div className="fixed inset-0 z-[999] bg-[#F8FAFC] dark:bg-[#130E26] flex flex-col items-center justify-center p-6 text-center">
             <div className="w-6 h-6 border-3 border-[#7045D8] border-t-transparent rounded-full animate-spin mb-3" />
             <p className="text-xs font-bold text-[#5E5873] dark:text-[#A39DBE]">Loading Sign In...</p>
           </div>
@@ -1766,8 +1773,34 @@ export default function App() {
     );
   }
 
+  React.useEffect(() => {
+    const openDrawer = () => setIsStudentDrawerOpen(true);
+    window.addEventListener("disha_open_student_drawer", openDrawer);
+    return () => window.removeEventListener("disha_open_student_drawer", openDrawer);
+  }, []);
+
+  const drawerStats = React.useMemo(() => {
+    let attempted = 0;
+    let correct = 0;
+    for (let i = 0; i < combinedQuestions.length; i++) {
+      const q = combinedQuestions[i];
+      if (!q?.id) continue;
+      const p = progressStore?.[q.id];
+      if (p && p.status !== "unattempted") {
+        attempted++;
+        if (p.status === "correct") correct++;
+      }
+    }
+    return {
+      attemptedCount: attempted,
+      correctCount: correct,
+      accuracy: attempted > 0 ? Math.round((correct / attempted) * 100) : 0,
+    };
+  }, [combinedQuestions, progressStore]);
+
   return (
-    <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#130E26] text-[#0F172A] dark:text-[#F8FAFC] flex flex-col font-sans selection:bg-[#7045D8] selection:text-white w-full max-w-full overflow-x-hidden">
+    <MotionConfig reducedMotion="user">
+    <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#130E26] text-[#0F172A] dark:text-slate-50 flex flex-col font-sans selection:bg-[#7045D8] selection:text-white w-full max-w-full overflow-x-hidden">
       <OverlayErrorBoundary viewName="System Overlays" fallbackComponent={null}>
         <BrandSplashAndOnboarding />
         <ToastNotificationContainer toasts={toasts} onDismiss={handleDismissToast} />
@@ -1779,30 +1812,26 @@ export default function App() {
 
       {/* Desktop Top Navigation Header */}
       <OverlayErrorBoundary viewName="Desktop Navigation Header" fallbackComponent={null}>
-        <header className="hidden md:block sticky top-0 z-40 bg-white/95 dark:bg-[#171329]/95 backdrop-blur-md border-b border-slate-200 dark:border-[#2D264E] select-none shadow-xs">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
+        <header className="hidden md:block sticky top-0 z-40 bg-white/95 dark:bg-[#130E26]/95 backdrop-blur-md border-b border-slate-200 dark:border-[#31275E] select-none shadow-xs">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-3">
             {/* Brand Logo */}
-            <div
+            <button
+              type="button"
               onClick={() => handleDesktopNavigateTab('home')}
-              className="flex items-center gap-2 cursor-pointer transition-transform hover:scale-[1.02] shrink-0"
-              role="button"
-              tabIndex={0}
+              className="flex items-center gap-2 cursor-pointer transition-transform hover:scale-[1.02] shrink-0 min-h-[44px] px-1 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
               aria-label="Disha PYQ Home"
             >
-              <span className="text-lg font-black tracking-tight text-[#171329] dark:text-[#FFFFFF] uppercase whitespace-nowrap">
-                DISHA
-              </span>
-              <span className="px-2.5 py-0.5 rounded-lg bg-gradient-to-r from-[#7045D8] to-[#A78BFA] text-white font-black text-xs tracking-wide shadow-xs whitespace-nowrap">
-                PYQ
-              </span>
-            </div>
+              <AppLogo size="sm" variant="horizontal" showTagline={false} />
+            </button>
 
             {/* Desktop Navigation Bar */}
-            <nav aria-label="Desktop Navigation" className="hidden md:flex items-center gap-1">
+            <nav aria-label="Desktop Navigation" className="hidden md:flex items-center gap-0.5 lg:gap-1 overflow-x-auto no-scrollbar">
               {[
                 { id: 'home' as ActiveTab, label: 'Home', icon: Home },
                 { id: 'topics' as ActiveTab, label: 'Subjects', icon: BookOpen },
                 { id: 'live_tests' as ActiveTab, label: 'Tests', icon: Trophy },
+                { id: 'pyq_vault' as ActiveTab, label: 'PYQ', icon: FileText },
+                { id: 'wrong' as ActiveTab, label: 'Mistakes', icon: RotateCcw },
                 { id: 'analyzer' as ActiveTab, label: 'Scan', icon: Scan },
                 { id: 'analytics' as ActiveTab, label: 'Analytics', icon: BarChart2 },
                 { id: 'profile' as ActiveTab, label: 'Profile', icon: User },
@@ -1822,13 +1851,13 @@ export default function App() {
                     type="button"
                     onClick={() => handleDesktopNavigateTab(item.id)}
                     aria-current={isActive ? 'page' : undefined}
-                    className={`px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                    className={`min-h-[44px] px-2.5 lg:px-3 py-1.5 rounded-xl text-xs lg:text-sm font-bold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8] ${
                       isActive
                         ? 'bg-[#7045D8]/10 dark:bg-[#7045D8]/20 text-[#7045D8] dark:text-[#A78BFA] shadow-xs'
                         : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#221B3E]'
                     }`}
                   >
-                    <Icon className="w-4 h-4" />
+                    <Icon className="w-4 h-4 shrink-0" />
                     <span>{item.label}</span>
                   </button>
                 );
@@ -1840,7 +1869,7 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => setIsGlobalSearchOpen(true)}
-                className="w-9 h-9 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] hover:bg-[#EFE3CF] dark:hover:bg-[#31374A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center text-[#171923] dark:text-[#FFF9EF] active:scale-95 transition-all cursor-pointer"
+                className="w-11 h-11 rounded-xl bg-slate-100 dark:bg-[#241D48] hover:bg-slate-200 dark:hover:bg-[#31275E] border border-slate-200 dark:border-[#31275E] flex items-center justify-center text-slate-800 dark:text-slate-100 active:scale-95 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
                 aria-label="Search"
                 title="Global Search (Ctrl+K)"
               >
@@ -1850,29 +1879,29 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => handleDesktopNavigateTab('notifications')}
-                className="relative w-9 h-9 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] hover:bg-[#EFE3CF] dark:hover:bg-[#31374A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center text-[#171923] dark:text-[#FFF9EF] active:scale-95 transition-all cursor-pointer"
+                className="relative w-11 h-11 rounded-xl bg-slate-100 dark:bg-[#241D48] hover:bg-slate-200 dark:hover:bg-[#31275E] border border-slate-200 dark:border-[#31275E] flex items-center justify-center text-slate-800 dark:text-slate-100 active:scale-95 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
                 aria-label="Notifications"
                 title="Notifications"
               >
                 <Bell className="w-4 h-4" />
                 {unreadNotificationsCount > 0 && (
-                  <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#F47B20] ring-2 ring-[#FFF9EF] dark:ring-[#171923]" />
+                  <span className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-[#7045D8] dark:bg-[#A78BFA] ring-2 ring-white dark:ring-[#171329]" />
                 )}
               </button>
 
               <button
                 type="button"
                 onClick={handleCycleTheme}
-                className="w-9 h-9 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] hover:bg-[#EFE3CF] dark:hover:bg-[#31374A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center text-[#171923] dark:text-[#C99A45] active:scale-95 transition-all cursor-pointer"
+                className="w-11 h-11 rounded-xl bg-slate-100 dark:bg-[#241D48] hover:bg-slate-200 dark:hover:bg-[#31275E] border border-slate-200 dark:border-[#31275E] flex items-center justify-center text-slate-800 dark:text-[#A78BFA] active:scale-95 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
                 aria-label={!settings.darkMode ? 'Light Mode' : !settings.amoledBlack ? 'Charcoal Dark' : 'AMOLED Black'}
                 title={!settings.darkMode ? 'Light Mode (Tap for Charcoal Dark)' : !settings.amoledBlack ? 'Charcoal Dark (Tap for AMOLED Black)' : 'AMOLED Black (Tap for Light)'}
               >
                 {!settings.darkMode ? (
-                  <Moon className="w-4 h-4 text-[#800020]" />
+                  <Moon className="w-4 h-4 text-[#7045D8]" />
                 ) : settings.amoledBlack ? (
                   <Sparkles className="w-4 h-4 text-amber-400" />
                 ) : (
-                  <Sun className="w-4 h-4 text-[#F47B20]" />
+                  <Sun className="w-4 h-4 text-amber-400" />
                 )}
               </button>
 
@@ -1880,7 +1909,7 @@ export default function App() {
                 <button
                   type="button"
                   onClick={() => setIsLoginOpen(true)}
-                  className="flex items-center gap-1.5 h-9 px-3 rounded-xl bg-[#7045D8] hover:bg-[#5B32BF] text-white text-xs font-extrabold shadow-xs transition-all active:scale-95 cursor-pointer"
+                  className="flex items-center gap-1.5 min-h-[44px] px-3.5 rounded-xl bg-[#7045D8] hover:bg-[#5B32BF] text-white text-xs font-extrabold shadow-xs transition-all active:scale-95 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
                 >
                   <LogIn className="w-3.5 h-3.5" />
                   <span>Sign In</span>
@@ -1889,7 +1918,7 @@ export default function App() {
                 <button
                   type="button"
                   onClick={() => handleDesktopNavigateTab('profile')}
-                  className="w-9 h-9 rounded-full ring-2 ring-[#7045D8]/50 hover:ring-[#7045D8] flex items-center justify-center overflow-hidden active:scale-95 transition-all cursor-pointer bg-slate-100 dark:bg-[#201B38]"
+                  className="w-11 h-11 rounded-full ring-2 ring-[#7045D8]/50 hover:ring-[#7045D8] flex items-center justify-center overflow-hidden active:scale-95 transition-all cursor-pointer bg-slate-100 dark:bg-[#241D48] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
                   aria-label="Profile"
                   title={userProfile?.name || 'User Profile'}
                 >
@@ -1906,10 +1935,10 @@ export default function App() {
       </OverlayErrorBoundary>
 
       {/* Main Content Rendering */}
-      <main className="flex-1 pb-16 md:pb-6">
+      <main className="flex-1 pb-24 md:pb-8">
         {isUserBlocked ? (
           <div className="max-w-xl mx-auto my-12 px-4 animate-in fade-in zoom-in-95 duration-200">
-            <div className="p-6 sm:p-8 bg-white dark:bg-[#111A2E] rounded-3xl border-2 border-rose-500/30 shadow-2xl text-center space-y-6">
+            <div className="p-6 sm:p-8 bg-white dark:bg-[#1B1536] rounded-3xl border-2 border-rose-500/30 shadow-2xl text-center space-y-6">
               <div className="w-16 h-16 mx-auto rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 flex items-center justify-center text-rose-600 dark:text-rose-400 shadow-sm">
                 <Ban className="w-8 h-8" />
               </div>
@@ -1978,6 +2007,7 @@ export default function App() {
               setPremiumFeatureTrigger('general');
               setIsPremiumModalOpen(true);
             }}
+            onOpenMenu={() => setIsStudentDrawerOpen(true)}
             onToggleDarkMode={handleCycleTheme}
             onLogout={handleLogout}
           />
@@ -2721,7 +2751,84 @@ export default function App() {
         />
       )}
 
+      {/* Global Student Navigation Drawer (Accessible from any tab) */}
+      <StudentNavigationDrawer
+        isOpen={isStudentDrawerOpen}
+        onClose={() => setIsStudentDrawerOpen(false)}
+        activeTab={activeTab}
+        userProfile={userProfile}
+        isAuthenticated={isAuthenticated}
+        isAdmin={isAdmin}
+        settings={settings}
+        attemptedCount={drawerStats.attemptedCount}
+        accuracy={drawerStats.accuracy}
+        correctCount={drawerStats.correctCount}
+        onNavigateTab={(tab) => setActiveTab(tab)}
+        onOpenLiveBattle={() => {
+          setBattleInitialRoomCode('');
+          setIsLiveBattleOpen(true);
+        }}
+        onOpenLeaderboard={() => setIsLeaderboardOpen(true)}
+        onOpenExamAnalyzer={() => setIsExamAnalyzerOpen(true)}
+        onOpenApiSettings={() => setIsApiSettingsOpen(true)}
+        onToggleDarkMode={handleCycleTheme}
+        onOpenLogin={() => setIsLoginOpen(true)}
+        onLogout={handleLogout}
+      />
+
+      {/* Global Weekly Leaderboard Modal */}
+      {isLeaderboardOpen && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 sm:p-6" role="dialog" aria-modal="true" aria-label="Weekly Rankings">
+          <div
+            className="fixed inset-0 bg-slate-950/75 backdrop-blur-xs"
+            onClick={() => setIsLeaderboardOpen(false)}
+          />
+          <div className="relative w-full max-w-xl bg-[#F8FAFC] dark:bg-[#130E26] rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] border border-slate-200 dark:border-[#31275E] z-10">
+            <div className="px-6 pt-5 pb-4 border-b border-slate-200 dark:border-[#31275E] flex items-center justify-between bg-white dark:bg-[#1B1536] sticky top-0 z-10">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+                  <Trophy size={20} />
+                </div>
+                <div>
+                  <h3 className="text-base font-extrabold text-slate-900 dark:text-slate-50">
+                    Weekly Rankings
+                  </h3>
+                  <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                    Disha PYQ Top Aspirants
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsLeaderboardOpen(false)}
+                className="w-11 h-11 rounded-full bg-slate-100 dark:bg-[#241D48] flex items-center justify-center text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
+                aria-label="Close leaderboard"
+              >
+                <span className="sr-only">Close</span>
+                ×
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+              <WeeklyLeaderboard
+                userProfile={userProfile || undefined}
+                className="border-none shadow-none bg-transparent"
+              />
+            </div>
+            <div className="p-4 pb-[calc(16px+env(safe-area-inset-bottom,0px))] border-t border-slate-200 dark:border-[#31275E] bg-white dark:bg-[#1B1536]">
+              <button
+                type="button"
+                onClick={() => setIsLeaderboardOpen(false)}
+                className="w-full min-h-[44px] py-3 bg-[#7045D8] hover:bg-[#5B32BF] text-white rounded-xl text-xs font-extrabold uppercase tracking-wider active:scale-95 transition-transform cursor-pointer"
+              >
+                Return to Dashboard
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       </React.Suspense>
     </div>
+    </MotionConfig>
   );
 }

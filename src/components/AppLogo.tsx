@@ -39,17 +39,17 @@ export const AppLogo: React.FC<AppLogoProps> = ({
 
   const titleClasses =
     effectiveTheme === "light"
-      ? "text-[#171329]"
+      ? "text-slate-900"
       : effectiveTheme === "dark"
       ? "text-[#FFFFFF]"
-      : "text-[#171329] dark:text-[#FFFFFF]";
+      : "text-slate-900 dark:text-[#FFFFFF]";
 
   const brandWordClasses =
     effectiveTheme === "light"
-      ? "text-[#171329]"
+      ? "text-slate-900"
       : effectiveTheme === "dark"
       ? "text-[#FFFFFF]"
-      : "text-[#171329] dark:text-[#FFFFFF]";
+      : "text-slate-900 dark:text-[#FFFFFF]";
 
   const subClasses =
     effectiveTheme === "light"
@@ -90,7 +90,7 @@ export const AppLogo: React.FC<AppLogoProps> = ({
           >
             DISHA
           </span>
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-lg bg-gradient-to-r from-[#F47B20] to-[#E06A12] text-white font-black tracking-wide text-sm sm:text-base shadow-xs shrink-0 whitespace-nowrap">
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-lg bg-gradient-to-r from-[#7045D8] to-[#A78BFA] text-white font-black tracking-wide text-sm sm:text-base shadow-xs shrink-0 whitespace-nowrap">
             PYQ
           </span>
         </div>
@@ -127,12 +127,12 @@ export const AppLogo: React.FC<AppLogoProps> = ({
           >
             DISHA
           </span>
-          <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-gradient-to-r from-[#F47B20] to-[#E06A12] text-white font-black text-xs tracking-wide shadow-2xs whitespace-nowrap">
+          <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-gradient-to-r from-[#7045D8] to-[#A78BFA] text-white font-black text-xs tracking-wide shadow-2xs whitespace-nowrap">
             PYQ
           </span>
         </div>
         {showTagline && (
-          <span className={`text-[10px] font-semibold tracking-wide truncate mt-0.5 ${subClasses}`}>
+          <span className={`text-[11px] font-semibold tracking-wide truncate mt-0.5 ${subClasses}`}>
             Previous Year Questions • Precision Learning
           </span>
         )}

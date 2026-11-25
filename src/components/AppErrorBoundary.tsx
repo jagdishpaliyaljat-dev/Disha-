@@ -21,6 +21,7 @@ interface AppErrorBoundaryState {
   isChunkError?: boolean;
   showDetails?: boolean;
   autoHealAttempted?: boolean;
+  copiedReport?: boolean;
 }
 
 /**
@@ -127,7 +128,8 @@ export class AppErrorBoundary extends React.Component<AppErrorBoundaryProps, App
       };
       if (navigator?.clipboard?.writeText) {
         await navigator.clipboard.writeText(JSON.stringify(report, null, 2));
-        alert("Diagnostic report copied to clipboard.");
+        this.setState({ copiedReport: true });
+        setTimeout(() => this.setState({ copiedReport: false }), 2500);
       }
     } catch {}
   };
@@ -183,16 +185,16 @@ export class AppErrorBoundary extends React.Component<AppErrorBoundaryProps, App
       const isChunk = this.state.isChunkError;
 
       return (
-        <div className="min-h-screen bg-[#FFF9EF] dark:bg-[#111A2E] flex flex-col items-center justify-center p-4 sm:p-6 text-center select-none font-sans">
-          <div className="max-w-md w-full bg-white dark:bg-[#17223B] rounded-3xl p-6 sm:p-8 shadow-2xl border border-[#E8D9C0] dark:border-[#25324D] space-y-5 sm:space-y-6">
-            <div className="w-16 h-16 mx-auto rounded-2xl bg-[#800020]/10 dark:bg-[#800020]/25 text-[#800020] dark:text-[#F47B20] flex items-center justify-center shadow-inner">
+        <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#1B1536] flex flex-col items-center justify-center p-4 sm:p-6 text-center select-none font-sans">
+          <div className="max-w-md w-full bg-white dark:bg-[#17223B] rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-200 dark:border-[#25324D] space-y-5 sm:space-y-6">
+            <div className="w-16 h-16 mx-auto rounded-2xl bg-[#7045D8]/10 dark:bg-[#7045D8]/25 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center shadow-inner">
               <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
             </div>
 
             <div className="space-y-2">
-              <h1 className="text-lg sm:text-xl font-black text-[#171923] dark:text-[#FFF9EF] tracking-tight">
+              <h1 className="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-50 tracking-tight">
                 {isChunk
                   ? "App Update Ready"
                   : this.props.fallbackTitle || "Disha PYQ — System Auto-Repair"}
@@ -204,7 +206,7 @@ export class AppErrorBoundary extends React.Component<AppErrorBoundaryProps, App
               </p>
               {this.state.errorEventId && (
                 <div className="pt-1">
-                  <span className="text-[10px] font-mono font-bold text-slate-400 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-full">
+                  <span className="text-[11px] font-mono font-bold text-slate-400 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-full">
                     Reference: {this.state.errorEventId}
                   </span>
                 </div>
@@ -215,23 +217,23 @@ export class AppErrorBoundary extends React.Component<AppErrorBoundaryProps, App
               <button
                 type="button"
                 onClick={this.handleSelfHealingRecovery}
-                className="w-full py-3.5 px-4 bg-gradient-to-r from-[#F47B20] to-[#E06716] hover:brightness-105 text-white font-black rounded-xl text-xs shadow-[0_4px_16px_rgba(244,123,32,0.35)] border border-[#C99A45]/40 transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-2"
+                className="w-full min-h-[44px] py-3 px-4 bg-gradient-to-r from-[#7045D8] to-[#5B32BF] hover:brightness-105 text-white font-black rounded-xl text-xs shadow-md shadow-[#7045D8]/25 transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
               >
-                <span>🚀 1-Tap Auto-Repair & Launch</span>
+                <span>1-Tap Auto-Repair &amp; Launch</span>
               </button>
 
               <div className="flex flex-col sm:flex-row items-center gap-2.5">
                 <button
                   type="button"
                   onClick={this.handleGoHome}
-                  className="w-full sm:flex-1 py-2.5 px-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold transition-all active:scale-95 cursor-pointer"
+                  className="w-full min-h-[44px] sm:flex-1 py-2.5 px-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold transition-all active:scale-95 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
                 >
                   Home
                 </button>
                 <button
                   type="button"
                   onClick={this.handleReload}
-                  className="w-full sm:flex-1 py-2.5 px-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold transition-all active:scale-95 cursor-pointer"
+                  className="w-full min-h-[44px] sm:flex-1 py-2.5 px-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold transition-all active:scale-95 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
                 >
                   Reload
                 </button>
@@ -245,7 +247,7 @@ export class AppErrorBoundary extends React.Component<AppErrorBoundaryProps, App
                   <button
                     type="button"
                     onClick={() => this.setState((prev) => ({ showDetails: !prev.showDetails }))}
-                    className="text-[10px] font-bold text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 underline cursor-pointer"
+                    className="text-[11px] font-bold text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 underline cursor-pointer"
                   >
                     {this.state.showDetails ? "Hide Error Details" : "Show Error Details"}
                   </button>
@@ -253,17 +255,17 @@ export class AppErrorBoundary extends React.Component<AppErrorBoundaryProps, App
                     <button
                       type="button"
                       onClick={this.handleCopyDiagnostics}
-                      className="text-[10px] font-bold text-[#800020] dark:text-[#F47B20] hover:underline cursor-pointer"
+                      className="text-[11px] font-bold text-[#7045D8] dark:text-[#A78BFA] hover:underline cursor-pointer"
                     >
-                      Copy Report
+                      {this.state.copiedReport ? "Copied!" : "Copy Report"}
                     </button>
                   )}
                 </div>
                 {this.state.showDetails && (
-                  <div className="mt-2 p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-[10px] font-mono text-rose-600 dark:text-rose-400 break-all select-text max-h-36 overflow-y-auto">
+                  <div className="mt-2 p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-[11px] font-mono text-rose-600 dark:text-rose-400 break-all select-text max-h-36 overflow-y-auto">
                     <p className="font-bold">{this.state.error.name}: {this.state.error.message}</p>
                     {this.state.error.stack && (
-                      <p className="mt-1 text-[9px] text-slate-400 opacity-80 whitespace-pre-wrap">{this.state.error.stack.slice(0, 500)}</p>
+                      <p className="mt-1 text-[11px] text-slate-400 opacity-80 whitespace-pre-wrap">{this.state.error.stack.slice(0, 500)}</p>
                     )}
                   </div>
                 )}

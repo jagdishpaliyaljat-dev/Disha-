@@ -13,7 +13,7 @@ const DEFAULT_BANNER_SLIDES: AppBanner[] = [
     title: "Disha PYQ Live Test Series",
     subtitle: "Right Direction, Accurate Preparation · Real-time All-India ranking",
     badge: "Live Arena",
-    color: "from-[#800020] via-[#6B001B] to-[#3B0613]",
+    color: "from-[#7045D8] via-[#5B32BF] to-[#2E1470]",
     iconName: "Image",
     actionLabel: "Attempt Live Test",
     actionTab: "live_tests",
@@ -26,7 +26,7 @@ const DEFAULT_BANNER_SLIDES: AppBanner[] = [
     title: "Official PYQ Vault (2013–2025)",
     subtitle: "RAS, 1st Grade, Patwar, REET & CET solved papers",
     badge: "PYQ Archive",
-    color: "from-[#171923] via-[#2A1B1E] to-[#800020]",
+    color: "from-[#171329] via-[#2D2159] to-[#7045D8]",
     iconName: "Image",
     actionLabel: "Explore PYQ Papers",
     actionTab: "pyq_vault",
@@ -67,7 +67,7 @@ export const BannerSlides: React.FC<BannerSlidesProps> = ({ banners, onNavigateT
 
   return (
     <section
-      className="relative w-full overflow-hidden rounded-xl sm:rounded-2xl min-h-[164px] sm:min-h-[184px] h-[168px] sm:h-[188px] touch-pan-y border border-[#E8D9C0] dark:border-[#31374A] shadow-xs select-none"
+      className="relative w-full overflow-hidden rounded-2xl min-h-[168px] sm:min-h-[188px] h-[172px] sm:h-[192px] touch-pan-y border border-slate-200 dark:border-[#31275E] shadow-xs select-none"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -96,7 +96,7 @@ export const BannerSlides: React.FC<BannerSlidesProps> = ({ banners, onNavigateT
                   duration: 0.3,
                   ease: [0.4, 0, 0.2, 1],
                 }}
-                className={`absolute inset-0 bg-gradient-to-br ${banner.color || "from-[#800020] to-[#3B0613]"} cursor-pointer overflow-hidden`}
+                className={`absolute inset-0 bg-gradient-to-br ${banner.color || "from-[#7045D8] to-[#3B0613]"} cursor-pointer overflow-hidden`}
               >
                 {banner.imageUrl ? (
                   <img
@@ -109,7 +109,7 @@ export const BannerSlides: React.FC<BannerSlidesProps> = ({ banners, onNavigateT
                     }}
                   />
                 ) : (
-                  <div className="w-full h-full flex flex-col justify-center px-4 sm:px-8 py-3.5 sm:py-5 text-[#FFF9EF] select-none relative z-10">
+                  <div className="w-full h-full flex flex-col justify-center px-4 sm:px-8 py-3.5 sm:py-5 text-white select-none relative z-10">
                     {/* Subtle geometric compass arch motif in corner */}
                     <svg
                       viewBox="0 0 120 120"
@@ -119,14 +119,14 @@ export const BannerSlides: React.FC<BannerSlidesProps> = ({ banners, onNavigateT
                       <path
                         d="M25 100 V46 C25 32 40 20 60 12 C80 20 95 32 95 46 V100"
                         fill="none"
-                        stroke="#C99A45"
+                        stroke="#A78BFA"
                         strokeWidth="4"
                       />
-                      <circle cx="60" cy="56" r="24" fill="none" stroke="#FFF9EF" strokeWidth="2.5" />
+                      <circle cx="60" cy="56" r="24" fill="none" stroke="#F8FAFC" strokeWidth="2.5" />
                     </svg>
 
                     {banner.badge && (
-                      <span className="inline-flex items-center self-start text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider px-2 sm:px-2.5 py-0.5 rounded-md sm:rounded-lg bg-[#F47B20] text-white mb-1 sm:mb-1.5 shadow-xs shrink-0">
+                      <span className="inline-flex items-center self-start text-[11px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-lg bg-white/20 text-white border border-white/25 mb-1.5 shadow-xs shrink-0">
                         {banner.badge}
                       </span>
                     )}
@@ -134,12 +134,12 @@ export const BannerSlides: React.FC<BannerSlidesProps> = ({ banners, onNavigateT
                       {banner.title}
                     </h3>
                     {banner.subtitle && (
-                      <p className="text-[11px] sm:text-sm font-medium text-[#FFF9EF]/90 line-clamp-2 mt-0.5 sm:mt-1 font-hindi max-w-[92%] leading-tight">
+                      <p className="text-xs sm:text-sm font-medium text-white/90 line-clamp-2 mt-1 font-hindi max-w-[92%] leading-tight">
                         {banner.subtitle}
                       </p>
                     )}
                     {banner.actionLabel && (
-                      <div className="mt-2 sm:mt-2.5 inline-flex items-center gap-1 sm:gap-1.5 self-start text-[11px] sm:text-xs font-black bg-[#FFF9EF] text-[#800020] px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl shadow-xs shrink-0 active:scale-95 transition-transform">
+                      <div className="mt-2.5 inline-flex items-center gap-1.5 self-start text-xs font-black bg-white text-[#5B32BF] px-3 py-1.5 rounded-xl shadow-xs shrink-0 active:scale-95 transition-transform">
                         {banner.actionLabel}
                       </div>
                     )}
@@ -153,27 +153,31 @@ export const BannerSlides: React.FC<BannerSlidesProps> = ({ banners, onNavigateT
         })}
       </AnimatePresence>
 
-      {/* Progress Indicators */}
-      <div className="absolute bottom-2.5 sm:bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-20">
+      {/* Progress Indicators (expanded 44px touch target around visual pill) */}
+      <div className="absolute bottom-1 sm:bottom-1.5 left-1/2 -translate-x-1/2 flex items-center gap-1 z-20">
         {displayBanners.map((_, i) => (
           <button
             key={i}
             type="button"
             aria-label={`Banner slide ${i + 1}`}
             onClick={() => setCurrentIndex(i)}
-            className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer overflow-hidden relative ${
-              i === safeCurrentIndex ? "w-9 bg-white/35" : "w-2 bg-white/50"
-            }`}
+            className="min-w-[28px] min-h-[44px] flex items-center justify-center cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white rounded-lg"
           >
-            {i === safeCurrentIndex && (
-              <motion.div
-                key={`${safeCurrentIndex}-${isHovered ? "paused" : "playing"}`}
-                className="absolute inset-y-0 left-0 bg-[#F47B20]"
-                initial={{ width: "0%" }}
-                animate={{ width: isHovered ? "0%" : "100%" }}
-                transition={{ duration: isHovered ? 0.2 : 5, ease: "linear" }}
-              />
-            )}
+            <span
+              className={`h-1.5 rounded-full transition-all duration-300 overflow-hidden relative block ${
+                i === safeCurrentIndex ? "w-9 bg-white/35" : "w-2.5 bg-white/55"
+              }`}
+            >
+              {i === safeCurrentIndex && (
+                <motion.div
+                  key={`${safeCurrentIndex}-${isHovered ? "paused" : "playing"}`}
+                  className="absolute inset-y-0 left-0 bg-white"
+                  initial={{ width: "0%" }}
+                  animate={{ width: isHovered ? "0%" : "100%" }}
+                  transition={{ duration: isHovered ? 0.2 : 5, ease: "linear" }}
+                />
+              )}
+            </span>
           </button>
         ))}
       </div>

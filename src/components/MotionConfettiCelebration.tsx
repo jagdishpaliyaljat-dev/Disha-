@@ -354,7 +354,7 @@ export const MotionConfettiCelebration: React.FC<MotionConfettiCelebrationProps>
             delay: 0.1,
           }}
           onClick={(e) => e.stopPropagation()}
-          className="relative z-20 w-full max-w-md bg-white dark:bg-[#111A2E] rounded-[32px] p-6 sm:p-8 border border-amber-400/40 shadow-2xl shadow-amber-500/20 text-center overflow-hidden"
+          className="relative z-20 w-full max-w-md bg-white dark:bg-[#1B1536] rounded-[32px] p-6 sm:p-8 border border-amber-400/40 shadow-2xl shadow-amber-500/20 text-center overflow-hidden"
         >
           {/* Subtle Rotating Sunburst Behind Trophy */}
           <motion.div
@@ -469,7 +469,7 @@ export const MotionConfettiCelebration: React.FC<MotionConfettiCelebrationProps>
             className="mt-5 p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-emerald-500/10 to-blue-500/10 border border-amber-200 dark:border-amber-900/50 flex items-center justify-around gap-2"
           >
             <div className="text-center">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
                 Accuracy
               </span>
               <span className="text-xl sm:text-2xl font-black text-emerald-600 dark:text-emerald-400 font-mono">
@@ -480,7 +480,7 @@ export const MotionConfettiCelebration: React.FC<MotionConfettiCelebrationProps>
             <div className="w-px h-8 bg-slate-200 dark:bg-slate-700" />
 
             <div className="text-center">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
                 Correct
               </span>
               <span className="text-xl sm:text-2xl font-black text-blue-600 dark:text-blue-400 font-mono">
@@ -491,7 +491,7 @@ export const MotionConfettiCelebration: React.FC<MotionConfettiCelebrationProps>
             <div className="w-px h-8 bg-slate-200 dark:bg-slate-700" />
 
             <div className="text-center">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
                 Wrong
               </span>
               <span className="text-xl sm:text-2xl font-black text-slate-400 font-mono">

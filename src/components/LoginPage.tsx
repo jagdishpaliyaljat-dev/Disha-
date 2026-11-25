@@ -141,16 +141,17 @@ export function LoginPage({ onLoginSuccess, onClose, isMandatory = false }: Logi
   };
 
   return (
-    <div className="fixed inset-0 z-[100] bg-[#F4F1FA] dark:bg-[#171329] text-[#171329] dark:text-[#FFFFFF] flex flex-col justify-between overflow-y-auto overflow-x-hidden selection:bg-[#7045D8] selection:text-white">
+    <div className="fixed inset-0 z-[100] bg-[#F8FAFC] dark:bg-[#130E26] text-slate-900 dark:text-slate-50 flex flex-col justify-between overflow-y-auto overflow-x-hidden selection:bg-[#7045D8] selection:text-white pt-[env(safe-area-inset-top,0px)]">
       {/* Top Bar */}
       <div className="w-full max-w-md mx-auto pt-4 px-5 flex justify-between items-center shrink-0 z-20">
-        <span className="text-[11px] font-extrabold text-[#5E5873] dark:text-[#A39DBE] uppercase tracking-wider">
+        <span className="text-[11px] font-extrabold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
           Disha PYQ Account
         </span>
         {!isMandatory && onClose && (
           <button
+            type="button"
             onClick={onClose}
-            className="min-h-[38px] px-3 py-1.5 rounded-xl bg-white dark:bg-[#201B38] border border-[#E2DCF0] dark:border-[#362E5B] text-[#171329] dark:text-[#FFFFFF] transition-all shadow-2xs cursor-pointer text-xs font-bold flex items-center gap-1"
+            className="min-h-[44px] px-3.5 py-2 rounded-xl bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] text-slate-900 dark:text-slate-50 transition-all shadow-2xs cursor-pointer text-xs font-bold flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
           >
             <span>Close</span>
             <X className="w-3.5 h-3.5" />
@@ -163,7 +164,7 @@ export function LoginPage({ onLoginSuccess, onClose, isMandatory = false }: Logi
         <AppLogo size="hero" variant="primary" showTagline={true} />
 
         {/* 4 Highlight Modules */}
-        <div className="w-full grid grid-cols-2 gap-2">
+        <div className="w-full grid grid-cols-2 gap-2.5">
           {[
             { icon: BookOpen, label: "PYQ Practice", sub: "Subject & Chapter" },
             { icon: Trophy, label: "Live Mock Tests", sub: "State Ranks" },
@@ -172,16 +173,16 @@ export function LoginPage({ onLoginSuccess, onClose, isMandatory = false }: Logi
           ].map((feat) => (
             <div
               key={feat.label}
-              className="bg-white dark:bg-[#201B38] border border-[#E2DCF0] dark:border-[#362E5B] rounded-xl p-2.5 flex items-center gap-2 shadow-2xs"
+              className="bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] rounded-xl p-3 flex items-center gap-2.5 shadow-2xs"
             >
               <div className="w-8 h-8 rounded-lg bg-[#7045D8]/10 dark:bg-[#A78BFA]/15 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center shrink-0">
                 <feat.icon className="w-4 h-4" />
               </div>
               <div className="min-w-0">
-                <p className="text-xs font-extrabold text-[#171329] dark:text-[#FFFFFF] truncate">
+                <p className="text-xs font-extrabold text-slate-900 dark:text-slate-50 truncate">
                   {feat.label}
                 </p>
-                <p className="text-[10px] font-medium text-[#5E5873] dark:text-[#A39DBE] truncate">
+                <p className="text-[11px] font-medium text-slate-600 dark:text-slate-300 truncate">
                   {feat.sub}
                 </p>
               </div>
@@ -191,12 +192,12 @@ export function LoginPage({ onLoginSuccess, onClose, isMandatory = false }: Logi
       </main>
 
       {/* Bottom Sign-In Card: Exclusively Google Sign-In */}
-      <footer className="w-full max-w-md mx-auto bg-white dark:bg-[#201B38] rounded-t-3xl px-5 sm:px-6 pt-6 pb-6 shadow-[0_-10px_30px_rgba(23,19,41,0.08)] border-t border-[#E2DCF0] dark:border-[#362E5B] space-y-4 shrink-0 z-30">
+      <footer className="w-full max-w-md mx-auto bg-white dark:bg-[#1B1536] rounded-t-3xl px-5 sm:px-6 pt-6 pb-[calc(24px+env(safe-area-inset-bottom,0px))] shadow-[0_-10px_30px_rgba(23,19,41,0.08)] border-t border-slate-200 dark:border-[#31275E] space-y-4 shrink-0 z-30">
         <div className="text-center space-y-1">
-          <h1 className="text-lg sm:text-xl font-extrabold text-[#171329] dark:text-[#FFFFFF] tracking-tight">
-            Welcome to DISHA <span className="text-[#A78BFA]">PYQ</span>
+          <h1 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-slate-50 tracking-tight">
+            Welcome to DISHA <span className="text-[#7045D8] dark:text-[#A78BFA]">PYQ</span>
           </h1>
-          <p className="text-xs text-[#5E5873] dark:text-[#D4CEE8] font-medium">
+          <p className="text-xs text-slate-600 dark:text-slate-300 font-medium">
             Sign in with Google to sync bookmarks, test results &amp; PYQ progress
           </p>
         </div>
@@ -206,10 +207,10 @@ export function LoginPage({ onLoginSuccess, onClose, isMandatory = false }: Logi
           type="button"
           onClick={handleGoogleLogin}
           disabled={isLoading}
-          className="w-full py-3 px-4 bg-white dark:bg-[#262B3D] border-2 border-[#E8D9C0] dark:border-[#31374A] hover:border-[#800020] dark:hover:border-[#F47B20] hover:bg-amber-50/30 dark:hover:bg-[#2e3447] text-[#171923] dark:text-[#FFF9EF] rounded-2xl flex items-center justify-center gap-3 shadow-sm hover:shadow-md active:scale-[0.98] transition-all cursor-pointer font-bold text-sm sm:text-base disabled:opacity-60"
+          className="w-full min-h-[48px] py-3 px-4 bg-white dark:bg-[#241D48] border-2 border-slate-200 dark:border-[#31275E] hover:border-[#7045D8] dark:hover:border-[#A78BFA] hover:bg-slate-50 dark:hover:bg-[#31275E] text-slate-900 dark:text-slate-50 rounded-2xl flex items-center justify-center gap-3 shadow-sm hover:shadow-md active:scale-[0.98] transition-all cursor-pointer font-bold text-sm sm:text-base disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
         >
           {isLoading ? (
-            <div className="w-5 h-5 border-2 border-[#800020] dark:border-[#F47B20] border-t-transparent rounded-full animate-spin" />
+            <div className="w-5 h-5 border-2 border-[#7045D8] dark:border-[#A78BFA] border-t-transparent rounded-full animate-spin" />
           ) : (
             <>
               <span className="w-6 h-6 rounded-full bg-white flex items-center justify-center shrink-0 shadow-xs p-1">
@@ -239,33 +240,33 @@ export function LoginPage({ onLoginSuccess, onClose, isMandatory = false }: Logi
 
         {/* Notices */}
         {configNotice && (
-          <div className="p-2.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 rounded-xl text-[11px] text-amber-800 dark:text-amber-300 leading-relaxed text-center font-hindi">
+          <div className="p-2.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 rounded-xl text-xs text-amber-800 dark:text-amber-300 leading-relaxed text-center font-hindi">
             {configNotice}
           </div>
         )}
 
         {successNotice && (
-          <div className="p-2.5 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/60 rounded-xl text-[11px] text-emerald-800 dark:text-emerald-300 leading-relaxed text-center font-hindi flex items-center justify-center gap-1.5">
+          <div className="p-2.5 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/60 rounded-xl text-xs text-emerald-800 dark:text-emerald-300 leading-relaxed text-center font-hindi flex items-center justify-center gap-1.5">
             <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
             <span>{successNotice}</span>
           </div>
         )}
 
         <div className="flex items-center justify-center gap-2 pt-0.5">
-          <ShieldCheck className="w-4 h-4 text-[#15803D] dark:text-[#22C55E]" />
-          <span className="text-[10px] font-medium text-[#52576A] dark:text-[#929AB0]">
+          <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+          <span className="text-[11px] font-medium text-slate-600 dark:text-slate-300">
             Supabase encrypted cloud sync for bookmarks &amp; mock history
           </span>
         </div>
 
-        <p className="text-[10px] font-medium text-[#787D91] dark:text-[#929AB0] text-center leading-relaxed">
+        <p className="text-[11px] font-medium text-slate-600 dark:text-slate-300 text-center leading-relaxed">
           By continuing, you agree to our{" "}
           <button
             type="button"
             onClick={() => {
               window.location.href = "/terms-of-service";
             }}
-            className="text-[#800020] dark:text-[#F47B20] font-bold hover:underline cursor-pointer"
+            className="text-[#7045D8] dark:text-[#A78BFA] font-bold hover:underline cursor-pointer"
           >
             Terms of Service
           </button>{" "}
@@ -275,7 +276,7 @@ export function LoginPage({ onLoginSuccess, onClose, isMandatory = false }: Logi
             onClick={() => {
               window.location.href = "/privacy-policy";
             }}
-            className="text-[#800020] dark:text-[#F47B20] font-bold hover:underline cursor-pointer"
+            className="text-[#7045D8] dark:text-[#A78BFA] font-bold hover:underline cursor-pointer"
           >
             Privacy Policy
           </button>

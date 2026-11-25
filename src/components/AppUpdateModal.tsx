@@ -73,7 +73,7 @@ export const AppUpdateModal: React.FC<AppUpdateModalProps> = ({
               )}
             </div>
             {isHardLock && (
-              <span className="absolute -bottom-1 -right-1 px-2 py-0.5 rounded-full bg-rose-600 text-white font-black text-[9px] uppercase tracking-wider shadow">
+              <span className="absolute -bottom-1 -right-1 px-2 py-0.5 rounded-full bg-rose-600 text-white font-black text-[11px] uppercase tracking-wider shadow">
                 REQUIRED
               </span>
             )}

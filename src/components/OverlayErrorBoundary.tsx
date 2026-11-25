@@ -59,13 +59,13 @@ export class OverlayErrorBoundary extends React.Component<
           aria-live="assertive"
           className="fixed inset-0 z-[120] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 select-none"
         >
-          <div className="bg-[#FFF9EF] dark:bg-[#1A202C] border border-[#E8D9C0] dark:border-[#31374A] rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl text-center space-y-4">
+          <div className="bg-[#F8FAFC] dark:bg-[#1A202C] border border-slate-200 dark:border-[#31275E] rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl text-center space-y-4">
             <div className="w-14 h-14 mx-auto rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 flex items-center justify-center">
               <AlertCircle className="w-7 h-7" />
             </div>
 
             <div className="space-y-1.5">
-              <h3 className="text-base sm:text-lg font-black text-[#171923] dark:text-[#FFF9EF]">
+              <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-slate-50">
                 {this.props.viewName} Encountered an Issue
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
@@ -77,7 +77,7 @@ export class OverlayErrorBoundary extends React.Component<
               <button
                 type="button"
                 onClick={this.handleClose}
-                className="w-full sm:flex-1 py-3 px-4 bg-[#800020] hover:bg-[#600018] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] text-white rounded-xl text-xs font-bold transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-1.5"
+                className="w-full sm:flex-1 py-3 px-4 bg-[#7045D8] hover:bg-[#5B32BF] dark:bg-[#7045D8] dark:hover:bg-[#5B32BF] text-white rounded-xl text-xs font-bold transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-1.5"
               >
                 <X className="w-4 h-4" />
                 <span>Return to Study</span>
@@ -98,15 +98,15 @@ export class OverlayErrorBoundary extends React.Component<
                 <button
                   type="button"
                   onClick={() => this.setState((prev) => ({ showDetails: !prev.showDetails }))}
-                  className="text-[10px] font-bold text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 underline cursor-pointer"
+                  className="text-[11px] font-bold text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 underline cursor-pointer"
                 >
                   {this.state.showDetails ? "Hide Error Details" : "Show Error Details"}
                 </button>
                 {this.state.showDetails && (
-                  <div className="mt-2 p-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-[10px] font-mono text-rose-600 dark:text-rose-400 break-all select-text max-h-32 overflow-y-auto">
+                  <div className="mt-2 p-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-[11px] font-mono text-rose-600 dark:text-rose-400 break-all select-text max-h-32 overflow-y-auto">
                     <p className="font-bold">{this.state.error.name}: {this.state.error.message}</p>
                     {this.state.error.stack && (
-                      <p className="mt-1 text-[9px] text-slate-400 opacity-80 whitespace-pre-wrap">{this.state.error.stack.slice(0, 300)}</p>
+                      <p className="mt-1 text-[11px] text-slate-400 opacity-80 whitespace-pre-wrap">{this.state.error.stack.slice(0, 300)}</p>
                     )}
                   </div>
                 )}

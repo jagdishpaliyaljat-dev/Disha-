@@ -91,8 +91,8 @@ export const GfmMarkdown: React.FC<GfmMarkdownProps> = ({
         remarkPlugins={[remarkGfm]}
         components={{
           table: ({ children, ...props }) => (
-            <div className="article-table-wrapper my-6 sm:my-8 overflow-hidden rounded-2xl sm:rounded-3xl border border-[#E8D9C0] dark:border-[#31374A] bg-white dark:bg-[#1F2330] shadow-xs">
-              <div className="overflow-x-auto w-full scrollbar-thin scrollbar-thumb-[#C99A45]/40 dark:scrollbar-thumb-[#31374A]">
+            <div className="article-table-wrapper my-6 sm:my-8 overflow-hidden rounded-2xl sm:rounded-3xl border border-slate-200 dark:border-[#31275E] bg-white dark:bg-[#1B1536] shadow-xs">
+              <div className="overflow-x-auto w-full scrollbar-thin scrollbar-thumb-[#A78BFA]/40 dark:scrollbar-thumb-[#31275E]">
                 <table
                   className="w-full text-left text-xs sm:text-sm border-collapse min-w-[480px] tabular-nums"
                   {...props}
@@ -100,7 +100,7 @@ export const GfmMarkdown: React.FC<GfmMarkdownProps> = ({
                   {children}
                 </table>
               </div>
-              <div className="px-3.5 py-1.5 bg-[#FFF9EF] dark:bg-[#171923] border-t border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-between text-[10px] text-[#52576A] dark:text-[#CBD2E1]">
+              <div className="px-3.5 py-1.5 bg-[#F8FAFC] dark:bg-[#130E26] border-t border-slate-200 dark:border-[#31275E] flex items-center justify-between text-[11px] text-slate-600 dark:text-slate-300">
                 <span className="font-semibold text-[#7045D8] dark:text-[#A78BFA]">Disha PYQ Exam Research Table</span>
                 <span className="hidden sm:inline">Swipe horizontally on mobile ↔</span>
               </div>
@@ -108,7 +108,7 @@ export const GfmMarkdown: React.FC<GfmMarkdownProps> = ({
           ),
           thead: ({ children, ...props }) => (
             <thead
-              className="bg-gradient-to-r from-[#800020] to-[#5E0017] text-[#FFF9EF] border-b border-[#C99A45]/30"
+              className="bg-gradient-to-r from-[#7045D8] to-[#5B32BF] text-white border-b border-[#A78BFA]/30"
               {...props}
             >
               {children}
@@ -116,7 +116,7 @@ export const GfmMarkdown: React.FC<GfmMarkdownProps> = ({
           ),
           tbody: ({ children, ...props }) => (
             <tbody
-              className="divide-y divide-[#E8D9C0]/70 dark:divide-[#31374A] font-hindi text-[#171923] dark:text-[#FFF9EF]"
+              className="divide-y divide-slate-200/70 dark:divide-[#31275E] font-hindi text-slate-900 dark:text-slate-50"
               {...props}
             >
               {children}
@@ -124,7 +124,7 @@ export const GfmMarkdown: React.FC<GfmMarkdownProps> = ({
           ),
           tr: ({ children, ...props }) => (
             <tr
-              className="hover:bg-[#F7EFE2]/70 dark:hover:bg-[#252A3A]/70 even:bg-[#FFF9EF]/70 dark:even:bg-[#252A3A]/35 transition-colors"
+              className="hover:bg-slate-100/70 dark:hover:bg-[#241D48]/70 even:bg-[#F8FAFC]/70 dark:even:bg-[#241D48]/35 transition-colors"
               {...props}
             >
               {children}
@@ -133,7 +133,7 @@ export const GfmMarkdown: React.FC<GfmMarkdownProps> = ({
           th: ({ children, ...props }) => (
             <th
               scope="col"
-              className="p-3.5 sm:p-4 font-black uppercase tracking-wider text-[11px] sm:text-xs text-[#FFF9EF] font-hindi"
+              className="p-3.5 sm:p-4 font-black uppercase tracking-wider text-[11px] sm:text-xs text-white font-hindi"
               {...props}
             >
               {children}
@@ -141,7 +141,7 @@ export const GfmMarkdown: React.FC<GfmMarkdownProps> = ({
           ),
           td: ({ children, ...props }) => (
             <td
-              className="p-3.5 sm:p-4 text-xs sm:text-sm leading-relaxed whitespace-normal break-words font-medium first:font-bold first:text-[#800020] dark:first:text-[#F47B20] font-hindi"
+              className="p-3.5 sm:p-4 text-xs sm:text-sm leading-relaxed whitespace-normal break-words font-medium first:font-bold first:text-[#7045D8] dark:first:text-[#A78BFA] font-hindi"
               {...props}
             >
               {children}
@@ -149,7 +149,7 @@ export const GfmMarkdown: React.FC<GfmMarkdownProps> = ({
           ),
           p: ({ children, ...props }) => (
             <p
-              className="text-[17px] sm:text-[18.5px] leading-[1.8] font-normal text-[#171923] dark:text-[#FFF9EF]/90 font-hindi my-4 max-w-[720px] break-words"
+              className="text-[17px] sm:text-[18.5px] leading-[1.8] font-normal text-slate-900 dark:text-slate-50/90 font-hindi my-4 max-w-[720px] break-words"
               {...props}
             >
               {children}
@@ -170,7 +170,7 @@ export const GfmMarkdown: React.FC<GfmMarkdownProps> = ({
                 onClick={handleClick}
                 target={!isInternal ? "_blank" : "_self"}
                 rel={!isInternal ? "noopener noreferrer" : undefined}
-                className="text-[#800020] dark:text-[#F47B20] font-extrabold underline underline-offset-4 hover:text-[#5E0017] dark:hover:text-[#E06A12] transition-colors cursor-pointer"
+                className="text-[#7045D8] dark:text-[#A78BFA] font-extrabold underline underline-offset-4 hover:text-[#5B32BF] dark:hover:text-[#5B32BF] transition-colors cursor-pointer"
                 {...props}
               >
                 {children}
@@ -178,12 +178,12 @@ export const GfmMarkdown: React.FC<GfmMarkdownProps> = ({
             );
           },
           strong: ({ children, ...props }) => (
-            <strong className="font-extrabold text-[#171923] dark:text-[#FFF9EF]" {...props}>
+            <strong className="font-extrabold text-slate-900 dark:text-slate-50" {...props}>
               {children}
             </strong>
           ),
           em: ({ children, ...props }) => (
-            <em className="italic text-[#171923] dark:text-[#FFF9EF]/90" {...props}>
+            <em className="italic text-slate-900 dark:text-slate-50/90" {...props}>
               {children}
             </em>
           ),

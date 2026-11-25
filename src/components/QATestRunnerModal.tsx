@@ -527,7 +527,7 @@ Answer: A`;
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="w-full h-full sm:max-w-6xl sm:max-h-[94vh] bg-white dark:bg-[#0B1220] border border-slate-200 dark:border-slate-800 rounded-2xl sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden"
+        className="w-full h-full sm:max-w-6xl sm:max-h-[94vh] bg-white dark:bg-[#130E26] border border-slate-200 dark:border-slate-800 rounded-2xl sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden"
       >
         {/* Header */}
         <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3 bg-slate-50 dark:bg-slate-900/60">
@@ -538,7 +538,7 @@ Answer: A`;
             <div>
               <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-white flex flex-wrap items-center gap-2">
                 <span>Disha PYQ — Automated QA Test Runner</span>
-                <span className="text-[10px] font-bold px-2 py-0.5 bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 rounded-full border border-emerald-500/30 flex items-center gap-1">
+                <span className="text-[11px] font-bold px-2 py-0.5 bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 rounded-full border border-emerald-500/30 flex items-center gap-1">
                   <Database className="w-3 h-3" /> Supabase PostgreSQL
                 </span>
               </h2>
@@ -572,27 +572,27 @@ Answer: A`;
         {/* Live KPI Metrics Bar */}
         <div className="p-3 bg-slate-100/70 dark:bg-slate-900/40 border-b border-slate-200 dark:border-slate-800 grid grid-cols-2 sm:grid-cols-6 gap-2 text-center">
           <div className="p-2 bg-white dark:bg-slate-800/80 rounded-xl border border-slate-200/80 dark:border-slate-700/60 shadow-xs">
-            <div className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Total Tests</div>
+            <div className="text-[11px] uppercase font-bold text-slate-400 tracking-wider">Total Tests</div>
             <div className="text-base sm:text-lg font-black text-slate-800 dark:text-white">{totalCount}</div>
           </div>
           <div className="p-2 bg-emerald-50/70 dark:bg-emerald-950/30 rounded-xl border border-emerald-200/80 dark:border-emerald-800/60 shadow-xs">
-            <div className="text-[10px] uppercase font-bold text-emerald-600 dark:text-emerald-400 tracking-wider">Passed</div>
+            <div className="text-[11px] uppercase font-bold text-emerald-600 dark:text-emerald-400 tracking-wider">Passed</div>
             <div className="text-base sm:text-lg font-black text-emerald-700 dark:text-emerald-300">{passCount}</div>
           </div>
           <div className="p-2 bg-rose-50/70 dark:bg-rose-950/30 rounded-xl border border-rose-200/80 dark:border-rose-800/60 shadow-xs">
-            <div className="text-[10px] uppercase font-bold text-rose-600 dark:text-rose-400 tracking-wider">Failed</div>
+            <div className="text-[11px] uppercase font-bold text-rose-600 dark:text-rose-400 tracking-wider">Failed</div>
             <div className="text-base sm:text-lg font-black text-rose-700 dark:text-rose-300">{failCount}</div>
           </div>
           <div className="p-2 bg-blue-50/70 dark:bg-blue-950/30 rounded-xl border border-blue-200/80 dark:border-blue-800/60 shadow-xs">
-            <div className="text-[10px] uppercase font-bold text-blue-600 dark:text-blue-400 tracking-wider">Pass Rate</div>
+            <div className="text-[11px] uppercase font-bold text-blue-600 dark:text-blue-400 tracking-wider">Pass Rate</div>
             <div className="text-base sm:text-lg font-black text-blue-700 dark:text-blue-300">{passPercentage}%</div>
           </div>
           <div className="p-2 bg-amber-50/70 dark:bg-amber-950/30 rounded-xl border border-amber-200/80 dark:border-amber-800/60 shadow-xs">
-            <div className="text-[10px] uppercase font-bold text-amber-600 dark:text-amber-400 tracking-wider">Avg Latency</div>
+            <div className="text-[11px] uppercase font-bold text-amber-600 dark:text-amber-400 tracking-wider">Avg Latency</div>
             <div className="text-base sm:text-lg font-black text-amber-700 dark:text-amber-300">{avgLatency} ms</div>
           </div>
           <div className="p-2 bg-purple-50/70 dark:bg-purple-950/30 rounded-xl border border-purple-200/80 dark:border-purple-800/60 shadow-xs">
-            <div className="text-[10px] uppercase font-bold text-purple-600 dark:text-purple-400 tracking-wider">RLS Security</div>
+            <div className="text-[11px] uppercase font-bold text-purple-600 dark:text-purple-400 tracking-wider">RLS Security</div>
             <div className="text-base sm:text-lg font-black text-purple-700 dark:text-purple-300">
               {securityIssues === 0 ? "100% OK" : `${securityIssues} Alert`}
             </div>
@@ -721,8 +721,8 @@ Answer: A`;
         </div>
 
         {/* Filter Tabs */}
-        <div className="px-4 py-2 border-b border-slate-200 dark:border-slate-800 flex items-center gap-2 overflow-x-auto text-[11px] font-bold bg-white dark:bg-[#0B1220]">
-          <span className="text-slate-400 uppercase tracking-wider text-[10px]">Filter:</span>
+        <div className="px-4 py-2 border-b border-slate-200 dark:border-slate-800 flex items-center gap-2 overflow-x-auto text-[11px] font-bold bg-white dark:bg-[#130E26]">
+          <span className="text-slate-400 uppercase tracking-wider text-[11px]">Filter:</span>
           {[
             { id: "all", label: `All (${totalCount})` },
             { id: "passed", label: `Passed (${passCount})` },
@@ -746,7 +746,7 @@ Answer: A`;
         </div>
 
         {/* Logs Terminal Body */}
-        <div className="flex-1 min-h-[300px] max-h-[60vh] overflow-y-auto p-2 sm:p-4 bg-slate-950 font-mono text-[10px] sm:text-xs text-slate-200 space-y-2">
+        <div className="flex-1 min-h-[300px] max-h-[60vh] overflow-y-auto p-2 sm:p-4 bg-slate-950 font-mono text-[11px] sm:text-xs text-slate-200 space-y-2">
           {filteredLogs.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-slate-500 py-12 px-4 space-y-2 text-center">
               <Terminal className="w-8 h-8 opacity-40 animate-pulse text-emerald-500" />
@@ -774,29 +774,29 @@ Answer: A`;
                   </div>
                   <div className="flex-1">
                     <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
-                      <span className="font-bold text-white bg-slate-800 px-1.5 py-0.5 rounded text-[9px] w-fit">
+                      <span className="font-bold text-white bg-slate-800 px-1.5 py-0.5 rounded text-[11px] w-fit">
                         {log.moduleName}
                       </span>
                       <span className="text-slate-200 font-semibold text-xs">{log.testName}</span>
                     </div>
                     {log.status === "pass" && log.errorDetail && (
-                      <p className="text-[10px] text-emerald-400 mt-1 font-mono break-words">
+                      <p className="text-[11px] text-emerald-400 mt-1 font-mono break-words">
                         {log.errorDetail}
                       </p>
                     )}
                     {log.status === "fail" && log.errorDetail && (
-                      <p className="text-[10px] text-rose-400 mt-1 font-mono break-words">
+                      <p className="text-[11px] text-rose-400 mt-1 font-mono break-words">
                         Error [{log.errorCode || 'FAIL'}]: {log.errorDetail}
                       </p>
                     )}
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between mt-1 text-[10px] text-slate-400 border-t border-white/5 pt-1">
+                <div className="flex items-center justify-between mt-1 text-[11px] text-slate-400 border-t border-white/5 pt-1">
                   <span className="flex items-center gap-2">
                     <span>{log.timestamp}</span>
                     {log.category && (
-                      <span className="text-[9px] text-slate-500 uppercase font-semibold">[{log.category}]</span>
+                      <span className="text-[11px] text-slate-500 uppercase font-semibold">[{log.category}]</span>
                     )}
                   </span>
                   <span className="flex items-center gap-1">

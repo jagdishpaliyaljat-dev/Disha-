@@ -192,15 +192,16 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
 
   return (
     <div
-      className="flex flex-col h-full bg-[#FFF9EF] dark:bg-[#171923] overflow-y-auto pb-24 selection:bg-[#800020] selection:text-white"
+      className="flex flex-col h-full bg-[#F8FAFC] dark:bg-[#130E26] overflow-y-auto pb-28 md:pb-8 selection:bg-[#7045D8] selection:text-white"
       id="profile-tab"
     >
-      {/* 1. COMPACT STICKY PROFILE HEADER (68-72dp excluding status bar inset) */}
-      <header className="sticky top-0 z-40 bg-[#FFF9EF]/95 dark:bg-[#171923]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] select-none w-full max-w-full overflow-hidden shadow-xs transition-colors pt-[env(safe-area-inset-top,0px)]">
-        <div className="h-[68px] sm:h-[72px] px-3.5 sm:px-5 max-w-4xl mx-auto flex items-center justify-between gap-2">
+      {/* 1. COMPACT STICKY PROFILE HEADER */}
+      <header className="sticky top-0 md:top-14 z-30 bg-white/95 dark:bg-[#130E26]/95 backdrop-blur-md border-b border-slate-200 dark:border-[#31275E] select-none w-full max-w-full overflow-hidden shadow-xs transition-colors pt-[env(safe-area-inset-top,0px)] md:pt-0">
+        <div className="min-h-[64px] px-3.5 sm:px-5 py-2 max-w-4xl mx-auto flex items-center justify-between gap-2">
           {/* Left: Back Navigation + Title */}
           <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
             <button
+              type="button"
               onClick={() => {
                 triggerHaptic("light");
                 if (typeof onNavigateTab === "function") {
@@ -209,17 +210,17 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                   window.history.back();
                 }
               }}
-              className="w-10 h-10 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] hover:bg-[#EFE3CF] dark:hover:bg-[#31374A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center text-[#171923] dark:text-[#FFF9EF] active:scale-95 transition-all cursor-pointer shrink-0"
+              className="md:hidden w-11 h-11 rounded-xl bg-slate-100 dark:bg-[#241D48] hover:bg-slate-200/80 dark:hover:bg-[#31275E] border border-slate-200 dark:border-[#31275E] flex items-center justify-center text-slate-900 dark:text-slate-50 active:scale-95 transition-all cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
               aria-label="Back to Home"
               title="Back"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
             <div className="min-w-0">
-              <h1 className="text-base sm:text-lg font-black tracking-tight text-[#171923] dark:text-[#FFF9EF] leading-tight truncate">
-                Profile & Settings
+              <h1 className="text-base sm:text-lg font-black tracking-tight text-slate-900 dark:text-slate-50 leading-tight truncate">
+                Profile &amp; Settings
               </h1>
-              <p className="text-[10.5px] text-[#52576A] dark:text-[#CBD2E1] leading-none truncate">
+              <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-none mt-0.5 truncate">
                 Account information and preferences
               </p>
             </div>
@@ -228,14 +229,15 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
           {/* Right: Eye Comfort + Theme Toggle + Settings Modal Button */}
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             <button
+              type="button"
               onClick={() => {
                 triggerHaptic("light");
                 onUpdateSettings({ eyeComfort: !settings.eyeComfort });
               }}
-              className={`w-10 h-10 rounded-xl border flex items-center justify-center active:scale-95 transition-all cursor-pointer shrink-0 ${
+              className={`w-11 h-11 rounded-xl border flex items-center justify-center active:scale-95 transition-all cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8] ${
                 settings.eyeComfort
                   ? "bg-amber-500/20 border-amber-500 text-amber-500 shadow-xs"
-                  : "bg-[#F7EFE2] dark:bg-[#252A3A] hover:bg-[#EFE3CF] dark:hover:bg-[#31374A] border-[#E8D9C0] dark:border-[#31374A] text-slate-500 dark:text-[#CBD2E1]"
+                  : "bg-slate-100 dark:bg-[#241D48] hover:bg-slate-200/80 dark:hover:bg-[#31275E] border-slate-200 dark:border-[#31275E] text-slate-600 dark:text-slate-300"
               }`}
               aria-label="Toggle Eye Comfort"
               title={settings.eyeComfort ? "Eye Comfort On (Tap to Turn Off)" : "Eye Comfort Off (Tap to Turn On)"}
@@ -243,6 +245,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
               <Eye className="w-4.5 h-4.5" />
             </button>
             <button
+              type="button"
               onClick={() => {
                 triggerHaptic("light");
                 if (!settings.darkMode) {
@@ -253,24 +256,25 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                   onUpdateSettings({ darkMode: false, amoledBlack: false });
                 }
               }}
-              className="w-10 h-10 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] hover:bg-[#EFE3CF] dark:hover:bg-[#31374A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center text-[#171923] dark:text-[#C99A45] active:scale-95 transition-all cursor-pointer shrink-0"
+              className="w-11 h-11 rounded-xl bg-slate-100 dark:bg-[#241D48] hover:bg-slate-200/80 dark:hover:bg-[#31275E] border border-slate-200 dark:border-[#31275E] flex items-center justify-center text-slate-900 dark:text-[#A78BFA] active:scale-95 transition-all cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
               aria-label="Toggle Theme"
               title={!settings.darkMode ? "Light Mode (Tap for Charcoal Dark)" : !settings.amoledBlack ? "Charcoal Dark (Tap for AMOLED Black)" : "AMOLED Black (Tap for Light)"}
             >
               {!settings.darkMode ? (
-                <Moon className="w-4.5 h-4.5 text-[#800020]" />
+                <Moon className="w-4.5 h-4.5 text-[#7045D8]" />
               ) : settings.amoledBlack ? (
                 <Sparkles className="w-4.5 h-4.5 text-amber-400" />
               ) : (
-                <Sun className="w-4.5 h-4.5 text-[#F47B20]" />
+                <Sun className="w-4.5 h-4.5 text-amber-400" />
               )}
             </button>
             <button
+              type="button"
               onClick={() => {
                 triggerHaptic("light");
                 setShowSettingsModal(true);
               }}
-              className="w-10 h-10 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] hover:bg-[#EFE3CF] dark:hover:bg-[#31374A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center text-[#800020] dark:text-[#C99A45] active:scale-95 transition-all cursor-pointer shrink-0"
+              className="w-11 h-11 rounded-xl bg-slate-100 dark:bg-[#241D48] hover:bg-slate-200/80 dark:hover:bg-[#31275E] border border-slate-200 dark:border-[#31275E] flex items-center justify-center text-[#7045D8] dark:text-[#A78BFA] active:scale-95 transition-all cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
               aria-label="App Settings"
               title="App Settings"
             >
@@ -293,15 +297,15 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
         <motion.div
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col sm:flex-row items-center sm:items-start gap-3 sm:gap-4.5 bg-gradient-to-b from-[#FFF9EF] to-white dark:from-[#171923] dark:to-[#1F2330] p-3 sm:p-4 rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] shadow-xs relative overflow-hidden"
+            className="flex flex-col sm:flex-row items-center sm:items-start gap-3 sm:gap-4.5 bg-gradient-to-b from-[#F8FAFC] to-white dark:from-[#130E26] dark:to-[#1B1536] p-3 sm:p-4 rounded-2xl border border-slate-200 dark:border-[#31275E] shadow-xs relative overflow-hidden"
           >
             {/* Royal Corner Accent */}
-            <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-[#C99A45]/15 to-transparent rounded-bl-full pointer-events-none" />
+            <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-[#A78BFA]/15 to-transparent rounded-bl-full pointer-events-none" />
 
             {/* Avatar with Triple-Hue Royal Ring */}
             <div className="relative shrink-0">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl p-0.5 sm:p-1 bg-gradient-to-tr from-[#800020] via-[#F47B20] to-[#C99A45] shadow-sm">
-                <div className="w-full h-full rounded-[14px] sm:rounded-[18px] border border-white dark:border-[#1F2330] overflow-hidden bg-[#FFF9EF] dark:bg-[#171923] flex items-center justify-center">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl p-0.5 sm:p-1 bg-gradient-to-tr from-[#7045D8] via-[#7045D8] to-[#A78BFA] shadow-sm">
+                <div className="w-full h-full rounded-[14px] sm:rounded-[18px] border border-white dark:border-[#1B1536] overflow-hidden bg-[#F8FAFC] dark:bg-[#130E26] flex items-center justify-center">
                   <UserAvatar
                     name={userName}
                     photoURL={activeProfile?.photoURL}
@@ -310,6 +314,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                 </div>
               </div>
               <button
+                type="button"
                 onClick={() => {
                   if (!isAuthenticated) {
                     onOpenLogin?.();
@@ -318,11 +323,11 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                   triggerHaptic("light");
                   setShowEditProfileModal(true);
                 }}
-                className="absolute -bottom-1 -right-1 w-6 h-6 sm:w-6.5 sm:h-6.5 rounded-lg bg-gradient-to-r from-[#800020] to-[#5E0017] dark:from-[#F47B20] dark:to-[#E06A14] text-white flex items-center justify-center shadow-sm border border-white dark:border-[#1F2330] active:scale-90 transition-transform cursor-pointer"
+                className="absolute -bottom-1.5 -right-1.5 w-9 h-9 rounded-xl bg-[#7045D8] hover:bg-[#5B32BF] text-white flex items-center justify-center shadow-sm border-2 border-white dark:border-[#1B1536] active:scale-90 transition-transform cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
                 aria-label="Edit Profile"
                 title="Edit Profile"
               >
-                <Edit2 size={10} />
+                <Edit2 size={14} />
               </button>
             </div>
 
@@ -330,33 +335,33 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
             <div className="flex-1 text-center sm:text-left min-w-0 space-y-1.5">
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-1.5">
                 {isAdmin ? (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-[#C99A45]/20 to-[#C99A45]/30 text-[#800020] dark:text-[#C99A45] border border-[#C99A45]/40 text-[9px] font-black uppercase tracking-wider">
-                    <Crown size={10} className="text-[#C99A45]" />
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-[#A78BFA]/20 to-[#A78BFA]/30 text-[#7045D8] dark:text-[#A78BFA] border border-[#A78BFA]/40 text-[11px] font-black uppercase tracking-wider">
+                    <Crown size={10} className="text-amber-500" />
                     <span>Admin</span>
                   </span>
                 ) : !isAuthenticated ? (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 text-[9px] font-black uppercase tracking-wider">
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 text-[11px] font-black uppercase tracking-wider">
                     <Award size={10} />
                     <span>Guest Mode</span>
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] border border-[#800020]/20 dark:border-[#F47B20]/30 text-[9px] font-black uppercase tracking-wider">
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#7045D8]/10 dark:bg-[#7045D8]/15 text-[#7045D8] dark:text-[#A78BFA] border border-[#7045D8]/20 dark:border-[#A78BFA]/30 text-[11px] font-black uppercase tracking-wider">
                     <Award size={10} />
                     <span>Aspirant</span>
                   </span>
                 )}
-                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-[#F7EFE2] dark:bg-[#252A3A] text-slate-700 dark:text-[#E8D9C0] text-[9px] font-black border border-[#E8D9C0] dark:border-[#31374A]">
-                  <Zap size={9} className="text-[#C99A45]" />
+                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-slate-100 dark:bg-[#241D48] text-slate-700 dark:text-slate-200 text-[11px] font-black border border-slate-200 dark:border-[#31275E]">
+                  <Zap size={9} className="text-amber-500" />
                   <span>LVL {currentLevel}</span>
                 </span>
               </div>
 
               <div>
-                <h2 className="text-base sm:text-xl font-black text-[#171923] dark:text-[#FFF9EF] tracking-tight truncate leading-tight">
+                <h2 className="text-base sm:text-xl font-black text-slate-900 dark:text-slate-50 tracking-tight truncate leading-tight">
                   {userName}
                 </h2>
                 {activeProfile?.email && (
-                  <div className="inline-flex items-center gap-1 text-[10px] font-semibold text-slate-500 dark:text-[#E8D9C0]/70 mt-0.5">
+                  <div className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-500 dark:text-slate-200/70 mt-0.5">
                     <Mail size={10} />
                     <span className="truncate">{activeProfile.email}</span>
                     <CheckCircle2 size={10} className="text-emerald-500 shrink-0" />
@@ -365,20 +370,20 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
               </div>
 
               {/* Target Exam Badge */}
-              <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-white dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] text-[11px] font-black text-[#800020] dark:text-[#C99A45] shadow-2xs">
-                <Target size={11} className="text-[#F47B20]" />
+              <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-white dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] text-[11px] font-black text-[#7045D8] dark:text-[#A78BFA] shadow-2xs">
+                <Target size={11} className="text-[#7045D8]" />
                 <span className="truncate">{activeProfile?.targetExam || "RPSC RAS Pre & Competitive Exams"}</span>
               </div>
 
               {/* Level & XP Progress Bar */}
               <div className="pt-0.5 max-w-xs mx-auto sm:mx-0">
-                <div className="flex items-center justify-between text-[9px] font-bold text-slate-500 dark:text-[#E8D9C0]/80 mb-0.5">
+                <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 dark:text-slate-200/80 mb-0.5">
                   <span>Level {currentLevel}</span>
                   <span className="font-mono">{remainingForNextLevel} Qs to Next Level</span>
                 </div>
-                <div className="w-full h-1.5 rounded-full bg-[#E8D9C0]/60 dark:bg-[#31374A] overflow-hidden">
+                <div className="w-full h-1.5 rounded-full bg-slate-200/60 dark:bg-[#31275E] overflow-hidden">
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-[#800020] via-[#F47B20] to-[#C99A45] transition-all duration-500"
+                    className="h-full rounded-full bg-gradient-to-r from-[#7045D8] via-[#7045D8] to-[#A78BFA] transition-all duration-500"
                     style={{ width: `${levelProgressPercent}%` }}
                   />
                 </div>
@@ -389,7 +394,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                 {!isAuthenticated ? (
                   <button
                     onClick={onOpenLogin}
-                    className="px-3.5 py-1.5 bg-gradient-to-r from-[#800020] via-[#5E0017] to-[#800020] hover:opacity-95 text-white rounded-lg sm:rounded-xl text-[11px] font-black shadow-sm border border-[#C99A45]/30 transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer"
+                    className="px-3.5 py-1.5 bg-gradient-to-r from-[#7045D8] via-[#5B32BF] to-[#7045D8] hover:opacity-95 text-white rounded-lg sm:rounded-xl text-[11px] font-black shadow-sm border border-[#A78BFA]/30 transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer"
                   >
                     <LogIn size={11} />
                     <span>Sign In</span>
@@ -400,9 +405,9 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                       triggerHaptic("light");
                       setShowEditProfileModal(true);
                     }}
-                    className="px-3 py-1 bg-[#FFF9EF] dark:bg-[#252A3A] hover:border-[#800020] dark:hover:border-[#C99A45] text-[#171923] dark:text-[#FFF9EF] border border-[#E8D9C0] dark:border-[#31374A] rounded-lg sm:rounded-xl text-[11px] font-black transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                    className="px-3 py-1 bg-[#F8FAFC] dark:bg-[#241D48] hover:border-[#7045D8] dark:hover:border-[#A78BFA] text-slate-900 dark:text-slate-50 border border-slate-200 dark:border-[#31275E] rounded-lg sm:rounded-xl text-[11px] font-black transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer shadow-2xs"
                   >
-                    <Edit2 size={11} className="text-[#800020] dark:text-[#C99A45]" />
+                    <Edit2 size={11} className="text-[#7045D8] dark:text-[#A78BFA]" />
                     <span>Edit Profile</span>
                   </button>
                 )}
@@ -414,17 +419,17 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
         {!isAuthenticated && (
           <motion.div
             variants={itemVariants}
-            className="p-4 rounded-2xl bg-gradient-to-r from-[#FFF9EF] via-white to-[#F7EFE2] dark:from-[#252A3A] dark:to-[#1F2330] border-2 border-[#800020]/30 dark:border-[#C99A45]/40 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
+            className="p-4 rounded-2xl bg-gradient-to-r from-[#F8FAFC] via-white to-slate-100 dark:from-[#241D48] dark:to-[#1B1536] border-2 border-[#7045D8]/30 dark:border-[#A78BFA]/40 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
           >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#800020]/10 dark:bg-[#C99A45]/20 flex items-center justify-center text-[#800020] dark:text-[#C99A45] shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-[#7045D8]/10 dark:bg-[#7045D8]/20 flex items-center justify-center text-[#7045D8] dark:text-[#A78BFA] shrink-0">
                 <LogIn size={20} />
               </div>
               <div>
-                <h3 className="font-black text-sm text-[#171923] dark:text-[#FFF9EF]">
+                <h3 className="font-black text-sm text-slate-900 dark:text-slate-50">
                   You are in Guest Mode
                 </h3>
-                <p className="text-xs text-slate-600 dark:text-[#E8D9C0]/80 mt-0.5">
+                <p className="text-xs text-slate-600 dark:text-slate-200/80 mt-0.5">
                   Sign in with your Google account to synchronize your exam progress, scores, and bookmarks.
                 </p>
               </div>
@@ -434,7 +439,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                 triggerHaptic("medium");
                 onOpenLogin?.();
               }}
-              className="w-full sm:w-auto px-4 py-2 bg-gradient-to-r from-[#800020] to-[#5E0017] hover:opacity-95 text-white rounded-xl text-xs font-black shadow-sm active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0"
+              className="w-full sm:w-auto px-4 py-2 bg-gradient-to-r from-[#7045D8] to-[#5B32BF] hover:opacity-95 text-white rounded-xl text-xs font-black shadow-sm active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0"
             >
               <LogIn size={13} />
               <span>Sign In</span>
@@ -444,20 +449,20 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
         {isAdmin && (
           <motion.div
             variants={itemVariants}
-            className="p-4 rounded-3xl bg-gradient-to-r from-[#800020] via-[#5E0017] to-[#800020] text-white shadow-md border border-[#C99A45]/40 flex items-center justify-between gap-3"
+            className="p-4 rounded-3xl bg-gradient-to-r from-[#7045D8] via-[#5B32BF] to-[#7045D8] text-white shadow-md border border-[#A78BFA]/40 flex items-center justify-between gap-3"
           >
             <div className="flex items-center gap-3.5 min-w-0">
-              <div className="w-11 h-11 rounded-2xl bg-[#C99A45]/20 flex items-center justify-center text-[#C99A45] shrink-0 border border-[#C99A45]/40 shadow-inner">
-                <Crown size={22} className="text-[#C99A45]" />
+              <div className="w-11 h-11 rounded-2xl bg-[#A78BFA]/20 flex items-center justify-center text-amber-500 shrink-0 border border-[#A78BFA]/40 shadow-inner">
+                <Crown size={22} className="text-amber-500" />
               </div>
               <div className="min-w-0">
                 <div className="font-black text-sm sm:text-base flex items-center gap-2 flex-wrap text-white">
                   <span>Administrator Portal Active</span>
-                  <span className="text-[10px] bg-[#C99A45] text-[#171923] px-2 py-0.5 rounded-full font-black tracking-wider uppercase">
+                  <span className="text-[11px] bg-[#A78BFA] text-slate-900 px-2 py-0.5 rounded-full font-black tracking-wider uppercase">
                     Admin Access
                   </span>
                 </div>
-                <p className="text-xs text-[#FFF9EF]/80 truncate mt-0.5">
+                <p className="text-xs text-white/80 truncate mt-0.5">
                   Manage curriculum, question banks, and live tests
                 </p>
               </div>
@@ -467,7 +472,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                 triggerHaptic("medium");
                 onNavigateTab?.("admin");
               }}
-              className="px-4 py-2 bg-[#C99A45] hover:bg-[#d4a853] active:scale-95 text-[#171923] text-xs font-black rounded-xl transition-all shrink-0 cursor-pointer shadow-md flex items-center gap-1.5"
+              className="px-4 py-2 bg-[#A78BFA] hover:bg-[#d4a853] active:scale-95 text-slate-900 text-xs font-black rounded-xl transition-all shrink-0 cursor-pointer shadow-md flex items-center gap-1.5"
             >
               <span>Admin Panel</span>
               <ChevronRight size={14} />
@@ -478,32 +483,32 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
             A. ASPIRANT TOOLKIT & PREFERENCES
         ───────────────────────────────────────────────────────────── */}
         <motion.section variants={itemVariants} className="space-y-2.5">
-          <h3 className="text-xs font-black text-slate-600 dark:text-[#E8D9C0] uppercase tracking-wider px-1">
+          <h3 className="text-xs font-black text-slate-600 dark:text-slate-200 uppercase tracking-wider px-1">
             Preferences
           </h3>
-          <div className="bg-white dark:bg-[#1F2330] rounded-3xl border border-[#E8D9C0] dark:border-[#31374A] shadow-xs overflow-hidden divide-y divide-[#E8D9C0]/60 dark:divide-[#31374A]">
+          <div className="bg-white dark:bg-[#1B1536] rounded-3xl border border-slate-200 dark:border-[#31275E] shadow-xs overflow-hidden divide-y divide-slate-200/60 dark:divide-[#31275E]">
             {/* App & Practice Settings */}
             <button
               onClick={() => {
                 triggerHaptic("light");
                 setShowSettingsModal(true);
               }}
-              className="w-full flex items-center justify-between p-4 hover:bg-[#FFF9EF] dark:hover:bg-[#252A3A]/60 transition-colors group cursor-pointer text-left"
+              className="w-full flex items-center justify-between p-4 hover:bg-[#F8FAFC] dark:hover:bg-[#241D48]/60 transition-colors group cursor-pointer text-left"
             >
               <div className="flex items-center gap-3.5">
-                <div className="w-10 h-10 rounded-2xl bg-[#800020]/10 dark:bg-[#C99A45]/15 text-[#800020] dark:text-[#C99A45] flex items-center justify-center shrink-0 shadow-2xs">
+                <div className="w-10 h-10 rounded-2xl bg-[#7045D8]/10 dark:bg-[#7045D8]/15 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center shrink-0 shadow-2xs">
                   <Settings size={19} />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <span className="text-sm font-black text-[#171923] dark:text-[#FFF9EF] block truncate">
+                  <span className="text-sm font-black text-slate-900 dark:text-slate-50 block truncate">
                     Practice Settings
                   </span>
-                  <span className="text-[11px] text-slate-500 dark:text-[#CBD2E1] font-bold block truncate">
+                  <span className="text-[11px] text-slate-500 dark:text-slate-300 font-bold block truncate">
                     Daily goal: {dailyGoal} Qs • Sound &amp; Timer
                   </span>
                 </div>
               </div>
-              <ChevronRight size={18} className="text-slate-400 group-hover:text-[#800020] dark:group-hover:text-[#C99A45] transition-colors" />
+              <ChevronRight size={18} className="text-slate-400 group-hover:text-[#7045D8] dark:group-hover:text-amber-500 transition-colors" />
             </button>
 
             {/* AI Assistant Preferences */}
@@ -512,43 +517,43 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                 triggerHaptic("light");
                 setShowApiSettingsModal(true);
               }}
-              className="w-full flex items-center justify-between p-4 hover:bg-[#FFF9EF] dark:hover:bg-[#252A3A]/60 transition-colors group cursor-pointer text-left"
+              className="w-full flex items-center justify-between p-4 hover:bg-[#F8FAFC] dark:hover:bg-[#241D48]/60 transition-colors group cursor-pointer text-left"
             >
               <div className="flex items-center gap-3.5">
-                <div className="w-10 h-10 rounded-2xl bg-[#C99A45]/20 text-[#800020] dark:text-[#C99A45] flex items-center justify-center shrink-0 shadow-2xs">
+                <div className="w-10 h-10 rounded-2xl bg-[#A78BFA]/20 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center shrink-0 shadow-2xs">
                   <Sparkles size={19} />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <span className="text-sm font-black text-[#171923] dark:text-[#FFF9EF] block truncate">
+                  <span className="text-sm font-black text-slate-900 dark:text-slate-50 block truncate">
                     AI Assistant
                   </span>
-                  <span className="text-[11px] text-slate-500 dark:text-[#CBD2E1] font-bold block truncate">
+                  <span className="text-[11px] text-slate-500 dark:text-slate-300 font-bold block truncate">
                     {settings.aiMode === "personal_keys" ? "Personal Gemini Key" : "Default AI Model"}
                   </span>
                 </div>
               </div>
-              <ChevronRight size={18} className="text-slate-400 group-hover:text-[#800020] dark:group-hover:text-[#C99A45] transition-colors" />
+              <ChevronRight size={18} className="text-slate-400 group-hover:text-[#7045D8] dark:group-hover:text-amber-500 transition-colors" />
             </button>
 
             {/* Share App */}
             <button
               onClick={handleShareInvite}
-              className="w-full flex items-center justify-between p-4 hover:bg-[#FFF9EF] dark:hover:bg-[#252A3A]/60 transition-colors group cursor-pointer text-left"
+              className="w-full flex items-center justify-between p-4 hover:bg-[#F8FAFC] dark:hover:bg-[#241D48]/60 transition-colors group cursor-pointer text-left"
             >
               <div className="flex items-center gap-3.5">
-                <div className="w-10 h-10 rounded-2xl bg-[#F47B20]/15 text-[#F47B20] flex items-center justify-center shrink-0 shadow-2xs">
+                <div className="w-10 h-10 rounded-2xl bg-[#7045D8]/15 text-[#7045D8] flex items-center justify-center shrink-0 shadow-2xs">
                   <Share2 size={19} />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <span className="text-sm font-black text-[#171923] dark:text-[#FFF9EF] block truncate">
+                  <span className="text-sm font-black text-slate-900 dark:text-slate-50 block truncate">
                     Share App
                   </span>
-                  <span className="text-[11px] text-slate-500 dark:text-[#CBD2E1] font-bold block truncate">
+                  <span className="text-[11px] text-slate-500 dark:text-slate-300 font-bold block truncate">
                     Invite friends on WhatsApp &amp; Telegram
                   </span>
                 </div>
               </div>
-              <ChevronRight size={18} className="text-slate-400 group-hover:text-[#800020] dark:group-hover:text-[#C99A45] transition-colors" />
+              <ChevronRight size={18} className="text-slate-400 group-hover:text-[#7045D8] dark:group-hover:text-amber-500 transition-colors" />
             </button>
           </div>
         </motion.section>
@@ -557,7 +562,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
             5. COMMUNITY, HELP & LEGAL GRID
         ───────────────────────────────────────────────────────────── */}
         <motion.section variants={itemVariants} className="space-y-2.5">
-          <h3 className="text-xs font-black text-slate-600 dark:text-[#E8D9C0] uppercase tracking-wider px-1">
+          <h3 className="text-xs font-black text-slate-600 dark:text-slate-200 uppercase tracking-wider px-1">
             Support &amp; Info
           </h3>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
@@ -566,24 +571,24 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                 label: "Telegram",
                 sub: "Community",
                 icon: Send,
-                color: "text-[#800020] dark:text-[#C99A45]",
-                bg: "bg-[#800020]/10 dark:bg-[#C99A45]/15",
+                color: "text-[#7045D8] dark:text-[#A78BFA]",
+                bg: "bg-[#7045D8]/10 dark:bg-[#7045D8]/15",
                 action: () => window.open("https://t.me/disha2020_official", "_blank"),
               },
               {
                 label: "Support",
                 sub: "Help Desk",
                 icon: Mail,
-                color: "text-[#F47B20]",
-                bg: "bg-[#F47B20]/15",
+                color: "text-[#7045D8]",
+                bg: "bg-[#7045D8]/15",
                 action: () => onNavigateTab?.("contact"),
               },
               {
                 label: "About",
                 sub: "Version & Info",
                 icon: Info,
-                color: "text-[#C99A45]",
-                bg: "bg-[#C99A45]/15",
+                color: "text-amber-500",
+                bg: "bg-[#A78BFA]/15",
                 action: () => setShowAboutModal(true),
               },
               {
@@ -598,7 +603,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
               <button
                 key={i}
                 onClick={item.action}
-                className="bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] p-3.5 rounded-2xl flex flex-col items-center text-center gap-2 shadow-2xs hover:border-[#800020] dark:hover:border-[#C99A45] active:scale-95 transition-all cursor-pointer group"
+                className="bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] p-3.5 rounded-2xl flex flex-col items-center text-center gap-2 shadow-2xs hover:border-[#7045D8] dark:hover:border-[#A78BFA] active:scale-95 transition-all cursor-pointer group"
               >
                 <div
                   className={`w-10 h-10 rounded-xl ${item.bg} ${item.color} flex items-center justify-center group-hover:scale-105 transition-transform shrink-0`}
@@ -606,10 +611,10 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                   <item.icon size={18} />
                 </div>
                 <div className="min-w-0 w-full px-0.5">
-                  <span className="text-[11px] font-black text-[#171923] dark:text-[#FFF9EF] block truncate">
+                  <span className="text-[11px] font-black text-slate-900 dark:text-slate-50 block truncate">
                     {item.label}
                   </span>
-                  <span className="text-[9px] font-bold text-slate-500 dark:text-[#CBD2E1] block truncate">
+                  <span className="text-[11px] font-bold text-slate-500 dark:text-slate-300 block truncate">
                     {item.sub}
                   </span>
                 </div>
@@ -622,11 +627,11 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
             6. SYSTEM DATA & STORAGE ACTIONS
         ───────────────────────────────────────────────────────────── */}
         <motion.section variants={itemVariants} className="pt-1">
-          <div className="bg-[#F7EFE2] dark:bg-[#1F2330] rounded-3xl p-2 space-y-1.5 border border-[#E8D9C0] dark:border-[#31374A]">
+          <div className="bg-slate-100 dark:bg-[#1B1536] rounded-3xl p-2 space-y-1.5 border border-slate-200 dark:border-[#31275E]">
             {/* Reset Progress */}
             <button
               onClick={() => setShowResetConfirm(true)}
-              className="w-full flex items-center justify-between p-3.5 hover:bg-white dark:hover:bg-[#252A3A] rounded-2xl transition-all group cursor-pointer text-left"
+              className="w-full flex items-center justify-between p-3.5 hover:bg-white dark:hover:bg-[#241D48] rounded-2xl transition-all group cursor-pointer text-left"
             >
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
@@ -636,7 +641,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                   <span className="text-xs font-black text-rose-600 dark:text-rose-400 block">
                     Reset Progress
                   </span>
-                  <span className="text-[10px] text-slate-500 dark:text-[#CBD2E1] block">
+                  <span className="text-[11px] text-slate-500 dark:text-slate-300 block">
                     Clear practice history &amp; stats
                   </span>
                 </div>
@@ -647,17 +652,17 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
             {/* Clear Cache */}
             <button
               onClick={() => setShowCacheResetConfirm(true)}
-              className="w-full flex items-center justify-between p-3.5 hover:bg-white dark:hover:bg-[#252A3A] rounded-2xl transition-all group cursor-pointer text-left"
+              className="w-full flex items-center justify-between p-3.5 hover:bg-white dark:hover:bg-[#241D48] rounded-2xl transition-all group cursor-pointer text-left"
             >
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-xl bg-white dark:bg-[#252A3A] text-slate-700 dark:text-[#FFF9EF] flex items-center justify-center border border-[#E8D9C0] dark:border-[#31374A] shrink-0">
+                <div className="w-8 h-8 rounded-xl bg-white dark:bg-[#241D48] text-slate-700 dark:text-slate-50 flex items-center justify-center border border-slate-200 dark:border-[#31275E] shrink-0">
                   <RefreshCw size={16} />
                 </div>
                 <div>
-                  <span className="text-xs font-black text-[#171923] dark:text-[#FFF9EF] block">
+                  <span className="text-xs font-black text-slate-900 dark:text-slate-50 block">
                     Clear Cache
                   </span>
-                  <span className="text-[10px] text-slate-500 dark:text-[#CBD2E1] block">
+                  <span className="text-[11px] text-slate-500 dark:text-slate-300 block">
                     Refresh offline data &amp; re-sync
                   </span>
                 </div>
@@ -669,17 +674,17 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
             {isAuthenticated && (
               <button
                 onClick={onLogout}
-                className="w-full flex items-center justify-between p-3.5 hover:bg-white dark:hover:bg-[#252A3A] rounded-2xl transition-all group cursor-pointer text-left"
+                className="w-full flex items-center justify-between p-3.5 hover:bg-white dark:hover:bg-[#241D48] rounded-2xl transition-all group cursor-pointer text-left"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-xl bg-[#800020] text-white flex items-center justify-center shrink-0">
+                  <div className="w-8 h-8 rounded-xl bg-[#7045D8] text-white flex items-center justify-center shrink-0">
                     <LogOut size={16} />
                   </div>
                   <div>
-                    <span className="text-xs font-black text-[#800020] dark:text-rose-400 block">
+                    <span className="text-xs font-black text-[#7045D8] dark:text-rose-400 block">
                       Log Out
                     </span>
-                    <span className="text-[10px] text-slate-500 dark:text-[#CBD2E1] block">
+                    <span className="text-[11px] text-slate-500 dark:text-slate-300 block">
                       Sign out from this device
                     </span>
                   </div>
@@ -695,7 +700,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
           <p className="text-[11px] font-black text-[#7045D8] dark:text-[#A78BFA] uppercase tracking-widest">
             Disha PYQ • Previous Year Questions & Precision Learning
           </p>
-          <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500">
+          <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500">
             RPSC • RSMSSB • REET • CET • RAS • Competitive Exam Specialist
           </p>
         </motion.section>
@@ -715,25 +720,25 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="relative bg-white dark:bg-[#1F2330] rounded-3xl p-6 w-full max-w-md border border-[#E8D9C0] dark:border-[#C99A45]/30 shadow-2xl space-y-5"
+            className="relative bg-white dark:bg-[#1B1536] rounded-3xl p-6 w-full max-w-md border border-slate-200 dark:border-[#A78BFA]/30 shadow-2xl space-y-5"
           >
-            <div className="flex items-center justify-between pb-3 border-b border-[#E8D9C0] dark:border-[#31374A]">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-[#31275E]">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-[#800020]/10 dark:bg-[#C99A45]/15 text-[#800020] dark:text-[#C99A45] flex items-center justify-center">
+                <div className="w-10 h-10 rounded-2xl bg-[#7045D8]/10 dark:bg-[#7045D8]/15 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center">
                   <User size={20} />
                 </div>
                 <div>
-                  <h3 className="text-base font-black text-[#171923] dark:text-[#FFF9EF]">
+                  <h3 className="text-base font-black text-slate-900 dark:text-slate-50">
                     Edit Profile
                   </h3>
-                  <p className="text-[10px] font-bold text-slate-500 dark:text-[#CBD2E1] uppercase tracking-wider">
+                  <p className="text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider">
                     Target exam &amp; daily goal
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => setShowEditProfileModal(false)}
-                className="w-8 h-8 rounded-full bg-[#F7EFE2] dark:bg-[#252A3A] flex items-center justify-center text-slate-600 dark:text-[#FFF9EF] hover:bg-[#E8D9C0] cursor-pointer"
+                className="w-8 h-8 rounded-full bg-slate-100 dark:bg-[#241D48] flex items-center justify-center text-slate-600 dark:text-slate-50 hover:bg-slate-200 cursor-pointer"
               >
                 <X size={16} />
               </button>
@@ -742,7 +747,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
             <form onSubmit={handleSaveProfile} className="space-y-4">
               {/* Full Name */}
               <div className="space-y-1">
-                <label className="text-[11px] font-black text-slate-700 dark:text-[#E8D9C0] uppercase tracking-wider block">
+                <label className="text-[11px] font-black text-slate-700 dark:text-slate-200 uppercase tracking-wider block">
                   Full Name *
                 </label>
                 <input
@@ -750,14 +755,14 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                   required
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] text-sm font-bold text-[#171923] dark:text-[#FFF9EF] focus:outline-none focus:ring-2 focus:ring-[#800020] dark:focus:ring-[#C99A45]"
+                  className="w-full px-4 py-2.5 rounded-xl bg-[#F8FAFC] dark:bg-[#130E26] border border-slate-200 dark:border-[#31275E] text-sm font-bold text-slate-900 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#7045D8] dark:focus:ring-[#A78BFA]"
                   placeholder="Enter your name"
                 />
               </div>
 
               {/* Target Exam */}
               <div className="space-y-1.5">
-                <label className="text-[11px] font-black text-slate-700 dark:text-[#E8D9C0] uppercase tracking-wider block">
+                <label className="text-[11px] font-black text-slate-700 dark:text-slate-200 uppercase tracking-wider block">
                   Target Exam *
                 </label>
                 <input
@@ -765,7 +770,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                   required
                   value={editTargetExam}
                   onChange={(e) => setEditTargetExam(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] text-sm font-bold text-[#171923] dark:text-[#FFF9EF] focus:outline-none focus:ring-2 focus:ring-[#800020] dark:focus:ring-[#C99A45]"
+                  className="w-full px-4 py-2.5 rounded-xl bg-[#F8FAFC] dark:bg-[#130E26] border border-slate-200 dark:border-[#31275E] text-sm font-bold text-slate-900 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#7045D8] dark:focus:ring-[#A78BFA]"
                   placeholder="e.g. RPSC RAS Pre / CET / SI"
                 />
 
@@ -776,10 +781,10 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                       type="button"
                       key={exam}
                       onClick={() => setEditTargetExam(exam)}
-                      className={`px-2.5 py-1 rounded-lg text-[10px] font-black transition-all cursor-pointer ${
+                      className={`px-2.5 py-1 rounded-lg text-[11px] font-black transition-all cursor-pointer ${
                         editTargetExam === exam
-                          ? "bg-[#800020] dark:bg-[#C99A45] text-white dark:text-slate-950 shadow-2xs"
-                          : "bg-[#F7EFE2] dark:bg-[#252A3A] text-slate-700 dark:text-[#E8D9C0] border border-[#E8D9C0] dark:border-[#31374A]"
+                          ? "bg-[#7045D8] dark:bg-[#7045D8] text-white dark:text-slate-950 shadow-2xs"
+                          : "bg-slate-100 dark:bg-[#241D48] text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-[#31275E]"
                       }`}
                     >
                       {exam}
@@ -790,7 +795,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
 
               {/* Daily Goal Question Selector */}
               <div className="space-y-1.5 pt-1">
-                <label className="text-[11px] font-black text-slate-700 dark:text-[#E8D9C0] uppercase tracking-wider block">
+                <label className="text-[11px] font-black text-slate-700 dark:text-slate-200 uppercase tracking-wider block">
                   Daily Question Goal
                 </label>
                 <div className="grid grid-cols-4 gap-2">
@@ -801,8 +806,8 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                       onClick={() => setEditDailyGoal(goal)}
                       className={`py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
                         editDailyGoal === goal
-                          ? "bg-gradient-to-r from-[#800020] to-[#5E0017] dark:from-[#C99A45] dark:to-[#B88934] text-white dark:text-slate-950 shadow-xs"
-                          : "bg-[#F7EFE2] dark:bg-[#252A3A] text-slate-700 dark:text-[#E8D9C0] border border-[#E8D9C0] dark:border-[#31374A]"
+                          ? "bg-gradient-to-r from-[#7045D8] to-[#5B32BF] dark:from-[#A78BFA] dark:to-[#B88934] text-white dark:text-slate-950 shadow-xs"
+                          : "bg-slate-100 dark:bg-[#241D48] text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-[#31275E]"
                       }`}
                     >
                       {goal} Qs
@@ -814,14 +819,14 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
               <div className="pt-2 flex items-center gap-2">
                 <button
                   type="submit"
-                  className="flex-1 py-3 bg-gradient-to-r from-[#800020] via-[#5E0017] to-[#800020] hover:opacity-95 text-white rounded-xl text-xs font-black shadow-md border border-[#C99A45]/30 cursor-pointer active:scale-95 transition-all"
+                  className="flex-1 py-3 bg-gradient-to-r from-[#7045D8] via-[#5B32BF] to-[#7045D8] hover:opacity-95 text-white rounded-xl text-xs font-black shadow-md border border-[#A78BFA]/30 cursor-pointer active:scale-95 transition-all"
                 >
                   Save Changes
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowEditProfileModal(false)}
-                  className="px-4 py-3 bg-[#F7EFE2] dark:bg-[#252A3A] text-slate-700 dark:text-[#E8D9C0] rounded-xl text-xs font-bold cursor-pointer"
+                  className="px-4 py-3 bg-slate-100 dark:bg-[#241D48] text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -841,20 +846,20 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
           <motion.div
             initial={{ opacity: 0, scale: 0.94 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="relative bg-white dark:bg-[#1F2330] rounded-3xl p-6 w-full max-w-sm border border-rose-200 dark:border-rose-900/50 shadow-2xl space-y-4"
+            className="relative bg-white dark:bg-[#1B1536] rounded-3xl p-6 w-full max-w-sm border border-rose-200 dark:border-rose-900/50 shadow-2xl space-y-4"
           >
             <div className="w-14 h-14 rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center mx-auto">
               <AlertCircle size={28} />
             </div>
-            <h3 className="text-lg font-black text-[#171923] dark:text-[#FFF9EF] text-center tracking-tight">
+            <h3 className="text-lg font-black text-slate-900 dark:text-slate-50 text-center tracking-tight">
               Reset Study Progress?
             </h3>
-            <p className="text-xs text-slate-500 dark:text-[#CBD2E1] text-center leading-relaxed">
+            <p className="text-xs text-slate-500 dark:text-slate-300 text-center leading-relaxed">
               This will permanently delete all your practiced questions, scores, and analytics. This action cannot be undone.
             </p>
 
             <div className="space-y-1.5">
-              <label className="text-[10px] font-black text-slate-600 dark:text-[#E8D9C0] uppercase tracking-widest block text-center">
+              <label className="text-[11px] font-black text-slate-600 dark:text-slate-200 uppercase tracking-widest block text-center">
                 Type &quot;RESET&quot; to confirm
               </label>
               <input
@@ -862,7 +867,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                 value={resetConfirmText}
                 onChange={(e) => setResetConfirmText(e.target.value.toUpperCase())}
                 placeholder="RESET"
-                className="w-full px-4 py-2.5 rounded-xl bg-[#FFF9EF] dark:bg-[#171923] border border-rose-300 dark:border-rose-800 text-center text-sm font-black text-rose-600 focus:outline-none focus:ring-2 focus:ring-rose-500/30"
+                className="w-full px-4 py-2.5 rounded-xl bg-[#F8FAFC] dark:bg-[#130E26] border border-rose-300 dark:border-rose-800 text-center text-sm font-black text-rose-600 focus:outline-none focus:ring-2 focus:ring-rose-500/30"
               />
             </div>
 
@@ -872,7 +877,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                   setShowResetConfirm(false);
                   setResetConfirmText("");
                 }}
-                className="py-2.5 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] text-xs font-black text-slate-700 dark:text-[#CBD2E1] active:scale-95 transition-transform cursor-pointer"
+                className="py-2.5 rounded-xl bg-slate-100 dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] text-xs font-black text-slate-700 dark:text-slate-300 active:scale-95 transition-transform cursor-pointer"
               >
                 Cancel
               </button>
@@ -909,21 +914,21 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
           <motion.div
             initial={{ opacity: 0, scale: 0.94 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="relative bg-white dark:bg-[#1F2330] rounded-3xl p-6 w-full max-w-sm border border-[#E8D9C0] dark:border-[#31374A] shadow-2xl space-y-4"
+            className="relative bg-white dark:bg-[#1B1536] rounded-3xl p-6 w-full max-w-sm border border-slate-200 dark:border-[#31275E] shadow-2xl space-y-4"
           >
-            <div className="w-14 h-14 rounded-2xl bg-[#F47B20]/15 text-[#F47B20] flex items-center justify-center mx-auto">
+            <div className="w-14 h-14 rounded-2xl bg-[#7045D8]/15 text-[#7045D8] flex items-center justify-center mx-auto">
               <RefreshCw size={28} />
             </div>
-            <h3 className="text-lg font-black text-[#171923] dark:text-[#FFF9EF] text-center tracking-tight">
+            <h3 className="text-lg font-black text-slate-900 dark:text-slate-50 text-center tracking-tight">
               Purge Cache &amp; Re-sync?
             </h3>
-            <p className="text-xs text-slate-500 dark:text-[#CBD2E1] text-center leading-relaxed font-medium">
+            <p className="text-xs text-slate-500 dark:text-slate-300 text-center leading-relaxed font-medium">
               This will clear local cache and re-download the latest questions and data from cloud.
             </p>
             <div className="grid grid-cols-2 gap-2.5 pt-2">
               <button
                 onClick={() => setShowCacheResetConfirm(false)}
-                className="py-2.5 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] text-xs font-black text-slate-700 dark:text-[#CBD2E1] active:scale-95 transition-transform cursor-pointer"
+                className="py-2.5 rounded-xl bg-slate-100 dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] text-xs font-black text-slate-700 dark:text-slate-300 active:scale-95 transition-transform cursor-pointer"
               >
                 Cancel
               </button>
@@ -937,7 +942,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                   showToast("System cache cleared. Reloading...");
                   setTimeout(() => window.location.reload(), 1200);
                 }}
-                className="py-2.5 rounded-xl bg-gradient-to-r from-[#F47B20] to-[#E06A14] text-white text-xs font-black shadow-md shadow-[#F47B20]/25 active:scale-95 transition-transform cursor-pointer"
+                className="py-2.5 rounded-xl bg-gradient-to-r from-[#7045D8] to-[#E06A14] text-white text-xs font-black shadow-md shadow-[#7045D8]/25 active:scale-95 transition-transform cursor-pointer"
               >
                 Yes, Refresh
               </button>
@@ -956,37 +961,37 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
           <motion.div
             initial={{ opacity: 0, scale: 0.94 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="relative bg-white dark:bg-[#1F2330] rounded-3xl p-6 w-full max-w-sm border border-[#E8D9C0] dark:border-[#C99A45]/30 shadow-2xl space-y-4"
+            className="relative bg-white dark:bg-[#1B1536] rounded-3xl p-6 w-full max-w-sm border border-slate-200 dark:border-[#A78BFA]/30 shadow-2xl space-y-4"
           >
-            <div className="flex items-center justify-between pb-3 border-b border-[#E8D9C0] dark:border-[#31374A]">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-[#31275E]">
               <AppLogo size="sm" variant="horizontal" showTagline={true} />
               <button
                 onClick={() => setShowAboutModal(false)}
-                className="w-8 h-8 rounded-full bg-[#F7EFE2] dark:bg-[#252A3A] flex items-center justify-center text-slate-600 dark:text-[#FFF9EF] cursor-pointer"
+                className="w-8 h-8 rounded-full bg-slate-100 dark:bg-[#241D48] flex items-center justify-center text-slate-600 dark:text-slate-50 cursor-pointer"
               >
                 <X size={16} />
               </button>
             </div>
 
-            <div className="space-y-3 text-xs text-slate-600 dark:text-[#CBD2E1] leading-relaxed">
+            <div className="space-y-3 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
               <p>
                 <strong>Disha PYQ</strong> is a dedicated smart preparation and previous year questions practice platform for all competitive exams (RPSC RAS, SI, REET, CET, Patwar, etc.).
               </p>
 
-              <div className="space-y-2 bg-[#FFF9EF] dark:bg-[#171923] p-3.5 rounded-2xl border border-[#E8D9C0] dark:border-[#31374A]">
-                <div className="flex items-center gap-2.5 text-[#800020] dark:text-[#C99A45]">
+              <div className="space-y-2 bg-[#F8FAFC] dark:bg-[#130E26] p-3.5 rounded-2xl border border-slate-200 dark:border-[#31275E]">
+                <div className="flex items-center gap-2.5 text-[#7045D8] dark:text-[#A78BFA]">
                   <Check size={14} className="stroke-[3] text-emerald-600" />
                   <span className="text-xs font-black">RPSC Option E (5th Option) Compliance</span>
                 </div>
-                <div className="flex items-center gap-2.5 text-[#800020] dark:text-[#C99A45]">
+                <div className="flex items-center gap-2.5 text-[#7045D8] dark:text-[#A78BFA]">
                   <Check size={14} className="stroke-[3] text-emerald-600" />
                   <span className="text-xs font-black">Rajasthan PYQ Vault (Past 25 Years)</span>
                 </div>
-                <div className="flex items-center gap-2.5 text-[#800020] dark:text-[#C99A45]">
+                <div className="flex items-center gap-2.5 text-[#7045D8] dark:text-[#A78BFA]">
                   <Check size={14} className="stroke-[3] text-emerald-600" />
                   <span className="text-xs font-black">AI Weakness Radar &amp; Customized Practice</span>
                 </div>
-                <div className="flex items-center gap-2.5 text-[#800020] dark:text-[#C99A45]">
+                <div className="flex items-center gap-2.5 text-[#7045D8] dark:text-[#A78BFA]">
                   <Check size={14} className="stroke-[3] text-emerald-600" />
                   <span className="text-xs font-black">All-Rajasthan Live Mock Tests &amp; Merit Ranks</span>
                 </div>
@@ -995,7 +1000,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
 
             <button
               onClick={() => setShowAboutModal(false)}
-              className="w-full py-3 bg-gradient-to-r from-[#800020] via-[#5E0017] to-[#800020] text-white rounded-xl text-xs font-black shadow-md border border-[#C99A45]/30 cursor-pointer active:scale-95 transition-all"
+              className="w-full py-3 bg-gradient-to-r from-[#7045D8] via-[#5B32BF] to-[#7045D8] text-white rounded-xl text-xs font-black shadow-md border border-[#A78BFA]/30 cursor-pointer active:scale-95 transition-all"
             >
               Close
             </button>
@@ -1037,9 +1042,9 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
-            className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[150] bg-gradient-to-r from-[#800020] to-[#5E0017] text-white px-5 py-3 rounded-2xl shadow-2xl text-xs font-black tracking-wide border border-[#C99A45]/40 flex items-center gap-2"
+            className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[150] bg-gradient-to-r from-[#7045D8] to-[#5B32BF] text-white px-5 py-3 rounded-2xl shadow-2xl text-xs font-black tracking-wide border border-[#A78BFA]/40 flex items-center gap-2"
           >
-            <CheckCircle2 size={15} className="text-[#C99A45]" />
+            <CheckCircle2 size={15} className="text-amber-500" />
             <span>{toastMessage}</span>
           </motion.div>
         )}

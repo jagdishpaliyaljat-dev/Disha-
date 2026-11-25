@@ -99,21 +99,24 @@ export const BrandSplashAndOnboarding: React.FC<BrandSplashAndOnboardingProps> =
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[115] bg-[#0A0D15]/80 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Welcome to Disha PYQ"
+            className="fixed inset-0 z-[115] bg-slate-950/80 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4"
           >
             <motion.div
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 20, opacity: 0 }}
-              className="w-full max-w-md bg-[#FFFDF9] dark:bg-[#111622] text-[#171923] dark:text-[#FFF9EF] rounded-t-3xl sm:rounded-3xl border border-[#E8D9C0] dark:border-[#263045] shadow-2xl overflow-hidden"
+              className="w-full max-w-md bg-[#F8FAFC] dark:bg-[#130E26] text-slate-900 dark:text-slate-50 rounded-t-3xl sm:rounded-3xl border border-slate-200 dark:border-[#31275E] shadow-2xl overflow-hidden pb-[env(safe-area-inset-bottom,0px)]"
             >
               {/* Header */}
-              <div className="px-5 pt-5 pb-3 flex items-center justify-between border-b border-[#E8D9C0]/70 dark:border-[#263045]">
+              <div className="px-5 pt-5 pb-3 flex items-center justify-between border-b border-slate-200 dark:border-[#31275E]">
                 <AppLogo size="sm" variant="horizontal" showTagline={false} />
                 <button
                   type="button"
                   onClick={completeOnboarding}
-                  className="px-3 py-1.5 rounded-xl text-xs font-bold text-[#52576A] dark:text-[#CBD2E1] hover:bg-[#F7EFE2] dark:hover:bg-[#1D2538] transition-colors cursor-pointer flex items-center gap-1"
+                  className="min-h-[44px] px-3 py-1.5 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-[#241D48] transition-colors cursor-pointer flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
                 >
                   <span>Skip</span>
                   <X className="w-3.5 h-3.5" />
@@ -123,42 +126,42 @@ export const BrandSplashAndOnboarding: React.FC<BrandSplashAndOnboardingProps> =
               {/* Slide Content */}
               <div className="px-6 py-6 space-y-5">
                 <div className="flex items-center gap-3.5">
-                  <div className="w-12 h-12 rounded-2xl bg-[#C99A45]/15 dark:bg-[#C99A45]/20 text-[#C99A45] flex items-center justify-center shadow-xs shrink-0 border border-[#C99A45]/30">
-                    <SlideIcon className="w-6 h-6 text-[#C99A45]" />
+                  <div className="w-12 h-12 rounded-2xl bg-[#7045D8]/12 dark:bg-[#A78BFA]/15 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center shadow-xs shrink-0 border border-[#7045D8]/25">
+                    <SlideIcon className="w-6 h-6" />
                   </div>
                   <div>
-                    <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#C99A45] block">
+                    <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#7045D8] dark:text-[#A78BFA] block">
                       {currentSlide.kicker}
                     </span>
-                    <h2 className="text-base sm:text-lg font-black text-[#171923] dark:text-[#FFF9EF] leading-snug">
+                    <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-slate-50 leading-snug">
                       {currentSlide.title}
                     </h2>
                   </div>
                 </div>
 
-                <div className="bg-white dark:bg-[#0D111A] border border-[#E8D9C0] dark:border-[#263045] rounded-2xl p-4 space-y-3 shadow-xs">
-                  <p className="text-xs font-bold text-[#C99A45]">
+                <div className="bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] rounded-2xl p-4 space-y-3 shadow-xs">
+                  <p className="text-xs font-bold text-[#7045D8] dark:text-[#A78BFA]">
                     {currentSlide.subtitle}
                   </p>
-                  <p className="text-xs sm:text-sm text-[#52576A] dark:text-[#CBD2E1] leading-relaxed">
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
                     {currentSlide.description}
                   </p>
-                  <div className="pt-2 space-y-2 border-t border-[#E8D9C0]/70 dark:border-[#263045]">
+                  <div className="pt-2 space-y-2 border-t border-slate-200 dark:border-[#31275E]">
                     {currentSlide.highlights.map((item) => (
                       <div
                         key={item}
-                        className="flex items-center gap-2 text-xs font-semibold text-[#171923] dark:text-[#FFF9EF]"
+                        className="flex items-center gap-2 text-xs font-semibold text-slate-900 dark:text-slate-100"
                       >
-                        <CheckCircle2 className="w-4 h-4 text-[#F47B20] shrink-0" />
+                        <CheckCircle2 className="w-4 h-4 text-[#7045D8] dark:text-[#A78BFA] shrink-0" />
                         <span>{item}</span>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                {/* Progress Dots & Saffron Primary Button */}
+                {/* Progress Dots & Primary Button */}
                 <div className="flex items-center justify-between pt-1">
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1">
                     {ONBOARDING_SLIDES.map((s, idx) => (
                       <button
                         key={s.id}
@@ -168,12 +171,16 @@ export const BrandSplashAndOnboarding: React.FC<BrandSplashAndOnboardingProps> =
                           setSlideIndex(idx);
                         }}
                         aria-label={`Go to step ${idx + 1}`}
-                        className={`h-2 rounded-full transition-all cursor-pointer ${
-                          idx === slideIndex
-                            ? "w-7 bg-gradient-to-r from-[#C99A45] to-[#F47B20]"
-                            : "w-2 bg-[#E8D9C0] dark:bg-[#263045]"
-                        }`}
-                      />
+                        className="min-w-[28px] min-h-[44px] flex items-center justify-center cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8] rounded-lg"
+                      >
+                        <span
+                          className={`h-2 rounded-full transition-all block ${
+                            idx === slideIndex
+                              ? "w-7 bg-gradient-to-r from-[#7045D8] to-[#A78BFA]"
+                              : "w-2 bg-slate-300 dark:bg-[#31275E]"
+                          }`}
+                        />
+                      </button>
                     ))}
                   </div>
 
@@ -184,7 +191,7 @@ export const BrandSplashAndOnboarding: React.FC<BrandSplashAndOnboardingProps> =
                         triggerHaptic("light");
                         setSlideIndex((prev) => prev + 1);
                       }}
-                      className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#F47B20] to-[#E06716] hover:brightness-105 text-white text-xs font-black flex items-center gap-1.5 shadow-[0_4px_14px_rgba(244,123,32,0.35)] border border-[#C99A45]/30 active:scale-95 transition-all cursor-pointer"
+                      className="min-h-[44px] px-5 py-2.5 rounded-xl bg-[#7045D8] hover:bg-[#5B32BF] text-white text-xs font-black flex items-center gap-1.5 shadow-md shadow-[#7045D8]/25 border border-[#A78BFA]/30 active:scale-95 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
                     >
                       <span>Next</span>
                       <ArrowRight className="w-4 h-4" />
@@ -193,7 +200,7 @@ export const BrandSplashAndOnboarding: React.FC<BrandSplashAndOnboardingProps> =
                     <button
                       type="button"
                       onClick={completeOnboarding}
-                      className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#F47B20] to-[#E06716] hover:brightness-105 text-white text-xs font-black flex items-center gap-1.5 shadow-[0_4px_16px_rgba(244,123,32,0.4)] border border-[#C99A45]/30 active:scale-95 transition-all cursor-pointer"
+                      className="min-h-[44px] px-5 py-2.5 rounded-xl bg-[#7045D8] hover:bg-[#5B32BF] text-white text-xs font-black flex items-center gap-1.5 shadow-md shadow-[#7045D8]/30 border border-[#A78BFA]/30 active:scale-95 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
                     >
                       <BookOpen className="w-4 h-4" />
                       <span>Start Practice</span>

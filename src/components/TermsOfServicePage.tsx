@@ -75,19 +75,19 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
   };
 
   return (
-    <div className="min-h-full bg-[#FFF9EF] dark:bg-[#171923] text-[#171923] dark:text-[#FFF9EF] flex flex-col pb-24 select-text">
+    <div className="min-h-full bg-[#F8FAFC] dark:bg-[#130E26] text-slate-900 dark:text-slate-50 flex flex-col pb-24 select-text">
       {/* Top Header / Sticky Navigation Bar */}
-      <header className="sticky top-0 z-40 bg-white/95 dark:bg-[#1F2330]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] px-4 py-3 flex items-center justify-between">
+      <header className="sticky top-0 z-40 bg-white/95 dark:bg-[#1B1536]/95 backdrop-blur-md border-b border-slate-200 dark:border-[#31275E] px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           <button
             onClick={onNavigateHome}
             aria-label="Back to Homepage"
-            className="p-2 -ml-1 rounded-xl text-[#52576A] dark:text-[#CBD2E1] hover:bg-[#F7EFE2] dark:hover:bg-[#252A3A] transition-colors active:scale-95 cursor-pointer flex items-center gap-1.5 text-xs font-bold"
+            className="p-2 -ml-1 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#241D48] transition-colors active:scale-95 cursor-pointer flex items-center gap-1.5 text-xs font-bold"
           >
             <ArrowLeft className="w-4 h-4" />
             <span className="hidden sm:inline">Home</span>
           </button>
-          <div className="h-4 w-px bg-[#E8D9C0] dark:bg-[#31374A]" />
+          <div className="h-4 w-px bg-slate-200 dark:bg-[#31275E]" />
           <div
             className="flex items-center gap-2 cursor-pointer"
             onClick={onNavigateHome}
@@ -96,17 +96,17 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
           >
             <AppLogo size="sm" />
             <div className="flex flex-col">
-              <span className="text-sm font-black text-[#171923] dark:text-[#FFF9EF] leading-tight tracking-tight">
+              <span className="text-sm font-black text-slate-900 dark:text-slate-50 leading-tight tracking-tight">
                 DISHA <span className="text-[#7045D8] dark:text-[#A78BFA]">PYQ</span>
               </span>
-              <span className="text-[10px] text-[#7045D8] dark:text-[#A78BFA] font-semibold leading-none">Terms of Service</span>
+              <span className="text-[11px] text-[#7045D8] dark:text-[#A78BFA] font-semibold leading-none">Terms of Service</span>
             </div>
           </div>
         </div>
 
         <button
           onClick={onNavigateHome}
-          className="w-10 h-10 rounded-2xl bg-[#F7EFE2] dark:bg-[#252A3A] text-[#52576A] dark:text-[#CBD2E1] flex items-center justify-center hover:bg-[#EFE3CF] dark:hover:bg-[#31374A] border border-[#E8D9C0] dark:border-[#31374A] transition-all active:scale-90 cursor-pointer"
+          className="w-10 h-10 rounded-2xl bg-slate-100 dark:bg-[#241D48] text-slate-600 dark:text-slate-300 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-[#31275E] border border-slate-200 dark:border-[#31275E] transition-all active:scale-90 cursor-pointer"
           aria-label="Close"
         >
           <ChevronRight className="w-5 h-5 rotate-90" />
@@ -116,10 +116,10 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
       {/* Main Content Container */}
       <main className="w-full max-w-4xl mx-auto px-4 py-6 sm:py-8 space-y-6">
         {/* Hero Section */}
-        <div className="bg-white dark:bg-[#1F2330] rounded-3xl p-6 sm:p-8 border border-[#E8D9C0] dark:border-[#31374A] shadow-xs space-y-4">
+        <div className="bg-white dark:bg-[#1B1536] rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-[#31275E] shadow-xs space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#800020]/10 dark:bg-[#F47B20]/15 border border-[#800020]/20 dark:border-[#F47B20]/30 rounded-full text-[11px] font-bold text-[#800020] dark:text-[#F47B20]">
-              <Scale className="w-3.5 h-3.5 text-[#800020] dark:text-[#F47B20]" />
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#7045D8]/10 dark:bg-[#7045D8]/15 border border-[#7045D8]/20 dark:border-[#A78BFA]/30 rounded-full text-[11px] font-bold text-[#7045D8] dark:text-[#A78BFA]">
+              <Scale className="w-3.5 h-3.5 text-[#7045D8] dark:text-[#A78BFA]" />
               <span>Legal Agreement &amp; User Terms</span>
             </div>
             <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">
@@ -170,7 +170,7 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
                         : "bg-white dark:bg-slate-900/40 border-slate-200/70 dark:border-slate-800/70 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50"
                     }`}
                   >
-                    <span className="w-5 h-5 rounded-md bg-slate-100 dark:bg-slate-800 text-[10px] font-black text-slate-500 dark:text-slate-400 flex items-center justify-center shrink-0">
+                    <span className="w-5 h-5 rounded-md bg-slate-100 dark:bg-slate-800 text-[11px] font-black text-slate-500 dark:text-slate-400 flex items-center justify-center shrink-0">
                       {sec.num}
                     </span>
                     <Icon className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 shrink-0" />
@@ -185,7 +185,7 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
         {/* Section 1: About Disha PYQ */}
         <section
           id="about-disha"
-          className="bg-white dark:bg-[#111A2E] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
+          className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
         >
           <div className="flex items-center gap-2.5 text-blue-600 dark:text-blue-400">
             <span className="px-2.5 py-0.5 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-xs font-black">01</span>
@@ -216,7 +216,7 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
         {/* Section 2: Eligibility and User Responsibilities */}
         <section
           id="eligibility"
-          className="bg-white dark:bg-[#111A2E] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
+          className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
         >
           <div className="flex items-center gap-2.5 text-blue-600 dark:text-blue-400">
             <span className="px-2.5 py-0.5 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-xs font-black">02</span>
@@ -255,7 +255,7 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
         {/* Section 3: Educational Purpose and Disclaimer */}
         <section
           id="educational-disclaimer"
-          className="bg-white dark:bg-[#111A2E] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
+          className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
         >
           <div className="flex items-center gap-2.5 text-blue-600 dark:text-blue-400">
             <span className="px-2.5 py-0.5 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-xs font-black">03</span>
@@ -292,7 +292,7 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
         {/* Section 4: User Accounts */}
         <section
           id="user-accounts"
-          className="bg-white dark:bg-[#111A2E] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
+          className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
         >
           <div className="flex items-center gap-2.5 text-blue-600 dark:text-blue-400">
             <span className="px-2.5 py-0.5 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-xs font-black">04</span>
@@ -331,7 +331,7 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
         {/* Section 5: Acceptable Use */}
         <section
           id="acceptable-use"
-          className="bg-white dark:bg-[#111A2E] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
+          className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
         >
           <div className="flex items-center gap-2.5 text-blue-600 dark:text-blue-400">
             <span className="px-2.5 py-0.5 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-xs font-black">05</span>
@@ -368,7 +368,7 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
         {/* Section 6: Intellectual Property Rights */}
         <section
           id="intellectual-property"
-          className="bg-white dark:bg-[#111A2E] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
+          className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
         >
           <div className="flex items-center gap-2.5 text-blue-600 dark:text-blue-400">
             <span className="px-2.5 py-0.5 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-xs font-black">06</span>
@@ -394,7 +394,7 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
         {/* Section 7: User Content and Feedback */}
         <section
           id="user-submissions"
-          className="bg-white dark:bg-[#111A2E] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
+          className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
         >
           <div className="flex items-center gap-2.5 text-blue-600 dark:text-blue-400">
             <span className="px-2.5 py-0.5 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-xs font-black">07</span>
@@ -417,7 +417,7 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
         {/* Section 8: Practice Questions, Mock Tests, and Scores */}
         <section
           id="practice-tests"
-          className="bg-white dark:bg-[#111A2E] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
+          className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
         >
           <div className="flex items-center gap-2.5 text-blue-600 dark:text-blue-400">
             <span className="px-2.5 py-0.5 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-xs font-black">08</span>
@@ -444,7 +444,7 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
         {/* Section 09: Third-Party Services and External Links */}
         <section
           id="third-party"
-          className="bg-white dark:bg-[#111A2E] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
+          className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
         >
           <div className="flex items-center gap-2.5 text-blue-600 dark:text-blue-400">
             <span className="px-2.5 py-0.5 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-xs font-black">09</span>
@@ -467,7 +467,7 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
         {/* Section 10: Service Availability, Modifications, and Termination */}
         <section
           id="service-availability"
-          className="bg-white dark:bg-[#111A2E] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
+          className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
         >
           <div className="flex items-center gap-2.5 text-blue-600 dark:text-blue-400">
             <span className="px-2.5 py-0.5 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-xs font-black">10</span>
@@ -493,7 +493,7 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
         {/* Section 11: Disclaimer of Warranties */}
         <section
           id="disclaimer-warranties"
-          className="bg-white dark:bg-[#111A2E] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
+          className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
         >
           <div className="flex items-center gap-2.5 text-blue-600 dark:text-blue-400">
             <span className="px-2.5 py-0.5 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-xs font-black">11</span>
@@ -521,7 +521,7 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
         {/* Section 12: Limitation of Liability */}
         <section
           id="limitation-liability"
-          className="bg-white dark:bg-[#111A2E] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
+          className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
         >
           <div className="flex items-center gap-2.5 text-blue-600 dark:text-blue-400">
             <span className="px-2.5 py-0.5 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-xs font-black">12</span>
@@ -544,7 +544,7 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
         {/* Section 13: Indemnification */}
         <section
           id="indemnification"
-          className="bg-white dark:bg-[#111A2E] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
+          className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
         >
           <div className="flex items-center gap-2.5 text-blue-600 dark:text-blue-400">
             <span className="px-2.5 py-0.5 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-xs font-black">13</span>
@@ -578,7 +578,7 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
         {/* Section 14: Governing Law and Dispute Resolution */}
         <section
           id="governing-law"
-          className="bg-white dark:bg-[#111A2E] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
+          className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
         >
           <div className="flex items-center gap-2.5 text-blue-600 dark:text-blue-400">
             <span className="px-2.5 py-0.5 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-xs font-black">14</span>
@@ -601,7 +601,7 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
         {/* Section 15: Changes to These Terms */}
         <section
           id="changes-terms"
-          className="bg-white dark:bg-[#111A2E] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
+          className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
         >
           <div className="flex items-center gap-2.5 text-blue-600 dark:text-blue-400">
             <span className="px-2.5 py-0.5 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-xs font-black">15</span>
@@ -627,7 +627,7 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
         {/* Section 16: Contact Information */}
         <section
           id="contact-info"
-          className="bg-white dark:bg-[#111A2E] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
+          className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
         >
           <div className="flex items-center gap-2.5 text-blue-600 dark:text-blue-400">
             <span className="px-2.5 py-0.5 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-xs font-black">16</span>
@@ -768,7 +768,7 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
             </button>
           </div>
 
-          <p className="text-[10px] text-slate-400 dark:text-slate-500">
+          <p className="text-[11px] text-slate-400 dark:text-slate-500">
             © 2026 Disha PYQ. All rights reserved. Online MCQ Practice Platform.
           </p>
         </footer>

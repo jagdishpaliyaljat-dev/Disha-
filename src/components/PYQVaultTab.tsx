@@ -34,6 +34,7 @@ import {
 import ShareModal, { ShareData } from "./ShareModal";
 import { buildPYQShareData } from "../utils/shareService";
 import { InlineSpinner } from "./ui/LoadingScreen";
+import { showAppToast } from "../utils/adminToast";
 
 interface PYQVaultTabProps {
   onStartSession: (session: MCQSession) => void;
@@ -229,7 +230,7 @@ export const PYQVaultTab: React.FC<PYQVaultTabProps> = ({
 
     const rawList = Array.isArray(paper.questions) ? paper.questions : [];
     if (rawList.length === 0) {
-      alert("No questions available in this paper for PDF export.");
+      showAppToast("No questions available in this paper for PDF export.", "info", "PDF Export");
       return;
     }
 
@@ -255,29 +256,30 @@ export const PYQVaultTab: React.FC<PYQVaultTabProps> = ({
 
   return (
     <div
-      className="flex flex-col w-full min-h-full bg-[#FFF9EF] dark:bg-[#171923] pb-32 overflow-y-auto text-[#171923] dark:text-[#FFF9EF] select-none"
+      className="flex flex-col w-full min-h-full bg-[#F8FAFC] dark:bg-[#130E26] pb-32 overflow-y-auto text-slate-900 dark:text-slate-50 select-none"
       id="pyq-vault-view"
     >
-      <header className="bg-white/95 dark:bg-[#1F2330]/95 backdrop-blur-md px-4 pt-[env(safe-area-inset-top,0px)] py-2.5 border-b border-[#E8D9C0] dark:border-[#31374A] sticky top-0 z-30 select-none shadow-xs">
-        <div className="flex items-center justify-between gap-3 max-w-4xl mx-auto w-full">
+      <header className="bg-white/95 dark:bg-[#130E26]/95 backdrop-blur-md border-b border-slate-200 dark:border-[#31275E] sticky top-0 md:top-14 z-30 select-none shadow-xs pt-[env(safe-area-inset-top,0px)] md:pt-0">
+        <div className="px-4 py-2.5 min-h-[60px] flex items-center justify-between gap-3 max-w-4xl mx-auto w-full">
           <div className="flex items-center gap-3 min-w-0">
             {onNavigateTab && (
               <button
+                type="button"
                 onClick={() => {
                   triggerHaptic("light");
                   onNavigateTab("home");
                 }}
-                className="w-9 h-9 rounded-xl bg-[#F7EFE2] hover:bg-[#E8D9C0]/60 dark:bg-[#252A3A] dark:hover:bg-[#31374A] flex items-center justify-center text-[#171923] dark:text-[#FFF9EF] active:scale-95 transition-all cursor-pointer shrink-0 border border-[#E8D9C0] dark:border-[#31374A]"
+                className="md:hidden w-11 h-11 rounded-xl bg-slate-100 hover:bg-slate-200/80 dark:bg-[#241D48] dark:hover:bg-[#31275E] flex items-center justify-center text-slate-900 dark:text-slate-50 active:scale-95 transition-all cursor-pointer shrink-0 border border-slate-200 dark:border-[#31275E] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
                 aria-label="Back to home"
               >
                 <ArrowLeft size={18} />
               </button>
             )}
             <div className="min-w-0">
-              <h1 className="text-base sm:text-lg font-extrabold text-[#171923] dark:text-[#FFF9EF] leading-tight truncate">
+              <h1 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-slate-50 leading-tight truncate">
                 PYQ Vault
               </h1>
-              <p className="text-[#800020] dark:text-[#C99A45] text-[11px] font-medium leading-none mt-0.5 truncate">
+              <p className="text-[#7045D8] dark:text-[#A78BFA] text-[11px] font-semibold leading-none mt-0.5 truncate">
                 Official Previous Year Papers (2013–2026)
               </p>
             </div>
@@ -285,11 +287,12 @@ export const PYQVaultTab: React.FC<PYQVaultTabProps> = ({
 
           {isAdmin && onOpenAdminManage && (
             <button
+              type="button"
               onClick={() => {
                 triggerHaptic("light");
                 onOpenAdminManage();
               }}
-              className="px-3 py-1.5 rounded-xl bg-[#800020] hover:bg-[#5E0017] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] text-white font-extrabold text-xs shadow-sm active:scale-95 transition-all cursor-pointer shrink-0 flex items-center gap-1"
+              className="min-h-[44px] px-3.5 py-2 rounded-xl bg-[#7045D8] hover:bg-[#5B32BF] text-white font-extrabold text-xs shadow-sm active:scale-95 transition-all cursor-pointer shrink-0 flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
             >
               <span>+ Upload PYQ</span>
             </button>
@@ -301,9 +304,9 @@ export const PYQVaultTab: React.FC<PYQVaultTabProps> = ({
       <main className="p-4 space-y-4 max-w-4xl mx-auto w-full">
         {/* 2. YEAR FILTER SECTION */}
         <section aria-label="Year Filters">
-          <div className="bg-white dark:bg-[#1F2330] p-3 rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] shadow-xs">
+          <div className="bg-white dark:bg-[#1B1536] p-3 rounded-2xl border border-slate-200 dark:border-[#31275E] shadow-xs">
             <div className="flex items-center gap-2 overflow-x-auto pb-1 -mx-1 px-1 snap-x no-scrollbar">
-              <div className="bg-[#800020]/10 dark:bg-[#F47B20]/15 p-2 rounded-xl text-[#800020] dark:text-[#F47B20] shrink-0 border border-[#800020]/20 dark:border-[#F47B20]/30">
+              <div className="bg-[#7045D8]/10 dark:bg-[#7045D8]/15 p-2 rounded-xl text-[#7045D8] dark:text-[#A78BFA] shrink-0 border border-[#7045D8]/20 dark:border-[#A78BFA]/30">
                 <Filter size={16} />
               </div>
               {yearOptions.map((yr) => {
@@ -317,8 +320,8 @@ export const PYQVaultTab: React.FC<PYQVaultTabProps> = ({
                     }}
                     className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all shrink-0 snap-start active:scale-95 cursor-pointer tabular-nums ${
                       isActive
-                        ? "bg-[#800020] dark:bg-[#F47B20] text-white shadow-sm"
-                        : "bg-[#F7EFE2] dark:bg-[#252A3A] text-slate-600 dark:text-slate-300 border border-[#E8D9C0] dark:border-[#31374A] hover:text-[#171923] dark:hover:text-white"
+                        ? "bg-[#7045D8] dark:bg-[#7045D8] text-white shadow-sm"
+                        : "bg-slate-100 dark:bg-[#241D48] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-[#31275E] hover:text-slate-900 dark:hover:text-white"
                     }`}
                   >
                     {yr === "all" ? "All Years" : yr}
@@ -331,9 +334,9 @@ export const PYQVaultTab: React.FC<PYQVaultTabProps> = ({
 
         {/* 3. PREVIOUS YEAR PAPER CARDS LIST */}
         {isLoading ? (
-          <div className="p-12 text-center bg-white dark:bg-[#1F2330] rounded-3xl border border-[#E8D9C0] dark:border-[#31374A] flex flex-col items-center shadow-xs">
-            <RefreshCw size={28} className="text-[#800020] dark:text-[#F47B20] animate-spin mb-3" />
-            <p className="font-extrabold text-sm text-[#171923] dark:text-[#FFF9EF]">
+          <div className="p-12 text-center bg-white dark:bg-[#1B1536] rounded-3xl border border-slate-200 dark:border-[#31275E] flex flex-col items-center shadow-xs">
+            <RefreshCw size={28} className="text-[#7045D8] dark:text-[#A78BFA] animate-spin mb-3" />
+            <p className="font-extrabold text-sm text-slate-900 dark:text-slate-50">
               Accessing PYQ Vault...
             </p>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
@@ -341,11 +344,11 @@ export const PYQVaultTab: React.FC<PYQVaultTabProps> = ({
             </p>
           </div>
         ) : filteredPapers.length === 0 ? (
-          <div className="p-10 text-center bg-white dark:bg-[#1F2330] rounded-3xl border border-[#E8D9C0] dark:border-[#31374A] flex flex-col items-center shadow-xs">
-            <div className="w-14 h-14 rounded-2xl bg-[#F7EFE2] dark:bg-[#252A3A] flex items-center justify-center text-[#800020] dark:text-[#F47B20] mb-3">
+          <div className="p-10 text-center bg-white dark:bg-[#1B1536] rounded-3xl border border-slate-200 dark:border-[#31275E] flex flex-col items-center shadow-xs">
+            <div className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-[#241D48] flex items-center justify-center text-[#7045D8] dark:text-[#A78BFA] mb-3">
               <FileText size={28} />
             </div>
-            <h3 className="font-extrabold text-sm text-[#171923] dark:text-[#FFF9EF] mb-1">
+            <h3 className="font-extrabold text-sm text-slate-900 dark:text-slate-50 mb-1">
               No Papers Found for this Filter
             </h3>
             <p className="text-slate-500 dark:text-slate-400 text-xs mb-4 max-w-xs">
@@ -356,7 +359,7 @@ export const PYQVaultTab: React.FC<PYQVaultTabProps> = ({
                 triggerHaptic("light");
                 setSelectedYear("all");
               }}
-              className="px-4 py-2 rounded-xl bg-[#800020] dark:bg-[#F47B20] text-white text-xs font-bold active:scale-95 transition-all shadow-sm cursor-pointer"
+              className="px-4 py-2 rounded-xl bg-[#7045D8] dark:bg-[#7045D8] text-white text-xs font-bold active:scale-95 transition-all shadow-sm cursor-pointer"
             >
               Reset to All Years
             </button>
@@ -374,27 +377,27 @@ export const PYQVaultTab: React.FC<PYQVaultTabProps> = ({
               return (
                 <article
                   key={paper.id}
-                  className="bg-white dark:bg-[#1F2330] rounded-3xl border border-[#E8D9C0] dark:border-[#31374A] p-4.5 shadow-[0_4px_20px_rgba(23,25,35,0.03)] space-y-4 transition-all"
+                  className="bg-white dark:bg-[#1B1536] rounded-3xl border border-slate-200 dark:border-[#31275E] p-4.5 shadow-[0_4px_20px_rgba(23,25,35,0.03)] space-y-4 transition-all"
                 >
                   <div className="flex justify-between items-center gap-2">
                     <div className="flex items-center gap-2">
-                      <span className="bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] text-[10px] font-black uppercase px-2.5 py-1 rounded-lg tracking-wider border border-[#800020]/20 dark:border-[#F47B20]/30">
+                      <span className="bg-[#7045D8]/10 dark:bg-[#7045D8]/15 text-[#7045D8] dark:text-[#A78BFA] text-[11px] font-black uppercase px-2.5 py-1 rounded-lg tracking-wider border border-[#7045D8]/20 dark:border-[#A78BFA]/30">
                         {paper.examBoard || "RPSC"}
                       </span>
-                      <span className="bg-[#F7EFE2] dark:bg-[#252A3A] text-[#171923] dark:text-slate-200 text-[10px] font-bold px-2.5 py-1 rounded-lg border border-[#E8D9C0] dark:border-[#31374A] tabular-nums">
+                      <span className="bg-slate-100 dark:bg-[#241D48] text-slate-900 dark:text-slate-200 text-[11px] font-bold px-2.5 py-1 rounded-lg border border-slate-200 dark:border-[#31275E] tabular-nums">
                         {paper.paperYear || "2023"}
                       </span>
                     </div>
 
                     <div className="flex items-center gap-2">
                       {bestAttempt && (
-                        <span className="bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 text-[10px] font-black px-2.5 py-1 rounded-lg border border-emerald-200/50 dark:border-emerald-800/50 tabular-nums">
+                        <span className="bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 text-[11px] font-black px-2.5 py-1 rounded-lg border border-emerald-200/50 dark:border-emerald-800/50 tabular-nums">
                           Best: {bestAttempt.score}/{bestAttempt.totalMarks}
                         </span>
                       )}
                       <button
                         onClick={() => handleSharePYQ(paper)}
-                        className="p-2 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] hover:bg-[#E8D9C0]/60 dark:hover:bg-[#31374A] text-[#800020] dark:text-[#F47B20] transition-all cursor-pointer border border-[#E8D9C0] dark:border-[#31374A] active:scale-95"
+                        className="p-2 rounded-xl bg-slate-100 dark:bg-[#241D48] hover:bg-slate-200/60 dark:hover:bg-[#31275E] text-[#7045D8] dark:text-[#A78BFA] transition-all cursor-pointer border border-slate-200 dark:border-[#31275E] active:scale-95"
                         title="Share PYQ Paper"
                         aria-label="Share paper"
                       >
@@ -405,44 +408,44 @@ export const PYQVaultTab: React.FC<PYQVaultTabProps> = ({
 
                   <h3
                     onClick={() => handleStartPYQExam(paper)}
-                    className="text-base sm:text-lg font-extrabold text-[#171923] dark:text-[#FFF9EF] leading-snug cursor-pointer hover:text-[#800020] dark:hover:text-[#F47B20] transition-colors font-hindi"
+                    className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-slate-50 leading-snug cursor-pointer hover:text-[#7045D8] dark:hover:text-[#A78BFA] transition-colors font-hindi"
                   >
                     {safeTitle}
                   </h3>
 
                   <div className="grid grid-cols-3 gap-2 sm:gap-2.5">
-                    <div className="bg-[#FFF9EF] dark:bg-[#171923] p-2.5 rounded-xl text-center border border-[#E8D9C0] dark:border-[#31374A] flex flex-col items-center justify-center">
-                      <div className="flex items-center gap-1 mb-0.5 text-[#800020] dark:text-[#F47B20]">
+                    <div className="bg-[#F8FAFC] dark:bg-[#130E26] p-2.5 rounded-xl text-center border border-slate-200 dark:border-[#31275E] flex flex-col items-center justify-center">
+                      <div className="flex items-center gap-1 mb-0.5 text-[#7045D8] dark:text-[#A78BFA]">
                         <HelpCircle size={13} className="shrink-0" />
-                        <p className="text-[9.5px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                        <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                           QUESTIONS
                         </p>
                       </div>
-                      <p className="text-sm sm:text-base font-extrabold text-[#171923] dark:text-[#FFF9EF] tabular-nums">
+                      <p className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-slate-50 tabular-nums">
                         {questionCount}
                       </p>
                     </div>
 
-                    <div className="bg-[#FFF9EF] dark:bg-[#171923] p-2.5 rounded-xl text-center border border-[#E8D9C0] dark:border-[#31374A] flex flex-col items-center justify-center">
+                    <div className="bg-[#F8FAFC] dark:bg-[#130E26] p-2.5 rounded-xl text-center border border-slate-200 dark:border-[#31275E] flex flex-col items-center justify-center">
                       <div className="flex items-center gap-1 mb-0.5 text-emerald-700 dark:text-emerald-400">
                         <Clock size={13} className="shrink-0" />
-                        <p className="text-[9.5px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                        <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                           DURATION
                         </p>
                       </div>
-                      <p className="text-sm sm:text-base font-extrabold text-[#171923] dark:text-[#FFF9EF] tabular-nums">
+                      <p className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-slate-50 tabular-nums">
                         {durationMinutes}m
                       </p>
                     </div>
 
-                    <div className="bg-[#FFF9EF] dark:bg-[#171923] p-2.5 rounded-xl text-center border border-[#E8D9C0] dark:border-[#31374A] flex flex-col items-center justify-center">
-                      <div className="flex items-center gap-1 mb-0.5 text-[#C99A45]">
+                    <div className="bg-[#F8FAFC] dark:bg-[#130E26] p-2.5 rounded-xl text-center border border-slate-200 dark:border-[#31275E] flex flex-col items-center justify-center">
+                      <div className="flex items-center gap-1 mb-0.5 text-amber-500">
                         <Award size={13} className="shrink-0" />
-                        <p className="text-[9.5px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                        <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                           MARKS
                         </p>
                       </div>
-                      <p className="text-sm sm:text-base font-extrabold text-[#171923] dark:text-[#FFF9EF] tabular-nums">
+                      <p className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-slate-50 tabular-nums">
                         {totalMarks}
                       </p>
                     </div>
@@ -452,7 +455,7 @@ export const PYQVaultTab: React.FC<PYQVaultTabProps> = ({
                     <button
                       id={`btn-start-pyq-${paper.id}`}
                       onClick={() => handleStartPYQExam(paper)}
-                      className="bg-gradient-to-r from-[#F47B20] to-[#E06716] hover:brightness-105 active:scale-95 text-white py-2.5 px-2 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 border border-[#C99A45]/40 shadow-[0_3px_10px_rgba(244,123,32,0.3)] transition-all duration-180 cursor-pointer"
+                      className="bg-gradient-to-r from-[#7045D8] to-[#5B32BF] hover:brightness-105 active:scale-95 text-white py-2.5 px-2 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 border border-[#A78BFA]/40 shadow-[0_3px_10px_rgba(244,123,32,0.3)] transition-all duration-180 cursor-pointer"
                     >
                       {fetchingPaperId === paper.id ? (
                          <InlineSpinner size="xs" />
@@ -486,19 +489,19 @@ export const PYQVaultTab: React.FC<PYQVaultTabProps> = ({
                         setViewingSolutionPaper(paperWithQs);
                         setActiveQuestionIndex(0);
                       }}
-                      className="bg-white hover:bg-[#F7EFE2] dark:bg-[#1A2234] dark:hover:bg-[#252E42] border border-[#E8D9C0] dark:border-[#2C374E] text-[#171923] dark:text-[#FFF9EF] py-2.5 px-2 rounded-xl font-semibold text-xs flex items-center justify-center gap-1.5 active:scale-95 transition-all duration-180 cursor-pointer shadow-xs"
+                      className="bg-white hover:bg-slate-100 dark:bg-[#1A2234] dark:hover:bg-[#252E42] border border-slate-200 dark:border-[#31275E] text-slate-900 dark:text-slate-50 py-2.5 px-2 rounded-xl font-semibold text-xs flex items-center justify-center gap-1.5 active:scale-95 transition-all duration-180 cursor-pointer shadow-xs"
                     >
                       {fetchingPaperId === paper.id ? (
                         <InlineSpinner size="xs" />
                       ) : (
-                        <Eye size={14} className="text-[#C99A45]" />
+                        <Eye size={14} className="text-amber-500" />
                       )}
                       <span className="uppercase tracking-wider">Key</span>
                     </button>
 
                     <button
                       onClick={() => handleExportPDF(paper)}
-                      className="bg-white hover:bg-[#F7EFE2] dark:bg-[#252A3A] dark:hover:bg-[#31374A] border border-[#E8D9C0] dark:border-[#31374A] text-[#171923] dark:text-[#FFF9EF] py-2.5 px-2 rounded-xl font-semibold text-xs flex items-center justify-center gap-1.5 active:scale-95 transition-all duration-180 cursor-pointer shadow-xs"
+                      className="bg-white hover:bg-slate-100 dark:bg-[#241D48] dark:hover:bg-[#31275E] border border-slate-200 dark:border-[#31275E] text-slate-900 dark:text-slate-50 py-2.5 px-2 rounded-xl font-semibold text-xs flex items-center justify-center gap-1.5 active:scale-95 transition-all duration-180 cursor-pointer shadow-xs"
                     >
                       <Download size={14} className="text-emerald-700 dark:text-emerald-400" />
                       <span className="uppercase tracking-wider">PDF</span>
@@ -518,24 +521,24 @@ export const PYQVaultTab: React.FC<PYQVaultTabProps> = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] bg-[#171923]/70 backdrop-blur-xs flex items-end justify-center sm:items-center sm:p-5"
+            className="fixed inset-0 z-[100] bg-[#130E26]/70 backdrop-blur-xs flex items-end justify-center sm:items-center sm:p-5"
           >
             <motion.div
               initial={{ y: "100%" }}
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="bg-[#FFF9EF] dark:bg-[#171923] w-full max-w-lg h-[90vh] sm:h-[80vh] sm:rounded-[32px] rounded-t-[32px] flex flex-col overflow-hidden border border-[#E8D9C0] dark:border-[#31374A] shadow-2xl"
+              className="bg-[#F8FAFC] dark:bg-[#130E26] w-full max-w-lg h-[90vh] sm:h-[80vh] sm:rounded-[32px] rounded-t-[32px] flex flex-col overflow-hidden border border-slate-200 dark:border-[#31275E] shadow-2xl"
             >
               {/* Modal Header */}
-              <div className="px-5 py-4 border-b border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-between bg-white dark:bg-[#1F2330] shrink-0">
+              <div className="px-5 py-4 border-b border-slate-200 dark:border-[#31275E] flex items-center justify-between bg-white dark:bg-[#1B1536] shrink-0">
                 <div className="min-w-0 pr-2">
                   <div className="flex items-center gap-2 mb-0.5">
-                    <span className="text-[10px] font-black text-[#800020] dark:text-[#C99A45] uppercase tracking-wider">
+                    <span className="text-[11px] font-black text-[#7045D8] dark:text-[#A78BFA] uppercase tracking-wider">
                       {viewingSolutionPaper.examBoard} · {viewingSolutionPaper.paperYear}
                     </span>
                   </div>
-                  <h2 className="text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] truncate font-hindi">
+                  <h2 className="text-sm font-extrabold text-slate-900 dark:text-slate-50 truncate font-hindi">
                     {getSafePaperTitle(viewingSolutionPaper)}
                   </h2>
                 </div>
@@ -544,14 +547,14 @@ export const PYQVaultTab: React.FC<PYQVaultTabProps> = ({
                     triggerHaptic("light");
                     setViewingSolutionPaper(null);
                   }}
-                  className="w-9 h-9 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] text-[#171923] dark:text-[#FFF9EF] flex items-center justify-center active:scale-95 transition-transform cursor-pointer shrink-0"
+                  className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-[#241D48] text-slate-900 dark:text-slate-50 flex items-center justify-center active:scale-95 transition-transform cursor-pointer shrink-0"
                 >
                   <X size={18} />
                 </button>
               </div>
 
               {/* Question Jump Bar */}
-              <div className="px-4 py-2.5 border-b border-[#E8D9C0] dark:border-[#31374A] flex items-center gap-2 overflow-x-auto no-scrollbar shrink-0 bg-[#F7EFE2] dark:bg-[#1F2330]">
+              <div className="px-4 py-2.5 border-b border-slate-200 dark:border-[#31275E] flex items-center gap-2 overflow-x-auto no-scrollbar shrink-0 bg-slate-100 dark:bg-[#1B1536]">
                 {viewingSolutionPaper.questions.map((q, idx) => (
                   <button
                     key={`${q.id || 'q'}-${idx}`}
@@ -561,8 +564,8 @@ export const PYQVaultTab: React.FC<PYQVaultTabProps> = ({
                     }}
                     className={`w-8 h-8 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 transition-all cursor-pointer tabular-nums ${
                       activeQuestionIndex === idx
-                        ? "bg-[#800020] dark:bg-[#F47B20] text-white shadow-sm scale-105"
-                        : "bg-white dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] text-slate-600 dark:text-slate-300"
+                        ? "bg-[#7045D8] dark:bg-[#7045D8] text-white shadow-sm scale-105"
+                        : "bg-white dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] text-slate-600 dark:text-slate-300"
                     }`}
                   >
                     {idx + 1}
@@ -582,18 +585,18 @@ export const PYQVaultTab: React.FC<PYQVaultTabProps> = ({
                             Question {activeQuestionIndex + 1} of {viewingSolutionPaper.questions.length}
                           </span>
                           {q.conceptName && (
-                            <span className="text-[10px] font-bold text-[#800020] dark:text-[#C99A45] uppercase">
+                            <span className="text-[11px] font-bold text-[#7045D8] dark:text-[#A78BFA] uppercase">
                               {q.conceptName}
                             </span>
                           )}
                         </div>
-                        <div className="p-4 bg-white dark:bg-[#1F2330] rounded-2xl border border-[#E8D9C0] dark:border-[#31374A]">
+                        <div className="p-4 bg-white dark:bg-[#1B1536] rounded-2xl border border-slate-200 dark:border-[#31275E]">
                           <ParsedQuestion text={q.text} fontSizeClass="text-sm sm:text-base" question={q} />
                         </div>
                       </div>
 
                       <div className="space-y-2.5">
-                        <p className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                        <p className="text-[11px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                           Options &amp; Answer Key
                         </p>
                         {q.options.map((opt, optIdx) => {
@@ -605,7 +608,7 @@ export const PYQVaultTab: React.FC<PYQVaultTabProps> = ({
                               className={`p-3.5 rounded-2xl border flex items-center justify-between transition-all ${
                                 isCorrect
                                   ? "bg-emerald-50/90 dark:bg-emerald-950/30 border-emerald-400 dark:border-emerald-700 shadow-xs"
-                                  : "bg-white dark:bg-[#1F2330] border-[#E8D9C0] dark:border-[#31374A]"
+                                  : "bg-white dark:bg-[#1B1536] border-slate-200 dark:border-[#31275E]"
                               }`}
                             >
                               <div className="flex items-center gap-3 min-w-0 pr-2 flex-1">
@@ -613,7 +616,7 @@ export const PYQVaultTab: React.FC<PYQVaultTabProps> = ({
                                   className={`w-7 h-7 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 ${
                                     isCorrect
                                       ? "bg-emerald-700 text-white"
-                                      : "bg-[#F7EFE2] dark:bg-[#252A3A] text-[#171923] dark:text-slate-300"
+                                      : "bg-slate-100 dark:bg-[#241D48] text-slate-900 dark:text-slate-300"
                                   }`}
                                 >
                                   {labels[optIdx]}
@@ -622,7 +625,7 @@ export const PYQVaultTab: React.FC<PYQVaultTabProps> = ({
                                   className={`text-xs sm:text-sm font-bold flex-1 min-w-0 break-words [overflow-wrap:anywhere] ${
                                     isCorrect
                                       ? "text-emerald-900 dark:text-emerald-300"
-                                      : "text-[#171923] dark:text-[#FFF9EF]"
+                                      : "text-slate-900 dark:text-slate-50"
                                   }`}
                                 >
                                   <RichText text={opt} />
@@ -635,12 +638,12 @@ export const PYQVaultTab: React.FC<PYQVaultTabProps> = ({
                       </div>
 
                       {q.explanation && (
-                        <div className="p-4 bg-[#F7EFE2]/70 dark:bg-[#1F2330] rounded-2xl border border-[#C99A45]/40 space-y-1.5">
-                          <div className="flex items-center gap-2 text-[#800020] dark:text-[#C99A45]">
+                        <div className="p-4 bg-slate-100/70 dark:bg-[#1B1536] rounded-2xl border border-[#A78BFA]/40 space-y-1.5">
+                          <div className="flex items-center gap-2 text-[#7045D8] dark:text-[#A78BFA]">
                             <Sparkles size={15} />
                             <span className="text-xs font-extrabold uppercase tracking-wider">Solution Explanation</span>
                           </div>
-                          <div className="text-xs sm:text-sm text-[#171923] dark:text-slate-200 leading-relaxed font-medium">
+                          <div className="text-xs sm:text-sm text-slate-900 dark:text-slate-200 leading-relaxed font-medium">
                             <RichText text={q.explanation} enablePronunciation={true} />
                           </div>
                         </div>
@@ -651,14 +654,14 @@ export const PYQVaultTab: React.FC<PYQVaultTabProps> = ({
               </div>
 
               {/* Modal Footer */}
-              <div className="px-5 py-3.5 border-t border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-between bg-white dark:bg-[#1F2330] shrink-0 gap-2">
+              <div className="px-5 py-3.5 border-t border-slate-200 dark:border-[#31275E] flex items-center justify-between bg-white dark:bg-[#1B1536] shrink-0 gap-2">
                 <button
                   disabled={activeQuestionIndex === 0}
                   onClick={() => {
                     triggerHaptic("light");
                     setActiveQuestionIndex((prev) => Math.max(0, prev - 1));
                   }}
-                  className="flex-1 bg-[#F7EFE2] dark:bg-[#252A3A] text-[#171923] dark:text-slate-200 py-2.5 rounded-xl font-bold text-xs disabled:opacity-40 active:scale-95 transition-all cursor-pointer"
+                  className="flex-1 bg-slate-100 dark:bg-[#241D48] text-slate-900 dark:text-slate-200 py-2.5 rounded-xl font-bold text-xs disabled:opacity-40 active:scale-95 transition-all cursor-pointer"
                 >
                   Previous
                 </button>
@@ -667,7 +670,7 @@ export const PYQVaultTab: React.FC<PYQVaultTabProps> = ({
                     setViewingSolutionPaper(null);
                     handleStartPYQExam(viewingSolutionPaper);
                   }}
-                  className="flex-1 bg-[#800020] hover:bg-[#5E0017] dark:bg-[#800020] dark:hover:bg-[#650019] text-white py-2.5 rounded-xl font-semibold text-xs border border-[#C99A45]/35 shadow-sm active:scale-95 transition-all duration-180 cursor-pointer"
+                  className="flex-1 bg-[#7045D8] hover:bg-[#5B32BF] dark:bg-[#7045D8] dark:hover:bg-[#5B32BF] text-white py-2.5 rounded-xl font-semibold text-xs border border-[#A78BFA]/35 shadow-sm active:scale-95 transition-all duration-180 cursor-pointer"
                 >
                   Start Exam Mode
                 </button>
@@ -677,7 +680,7 @@ export const PYQVaultTab: React.FC<PYQVaultTabProps> = ({
                     triggerHaptic("light");
                     setActiveQuestionIndex((prev) => Math.min(viewingSolutionPaper.questions.length - 1, prev + 1));
                   }}
-                  className="flex-1 bg-[#F7EFE2] dark:bg-[#252A3A] text-[#171923] dark:text-slate-200 py-2.5 rounded-xl font-bold text-xs disabled:opacity-40 active:scale-95 transition-all cursor-pointer"
+                  className="flex-1 bg-slate-100 dark:bg-[#241D48] text-slate-900 dark:text-slate-200 py-2.5 rounded-xl font-bold text-xs disabled:opacity-40 active:scale-95 transition-all cursor-pointer"
                 >
                   Next
                 </button>

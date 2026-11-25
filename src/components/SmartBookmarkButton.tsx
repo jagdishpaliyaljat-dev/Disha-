@@ -114,8 +114,8 @@ export const SmartBookmarkButton: React.FC<SmartBookmarkButtonProps> = ({
 
   const btnSizeClass =
     size === "md"
-      ? "w-9 h-9 sm:w-10 sm:h-10 rounded-xl"
-      : "w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl";
+      ? "w-11 h-11 rounded-xl"
+      : "w-10 h-10 rounded-xl";
 
   return (
     <div ref={containerRef} className="relative inline-flex items-center">
@@ -133,17 +133,17 @@ export const SmartBookmarkButton: React.FC<SmartBookmarkButtonProps> = ({
         aria-expanded={isOpen}
         className={
           className ||
-          `${btnSizeClass} border flex items-center justify-center transition-all active:scale-90 cursor-pointer relative ${
+          `${btnSizeClass} border flex items-center justify-center transition-all active:scale-90 cursor-pointer relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8] ${
             isBookmarked
-              ? "bg-[#C99A45] border-[#C99A45] text-white shadow-md shadow-[#C99A45]/25"
-              : "bg-white dark:bg-[#252A3A] border-[#E8D9C0] dark:border-[#31374A] text-[#52576A] dark:text-[#CBD2E1]"
+              ? "bg-[#7045D8] border-[#7045D8] text-white shadow-md shadow-[#7045D8]/25"
+              : "bg-white dark:bg-[#241D48] border-slate-200 dark:border-[#31275E] text-slate-600 dark:text-slate-300"
           }`
         }
       >
         <Bookmark className={`w-4 h-4 sm:w-4.5 sm:h-4.5 ${isBookmarked ? "fill-current" : ""}`} />
         {activeMeta && (
           <span
-            className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-white dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] text-[9px] leading-none flex items-center justify-center shadow-xs pointer-events-none"
+            className="absolute -top-1.5 -right-1.5 w-4.5 h-4.5 rounded-full bg-white dark:bg-[#130E26] border border-slate-200 dark:border-[#31275E] text-[11px] leading-none flex items-center justify-center shadow-xs pointer-events-none"
             aria-hidden="true"
           >
             {activeMeta.emoji}
@@ -154,18 +154,18 @@ export const SmartBookmarkButton: React.FC<SmartBookmarkButtonProps> = ({
       {isOpen && (
         <div
           onClick={(e) => e.stopPropagation()}
-          className={`absolute top-full mt-2 z-50 w-64 rounded-2xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] shadow-xl p-2.5 space-y-2 animate-in fade-in zoom-in-95 duration-150 ${
+          className={`absolute top-full mt-2 z-50 w-64 rounded-2xl bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] shadow-xl p-2.5 space-y-2 animate-in fade-in zoom-in-95 duration-150 ${
             align === "left" ? "left-0" : "right-0"
           }`}
         >
           <div className="flex items-center justify-between px-1">
-            <span className="text-[11px] font-black text-[#800020] dark:text-[#F47B20]">
-              मैंने इसे सेव क्यों किया?
+            <span className="text-[11px] font-black text-[#7045D8] dark:text-[#A78BFA]">
+              Bookmark Reason Tag
             </span>
             <button
               type="button"
               onClick={() => setIsOpen(false)}
-              className="p-0.5 rounded-md text-slate-400 hover:text-slate-700 dark:hover:text-white cursor-pointer"
+              className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white cursor-pointer"
               aria-label="Close bookmark tags"
             >
               <X className="w-3.5 h-3.5" />
@@ -180,16 +180,16 @@ export const SmartBookmarkButton: React.FC<SmartBookmarkButtonProps> = ({
                   key={tag.id}
                   type="button"
                   onClick={(e) => handleSelectTag(tag.id, e)}
-                  className={`w-full text-left px-2.5 py-2 rounded-xl border text-xs transition-all flex items-center justify-between gap-2 cursor-pointer ${
+                  className={`w-full min-h-[42px] text-left px-2.5 py-2 rounded-xl border text-xs transition-all flex items-center justify-between gap-2 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8] ${
                     isSelected
                       ? tag.activeButtonClass
-                      : "bg-[#FFF9EF]/70 dark:bg-[#171923] border-[#E8D9C0] dark:border-[#31374A] text-slate-800 dark:text-slate-100 hover:border-[#800020]/50 dark:hover:border-[#C99A45]/60"
+                      : "bg-slate-50 dark:bg-[#130E26] border-slate-200 dark:border-[#31275E] text-slate-800 dark:text-slate-100 hover:border-[#7045D8]/50"
                   }`}
                 >
                   <div className="min-w-0">
                     <div className="font-black leading-tight truncate">{tag.shortLabel}</div>
                     <div
-                      className={`text-[10px] truncate mt-0.5 ${
+                      className={`text-[11px] truncate mt-0.5 ${
                         isSelected ? "text-white/85" : "text-slate-500 dark:text-slate-400"
                       }`}
                     >
@@ -206,10 +206,10 @@ export const SmartBookmarkButton: React.FC<SmartBookmarkButtonProps> = ({
             <button
               type="button"
               onClick={handleRemoveBookmark}
-              className="w-full px-2.5 py-1.5 rounded-xl bg-rose-50 dark:bg-rose-950/30 hover:bg-rose-100 dark:hover:bg-rose-950/50 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900/50 text-[11px] font-black flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+              className="w-full min-h-[40px] px-2.5 py-1.5 rounded-xl bg-rose-50 dark:bg-rose-950/30 hover:bg-rose-100 dark:hover:bg-rose-950/50 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900/50 text-xs font-black flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
             >
-              <Trash2 className="w-3 h-3" />
-              <span>बुकमार्क हटाएँ (Remove)</span>
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>Remove Bookmark</span>
             </button>
           )}
         </div>

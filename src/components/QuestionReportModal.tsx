@@ -142,7 +142,7 @@ export const QuestionReportModal: React.FC<QuestionReportModalProps> = ({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 12 }}
           transition={{ duration: 0.2 }}
-          className="bg-white dark:bg-[#111A2E] w-full max-w-lg rounded-3xl sm:rounded-[32px] overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 my-auto flex flex-col max-h-[92vh]"
+          className="bg-white dark:bg-[#1B1536] w-full max-w-lg rounded-3xl sm:rounded-[32px] overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 my-auto flex flex-col max-h-[92vh]"
         >
           {/* Header */}
           <div className="px-5 py-4 sm:px-6 sm:py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3 bg-gradient-to-r from-amber-500/10 via-rose-500/5 to-transparent shrink-0">
@@ -205,7 +205,7 @@ export const QuestionReportModal: React.FC<QuestionReportModalProps> = ({
                 {/* Question Preview Box */}
                 <div className="bg-slate-50 dark:bg-slate-900/50 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-3.5 space-y-2">
                   <div className="flex items-center justify-between gap-2 flex-wrap text-[11px]">
-                    <span className="px-2 py-0.5 rounded-md font-mono font-bold bg-[#800020]/10 text-[#800020] dark:bg-[#F47B20]/15 dark:text-[#F47B20]">
+                    <span className="px-2 py-0.5 rounded-md font-mono font-bold bg-[#7045D8]/10 text-[#7045D8] dark:bg-[#7045D8]/15 dark:text-[#A78BFA]">
                       QID: {question.id.slice(0, 8)}
                     </span>
                     {(question.exam || question.year) && (
@@ -278,7 +278,7 @@ export const QuestionReportModal: React.FC<QuestionReportModalProps> = ({
                     maxLength={1000}
                     className="w-full p-3 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-medium text-slate-800 dark:text-slate-200 focus:outline-hidden focus:ring-2 focus:ring-amber-500 placeholder:text-slate-400 resize-none"
                   />
-                  <div className="text-right text-[10px] text-slate-400 mt-1">
+                  <div className="text-right text-[11px] text-slate-400 mt-1">
                     {comment.length}/1000 chars
                   </div>
                 </div>

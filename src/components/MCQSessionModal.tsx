@@ -1570,8 +1570,8 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
   // If questions empty
   if (questions.length === 0) {
     return (
-      <div className="fixed inset-0 z-[100] bg-slate-50 dark:bg-[#0B1220] flex items-center justify-center p-6">
-        <div className="bg-white dark:bg-[#111A2E] border border-slate-200 dark:border-slate-800 rounded-3xl p-6 text-center max-w-sm w-full space-y-4">
+      <div className="fixed inset-0 z-[100] bg-slate-50 dark:bg-[#130E26] flex items-center justify-center p-6">
+        <div className="bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-slate-800 rounded-3xl p-6 text-center max-w-sm w-full space-y-4">
           <div className="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 flex items-center justify-center mx-auto">
             <BookOpen className="w-6 h-6" />
           </div>
@@ -1714,24 +1714,28 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
         exit={{ opacity: 0, scale: 0.96, y: -20, filter: "blur(8px)" }}
         transition={{ duration: 0.48, ease: [0.16, 1, 0.3, 1] }}
         id="session-summary-screen"
-        className="fixed inset-0 z-[100] bg-[#FFF9EF] dark:bg-[#120E10] flex flex-col w-full"
+        className="fixed inset-0 z-[100] bg-[#F8FAFC] dark:bg-[#130E26] flex flex-col w-full"
       >
-        <header className="sticky top-0 z-[110] bg-[#FFF9EF]/90 dark:bg-[#120E10]/90 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#2D2226] px-4 pt-[env(safe-area-inset-top,0px)] py-2.5 flex items-center justify-between shrink-0">
+        <header className="sticky top-0 z-[110] bg-white/95 dark:bg-[#130E26]/95 backdrop-blur-md border-b border-slate-200 dark:border-[#31275E] shrink-0 pt-[env(safe-area-inset-top,0px)]">
+          <div className="px-4 py-2.5 flex items-center justify-between">
           <button
+            type="button"
             onClick={onClose}
-            className="w-10 h-10 rounded-xl bg-white dark:bg-[#1C1518] border border-[#E8D9C0] dark:border-[#2D2226] text-[#800020] dark:text-[#E5B869] flex items-center justify-center transition-all active:scale-90 shadow-sm cursor-pointer"
+            aria-label="Exit analysis report"
+            className="w-11 h-11 rounded-xl bg-slate-100 dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center transition-all active:scale-90 shadow-sm cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div className="flex-1 px-4 text-center min-w-0">
-            <h2 className="text-sm font-black text-[#171923] dark:text-[#FFF9EF] truncate">
+            <h2 className="text-sm font-black text-slate-900 dark:text-slate-50 truncate">
               Analysis Report
             </h2>
-            <p className="text-[10px] font-bold text-[#800020] dark:text-[#C99A45] uppercase tracking-widest">
+            <p className="text-[11px] font-bold text-[#7045D8] dark:text-[#A78BFA] uppercase tracking-widest">
               Performance Summary
             </p>
           </div>
-          <div className="w-10" />
+          <div className="w-11" />
+          </div>
         </header>
 
         <div className="flex-1 overflow-y-auto overscroll-y-contain flex flex-col items-center justify-start p-3 sm:p-6 w-full">
@@ -1750,7 +1754,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
 
         {/* Decorative Background for Results (DISHA Burgundy & Gold ambient glow) */}
         <div className="fixed inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-[450px] bg-gradient-to-b from-[#800020]/10 via-[#C99A45]/5 to-transparent dark:from-[#800020]/15 dark:via-[#C99A45]/5 rounded-full blur-[120px]" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-[450px] bg-gradient-to-b from-[#7045D8]/10 via-[#A78BFA]/5 to-transparent dark:from-[#7045D8]/15 dark:via-[#5B32BF]/5 rounded-full blur-[120px]" />
         </div>
 
         <div className="w-full max-w-2xl space-y-4 sm:space-y-6 pb-[calc(env(safe-area-inset-bottom,20px)+64px)] relative z-10">
@@ -1759,17 +1763,17 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-[#800020]/15 via-[#F47B20]/20 to-[#800020]/15 border border-[#F47B20]/40 text-[#171923] dark:text-[#FFF9EF] flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs"
+              className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-[#7045D8]/15 via-[#7045D8]/20 to-[#7045D8]/15 border border-[#7045D8]/40 text-slate-900 dark:text-slate-50 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs"
             >
               <div className="flex items-center gap-3 min-w-0 w-full sm:w-auto">
-                <div className="w-10 h-10 rounded-xl bg-[#800020] text-amber-300 flex items-center justify-center shrink-0 shadow-sm">
+                <div className="w-10 h-10 rounded-xl bg-[#7045D8] text-amber-300 flex items-center justify-center shrink-0 shadow-sm">
                   <Sparkles className="w-5 h-5" />
                 </div>
                 <div className="min-w-0 text-left">
-                  <h4 className="text-xs sm:text-sm font-black text-[#171923] dark:text-[#FFF9EF]">
+                  <h4 className="text-xs sm:text-sm font-black text-slate-900 dark:text-slate-50">
                     अतिथि मोड: अपना स्कोर व रैंक सुरक्षित करें!
                   </h4>
-                  <p className="text-[11px] text-[#52576A] dark:text-[#CBD2E1] mt-0.5">
+                  <p className="text-[11px] text-slate-600 dark:text-slate-300 mt-0.5">
                     लॉगिन करने पर आपके अंक All-Rajasthan रैंक और मिस्टेक बैंक में हमेशा सुरक्षित रहेंगे।
                   </p>
                 </div>
@@ -1777,7 +1781,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
               <button
                 type="button"
                 onClick={() => onOpenLogin?.()}
-                className="w-full sm:w-auto px-4 py-2 rounded-xl bg-[#800020] hover:bg-[#600018] text-white text-xs font-black shrink-0 flex items-center justify-center gap-1.5 cursor-pointer shadow-sm active:scale-95 transition-transform"
+                className="w-full sm:w-auto px-4 py-2 rounded-xl bg-[#7045D8] hover:bg-[#5B32BF] text-white text-xs font-black shrink-0 flex items-center justify-center gap-1.5 cursor-pointer shadow-sm active:scale-95 transition-transform"
               >
                 <LogIn className="w-3.5 h-3.5" />
                 <span>लॉगिन करें</span>
@@ -1789,37 +1793,37 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
           <motion.div 
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            className="bg-white dark:bg-[#1A1417] border border-[#E8D9C0] dark:border-[#2F2227] rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-[0_12px_32px_rgba(128,0,32,0.06)] dark:shadow-none text-center space-y-3.5 sm:space-y-4 overflow-hidden relative"
+            className="bg-white dark:bg-[#130E26] border border-slate-200 dark:border-[#31275E] rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-[0_12px_32px_rgba(128,0,32,0.06)] dark:shadow-none text-center space-y-3.5 sm:space-y-4 overflow-hidden relative"
           >
             {/* DISHA Brand Gradient Top Accent Line & Subtle Gold Glow */}
-            <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[#800020] via-[#C99A45] to-[#800020]" />
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-[#C99A45]/10 rounded-full blur-[60px] pointer-events-none" />
+            <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[#7045D8] via-[#A78BFA] to-[#7045D8]" />
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-[#A78BFA]/10 rounded-full blur-[60px] pointer-events-none" />
             
             <motion.div 
               initial={{ scale: 0, rotate: -15 }}
               animate={{ scale: 1, rotate: 0 }}
               transition={{ type: "spring", damping: 12, delay: 0.2 }}
-              className="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-[#800020] via-[#660019] to-[#520014] text-[#E5B869] border border-[#C99A45]/40 flex items-center justify-center mx-auto shadow-lg shadow-[#800020]/25 relative"
+              className="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-[#7045D8] via-[#5B32BF] to-[#520014] text-[#E5B869] border border-[#A78BFA]/40 flex items-center justify-center mx-auto shadow-lg shadow-[#7045D8]/25 relative"
             >
               <Trophy className="w-6 h-6 sm:w-7 sm:h-7 text-[#E5B869]" />
-              <div className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-[#C99A45] rounded-full border-2 border-white dark:border-[#1A1417] flex items-center justify-center">
+              <div className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-[#A78BFA] rounded-full border-2 border-white dark:border-[#1A1417] flex items-center justify-center">
                 <Check className="w-2.5 h-2.5 text-[#520014]" strokeWidth={3.5} />
               </div>
             </motion.div>
 
             <div className="space-y-1 relative z-10">
-              <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#FAF5ED] dark:bg-[#251A1E] border border-[#E8D9C0] dark:border-[#38262C] text-[9px] font-black uppercase tracking-[0.2em] text-[#800020] dark:text-[#E5B869] font-mono shadow-sm">
-                <Sparkles className="w-3 h-3 text-[#C99A45]" />
+              <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#FAF5ED] dark:bg-[#251A1E] border border-slate-200 dark:border-[#38262C] text-[11px] font-black uppercase tracking-[0.2em] text-[#7045D8] dark:text-[#A78BFA] font-mono shadow-sm">
+                <Sparkles className="w-3 h-3 text-amber-500" />
                 {session.isSmartTest ? "Mastery Achieved" : isTestMode ? "Examination Finalized" : "Practice Session Completed"}
               </span>
-              <h2 className="text-xl sm:text-2xl font-black text-[#171923] dark:text-[#FFF9EF] leading-tight tracking-tight pt-0.5">
+              <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-50 leading-tight tracking-tight pt-0.5">
                 {sessionAccuracy >= 80 ? "Outstanding Mastery!" : sessionAccuracy >= 50 ? "Solid Progress!" : "Keep Pushing Forward!"}
               </h2>
-              <div className="text-[11px] font-bold text-[#718096] dark:text-[#9E8E95] flex items-center justify-center gap-1.5 flex-wrap px-2">
-                <span className="text-[#171923] dark:text-[#FAF5ED]">{session.title}</span>
+              <div className="text-[11px] font-bold text-slate-500 dark:text-[#9E8E95] flex items-center justify-center gap-1.5 flex-wrap px-2">
+                <span className="text-slate-900 dark:text-[#FAF5ED]">{session.title}</span>
                 {session.subtitle && (
                   <>
-                    <span className="w-1 h-1 rounded-full bg-[#C99A45]" />
+                    <span className="w-1 h-1 rounded-full bg-[#A78BFA]" />
                     <span>{session.subtitle}</span>
                   </>
                 )}
@@ -1828,38 +1832,38 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
 
             {/* Main Score & Accuracy Grid */}
             <div className="grid grid-cols-2 gap-2.5 sm:gap-3.5 items-stretch pt-0.5 relative z-10">
-              <div className="bg-[#FAF5ED] dark:bg-[#20181B] rounded-xl sm:rounded-2xl p-3 sm:p-3.5 border border-[#E8D9C0] dark:border-[#33252A] flex flex-col items-center justify-center">
-                <span className="text-[9px] font-black uppercase tracking-widest text-[#800020] dark:text-[#E5B869] mb-1">
+              <div className="bg-[#FAF5ED] dark:bg-[#20181B] rounded-xl sm:rounded-2xl p-3 sm:p-3.5 border border-slate-200 dark:border-[#31275E] flex flex-col items-center justify-center">
+                <span className="text-[11px] font-black uppercase tracking-widest text-[#7045D8] dark:text-[#A78BFA] mb-1">
                   Score Achieved
                 </span>
                 <div className="flex items-baseline gap-1 font-mono">
-                  <span className="text-2xl sm:text-3xl font-black text-[#171923] dark:text-[#FFF9EF]">
+                  <span className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-50">
                     {totalCorrect}
                   </span>
-                  <span className="text-xs sm:text-sm font-bold text-[#718096] dark:text-[#8C7D83]">
+                  <span className="text-xs sm:text-sm font-bold text-slate-500 dark:text-slate-400">
                     / {questions.length}
                   </span>
                 </div>
-                <span className="text-[9px] font-bold text-[#718096] dark:text-[#8C7D83] mt-0.5">
+                <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 mt-0.5">
                   {Math.round((totalCorrect / Math.max(1, questions.length)) * 100)}% Marks
                 </span>
               </div>
 
-              <div className="bg-[#FAF5ED] dark:bg-[#20181B] rounded-xl sm:rounded-2xl p-3 sm:p-3.5 border border-[#E8D9C0] dark:border-[#33252A] flex flex-col items-center justify-center">
-                <span className="text-[9px] font-black uppercase tracking-widest text-[#800020] dark:text-[#E5B869] mb-1">
+              <div className="bg-[#FAF5ED] dark:bg-[#20181B] rounded-xl sm:rounded-2xl p-3 sm:p-3.5 border border-slate-200 dark:border-[#31275E] flex flex-col items-center justify-center">
+                <span className="text-[11px] font-black uppercase tracking-widest text-[#7045D8] dark:text-[#A78BFA] mb-1">
                   Accuracy Rate
                 </span>
                 <div className="flex items-baseline gap-0.5 font-mono">
                   <span className={`text-2xl sm:text-3xl font-black ${
                     sessionAccuracy >= 75 ? 'text-emerald-700 dark:text-emerald-400' :
-                    sessionAccuracy >= 50 ? 'text-[#800020] dark:text-[#E5B869]' :
+                    sessionAccuracy >= 50 ? 'text-[#7045D8] dark:text-[#A78BFA]' :
                     'text-rose-700 dark:text-rose-400'
                   }`}>
                     {sessionAccuracy}
                   </span>
-                  <span className="text-xs sm:text-sm font-bold text-[#718096] dark:text-[#8C7D83]">%</span>
+                  <span className="text-xs sm:text-sm font-bold text-slate-500 dark:text-slate-400">%</span>
                 </div>
-                <span className="text-[9px] font-bold text-emerald-700 dark:text-emerald-400 mt-0.5">
+                <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 mt-0.5">
                   {sessionAccuracy >= 75 ? "Target Benchmark Achieved" : sessionAccuracy >= 50 ? "Average Pace" : "Focus on Revision"}
                 </span>
               </div>
@@ -1871,22 +1875,22 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                 initial={{ scale: 0.96, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ delay: 0.35 }}
-                className="p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-gradient-to-r from-[#800020]/10 via-[#C99A45]/20 to-[#800020]/10 border border-[#C99A45]/40 flex items-center gap-3 text-left shadow-sm relative overflow-hidden"
+                className="p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-gradient-to-r from-[#7045D8]/10 via-[#A78BFA]/20 to-[#7045D8]/10 border border-[#A78BFA]/40 flex items-center gap-3 text-left shadow-sm relative overflow-hidden"
               >
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#800020] to-[#520014] border border-[#C99A45] text-[#E5B869] flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#7045D8] to-[#520014] border border-[#A78BFA] text-[#E5B869] flex items-center justify-center shrink-0">
                   <Sparkles className="w-5 h-5 fill-current" />
                 </div>
                 
                 <div className="flex-1 min-w-0 relative z-10">
                   <div className="flex items-center gap-1.5 mb-0.5">
-                    <span className="text-[9px] font-black uppercase tracking-[0.15em] text-[#800020] dark:text-[#E5B869] font-mono">100% Accuracy</span>
-                    <span className="w-1 h-1 rounded-full bg-[#C99A45]" />
-                    <span className="text-[9px] font-black uppercase tracking-[0.15em] text-[#800020] dark:text-[#E5B869] font-mono">Perfect Score!</span>
+                    <span className="text-[11px] font-black uppercase tracking-[0.15em] text-[#7045D8] dark:text-[#A78BFA] font-mono">100% Accuracy</span>
+                    <span className="w-1 h-1 rounded-full bg-[#A78BFA]" />
+                    <span className="text-[11px] font-black uppercase tracking-[0.15em] text-[#7045D8] dark:text-[#A78BFA] font-mono">Perfect Score!</span>
                   </div>
-                  <div className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-[#C99A45]/20 border border-[#C99A45]/30 text-[8px] font-black text-[#800020] dark:text-[#E5B869] uppercase tracking-wider mb-1">
+                  <div className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-[#A78BFA]/20 border border-[#A78BFA]/30 text-[11px] font-black text-[#7045D8] dark:text-[#A78BFA] uppercase tracking-wider mb-1">
                     Flawless
                   </div>
-                  <p className="text-[11px] text-[#171923] dark:text-[#FAF5ED] font-bold leading-tight">
+                  <p className="text-[11px] text-slate-900 dark:text-[#FAF5ED] font-bold leading-tight">
                     Outstanding performance! You answered all questions correctly.
                   </p>
                 </div>
@@ -1894,7 +1898,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowPerfectCelebration(true)}
-                  className="px-3 py-1.5 rounded-lg bg-[#800020] hover:bg-[#660019] text-[#FFF9EF] font-black text-[10px] uppercase tracking-wider active:scale-95 transition-all shadow cursor-pointer relative z-10 flex items-center gap-1.5 border border-[#C99A45]/40"
+                  className="px-3 py-1.5 rounded-lg bg-[#7045D8] hover:bg-[#5B32BF] text-white font-black text-[11px] uppercase tracking-wider active:scale-95 transition-all shadow cursor-pointer relative z-10 flex items-center gap-1.5 border border-[#A78BFA]/40"
                 >
                   <span>Replay</span>
                   <span>🎉</span>
@@ -1907,8 +1911,8 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
               {[
                 { label: "CORRECT", val: totalCorrect, color: "text-emerald-700 dark:text-emerald-400", bg: "bg-emerald-50/70 dark:bg-emerald-950/20", border: "border-emerald-200 dark:border-emerald-900/40", icon: CheckCircle2 },
                 { label: "INCORRECT", val: totalWrong, color: "text-rose-700 dark:text-rose-400", bg: "bg-rose-50/70 dark:bg-rose-950/20", border: "border-rose-200 dark:border-rose-900/40", icon: XCircle },
-                { label: "SKIPPED", val: totalSkipped, color: "text-stone-700 dark:text-stone-300", bg: "bg-[#FAF5ED] dark:bg-[#1E171A]", border: "border-[#E8D9C0] dark:border-[#33252A]", icon: Filter },
-                { label: "AVG / Q", val: `${avgTimePerQuestion}s`, color: "text-[#800020] dark:text-[#E5B869]", bg: "bg-[#FAF5ED] dark:bg-[#1E171A]", border: "border-[#E8D9C0] dark:border-[#33252A]", icon: Clock },
+                { label: "SKIPPED", val: totalSkipped, color: "text-stone-700 dark:text-stone-300", bg: "bg-[#FAF5ED] dark:bg-[#1E171A]", border: "border-slate-200 dark:border-[#31275E]", icon: Filter },
+                { label: "AVG / Q", val: `${avgTimePerQuestion}s`, color: "text-[#7045D8] dark:text-[#A78BFA]", bg: "bg-[#FAF5ED] dark:bg-[#1E171A]", border: "border-slate-200 dark:border-[#31275E]", icon: Clock },
               ].map((m, i) => {
                 const Icon = m.icon;
                 return (
@@ -1922,7 +1926,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                         {m.val}
                       </span>
                     </div>
-                    <span className="text-[9px] font-black text-[#718096] dark:text-[#8C7D83] uppercase tracking-[0.15em]">
+                    <span className="text-[11px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em]">
                       {m.label}
                     </span>
                   </div>
@@ -1936,7 +1940,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={onClose}
-                className="w-full h-11 sm:h-12 bg-[#800020] hover:bg-[#660019] text-white rounded-xl font-black text-xs sm:text-sm shadow-md shadow-[#800020]/20 flex items-center justify-center gap-2.5 active:scale-95 transition-all cursor-pointer border border-[#C99A45]/40"
+                className="w-full h-11 sm:h-12 bg-[#7045D8] hover:bg-[#5B32BF] text-white rounded-xl font-black text-xs sm:text-sm shadow-md shadow-[#7045D8]/20 flex items-center justify-center gap-2.5 active:scale-95 transition-all cursor-pointer border border-[#A78BFA]/40"
               >
                 <div className="w-7 h-7 rounded-lg bg-white/15 flex items-center justify-center text-[#E5B869]">
                   <Home className="w-3.5 h-3.5" />
@@ -1958,9 +1962,9 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                       category: "Quiz Scorecard",
                     });
                   }}
-                  className="h-11 px-3 bg-[#FAF5ED] dark:bg-[#1E171A] hover:bg-[#F5EBE1] text-[#800020] dark:text-[#E5B869] rounded-xl font-black text-xs flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer border border-[#C99A45]/40"
+                  className="h-11 px-3 bg-[#FAF5ED] dark:bg-[#1E171A] hover:bg-[#F5EBE1] text-[#7045D8] dark:text-[#A78BFA] rounded-xl font-black text-xs flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer border border-[#A78BFA]/40"
                 >
-                  <Share2 className="w-3.5 h-3.5 text-[#800020] dark:text-[#E5B869]" />
+                  <Share2 className="w-3.5 h-3.5 text-[#7045D8] dark:text-[#A78BFA]" />
                   <span>Share Result</span>
                 </motion.button>
 
@@ -1992,24 +1996,24 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className="bg-white dark:bg-[#1A1417] border border-[#E8D9C0] dark:border-[#2F2227] rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-sm space-y-4"
+            className="bg-white dark:bg-[#130E26] border border-slate-200 dark:border-[#31275E] rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-sm space-y-4"
           >
             {/* Analytics Header */}
-            <div className="flex items-center justify-between border-b border-[#E8D9C0]/70 dark:border-[#2F2227] pb-3">
+            <div className="flex items-center justify-between border-b border-slate-200/70 dark:border-[#31275E] pb-3">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-[#FAF5ED] dark:bg-[#20181B] text-[#800020] dark:text-[#E5B869] border border-[#C99A45]/40 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-xl bg-[#FAF5ED] dark:bg-[#20181B] text-[#7045D8] dark:text-[#A78BFA] border border-[#A78BFA]/40 flex items-center justify-center">
                   <Target className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="text-xs sm:text-sm font-black text-[#171923] dark:text-[#FFF9EF] uppercase tracking-wider">
+                  <h3 className="text-xs sm:text-sm font-black text-slate-900 dark:text-slate-50 uppercase tracking-wider">
                     Performance Analytics
                   </h3>
-                  <p className="text-[10px] font-bold text-[#718096] dark:text-[#8C7D83]">
+                  <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400">
                     Attempt breakdown & examination readiness
                   </p>
                 </div>
               </div>
-              <span className="px-2.5 py-1 rounded-full bg-[#FAF5ED] dark:bg-[#20181B] border border-[#C99A45]/30 text-[9px] font-black text-[#800020] dark:text-[#E5B869] font-mono">
+              <span className="px-2.5 py-1 rounded-full bg-[#FAF5ED] dark:bg-[#20181B] border border-[#A78BFA]/30 text-[11px] font-black text-[#7045D8] dark:text-[#A78BFA] font-mono">
                 {sessionAccuracy}% ACC
               </span>
             </div>
@@ -2017,13 +2021,13 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
             {/* 1. Proportional Attempt Distribution Bar */}
             <div className="space-y-2">
               <div className="flex items-center justify-between text-[11px] font-bold">
-                <span className="text-[#171923] dark:text-[#FAF5ED]">Attempt Distribution</span>
-                <span className="text-[#718096] dark:text-[#8C7D83] font-mono">
+                <span className="text-slate-900 dark:text-[#FAF5ED]">Attempt Distribution</span>
+                <span className="text-slate-500 dark:text-slate-400 font-mono">
                   {totalAttempted}/{questions.length} Attempted ({Math.round((totalAttempted / Math.max(1, questions.length)) * 100)}%)
                 </span>
               </div>
               
-              <div className="h-3.5 w-full bg-[#FAF5ED] dark:bg-[#20181B] rounded-full overflow-hidden flex border border-[#E8D9C0]/80 dark:border-[#33252A]">
+              <div className="h-3.5 w-full bg-[#FAF5ED] dark:bg-[#20181B] rounded-full overflow-hidden flex border border-slate-200/80 dark:border-[#31275E]">
                 {totalCorrect > 0 && (
                   <div 
                     style={{ width: `${(totalCorrect / questions.length) * 100}%` }} 
@@ -2041,14 +2045,14 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                 {totalSkipped > 0 && (
                   <div 
                     style={{ width: `${(totalSkipped / questions.length) * 100}%` }} 
-                    className="h-full bg-[#E8D9C0] dark:bg-[#3D2D34] transition-all duration-500" 
+                    className="h-full bg-slate-200 dark:bg-[#31275E] transition-all duration-500" 
                     title={`Skipped: ${totalSkipped}`}
                   />
                 )}
               </div>
 
               {/* Distribution Legend */}
-              <div className="flex items-center justify-between text-[10px] font-bold pt-0.5 flex-wrap gap-1">
+              <div className="flex items-center justify-between text-[11px] font-bold pt-0.5 flex-wrap gap-1">
                 <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400">
                   <span className="w-2 h-2 rounded-full bg-emerald-600" />
                   <span>Correct: {totalCorrect} ({Math.round((totalCorrect / Math.max(1, questions.length)) * 100)}%)</span>
@@ -2057,8 +2061,8 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                   <span className="w-2 h-2 rounded-full bg-rose-600" />
                   <span>Wrong: {totalWrong} ({Math.round((totalWrong / Math.max(1, questions.length)) * 100)}%)</span>
                 </div>
-                <div className="flex items-center gap-1.5 text-[#718096] dark:text-[#9E8E95]">
-                  <span className="w-2 h-2 rounded-full bg-[#E8D9C0] dark:bg-[#3D2D34]" />
+                <div className="flex items-center gap-1.5 text-slate-500 dark:text-[#9E8E95]">
+                  <span className="w-2 h-2 rounded-full bg-slate-200 dark:bg-[#31275E]" />
                   <span>Skipped: {totalSkipped} ({Math.round((totalSkipped / Math.max(1, questions.length)) * 100)}%)</span>
                 </div>
               </div>
@@ -2067,23 +2071,23 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
             {/* 2. Target Benchmark Meter */}
             <div className="space-y-1.5 pt-1">
               <div className="flex items-center justify-between text-[11px] font-bold">
-                <div className="flex items-center gap-1.5 text-[#171923] dark:text-[#FAF5ED]">
-                  <Award className="w-3.5 h-3.5 text-[#C99A45]" />
+                <div className="flex items-center gap-1.5 text-slate-900 dark:text-[#FAF5ED]">
+                  <Award className="w-3.5 h-3.5 text-amber-500" />
                   <span>Target Benchmark (75% Accuracy)</span>
                 </div>
-                <span className={`font-mono ${sessionAccuracy >= 75 ? 'text-emerald-700 dark:text-emerald-400' : 'text-[#800020] dark:text-[#E5B869]'}`}>
+                <span className={`font-mono ${sessionAccuracy >= 75 ? 'text-emerald-700 dark:text-emerald-400' : 'text-[#7045D8] dark:text-[#A78BFA]'}`}>
                   {sessionAccuracy >= 75 ? `+${sessionAccuracy - 75}% Above Benchmark` : `${75 - sessionAccuracy}% to Target`}
                 </span>
               </div>
-              <div className="relative h-2 w-full bg-[#FAF5ED] dark:bg-[#20181B] rounded-full overflow-hidden border border-[#E8D9C0]/80 dark:border-[#33252A]">
-                <div className="absolute top-0 bottom-0 left-[75%] w-0.5 bg-[#800020] dark:bg-[#C99A45] z-10" />
+              <div className="relative h-2 w-full bg-[#FAF5ED] dark:bg-[#20181B] rounded-full overflow-hidden border border-slate-200/80 dark:border-[#31275E]">
+                <div className="absolute top-0 bottom-0 left-[75%] w-0.5 bg-[#7045D8] dark:bg-[#7045D8] z-10" />
                 <div
                   style={{ width: `${Math.min(100, sessionAccuracy)}%` }}
                   className={`h-full transition-all duration-500 ${
                     sessionAccuracy >= 75
                       ? "bg-emerald-600"
                       : sessionAccuracy >= 50
-                      ? "bg-[#C99A45]"
+                      ? "bg-[#A78BFA]"
                       : "bg-rose-600"
                   }`}
                 />
@@ -2092,29 +2096,29 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
 
             {/* 3. Time Management Summary */}
             <div className="grid grid-cols-2 gap-2.5 pt-1">
-              <div className="p-3 rounded-xl bg-[#FAF5ED] dark:bg-[#20181B] border border-[#E8D9C0] dark:border-[#33252A] flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-white dark:bg-[#1A1417] border border-[#E8D9C0] dark:border-[#2F2227] flex items-center justify-center text-[#800020] dark:text-[#E5B869] shrink-0">
+              <div className="p-3 rounded-xl bg-[#FAF5ED] dark:bg-[#20181B] border border-slate-200 dark:border-[#31275E] flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-white dark:bg-[#130E26] border border-slate-200 dark:border-[#31275E] flex items-center justify-center text-[#7045D8] dark:text-[#A78BFA] shrink-0">
                   <Clock className="w-4 h-4" />
                 </div>
                 <div className="min-w-0">
-                  <span className="text-[9px] font-black uppercase tracking-wider text-[#718096] dark:text-[#8C7D83] block leading-none mb-1">
+                  <span className="text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 block leading-none mb-1">
                     Total Time
                   </span>
-                  <span className="text-sm font-black font-mono text-[#171923] dark:text-[#FFF9EF] block leading-none">
+                  <span className="text-sm font-black font-mono text-slate-900 dark:text-slate-50 block leading-none">
                     {formatTime(elapsedSeconds)}
                   </span>
                 </div>
               </div>
 
-              <div className="p-3 rounded-xl bg-[#FAF5ED] dark:bg-[#20181B] border border-[#E8D9C0] dark:border-[#33252A] flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-white dark:bg-[#1A1417] border border-[#E8D9C0] dark:border-[#2F2227] flex items-center justify-center text-[#800020] dark:text-[#E5B869] shrink-0">
+              <div className="p-3 rounded-xl bg-[#FAF5ED] dark:bg-[#20181B] border border-slate-200 dark:border-[#31275E] flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-white dark:bg-[#130E26] border border-slate-200 dark:border-[#31275E] flex items-center justify-center text-[#7045D8] dark:text-[#A78BFA] shrink-0">
                   <Zap className="w-4 h-4" />
                 </div>
                 <div className="min-w-0">
-                  <span className="text-[9px] font-black uppercase tracking-wider text-[#718096] dark:text-[#8C7D83] block leading-none mb-1">
+                  <span className="text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 block leading-none mb-1">
                     Avg Pace / Q
                   </span>
-                  <span className="text-sm font-black font-mono text-[#171923] dark:text-[#FFF9EF] block leading-none">
+                  <span className="text-sm font-black font-mono text-slate-900 dark:text-slate-50 block leading-none">
                     {avgTimePerQuestion}s
                   </span>
                 </div>
@@ -2122,15 +2126,15 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
             </div>
 
             {/* 4. Strategic Performance Insights */}
-            <div className="p-3 rounded-xl bg-gradient-to-r from-[#800020]/10 via-[#FAF5ED] to-[#800020]/5 dark:from-[#800020]/20 dark:via-[#1D1619] dark:to-[#800020]/10 border border-[#C99A45]/30 flex items-start gap-2.5">
-              <div className="w-7 h-7 rounded-lg bg-[#800020] text-[#E5B869] flex items-center justify-center shrink-0 mt-0.5">
+            <div className="p-3 rounded-xl bg-gradient-to-r from-[#7045D8]/10 via-[#FAF5ED] to-[#7045D8]/5 dark:from-[#7045D8]/20 dark:via-[#1D1619] dark:to-[#7045D8]/10 border border-[#A78BFA]/30 flex items-start gap-2.5">
+              <div className="w-7 h-7 rounded-lg bg-[#7045D8] text-[#E5B869] flex items-center justify-center shrink-0 mt-0.5">
                 <TrendingUp className="w-3.5 h-3.5" />
               </div>
               <div className="space-y-0.5 min-w-0">
-                <span className="text-[9px] font-black uppercase tracking-widest text-[#800020] dark:text-[#E5B869]">
+                <span className="text-[11px] font-black uppercase tracking-widest text-[#7045D8] dark:text-[#A78BFA]">
                   Performance Insight
                 </span>
-                <p className="text-[11px] font-bold text-[#171923] dark:text-[#FAF5ED] leading-snug">
+                <p className="text-[11px] font-bold text-slate-900 dark:text-[#FAF5ED] leading-snug">
                   {sessionAccuracy >= 85
                     ? "🔥 Excellent accuracy and strong conceptual clarity. Keep this precision level across full length tests."
                     : sessionAccuracy >= 65
@@ -2167,30 +2171,30 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.3 }}
-            className="bg-white dark:bg-[#1A1417] border border-[#E8D9C0] dark:border-[#2F2227] rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-sm space-y-5"
+            className="bg-white dark:bg-[#130E26] border border-slate-200 dark:border-[#31275E] rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-sm space-y-5"
           >
             <div className="space-y-3">
               <div>
-                <h3 className="text-xs sm:text-sm font-black text-[#171923] dark:text-[#FFF9EF] uppercase tracking-[0.15em]">
+                <h3 className="text-xs sm:text-sm font-black text-slate-900 dark:text-slate-50 uppercase tracking-[0.15em]">
                   Performance Grid
                 </h3>
-                <p className="text-[10px] font-bold text-[#718096] dark:text-[#8C7D83] uppercase mt-0.5 tracking-wider">
+                <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase mt-0.5 tracking-wider">
                   Quick jump to question review
                 </p>
               </div>
 
               {/* Zero-Pill Legend */}
               <div className="flex items-center gap-4 flex-wrap">
-                <div className="flex items-center gap-1.5 text-[10px] font-black text-emerald-700 dark:text-emerald-400 uppercase tracking-widest">
+                <div className="flex items-center gap-1.5 text-[11px] font-black text-emerald-700 dark:text-emerald-400 uppercase tracking-widest">
                   <div className="w-2.5 h-2.5 rounded-full bg-emerald-600 shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
                   <span>Correct</span>
                 </div>
-                <div className="flex items-center gap-1.5 text-[10px] font-black text-rose-700 dark:text-rose-400 uppercase tracking-widest">
+                <div className="flex items-center gap-1.5 text-[11px] font-black text-rose-700 dark:text-rose-400 uppercase tracking-widest">
                   <div className="w-2.5 h-2.5 rounded-full bg-rose-600 shadow-[0_0_8px_rgba(244,63,94,0.4)]" />
                   <span>Wrong</span>
                 </div>
-                <div className="flex items-center gap-1.5 text-[10px] font-black text-[#718096] dark:text-[#9E8E95] uppercase tracking-widest">
-                  <div className="w-2.5 h-2.5 rounded-full bg-[#E8D9C0] dark:bg-[#3D2D34]" />
+                <div className="flex items-center gap-1.5 text-[11px] font-black text-slate-500 dark:text-[#9E8E95] uppercase tracking-widest">
+                  <div className="w-2.5 h-2.5 rounded-full bg-slate-200 dark:bg-[#31275E]" />
                   <span>Skipped</span>
                 </div>
               </div>
@@ -2199,7 +2203,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
             <div className="grid grid-cols-6 sm:grid-cols-8 gap-2.5 sm:gap-3">
               {questions.map((q, idx) => {
                 const res = sessionResults[q.id];
-                let btnClass = "bg-[#FAF5ED] dark:bg-[#20181B] border-[#E8D9C0] dark:border-[#33252A] text-[#718096] dark:text-[#8C7D83]";
+                let btnClass = "bg-[#FAF5ED] dark:bg-[#20181B] border-slate-200 dark:border-[#31275E] text-slate-500 dark:text-slate-400";
                 if (res) {
                   btnClass = res.isCorrect 
                     ? "bg-emerald-600 border-emerald-600 text-white shadow-md shadow-emerald-600/20" 
@@ -2227,15 +2231,15 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
           {/* Detailed Question Solutions Section */}
           <div className="space-y-4" id="each-question-analytics-section">
             <div className="flex items-center justify-between gap-4 px-2">
-              <h3 className="text-xs sm:text-sm font-black text-[#171923] dark:text-[#FFF9EF] uppercase tracking-wider flex items-center gap-2">
-                <FileText className="w-4 h-4 text-[#800020] dark:text-[#E5B869]" />
+              <h3 className="text-xs sm:text-sm font-black text-slate-900 dark:text-slate-50 uppercase tracking-wider flex items-center gap-2">
+                <FileText className="w-4 h-4 text-[#7045D8] dark:text-[#A78BFA]" />
                 Solution Audit
               </h3>
-              <div className="h-[1px] flex-1 bg-[#E8D9C0] dark:border-[#2D2226]" />
+              <div className="h-[1px] flex-1 bg-slate-200 dark:border-[#31275E]" />
             </div>
 
             {/* Segmented Filter Control (DISHA 20-20 Burgundy Styling) */}
-            <div className="p-1 bg-[#FAF5ED] dark:bg-[#181114] border border-[#E8D9C0] dark:border-[#2D2226] rounded-2xl flex items-center gap-1">
+            <div className="p-1 bg-[#FAF5ED] dark:bg-[#181114] border border-slate-200 dark:border-[#31275E] rounded-2xl flex items-center gap-1">
               {[
                 { id: "all", label: "All", count: questions.length },
                 { id: "wrong", label: "Wrong", count: totalWrong },
@@ -2247,15 +2251,15 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                   onClick={() => setAnalyticsFilter(tab.id as any)}
                   className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer ${
                     analyticsFilter === tab.id
-                      ? "bg-[#800020] text-white shadow-sm"
-                      : "text-[#718096] hover:text-[#171923] dark:text-[#8C7D83] dark:hover:text-[#FFF9EF]"
+                      ? "bg-[#7045D8] text-white shadow-sm"
+                      : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
                   }`}
                 >
                   <span>{tab.label}</span>
-                  <span className={`px-1.5 rounded-md text-[10px] font-mono ${
+                  <span className={`px-1.5 rounded-md text-[11px] font-mono ${
                     analyticsFilter === tab.id 
-                      ? "bg-[#C99A45]/30 text-white" 
-                      : "bg-[#E8D9C0]/50 dark:bg-[#2A2024] text-[#718096] dark:text-[#8C7D83]"
+                      ? "bg-[#A78BFA]/30 text-white" 
+                      : "bg-slate-200/50 dark:bg-[#241D48] text-slate-500 dark:text-slate-400"
                   }`}>
                     {tab.count}
                   </span>
@@ -2281,33 +2285,33 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                     whileInView={{ y: 0, opacity: 1 }}
                     viewport={{ once: true, margin: "-100px" }}
                     id={`analytics-q-${q.id}`}
-                    className="bg-white dark:bg-[#1A1417] border border-[#E8D9C0] dark:border-[#2F2227] rounded-2xl sm:rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col"
+                    className="bg-white dark:bg-[#130E26] border border-slate-200 dark:border-[#31275E] rounded-2xl sm:rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col"
                   >
                     {/* Audit Card Header */}
-                    <div className="px-4 py-3 sm:px-5 sm:py-3.5 border-b border-[#E8D9C0]/80 dark:border-[#2F2227] flex items-center justify-between gap-3 bg-[#FAF5ED]/50 dark:bg-[#1F181B]/50">
+                    <div className="px-4 py-3 sm:px-5 sm:py-3.5 border-b border-slate-200/80 dark:border-[#31275E] flex items-center justify-between gap-3 bg-[#FAF5ED]/50 dark:bg-[#1F181B]/50">
                       <div className="flex items-center gap-2.5">
-                        <span className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#800020] text-white font-mono font-black text-xs flex items-center justify-center border border-[#C99A45]/30">
+                        <span className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#7045D8] text-white font-mono font-black text-xs flex items-center justify-center border border-[#A78BFA]/30">
                           #{questionNumber}
                         </span>
                         
                         <div className="flex flex-col">
-                          <span className="text-[9px] font-black text-[#718096] dark:text-[#8C7D83] uppercase tracking-widest leading-none mb-1">Question Status</span>
+                          <span className="text-[11px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest leading-none mb-1">Question Status</span>
                           {wasAttempted ? (
                             <div className="flex items-center gap-2">
-                              <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md flex items-center gap-1.5 ${
+                              <span className={`text-[11px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md flex items-center gap-1.5 ${
                                 isCorrect ? "bg-emerald-600 text-white" : "bg-rose-600 text-white"
                               }`}>
                                 {isCorrect ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
                                 {isCorrect ? "Correct" : "Incorrect"}
                               </span>
                               {questionTimes[q.id] !== undefined && (
-                                <span className="text-[10px] font-black font-mono bg-[#FAF5ED] dark:bg-[#251B1F] border border-[#E8D9C0] dark:border-[#33252A] text-[#800020] dark:text-[#E5B869] px-2 py-0.5 rounded-md flex items-center gap-1">
+                                <span className="text-[11px] font-black font-mono bg-[#FAF5ED] dark:bg-[#251B1F] border border-slate-200 dark:border-[#31275E] text-[#7045D8] dark:text-[#A78BFA] px-2 py-0.5 rounded-md flex items-center gap-1">
                                   <Clock size={11} /> {questionTimes[q.id]}s
                                 </span>
                               )}
                             </div>
                           ) : (
-                            <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-[#718096] text-white">Skipped</span>
+                            <span className="text-[11px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-slate-500 text-white">Skipped</span>
                           )}
                         </div>
                       </div>
@@ -2320,15 +2324,15 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                         size="md"
                         className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl border flex items-center justify-center transition-all cursor-pointer relative ${
                           isQBookmarked
-                            ? "bg-[#C99A45] border-[#C99A45] text-white shadow-md shadow-[#C99A45]/20"
-                            : "bg-white dark:bg-[#20181B] border-[#E8D9C0] dark:border-[#33252A] text-[#718096]"
+                            ? "bg-[#A78BFA] border-[#A78BFA] text-white shadow-md shadow-[#A78BFA]/20"
+                            : "bg-white dark:bg-[#20181B] border-slate-200 dark:border-[#31275E] text-slate-500"
                         }`}
                       />
                     </div>
 
                     <div className="p-4 sm:p-6 space-y-5">
                       {/* Question Content */}
-                      <div className="font-hindi text-[#171923] dark:text-[#FFF9EF] text-sm sm:text-base font-black leading-relaxed">
+                      <div className="font-hindi text-slate-900 dark:text-slate-50 text-sm sm:text-base font-black leading-relaxed">
                         <ParsedQuestion text={q.text} fontSizeClass="text-sm sm:text-base" question={q} />
                       </div>
 
@@ -2352,8 +2356,8 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                               if (!looksLikePairing) return null;
                             }
 
-                            let cardClass = "bg-[#FAF5ED]/50 dark:bg-[#1E171A]/50 border-[#E8D9C0] dark:border-[#2F2227] text-[#171923] dark:text-[#E2D9D2]";
-                            let badgeClass = "bg-[#E8D9C0]/50 dark:bg-[#2F2227] text-[#718096] dark:text-[#8C7D83]";
+                            let cardClass = "bg-[#FAF5ED]/50 dark:bg-[#1E171A]/50 border-slate-200 dark:border-[#31275E] text-slate-900 dark:text-[#E2D9D2]";
+                            let badgeClass = "bg-slate-200/50 dark:bg-[#241D48] text-slate-500 dark:text-slate-400";
 
                             if (isThisCorrect) {
                               cardClass = "bg-emerald-50 dark:bg-emerald-950/20 border-emerald-500 text-emerald-950 dark:text-emerald-50 ring-2 ring-emerald-500/20";
@@ -2384,9 +2388,9 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
 
                       {/* Explanation Block */}
                       {q.explanation && (
-                        <div className="bg-[#1C1518] dark:bg-[#150F12] border border-[#C99A45]/30 rounded-2xl p-4 sm:p-5 shadow-lg">
+                        <div className="bg-[#1C1518] dark:bg-[#150F12] border border-[#A78BFA]/30 rounded-2xl p-4 sm:p-5 shadow-lg">
                           <div className="flex items-center gap-2 mb-3">
-                            <div className="w-8 h-8 rounded-xl bg-[#C99A45]/20 text-[#E5B869] border border-[#C99A45]/30 flex items-center justify-center">
+                            <div className="w-8 h-8 rounded-xl bg-[#A78BFA]/20 text-[#E5B869] border border-[#A78BFA]/30 flex items-center justify-center">
                               <FileText size={16} />
                             </div>
                             <h4 className="text-xs font-black text-[#E5B869] uppercase tracking-[0.2em]">Mastery Keys</h4>
@@ -2399,13 +2403,13 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
 
                       {/* Expert Tip / Fact */}
                       {q.importantFact && (
-                        <div className="bg-[#FAF5ED] dark:bg-[#1D171A] border border-[#C99A45]/40 rounded-2xl p-4 flex gap-3">
-                          <div className="w-8 h-8 rounded-lg bg-[#C99A45] text-white flex items-center justify-center shrink-0 mt-0.5">
+                        <div className="bg-[#FAF5ED] dark:bg-[#1D171A] border border-[#A78BFA]/40 rounded-2xl p-4 flex gap-3">
+                          <div className="w-8 h-8 rounded-lg bg-[#A78BFA] text-white flex items-center justify-center shrink-0 mt-0.5">
                             <Lightbulb size={18} fill="currentColor" />
                           </div>
                           <div className="space-y-0.5">
-                            <span className="text-[9px] font-black text-[#800020] dark:text-[#E5B869] uppercase tracking-widest">Expert Tip</span>
-                            <p className="font-hindi text-xs sm:text-sm text-[#171923] dark:text-[#FAF5ED] leading-relaxed font-black">
+                            <span className="text-[11px] font-black text-[#7045D8] dark:text-[#A78BFA] uppercase tracking-widest">Expert Tip</span>
+                            <p className="font-hindi text-xs sm:text-sm text-slate-900 dark:text-[#FAF5ED] leading-relaxed font-black">
                               {q.importantFact}
                             </p>
                           </div>
@@ -2467,32 +2471,36 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[100] bg-[#FFF9EF] dark:bg-[#171923] flex flex-col w-full"
+        className="fixed inset-0 z-[100] bg-[#F8FAFC] dark:bg-[#130E26] flex flex-col w-full"
         id="mcq-setup-screen"
       >
-        <header className="sticky top-0 z-20 bg-white/95 dark:bg-[#1F2330]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] px-4 pt-[env(safe-area-inset-top,0px)] py-2.5 flex items-center justify-between">
+        <header className="sticky top-0 z-20 bg-white/95 dark:bg-[#130E26]/95 backdrop-blur-md border-b border-slate-200 dark:border-[#31275E] pt-[env(safe-area-inset-top,0px)]">
+          <div className="px-4 py-2.5 flex items-center justify-between">
           <button
+            type="button"
             onClick={onClose}
-            className="w-10 h-10 rounded-2xl bg-[#F7EFE2] dark:bg-[#252A3A] text-[#171923] dark:text-[#FFF9EF] flex items-center justify-center transition-all active:scale-90 cursor-pointer border border-[#E8D9C0] dark:border-[#31374A]"
+            aria-label="Exit setup"
+            className="w-11 h-11 rounded-2xl bg-slate-100 dark:bg-[#241D48] text-slate-900 dark:text-slate-50 flex items-center justify-center transition-all active:scale-90 cursor-pointer border border-slate-200 dark:border-[#31275E] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div className="flex-1 px-4 text-center min-w-0">
-            <h2 className="text-sm font-black text-[#171923] dark:text-[#FFF9EF] truncate">
+            <h2 className="text-sm font-black text-slate-900 dark:text-slate-50 truncate">
               Session Setup
             </h2>
-            <p className="text-[10px] font-bold text-[#800020] dark:text-[#F47B20] uppercase tracking-widest">{isTestMode ? "Exam Mode" : "Practice Mode"}</p>
+            <p className="text-[11px] font-bold text-[#7045D8] dark:text-[#A78BFA] uppercase tracking-widest">{isTestMode ? "Exam Mode" : "Practice Mode"}</p>
           </div>
-          <div className="w-10" />
+          <div className="w-11" />
+          </div>
         </header>
 
         {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto overscroll-contain">
           <div className="max-w-2xl mx-auto p-5 space-y-6">
             {/* Hero Card */}
-            <div className="bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-[32px] p-6 shadow-sm text-center space-y-4 relative overflow-hidden">
+            <div className="bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] rounded-[32px] p-6 shadow-sm text-center space-y-4 relative overflow-hidden">
               <div className="flex items-center justify-between mb-2">
-                <div className="w-14 h-14 rounded-[22px] bg-[#800020] text-white flex items-center justify-center shadow-lg shadow-[#800020]/25">
+                <div className="w-14 h-14 rounded-[22px] bg-[#7045D8] text-white flex items-center justify-center shadow-lg shadow-[#7045D8]/25">
                   <BookOpen className="w-7 h-7" />
                 </div>
                 <button
@@ -2520,7 +2528,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                     }
                     setShareData(sharePayload);
                   }}
-                  className="w-10 h-10 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] text-[#800020] dark:text-[#F47B20] flex items-center justify-center active:scale-90 transition-transform cursor-pointer border border-[#E8D9C0] dark:border-[#31374A] shadow-2xs"
+                  className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-[#241D48] text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center active:scale-90 transition-transform cursor-pointer border border-slate-200 dark:border-[#31275E] shadow-2xs"
                   title="Share Test"
                 >
                   <Share2 className="w-5 h-5" />
@@ -2541,15 +2549,15 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
               <div className="grid grid-cols-3 gap-2 pt-4 border-t border-slate-100 dark:border-slate-800">
                 <div className="flex flex-col items-center">
                   <span className="text-xl font-black text-slate-900 dark:text-white font-mono">{baseQuestions.length}</span>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Questions</span>
+                  <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Questions</span>
                 </div>
                 <div className="flex flex-col items-center">
                   <span className="text-xl font-black text-blue-600 dark:text-blue-400 font-mono">{isTestMode ? "Off" : "On"}</span>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Feedback</span>
+                  <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Feedback</span>
                 </div>
                 <div className="flex flex-col items-center">
                   <span className="text-xl font-black text-emerald-600 dark:text-emerald-400 font-mono">24/7</span>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Support</span>
+                  <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Support</span>
                 </div>
               </div>
             </div>
@@ -2584,7 +2592,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
               </button>
 
               {/* Mode Description */}
-              <div className="p-5 rounded-[24px] bg-white dark:bg-[#111A2E] border border-slate-200 dark:border-slate-800 space-y-3">
+              <div className="p-5 rounded-[24px] bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-slate-800 space-y-3">
                 <div className="flex items-center gap-2 text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">
                   <Sparkles className="w-4 h-4 text-amber-500" />
                   <span>Session Type: {isTestMode ? "Examination" : "Practice"}</span>
@@ -2600,15 +2608,15 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
         </div>
 
         {/* Start Button */}
-        <footer className="p-4 bg-white dark:bg-[#1F2330] border-t border-[#E8D9C0] dark:border-[#31374A] pb-[calc(16px+env(safe-area-inset-bottom,0px))]">
+        <footer className="p-4 bg-white dark:bg-[#1B1536] border-t border-slate-200 dark:border-[#31275E] pb-[calc(16px+env(safe-area-inset-bottom,0px))]">
           <div className="max-w-2xl mx-auto">
             <button
               id="btn-start-mcq-session"
               onClick={handleStartSession}
-              className="w-full h-14 bg-gradient-to-r from-[#800020] via-[#5E0017] to-[#171923] text-white rounded-2xl font-black text-base shadow-xl shadow-[#800020]/25 flex items-center justify-between px-6 group transition-all active:scale-95 cursor-pointer"
+              className="w-full h-14 bg-gradient-to-r from-[#7045D8] via-[#5B32BF] to-[#130E26] text-white rounded-2xl font-black text-base shadow-xl shadow-[#7045D8]/25 flex items-center justify-between px-6 group transition-all active:scale-95 cursor-pointer"
             >
               <div className="flex items-center gap-3">
-                <Play className="w-5 h-5 fill-[#F47B20] text-[#F47B20]" />
+                <Play className="w-5 h-5 fill-[#7045D8] text-[#7045D8]" />
                 <span>START SESSION</span>
               </div>
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -2678,7 +2686,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
 
   if (!currentQuestion || questions.length === 0) {
     return (
-      <div className="fixed inset-0 z-[100] bg-[#FFF9EF] dark:bg-[#171923] flex flex-col items-center justify-center p-6 text-center">
+      <div className="fixed inset-0 z-[100] bg-[#F8FAFC] dark:bg-[#130E26] flex flex-col items-center justify-center p-6 text-center">
         <div className="w-16 h-16 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center mb-4">
           <AlertCircle className="w-8 h-8" />
         </div>
@@ -2690,7 +2698,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
         </p>
         <button
           onClick={onClose}
-          className="px-6 py-2.5 rounded-xl bg-[#800020] text-white font-bold text-sm shadow-md active:scale-95 transition-transform cursor-pointer"
+          className="px-6 py-2.5 rounded-xl bg-[#7045D8] text-white font-bold text-sm shadow-md active:scale-95 transition-transform cursor-pointer"
         >
           Go Back
         </button>
@@ -2703,96 +2711,53 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
   return (
     <>
         <div
-          className="fixed inset-0 z-[100] bg-[#FFF9EF] dark:bg-[#171923] flex flex-col items-center justify-start transition-colors duration-200 overflow-hidden w-full"
+          className="fixed inset-0 z-[100] bg-[#F8FAFC] dark:bg-[#130E26] flex flex-col items-center justify-start transition-colors duration-200 overflow-hidden w-full"
           id="mcq-screen-container"
         >
-      <div className="w-full max-w-3xl mx-auto flex flex-col h-full relative overflow-hidden bg-[#FFF9EF] dark:bg-[#171923]">
-        <header className="sticky top-0 z-50 bg-white/95 dark:bg-[#1F2330]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] px-2.5 sm:px-3 pt-[env(safe-area-inset-top,0px)] py-2 flex items-center justify-between gap-1.5 shrink-0">
-          <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1 mr-1">
+      <div className="w-full max-w-3xl mx-auto flex flex-col h-full relative overflow-hidden bg-[#F8FAFC] dark:bg-[#130E26]">
+        <header className="sticky top-0 z-50 bg-white/95 dark:bg-[#130E26]/95 backdrop-blur-md border-b border-slate-200 dark:border-[#31275E] shrink-0 pt-[env(safe-area-inset-top,0px)]">
+          <div className="px-2.5 sm:px-3 py-2 min-h-[60px] flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0 flex-1 mr-1">
             <button
+              type="button"
               onClick={onClose}
-              className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-[#F7EFE2] dark:bg-[#252A3A] text-[#171923] dark:text-[#FFF9EF] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center shrink-0 active:scale-90 transition-transform cursor-pointer"
+              className="w-11 h-11 rounded-xl bg-slate-100 dark:bg-[#241D48] text-slate-900 dark:text-slate-50 border border-slate-200 dark:border-[#31275E] flex items-center justify-center shrink-0 active:scale-90 transition-transform cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
               title="Exit Practice"
+              aria-label="Exit Practice"
             >
-              <ArrowLeft className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
+              <ArrowLeft className="w-5 h-5" />
             </button>
             <div className="flex flex-col min-w-0 flex-1">
-              <h2 className="text-xs sm:text-[13px] font-black text-[#171923] dark:text-[#FFF9EF] truncate leading-tight font-hindi">
+              <h2 className="text-xs sm:text-sm font-black text-slate-900 dark:text-slate-50 truncate leading-tight font-hindi">
                 {displayTitle}
               </h2>
-              <span className="text-[9px] font-bold text-[#800020] dark:text-[#F47B20] uppercase tracking-wider whitespace-nowrap truncate mt-0.5">
+              <span className="text-[11px] font-bold text-[#7045D8] dark:text-[#A78BFA] uppercase tracking-wider whitespace-nowrap truncate mt-0.5">
                 {isTestMode ? "Exam Session" : "Disha PYQ Practice"}
               </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
-            <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg sm:rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A]">
-              <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#800020] dark:text-[#F47B20]" />
-              <span className="text-[11px] sm:text-xs font-black text-[#171923] dark:text-[#FFF9EF] font-mono tabular-nums">
+          <div className="flex items-center gap-1.5 shrink-0">
+            <div className="min-h-[40px] flex items-center gap-1.5 px-2.5 rounded-xl bg-slate-100 dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E]">
+              <Clock className="w-3.5 h-3.5 text-[#7045D8] dark:text-[#A78BFA]" />
+              <span className="text-xs font-black text-slate-900 dark:text-slate-50 font-mono tabular-nums">
                 {formatTime(elapsedSeconds)}
               </span>
             </div>
 
             <button
+              type="button"
               onClick={() => setShowPalette(!showPalette)}
-              className={`w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl border flex items-center justify-center transition-all active:scale-90 cursor-pointer ${
+              className={`w-11 h-11 rounded-xl border flex items-center justify-center transition-all active:scale-90 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8] ${
                 showPalette
-                  ? "bg-[#800020] border-[#800020] text-white shadow-lg shadow-[#800020]/25"
-                  : "bg-white dark:bg-[#252A3A] border-[#E8D9C0] dark:border-[#31374A] text-[#52576A] dark:text-[#CBD2E1]"
+                  ? "bg-[#7045D8] border-[#7045D8] text-white shadow-lg shadow-[#7045D8]/25"
+                  : "bg-white dark:bg-[#241D48] border-slate-200 dark:border-[#31275E] text-slate-600 dark:text-slate-300"
               }`}
               title="Question Palette"
+              aria-label="Toggle Question Palette"
+              aria-expanded={showPalette}
             >
-              <Grid className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
-            </button>
-
-            <button
-              onClick={() => {
-                triggerHaptic("light");
-                let sharePayload: ShareData;
-                if (session.topicId) {
-                  sharePayload = {
-                    title: session.title,
-                    text: `Attempt specialized MCQ practice on ${session.title} with bilingual explanations and conceptual notes on Disha PYQ.`,
-                    url: getShareUrl("topic", session.topicId),
-                    category: "Topic Practice",
-                  };
-                } else if (session.chapterId) {
-                  sharePayload = {
-                    title: session.title,
-                    text: `Master ${session.title} with bilingual MCQ practice on Disha PYQ.`,
-                    url: getShareUrl("chapter", session.chapterId),
-                    category: "Chapter Practice",
-                  };
-                } else {
-                  sharePayload = {
-                    title: session.title,
-                    text: "Practice these bilingual MCQs on Disha PYQ!",
-                    url: getShareUrl("practice", session.title),
-                    category: "Practice Set",
-                  };
-                }
-                setShareData(sharePayload);
-              }}
-              className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl border bg-white dark:bg-[#252A3A] border-[#E8D9C0] dark:border-[#31374A] text-[#800020] dark:text-[#F47B20] flex items-center justify-center active:scale-90 transition-transform cursor-pointer"
-              title="Share Practice"
-            >
-              <Share2 className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
-            </button>
-
-            <button
-              onClick={() => {
-                if (currentQuestion) {
-                  playClickSound();
-                  setReportingQuestion(currentQuestion);
-                  setShowReportModal(true);
-                }
-              }}
-              className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl border bg-white dark:bg-[#252A3A] border-[#E8D9C0] dark:border-[#31374A] text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/20 flex items-center justify-center active:scale-90 transition-transform cursor-pointer"
-              title="Report Question / Raise Objection"
-              aria-label="Report Question"
-            >
-              <Flag className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
+              <Grid className="w-4.5 h-4.5" />
             </button>
 
             {currentQuestion && (
@@ -2801,60 +2766,147 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                 isBookmarked={isBookmarked}
                 currentTag={currentProgress?.bookmarkTag}
                 onToggleBookmark={onToggleBookmark}
-                size="sm"
+                size="md"
               />
             )}
 
-            {/* Quick Eye Comfort Shield */}
-            <button
-              onClick={() => {
-                triggerHaptic("light");
-                onUpdateSettings?.({ eyeComfort: !settings.eyeComfort });
-              }}
-              className={`w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl border flex items-center justify-center transition-all active:scale-90 cursor-pointer ${
-                settings.eyeComfort
-                  ? "bg-amber-500 border-amber-500 text-white shadow-md shadow-amber-500/25"
-                  : "bg-white dark:bg-[#252A3A] border-[#E8D9C0] dark:border-[#31374A] text-slate-500 dark:text-[#CBD2E1]"
-              }`}
-              title={settings.eyeComfort ? "Eye Comfort On (Tap to Turn Off)" : "Eye Comfort / Blue Light Shield (Tap to Turn On)"}
-              aria-label="Toggle Eye Comfort Shield"
-            >
-              <Eye className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
-            </button>
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setShowMoreMenu((prev) => !prev)}
+                className={`w-11 h-11 rounded-xl border flex items-center justify-center transition-all active:scale-90 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8] ${
+                  showMoreMenu
+                    ? "bg-[#7045D8] border-[#7045D8] text-white shadow-md"
+                    : "bg-white dark:bg-[#241D48] border-slate-200 dark:border-[#31275E] text-slate-600 dark:text-slate-300"
+                }`}
+                title="More Options"
+                aria-label="More session options"
+                aria-expanded={showMoreMenu}
+              >
+                <MoreVertical className="w-5 h-5" />
+              </button>
 
-            {/* Quick Theme Cycle */}
-            <button
-              onClick={() => {
-                triggerHaptic("light");
-                if (!settings.darkMode) {
-                  onUpdateSettings?.({ darkMode: true, amoledBlack: false });
-                } else if (!settings.amoledBlack) {
-                  onUpdateSettings?.({ darkMode: true, amoledBlack: true });
-                } else {
-                  onUpdateSettings?.({ darkMode: false, amoledBlack: false });
-                }
-              }}
-              className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl border bg-white dark:bg-[#252A3A] border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center transition-all active:scale-90 cursor-pointer text-[#800020] dark:text-[#C99A45]"
-              title={!settings.darkMode ? "Light Mode (Tap for Charcoal Dark)" : !settings.amoledBlack ? "Charcoal Dark (Tap for AMOLED Black)" : "AMOLED Black (Tap for Light)"}
-              aria-label="Cycle Theme"
-            >
-              {!settings.darkMode ? (
-                <Moon className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-[#800020]" />
-              ) : settings.amoledBlack ? (
-                <Sparkles className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-amber-400" />
-              ) : (
-                <Sun className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-[#F47B20]" />
+              {showMoreMenu && (
+                <>
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setShowMoreMenu(false)}
+                    aria-hidden="true"
+                  />
+                  <div className="absolute right-0 top-full mt-2 z-50 w-56 rounded-2xl bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] shadow-xl p-1.5 space-y-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowMoreMenu(false);
+                        triggerHaptic("light");
+                        let sharePayload: ShareData;
+                        if (session.topicId) {
+                          sharePayload = {
+                            title: session.title,
+                            text: `Attempt specialized MCQ practice on ${session.title} with bilingual explanations and conceptual notes on Disha PYQ.`,
+                            url: getShareUrl("topic", session.topicId),
+                            category: "Topic Practice",
+                          };
+                        } else if (session.chapterId) {
+                          sharePayload = {
+                            title: session.title,
+                            text: `Master ${session.title} with bilingual MCQ practice on Disha PYQ.`,
+                            url: getShareUrl("chapter", session.chapterId),
+                            category: "Chapter Practice",
+                          };
+                        } else {
+                          sharePayload = {
+                            title: session.title,
+                            text: "Practice these bilingual MCQs on Disha PYQ!",
+                            url: getShareUrl("practice", session.title),
+                            category: "Practice Set",
+                          };
+                        }
+                        setShareData(sharePayload);
+                      }}
+                      className="w-full min-h-[44px] px-3 py-2 rounded-xl flex items-center gap-3 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-[#241D48] transition-colors cursor-pointer"
+                    >
+                      <Share2 className="w-4 h-4 text-[#7045D8] dark:text-[#A78BFA]" />
+                      <span>Share Practice</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowMoreMenu(false);
+                        if (currentQuestion) {
+                          playClickSound();
+                          setReportingQuestion(currentQuestion);
+                          setShowReportModal(true);
+                        }
+                      }}
+                      className="w-full min-h-[44px] px-3 py-2 rounded-xl flex items-center gap-3 text-xs font-bold text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/30 transition-colors cursor-pointer"
+                    >
+                      <Flag className="w-4 h-4" />
+                      <span>Report Question</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowMoreMenu(false);
+                        triggerHaptic("light");
+                        onUpdateSettings?.({ eyeComfort: !settings.eyeComfort });
+                      }}
+                      className="w-full min-h-[44px] px-3 py-2 rounded-xl flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-[#241D48] transition-colors cursor-pointer"
+                    >
+                      <span className="flex items-center gap-3">
+                        <Eye className={`w-4 h-4 ${settings.eyeComfort ? "text-amber-500" : "text-slate-500 dark:text-slate-400"}`} />
+                        <span>Eye Comfort Shield</span>
+                      </span>
+                      <span className={`px-1.5 py-0.5 rounded text-[11px] font-black ${settings.eyeComfort ? "bg-amber-500 text-white" : "bg-slate-200 dark:bg-[#31275E] text-slate-600 dark:text-slate-300"}`}>
+                        {settings.eyeComfort ? "ON" : "OFF"}
+                      </span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowMoreMenu(false);
+                        triggerHaptic("light");
+                        if (!settings.darkMode) {
+                          onUpdateSettings?.({ darkMode: true, amoledBlack: false });
+                        } else if (!settings.amoledBlack) {
+                          onUpdateSettings?.({ darkMode: true, amoledBlack: true });
+                        } else {
+                          onUpdateSettings?.({ darkMode: false, amoledBlack: false });
+                        }
+                      }}
+                      className="w-full min-h-[44px] px-3 py-2 rounded-xl flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-[#241D48] transition-colors cursor-pointer"
+                    >
+                      <span className="flex items-center gap-3">
+                        {!settings.darkMode ? (
+                          <Moon className="w-4 h-4 text-[#7045D8]" />
+                        ) : settings.amoledBlack ? (
+                          <Sparkles className="w-4 h-4 text-amber-400" />
+                        ) : (
+                          <Sun className="w-4 h-4 text-amber-400" />
+                        )}
+                        <span>Display Theme</span>
+                      </span>
+                      <span className="text-[11px] font-bold text-[#7045D8] dark:text-[#A78BFA]">
+                        {!settings.darkMode ? "Light" : settings.amoledBlack ? "AMOLED" : "Dark"}
+                      </span>
+                    </button>
+                  </div>
+                </>
               )}
-            </button>
+            </div>
+          </div>
           </div>
         </header>
 
         {/* Progress Tracker */}
-        <div className="w-full h-1.5 bg-[#E8D9C0]/60 dark:bg-[#252A3A] relative shrink-0">
+        <div className="w-full h-1.5 bg-slate-200 dark:bg-[#241D48] relative shrink-0">
           <motion.div 
             initial={{ width: 0 }}
             animate={{ width: `${progressPercent}%` }}
-            className="absolute top-0 left-0 h-full bg-gradient-to-r from-[#800020] to-[#F47B20] transition-all duration-500 rounded-r-full"
+            className="absolute top-0 left-0 h-full bg-gradient-to-r from-[#7045D8] to-[#A78BFA] transition-all duration-500 rounded-r-full"
           />
         </div>
 
@@ -2862,16 +2914,16 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
         <div 
           id="mcq-content-scroll"
           ref={scrollRef}
-          className="flex-1 overflow-y-auto overscroll-contain px-3.5 sm:px-4 pt-4 pb-20 space-y-4"
+          className="flex-1 overflow-y-auto overscroll-contain px-3.5 sm:px-4 pt-4 pb-24 space-y-4"
         >
           <div className="flex items-center gap-2">
-            <span className="px-3 py-1 rounded-lg bg-[#800020] dark:bg-[#F47B20] text-white text-[11px] font-black font-mono tabular-nums uppercase tracking-widest">
+            <span className="px-3 py-1 rounded-lg bg-[#7045D8] text-white text-[11px] font-black font-mono tabular-nums uppercase tracking-widest">
               Q{currentIndex + 1} of {totalQuestions}
             </span>
-            <div className="h-[2px] flex-1 bg-[#E8D9C0] dark:bg-[#31374A]" />
+            <div className="h-[2px] flex-1 bg-slate-200 dark:bg-[#31275E]" />
           </div>
 
-          <div key={currentQuestion?.id || 'q'} className="bg-white dark:bg-[#1F2330] p-[0.85rem] sm:p-[1.19rem] rounded-[21px] border border-[#E8D9C0] dark:border-[#31374A] shadow-2xs">
+          <div key={currentQuestion?.id || 'q'} className="bg-white dark:bg-[#1B1536] p-[0.85rem] sm:p-[1.19rem] rounded-[21px] border border-slate-200 dark:border-[#31275E] shadow-2xs">
             <ParsedQuestion 
               text={currentQuestion?.text || ""} 
               fontSizeClass={questionFontSizeClass} 
@@ -2884,7 +2936,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
               const isSelected = selectedOptionIndex === opt.originalIndex;
               const isCorrectOption = currentQuestion ? opt.originalIndex === currentQuestion.correctIndex : false;
 
-              let cardStyles = "bg-white dark:bg-[#111A2E] border-slate-200 dark:border-slate-800";
+              let cardStyles = "bg-white dark:bg-[#1B1536] border-slate-200 dark:border-slate-800";
               let labelStyles = "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400";
               let textStyles = "text-slate-900 dark:text-white";
 
@@ -3009,8 +3061,8 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                       }}
                       className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 hover:from-indigo-600 hover:to-purple-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-indigo-500/20 active:scale-95 transition-all cursor-pointer"
                     >
-                      <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-spin" style={{ animationDuration: '3s' }} />
-                      <span>✨ Explain with AI</span>
+                      <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                      <span>Explain with AI</span>
                     </button>
 
                     <button
@@ -3035,12 +3087,12 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
         </div>
 
             {/* Floating Action Footer */}
-        <footer className="w-full bg-white dark:bg-[#1F2330] border-t border-[#E8D9C0] dark:border-[#31374A] px-4 py-3 shrink-0 z-40 pb-[calc(12px+env(safe-area-inset-bottom,0px))]">
+        <footer className="w-full bg-white dark:bg-[#1B1536] border-t border-slate-200 dark:border-[#31275E] px-4 py-3 shrink-0 z-40 pb-[calc(12px+env(safe-area-inset-bottom,0px))]">
           <div className="max-w-3xl mx-auto flex gap-3">
             <button
               onClick={handlePrevQuestionPractice}
               disabled={currentIndex === 0}
-              className="h-12 sm:h-14 w-12 sm:w-14 rounded-2xl bg-[#F7EFE2] dark:bg-[#252A3A] text-[#171923] dark:text-[#FFF9EF] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center disabled:opacity-30 active:scale-90 transition-transform cursor-pointer shrink-0"
+              className="h-12 sm:h-14 w-12 sm:w-14 rounded-2xl bg-slate-100 dark:bg-[#241D48] text-slate-900 dark:text-slate-50 border border-slate-200 dark:border-[#31275E] flex items-center justify-center disabled:opacity-30 active:scale-90 transition-transform cursor-pointer shrink-0"
               title="Previous Question"
             >
               <ArrowLeft size={22} />
@@ -3056,8 +3108,8 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                   }}
                   className={`px-3 sm:px-4 h-12 sm:h-14 rounded-2xl font-black text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                     reviewStates[currentQuestion.id]
-                      ? "bg-[#C99A45] text-white shadow-md shadow-[#C99A45]/20"
-                      : "bg-[#F7EFE2] dark:bg-[#252A3A] text-[#52576A] dark:text-[#CBD2E1] border border-[#E8D9C0] dark:border-[#31374A]"
+                      ? "bg-[#A78BFA] text-white shadow-md shadow-[#A78BFA]/20"
+                      : "bg-slate-100 dark:bg-[#241D48] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-[#31275E]"
                   }`}
                 >
                   <Bookmark className={`w-4 h-4 ${reviewStates[currentQuestion.id] ? "fill-current" : ""}`} />
@@ -3074,7 +3126,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                       const prevAnswer = sessionResults[nextQ?.id]?.selectedIndex;
                       setSelectedOptionIndex(prevAnswer !== undefined ? prevAnswer : null);
                     }}
-                    className="flex-1 h-12 sm:h-14 bg-[#800020] hover:bg-[#5E0017] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] text-white rounded-2xl font-black text-xs sm:text-sm shadow-lg shadow-[#800020]/20 flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer"
+                    className="flex-1 h-12 sm:h-14 bg-[#7045D8] hover:bg-[#5B32BF] dark:bg-[#7045D8] dark:hover:bg-[#5B32BF] text-white rounded-2xl font-black text-xs sm:text-sm shadow-lg shadow-[#7045D8]/20 flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer"
                   >
                     <span>Next Question</span>
                     <ArrowRight size={18} />
@@ -3092,14 +3144,14 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
               </div>
             ) : (
               !isSubmitted ? (
-                <div className="flex-1 flex items-center justify-center bg-[#FFF9EF] dark:bg-[#171923] rounded-2xl border-2 border-dashed border-[#E8D9C0] dark:border-[#31374A]">
-                  <span className="text-[11px] font-black text-[#787D91] dark:text-[#929AB0] uppercase tracking-[0.15em]">Select an Answer</span>
+                <div className="flex-1 flex items-center justify-center bg-[#F8FAFC] dark:bg-[#130E26] rounded-2xl border-2 border-dashed border-slate-200 dark:border-[#31275E]">
+                  <span className="text-[11px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em]">Select an Answer</span>
                 </div>
               ) : (
                 <button
                   type="button"
                   onClick={handleNextQuestionPractice}
-                  className="flex-1 h-14 bg-[#800020] hover:bg-[#5E0017] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] text-white rounded-2xl font-black text-base shadow-xl shadow-[#800020]/25 flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer"
+                  className="flex-1 h-14 bg-[#7045D8] hover:bg-[#5B32BF] dark:bg-[#7045D8] dark:hover:bg-[#5B32BF] text-white rounded-2xl font-black text-base shadow-xl shadow-[#7045D8]/25 flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer"
                 >
                   <span>{currentIndex < questions.length - 1 ? "Next Question" : "View Final Result"}</span>
                   <ArrowRight size={20} />
@@ -3114,7 +3166,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
         {/* 8. QUESTION PALETTE OVERLAY */}
         {showPalette && (
           <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center bg-black/40 backdrop-blur-[2px] animate-in fade-in duration-300">
-            <div className="bg-white dark:bg-[#111A2E] w-full max-w-2xl rounded-t-[32px] sm:rounded-[32px] overflow-hidden shadow-2xl animate-in slide-in-from-bottom-10 duration-300 max-h-[80vh] flex flex-col">
+            <div className="bg-white dark:bg-[#1B1536] w-full max-w-2xl rounded-t-[32px] sm:rounded-[32px] overflow-hidden shadow-2xl animate-in slide-in-from-bottom-10 duration-300 max-h-[80vh] flex flex-col">
               <div className="p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-2xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 flex items-center justify-center">
@@ -3122,7 +3174,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                   </div>
                   <div>
                     <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">Question Navigator</h3>
-                    <p className="text-[10px] font-bold text-slate-500 uppercase">Jump to any question</p>
+                    <p className="text-[11px] font-bold text-slate-500 uppercase">Jump to any question</p>
                   </div>
                 </div>
                 <button
@@ -3181,19 +3233,19 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                 <div className="mt-8 grid grid-cols-2 gap-4 pt-6 border-t border-slate-100 dark:border-slate-800">
                   <div className="flex items-center gap-2.5">
                     <div className="w-4 h-4 rounded bg-blue-600" />
-                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">Current</span>
+                    <span className="text-[11px] font-black text-slate-500 uppercase tracking-wider">Current</span>
                   </div>
                   <div className="flex items-center gap-2.5">
                     <div className="w-4 h-4 rounded bg-slate-800 dark:bg-slate-700" />
-                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">Answered</span>
+                    <span className="text-[11px] font-black text-slate-500 uppercase tracking-wider">Answered</span>
                   </div>
                   <div className="flex items-center gap-2.5">
                     <div className="w-4 h-4 rounded bg-emerald-500" />
-                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">Correct</span>
+                    <span className="text-[11px] font-black text-slate-500 uppercase tracking-wider">Correct</span>
                   </div>
                   <div className="flex items-center gap-2.5">
                     <div className="w-4 h-4 rounded bg-rose-500" />
-                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">Incorrect</span>
+                    <span className="text-[11px] font-black text-slate-500 uppercase tracking-wider">Incorrect</span>
                   </div>
                 </div>
               </div>
@@ -3545,23 +3597,26 @@ function RedesignedLiveAndPYQTestView({
 
   return (
     <div
-      className="fixed inset-0 z-[100] bg-[#FFF9EF] dark:bg-[#171923] flex flex-col w-full h-[100dvh] overflow-hidden select-none"
+      className="fixed inset-0 z-[100] bg-[#F8FAFC] dark:bg-[#130E26] flex flex-col w-full h-[100dvh] overflow-hidden select-none"
       id="live-pyq-test-viewport"
     >
-      <header className="sticky top-0 z-30 bg-white/95 dark:bg-[#1F2330]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] px-3 sm:px-4 pt-[env(safe-area-inset-top,0px)] py-2 flex items-center justify-between shrink-0 shadow-2xs">
+      <header className="sticky top-0 z-30 bg-white/95 dark:bg-[#130E26]/95 backdrop-blur-md border-b border-slate-200 dark:border-[#31275E] shrink-0 shadow-2xs pt-[env(safe-area-inset-top,0px)]">
+        <div className="px-3 sm:px-4 py-2 min-h-[60px] flex items-center justify-between gap-2">
         <div className="flex items-center gap-2.5 min-w-0">
           <button
+            type="button"
             onClick={() => setShowExitConfirm(true)}
-            className="w-9 h-9 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] text-[#171923] dark:text-[#FFF9EF] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center shrink-0 active:scale-90 transition-transform cursor-pointer"
+            aria-label="Exit examination"
+            className="w-11 h-11 rounded-xl bg-slate-100 dark:bg-[#241D48] text-slate-900 dark:text-slate-50 border border-slate-200 dark:border-[#31275E] flex items-center justify-center shrink-0 active:scale-90 transition-transform cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
           >
             <ArrowLeft size={18} />
           </button>
           <div className="flex flex-col min-w-0">
-            <h1 className="text-[13px] font-black text-[#171923] dark:text-[#FFF9EF] truncate max-w-[110px] sm:max-w-xs leading-none font-hindi">
+            <h1 className="text-[13px] font-black text-slate-900 dark:text-slate-50 truncate max-w-[120px] sm:max-w-xs leading-none font-hindi">
               {session.title}
             </h1>
             <div className="flex items-center gap-1.5 mt-1">
-              <span className={`text-[8px] font-black uppercase px-1.5 py-0.5 rounded-md ${isLive ? 'bg-[#F47B20] text-white' : 'bg-[#800020] text-white'}`}>
+              <span className={`text-[11px] font-black uppercase px-1.5 py-0.5 rounded-md ${isLive ? 'bg-amber-500 text-slate-950' : 'bg-[#7045D8] text-white'}`}>
                 {isLive ? 'Live Exam' : 'Official PYQ'}
               </span>
             </div>
@@ -3576,17 +3631,18 @@ function RedesignedLiveAndPYQTestView({
               backgroundColor: ["#E11D48", "#BE123C", "#E11D48"],
             } : {}}
             transition={{ repeat: Infinity, duration: 2 }}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border-2 font-mono tabular-nums font-black text-[13px] transition-colors duration-300 shadow-2xs ${
+            className={`min-h-[40px] flex items-center gap-1.5 px-3 py-1.5 rounded-xl border-2 font-mono tabular-nums font-black text-[13px] transition-colors duration-300 shadow-2xs ${
               isTimeUrgent 
                 ? 'text-white border-rose-600' 
-                : 'bg-[#FFF9EF] dark:bg-[#171923] border-[#E8D9C0] dark:border-[#31374A] text-[#171923] dark:text-[#FFF9EF]'
+                : 'bg-[#F8FAFC] dark:bg-[#241D48] border-slate-200 dark:border-[#31275E] text-slate-900 dark:text-slate-50'
             }`}
           >
-            <Clock size={14} className={isTimeUrgent ? '' : 'text-[#800020] dark:text-[#F47B20]'} />
+            <Clock size={14} className={isTimeUrgent ? '' : 'text-[#7045D8] dark:text-[#A78BFA]'} />
             <span>{formatCountdown(remainingSecs)}</span>
           </motion.div>
 
           <button
+            type="button"
             onClick={() => {
               triggerHaptic("light");
               let sharePayload: ShareData;
@@ -3611,11 +3667,11 @@ function RedesignedLiveAndPYQTestView({
               }
               setShareData(sharePayload);
             }}
-            className="w-10 h-10 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] text-[#171923] dark:text-[#FFF9EF] flex items-center justify-center active:scale-90 transition-transform cursor-pointer border border-[#E8D9C0] dark:border-[#31374A]"
+            className="hidden sm:flex w-11 h-11 rounded-xl bg-slate-100 dark:bg-[#241D48] text-slate-900 dark:text-slate-50 items-center justify-center active:scale-90 transition-transform cursor-pointer border border-slate-200 dark:border-[#31275E] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
             title="Share Test"
             aria-label="Share test"
           >
-            <Share2 size={18} className="text-[#800020] dark:text-[#F47B20]" />
+            <Share2 size={18} className="text-[#7045D8] dark:text-[#A78BFA]" />
           </button>
 
           {onOpenReport && currentQuestion && (
@@ -3625,7 +3681,7 @@ function RedesignedLiveAndPYQTestView({
                 playClickSound();
                 onOpenReport(currentQuestion);
               }}
-              className="w-10 h-10 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] text-amber-600 dark:text-amber-400 flex items-center justify-center active:scale-90 transition-transform cursor-pointer border border-[#E8D9C0] dark:border-[#31374A]"
+              className="hidden sm:flex w-11 h-11 rounded-xl bg-slate-100 dark:bg-[#241D48] text-amber-600 dark:text-amber-400 items-center justify-center active:scale-90 transition-transform cursor-pointer border border-slate-200 dark:border-[#31275E] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
               title="Report Question / Raise Objection"
               aria-label="Report Question"
             >
@@ -3634,48 +3690,52 @@ function RedesignedLiveAndPYQTestView({
           )}
 
           <button
+            type="button"
             onClick={() => setShowPaletteDrawer(true)}
-            className="w-10 h-10 rounded-xl bg-[#800020] dark:bg-[#F47B20] text-white flex lg:hidden items-center justify-center shadow-md active:scale-90 transition-transform cursor-pointer"
+            className="w-11 h-11 rounded-xl bg-[#7045D8] text-white flex lg:hidden items-center justify-center shadow-md active:scale-90 transition-transform cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
             title="Question Palette"
+            aria-label="Question Palette"
           >
             <Grid size={20} />
           </button>
 
           <button
+            type="button"
             onClick={() => setShowSubmitConfirm(true)}
-            className="px-3 sm:px-3.5 h-10 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs uppercase tracking-wider flex items-center gap-1.5 shadow-md shadow-emerald-600/20 active:scale-95 transition-all cursor-pointer"
+            className="min-h-[44px] px-3 sm:px-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs uppercase tracking-wider flex items-center gap-1.5 shadow-md shadow-emerald-600/20 active:scale-95 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
             title="Submit Examination"
           >
             <CheckCircle2 size={16} />
             <span className="hidden xs:inline">Submit</span>
           </button>
         </div>
+        </div>
       </header>
 
       {/* 2. PROGRESS BAR */}
-      <div className="w-full bg-[#E8D9C0]/60 dark:bg-[#252A3A] h-1.5 shrink-0 overflow-hidden">
+      <div className="w-full bg-slate-200 dark:bg-[#241D48] h-1.5 shrink-0 overflow-hidden">
         <motion.div 
           initial={{ width: 0 }}
           animate={{ width: `${((currentIndex + 1) / totalQuestions) * 100}%` }}
-          className="h-full bg-gradient-to-r from-[#800020] to-[#F47B20] transition-all duration-300 rounded-r-full"
+          className="h-full bg-gradient-to-r from-[#7045D8] to-[#A78BFA] transition-all duration-300 rounded-r-full"
         />
       </div>
 
       {/* 3. QUESTION CANVAS & CBT SPLIT-SCREEN LAYOUT */}
-      <main className="flex-1 overflow-y-auto overscroll-contain bg-[#FFF9EF] dark:bg-[#171923] px-3 sm:px-4 py-4 sm:py-5">
+      <main className="flex-1 overflow-y-auto overscroll-contain bg-[#F8FAFC] dark:bg-[#130E26] px-3 sm:px-4 py-4 sm:py-5">
         <div className="max-w-3xl lg:max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-start">
           {/* Left Column: Question Text & Options */}
           <div className="lg:col-span-8 space-y-5">
             <div className="flex items-center justify-between px-1">
-              <span className="text-[11px] font-black text-[#787D91] dark:text-[#929AB0] uppercase tracking-[0.2em] font-mono tabular-nums">Question {currentIndex + 1} / {totalQuestions}</span>
+              <span className="text-[11px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em] font-mono tabular-nums">Question {currentIndex + 1} / {totalQuestions}</span>
               <div className="flex items-center gap-2">
-                <span className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-md text-[10px] font-black font-mono tabular-nums">+{session.marksPerQuestion || (isLive ? 2 : 1)}.0</span>
-                <span className="bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 px-2 py-0.5 rounded-md text-[10px] font-black font-mono tabular-nums">-{session.negativeMarking ?? (isLive ? 0.66 : 0.33)}</span>
+                <span className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-md text-[11px] font-black font-mono tabular-nums">+{session.marksPerQuestion || (isLive ? 2 : 1)}.0</span>
+                <span className="bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 px-2 py-0.5 rounded-md text-[11px] font-black font-mono tabular-nums">-{session.negativeMarking ?? (isLive ? 0.66 : 0.33)}</span>
               </div>
             </div>
 
-            <div key={currentQuestion?.id} className="bg-white dark:bg-[#1F2330] p-[1.06rem] sm:p-[1.7rem] rounded-[26px] border border-[#E8D9C0] dark:border-[#31374A] shadow-2xs">
-              <div className="text-[1.10rem] sm:text-[1.22rem] font-bold text-[#171923] dark:text-[#FFF9EF] leading-snug font-hindi">
+            <div key={currentQuestion?.id} className="bg-white dark:bg-[#1B1536] p-[1.06rem] sm:p-[1.7rem] rounded-[26px] border border-slate-200 dark:border-[#31275E] shadow-2xs">
+              <div className="text-[1.10rem] sm:text-[1.22rem] font-bold text-slate-900 dark:text-slate-50 leading-snug font-hindi">
                 <ParsedQuestion text={currentQuestion?.text || ""} fontSizeClass="text-[1.10rem] sm:text-[1.22rem]" question={currentQuestion} />
               </div>
             </div>
@@ -3690,24 +3750,24 @@ function RedesignedLiveAndPYQTestView({
                     whileTap={{ scale: 0.97 }}
                     className={`w-full p-[0.85rem] sm:p-[1.06rem] rounded-[18px] border-2 text-left flex items-start gap-3.5 transition-all duration-200 cursor-pointer ${
                       isSelected
-                        ? "bg-[#800020] dark:bg-[#F47B20] border-[#800020] dark:border-[#F47B20] shadow-lg shadow-[#800020]/20"
-                        : "bg-white dark:bg-[#1F2330] border-[#E8D9C0] dark:border-[#31374A] hover:border-[#800020]/50 dark:hover:border-[#F47B20]/50 shadow-2xs"
+                        ? "bg-[#7045D8] dark:bg-[#7045D8] border-[#7045D8] dark:border-[#A78BFA] shadow-lg shadow-[#7045D8]/20"
+                        : "bg-white dark:bg-[#1B1536] border-slate-200 dark:border-[#31275E] hover:border-[#7045D8]/50 dark:hover:border-[#A78BFA]/50 shadow-2xs"
                     }`}
                   >
                     <span className={`shrink-0 w-[1.53rem] h-[1.53rem] sm:w-[1.72rem] sm:h-[1.72rem] rounded-lg sm:rounded-xl flex items-center justify-center font-black text-xs sm:text-[13px] font-mono transition-all ${
-                      isSelected ? 'bg-white/20 text-white' : 'bg-[#F7EFE2] dark:bg-[#252A3A] text-[#52576A] dark:text-[#CBD2E1]'
+                      isSelected ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-[#241D48] text-slate-600 dark:text-slate-300'
                     }`}>
                       {optionLabels[idx]}
                     </span>
                     <div className={`flex-1 pt-0.5 font-hindi font-bold min-w-0 break-words [overflow-wrap:anywhere] text-[0.965rem] sm:text-[1.03rem] leading-snug ${
-                      isSelected ? 'text-white' : 'text-[#171923] dark:text-[#FFF9EF]'
+                      isSelected ? 'text-white' : 'text-slate-900 dark:text-slate-50'
                     }`}>
                       <RichText text={opt.text} enablePronunciation={true} />
                     </div>
                     {isSelected && (
                       <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 400 }} className="mt-1">
                         <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center">
-                          <Check size={14} className="text-[#800020] dark:text-[#F47B20]" strokeWidth={4} />
+                          <Check size={14} className="text-[#7045D8] dark:text-[#A78BFA]" strokeWidth={4} />
                         </div>
                       </motion.div>
                     )}
@@ -3718,21 +3778,21 @@ function RedesignedLiveAndPYQTestView({
           </div>
 
           {/* Right Column: CBT Sticky Question Palette (Desktop lg+ screens) */}
-          <aside className="hidden lg:flex lg:col-span-4 flex-col gap-3.5 sticky top-2 bg-white dark:bg-[#1F2330] p-5 rounded-[26px] border border-[#E8D9C0] dark:border-[#31374A] shadow-2xs">
-            <div className="flex items-center justify-between pb-3 border-b border-[#E8D9C0] dark:border-[#31374A]">
+          <aside className="hidden lg:flex lg:col-span-4 flex-col gap-3.5 sticky top-2 bg-white dark:bg-[#1B1536] p-5 rounded-[26px] border border-slate-200 dark:border-[#31275E] shadow-2xs">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-[#31275E]">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] flex items-center justify-center">
+                <div className="w-8 h-8 rounded-xl bg-[#7045D8]/10 dark:bg-[#7045D8]/15 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center">
                   <Grid size={18} />
                 </div>
                 <div>
-                  <h3 className="text-xs font-black uppercase tracking-wider text-[#171923] dark:text-[#FFF9EF]">Question Palette</h3>
-                  <p className="text-[10px] font-bold text-[#787D91] dark:text-[#929AB0]">{answeredCount} / {totalQuestions} Answered</p>
+                  <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 dark:text-slate-50">Question Palette</h3>
+                  <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400">{answeredCount} / {totalQuestions} Answered</p>
                 </div>
               </div>
             </div>
 
             {/* Status Legend */}
-            <div className="grid grid-cols-2 gap-2 text-[10.5px] font-bold text-[#52576A] dark:text-[#CBD2E1] pb-3 border-b border-[#E8D9C0]/60 dark:border-[#31374A]/60">
+            <div className="grid grid-cols-2 gap-2 text-[11px] font-bold text-slate-600 dark:text-slate-300 pb-3 border-b border-slate-200/60 dark:border-[#31275E]/60">
               <div className="flex items-center gap-1.5">
                 <span className="w-3 h-3 rounded-md bg-emerald-600 shrink-0" />
                 <span>Answered ({answeredCount})</span>
@@ -3746,7 +3806,7 @@ function RedesignedLiveAndPYQTestView({
                 <span>Unanswered ({notAnsweredCount})</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="w-3 h-3 rounded-md bg-[#F7EFE2] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] shrink-0" />
+                <span className="w-3 h-3 rounded-md bg-slate-100 dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] shrink-0" />
                 <span>Not Visited ({notVisitedCount})</span>
               </div>
             </div>
@@ -3758,10 +3818,10 @@ function RedesignedLiveAndPYQTestView({
                   <button
                     key={`chunk-tab-${cIdx}`}
                     onClick={() => setPaletteChunkIndex(cIdx)}
-                    className={`px-2 py-1 text-[10px] font-black rounded-lg transition-all shrink-0 cursor-pointer ${
+                    className={`px-2 py-1 text-[11px] font-black rounded-lg transition-all shrink-0 cursor-pointer ${
                       paletteChunkIndex === cIdx
-                        ? "bg-[#800020] text-white shadow-xs"
-                        : "bg-[#F7EFE2] dark:bg-[#252A3A] text-slate-600 dark:text-slate-300"
+                        ? "bg-[#7045D8] text-white shadow-xs"
+                        : "bg-slate-100 dark:bg-[#241D48] text-slate-600 dark:text-slate-300"
                     }`}
                   >
                     {cIdx * CHUNK_SIZE + 1}-{Math.min((cIdx + 1) * CHUNK_SIZE, totalQuestions)}
@@ -3781,7 +3841,7 @@ function RedesignedLiveAndPYQTestView({
                   const isVis = Boolean(visitedStates[q.id]);
                   const isCurr = idx === currentIndex;
 
-                  let bg = "bg-[#F7EFE2] dark:bg-[#252A3A] border-[#E8D9C0] dark:border-[#31374A] text-[#52576A] dark:text-[#CBD2E1]";
+                  let bg = "bg-slate-100 dark:bg-[#241D48] border-slate-200 dark:border-[#31275E] text-slate-600 dark:text-slate-300";
                   if (isRev) bg = "bg-amber-500 border-amber-500 text-white shadow-xs shadow-amber-500/20";
                   else if (isAns) bg = "bg-emerald-600 border-emerald-600 text-white shadow-xs shadow-emerald-600/20";
                   else if (isVis) bg = "bg-rose-600 border-rose-600 text-white shadow-xs shadow-rose-600/20";
@@ -3791,7 +3851,7 @@ function RedesignedLiveAndPYQTestView({
                       key={`cbt-${q.id}`}
                       onClick={() => setCurrentIndex(idx)}
                       className={`h-9 rounded-xl flex items-center justify-center font-black text-xs font-mono border-2 transition-all cursor-pointer active:scale-95 ${bg} ${
-                        isCurr ? 'ring-2 ring-[#800020] dark:ring-[#F47B20] scale-105 z-10 !border-[#800020] dark:!border-[#F47B20]' : ''
+                        isCurr ? 'ring-2 ring-[#7045D8] dark:ring-[#A78BFA] scale-105 z-10 !border-[#7045D8] dark:!border-[#7045D8]' : ''
                       }`}
                       title={`Jump to Question ${idx + 1}`}
                     >
@@ -3803,7 +3863,7 @@ function RedesignedLiveAndPYQTestView({
             </div>
 
             {/* Quick Submit */}
-            <div className="pt-2 border-t border-[#E8D9C0] dark:border-[#31374A]">
+            <div className="pt-2 border-t border-slate-200 dark:border-[#31275E]">
               <button
                 onClick={() => setShowSubmitConfirm(true)}
                 className="w-full h-10 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-md shadow-emerald-600/20 transition-all cursor-pointer"
@@ -3817,7 +3877,7 @@ function RedesignedLiveAndPYQTestView({
       </main>
 
       {/* 4. SMART BOTTOM NAVIGATION */}
-      <footer className="sticky bottom-0 z-30 px-4 py-3 bg-white dark:bg-[#1F2330] border-t border-[#E8D9C0] dark:border-[#31374A] shadow-[0_-4px_20px_rgba(0,0,0,0.03)] pb-[calc(12px+env(safe-area-inset-bottom,0px))]">
+      <footer className="sticky bottom-0 z-30 px-4 py-3 bg-white dark:bg-[#1B1536] border-t border-slate-200 dark:border-[#31275E] shadow-[0_-4px_20px_rgba(0,0,0,0.03)] pb-[calc(12px+env(safe-area-inset-bottom,0px))]">
         <div className="max-w-3xl lg:max-w-7xl mx-auto flex items-center justify-between gap-3">
           <button
             onClick={() => {
@@ -3829,7 +3889,7 @@ function RedesignedLiveAndPYQTestView({
               if (currentIndex > 0) setCurrentIndex(currentIndex - 1);
             }}
             disabled={currentIndex === 0}
-            className="w-12 h-12 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] text-[#171923] dark:text-[#FFF9EF] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center disabled:opacity-30 active:scale-90 transition-transform cursor-pointer shrink-0"
+            className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-[#241D48] text-slate-900 dark:text-slate-50 border border-slate-200 dark:border-[#31275E] flex items-center justify-center disabled:opacity-30 active:scale-90 transition-transform cursor-pointer shrink-0"
             title="Previous Question"
           >
             <ArrowLeft size={24} />
@@ -3839,8 +3899,8 @@ function RedesignedLiveAndPYQTestView({
             onClick={handleToggleReview}
             className={`flex-1 h-12 rounded-xl font-black text-[11px] uppercase tracking-widest flex flex-col items-center justify-center gap-0.5 transition-all active:scale-95 border-2 ${
               isCurrentMarkedForReview
-                ? "bg-[#C99A45] border-[#C99A45] text-white shadow-sm shadow-[#C99A45]/20"
-                : "bg-white dark:bg-[#252A3A] border-[#E8D9C0] dark:border-[#31374A] text-[#C99A45]"
+                ? "bg-[#A78BFA] border-[#A78BFA] text-white shadow-sm shadow-[#A78BFA]/20"
+                : "bg-white dark:bg-[#241D48] border-slate-200 dark:border-[#31275E] text-amber-500"
             }`}
           >
             <Flag size={14} fill={isCurrentMarkedForReview ? "white" : "none"} />
@@ -3850,7 +3910,7 @@ function RedesignedLiveAndPYQTestView({
           <button
             onClick={handleClearResponse}
             disabled={selectedOptionIndex === null}
-            className="flex-1 h-12 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] text-[#52576A] dark:text-[#CBD2E1] border border-[#E8D9C0] dark:border-[#31374A] font-black text-[11px] uppercase tracking-widest disabled:opacity-30 active:scale-95 transition-all flex flex-col items-center justify-center gap-0.5"
+            className="flex-1 h-12 rounded-xl bg-slate-100 dark:bg-[#241D48] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-[#31275E] font-black text-[11px] uppercase tracking-widest disabled:opacity-30 active:scale-95 transition-all flex flex-col items-center justify-center gap-0.5"
           >
             <RotateCcw size={14} />
             <span>Clear</span>
@@ -3869,7 +3929,7 @@ function RedesignedLiveAndPYQTestView({
                 setShowSubmitConfirm(true);
               }
             }}
-            className="flex-[2] h-12 rounded-xl bg-[#800020] hover:bg-[#5E0017] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] text-white font-black text-[12px] uppercase tracking-widest shadow-lg shadow-[#800020]/20 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
+            className="flex-[2] h-12 rounded-xl bg-[#7045D8] hover:bg-[#5B32BF] dark:bg-[#7045D8] dark:hover:bg-[#5B32BF] text-white font-black text-[12px] uppercase tracking-widest shadow-lg shadow-[#7045D8]/20 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
             <span>{currentIndex === totalQuestions - 1 ? "Submit Test" : "Save & Next"}</span>
             <ArrowRight size={16} />
@@ -3891,7 +3951,7 @@ function RedesignedLiveAndPYQTestView({
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="bg-white dark:bg-[#111A2E] w-full max-w-lg h-[85vh] sm:rounded-[40px] rounded-t-[40px] flex flex-col overflow-hidden shadow-2xl"
+              className="bg-white dark:bg-[#1B1536] w-full max-w-lg h-[85vh] sm:rounded-[40px] rounded-t-[40px] flex flex-col overflow-hidden shadow-2xl"
             >
               {/* Drawer Handle */}
               <div className="flex justify-center pt-3 pb-1 shrink-0">
@@ -3905,7 +3965,7 @@ function RedesignedLiveAndPYQTestView({
                   </div>
                   <div>
                     <h3 className="font-black text-slate-900 dark:text-white uppercase tracking-wider text-sm">Exam Navigator</h3>
-                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Global Question Status</p>
+                    <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Global Question Status</p>
                   </div>
                 </div>
                 <button
@@ -3924,7 +3984,7 @@ function RedesignedLiveAndPYQTestView({
                   { label: "Unsolved", count: notAnsweredCount, color: "rose" },
                   { label: "Unvisited", count: notVisitedCount, color: "slate" }
                 ].map((item) => (
-                  <div key={item.label} className="bg-white dark:bg-[#111A2E] p-3 rounded-2xl border border-slate-200 dark:border-slate-800 flex items-center gap-3 shadow-sm">
+                  <div key={item.label} className="bg-white dark:bg-[#1B1536] p-3 rounded-2xl border border-slate-200 dark:border-slate-800 flex items-center gap-3 shadow-sm">
                     <div className={`w-3 h-3 rounded-full bg-${item.color}-500 shadow-[0_0_8px_rgba(0,0,0,0.1)]`} />
                     <span className="text-[11px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                       {item.label}: <span className="text-slate-900 dark:text-white font-mono">{item.count}</span>
@@ -3985,7 +4045,7 @@ function RedesignedLiveAndPYQTestView({
               </div>
 
               {/* Submit CTA */}
-              <div className="p-6 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-[#111A2E] space-y-4 pb-[calc(16px+env(safe-area-inset-bottom,0px))]">
+              <div className="p-6 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-[#1B1536] space-y-4 pb-[calc(16px+env(safe-area-inset-bottom,0px))]">
                 <div className="flex justify-between items-center px-1">
                   <span className="text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest text-[11px]">Submission Progress</span>
                   <span className="text-slate-900 dark:text-white font-black font-mono">{answeredCount} / {totalQuestions} Answered</span>
@@ -4017,7 +4077,7 @@ function RedesignedLiveAndPYQTestView({
       {/* CONFIRM SUBMIT TEST MODAL FOR LIVE & PYQ */}
       {showSubmitConfirm && (
         <div className="fixed inset-0 z-[200] bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in">
-          <div className="bg-white dark:bg-[#111A2E] rounded-3xl p-6 sm:p-8 max-w-sm w-full text-center space-y-5 shadow-2xl border border-slate-200 dark:border-slate-800 animate-in zoom-in-95">
+          <div className="bg-white dark:bg-[#1B1536] rounded-3xl p-6 sm:p-8 max-w-sm w-full text-center space-y-5 shadow-2xl border border-slate-200 dark:border-slate-800 animate-in zoom-in-95">
             <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto">
               <CheckCircle2 size={32} />
             </div>
@@ -4052,7 +4112,7 @@ function RedesignedLiveAndPYQTestView({
       {/* CONFIRM EXIT TEST MODAL FOR LIVE & PYQ */}
       {showExitConfirm && (
         <div className="fixed inset-0 z-[200] bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in">
-          <div className="bg-white dark:bg-[#111A2E] rounded-3xl p-6 sm:p-8 max-w-sm w-full text-center space-y-5 shadow-2xl border border-slate-200 dark:border-slate-800 animate-in zoom-in-95">
+          <div className="bg-white dark:bg-[#1B1536] rounded-3xl p-6 sm:p-8 max-w-sm w-full text-center space-y-5 shadow-2xl border border-slate-200 dark:border-slate-800 animate-in zoom-in-95">
             <div className="w-14 h-14 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center mx-auto">
               <AlertCircle size={32} />
             </div>
@@ -4124,24 +4184,28 @@ const RedesignedTestInstructionsView: React.FC<RedesignedTestInstructionsViewPro
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[100] bg-[#FFF9EF] dark:bg-[#171923] flex flex-col w-full"
+      className="fixed inset-0 z-[100] bg-[#F8FAFC] dark:bg-[#130E26] flex flex-col w-full"
       id="test-instructions-screen"
     >
       {/* Sticky Header */}
-      <header className="sticky top-0 z-20 bg-white/95 dark:bg-[#1F2330]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] px-4 pt-[env(safe-area-inset-top,0px)] py-2.5 flex items-center justify-between">
+      <header className="sticky top-0 z-20 bg-white/95 dark:bg-[#130E26]/95 backdrop-blur-md border-b border-slate-200 dark:border-[#31275E] pt-[env(safe-area-inset-top,0px)]">
+        <div className="px-4 py-2.5 flex items-center justify-between">
         <button
+          type="button"
           onClick={onClose}
-          className="w-10 h-10 rounded-2xl bg-[#F7EFE2] dark:bg-[#252A3A] text-[#171923] dark:text-[#FFF9EF] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center transition-all active:scale-90 cursor-pointer"
+          aria-label="Back"
+          className="w-11 h-11 rounded-2xl bg-slate-100 dark:bg-[#241D48] text-slate-900 dark:text-slate-50 border border-slate-200 dark:border-[#31275E] flex items-center justify-center transition-all active:scale-90 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div className="flex-1 px-4 text-center min-w-0">
-          <h1 className="text-sm font-black text-[#171923] dark:text-[#FFF9EF] truncate font-hindi">
+          <h1 className="text-sm font-black text-slate-900 dark:text-slate-50 truncate font-hindi">
             {session.title}
           </h1>
-          <p className="text-[10px] font-bold text-[#7045D8] dark:text-[#A78BFA] uppercase tracking-widest">Disha PYQ Examination</p>
+          <p className="text-[11px] font-bold text-[#7045D8] dark:text-[#A78BFA] uppercase tracking-widest">Disha PYQ Examination</p>
         </div>
-        <div className="w-10" />
+        <div className="w-11" />
+        </div>
       </header>
 
       {/* Scrollable Content */}
@@ -4150,11 +4214,11 @@ const RedesignedTestInstructionsView: React.FC<RedesignedTestInstructionsViewPro
           {/* Badge Section */}
           <div className="flex justify-center">
             {isLive ? (
-              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider bg-[#F47B20] text-white shadow-md">
-                <Flame className="w-4 h-4 fill-white" /> LIVE MOCK TEST
+              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider bg-amber-500 text-slate-950 shadow-md">
+                <Flame className="w-4 h-4 fill-current" /> LIVE MOCK TEST
               </span>
             ) : (
-              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider bg-[#800020] text-white shadow-md">
+              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider bg-[#7045D8] text-white shadow-md">
                 <FileText className="w-4 h-4" /> OFFICIAL PYQ PAPER
               </span>
             )}
@@ -4162,16 +4226,16 @@ const RedesignedTestInstructionsView: React.FC<RedesignedTestInstructionsViewPro
 
           {/* Paper Context Card */}
           {(pyqDetails || liveDetails) && (
-            <div className="p-4 rounded-[24px] bg-gradient-to-br from-[#800020] via-[#5E0017] to-[#171923] text-white shadow-xl border border-[#C99A45]/30">
+            <div className="p-4 rounded-[24px] bg-gradient-to-br from-[#7045D8] via-[#5B32BF] to-[#130E26] text-white shadow-xl border border-[#A78BFA]/30">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-[#C99A45]/40">
-                  <Award className="w-6 h-6 text-[#F47B20]" />
+                <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-[#A78BFA]/40">
+                  <Award className="w-6 h-6 text-[#7045D8]" />
                 </div>
                 <div>
                   <h3 className="text-sm font-black leading-tight">
                     {pyqDetails ? `${pyqDetails.examBoard} ${pyqDetails.paperYear}` : "Live Exam Session"}
                   </h3>
-                  <p className="text-[11px] text-[#FFF9EF]/80 font-bold uppercase tracking-wider mt-0.5">
+                  <p className="text-[11px] text-white/80 font-bold uppercase tracking-wider mt-0.5">
                     {pyqDetails?.category || liveDetails?.examCategory || "Official Content"}
                   </p>
                 </div>
@@ -4187,20 +4251,20 @@ const RedesignedTestInstructionsView: React.FC<RedesignedTestInstructionsViewPro
               { label: "Duration", value: `${durationMins} Mins`, icon: Clock },
               { label: "Marking", value: `+${marksPerQ} / -${negMarking}`, icon: Sparkles },
             ].map((item, i) => (
-              <div key={i} className="bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] p-4 rounded-[24px] shadow-2xs flex flex-col items-center text-center gap-1.5">
-                <div className="w-8 h-8 rounded-xl bg-[#800020]/10 dark:bg-[#F47B20]/15 flex items-center justify-center text-[#800020] dark:text-[#F47B20] mb-0.5">
+              <div key={i} className="bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] p-4 rounded-[24px] shadow-2xs flex flex-col items-center text-center gap-1.5">
+                <div className="w-8 h-8 rounded-xl bg-[#7045D8]/10 dark:bg-[#7045D8]/15 flex items-center justify-center text-[#7045D8] dark:text-[#A78BFA] mb-0.5">
                   <item.icon className="w-4.5 h-4.5" />
                 </div>
-                <span className="text-[10px] font-black text-[#787D91] dark:text-[#929AB0] uppercase tracking-widest">{item.label}</span>
-                <span className="text-sm font-black text-[#171923] dark:text-[#FFF9EF] font-mono tabular-nums">{item.value}</span>
+                <span className="text-[11px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">{item.label}</span>
+                <span className="text-sm font-black text-slate-900 dark:text-slate-50 font-mono tabular-nums">{item.value}</span>
               </div>
             ))}
           </div>
 
           {/* Rules Section */}
-          <div className="bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-[28px] p-5 space-y-4">
-            <h3 className="text-xs font-black uppercase tracking-[0.2em] text-[#171923] dark:text-[#FFF9EF] flex items-center gap-2">
-              <Shield className="w-4 h-4 text-[#800020] dark:text-[#F47B20]" />
+          <div className="bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] rounded-[28px] p-5 space-y-4">
+            <h3 className="text-xs font-black uppercase tracking-[0.2em] text-slate-900 dark:text-slate-50 flex items-center gap-2">
+              <Shield className="w-4 h-4 text-[#7045D8] dark:text-[#A78BFA]" />
               Examination Protocol
             </h3>
             <div className="space-y-4">
@@ -4212,10 +4276,10 @@ const RedesignedTestInstructionsView: React.FC<RedesignedTestInstructionsViewPro
                 "Results with detailed analysis shown instantly after submission."
               ].map((text, i) => (
                 <div key={i} className="flex gap-3">
-                  <div className="w-5 h-5 rounded-full bg-[#F7EFE2] dark:bg-[#252A3A] text-[#800020] dark:text-[#F47B20] font-black text-[10px] flex items-center justify-center shrink-0 mt-0.5 font-mono tabular-nums border border-[#E8D9C0] dark:border-[#31374A]">
+                  <div className="w-5 h-5 rounded-full bg-slate-100 dark:bg-[#241D48] text-[#7045D8] dark:text-[#A78BFA] font-black text-[11px] flex items-center justify-center shrink-0 mt-0.5 font-mono tabular-nums border border-slate-200 dark:border-[#31275E]">
                     {i + 1}
                   </div>
-                  <p className="text-[12px] font-bold text-[#52576A] dark:text-[#CBD2E1] leading-snug">{text}</p>
+                  <p className="text-[12px] font-bold text-slate-600 dark:text-slate-300 leading-snug">{text}</p>
                 </div>
               ))}
             </div>
@@ -4226,25 +4290,25 @@ const RedesignedTestInstructionsView: React.FC<RedesignedTestInstructionsViewPro
             onClick={() => setConfirmed(!confirmed)}
             className={`w-full p-4 rounded-[24px] border-2 transition-all flex items-start gap-3 text-left ${
               confirmed 
-                ? "bg-[#800020]/5 dark:bg-[#F47B20]/10 border-[#800020] dark:border-[#F47B20]" 
-                : "bg-white dark:bg-[#1F2330] border-[#E8D9C0] dark:border-[#31374A]"
+                ? "bg-[#7045D8]/5 dark:bg-[#7045D8]/10 border-[#7045D8] dark:border-[#A78BFA]" 
+                : "bg-white dark:bg-[#1B1536] border-slate-200 dark:border-[#31275E]"
             }`}
           >
             <div className={`w-6 h-6 rounded-lg flex items-center justify-center shrink-0 mt-0.5 border-2 transition-colors ${
-              confirmed ? "bg-[#800020] dark:bg-[#F47B20] border-[#800020] dark:border-[#F47B20] text-white" : "border-[#E8D9C0] dark:border-[#31374A]"
+              confirmed ? "bg-[#7045D8] dark:bg-[#7045D8] border-[#7045D8] dark:border-[#A78BFA] text-white" : "border-slate-200 dark:border-[#31275E]"
             }`}>
               {confirmed && <Check className="w-4 h-4" strokeWidth={4} />}
             </div>
             <div className="flex-1">
-              <span className="text-[13px] font-black text-[#171923] dark:text-[#FFF9EF] block">Ready to Begin?</span>
-              <span className="text-[11px] font-bold text-[#52576A] dark:text-[#CBD2E1] block mt-0.5">I have read and understood all the test rules and guidelines.</span>
+              <span className="text-[13px] font-black text-slate-900 dark:text-slate-50 block">Ready to Begin?</span>
+              <span className="text-[11px] font-bold text-slate-600 dark:text-slate-300 block mt-0.5">I have read and understood all the test rules and guidelines.</span>
             </div>
           </button>
         </div>
       </div>
 
       {/* Start Button */}
-      <footer className="p-4 bg-white dark:bg-[#1F2330] border-t border-[#E8D9C0] dark:border-[#31374A] pb-[calc(16px+env(safe-area-inset-bottom,0px))]">
+      <footer className="p-4 bg-white dark:bg-[#1B1536] border-t border-slate-200 dark:border-[#31275E] pb-[calc(16px+env(safe-area-inset-bottom,0px))]">
         <div className="max-w-2xl mx-auto">
           <button
             id="btn-start-test-action"
@@ -4252,11 +4316,11 @@ const RedesignedTestInstructionsView: React.FC<RedesignedTestInstructionsViewPro
             onClick={onStartSession}
             className={`w-full h-14 rounded-2xl font-black text-base flex items-center justify-center gap-3 transition-all ${
               confirmed
-                ? "bg-gradient-to-r from-[#800020] via-[#5E0017] to-[#171923] text-white shadow-xl shadow-[#800020]/25 active:scale-95 cursor-pointer"
-                : "bg-[#F7EFE2] dark:bg-[#252A3A] text-[#787D91] cursor-not-allowed opacity-70"
+                ? "bg-gradient-to-r from-[#7045D8] via-[#5B32BF] to-[#130E26] text-white shadow-xl shadow-[#7045D8]/25 active:scale-95 cursor-pointer"
+                : "bg-slate-100 dark:bg-[#241D48] text-slate-500 cursor-not-allowed opacity-70"
             }`}
           >
-            <Play className="w-5 h-5 fill-[#F47B20] text-[#F47B20]" />
+            <Play className="w-5 h-5 fill-[#7045D8] text-[#7045D8]" />
             <span>START EXAMINATION</span>
             <ArrowRight className="w-5 h-5" />
           </button>
@@ -4398,24 +4462,28 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
       exit={{ opacity: 0 }}
       transition={{ duration: 0.5 }}
       id="test-result-screen"
-      className="fixed inset-0 z-[100] bg-[#FFF9EF] dark:bg-[#120E10] flex flex-col w-full"
+      className="fixed inset-0 z-[100] bg-[#F8FAFC] dark:bg-[#130E26] flex flex-col w-full"
     >
-      <header className="sticky top-0 z-[110] bg-[#FFF9EF]/90 dark:bg-[#120E10]/90 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#2D2226] px-4 pt-[env(safe-area-inset-top,0px)] py-2.5 flex items-center justify-between shrink-0">
+      <header className="sticky top-0 z-[110] bg-white/95 dark:bg-[#130E26]/95 backdrop-blur-md border-b border-slate-200 dark:border-[#31275E] shrink-0 pt-[env(safe-area-inset-top,0px)]">
+        <div className="px-4 py-2.5 flex items-center justify-between">
         <button
+          type="button"
           onClick={onClose}
-          className="w-10 h-10 rounded-xl bg-white dark:bg-[#1C1518] border border-[#E8D9C0] dark:border-[#2D2226] text-[#800020] dark:text-[#E5B869] flex items-center justify-center transition-all active:scale-90 shadow-sm cursor-pointer"
+          aria-label="Exit results"
+          className="w-11 h-11 rounded-xl bg-slate-100 dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center transition-all active:scale-90 shadow-sm cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div className="flex-1 px-4 text-center min-w-0">
-          <h2 className="text-sm font-black text-[#171923] dark:text-[#FFF9EF] truncate">
+          <h2 className="text-sm font-black text-slate-900 dark:text-slate-50 truncate">
             {session.title}
           </h2>
-          <p className="text-[10px] font-bold text-[#800020] dark:text-[#C99A45] uppercase tracking-widest">
-            Scorecard & Analysis
+          <p className="text-[11px] font-bold text-[#7045D8] dark:text-[#A78BFA] uppercase tracking-widest">
+            Scorecard &amp; Analysis
           </p>
         </div>
-        <div className="w-10" />
+        <div className="w-11" />
+        </div>
       </header>
 
       <div className="flex-1 overflow-y-auto overscroll-y-contain flex flex-col items-center justify-start p-3 sm:p-6 w-full">
@@ -4430,9 +4498,9 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
         />
       )}
 
-      {/* Decorative Background for Results (DISHA Burgundy & Gold ambient glow) */}
+      {/* Decorative Background for Results */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-[450px] bg-gradient-to-b from-[#800020]/10 via-[#C99A45]/5 to-transparent dark:from-[#800020]/15 dark:via-[#C99A45]/5 rounded-full blur-[120px]" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-[450px] bg-gradient-to-b from-[#7045D8]/12 via-[#A78BFA]/5 to-transparent dark:from-[#7045D8]/18 dark:via-[#A78BFA]/5 rounded-full blur-[120px]" />
       </div>
 
       <motion.div 
@@ -4458,10 +4526,10 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
             className={`rounded-2xl p-3.5 border text-xs font-bold flex items-center gap-2.5 ${
               liveSubmitError
                 ? "bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300"
-                : "bg-[#FAF5ED] dark:bg-[#20181B] border-[#C99A45]/40 text-[#800020] dark:text-[#E5B869]"
+                : "bg-[#FAF5ED] dark:bg-[#20181B] border-[#A78BFA]/40 text-[#7045D8] dark:text-[#A78BFA]"
             }`}
           >
-            <AlertCircle className="w-4 h-4 shrink-0 text-[#800020] dark:text-[#E5B869]" />
+            <AlertCircle className="w-4 h-4 shrink-0 text-[#7045D8] dark:text-[#A78BFA]" />
             <span>
               {liveSubmitError
                 ? liveSubmitError
@@ -4474,7 +4542,7 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
           <div className="p-3.5 sm:p-4 rounded-2xl bg-rose-500/10 border-2 border-rose-500/30 text-rose-800 dark:text-rose-200 text-left space-y-1.5 shadow-sm">
             <div className="flex items-center gap-2 font-black text-xs sm:text-sm text-rose-600 dark:text-rose-400">
               <AlertCircle className="w-4 h-4 shrink-0 text-rose-600 dark:text-rose-400" />
-              <span>⚠️ RPSC Rule Notice: Disqualified!</span>
+              <span>RPSC Rule Notice: Disqualified!</span>
             </div>
             <p className="text-[11px] sm:text-xs leading-relaxed text-rose-700 dark:text-rose-300">
               You left <strong>{totalCompletelyBlank} question(s)</strong> completely blank without filling Option E ({((totalCompletelyBlank / Math.max(1, totalQuestions)) * 100).toFixed(1)}%). Under official RPSC guidelines, leaving over 10% questions blank leads to disqualification.
@@ -4484,16 +4552,16 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
 
         {/* Guest User Sign-In Reminder Banner */}
         {!isProfileAuthenticated(userProfile) && (
-          <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-[#800020]/15 via-[#F47B20]/20 to-[#800020]/15 border border-[#F47B20]/40 text-[#171923] dark:text-[#FFF9EF] flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
+          <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-[#7045D8]/15 via-[#7045D8]/20 to-[#7045D8]/15 border border-[#7045D8]/40 text-slate-900 dark:text-slate-50 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
             <div className="flex items-center gap-3 min-w-0">
-              <div className="w-10 h-10 rounded-xl bg-[#800020] text-amber-300 flex items-center justify-center shrink-0 shadow-xs">
+              <div className="w-10 h-10 rounded-xl bg-[#7045D8] text-amber-300 flex items-center justify-center shrink-0 shadow-xs">
                 <Sparkles className="w-5 h-5" />
               </div>
               <div className="min-w-0 text-left">
-                <h4 className="text-xs sm:text-sm font-black text-[#171923] dark:text-[#FFF9EF] leading-tight">
+                <h4 className="text-xs sm:text-sm font-black text-slate-900 dark:text-slate-50 leading-tight">
                   अतिथि मोड (Guest): अपना स्कोर व ऑल-राजस्थान रैंक सेव करें!
                 </h4>
-                <p className="text-[11px] text-[#52576A] dark:text-[#CBD2E1] mt-0.5 leading-tight">
+                <p className="text-[11px] text-slate-600 dark:text-slate-300 mt-0.5 leading-tight">
                   लॉगिन करने से आपका टेस्ट परिणाम हमेशा के लिए सुरक्षित रहेगा और गलत प्रश्न रिवीज़न में जुड़ेंगे।
                 </p>
               </div>
@@ -4501,7 +4569,7 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
             <button
               type="button"
               onClick={() => onOpenLogin?.()}
-              className="px-4 py-2 rounded-xl bg-[#800020] hover:bg-[#600018] text-white text-xs font-black shrink-0 shadow-sm flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
+              className="px-4 py-2 rounded-xl bg-[#7045D8] hover:bg-[#5B32BF] text-white text-xs font-black shrink-0 shadow-sm flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
             >
               <LogIn className="w-3.5 h-3.5" />
               <span>लॉगिन करें</span>
@@ -4515,70 +4583,70 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
             hidden: { opacity: 0, y: 20, scale: 0.95 },
             show: { opacity: 1, y: 0, scale: 1 }
           }}
-          className="bg-white dark:bg-[#1A1417] border border-[#E8D9C0] dark:border-[#2F2227] rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-[0_12px_32px_rgba(128,0,32,0.06)] dark:shadow-none text-center space-y-3.5 sm:space-y-4 relative overflow-hidden"
+          className="bg-white dark:bg-[#130E26] border border-slate-200 dark:border-[#31275E] rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-[0_12px_32px_rgba(128,0,32,0.06)] dark:shadow-none text-center space-y-3.5 sm:space-y-4 relative overflow-hidden"
         >
           {/* DISHA Top Accent Gradient Line */}
-          <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[#800020] via-[#C99A45] to-[#800020]" />
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-[#C99A45]/10 rounded-full blur-[60px] pointer-events-none" />
+          <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[#7045D8] via-[#A78BFA] to-[#7045D8]" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-[#A78BFA]/10 rounded-full blur-[60px] pointer-events-none" />
 
           <motion.div 
             variants={{
               hidden: { opacity: 0, scale: 0.8 },
               show: { opacity: 1, scale: 1 }
             }}
-            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.2em] bg-[#FAF5ED] dark:bg-[#251A1E] text-[#800020] dark:text-[#E5B869] border border-[#E8D9C0] dark:border-[#38262C] font-mono shadow-sm"
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-[0.2em] bg-[#FAF5ED] dark:bg-[#251A1E] text-[#7045D8] dark:text-[#A78BFA] border border-slate-200 dark:border-[#38262C] font-mono shadow-sm"
           >
-            <CheckCircle2 className="w-3.5 h-3.5 text-[#C99A45]" />
+            <CheckCircle2 className="w-3.5 h-3.5 text-amber-500" />
             <span>Examination Complete</span>
           </motion.div>
 
           <div className="relative z-10 space-y-0.5">
-            <h1 className="text-xl sm:text-2xl font-black text-[#171923] dark:text-[#FFF9EF] tracking-tight">
+            <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-50 tracking-tight">
               {session.title}
             </h1>
-            <p className="text-[11px] font-bold text-[#718096] dark:text-[#9E8E95] uppercase tracking-widest">
+            <p className="text-[11px] font-bold text-slate-500 dark:text-[#9E8E95] uppercase tracking-widest">
               {isLive ? "Official Live Examination Results" : "Official Past Paper Results"}
             </p>
           </div>
 
           <div className="grid grid-cols-3 gap-2 sm:gap-2.5 pt-0.5 relative z-10">
-            <div className="p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-[#FAF5ED] dark:bg-[#20181B] border border-[#E8D9C0] dark:border-[#33252A] shadow-sm">
-              <span className="text-[8px] sm:text-[9px] font-black uppercase tracking-wider text-[#800020] dark:text-[#E5B869] block mb-0.5">Marks</span>
-              <span className="text-lg sm:text-xl font-black text-[#171923] dark:text-[#FFF9EF] font-mono block">
+            <div className="p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-[#FAF5ED] dark:bg-[#20181B] border border-slate-200 dark:border-[#31275E] shadow-sm">
+              <span className="text-[11px] sm:text-[11px] font-black uppercase tracking-wider text-[#7045D8] dark:text-[#A78BFA] block mb-0.5">Marks</span>
+              <span className="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-50 font-mono block">
                 {obtainedMarks}
               </span>
-              <span className="text-[9px] font-bold text-[#718096] dark:text-[#8C7D83] mt-0.5 block">/ {maxMarks}</span>
+              <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 mt-0.5 block">/ {maxMarks}</span>
             </div>
 
-            <div className="p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-[#FAF5ED] dark:bg-[#20181B] border border-[#E8D9C0] dark:border-[#33252A] shadow-sm">
-              <span className="text-[8px] sm:text-[9px] font-black uppercase tracking-wider text-[#C99A45] block mb-0.5">Score</span>
-              <span className="text-lg sm:text-xl font-black text-[#171923] dark:text-[#FFF9EF] font-mono block">
+            <div className="p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-[#FAF5ED] dark:bg-[#20181B] border border-slate-200 dark:border-[#31275E] shadow-sm">
+              <span className="text-[11px] sm:text-[11px] font-black uppercase tracking-wider text-amber-500 block mb-0.5">Score</span>
+              <span className="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-50 font-mono block">
                 {scorePercent}%
               </span>
-              <span className="text-[9px] font-bold text-[#718096] dark:text-[#8C7D83] mt-0.5 block">Percentile</span>
+              <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 mt-0.5 block">Percentile</span>
             </div>
 
             <div className="p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/20 border border-emerald-200/60 dark:border-emerald-900/40 shadow-sm">
-              <span className="text-[8px] sm:text-[9px] font-black uppercase tracking-wider text-emerald-700 dark:text-emerald-400 block mb-0.5">Accuracy</span>
+              <span className="text-[11px] sm:text-[11px] font-black uppercase tracking-wider text-emerald-700 dark:text-emerald-400 block mb-0.5">Accuracy</span>
               <span className="text-lg sm:text-xl font-black text-emerald-800 dark:text-emerald-300 font-mono block">
                 {accuracy}%
               </span>
-              <span className="text-[9px] font-bold text-emerald-700 dark:text-emerald-400 mt-0.5 block">Precision</span>
+              <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 mt-0.5 block">Precision</span>
             </div>
           </div>
 
           {/* Positive vs Negative Marking Breakdown */}
-          <div className="flex flex-wrap items-center justify-center gap-2 text-[10px] sm:text-[11px] font-black font-mono pt-1 pb-0.5 relative z-10">
+          <div className="flex flex-wrap items-center justify-center gap-2 text-[11px] sm:text-[11px] font-black font-mono pt-1 pb-0.5 relative z-10">
             <span className="px-2.5 py-1 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200/80 dark:border-emerald-800/60">
               +{Number((totalCorrect * marksPerQ).toFixed(2))} Gained
             </span>
-            <span className="text-[#E8D9C0] dark:text-[#33252A]">•</span>
+            <span className="text-slate-200 dark:text-[#31275E]">•</span>
             <span className="px-2.5 py-1 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 border border-rose-200/80 dark:border-rose-800/60">
               -{Number((totalWrong * negMarksPerQ).toFixed(2))} Wrong (-1/3)
             </span>
             {blankPenalty > 0 && (
               <>
-                <span className="text-[#E8D9C0] dark:text-[#33252A]">•</span>
+                <span className="text-slate-200 dark:text-[#31275E]">•</span>
                 <span className="px-2.5 py-1 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800/60">
                   -{blankPenalty} Blank Penalty
                 </span>
@@ -4586,12 +4654,12 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
             )}
           </div>
 
-          <div className="grid grid-cols-4 gap-1.5 sm:gap-2 pt-2 border-t border-[#E8D9C0]/80 dark:border-[#2F2227] relative z-10">
+          <div className="grid grid-cols-4 gap-1.5 sm:gap-2 pt-2 border-t border-slate-200/80 dark:border-[#31275E] relative z-10">
             {[
               { label: "Correct", value: totalCorrect, color: "text-emerald-700 dark:text-emerald-400" },
               { label: "Incorrect", value: totalWrong, color: "text-rose-700 dark:text-rose-400" },
-              { label: "Option E", value: totalUnattemptedE, color: "text-[#800020] dark:text-[#E5B869]" },
-              { label: "Duration", value: formatTime(elapsedSeconds), color: "text-[#171923] dark:text-[#FFF9EF]" }
+              { label: "Option E", value: totalUnattemptedE, color: "text-[#7045D8] dark:text-[#A78BFA]" },
+              { label: "Duration", value: formatTime(elapsedSeconds), color: "text-slate-900 dark:text-slate-50" }
             ].map((item, i) => (
               <motion.div 
                 key={i} 
@@ -4601,7 +4669,7 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
                 }}
                 className="text-center"
               >
-                <span className="text-[8px] sm:text-[9px] font-black text-[#718096] dark:text-[#8C7D83] block uppercase tracking-wider mb-0.5">{item.label}</span>
+                <span className="text-[11px] sm:text-[11px] font-black text-slate-500 dark:text-slate-400 block uppercase tracking-wider mb-0.5">{item.label}</span>
                 <span className={`text-xs sm:text-sm font-black ${item.color} font-mono`}>{item.value}</span>
               </motion.div>
             ))}
@@ -4613,17 +4681,17 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.25 }}
-              className="mt-2 p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-gradient-to-r from-[#800020]/10 via-[#C99A45]/20 to-[#800020]/10 border border-[#C99A45]/40 flex items-center justify-between gap-3 text-left shadow-sm relative z-10"
+              className="mt-2 p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-gradient-to-r from-[#7045D8]/10 via-[#A78BFA]/20 to-[#7045D8]/10 border border-[#A78BFA]/40 flex items-center justify-between gap-3 text-left shadow-sm relative z-10"
             >
               <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#800020] to-[#520014] border border-[#C99A45] text-[#E5B869] flex items-center justify-center shrink-0">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#7045D8] to-[#520014] border border-[#A78BFA] text-[#E5B869] flex items-center justify-center shrink-0">
                   <Sparkles className="w-4 h-4 fill-current" />
                 </div>
                 <div className="min-w-0">
-                  <span className="text-[9px] font-black uppercase tracking-[0.15em] text-[#800020] dark:text-[#E5B869] font-mono block mb-0.5">
+                  <span className="text-[11px] font-black uppercase tracking-[0.15em] text-[#7045D8] dark:text-[#A78BFA] font-mono block mb-0.5">
                     100% Perfect Score
                   </span>
-                  <p className="text-[11px] text-[#171923] dark:text-[#FAF5ED] font-bold leading-tight truncate">
+                  <p className="text-[11px] text-slate-900 dark:text-[#FAF5ED] font-bold leading-tight truncate">
                     Outstanding performance! You answered all questions correctly.
                   </p>
                 </div>
@@ -4631,9 +4699,10 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
               <button
                 type="button"
                 onClick={() => setShowPerfectCelebration(true)}
-                className="px-3 py-1.5 rounded-lg bg-[#800020] hover:bg-[#660019] text-[#FFF9EF] font-black text-[10px] active:scale-95 transition-all shadow cursor-pointer shrink-0 border border-[#C99A45]/40"
+                className="min-h-[40px] px-3.5 py-1.5 rounded-lg bg-[#7045D8] hover:bg-[#5B32BF] text-white font-black text-[11px] active:scale-95 transition-all shadow cursor-pointer shrink-0 border border-[#A78BFA]/40 inline-flex items-center gap-1.5"
               >
-                🎉 REPLAY
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>REPLAY</span>
               </button>
             </motion.div>
           )}
@@ -4661,9 +4730,9 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
             <button
               type="button"
               onClick={handleShareResult}
-              className="w-full py-2.5 sm:py-3 px-4 rounded-xl bg-[#FAF5ED] dark:bg-[#1E171A] hover:bg-[#F5EBE1] text-[#800020] dark:text-[#E5B869] border border-[#C99A45]/40 font-black text-xs sm:text-sm active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+              className="w-full py-2.5 sm:py-3 px-4 rounded-xl bg-[#FAF5ED] dark:bg-[#1E171A] hover:bg-[#F5EBE1] text-[#7045D8] dark:text-[#A78BFA] border border-[#A78BFA]/40 font-black text-xs sm:text-sm active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm"
             >
-              <Share2 className="w-4 h-4 text-[#800020] dark:text-[#E5B869]" />
+              <Share2 className="w-4 h-4 text-[#7045D8] dark:text-[#A78BFA]" />
               <span>SHARE SCORECARD</span>
             </button>
           </div>
@@ -4675,24 +4744,24 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
             hidden: { opacity: 0, y: 20 },
             show: { opacity: 1, y: 0 }
           }}
-          className="bg-white dark:bg-[#1A1417] border border-[#E8D9C0] dark:border-[#2F2227] rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-sm space-y-4"
+          className="bg-white dark:bg-[#130E26] border border-slate-200 dark:border-[#31275E] rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-sm space-y-4"
         >
           {/* Analytics Header */}
-          <div className="flex items-center justify-between border-b border-[#E8D9C0]/70 dark:border-[#2F2227] pb-3">
+          <div className="flex items-center justify-between border-b border-slate-200/70 dark:border-[#31275E] pb-3">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-[#FAF5ED] dark:bg-[#20181B] text-[#800020] dark:text-[#E5B869] border border-[#C99A45]/40 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-xl bg-[#FAF5ED] dark:bg-[#20181B] text-[#7045D8] dark:text-[#A78BFA] border border-[#A78BFA]/40 flex items-center justify-center">
                 <Target className="w-4 h-4" />
               </div>
               <div>
-                <h3 className="text-xs sm:text-sm font-black text-[#171923] dark:text-[#FFF9EF] uppercase tracking-wider">
+                <h3 className="text-xs sm:text-sm font-black text-slate-900 dark:text-slate-50 uppercase tracking-wider">
                   Test Performance Analytics
                 </h3>
-                <p className="text-[10px] font-bold text-[#718096] dark:text-[#8C7D83]">
+                <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400">
                   Sectional metrics & negative marking impact
                 </p>
               </div>
             </div>
-            <span className="px-2.5 py-1 rounded-full bg-[#FAF5ED] dark:bg-[#20181B] border border-[#C99A45]/30 text-[9px] font-black text-[#800020] dark:text-[#E5B869] font-mono">
+            <span className="px-2.5 py-1 rounded-full bg-[#FAF5ED] dark:bg-[#20181B] border border-[#A78BFA]/30 text-[11px] font-black text-[#7045D8] dark:text-[#A78BFA] font-mono">
               {scorePercent}% MARKS
             </span>
           </div>
@@ -4700,13 +4769,13 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
           {/* 1. Proportional Attempt Distribution Bar */}
           <div className="space-y-2">
             <div className="flex items-center justify-between text-[11px] font-bold">
-              <span className="text-[#171923] dark:text-[#FAF5ED]">Attempt Breakdown</span>
-              <span className="text-[#718096] dark:text-[#8C7D83] font-mono">
+              <span className="text-slate-900 dark:text-[#FAF5ED]">Attempt Breakdown</span>
+              <span className="text-slate-500 dark:text-slate-400 font-mono">
                 {totalAttempted}/{totalQuestions} Attempted ({Math.round((totalAttempted / Math.max(1, totalQuestions)) * 100)}%)
               </span>
             </div>
             
-            <div className="h-3.5 w-full bg-[#FAF5ED] dark:bg-[#20181B] rounded-full overflow-hidden flex border border-[#E8D9C0]/80 dark:border-[#33252A]">
+            <div className="h-3.5 w-full bg-[#FAF5ED] dark:bg-[#20181B] rounded-full overflow-hidden flex border border-slate-200/80 dark:border-[#31275E]">
               {totalCorrect > 0 && (
                 <div 
                   style={{ width: `${(totalCorrect / totalQuestions) * 100}%` }} 
@@ -4724,7 +4793,7 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
               {totalUnattemptedE > 0 && (
                 <div 
                   style={{ width: `${(totalUnattemptedE / totalQuestions) * 100}%` }} 
-                  className="h-full bg-[#C99A45] transition-all duration-500" 
+                  className="h-full bg-[#A78BFA] transition-all duration-500" 
                   title={`Option E: ${totalUnattemptedE}`}
                 />
               )}
@@ -4738,7 +4807,7 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
             </div>
 
             {/* Distribution Legend */}
-            <div className="flex items-center justify-between text-[10px] font-bold pt-0.5 flex-wrap gap-1">
+            <div className="flex items-center justify-between text-[11px] font-bold pt-0.5 flex-wrap gap-1">
               <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400">
                 <span className="w-2 h-2 rounded-full bg-emerald-600" />
                 <span>Correct: {totalCorrect}</span>
@@ -4747,8 +4816,8 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
                 <span className="w-2 h-2 rounded-full bg-rose-600" />
                 <span>Wrong: {totalWrong}</span>
               </div>
-              <div className="flex items-center gap-1.5 text-[#800020] dark:text-[#E5B869]">
-                <span className="w-2 h-2 rounded-full bg-[#C99A45]" />
+              <div className="flex items-center gap-1.5 text-[#7045D8] dark:text-[#A78BFA]">
+                <span className="w-2 h-2 rounded-full bg-[#A78BFA]" />
                 <span>Option E: {totalUnattemptedE}</span>
               </div>
               {totalCompletelyBlank > 0 && (
@@ -4763,23 +4832,23 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
           {/* 2. Qualifying Cutoff Benchmark */}
           <div className="space-y-1.5 pt-1">
             <div className="flex items-center justify-between text-[11px] font-bold">
-              <div className="flex items-center gap-1.5 text-[#171923] dark:text-[#FAF5ED]">
-                <Award className="w-3.5 h-3.5 text-[#C99A45]" />
+              <div className="flex items-center gap-1.5 text-slate-900 dark:text-[#FAF5ED]">
+                <Award className="w-3.5 h-3.5 text-amber-500" />
                 <span>Qualifying Cutoff Benchmark (40%)</span>
               </div>
               <span className={`font-mono ${scorePercent >= 40 ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'}`}>
                 {scorePercent >= 40 ? `+${scorePercent - 40}% Above Cutoff` : `${40 - scorePercent}% Below Cutoff`}
               </span>
             </div>
-            <div className="relative h-2 w-full bg-[#FAF5ED] dark:bg-[#20181B] rounded-full overflow-hidden border border-[#E8D9C0]/80 dark:border-[#33252A]">
-              <div className="absolute top-0 bottom-0 left-[40%] w-0.5 bg-[#800020] dark:bg-[#C99A45] z-10" />
+            <div className="relative h-2 w-full bg-[#FAF5ED] dark:bg-[#20181B] rounded-full overflow-hidden border border-slate-200/80 dark:border-[#31275E]">
+              <div className="absolute top-0 bottom-0 left-[40%] w-0.5 bg-[#7045D8] dark:bg-[#7045D8] z-10" />
               <div
                 style={{ width: `${Math.min(100, scorePercent)}%` }}
                 className={`h-full transition-all duration-500 ${
                   scorePercent >= 60
                     ? "bg-emerald-600"
                     : scorePercent >= 40
-                    ? "bg-[#C99A45]"
+                    ? "bg-[#A78BFA]"
                     : "bg-rose-600"
                 }`}
               />
@@ -4788,29 +4857,29 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
 
           {/* 3. Time Management Summary */}
           <div className="grid grid-cols-2 gap-2.5 pt-1">
-            <div className="p-3 rounded-xl bg-[#FAF5ED] dark:bg-[#20181B] border border-[#E8D9C0] dark:border-[#33252A] flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-white dark:bg-[#1A1417] border border-[#E8D9C0] dark:border-[#2F2227] flex items-center justify-center text-[#800020] dark:text-[#E5B869] shrink-0">
+            <div className="p-3 rounded-xl bg-[#FAF5ED] dark:bg-[#20181B] border border-slate-200 dark:border-[#31275E] flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-white dark:bg-[#130E26] border border-slate-200 dark:border-[#31275E] flex items-center justify-center text-[#7045D8] dark:text-[#A78BFA] shrink-0">
                 <Clock className="w-4 h-4" />
               </div>
               <div className="min-w-0">
-                <span className="text-[9px] font-black uppercase tracking-wider text-[#718096] dark:text-[#8C7D83] block leading-none mb-1">
+                <span className="text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 block leading-none mb-1">
                   Duration
                 </span>
-                <span className="text-sm font-black font-mono text-[#171923] dark:text-[#FFF9EF] block leading-none">
+                <span className="text-sm font-black font-mono text-slate-900 dark:text-slate-50 block leading-none">
                   {formatTime(elapsedSeconds)}
                 </span>
               </div>
             </div>
 
-            <div className="p-3 rounded-xl bg-[#FAF5ED] dark:bg-[#20181B] border border-[#E8D9C0] dark:border-[#33252A] flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-white dark:bg-[#1A1417] border border-[#E8D9C0] dark:border-[#2F2227] flex items-center justify-center text-[#800020] dark:text-[#E5B869] shrink-0">
+            <div className="p-3 rounded-xl bg-[#FAF5ED] dark:bg-[#20181B] border border-slate-200 dark:border-[#31275E] flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-white dark:bg-[#130E26] border border-slate-200 dark:border-[#31275E] flex items-center justify-center text-[#7045D8] dark:text-[#A78BFA] shrink-0">
                 <Zap className="w-4 h-4" />
               </div>
               <div className="min-w-0">
-                <span className="text-[9px] font-black uppercase tracking-wider text-[#718096] dark:text-[#8C7D83] block leading-none mb-1">
+                <span className="text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 block leading-none mb-1">
                   Avg Pace / Q
                 </span>
-                <span className="text-sm font-black font-mono text-[#171923] dark:text-[#FFF9EF] block leading-none">
+                <span className="text-sm font-black font-mono text-slate-900 dark:text-slate-50 block leading-none">
                   {avgTimePerQuestion}s
                 </span>
               </div>
@@ -4818,15 +4887,15 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
           </div>
 
           {/* 4. Strategic Performance Insights */}
-          <div className="p-3 rounded-xl bg-gradient-to-r from-[#800020]/10 via-[#FAF5ED] to-[#800020]/5 dark:from-[#800020]/20 dark:via-[#1D1619] dark:to-[#800020]/10 border border-[#C99A45]/30 flex items-start gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-[#800020] text-[#E5B869] flex items-center justify-center shrink-0 mt-0.5">
+          <div className="p-3 rounded-xl bg-gradient-to-r from-[#7045D8]/10 via-[#FAF5ED] to-[#7045D8]/5 dark:from-[#7045D8]/20 dark:via-[#1D1619] dark:to-[#7045D8]/10 border border-[#A78BFA]/30 flex items-start gap-2.5">
+            <div className="w-7 h-7 rounded-lg bg-[#7045D8] text-[#E5B869] flex items-center justify-center shrink-0 mt-0.5">
               <TrendingUp className="w-3.5 h-3.5" />
             </div>
             <div className="space-y-0.5 min-w-0">
-              <span className="text-[9px] font-black uppercase tracking-widest text-[#800020] dark:text-[#E5B869]">
+              <span className="text-[11px] font-black uppercase tracking-widest text-[#7045D8] dark:text-[#A78BFA]">
                 Examination Strategy Insight
               </span>
-              <p className="text-[11px] font-bold text-[#171923] dark:text-[#FAF5ED] leading-snug">
+              <p className="text-[11px] font-bold text-slate-900 dark:text-[#FAF5ED] leading-snug">
                 {scorePercent >= 70
                   ? "🔥 Merit Level Performance! You have scored comfortably above competitive exam cutoffs. Focus on speed drills."
                   : scorePercent >= 40
@@ -4873,18 +4942,18 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
             show: { opacity: 1, y: 0 }
           }}
           id="solutions-audit-section"
-          className="bg-white dark:bg-[#1A1417] border border-[#E8D9C0] dark:border-[#2F2227] rounded-2xl sm:rounded-3xl p-4 sm:p-5 space-y-4 shadow-sm"
+          className="bg-white dark:bg-[#130E26] border border-slate-200 dark:border-[#31275E] rounded-2xl sm:rounded-3xl p-4 sm:p-5 space-y-4 shadow-sm"
         >
           <div className="flex items-center justify-between flex-wrap gap-2">
-            <h3 className="text-xs sm:text-sm font-black uppercase tracking-wider text-[#171923] dark:text-[#FFF9EF] flex items-center gap-2">
-              <FileText className="w-4 h-4 text-[#800020] dark:text-[#E5B869]" />
+            <h3 className="text-xs sm:text-sm font-black uppercase tracking-wider text-slate-900 dark:text-slate-50 flex items-center gap-2">
+              <FileText className="w-4 h-4 text-[#7045D8] dark:text-[#A78BFA]" />
               Solutions & Answer Key
             </h3>
-            <span className="text-[10px] font-mono text-[#718096] dark:text-[#8C7D83] font-bold">Showing {filteredQuestions.length} Qs</span>
+            <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400 font-bold">Showing {filteredQuestions.length} Qs</span>
           </div>
 
           {/* Segmented Filter Control */}
-          <div className="p-1 bg-[#FAF5ED] dark:bg-[#181114] border border-[#E8D9C0] dark:border-[#2D2226] rounded-2xl flex items-center gap-1">
+          <div className="p-1 bg-[#FAF5ED] dark:bg-[#181114] border border-slate-200 dark:border-[#31275E] rounded-2xl flex items-center gap-1">
             {[
               { id: "all", label: "All", count: totalQuestions },
               { id: "correct", label: "Correct", count: totalCorrect },
@@ -4896,15 +4965,15 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
                 onClick={() => setFilter(tab.id as any)}
                 className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer ${
                   filter === tab.id
-                    ? "bg-[#800020] text-white shadow-sm"
-                    : "text-[#718096] hover:text-[#171923] dark:text-[#8C7D83] dark:hover:text-[#FFF9EF]"
+                    ? "bg-[#7045D8] text-white shadow-sm"
+                    : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
                 }`}
               >
                 <span>{tab.label}</span>
-                <span className={`px-1.5 rounded-md text-[10px] font-mono ${
+                <span className={`px-1.5 rounded-md text-[11px] font-mono ${
                   filter === tab.id 
-                    ? "bg-[#C99A45]/30 text-white" 
-                    : "bg-[#E8D9C0]/50 dark:bg-[#2A2024] text-[#718096] dark:text-[#8C7D83]"
+                    ? "bg-[#A78BFA]/30 text-white" 
+                    : "bg-slate-200/50 dark:bg-[#241D48] text-slate-500 dark:text-slate-400"
                 }`}>
                   {tab.count}
                 </span>
@@ -4936,20 +5005,20 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
                     hidden: { opacity: 0, x: -10 },
                     show: { opacity: 1, x: 0 }
                   }}
-                  className="bg-white dark:bg-[#1A1417] border border-[#E8D9C0] dark:border-[#2F2227] rounded-2xl sm:rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col"
+                  className="bg-white dark:bg-[#130E26] border border-slate-200 dark:border-[#31275E] rounded-2xl sm:rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col"
                 >
                   {/* Audit Card Header */}
-                  <div className="px-4 py-3 sm:px-5 sm:py-3.5 border-b border-[#E8D9C0]/80 dark:border-[#2F2227] flex items-center justify-between gap-3 bg-[#FAF5ED]/50 dark:bg-[#1F181B]/50">
+                  <div className="px-4 py-3 sm:px-5 sm:py-3.5 border-b border-slate-200/80 dark:border-[#31275E] flex items-center justify-between gap-3 bg-[#FAF5ED]/50 dark:bg-[#1F181B]/50">
                     <div className="flex items-center gap-2.5">
-                      <span className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#800020] text-white font-mono font-black text-xs flex items-center justify-center border border-[#C99A45]/30">
+                      <span className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#7045D8] text-white font-mono font-black text-xs flex items-center justify-center border border-[#A78BFA]/30">
                         #{questions.findIndex(item => item.id === q.id) + 1}
                       </span>
                       
                       <div className="flex flex-col">
-                        <span className="text-[9px] font-black text-[#718096] dark:text-[#8C7D83] uppercase tracking-widest leading-none mb-1">Status</span>
+                        <span className="text-[11px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest leading-none mb-1">Status</span>
                         {hasAttempted ? (
                           <div className="flex items-center gap-2">
-                            <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md flex items-center gap-1.5 ${
+                            <span className={`text-[11px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md flex items-center gap-1.5 ${
                               isUserCorrect ? "bg-emerald-600 text-white" : "bg-rose-600 text-white"
                             }`}>
                               {isUserCorrect ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
@@ -4957,7 +5026,7 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
                             </span>
                           </div>
                         ) : (
-                          <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-[#718096] text-white">Skipped</span>
+                          <span className="text-[11px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-slate-500 text-white">Skipped</span>
                         )}
                       </div>
                     </div>
@@ -4971,7 +5040,7 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
                           setReportingQuestion(q);
                           setShowReportModal(true);
                         }}
-                        className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl border flex items-center justify-center transition-all cursor-pointer bg-white dark:bg-[#20181B] border-[#E8D9C0] dark:border-[#33252A] text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/20"
+                        className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl border flex items-center justify-center transition-all cursor-pointer bg-white dark:bg-[#20181B] border-slate-200 dark:border-[#31275E] text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/20"
                         title="Report Question / Raise Objection"
                         aria-label="Report Question"
                       >
@@ -4986,8 +5055,8 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
                         size="md"
                         className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl border flex items-center justify-center transition-all cursor-pointer relative ${
                           isQBookmarked
-                            ? "bg-[#C99A45] border-[#C99A45] text-white shadow-md shadow-[#C99A45]/20"
-                            : "bg-white dark:bg-[#20181B] border-[#E8D9C0] dark:border-[#33252A] text-[#718096]"
+                            ? "bg-[#A78BFA] border-[#A78BFA] text-white shadow-md shadow-[#A78BFA]/20"
+                            : "bg-white dark:bg-[#20181B] border-slate-200 dark:border-[#31275E] text-slate-500"
                         }`}
                       />
                     </div>
@@ -4995,7 +5064,7 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
 
                   <div className="p-4 sm:p-6 space-y-5">
                     {/* Question Content */}
-                    <div className="font-hindi text-[#171923] dark:text-[#FFF9EF] text-sm sm:text-base font-black leading-relaxed">
+                    <div className="font-hindi text-slate-900 dark:text-slate-50 text-sm sm:text-base font-black leading-relaxed">
                       <ParsedQuestion text={q.text} fontSizeClass="text-sm sm:text-base" question={q} />
                     </div>
 
@@ -5019,8 +5088,8 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
                             if (!looksLikePairing) return null;
                           }
 
-                          let cardClass = "bg-[#FAF5ED]/50 dark:bg-[#1E171A]/50 border-[#E8D9C0] dark:border-[#2F2227] text-[#171923] dark:text-[#E2D9D2]";
-                          let badgeClass = "bg-[#E8D9C0]/50 dark:bg-[#2F2227] text-[#718096] dark:text-[#8C7D83]";
+                          let cardClass = "bg-[#FAF5ED]/50 dark:bg-[#1E171A]/50 border-slate-200 dark:border-[#31275E] text-slate-900 dark:text-[#E2D9D2]";
+                          let badgeClass = "bg-slate-200/50 dark:bg-[#241D48] text-slate-500 dark:text-slate-400";
 
                           if (isThisCorrect) {
                             cardClass = "bg-emerald-50 dark:bg-emerald-950/20 border-emerald-500 text-emerald-950 dark:text-emerald-50 ring-2 ring-emerald-500/20";
@@ -5051,9 +5120,9 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
 
                     {/* Explanation Block */}
                     {q.explanation && (
-                      <div className="bg-[#1C1518] dark:bg-[#150F12] border border-[#C99A45]/30 rounded-2xl p-4 sm:p-5 shadow-lg">
+                      <div className="bg-[#1C1518] dark:bg-[#150F12] border border-[#A78BFA]/30 rounded-2xl p-4 sm:p-5 shadow-lg">
                         <div className="flex items-center gap-2 mb-3">
-                          <div className="w-8 h-8 rounded-xl bg-[#C99A45]/20 text-[#E5B869] border border-[#C99A45]/30 flex items-center justify-center">
+                          <div className="w-8 h-8 rounded-xl bg-[#A78BFA]/20 text-[#E5B869] border border-[#A78BFA]/30 flex items-center justify-center">
                             <FileText size={16} />
                           </div>
                           <h4 className="text-xs font-black text-[#E5B869] uppercase tracking-[0.2em]">Solution Insight</h4>
@@ -5070,8 +5139,8 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
                             }}
                             className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 hover:from-indigo-600 hover:to-purple-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-indigo-500/20 active:scale-95 transition-all cursor-pointer"
                           >
-                            <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-spin" style={{ animationDuration: '3s' }} />
-                            <span>✨ Explain with AI</span>
+                            <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                            <span>Explain with AI</span>
                           </button>
 
                           <button
@@ -5107,7 +5176,7 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
           <button
             id="btn-retake-test"
             onClick={onRestart}
-            className="flex-1 h-12 px-4 rounded-xl sm:rounded-2xl bg-[#FAF5ED] dark:bg-[#1E171A] border border-[#C99A45]/40 text-[#800020] dark:text-[#E5B869] font-black text-xs sm:text-sm hover:bg-[#F5EBE1] transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 shadow-sm"
+            className="flex-1 h-12 px-4 rounded-xl sm:rounded-2xl bg-[#FAF5ED] dark:bg-[#1E171A] border border-[#A78BFA]/40 text-[#7045D8] dark:text-[#A78BFA] font-black text-xs sm:text-sm hover:bg-[#F5EBE1] transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 shadow-sm"
           >
             <RotateCcw className="w-4 h-4" />
             <span>Re-take Test</span>
@@ -5116,7 +5185,7 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
           <button
             id="btn-back-to-hub"
             onClick={onClose}
-            className="flex-1 h-12 px-4 rounded-xl sm:rounded-2xl bg-[#800020] hover:bg-[#660019] text-white font-black text-xs sm:text-sm shadow-md shadow-[#800020]/20 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 border border-[#C99A45]/40"
+            className="flex-1 h-12 px-4 rounded-xl sm:rounded-2xl bg-[#7045D8] hover:bg-[#5B32BF] text-white font-black text-xs sm:text-sm shadow-md shadow-[#7045D8]/20 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 border border-[#A78BFA]/40"
           >
             <Home className="w-4 h-4 text-[#E5B869]" />
             <span>Return to Dashboard</span>

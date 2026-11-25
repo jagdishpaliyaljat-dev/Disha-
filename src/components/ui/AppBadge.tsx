@@ -16,23 +16,23 @@ export const AppBadge: React.FC<AppBadgeProps> = ({
   className = "",
 }) => {
   const sizeClasses = {
-    sm: "px-2 py-0.5 text-[9.5px]",
+    sm: "px-2 py-0.5 text-[11px]",
     md: "px-2.5 py-1 text-[11px]",
   }[size];
 
   const variantClasses = {
     brand:
-      "bg-[#800020]/10 dark:bg-[#800020]/20 text-[#800020] dark:text-[#F47B20] border border-[#800020]/20 dark:border-[#800020]/30",
+      "bg-[#7045D8]/10 dark:bg-[#7045D8]/20 text-[#7045D8] dark:text-[#A78BFA] border border-[#7045D8]/20 dark:border-[#A78BFA]/30",
     saffron:
-      "bg-[#F47B20]/10 dark:bg-[#F47B20]/20 text-[#F47B20] border border-[#F47B20]/25 dark:border-[#F47B20]/35",
+      "bg-[#7045D8]/10 dark:bg-[#7045D8]/20 text-[#7045D8] border border-[#7045D8]/25 dark:border-[#A78BFA]/35",
     gold:
-      "bg-[#C99A45]/15 dark:bg-[#C99A45]/25 text-[#9E7324] dark:text-[#E8BD68] border border-[#C99A45]/30",
+      "bg-[#A78BFA]/15 dark:bg-[#7045D8]/25 text-amber-500 dark:text-[#A78BFA] border border-[#A78BFA]/30",
     live:
-      "bg-[#F47B20] text-white shadow-xs font-black",
+      "bg-[#7045D8] text-white shadow-xs font-black",
     success:
       "bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/25",
     neutral:
-      "bg-[#F7EFE2] dark:bg-[#252A3A] text-[#52576A] dark:text-[#CBD2E1] border border-[#E8D9C0] dark:border-[#31374A]",
+      "bg-slate-100 dark:bg-[#241D48] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-[#31275E]",
     danger:
       "bg-rose-500/10 dark:bg-rose-500/20 text-rose-700 dark:text-rose-300 border border-rose-500/25",
   }[variant];

@@ -143,7 +143,7 @@ export const SessionLeaderboard: React.FC<SessionLeaderboardProps> = ({
   const getRankBadge = (rank: number) => {
     if (rank === 1) {
       return (
-        <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-[#E5B842] via-[#C99A45] to-[#997324] text-white font-black text-xs flex items-center justify-center shadow-xs shadow-[#C99A45]/30 shrink-0 border border-[#F4C542]/50">
+        <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-[#E5B842] via-[#A78BFA] to-[#997324] text-white font-black text-xs flex items-center justify-center shadow-xs shadow-[#A78BFA]/30 shrink-0 border border-[#F4C542]/50">
           🥇
         </div>
       );
@@ -163,42 +163,42 @@ export const SessionLeaderboard: React.FC<SessionLeaderboardProps> = ({
       );
     }
     return (
-      <div className="w-7 h-7 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] text-[#52576A] dark:text-[#CBD2E1] font-mono font-black text-[11px] flex items-center justify-center shrink-0">
+      <div className="w-7 h-7 rounded-xl bg-slate-100 dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] text-slate-600 dark:text-slate-300 font-mono font-black text-[11px] flex items-center justify-center shrink-0">
         #{rank}
       </div>
     );
   };
 
   return (
-    <div className={`bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-xs space-y-4 ${className}`}>
+    <div className={`bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-xs space-y-4 ${className}`}>
       {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-2 pb-2 border-b border-[#E8D9C0]/60 dark:border-[#31374A]">
+      <div className="flex items-center justify-between flex-wrap gap-2 pb-2 border-b border-slate-200/60 dark:border-[#31275E]">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-[#C99A45]/15 text-[#C99A45] border border-[#C99A45]/30 flex items-center justify-center shadow-xs">
-            <Trophy className="w-4 h-4 fill-[#C99A45]/20" />
+          <div className="w-8 h-8 rounded-xl bg-[#A78BFA]/15 text-amber-500 border border-[#A78BFA]/30 flex items-center justify-center shadow-xs">
+            <Trophy className="w-4 h-4 fill-amber-500/20" />
           </div>
           <div>
-            <h3 className="text-xs sm:text-sm font-black text-[#171923] dark:text-[#FFF9EF] uppercase tracking-wider flex items-center gap-1.5">
+            <h3 className="text-xs sm:text-sm font-black text-slate-900 dark:text-slate-50 uppercase tracking-wider flex items-center gap-1.5">
               <span>Live Leaderboard</span>
-              <span className="inline-flex items-center px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 text-[9px] font-mono font-bold lowercase">
+              <span className="inline-flex items-center px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 text-[11px] font-mono font-bold lowercase">
                 • live
               </span>
             </h3>
-            <p className="text-[10px] font-bold text-[#787D91] dark:text-[#929AB0] uppercase tracking-widest">
+            <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
               {totalParticipants} Aspirants Participated
             </p>
           </div>
         </div>
 
         {/* Tab Toggle */}
-        <div className="flex items-center bg-[#F7EFE2] dark:bg-[#252A3A] p-0.5 rounded-xl border border-[#E8D9C0] dark:border-[#31374A]">
+        <div className="flex items-center bg-slate-100 dark:bg-[#241D48] p-0.5 rounded-xl border border-slate-200 dark:border-[#31275E]">
           <button
             type="button"
             onClick={() => setActiveTab("top")}
-            className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer ${
+            className={`px-3 py-1 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer ${
               activeTab === "top"
-                ? "bg-[#800020] text-white shadow-xs"
-                : "text-[#52576A] dark:text-[#CBD2E1] hover:text-[#171923] dark:hover:text-[#FFF9EF]"
+                ? "bg-[#7045D8] text-white shadow-xs"
+                : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
             Top 10
@@ -206,10 +206,10 @@ export const SessionLeaderboard: React.FC<SessionLeaderboardProps> = ({
           <button
             type="button"
             onClick={() => setActiveTab("standing")}
-            className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer ${
+            className={`px-3 py-1 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer ${
               activeTab === "standing"
-                ? "bg-[#800020] text-white shadow-xs"
-                : "text-[#52576A] dark:text-[#CBD2E1] hover:text-[#171923] dark:hover:text-[#FFF9EF]"
+                ? "bg-[#7045D8] text-white shadow-xs"
+                : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
             Your Rank
@@ -218,21 +218,21 @@ export const SessionLeaderboard: React.FC<SessionLeaderboardProps> = ({
       </div>
 
       {/* User's Mobile Summary Standing Card (Strict Burgundy + Gold Royal Palette) */}
-      <div className="p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-gradient-to-r from-[#800020] via-[#660019] to-[#520014] text-white shadow-sm border border-[#C99A45]/35 flex items-center justify-between gap-3 relative overflow-hidden">
+      <div className="p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-gradient-to-r from-[#7045D8] via-[#5B32BF] to-[#520014] text-white shadow-sm border border-[#A78BFA]/35 flex items-center justify-between gap-3 relative overflow-hidden">
         {/* Subtle decorative gold shimmer background */}
-        <div className="absolute top-0 right-0 w-32 h-32 bg-[#C99A45]/15 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none" />
+        <div className="absolute top-0 right-0 w-32 h-32 bg-[#A78BFA]/15 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none" />
 
         <div className="flex items-center gap-3 relative z-10 min-w-0">
-          <div className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-md border border-[#C99A45]/40 flex flex-col items-center justify-center shrink-0">
-            <span className="text-[8px] font-mono uppercase tracking-widest text-[#E8D9C0] leading-none mb-0.5">Rank</span>
+          <div className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-md border border-[#A78BFA]/40 flex flex-col items-center justify-center shrink-0">
+            <span className="text-[11px] font-mono uppercase tracking-widest text-slate-200 leading-none mb-0.5">Rank</span>
             <span className="text-sm font-black font-mono leading-none text-white">#{userRank}</span>
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-1.5">
               <span className="text-xs font-black truncate max-w-[130px] sm:max-w-[180px] text-white">{currentUserName}</span>
-              <span className="px-1.5 py-0.2 rounded bg-[#C99A45] text-[#171923] text-[8px] font-black uppercase tracking-wider">You</span>
+              <span className="px-1.5 py-0.2 rounded bg-[#A78BFA] text-slate-900 text-[11px] font-black uppercase tracking-wider">You</span>
             </div>
-            <p className="text-[10px] text-[#F7EFE2] font-medium truncate mt-0.5">
+            <p className="text-[11px] text-slate-100 font-medium truncate mt-0.5">
               Better than <span className="font-black text-[#F4C542]">{percentile}%</span> of candidates
             </p>
           </div>
@@ -240,7 +240,7 @@ export const SessionLeaderboard: React.FC<SessionLeaderboardProps> = ({
 
         <div className="text-right relative z-10 shrink-0 font-mono">
           <span className="text-xs sm:text-sm font-black text-white block">{currentScore} / {maxScore}</span>
-          <span className="text-[9.5px] font-bold text-emerald-300 block">{accuracy}% Acc</span>
+          <span className="text-[11px] font-bold text-emerald-300 block">{accuracy}% Acc</span>
         </div>
       </div>
 
@@ -263,8 +263,8 @@ export const SessionLeaderboard: React.FC<SessionLeaderboardProps> = ({
                 key={entry.id}
                 className={`p-2.5 sm:p-3 rounded-xl border flex items-center justify-between gap-2.5 transition-all ${
                   isUser
-                    ? "bg-[#800020]/6 dark:bg-[#800020]/20 border-2 border-[#800020] dark:border-[#C99A45]/80 shadow-xs ring-1 ring-[#800020]/20"
-                    : "bg-[#FAF5ED]/50 dark:bg-[#252A3A]/40 border-[#E8D9C0]/70 dark:border-[#31374A]/70 hover:bg-[#FAF5ED] dark:hover:bg-[#252A3A]"
+                    ? "bg-[#7045D8]/6 dark:bg-[#7045D8]/20 border-2 border-[#7045D8] dark:border-[#A78BFA]/80 shadow-xs ring-1 ring-[#7045D8]/20"
+                    : "bg-[#FAF5ED]/50 dark:bg-[#241D48]/40 border-slate-200/70 dark:border-[#31275E]/70 hover:bg-[#FAF5ED] dark:hover:bg-[#241D48]"
                 }`}
               >
                 {/* Rank & User Details */}
@@ -272,11 +272,11 @@ export const SessionLeaderboard: React.FC<SessionLeaderboardProps> = ({
                   {getRankBadge(rank)}
 
                   {/* Avatar */}
-                  <div className="w-8 h-8 rounded-full bg-[#F7EFE2] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center shrink-0 overflow-hidden">
+                  <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] flex items-center justify-center shrink-0 overflow-hidden">
                     {entry.userPhoto ? (
                       <img src={entry.userPhoto} alt={entry.userName} className="w-full h-full object-cover" />
                     ) : (
-                      <span className="text-[11px] font-black text-[#800020] dark:text-[#C99A45] uppercase">
+                      <span className="text-[11px] font-black text-[#7045D8] dark:text-[#A78BFA] uppercase">
                         {entry.userName.charAt(0)}
                       </span>
                     )}
@@ -285,16 +285,16 @@ export const SessionLeaderboard: React.FC<SessionLeaderboardProps> = ({
                   {/* Name & Time */}
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
-                      <span className={`text-xs font-black truncate ${isUser ? "text-[#800020] dark:text-[#FFF9EF]" : "text-[#171923] dark:text-[#FFF9EF]"}`}>
+                      <span className={`text-xs font-black truncate ${isUser ? "text-[#7045D8] dark:text-slate-50" : "text-slate-900 dark:text-slate-50"}`}>
                         {entry.userName}
                       </span>
                       {isUser && (
-                        <span className="px-1.5 py-0.2 rounded bg-[#800020] text-white text-[8px] font-black uppercase tracking-wider shrink-0">
+                        <span className="px-1.5 py-0.2 rounded bg-[#7045D8] text-white text-[11px] font-black uppercase tracking-wider shrink-0">
                           YOU
                         </span>
                       )}
                     </div>
-                    <div className="flex items-center gap-2 text-[9.5px] text-[#787D91] dark:text-[#929AB0] font-mono mt-0.5">
+                    <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">
                       <span className="flex items-center gap-0.5">
                         <Clock className="w-2.5 h-2.5" />
                         {formatSecs(entry.timeSpentSeconds)}
@@ -305,10 +305,10 @@ export const SessionLeaderboard: React.FC<SessionLeaderboardProps> = ({
 
                 {/* Score & Accuracy Badges */}
                 <div className="text-right shrink-0 font-mono">
-                  <div className="text-xs sm:text-sm font-black text-[#171923] dark:text-[#FFF9EF]">
-                    {entry.score} <span className="text-[10px] font-normal text-[#787D91] dark:text-[#929AB0]">/ {entry.maxScore}</span>
+                  <div className="text-xs sm:text-sm font-black text-slate-900 dark:text-slate-50">
+                    {entry.score} <span className="text-[11px] font-normal text-slate-500 dark:text-slate-400">/ {entry.maxScore}</span>
                   </div>
-                  <div className="text-[9px] font-bold text-emerald-700 dark:text-emerald-400">
+                  <div className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400">
                     {entry.accuracy}%
                   </div>
                 </div>

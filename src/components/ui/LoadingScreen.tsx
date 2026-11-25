@@ -28,7 +28,7 @@ export const FullScreenLoader: React.FC<FullScreenLoaderProps> = ({
     <div
       role="status"
       aria-live="polite"
-      className="fixed inset-0 z-[100] flex flex-col items-center justify-center p-6 select-none bg-[#F4F1FA] dark:bg-[#171329] text-[#171329] dark:text-[#F4F1FA] transition-colors duration-300 overflow-hidden"
+      className="fixed inset-0 z-[100] flex flex-col items-center justify-center p-6 select-none bg-[#F8FAFC] dark:bg-[#130E26] text-slate-900 dark:text-slate-50 transition-colors duration-300 overflow-hidden"
     >
       {/* 1. Subtle Ambient Background Glow (Minimalist & Non-intrusive) */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -66,7 +66,7 @@ export const FullScreenLoader: React.FC<FullScreenLoaderProps> = ({
           {/* Center Brand Emblem or Icon */}
           <div className="absolute inset-0 flex items-center justify-center">
             {showLogo ? (
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-white/90 dark:bg-[#1E1938]/90 backdrop-blur-md border border-[#7045D8]/30 shadow-[0_4px_16px_rgba(112,69,216,0.15)] flex items-center justify-center p-2">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-white/90 dark:bg-[#1B1536]/90 backdrop-blur-md border border-[#7045D8]/30 shadow-[0_4px_16px_rgba(112,69,216,0.15)] flex items-center justify-center p-2">
                 <img
                   src="/brand-logo.png"
                   alt="Disha PYQ"
@@ -87,14 +87,14 @@ export const FullScreenLoader: React.FC<FullScreenLoaderProps> = ({
           <span className="text-[11px] font-black uppercase tracking-[0.2em] text-[#7045D8] dark:text-[#A78BFA]">
             Disha PYQ
           </span>
-          <span className="text-[#A78BFA]/50 text-[10px]">✦</span>
-          <span className="text-[10px] font-bold text-[#8A8F9E] dark:text-[#A4ABC0] tracking-wider uppercase">
+          <span className="text-[#A78BFA]/50 text-[11px]">✦</span>
+          <span className="text-[11px] font-bold text-[#8A8F9E] dark:text-[#A4ABC0] tracking-wider uppercase">
             LIVE SYNC
           </span>
         </div>
 
         {/* Primary Message */}
-        <h3 className="text-sm sm:text-base font-bold text-[#171923] dark:text-[#FFF9EF] leading-snug tracking-tight">
+        <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-slate-50 leading-snug tracking-tight">
           {message}
         </h3>
 
@@ -108,7 +108,7 @@ export const FullScreenLoader: React.FC<FullScreenLoaderProps> = ({
         {/* Minimal Progress Micro-Bar */}
         <div className="w-36 sm:w-44 h-1 bg-[#E8E2D8] dark:bg-[#1E2536] rounded-full overflow-hidden mt-6 relative shadow-inner">
           <motion.div
-            className="absolute top-0 bottom-0 rounded-full bg-gradient-to-r from-[#C99A45] via-[#F47B20] to-[#C99A45]"
+            className="absolute top-0 bottom-0 rounded-full bg-gradient-to-r from-[#A78BFA] via-[#7045D8] to-[#A78BFA]"
             initial={{ left: "-40%", width: "40%" }}
             animate={{ left: "100%", width: "40%" }}
             transition={{ repeat: Infinity, duration: 1.4, ease: "easeInOut" }}
@@ -120,7 +120,7 @@ export const FullScreenLoader: React.FC<FullScreenLoaderProps> = ({
           <button
             type="button"
             onClick={onCancel}
-            className="mt-6 px-4 py-2 rounded-xl text-xs font-bold text-[#52576A] dark:text-[#CBD2E1] hover:text-[#171923] dark:hover:text-white bg-white/60 dark:bg-[#171E2D]/80 hover:bg-white dark:hover:bg-[#1D2538] border border-[#E8D9C0] dark:border-[#2C354B] shadow-xs active:scale-95 transition-all cursor-pointer"
+            className="mt-6 px-4 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-white/60 dark:bg-[#171E2D]/80 hover:bg-white dark:hover:bg-[#1D2538] border border-slate-200 dark:border-[#31275E] shadow-xs active:scale-95 transition-all cursor-pointer"
           >
             {cancelLabel}
           </button>
@@ -169,18 +169,18 @@ export const ContentLoader: React.FC<ContentLoaderProps> = ({
       <div className="relative mb-3.5 flex items-center justify-center">
         {/* Rotating Dual-Color Ring */}
         <motion.div
-          className={`${ringSizes} rounded-full border-[#C99A45]/20 dark:border-[#C99A45]/30`}
-          style={{ borderTopColor: "#C99A45", borderRightColor: "#F47B20" }}
+          className={`${ringSizes} rounded-full border-[#A78BFA]/20 dark:border-[#A78BFA]/30`}
+          style={{ borderTopColor: "#7045D8", borderRightColor: "#A78BFA" }}
           animate={{ rotate: 360 }}
           transition={{ repeat: Infinity, duration: 1.2, ease: "linear" }}
         />
         {/* Subtle Sparkle Dot in Center */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="w-1.5 h-1.5 rounded-full bg-[#F47B20] animate-pulse" />
+          <div className="w-1.5 h-1.5 rounded-full bg-[#7045D8] animate-pulse" />
         </div>
       </div>
 
-      <p className="text-xs sm:text-sm font-bold text-[#171923] dark:text-[#FFF9EF] tracking-tight">
+      <p className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-50 tracking-tight">
         {message}
       </p>
 
@@ -227,7 +227,7 @@ export const InlineSpinner: React.FC<InlineSpinnerProps> = ({
         cx="12"
         cy="12"
         r="9.5"
-        stroke="#C99A45"
+        stroke="#A78BFA"
         strokeWidth="2.5"
         strokeOpacity="0.25"
       />
@@ -246,8 +246,8 @@ export const InlineSpinner: React.FC<InlineSpinnerProps> = ({
           y2="16.5"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stopColor="#F47B20" />
-          <stop offset="1" stopColor="#C99A45" />
+          <stop stopColor="#7045D8" />
+          <stop offset="1" stopColor="#A78BFA" />
         </linearGradient>
       </defs>
     </svg>
@@ -267,7 +267,7 @@ export const PremiumSkeleton: React.FC<{
       className={`relative overflow-hidden bg-[#F0EAE1] dark:bg-[#181F2F] ${rounded} ${className}`}
     >
       <motion.div
-        className="absolute inset-0 bg-gradient-to-r from-transparent via-[#FFF9EF]/60 dark:via-[#C99A45]/10 to-transparent"
+        className="absolute inset-0 bg-gradient-to-r from-transparent via-[#F8FAFC]/60 dark:via-[#5B32BF]/10 to-transparent"
         initial={{ x: "-100%" }}
         animate={{ x: "100%" }}
         transition={{ repeat: Infinity, duration: 1.6, ease: "easeInOut" }}

@@ -648,9 +648,9 @@ export const NewsPage: React.FC<NewsPageProps> = ({
     if (trimmed === "---" || trimmed === "___" || trimmed === "***") {
       return (
         <div className="my-8 flex items-center justify-center gap-3">
-          <span className="h-px bg-gradient-to-r from-transparent via-[#C99A45]/50 to-transparent flex-1" />
-          <span className="w-1.5 h-1.5 rotate-45 bg-[#C99A45]" />
-          <span className="h-px bg-gradient-to-r from-transparent via-[#C99A45]/50 to-transparent flex-1" />
+          <span className="h-px bg-gradient-to-r from-transparent via-[#A78BFA]/50 to-transparent flex-1" />
+          <span className="w-1.5 h-1.5 rotate-45 bg-[#A78BFA]" />
+          <span className="h-px bg-gradient-to-r from-transparent via-[#A78BFA]/50 to-transparent flex-1" />
         </div>
       );
     }
@@ -663,19 +663,19 @@ export const NewsPage: React.FC<NewsPageProps> = ({
       if (!token) return;
       if (token.startsWith("**") && token.endsWith("**") && token.length >= 4) {
         parts.push(
-          <strong key={idx} className="font-extrabold text-[#171923] dark:text-[#FFF9EF]">
+          <strong key={idx} className="font-extrabold text-slate-900 dark:text-slate-50">
             {token.slice(2, -2)}
           </strong>
         );
       } else if (token.startsWith("*") && token.endsWith("*") && token.length >= 2) {
         parts.push(
-          <em key={idx} className="italic text-[#171923] dark:text-[#FFF9EF]/90">
+          <em key={idx} className="italic text-slate-900 dark:text-slate-50/90">
             {token.slice(1, -1)}
           </em>
         );
       } else if (token.startsWith("`") && token.endsWith("`") && token.length >= 2) {
         parts.push(
-          <code key={idx} className="px-1.5 py-0.5 rounded-md bg-[#F7EFE2] dark:bg-[#252A3A] text-xs font-mono font-bold text-[#800020] dark:text-[#F47B20] border border-[#E8D9C0] dark:border-[#31374A]">
+          <code key={idx} className="px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-[#241D48] text-xs font-mono font-bold text-[#7045D8] dark:text-[#A78BFA] border border-slate-200 dark:border-[#31275E]">
             {token.slice(1, -1)}
           </code>
         );
@@ -700,7 +700,7 @@ export const NewsPage: React.FC<NewsPageProps> = ({
               onClick={handleClick}
               target={isInternal ? "_self" : "_blank"}
               rel={!isInternal ? "noopener noreferrer" : undefined}
-              className="text-[#800020] dark:text-[#F47B20] font-extrabold underline underline-offset-4 hover:text-[#5E0017] dark:hover:text-[#E06A12] transition-colors cursor-pointer"
+              className="text-[#7045D8] dark:text-[#A78BFA] font-extrabold underline underline-offset-4 hover:text-[#5B32BF] dark:hover:text-[#5B32BF] transition-colors cursor-pointer"
             >
               {label}
             </a>
@@ -729,7 +729,7 @@ export const NewsPage: React.FC<NewsPageProps> = ({
             <h1
               key={blk.id || idx}
               id={anchorId}
-              className="text-2xl sm:text-3xl font-black text-[#171923] dark:text-[#FFF9EF] mt-10 mb-4 scroll-mt-24 font-hindi tracking-tight leading-snug break-words"
+              className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-50 mt-10 mb-4 scroll-mt-24 font-hindi tracking-tight leading-snug break-words"
             >
               {blk.text}
             </h1>
@@ -740,7 +740,7 @@ export const NewsPage: React.FC<NewsPageProps> = ({
             <h3
               key={blk.id || idx}
               id={anchorId}
-              className="text-lg sm:text-xl font-bold text-[#800020] dark:text-[#F47B20] mt-7 mb-3 scroll-mt-24 font-hindi tracking-tight leading-snug break-words"
+              className="text-lg sm:text-xl font-bold text-[#7045D8] dark:text-[#A78BFA] mt-7 mb-3 scroll-mt-24 font-hindi tracking-tight leading-snug break-words"
             >
               {blk.text}
             </h3>
@@ -751,7 +751,7 @@ export const NewsPage: React.FC<NewsPageProps> = ({
             <h4
               key={blk.id || idx}
               id={anchorId}
-              className="text-base sm:text-lg font-bold text-[#171923] dark:text-[#FFF9EF] mt-5 mb-2 scroll-mt-24 font-hindi tracking-tight leading-snug break-words"
+              className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-50 mt-5 mb-2 scroll-mt-24 font-hindi tracking-tight leading-snug break-words"
             >
               {blk.text}
             </h4>
@@ -761,7 +761,7 @@ export const NewsPage: React.FC<NewsPageProps> = ({
           <h2
             key={blk.id || idx}
             id={anchorId}
-            className="text-xl sm:text-2xl font-black text-[#171923] dark:text-[#FFF9EF] mt-10 mb-4 pt-4 border-t border-[#E8D9C0] dark:border-[#31374A] scroll-mt-24 font-hindi tracking-tight leading-snug break-words"
+            className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-50 mt-10 mb-4 pt-4 border-t border-slate-200 dark:border-[#31275E] scroll-mt-24 font-hindi tracking-tight leading-snug break-words"
           >
             {blk.text}
           </h2>
@@ -772,13 +772,13 @@ export const NewsPage: React.FC<NewsPageProps> = ({
         return (
           <div
             key={blk.id || idx}
-            className="my-6 p-5 sm:p-6 rounded-2xl sm:rounded-3xl bg-[#F7EFE2]/70 dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] shadow-xs space-y-2.5"
+            className="my-6 p-5 sm:p-6 rounded-2xl sm:rounded-3xl bg-slate-100/70 dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] shadow-xs space-y-2.5"
           >
-            <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-[#800020] dark:text-[#F47B20]">
+            <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-[#7045D8] dark:text-[#A78BFA]">
               <BookOpen className="w-4 h-4 shrink-0" />
               <span>ARTICLE OVERVIEW &amp; INTRO</span>
             </div>
-            <p className="text-[17px] sm:text-[18.5px] leading-[1.8] font-medium text-[#171923] dark:text-[#FFF9EF] break-words">
+            <p className="text-[17px] sm:text-[18.5px] leading-[1.8] font-medium text-slate-900 dark:text-slate-50 break-words">
               {renderFormattedTextWithLinks(injectInternalLinks(blk.text))}
             </p>
           </div>
@@ -788,13 +788,13 @@ export const NewsPage: React.FC<NewsPageProps> = ({
         return (
           <div
             key={blk.id || idx}
-            className="my-8 p-6 sm:p-7 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-[#FFF9EF] via-[#F7EFE2]/70 to-[#FFF9EF] dark:from-[#1F2330] dark:via-[#252A3A]/70 dark:to-[#1F2330] border border-[#C99A45]/40 dark:border-[#C99A45]/30 shadow-xs space-y-3"
+            className="my-8 p-6 sm:p-7 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-[#F8FAFC] via-slate-100/70 to-[#F8FAFC] dark:from-[#1B1536] dark:via-[#241D48]/70 dark:to-[#1B1536] border border-[#A78BFA]/40 dark:border-[#A78BFA]/30 shadow-xs space-y-3"
           >
-            <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-[#800020] dark:text-[#F47B20]">
-              <CheckCircle2 className="w-4 h-4 text-[#800020] dark:text-[#F47B20]" />
+            <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-[#7045D8] dark:text-[#A78BFA]">
+              <CheckCircle2 className="w-4 h-4 text-[#7045D8] dark:text-[#A78BFA]" />
               <span>Conclusion &amp; Final Takeaways</span>
             </div>
-            <p className="text-[17px] sm:text-[18.5px] leading-[1.8] font-normal text-[#171923] dark:text-[#FFF9EF]/90 break-words">
+            <p className="text-[17px] sm:text-[18.5px] leading-[1.8] font-normal text-slate-900 dark:text-slate-50/90 break-words">
               {renderFormattedTextWithLinks(injectInternalLinks(blk.text))}
             </p>
           </div>
@@ -815,7 +815,7 @@ export const NewsPage: React.FC<NewsPageProps> = ({
         }
         if (hasMarkdownTable(pText)) {
           return (
-            <div key={blk.id || idx} className="my-5 overflow-x-auto rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] shadow-xs">
+            <div key={blk.id || idx} className="my-5 overflow-x-auto rounded-2xl border border-slate-200 dark:border-[#31275E] shadow-xs">
               <GfmMarkdown content={injectInternalLinks(pText)} onLinkClick={handleInternalLinkClick} />
             </div>
           );
@@ -823,7 +823,7 @@ export const NewsPage: React.FC<NewsPageProps> = ({
         return (
           <p
             key={blk.id || idx}
-            className="text-[17.5px] sm:text-[19px] leading-[1.85] font-normal text-[#171923] dark:text-[#FFF9EF]/90 my-5 max-w-[720px] break-words tracking-normal"
+            className="text-[17.5px] sm:text-[19px] leading-[1.85] font-normal text-slate-900 dark:text-slate-50/90 my-5 max-w-[720px] break-words tracking-normal"
           >
             {renderFormattedTextWithLinks(injectInternalLinks(blk.text))}
           </p>
@@ -869,7 +869,7 @@ export const NewsPage: React.FC<NewsPageProps> = ({
         return (
           <div key={blk.id || idx} className="my-5 max-w-[700px]">
             {blk.listType === "numbered" ? (
-              <ol className="space-y-2.5 pl-6 list-decimal text-[17.5px] sm:text-[18.5px] text-[#171923] dark:text-[#FFF9EF]/90 font-hindi leading-relaxed">
+              <ol className="space-y-2.5 pl-6 list-decimal text-[17.5px] sm:text-[18.5px] text-slate-900 dark:text-slate-50/90 font-hindi leading-relaxed">
                 {(blk.listItems || []).map((item, i) => (
                   <li key={i} className="pl-1 font-medium">
                     {item}
@@ -877,7 +877,7 @@ export const NewsPage: React.FC<NewsPageProps> = ({
                 ))}
               </ol>
             ) : (
-              <ul className="space-y-2.5 pl-6 list-disc text-[17.5px] sm:text-[18.5px] text-[#171923] dark:text-[#FFF9EF]/90 font-hindi leading-relaxed">
+              <ul className="space-y-2.5 pl-6 list-disc text-[17.5px] sm:text-[18.5px] text-slate-900 dark:text-slate-50/90 font-hindi leading-relaxed">
                 {(blk.listItems || []).map((item, i) => (
                   <li key={i} className="pl-1 font-medium">
                     {item}
@@ -892,9 +892,9 @@ export const NewsPage: React.FC<NewsPageProps> = ({
         return (
           <blockquote
             key={blk.id || idx}
-            className="my-7 p-6 bg-[#F7EFE2]/80 dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-3xl text-base sm:text-lg font-bold italic text-[#171923] dark:text-[#FFF9EF] font-hindi space-y-2 shadow-xs"
+            className="my-7 p-6 bg-slate-100/80 dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] rounded-3xl text-base sm:text-lg font-bold italic text-slate-900 dark:text-slate-50 font-hindi space-y-2 shadow-xs"
           >
-            <Quote className="w-6 h-6 text-[#800020]/40 dark:text-[#F47B20]/40 rotate-180" />
+            <Quote className="w-6 h-6 text-[#7045D8]/40 dark:text-[#A78BFA]/40 rotate-180" />
             <p className="leading-relaxed">"{blk.text}"</p>
           </blockquote>
         );
@@ -902,7 +902,7 @@ export const NewsPage: React.FC<NewsPageProps> = ({
       case "image":
         return (
           <figure key={blk.id || idx} className="my-7 space-y-2">
-            <div className="relative group overflow-hidden rounded-3xl border border-[#E8D9C0] dark:border-[#31374A] bg-[#F7EFE2] dark:bg-[#1F2330] aspect-[16/9] max-h-96 shadow-sm">
+            <div className="relative group overflow-hidden rounded-3xl border border-slate-200 dark:border-[#31275E] bg-slate-100 dark:bg-[#1B1536] aspect-[16/9] max-h-96 shadow-sm">
               <img
                 src={blk.imageUrl}
                 alt={blk.imageAlt || "Article Image"}
@@ -930,7 +930,7 @@ export const NewsPage: React.FC<NewsPageProps> = ({
               </button>
             </div>
             {blk.imageAlt && (
-              <figcaption className="text-center text-xs text-[#52576A] dark:text-[#CBD2E1] italic">
+              <figcaption className="text-center text-xs text-slate-600 dark:text-slate-300 italic">
                 {blk.imageAlt}
               </figcaption>
             )}
@@ -953,30 +953,30 @@ export const NewsPage: React.FC<NewsPageProps> = ({
         return (
           <div
             key={blk.id || idx}
-            className="my-8 p-6 rounded-3xl bg-gradient-to-br from-[#FFF9EF] to-[#F7EFE2] dark:from-[#1F2330] dark:to-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm"
+            className="my-8 p-6 rounded-3xl bg-gradient-to-br from-[#F8FAFC] to-slate-100 dark:from-[#1B1536] dark:to-[#241D48] border border-slate-200 dark:border-[#31275E] flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm"
           >
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-[#800020] text-[#FFF9EF] flex items-center justify-center font-black shrink-0 shadow-md shadow-[#800020]/20">
+              <div className="w-12 h-12 rounded-2xl bg-[#7045D8] text-white flex items-center justify-center font-black shrink-0 shadow-md shadow-[#7045D8]/20">
                 <BookOpen className="w-6 h-6" />
               </div>
               <div>
-                <span className="text-[10px] font-black uppercase tracking-wider text-[#800020] dark:text-[#F47B20]">
+                <span className="text-[11px] font-black uppercase tracking-wider text-[#7045D8] dark:text-[#A78BFA]">
                   Disha PYQ · Related Quiz Topic
                 </span>
-                <h4 className="text-sm sm:text-base font-extrabold text-[#171923] dark:text-[#FFF9EF] mt-0.5">
+                <h4 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-slate-50 mt-0.5">
                   {blk.relatedQuizTopicTitle || "Practice Related Questions"}
                 </h4>
-                <p className="text-xs text-[#52576A] dark:text-[#CBD2E1] mt-0.5">
+                <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">
                   Practice free MCQs with detailed explanations &amp; timer on Disha PYQ
                 </p>
               </div>
             </div>
             <button
               onClick={onNavigateHome}
-              className="w-full sm:w-auto px-5 py-2.5 bg-[#800020] hover:bg-[#5E0017] dark:bg-[#800020] dark:hover:bg-[#650019] text-white rounded-xl text-xs font-semibold border border-[#C99A45]/30 transition-all duration-180 shadow-sm active:scale-95 cursor-pointer shrink-0 text-center whitespace-nowrap flex items-center justify-center gap-1.5 group"
+              className="w-full sm:w-auto px-5 py-2.5 bg-[#7045D8] hover:bg-[#5B32BF] dark:bg-[#7045D8] dark:hover:bg-[#5B32BF] text-white rounded-xl text-xs font-semibold border border-[#A78BFA]/30 transition-all duration-180 shadow-sm active:scale-95 cursor-pointer shrink-0 text-center whitespace-nowrap flex items-center justify-center gap-1.5 group"
             >
               <span>Practice Free MCQs</span>
-              <span className="text-[#C99A45] group-hover:translate-x-0.5 transition-transform">→</span>
+              <span className="text-amber-500 group-hover:translate-x-0.5 transition-transform">→</span>
             </button>
           </div>
         );
@@ -985,26 +985,26 @@ export const NewsPage: React.FC<NewsPageProps> = ({
         return (
           <div
             key={blk.id || idx}
-            className="my-8 p-6 sm:p-7 rounded-3xl bg-gradient-to-r from-[#800020] via-[#6A001A] to-[#4A0012] text-white border border-[#C99A45]/30 flex flex-col sm:flex-row items-center justify-between gap-5 shadow-xl relative overflow-hidden"
+            className="my-8 p-6 sm:p-7 rounded-3xl bg-gradient-to-r from-[#7045D8] via-[#5B32BF] to-[#5B32BF] text-white border border-[#A78BFA]/30 flex flex-col sm:flex-row items-center justify-between gap-5 shadow-xl relative overflow-hidden"
           >
-            <div className="absolute top-0 right-0 w-48 h-48 bg-[#C99A45]/15 rounded-full blur-2xl pointer-events-none" />
+            <div className="absolute top-0 right-0 w-48 h-48 bg-[#A78BFA]/15 rounded-full blur-2xl pointer-events-none" />
             <div className="space-y-1.5 text-center sm:text-left relative z-10">
-              <span className="inline-block text-[10px] font-black uppercase tracking-wider text-[#C99A45]">
+              <span className="inline-block text-[11px] font-black uppercase tracking-wider text-amber-500">
                 Disha PYQ · Free Mock Simulation
               </span>
               <h4 className="text-base sm:text-lg font-black text-white">
                 {blk.ctaText || "Test Your Preparation Level"}
               </h4>
-              <p className="text-xs text-[#FFF9EF]/80 max-w-md">
+              <p className="text-xs text-white/80 max-w-md">
                 Practice topic-wise MCQs with official timer, negative marking, and instant answers on Disha PYQ.
               </p>
             </div>
             <button
               onClick={onNavigateHome}
-              className="w-full sm:w-auto px-5 py-2.5 bg-[#800020] hover:bg-[#5E0017] dark:bg-[#800020] dark:hover:bg-[#650019] text-white font-semibold rounded-xl text-xs sm:text-sm border border-[#C99A45]/40 transition-all duration-180 shadow-md active:scale-95 cursor-pointer shrink-0 flex items-center justify-center gap-2 relative z-10 whitespace-nowrap group"
+              className="w-full sm:w-auto px-5 py-2.5 bg-[#7045D8] hover:bg-[#5B32BF] dark:bg-[#7045D8] dark:hover:bg-[#5B32BF] text-white font-semibold rounded-xl text-xs sm:text-sm border border-[#A78BFA]/40 transition-all duration-180 shadow-md active:scale-95 cursor-pointer shrink-0 flex items-center justify-center gap-2 relative z-10 whitespace-nowrap group"
             >
               <span>Practice Free MCQs</span>
-              <ArrowRightIcon className="w-4 h-4 text-[#C99A45] group-hover:translate-x-0.5 transition-transform" />
+              <ArrowRightIcon className="w-4 h-4 text-amber-500 group-hover:translate-x-0.5 transition-transform" />
             </button>
           </div>
         );
@@ -1013,25 +1013,25 @@ export const NewsPage: React.FC<NewsPageProps> = ({
         return (
           <div
             key={blk.id || idx}
-            className="my-10 p-1 bg-gradient-to-br from-[#F7EFE2] to-[#E8D9C0]/60 dark:from-[#252A3A] dark:to-[#1F2330] rounded-3xl border border-[#E8D9C0] dark:border-[#31374A] shadow-xs"
+            className="my-10 p-1 bg-gradient-to-br from-slate-100 to-slate-200/60 dark:from-[#241D48] dark:to-[#1B1536] rounded-3xl border border-slate-200 dark:border-[#31275E] shadow-xs"
           >
-            <div className="bg-white dark:bg-[#171923] rounded-[22px] p-6 sm:p-8">
+            <div className="bg-white dark:bg-[#130E26] rounded-[22px] p-6 sm:p-8">
               {blk.diagramType === "active_recall" && (
                 <div className="flex flex-col items-center space-y-8 py-4">
                   <div className="flex flex-wrap justify-center gap-4 sm:gap-12 relative">
                     <div className="flex flex-col items-center gap-3 group">
-                      <div className="w-20 h-20 rounded-2xl bg-[#800020]/10 text-[#800020] dark:text-[#F47B20] flex items-center justify-center group-hover:scale-105 transition-transform">
+                      <div className="w-20 h-20 rounded-2xl bg-[#7045D8]/10 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center group-hover:scale-105 transition-transform">
                         <HelpCircle className="w-10 h-10" />
                       </div>
-                      <span className="text-sm font-black uppercase text-[#171923] dark:text-[#FFF9EF]">
+                      <span className="text-sm font-black uppercase text-slate-900 dark:text-slate-50">
                         Question
                       </span>
                     </div>
                     <div className="flex flex-col items-center gap-3 group">
-                      <div className="w-20 h-20 rounded-2xl bg-[#F47B20]/15 text-[#F47B20] flex items-center justify-center group-hover:scale-105 transition-transform">
+                      <div className="w-20 h-20 rounded-2xl bg-[#7045D8]/15 text-[#7045D8] flex items-center justify-center group-hover:scale-105 transition-transform">
                         <Sparkles className="w-10 h-10" />
                       </div>
-                      <span className="text-sm font-black uppercase text-[#171923] dark:text-[#FFF9EF]">
+                      <span className="text-sm font-black uppercase text-slate-900 dark:text-slate-50">
                         Retrieve
                       </span>
                     </div>
@@ -1039,16 +1039,16 @@ export const NewsPage: React.FC<NewsPageProps> = ({
                       <div className="w-20 h-20 rounded-2xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center group-hover:scale-105 transition-transform">
                         <CheckCircle2 className="w-10 h-10" />
                       </div>
-                      <span className="text-sm font-black uppercase text-[#171923] dark:text-[#FFF9EF]">
+                      <span className="text-sm font-black uppercase text-slate-900 dark:text-slate-50">
                         Correct
                       </span>
                     </div>
                   </div>
                   <div className="max-w-md text-center space-y-2">
-                    <h4 className="text-lg font-black text-[#171923] dark:text-[#FFF9EF]">
+                    <h4 className="text-lg font-black text-slate-900 dark:text-slate-50">
                       Active Recall Cycle
                     </h4>
-                    <p className="text-xs text-[#52576A] dark:text-[#CBD2E1]">
+                    <p className="text-xs text-slate-600 dark:text-slate-300">
                       Try to recall before checking answers (Retrieval Practice) to reinforce neural connections.
                     </p>
                   </div>
@@ -1057,31 +1057,31 @@ export const NewsPage: React.FC<NewsPageProps> = ({
 
               {blk.diagramType === "spaced_repetition" && (
                 <div className="space-y-6 py-4">
-                  <div className="h-48 w-full relative flex items-end justify-between border-b-2 border-l-2 border-[#E8D9C0] dark:border-[#31374A] pb-2 pl-2">
+                  <div className="h-48 w-full relative flex items-end justify-between border-b-2 border-l-2 border-slate-200 dark:border-[#31275E] pb-2 pl-2">
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-10">
-                      <TrendingUp className="w-32 h-32 text-[#800020] rotate-180" />
+                      <TrendingUp className="w-32 h-32 text-[#7045D8] rotate-180" />
                     </div>
 
                     {[
-                      { label: "Day 0", h: "h-full", color: "bg-[#800020]" },
+                      { label: "Day 0", h: "h-full", color: "bg-[#7045D8]" },
                       { label: "Day 1", h: "h-[85%]", color: "bg-[#9E1B32]" },
-                      { label: "Day 3", h: "h-[90%]", color: "bg-[#C99A45]" },
-                      { label: "Day 7", h: "h-[95%]", color: "bg-[#F47B20]" },
+                      { label: "Day 3", h: "h-[90%]", color: "bg-[#A78BFA]" },
+                      { label: "Day 7", h: "h-[95%]", color: "bg-[#7045D8]" },
                       { label: "Day 14", h: "h-full", color: "bg-emerald-600" },
                     ].map((bar, i) => (
                       <div key={i} className="flex flex-col items-center gap-2 flex-1 group">
                         <div
                           className={`w-4 sm:w-8 ${bar.h} ${bar.color} rounded-t-lg transition-all group-hover:brightness-110`}
                         />
-                        <span className="text-[10px] font-bold text-[#52576A] dark:text-[#CBD2E1] tabular-nums">{bar.label}</span>
+                        <span className="text-[11px] font-bold text-slate-600 dark:text-slate-300 tabular-nums">{bar.label}</span>
                       </div>
                     ))}
                   </div>
                   <div className="text-center space-y-2">
-                    <h4 className="text-lg font-black text-[#171923] dark:text-[#FFF9EF]">
+                    <h4 className="text-lg font-black text-slate-900 dark:text-slate-50">
                       Spaced Repetition Curve
                     </h4>
-                    <p className="text-xs text-[#52576A] dark:text-[#CBD2E1]">
+                    <p className="text-xs text-slate-600 dark:text-slate-300">
                       Systematic revision intervals preserve long-term memory retention near 100%.
                     </p>
                   </div>
@@ -1090,22 +1090,22 @@ export const NewsPage: React.FC<NewsPageProps> = ({
 
               {blk.diagramType === "pomodoro" && (
                 <div className="flex flex-col items-center gap-6 py-4">
-                  <div className="w-32 h-32 rounded-full border-8 border-[#800020]/15 dark:border-[#F47B20]/20 flex items-center justify-center relative">
-                    <div className="w-24 h-24 rounded-full border-8 border-[#800020] dark:border-[#F47B20] border-t-transparent flex items-center justify-center">
-                      <Clock className="w-10 h-10 text-[#800020] dark:text-[#F47B20]" />
+                  <div className="w-32 h-32 rounded-full border-8 border-[#7045D8]/15 dark:border-[#A78BFA]/20 flex items-center justify-center relative">
+                    <div className="w-24 h-24 rounded-full border-8 border-[#7045D8] dark:border-[#A78BFA] border-t-transparent flex items-center justify-center">
+                      <Clock className="w-10 h-10 text-[#7045D8] dark:text-[#A78BFA]" />
                     </div>
-                    <div className="absolute -top-4 bg-[#800020] text-white text-[10px] font-black px-2 py-1 rounded-lg tabular-nums">
+                    <div className="absolute -top-4 bg-[#7045D8] text-white text-[11px] font-black px-2 py-1 rounded-lg tabular-nums">
                       25 MIN
                     </div>
-                    <div className="absolute -bottom-4 bg-emerald-600 text-white text-[10px] font-black px-2 py-1 rounded-lg tabular-nums">
+                    <div className="absolute -bottom-4 bg-emerald-600 text-white text-[11px] font-black px-2 py-1 rounded-lg tabular-nums">
                       5 MIN BREAK
                     </div>
                   </div>
                   <div className="text-center space-y-2">
-                    <h4 className="text-lg font-black text-[#171923] dark:text-[#FFF9EF]">
+                    <h4 className="text-lg font-black text-slate-900 dark:text-slate-50">
                       Pomodoro Focus Timer
                     </h4>
-                    <p className="text-xs text-[#52576A] dark:text-[#CBD2E1]">
+                    <p className="text-xs text-slate-600 dark:text-slate-300">
                       25 minutes of deep focus followed by a 5-minute break prevents mental fatigue.
                     </p>
                   </div>
@@ -1113,7 +1113,7 @@ export const NewsPage: React.FC<NewsPageProps> = ({
               )}
             </div>
             {blk.text && (
-              <div className="px-6 py-3 text-center text-xs font-bold text-[#52576A] dark:text-[#CBD2E1] border-t border-[#E8D9C0] dark:border-[#31374A]">
+              <div className="px-6 py-3 text-center text-xs font-bold text-slate-600 dark:text-slate-300 border-t border-slate-200 dark:border-[#31275E]">
                 {blk.text}
               </div>
             )}
@@ -1124,10 +1124,10 @@ export const NewsPage: React.FC<NewsPageProps> = ({
         return (
           <div
             key={blk.id || idx}
-            className="my-8 p-6 sm:p-7 rounded-3xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] shadow-xs space-y-4"
+            className="my-8 p-6 sm:p-7 rounded-3xl bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] shadow-xs space-y-4"
           >
-            <div className="flex items-center gap-2.5 text-xs font-black uppercase tracking-wider text-[#800020] dark:text-[#F47B20]">
-              <div className="w-7 h-7 rounded-lg bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] flex items-center justify-center font-black">
+            <div className="flex items-center gap-2.5 text-xs font-black uppercase tracking-wider text-[#7045D8] dark:text-[#A78BFA]">
+              <div className="w-7 h-7 rounded-lg bg-[#7045D8]/10 dark:bg-[#7045D8]/15 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center font-black">
                 ?
               </div>
               <span>Frequently Asked Questions (FAQ)</span>
@@ -1136,18 +1136,18 @@ export const NewsPage: React.FC<NewsPageProps> = ({
               {(blk.faqs || []).map((faq, fIdx) => (
                 <details
                   key={fIdx}
-                  className="group bg-[#FFF9EF] dark:bg-[#171923] rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] p-4 transition-all"
+                  className="group bg-[#F8FAFC] dark:bg-[#130E26] rounded-2xl border border-slate-200 dark:border-[#31275E] p-4 transition-all"
                 >
-                  <summary className="flex items-center justify-between font-extrabold text-sm sm:text-base text-[#171923] dark:text-[#FFF9EF] cursor-pointer select-none font-hindi list-none gap-3">
+                  <summary className="flex items-center justify-between font-extrabold text-sm sm:text-base text-slate-900 dark:text-slate-50 cursor-pointer select-none font-hindi list-none gap-3">
                     <span className="flex items-center gap-2">
-                      <span className="w-5 h-5 rounded-full bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] text-xs flex items-center justify-center font-bold shrink-0">
+                      <span className="w-5 h-5 rounded-full bg-[#7045D8]/10 dark:bg-[#7045D8]/15 text-[#7045D8] dark:text-[#A78BFA] text-xs flex items-center justify-center font-bold shrink-0">
                         Q
                       </span>
                       {faq.question}
                     </span>
-                    <ChevronDown className="w-4 h-4 text-[#52576A] group-open:rotate-180 transition-transform shrink-0" />
+                    <ChevronDown className="w-4 h-4 text-slate-600 group-open:rotate-180 transition-transform shrink-0" />
                   </summary>
-                  <div className="mt-3 pt-3 border-t border-[#E8D9C0] dark:border-[#31374A] text-xs sm:text-sm text-[#52576A] dark:text-[#CBD2E1] font-hindi leading-relaxed pl-7">
+                  <div className="mt-3 pt-3 border-t border-slate-200 dark:border-[#31275E] text-xs sm:text-sm text-slate-600 dark:text-slate-300 font-hindi leading-relaxed pl-7">
                     {faq.answer}
                   </div>
                 </details>
@@ -1167,28 +1167,28 @@ export const NewsPage: React.FC<NewsPageProps> = ({
         return (
           <div
             key={blk.id || idx}
-            className="my-8 p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-[#FFF9EF] via-[#F7EFE2]/70 to-white dark:from-[#1F2330] dark:via-[#252A3A]/70 dark:to-[#171923] border border-[#E8D9C0] dark:border-[#31374A] shadow-sm transition-all hover:shadow-md"
+            className="my-8 p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-[#F8FAFC] via-slate-100/70 to-white dark:from-[#1B1536] dark:via-[#241D48]/70 dark:to-[#130E26] border border-slate-200 dark:border-[#31275E] shadow-sm transition-all hover:shadow-md"
           >
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] flex items-center justify-center shrink-0 border border-[#800020]/20 dark:border-[#F47B20]/25">
+                <div className="w-12 h-12 rounded-2xl bg-[#7045D8]/10 dark:bg-[#7045D8]/15 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center shrink-0 border border-[#7045D8]/20 dark:border-[#A78BFA]/25">
                   <FileDown className="w-6 h-6" />
                 </div>
                 <div className="space-y-1">
                   <div className="flex items-center gap-2 flex-wrap text-[11px] font-bold">
-                    <span className="text-[#800020] dark:text-[#F47B20] uppercase tracking-wider font-black">
+                    <span className="text-[#7045D8] dark:text-[#A78BFA] uppercase tracking-wider font-black">
                       {badge}
                     </span>
-                    <span className="text-[#E8D9C0] dark:text-[#31374A]">·</span>
-                    <span className="font-mono text-[#52576A] dark:text-[#CBD2E1] tabular-nums">
+                    <span className="text-slate-200 dark:text-[#31275E]">·</span>
+                    <span className="font-mono text-slate-600 dark:text-slate-300 tabular-nums">
                       {sizeInfo}
                     </span>
                   </div>
-                  <h4 className="text-base sm:text-lg font-black text-[#171923] dark:text-[#FFF9EF] font-hindi leading-snug">
+                  <h4 className="text-base sm:text-lg font-black text-slate-900 dark:text-slate-50 font-hindi leading-snug">
                     {title}
                   </h4>
                   {desc && (
-                    <p className="text-xs sm:text-sm text-[#52576A] dark:text-[#CBD2E1] font-hindi leading-relaxed max-w-xl">
+                    <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 font-hindi leading-relaxed max-w-xl">
                       {desc}
                     </p>
                   )}
@@ -1199,9 +1199,9 @@ export const NewsPage: React.FC<NewsPageProps> = ({
                 target="_blank"
                 rel="noopener noreferrer"
                 download={url.startsWith("data:") ? `${title.replace(/[^a-z0-9]/gi, "_")}.pdf` : undefined}
-                className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#800020] hover:bg-[#5E0017] dark:bg-[#800020] dark:hover:bg-[#650019] text-white font-semibold text-xs sm:text-sm border border-[#C99A45]/40 transition-all duration-180 shadow-sm flex items-center justify-center gap-2 shrink-0 cursor-pointer text-center whitespace-nowrap active:scale-95 group"
+                className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#7045D8] hover:bg-[#5B32BF] dark:bg-[#7045D8] dark:hover:bg-[#5B32BF] text-white font-semibold text-xs sm:text-sm border border-[#A78BFA]/40 transition-all duration-180 shadow-sm flex items-center justify-center gap-2 shrink-0 cursor-pointer text-center whitespace-nowrap active:scale-95 group"
               >
-                <Download className="w-4 h-4 text-[#C99A45]" />
+                <Download className="w-4 h-4 text-amber-500" />
                 <span>{btnText}</span>
               </a>
             </div>
@@ -1224,11 +1224,11 @@ export const NewsPage: React.FC<NewsPageProps> = ({
         return (
           <div
             key={blk.id || idx}
-            className="my-8 rounded-3xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] shadow-md overflow-hidden"
+            className="my-8 rounded-3xl bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] shadow-md overflow-hidden"
           >
             <div className="flex flex-col md:flex-row">
               {/* Product / Book Cover Thumbnail */}
-              <div className="md:w-56 bg-[#F7EFE2] dark:bg-[#252A3A] shrink-0 relative overflow-hidden flex items-center justify-center p-4 border-b md:border-b-0 md:border-r border-[#E8D9C0] dark:border-[#31374A]">
+              <div className="md:w-56 bg-slate-100 dark:bg-[#241D48] shrink-0 relative overflow-hidden flex items-center justify-center p-4 border-b md:border-b-0 md:border-r border-slate-200 dark:border-[#31275E]">
                 {imageUrl ? (
                   <img
                     src={imageUrl}
@@ -1238,13 +1238,13 @@ export const NewsPage: React.FC<NewsPageProps> = ({
                     loading="lazy"
                   />
                 ) : (
-                  <div className="w-36 h-48 rounded-xl bg-gradient-to-br from-[#800020] to-[#4A0012] border border-[#C99A45]/40 text-white p-4 flex flex-col justify-between shadow-md">
-                    <span className="text-[9px] font-black uppercase tracking-wider text-[#C99A45]">Disha PYQ</span>
-                    <BookOpen className="w-8 h-8 text-[#F47B20] mx-auto" />
+                  <div className="w-36 h-48 rounded-xl bg-gradient-to-br from-[#7045D8] to-[#5B32BF] border border-[#A78BFA]/40 text-white p-4 flex flex-col justify-between shadow-md">
+                    <span className="text-[11px] font-black uppercase tracking-wider text-amber-500">Disha PYQ</span>
+                    <BookOpen className="w-8 h-8 text-[#7045D8] mx-auto" />
                     <span className="text-[11px] font-bold leading-snug line-clamp-2 text-center">{title}</span>
                   </div>
                 )}
-                <span className="absolute top-3 left-3 px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-[#800020] text-white shadow-xs">
+                <span className="absolute top-3 left-3 px-2 py-0.5 rounded-md text-[11px] font-black uppercase tracking-wider bg-[#7045D8] text-white shadow-xs">
                   {badge}
                 </span>
               </div>
@@ -1253,7 +1253,7 @@ export const NewsPage: React.FC<NewsPageProps> = ({
               <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between gap-4">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between gap-2 flex-wrap">
-                    <span className="inline-flex items-center gap-1.5 text-[11px] font-black uppercase tracking-wider text-[#800020] dark:text-[#F47B20]">
+                    <span className="inline-flex items-center gap-1.5 text-[11px] font-black uppercase tracking-wider text-[#7045D8] dark:text-[#A78BFA]">
                       <GraduationCap className="w-3.5 h-3.5" />
                       {itemType === "book" ? "Book" : itemType === "course" ? "Online Course" : "Exam Prep Resource"}
                     </span>
@@ -1263,7 +1263,7 @@ export const NewsPage: React.FC<NewsPageProps> = ({
                           {price}
                         </span>
                         {originalPrice && (
-                          <span className="text-xs line-through text-[#52576A] dark:text-[#CBD2E1] font-medium">
+                          <span className="text-xs line-through text-slate-600 dark:text-slate-300 font-medium">
                             {originalPrice}
                           </span>
                         )}
@@ -1271,11 +1271,11 @@ export const NewsPage: React.FC<NewsPageProps> = ({
                     )}
                   </div>
 
-                  <h3 className="text-lg sm:text-xl font-black text-[#171923] dark:text-[#FFF9EF] leading-snug">
+                  <h3 className="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-50 leading-snug">
                     {title}
                   </h3>
                   {subtitle && (
-                    <p className="text-xs sm:text-sm text-[#52576A] dark:text-[#CBD2E1]">
+                    <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300">
                       {subtitle}
                     </p>
                   )}
@@ -1283,8 +1283,8 @@ export const NewsPage: React.FC<NewsPageProps> = ({
                   {features.length > 0 && (
                     <ul className="pt-2 space-y-1.5">
                       {features.map((feat, fIdx) => (
-                        <li key={fIdx} className="flex items-center gap-2 text-xs sm:text-sm text-[#171923] dark:text-[#FFF9EF]/90">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-[#800020] dark:text-[#F47B20] shrink-0" />
+                        <li key={fIdx} className="flex items-center gap-2 text-xs sm:text-sm text-slate-900 dark:text-slate-50/90">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-[#7045D8] dark:text-[#A78BFA] shrink-0" />
                           <span>{feat}</span>
                         </li>
                       ))}
@@ -1293,7 +1293,7 @@ export const NewsPage: React.FC<NewsPageProps> = ({
                 </div>
 
                 <div className="pt-2 flex items-center justify-between gap-3 flex-wrap">
-                  <div className="text-[11px] text-[#52576A] dark:text-[#CBD2E1] flex items-center gap-1">
+                  <div className="text-[11px] text-slate-600 dark:text-slate-300 flex items-center gap-1">
                     <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
                     <span>Verified Recommendation by Disha PYQ Editorial</span>
                   </div>
@@ -1301,11 +1301,11 @@ export const NewsPage: React.FC<NewsPageProps> = ({
                     href={url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#800020] hover:bg-[#5E0017] dark:bg-[#800020] dark:hover:bg-[#650019] text-white font-semibold text-xs sm:text-sm border border-[#C99A45]/40 transition-all duration-180 shadow-sm flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap active:scale-95 group"
+                    className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#7045D8] hover:bg-[#5B32BF] dark:bg-[#7045D8] dark:hover:bg-[#5B32BF] text-white font-semibold text-xs sm:text-sm border border-[#A78BFA]/40 transition-all duration-180 shadow-sm flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap active:scale-95 group"
                   >
-                    <ShoppingBag className="w-4 h-4 text-[#C99A45]" />
+                    <ShoppingBag className="w-4 h-4 text-amber-500" />
                     <span>{btnText}</span>
-                    <ArrowUpRight className="w-3.5 h-3.5 text-[#C99A45] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                    <ArrowUpRight className="w-3.5 h-3.5 text-amber-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                   </a>
                 </div>
               </div>
@@ -1315,7 +1315,7 @@ export const NewsPage: React.FC<NewsPageProps> = ({
       }
 
       case "divider":
-        return <hr key={blk.id || idx} className="my-8 border-[#E8D9C0] dark:border-[#31374A]" />;
+        return <hr key={blk.id || idx} className="my-8 border-slate-200 dark:border-[#31275E]" />;
 
       default:
         return null;
@@ -1327,27 +1327,27 @@ export const NewsPage: React.FC<NewsPageProps> = ({
     const categoryBadge = activeArticle?.category || "Rajasthan Exam Special";
 
     return (
-      <div className="w-full aspect-[16/9] max-h-[420px] rounded-3xl overflow-hidden bg-gradient-to-br from-[#800020] via-[#5E0017] to-[#2A000B] text-white relative shadow-xl flex flex-col justify-between p-6 sm:p-10 border border-[#C99A45]/35">
-        <div className="absolute inset-0 opacity-20 pointer-events-none bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#C99A45] via-transparent to-transparent" />
+      <div className="w-full aspect-[16/9] max-h-[420px] rounded-3xl overflow-hidden bg-gradient-to-br from-[#7045D8] via-[#5B32BF] to-[#2A000B] text-white relative shadow-xl flex flex-col justify-between p-6 sm:p-10 border border-[#A78BFA]/35">
+        <div className="absolute inset-0 opacity-20 pointer-events-none bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#A78BFA] via-transparent to-transparent" />
 
         <div className="relative z-10 flex items-center justify-between gap-3">
           {/* Refined, compact category badge (pill design, clearly distinct from a button) */}
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/30 backdrop-blur-md border border-[#C99A45]/40 text-[#FFF9EF] text-[11px] font-semibold tracking-wide shadow-xs">
-            <Compass className="w-3.5 h-3.5 text-[#C99A45]" />
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/30 backdrop-blur-md border border-[#A78BFA]/40 text-white text-[11px] font-semibold tracking-wide shadow-xs">
+            <Compass className="w-3.5 h-3.5 text-amber-500" />
             <span className="truncate max-w-[200px] sm:max-w-none">{categoryBadge}</span>
           </div>
           {/* Balanced branding pill */}
-          <div className="px-3 py-1 rounded-full bg-black/25 backdrop-blur-md border border-[#A78BFA]/30 text-[#FFF9EF] font-bold flex items-center gap-1.5 text-xs shadow-xs shrink-0">
+          <div className="px-3 py-1 rounded-full bg-black/25 backdrop-blur-md border border-[#A78BFA]/30 text-white font-bold flex items-center gap-1.5 text-xs shadow-xs shrink-0">
             <span>DISHA</span>
             <span className="text-[#A78BFA]">PYQ</span>
           </div>
         </div>
 
         <div className="relative z-10 space-y-2 max-w-2xl">
-          <h2 className="text-xl sm:text-3xl font-black text-[#FFF9EF] tracking-tight leading-snug drop-shadow-md">
+          <h2 className="text-xl sm:text-3xl font-black text-white tracking-tight leading-snug drop-shadow-md">
             {displayTitle}
           </h2>
-          <p className="text-xs sm:text-sm text-[#FFF9EF]/80 font-medium">
+          <p className="text-xs sm:text-sm text-white/80 font-medium">
             Disha PYQ Expert Research &amp; Exam Analysis · Previous Year Questions &amp; Precision Learning
           </p>
         </div>
@@ -1358,27 +1358,27 @@ export const NewsPage: React.FC<NewsPageProps> = ({
   const renderCtaCard = (key: string | number) => (
     <div
       key={key}
-      className="my-8 p-5 sm:p-7 rounded-3xl bg-gradient-to-br from-[#800020] via-[#650019] to-[#3B000E] text-white border border-[#C99A45]/30 shadow-lg relative overflow-hidden"
+      className="my-8 p-5 sm:p-7 rounded-3xl bg-gradient-to-br from-[#7045D8] via-[#5B32BF] to-[#3B000E] text-white border border-[#A78BFA]/30 shadow-lg relative overflow-hidden"
     >
-      <div className="absolute top-0 right-0 w-64 h-64 bg-[#C99A45]/15 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none" />
+      <div className="absolute top-0 right-0 w-64 h-64 bg-[#A78BFA]/15 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none" />
       <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-5">
         <div className="space-y-1.5 text-center sm:text-left">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/10 text-[10.5px] font-bold uppercase tracking-wider text-[#FCD34D] border border-[#C99A45]/30">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/10 text-[11px] font-bold uppercase tracking-wider text-[#FCD34D] border border-[#A78BFA]/30">
             <span>⭐ Disha PYQ Exam Prep Companion</span>
           </div>
           <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight">
             High-Yield Practice Questions & PYQ Test Series
           </h3>
-          <p className="text-xs sm:text-[13px] text-[#FFF9EF]/85 max-w-lg leading-relaxed">
+          <p className="text-xs sm:text-[13px] text-white/85 max-w-lg leading-relaxed">
             Practice topic-wise previous year solved questions (PYQs) and live mock tests for competitive examinations for free.
           </p>
         </div>
         <button
           onClick={onNavigateHome}
-          className="w-full sm:w-auto px-6 py-2.5 bg-[#800020] hover:bg-[#5E0017] text-white font-semibold rounded-xl text-xs sm:text-sm transition-all duration-180 border border-[#C99A45]/50 shadow-md active:scale-95 cursor-pointer shrink-0 flex items-center justify-center gap-2 whitespace-nowrap group"
+          className="w-full sm:w-auto px-6 py-2.5 bg-[#7045D8] hover:bg-[#5B32BF] text-white font-semibold rounded-xl text-xs sm:text-sm transition-all duration-180 border border-[#A78BFA]/50 shadow-md active:scale-95 cursor-pointer shrink-0 flex items-center justify-center gap-2 whitespace-nowrap group"
         >
           <span>Start Practice</span>
-          <span className="text-[#C99A45] group-hover:translate-x-1 transition-transform">→</span>
+          <span className="text-amber-500 group-hover:translate-x-1 transition-transform">→</span>
         </button>
       </div>
     </div>
@@ -1409,19 +1409,19 @@ export const NewsPage: React.FC<NewsPageProps> = ({
 
     if (!activeArticle) {
       return (
-        <div className="min-h-screen bg-[#FFF9EF] dark:bg-[#171923] flex flex-col items-center justify-center p-6 text-center">
-          <div className="max-w-md w-full bg-white dark:bg-[#1F2330] rounded-3xl p-8 border border-[#E8D9C0] dark:border-[#31374A] shadow-xl space-y-4">
+        <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#130E26] flex flex-col items-center justify-center p-6 text-center">
+          <div className="max-w-md w-full bg-white dark:bg-[#1B1536] rounded-3xl p-8 border border-slate-200 dark:border-[#31275E] shadow-xl space-y-4">
             <div className="w-16 h-16 bg-red-100 dark:bg-red-950/50 text-red-600 rounded-2xl flex items-center justify-center mx-auto">
               <AlertCircle className="w-8 h-8" />
             </div>
-            <h1 className="text-2xl font-black text-[#171923] dark:text-[#FFF9EF]">Article Not Found</h1>
-            <p className="text-sm text-[#52576A] dark:text-[#CBD2E1]">
+            <h1 className="text-2xl font-black text-slate-900 dark:text-slate-50">Article Not Found</h1>
+            <p className="text-sm text-slate-600 dark:text-slate-300">
               This article is unavailable or has been removed. Please browse the main news archive.
             </p>
             <div className="pt-2">
               <button
                 onClick={handleBackToList}
-                className="w-full py-3.5 bg-[#800020] hover:bg-[#5E0017] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] text-white font-black rounded-2xl text-sm transition-all shadow-md active:scale-95 cursor-pointer"
+                className="w-full py-3.5 bg-[#7045D8] hover:bg-[#5B32BF] dark:bg-[#7045D8] dark:hover:bg-[#5B32BF] text-white font-black rounded-2xl text-sm transition-all shadow-md active:scale-95 cursor-pointer"
               >
                 Back to Exam News &amp; Guides
               </button>
@@ -1447,12 +1447,12 @@ export const NewsPage: React.FC<NewsPageProps> = ({
       : null;
 
     return (
-      <article className="min-h-full bg-[#FFF9EF] dark:bg-[#171923] pb-28 text-[#171923] dark:text-[#FFF9EF] selection:bg-[#800020] selection:text-white">
+      <article className="min-h-full bg-[#F8FAFC] dark:bg-[#130E26] pb-28 text-slate-900 dark:text-slate-50 selection:bg-[#7045D8] selection:text-white">
         {/* Sticky Header with Scroll Reading Progress Indicator */}
-        <header className="sticky top-0 z-40 bg-[#FFF9EF]/95 dark:bg-[#1F2330]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] shadow-xs">
-          <div className="h-1 bg-[#E8D9C0]/60 dark:bg-[#31374A] w-full">
+        <header className="sticky top-0 z-40 bg-[#F8FAFC]/95 dark:bg-[#1B1536]/95 backdrop-blur-md border-b border-slate-200 dark:border-[#31275E] shadow-xs">
+          <div className="h-1 bg-slate-200/60 dark:bg-[#31275E] w-full">
             <div
-              className="h-full bg-gradient-to-r from-[#800020] to-[#F47B20] transition-all duration-150"
+              className="h-full bg-gradient-to-r from-[#7045D8] to-[#7045D8] transition-all duration-150"
               style={{ width: `${readingProgress}%` }}
             />
           </div>
@@ -1461,12 +1461,12 @@ export const NewsPage: React.FC<NewsPageProps> = ({
             <div className="flex items-center gap-2.5 min-w-0">
               <button
                 onClick={handleBackToList}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] text-xs font-bold text-[#171923] dark:text-[#FFF9EF] hover:border-[#800020] dark:hover:border-[#F47B20] transition-colors cursor-pointer group shrink-0"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] text-xs font-bold text-slate-900 dark:text-slate-50 hover:border-[#7045D8] dark:hover:border-[#A78BFA] transition-colors cursor-pointer group shrink-0"
               >
-                <ArrowLeft className="w-3.5 h-3.5 text-[#800020] dark:text-[#F47B20] group-hover:-translate-x-0.5 transition-transform" />
+                <ArrowLeft className="w-3.5 h-3.5 text-[#7045D8] dark:text-[#A78BFA] group-hover:-translate-x-0.5 transition-transform" />
                 <span>Exam News &amp; Guides</span>
               </button>
-              <span className="hidden sm:inline-block text-[11px] font-black text-[#800020] dark:text-[#C99A45] truncate">
+              <span className="hidden sm:inline-block text-[11px] font-black text-[#7045D8] dark:text-[#A78BFA] truncate">
                 Disha PYQ · Right Direction, Accurate Preparation
               </span>
             </div>
@@ -1475,7 +1475,7 @@ export const NewsPage: React.FC<NewsPageProps> = ({
               {isAdmin && onNavigateAdminNews && (
                 <button
                   onClick={onNavigateAdminNews}
-                  className="px-3 py-1.5 bg-[#F47B20] hover:bg-[#E06A12] text-white rounded-xl text-xs font-black transition-all shadow-xs flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+                  className="px-3 py-1.5 bg-[#7045D8] hover:bg-[#5B32BF] text-white rounded-xl text-xs font-black transition-all shadow-xs flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
                   title="Edit article in Admin panel"
                 >
                   <Sparkles className="w-3.5 h-3.5" />
@@ -1485,25 +1485,25 @@ export const NewsPage: React.FC<NewsPageProps> = ({
 
               <button
                 onClick={toggleDarkMode}
-                className="p-2 rounded-xl bg-white dark:bg-[#252A3A] hover:bg-[#F7EFE2] dark:hover:bg-[#31374A] text-[#52576A] dark:text-[#CBD2E1] border border-[#E8D9C0] dark:border-[#31374A] transition-colors cursor-pointer"
+                className="p-2 rounded-xl bg-white dark:bg-[#241D48] hover:bg-slate-100 dark:hover:bg-[#31275E] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-[#31275E] transition-colors cursor-pointer"
                 title="Toggle Theme"
               >
-                {isDarkMode ? <Sun className="w-4 h-4 text-[#F47B20]" /> : <Moon className="w-4 h-4 text-[#800020]" />}
+                {isDarkMode ? <Sun className="w-4 h-4 text-[#7045D8]" /> : <Moon className="w-4 h-4 text-[#7045D8]" />}
               </button>
 
               <button
                 onClick={() => handleNativeOrModalShare(activeArticle)}
-                className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-white hover:bg-[#F7EFE2] dark:bg-[#252A3A] dark:hover:bg-[#31374A] text-[#171923] dark:text-[#FFF9EF] border border-[#E8D9C0] dark:border-[#31374A] transition-colors cursor-pointer text-xs flex items-center gap-1.5 font-bold active:scale-95 whitespace-nowrap"
+                className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-white hover:bg-slate-100 dark:bg-[#241D48] dark:hover:bg-[#31275E] text-slate-900 dark:text-slate-50 border border-slate-200 dark:border-[#31275E] transition-colors cursor-pointer text-xs flex items-center gap-1.5 font-bold active:scale-95 whitespace-nowrap"
                 title="Share article"
               >
-                <Share2 className="w-3.5 h-3.5 text-[#800020] dark:text-[#F47B20]" />
+                <Share2 className="w-3.5 h-3.5 text-[#7045D8] dark:text-[#A78BFA]" />
                 <span className="hidden sm:inline">Share</span>
               </button>
 
               {!isAuthenticated && (
                 <button
                   onClick={onOpenLogin}
-                  className="px-3 py-1.5 bg-[#800020] hover:bg-[#5E0017] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+                  className="px-3 py-1.5 bg-[#7045D8] hover:bg-[#5B32BF] dark:bg-[#7045D8] dark:hover:bg-[#5B32BF] text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
                 >
                   <LogIn className="w-3.5 h-3.5" />
                   <span>Login</span>
@@ -1516,16 +1516,16 @@ export const NewsPage: React.FC<NewsPageProps> = ({
         {/* Main Content Area */}
         <div className="max-w-4xl mx-auto px-4 py-6 sm:py-8 space-y-8">
           {/* Breadcrumb Navigation */}
-          <nav className="flex items-center gap-1.5 text-xs text-[#52576A] dark:text-[#CBD2E1] font-bold">
-            <button onClick={onNavigateHome} className="hover:text-[#800020] dark:hover:text-[#F47B20] transition-colors cursor-pointer">
+          <nav className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300 font-bold">
+            <button onClick={onNavigateHome} className="hover:text-[#7045D8] dark:hover:text-[#A78BFA] transition-colors cursor-pointer">
               Home
             </button>
             <span>›</span>
-            <button onClick={handleBackToList} className="hover:text-[#800020] dark:hover:text-[#F47B20] transition-colors cursor-pointer">
+            <button onClick={handleBackToList} className="hover:text-[#7045D8] dark:hover:text-[#A78BFA] transition-colors cursor-pointer">
               Exam News &amp; Guides
             </button>
             <span>›</span>
-            <span className="text-[#800020] dark:text-[#F47B20] font-extrabold truncate max-w-[200px] sm:max-w-xs">
+            <span className="text-[#7045D8] dark:text-[#A78BFA] font-extrabold truncate max-w-[200px] sm:max-w-xs">
               {activeArticle.category}
             </span>
           </nav>
@@ -1533,61 +1533,61 @@ export const NewsPage: React.FC<NewsPageProps> = ({
           {/* Article Header */}
           <header className="space-y-4">
             <div className="flex flex-wrap items-center gap-2.5">
-              <span className="text-xs font-black uppercase tracking-wider text-[#800020] dark:text-[#F47B20] tabular-nums">
+              <span className="text-xs font-black uppercase tracking-wider text-[#7045D8] dark:text-[#A78BFA] tabular-nums">
                 {activeArticle.category}
               </span>
-              <span className="text-[#E8D9C0] dark:text-[#31374A]">·</span>
-              <span className="text-[#52576A] dark:text-[#CBD2E1] font-bold flex items-center gap-1 text-xs">
-                <Clock className="w-3.5 h-3.5 text-[#800020] dark:text-[#F47B20]" />
+              <span className="text-slate-200 dark:text-[#31275E]">·</span>
+              <span className="text-slate-600 dark:text-slate-300 font-bold flex items-center gap-1 text-xs">
+                <Clock className="w-3.5 h-3.5 text-[#7045D8] dark:text-[#A78BFA]" />
                 <span>{getReadingTime(activeArticle.content)}</span>
               </span>
-              <span className="text-[#E8D9C0] dark:text-[#31374A]">·</span>
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 text-[10.5px] font-bold">
+              <span className="text-slate-200 dark:text-[#31275E]">·</span>
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 text-[11px] font-bold">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 <span>100% Verified & Updated</span>
               </span>
             </div>
 
-            <h1 className="text-2xl sm:text-4xl lg:text-[42px] font-black text-[#171923] dark:text-[#FFF9EF] leading-[1.22] tracking-tight">
+            <h1 className="text-2xl sm:text-4xl lg:text-[42px] font-black text-slate-900 dark:text-slate-50 leading-[1.22] tracking-tight">
               {getDisplayArticleTitle(activeArticle)}
             </h1>
 
             {activeArticle.excerpt && (
-              <div className="p-4 sm:p-5 rounded-2xl bg-[#F7EFE2]/80 dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A]">
-                <p className="text-base sm:text-lg font-medium text-[#171923] dark:text-[#FFF9EF]/90 leading-relaxed">
+              <div className="p-4 sm:p-5 rounded-2xl bg-slate-100/80 dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E]">
+                <p className="text-base sm:text-lg font-medium text-slate-900 dark:text-slate-50/90 leading-relaxed">
                   {activeArticle.excerpt}
                 </p>
               </div>
             )}
 
             {/* Author Bar & Date Metadata */}
-            <div className="flex flex-wrap items-center justify-between gap-4 pt-3 border-y border-[#E8D9C0] dark:border-[#31374A] py-3 text-xs text-[#52576A] dark:text-[#CBD2E1]">
+            <div className="flex flex-wrap items-center justify-between gap-4 pt-3 border-y border-slate-200 dark:border-[#31275E] py-3 text-xs text-slate-600 dark:text-slate-300">
               <div className="flex items-center gap-3">
                 {activeArticle.authorPhotoUrl ? (
                   <img
                     src={activeArticle.authorPhotoUrl}
                     alt=""
                     referrerPolicy="no-referrer"
-                    className="w-10 h-10 rounded-full object-cover ring-2 ring-[#800020]/20 dark:ring-[#F47B20]/25 shadow-xs"
+                    className="w-10 h-10 rounded-full object-cover ring-2 ring-[#7045D8]/20 dark:ring-[#A78BFA]/25 shadow-xs"
                   />
                 ) : (
-                  <div className="w-10 h-10 rounded-full bg-[#800020] text-[#FFF9EF] flex items-center justify-center font-extrabold text-sm ring-2 ring-[#C99A45]/30">
+                  <div className="w-10 h-10 rounded-full bg-[#7045D8] text-white flex items-center justify-center font-extrabold text-sm ring-2 ring-[#A78BFA]/30">
                     {activeArticle.authorName ? activeArticle.authorName[0] : "D"}
                   </div>
                 )}
                 <div>
-                  <p className="font-black text-[#171923] dark:text-[#FFF9EF] text-xs sm:text-sm">
+                  <p className="font-black text-slate-900 dark:text-slate-50 text-xs sm:text-sm">
                     {activeArticle.authorName || "Disha PYQ Editorial Team"}
                   </p>
-                  <p className="text-[11px] text-[#52576A] dark:text-[#CBD2E1] font-medium">
+                  <p className="text-[11px] text-slate-600 dark:text-slate-300 font-medium">
                     Disha PYQ · Senior Exam Research Analyst
                   </p>
                 </div>
               </div>
 
               <div className="flex items-center gap-3 flex-wrap">
-                <div className="flex items-center gap-2 text-xs text-[#52576A] dark:text-[#CBD2E1] tabular-nums font-bold">
-                  <Calendar className="w-3.5 h-3.5 text-[#800020] dark:text-[#F47B20]" />
+                <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300 tabular-nums font-bold">
+                  <Calendar className="w-3.5 h-3.5 text-[#7045D8] dark:text-[#A78BFA]" />
                   <span>Published {publishedFormatted}</span>
                   {updatedFormatted && updatedFormatted !== publishedFormatted && (
                     <>
@@ -1614,7 +1614,7 @@ export const NewsPage: React.FC<NewsPageProps> = ({
           <figure className="space-y-2">
             {activeArticle.coverImageUrl &&
             !activeArticle.coverImageUrl.includes("unsplash.com/photo-1599839575945") ? (
-              <div className="w-full aspect-[16/9] max-h-[420px] rounded-3xl overflow-hidden bg-[#F7EFE2] dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] shadow-xs relative">
+              <div className="w-full aspect-[16/9] max-h-[420px] rounded-3xl overflow-hidden bg-slate-100 dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] shadow-xs relative">
                 <img
                   src={activeArticle.coverImageUrl}
                   alt={activeArticle.title}
@@ -1638,24 +1638,24 @@ export const NewsPage: React.FC<NewsPageProps> = ({
             {/* Table of Contents */}
             {tableOfContents.length > 0 && (
               <aside className="lg:col-span-4 space-y-4 lg:sticky lg:top-20 order-2 lg:order-2">
-                <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] shadow-xs">
+                <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] shadow-xs">
                   <button
                     onClick={() => setTocOpen(!tocOpen)}
-                    className="w-full flex items-center justify-between text-xs font-black uppercase tracking-wider text-[#171923] dark:text-[#FFF9EF] cursor-pointer select-none"
+                    className="w-full flex items-center justify-between text-xs font-black uppercase tracking-wider text-slate-900 dark:text-slate-50 cursor-pointer select-none"
                   >
                     <span className="flex items-center gap-2">
-                      <List className="w-4 h-4 text-[#800020] dark:text-[#F47B20]" />
+                      <List className="w-4 h-4 text-[#7045D8] dark:text-[#A78BFA]" />
                       <span>Table of Contents ({tableOfContents.length})</span>
                     </span>
                     {tocOpen ? (
-                      <ChevronUp className="w-4 h-4 text-[#52576A]" />
+                      <ChevronUp className="w-4 h-4 text-slate-600" />
                     ) : (
-                      <ChevronDown className="w-4 h-4 text-[#52576A]" />
+                      <ChevronDown className="w-4 h-4 text-slate-600" />
                     )}
                   </button>
 
                   {tocOpen && (
-                    <nav className="mt-3 pt-3 border-t border-[#E8D9C0] dark:border-[#31374A] space-y-1 max-h-72 overflow-y-auto pr-1">
+                    <nav className="mt-3 pt-3 border-t border-slate-200 dark:border-[#31275E] space-y-1 max-h-72 overflow-y-auto pr-1">
                       {tableOfContents.map((item) => (
                         <a
                           key={item.id}
@@ -1670,8 +1670,8 @@ export const NewsPage: React.FC<NewsPageProps> = ({
                           }}
                           className={`flex items-start gap-2 text-xs transition-colors rounded-lg px-2.5 py-1.5 leading-snug cursor-pointer ${
                             activeSectionId === item.id
-                              ? "bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] font-extrabold"
-                              : "text-[#52576A] dark:text-[#CBD2E1] hover:text-[#171923] dark:hover:text-[#FFF9EF]"
+                              ? "bg-[#7045D8]/10 dark:bg-[#7045D8]/15 text-[#7045D8] dark:text-[#A78BFA] font-extrabold"
+                              : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
                           } ${item.level === 3 ? "pl-5 text-[11.5px]" : "font-bold"}`}
                         >
                           <span className="font-mono font-bold shrink-0 opacity-80 tabular-nums">{item.numbering}</span>
@@ -1716,16 +1716,16 @@ export const NewsPage: React.FC<NewsPageProps> = ({
                 if (faqsToRender.length === 0) return null;
 
                 return (
-                  <section className="mt-10 pt-8 border-t border-[#E8D9C0] dark:border-[#31374A] space-y-4">
+                  <section className="mt-10 pt-8 border-t border-slate-200 dark:border-[#31275E] space-y-4">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-9 h-9 rounded-xl bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] flex items-center justify-center font-extrabold text-base shrink-0">
+                      <div className="w-9 h-9 rounded-xl bg-[#7045D8]/10 dark:bg-[#7045D8]/15 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center font-extrabold text-base shrink-0">
                         ?
                       </div>
                       <div>
-                        <h3 className="text-lg font-black text-[#171923] dark:text-[#FFF9EF]">
+                        <h3 className="text-lg font-black text-slate-900 dark:text-slate-50">
                           Frequently Asked Questions (FAQ)
                         </h3>
-                        <p className="text-xs text-[#52576A] dark:text-[#CBD2E1] font-bold">
+                        <p className="text-xs text-slate-600 dark:text-slate-300 font-bold">
                           Expert answers to common queries
                         </p>
                       </div>
@@ -1735,18 +1735,18 @@ export const NewsPage: React.FC<NewsPageProps> = ({
                       {faqsToRender.map((faq, idx) => (
                         <details
                           key={idx}
-                          className="group bg-white dark:bg-[#1F2330] rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] p-4 transition-all"
+                          className="group bg-white dark:bg-[#1B1536] rounded-2xl border border-slate-200 dark:border-[#31275E] p-4 transition-all"
                         >
-                          <summary className="flex items-center justify-between font-extrabold text-sm sm:text-base text-[#171923] dark:text-[#FFF9EF] cursor-pointer select-none list-none gap-3">
+                          <summary className="flex items-center justify-between font-extrabold text-sm sm:text-base text-slate-900 dark:text-slate-50 cursor-pointer select-none list-none gap-3">
                             <span className="flex items-center gap-2.5">
-                              <span className="w-5 h-5 rounded-full bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] text-[11px] font-black flex items-center justify-center shrink-0 tabular-nums">
+                              <span className="w-5 h-5 rounded-full bg-[#7045D8]/10 dark:bg-[#7045D8]/15 text-[#7045D8] dark:text-[#A78BFA] text-[11px] font-black flex items-center justify-center shrink-0 tabular-nums">
                                 {idx + 1}
                               </span>
                               <span>{faq.question}</span>
                             </span>
-                            <ChevronDown className="w-4 h-4 text-[#52576A] group-open:rotate-180 transition-transform duration-200 shrink-0 ml-2" />
+                            <ChevronDown className="w-4 h-4 text-slate-600 group-open:rotate-180 transition-transform duration-200 shrink-0 ml-2" />
                           </summary>
-                          <div className="mt-3 pt-3 border-t border-[#E8D9C0] dark:border-[#31374A] text-xs sm:text-sm text-[#52576A] dark:text-[#CBD2E1] leading-relaxed pl-7 break-words">
+                          <div className="mt-3 pt-3 border-t border-slate-200 dark:border-[#31275E] text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed pl-7 break-words">
                             {renderFormattedTextWithLinks(faq.answer)}
                           </div>
                         </details>
@@ -1758,22 +1758,22 @@ export const NewsPage: React.FC<NewsPageProps> = ({
 
               {/* Related Articles / Related Section */}
               {relatedArticles.length > 0 && (
-                <section className="mt-10 pt-8 border-t border-[#E8D9C0] dark:border-[#31374A] space-y-5">
+                <section className="mt-10 pt-8 border-t border-slate-200 dark:border-[#31275E] space-y-5">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-xl bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] flex items-center justify-center font-extrabold shrink-0">
+                      <div className="w-8 h-8 rounded-xl bg-[#7045D8]/10 dark:bg-[#7045D8]/15 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center font-extrabold shrink-0">
                         <BookOpen className="w-4 h-4" />
                       </div>
                       <div>
-                        <h3 className="text-lg font-black text-[#171923] dark:text-[#FFF9EF] leading-tight">
+                        <h3 className="text-lg font-black text-slate-900 dark:text-slate-50 leading-tight">
                           Related Articles &amp; Guides
                         </h3>
-                        <p className="text-xs text-[#52576A] dark:text-[#CBD2E1]">
+                        <p className="text-xs text-slate-600 dark:text-slate-300">
                           Recommended articles and strategy guides for exam preparation
                         </p>
                       </div>
                     </div>
-                    <span className="hidden sm:inline-block text-[11px] font-black uppercase tracking-wider text-[#800020] dark:text-[#C99A45]">
+                    <span className="hidden sm:inline-block text-[11px] font-black uppercase tracking-wider text-[#7045D8] dark:text-[#A78BFA]">
                       Disha PYQ · Editor's Pick
                     </span>
                   </div>
@@ -1783,11 +1783,11 @@ export const NewsPage: React.FC<NewsPageProps> = ({
                       <div
                         key={relArt.id}
                         onClick={() => handleSelectArticle(relArt.slug)}
-                        className="p-4 rounded-2xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] hover:border-[#800020]/50 dark:hover:border-[#F47B20]/50 hover:shadow-md transition-all duration-200 cursor-pointer flex flex-col justify-between space-y-3 group"
+                        className="p-4 rounded-2xl bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] hover:border-[#7045D8]/50 dark:hover:border-[#A78BFA]/50 hover:shadow-md transition-all duration-200 cursor-pointer flex flex-col justify-between space-y-3 group"
                       >
                         <div className="space-y-2">
                           {relArt.coverImageUrl ? (
-                            <div className="w-full aspect-[16/9] max-h-36 rounded-xl overflow-hidden bg-[#F7EFE2] dark:bg-[#252A3A]">
+                            <div className="w-full aspect-[16/9] max-h-36 rounded-xl overflow-hidden bg-slate-100 dark:bg-[#241D48]">
                               <img
                                 src={relArt.coverImageUrl}
                                 alt={relArt.title}
@@ -1797,42 +1797,42 @@ export const NewsPage: React.FC<NewsPageProps> = ({
                               />
                             </div>
                           ) : (
-                            <div className="w-full h-24 rounded-xl overflow-hidden bg-gradient-to-br from-[#800020] via-[#5E0017] to-[#2A000B] border border-[#C99A45]/30 p-3 flex items-center justify-between text-white">
+                            <div className="w-full h-24 rounded-xl overflow-hidden bg-gradient-to-br from-[#7045D8] via-[#5B32BF] to-[#2A000B] border border-[#A78BFA]/30 p-3 flex items-center justify-between text-white">
                               <div className="space-y-0.5 min-w-0">
-                                <span className="text-[9px] font-black uppercase tracking-wider text-[#C99A45] block">
+                                <span className="text-[11px] font-black uppercase tracking-wider text-amber-500 block">
                                   Disha PYQ · {relArt.category}
                                 </span>
-                                <span className="text-xs font-black text-[#FFF9EF] line-clamp-1">
+                                <span className="text-xs font-black text-white line-clamp-1">
                                   {relArt.title}
                                 </span>
                               </div>
-                              <Compass className="w-6 h-6 text-[#F47B20] shrink-0 ml-2" />
+                              <Compass className="w-6 h-6 text-[#7045D8] shrink-0 ml-2" />
                             </div>
                           )}
 
-                          <div className="flex items-center gap-2 text-[10px] font-black text-[#800020] dark:text-[#F47B20] uppercase tracking-wider tabular-nums">
+                          <div className="flex items-center gap-2 text-[11px] font-black text-[#7045D8] dark:text-[#A78BFA] uppercase tracking-wider tabular-nums">
                             <span>{relArt.category}</span>
-                            <span className="text-[#E8D9C0] dark:text-[#31374A]">·</span>
-                            <span className="text-[#52576A] dark:text-[#CBD2E1]">{getReadingTime(relArt.content)}</span>
+                            <span className="text-slate-200 dark:text-[#31275E]">·</span>
+                            <span className="text-slate-600 dark:text-slate-300">{getReadingTime(relArt.content)}</span>
                           </div>
 
-                          <h4 className="text-sm font-black text-[#171923] dark:text-[#FFF9EF] line-clamp-2 leading-snug group-hover:text-[#800020] dark:group-hover:text-[#F47B20] transition-colors">
+                          <h4 className="text-sm font-black text-slate-900 dark:text-slate-50 line-clamp-2 leading-snug group-hover:text-[#7045D8] dark:group-hover:text-[#7045D8] transition-colors">
                             {relArt.title}
                           </h4>
 
-                          <p className="text-xs text-[#52576A] dark:text-[#CBD2E1] line-clamp-2 leading-relaxed">
+                          <p className="text-xs text-slate-600 dark:text-slate-300 line-clamp-2 leading-relaxed">
                             {relArt.excerpt}
                           </p>
                         </div>
 
-                        <div className="flex items-center justify-between pt-2 border-t border-[#E8D9C0]/60 dark:border-[#31374A] text-[11px] tabular-nums">
-                          <span className="text-[#52576A] dark:text-[#CBD2E1] font-bold">
+                        <div className="flex items-center justify-between pt-2 border-t border-slate-200/60 dark:border-[#31275E] text-[11px] tabular-nums">
+                          <span className="text-slate-600 dark:text-slate-300 font-bold">
                             {new Date(relArt.publishedAt || relArt.createdAt).toLocaleDateString("en-US", {
                               month: "short",
                               day: "numeric",
                             })}
                           </span>
-                          <span className="font-extrabold text-[#800020] dark:text-[#F47B20] flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                          <span className="font-extrabold text-[#7045D8] dark:text-[#A78BFA] flex items-center gap-1 group-hover:translate-x-1 transition-transform">
                             Read →
                           </span>
                         </div>
@@ -1843,27 +1843,27 @@ export const NewsPage: React.FC<NewsPageProps> = ({
               )}
 
               {/* Author Info Box Card */}
-              <div className="mt-10 p-5 rounded-3xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] flex items-center gap-4 shadow-xs">
+              <div className="mt-10 p-5 rounded-3xl bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] flex items-center gap-4 shadow-xs">
                 {activeArticle.authorPhotoUrl ? (
                   <img
                     src={activeArticle.authorPhotoUrl}
                     alt=""
                     referrerPolicy="no-referrer"
-                    className="w-12 h-12 rounded-full object-cover shrink-0 ring-2 ring-[#800020]/20 dark:ring-[#F47B20]/25"
+                    className="w-12 h-12 rounded-full object-cover shrink-0 ring-2 ring-[#7045D8]/20 dark:ring-[#A78BFA]/25"
                   />
                 ) : (
-                  <div className="w-12 h-12 rounded-full bg-[#800020] text-[#FFF9EF] flex items-center justify-center font-extrabold text-base shrink-0 ring-2 ring-[#C99A45]/30">
+                  <div className="w-12 h-12 rounded-full bg-[#7045D8] text-white flex items-center justify-center font-extrabold text-base shrink-0 ring-2 ring-[#A78BFA]/30">
                     {activeArticle.authorName ? activeArticle.authorName[0] : "D"}
                   </div>
                 )}
                 <div className="space-y-1 text-xs">
-                  <span className="text-[10px] uppercase font-black tracking-wider text-[#800020] dark:text-[#F47B20]">
+                  <span className="text-[11px] uppercase font-black tracking-wider text-[#7045D8] dark:text-[#A78BFA]">
                     Written by · Disha PYQ
                   </span>
-                  <h4 className="text-sm font-black text-[#171923] dark:text-[#FFF9EF]">
+                  <h4 className="text-sm font-black text-slate-900 dark:text-slate-50">
                     {activeArticle.authorName || "Disha PYQ Editorial Team"}
                   </h4>
-                  <p className="text-[#52576A] dark:text-[#CBD2E1] leading-relaxed">
+                  <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
                     {activeArticle.authorBio ||
                       "Senior Exam Research Analyst & Competitive Exam Content Specialist at Disha PYQ."}
                   </p>
@@ -1872,14 +1872,14 @@ export const NewsPage: React.FC<NewsPageProps> = ({
 
               {/* Join Telegram Channel Callout Card */}
               {SITE_CONFIG.telegramChannelUrl && (
-                <div className="mt-6 p-5 rounded-3xl bg-[#0088cc]/10 border border-[#0088cc]/30 flex flex-col sm:flex-row items-center justify-between gap-3 text-[#171923] dark:text-[#FFF9EF]">
+                <div className="mt-6 p-5 rounded-3xl bg-[#0088cc]/10 border border-[#0088cc]/30 flex flex-col sm:flex-row items-center justify-between gap-3 text-slate-900 dark:text-slate-50">
                   <div className="flex items-center gap-3">
                     <Send className="w-6 h-6 text-[#0088cc] shrink-0" />
                     <div>
-                      <h4 className="text-sm font-black text-[#171923] dark:text-[#FFF9EF]">
+                      <h4 className="text-sm font-black text-slate-900 dark:text-slate-50">
                         Get Real-Time Exam Updates on Telegram
                       </h4>
-                      <p className="text-xs text-[#52576A] dark:text-[#CBD2E1] font-medium">
+                      <p className="text-xs text-slate-600 dark:text-slate-300 font-medium">
                         Join our official Disha PYQ channel for daily PDFs and notifications.
                       </p>
                     </div>
@@ -1899,7 +1899,7 @@ export const NewsPage: React.FC<NewsPageProps> = ({
         </div>
 
         {/* Floating Mobile Bottom Sticky Action Bar */}
-        <div className="block md:hidden fixed bottom-0 left-0 right-0 z-50 p-2.5 bg-[#FFF9EF]/95 dark:bg-[#1F2330]/95 backdrop-blur-md border-t border-[#E8D9C0] dark:border-[#31374A] shadow-2xl">
+        <div className="block md:hidden fixed bottom-0 left-0 right-0 z-50 p-2.5 bg-[#F8FAFC]/95 dark:bg-[#1B1536]/95 backdrop-blur-md border-t border-slate-200 dark:border-[#31275E] shadow-2xl">
           <div className="max-w-md mx-auto flex items-center gap-2">
             <button
               onClick={() => handleShareWhatsApp(activeArticle)}
@@ -1911,18 +1911,18 @@ export const NewsPage: React.FC<NewsPageProps> = ({
             </button>
             <button
               onClick={() => handleNativeOrModalShare(activeArticle)}
-              className="h-11 px-3 rounded-xl bg-white hover:bg-[#F7EFE2] dark:bg-[#252A3A] dark:hover:bg-[#31374A] text-[#171923] dark:text-[#FFF9EF] font-semibold text-xs flex items-center justify-center gap-1 active:scale-95 cursor-pointer shrink-0 border border-[#E8D9C0] dark:border-[#31374A]"
+              className="h-11 px-3 rounded-xl bg-white hover:bg-slate-100 dark:bg-[#241D48] dark:hover:bg-[#31275E] text-slate-900 dark:text-slate-50 font-semibold text-xs flex items-center justify-center gap-1 active:scale-95 cursor-pointer shrink-0 border border-slate-200 dark:border-[#31275E]"
               title="Share Options"
             >
-              <Share2 className="w-3.5 h-3.5 text-[#800020] dark:text-[#C99A45]" />
+              <Share2 className="w-3.5 h-3.5 text-[#7045D8] dark:text-[#A78BFA]" />
               <span>Share</span>
             </button>
             <button
               onClick={onNavigateHome}
-              className="flex-1 h-11 px-3 rounded-xl bg-[#800020] hover:bg-[#5E0017] dark:bg-[#800020] dark:hover:bg-[#650019] text-white font-semibold text-xs border border-[#C99A45]/40 shadow-sm active:scale-95 cursor-pointer flex items-center justify-center gap-1.5 group truncate"
+              className="flex-1 h-11 px-3 rounded-xl bg-[#7045D8] hover:bg-[#5B32BF] dark:bg-[#7045D8] dark:hover:bg-[#5B32BF] text-white font-semibold text-xs border border-[#A78BFA]/40 shadow-sm active:scale-95 cursor-pointer flex items-center justify-center gap-1.5 group truncate"
             >
               <span className="truncate">Practice Now</span>
-              <ChevronRight className="w-4 h-4 text-[#C99A45] group-hover:translate-x-0.5 transition-transform shrink-0" />
+              <ChevronRight className="w-4 h-4 text-amber-500 group-hover:translate-x-0.5 transition-transform shrink-0" />
             </button>
           </div>
         </div>
@@ -1965,14 +1965,14 @@ export const NewsPage: React.FC<NewsPageProps> = ({
   // 2. NEWS & GUIDES DIRECTORY LISTING VIEW (/news)
   // ─────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-full bg-[#FFF9EF] dark:bg-[#171923] pb-24 text-[#171923] dark:text-[#FFF9EF]">
+    <div className="min-h-full bg-[#F8FAFC] dark:bg-[#130E26] pb-24 text-slate-900 dark:text-slate-50">
       {/* Top Brand Navigation Header */}
-      <header className="sticky top-0 z-40 bg-gradient-to-r from-[#800020] via-[#6A001A] to-[#4A0012] text-white border-b border-[#C99A45]/35 px-4 py-3.5 shadow-md">
+      <header className="sticky top-0 z-40 bg-gradient-to-r from-[#7045D8] via-[#5B32BF] to-[#5B32BF] text-white border-b border-[#A78BFA]/35 px-4 py-3.5 shadow-md">
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 min-w-0">
             <button
               onClick={onNavigateHome}
-              className="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-all active:scale-95 cursor-pointer flex items-center justify-center shrink-0 border border-[#C99A45]/30"
+              className="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-all active:scale-95 cursor-pointer flex items-center justify-center shrink-0 border border-[#A78BFA]/30"
               aria-label="Back to Home"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -1982,11 +1982,11 @@ export const NewsPage: React.FC<NewsPageProps> = ({
                 <h1 className="text-base sm:text-lg font-black text-white leading-tight truncate">
                   Exam News &amp; Preparation Guides
                 </h1>
-                <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-md text-[9.5px] font-black uppercase tracking-wider bg-[#F47B20] text-white shrink-0">
+                <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-black uppercase tracking-wider bg-[#7045D8] text-white shrink-0">
                   Disha PYQ
                 </span>
               </div>
-              <p className="text-[11px] font-semibold text-[#FFF9EF]/80 truncate">
+              <p className="text-[11px] font-semibold text-white/80 truncate">
                 Disha PYQ · Exam News, Economic Review &amp; Strategy Guides
               </p>
             </div>
@@ -1995,16 +1995,16 @@ export const NewsPage: React.FC<NewsPageProps> = ({
           <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={toggleDarkMode}
-              className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer border border-[#C99A45]/30"
+              className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer border border-[#A78BFA]/30"
               title="Toggle Dark Mode"
             >
-              {isDarkMode ? <Sun className="w-4 h-4 text-[#F47B20]" /> : <Moon className="w-4 h-4 text-[#FFF9EF]" />}
+              {isDarkMode ? <Sun className="w-4 h-4 text-[#7045D8]" /> : <Moon className="w-4 h-4 text-white" />}
             </button>
 
             {isAdmin && onNavigateAdminNews && (
               <button
                 onClick={onNavigateAdminNews}
-                className="px-3 py-1.5 bg-[#F47B20] hover:bg-[#E06A12] text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer whitespace-nowrap"
+                className="px-3 py-1.5 bg-[#7045D8] hover:bg-[#5B32BF] text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer whitespace-nowrap"
               >
                 CMS Admin
               </button>
@@ -2013,7 +2013,7 @@ export const NewsPage: React.FC<NewsPageProps> = ({
             {!isAuthenticated ? (
               <button
                 onClick={onOpenLogin}
-                className="px-3.5 py-1.5 bg-[#F47B20] hover:bg-[#E06A12] text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+                className="px-3.5 py-1.5 bg-[#7045D8] hover:bg-[#5B32BF] text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
               >
                 <LogIn className="w-3.5 h-3.5" />
                 <span>Login</span>
@@ -2021,7 +2021,7 @@ export const NewsPage: React.FC<NewsPageProps> = ({
             ) : (
               <button
                 onClick={onNavigateHome}
-                className="px-3.5 py-1.5 bg-white/10 hover:bg-white/20 text-white border border-[#C99A45]/35 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap"
+                className="px-3.5 py-1.5 bg-white/10 hover:bg-white/20 text-white border border-[#A78BFA]/35 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap"
               >
                 Practice Hub
               </button>
@@ -2034,18 +2034,18 @@ export const NewsPage: React.FC<NewsPageProps> = ({
         {/* Search Input & Category Filter Row */}
         <div className="space-y-4">
           <div className="relative max-w-xl mx-auto">
-            <Search className="w-4 h-4 absolute left-3.5 top-3 text-[#800020] dark:text-[#F47B20]" />
+            <Search className="w-4 h-4 absolute left-3.5 top-3 text-[#7045D8] dark:text-[#A78BFA]" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search exam updates, economic survey, preparation guides..."
-              className="w-full pl-10 pr-9 py-2.5 bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-2xl text-xs font-bold text-[#171923] dark:text-[#FFF9EF] placeholder:text-[#52576A]/70 dark:placeholder:text-[#CBD2E1]/60 focus:outline-none focus:ring-2 focus:ring-[#800020]/30 dark:focus:ring-[#F47B20]/30 shadow-xs"
+              className="w-full pl-10 pr-9 py-2.5 bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] rounded-2xl text-xs font-bold text-slate-900 dark:text-slate-50 placeholder:text-slate-600/70 dark:placeholder:text-[#CBD2E1]/60 focus:outline-none focus:ring-2 focus:ring-[#7045D8]/30 dark:focus:ring-[#A78BFA]/30 shadow-xs"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery("")}
-                className="absolute right-3.5 top-3 text-[#52576A] hover:text-[#800020] dark:text-[#CBD2E1] dark:hover:text-[#F47B20] cursor-pointer"
+                className="absolute right-3.5 top-3 text-slate-600 hover:text-[#7045D8] dark:text-slate-300 dark:hover:text-[#A78BFA] cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -2060,8 +2060,8 @@ export const NewsPage: React.FC<NewsPageProps> = ({
                 onClick={() => setSelectedCategory(cat)}
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer active:scale-95 shrink-0 ${
                   selectedCategory === cat
-                    ? "bg-[#800020] dark:bg-[#F47B20] text-white shadow-sm"
-                    : "bg-white dark:bg-[#1F2330] text-[#52576A] dark:text-[#CBD2E1] border border-[#E8D9C0] dark:border-[#31374A] hover:border-[#800020]/40 dark:hover:border-[#F47B20]/40 hover:text-[#171923] dark:hover:text-[#FFF9EF] shadow-xs"
+                    ? "bg-[#7045D8] dark:bg-[#7045D8] text-white shadow-sm"
+                    : "bg-white dark:bg-[#1B1536] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-[#31275E] hover:border-[#7045D8]/40 dark:hover:border-[#A78BFA]/40 hover:text-slate-900 dark:hover:text-white shadow-xs"
                 }`}
               >
                 {cat}
@@ -2074,9 +2074,9 @@ export const NewsPage: React.FC<NewsPageProps> = ({
         {!loading && heroArticle && selectedCategory === "All" && !searchQuery.trim() && (
           <div
             onClick={() => handleSelectArticle(heroArticle.slug)}
-            className="group relative bg-white dark:bg-[#1F2330] rounded-3xl border border-[#E8D9C0] dark:border-[#31374A] overflow-hidden shadow-sm hover:border-[#800020]/50 dark:hover:border-[#F47B20]/50 hover:shadow-md transition-all cursor-pointer grid grid-cols-1 md:grid-cols-12 gap-0 items-stretch"
+            className="group relative bg-white dark:bg-[#1B1536] rounded-3xl border border-slate-200 dark:border-[#31275E] overflow-hidden shadow-sm hover:border-[#7045D8]/50 dark:hover:border-[#A78BFA]/50 hover:shadow-md transition-all cursor-pointer grid grid-cols-1 md:grid-cols-12 gap-0 items-stretch"
           >
-            <div className="md:col-span-7 aspect-[16/9] md:aspect-auto relative overflow-hidden bg-[#F7EFE2] dark:bg-[#252A3A]">
+            <div className="md:col-span-7 aspect-[16/9] md:aspect-auto relative overflow-hidden bg-slate-100 dark:bg-[#241D48]">
               {heroArticle.coverImageUrl ? (
                 <img
                   src={heroArticle.coverImageUrl}
@@ -2085,36 +2085,36 @@ export const NewsPage: React.FC<NewsPageProps> = ({
                   className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-500"
                 />
               ) : (
-                <div className="w-full h-full min-h-[220px] bg-gradient-to-br from-[#800020] via-[#5E0017] to-[#2A000B] flex flex-col items-center justify-center text-white p-6 text-center gap-2">
-                  <Compass className="w-12 h-12 text-[#F47B20]" />
-                  <span className="text-xs font-black uppercase tracking-wider text-[#C99A45]">
+                <div className="w-full h-full min-h-[220px] bg-gradient-to-br from-[#7045D8] via-[#5B32BF] to-[#2A000B] flex flex-col items-center justify-center text-white p-6 text-center gap-2">
+                  <Compass className="w-12 h-12 text-[#7045D8]" />
+                  <span className="text-xs font-black uppercase tracking-wider text-amber-500">
                     Disha PYQ · Right Direction, Accurate Preparation
                   </span>
                 </div>
               )}
-              <span className="absolute top-3 left-3 bg-[#800020] text-[#FFF9EF] border border-[#C99A45]/40 text-[9.5px] font-black uppercase px-2.5 py-1 rounded-md tracking-wider shadow-sm">
+              <span className="absolute top-3 left-3 bg-[#7045D8] text-white border border-[#A78BFA]/40 text-[11px] font-black uppercase px-2.5 py-1 rounded-md tracking-wider shadow-sm">
                 FEATURED GUIDE
               </span>
             </div>
 
             <div className="md:col-span-5 p-5 sm:p-7 flex flex-col justify-between space-y-4">
               <div className="space-y-2">
-                <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-wider text-[#800020] dark:text-[#F47B20] tabular-nums">
+                <div className="flex items-center gap-2 text-[11px] font-black uppercase tracking-wider text-[#7045D8] dark:text-[#A78BFA] tabular-nums">
                   <span>{heroArticle.category}</span>
-                  <span className="text-[#E8D9C0] dark:text-[#31374A]">·</span>
-                  <span className="text-[#52576A] dark:text-[#CBD2E1]">{getReadingTime(heroArticle.content)}</span>
+                  <span className="text-slate-200 dark:text-[#31275E]">·</span>
+                  <span className="text-slate-600 dark:text-slate-300">{getReadingTime(heroArticle.content)}</span>
                 </div>
 
-                <h2 className="text-lg sm:text-2xl font-black text-[#171923] dark:text-[#FFF9EF] leading-snug group-hover:text-[#800020] dark:group-hover:text-[#F47B20] transition-colors">
+                <h2 className="text-lg sm:text-2xl font-black text-slate-900 dark:text-slate-50 leading-snug group-hover:text-[#7045D8] dark:group-hover:text-[#7045D8] transition-colors">
                   {heroArticle.title}
                 </h2>
 
-                <p className="text-xs sm:text-sm text-[#52576A] dark:text-[#CBD2E1] line-clamp-3 leading-relaxed">
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 line-clamp-3 leading-relaxed">
                   {heroArticle.excerpt}
                 </p>
               </div>
 
-              <div className="flex items-center justify-between pt-4 border-t border-[#E8D9C0]/70 dark:border-[#31374A] text-xs text-[#52576A] dark:text-[#CBD2E1] tabular-nums font-bold">
+              <div className="flex items-center justify-between pt-4 border-t border-slate-200/70 dark:border-[#31275E] text-xs text-slate-600 dark:text-slate-300 tabular-nums font-bold">
                 <span>
                   {new Date(
                     heroArticle.publishedAt || heroArticle.createdAt
@@ -2124,7 +2124,7 @@ export const NewsPage: React.FC<NewsPageProps> = ({
                     year: "numeric",
                   })}
                 </span>
-                <span className="font-extrabold text-[#800020] dark:text-[#F47B20] flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                <span className="font-extrabold text-[#7045D8] dark:text-[#A78BFA] flex items-center gap-1 group-hover:translate-x-1 transition-transform">
                   Read Guide →
                 </span>
               </div>
@@ -2138,10 +2138,10 @@ export const NewsPage: React.FC<NewsPageProps> = ({
             {[1, 2, 3, 4, 5, 6].map((n) => (
               <div
                 key={n}
-                className="bg-white dark:bg-[#111622] rounded-3xl border border-[#E8D9C0] dark:border-[#263045] p-4 space-y-3.5 shadow-xs overflow-hidden relative"
+                className="bg-white dark:bg-[#130E26] rounded-3xl border border-slate-200 dark:border-[#31275E] p-4 space-y-3.5 shadow-xs overflow-hidden relative"
               >
                 <div className="w-full aspect-[16/9] bg-[#F2ECE1] dark:bg-[#1A2234] rounded-2xl relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#FFF9EF]/40 dark:via-[#C99A45]/10 to-transparent animate-pulse" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#F8FAFC]/40 dark:via-[#5B32BF]/10 to-transparent animate-pulse" />
                 </div>
                 <div className="h-3 bg-[#F2ECE1] dark:bg-[#1A2234] rounded-full w-1/4" />
                 <div className="h-4 bg-[#F2ECE1] dark:bg-[#1A2234] rounded-full w-full" />
@@ -2151,12 +2151,12 @@ export const NewsPage: React.FC<NewsPageProps> = ({
             ))}
           </div>
         ) : gridArticles.length === 0 ? (
-          <div className="py-16 text-center bg-white dark:bg-[#1F2330] rounded-3xl border border-[#E8D9C0] dark:border-[#31374A] p-8 space-y-2 shadow-xs">
-            <BookOpen className="w-8 h-8 text-[#800020]/40 dark:text-[#F47B20]/40 mx-auto" />
-            <h3 className="text-sm font-black text-[#171923] dark:text-[#FFF9EF]">
+          <div className="py-16 text-center bg-white dark:bg-[#1B1536] rounded-3xl border border-slate-200 dark:border-[#31275E] p-8 space-y-2 shadow-xs">
+            <BookOpen className="w-8 h-8 text-[#7045D8]/40 dark:text-[#A78BFA]/40 mx-auto" />
+            <h3 className="text-sm font-black text-slate-900 dark:text-slate-50">
               No exam news or guides found
             </h3>
-            <p className="text-xs text-[#52576A] dark:text-[#CBD2E1] font-medium">
+            <p className="text-xs text-slate-600 dark:text-slate-300 font-medium">
               Try clearing your search terms or picking another category.
             </p>
           </div>
@@ -2166,11 +2166,11 @@ export const NewsPage: React.FC<NewsPageProps> = ({
               <div
                 key={article.id}
                 onClick={() => handleSelectArticle(article.slug)}
-                className="bg-white dark:bg-[#1F2330] rounded-3xl border border-[#E8D9C0] dark:border-[#31374A] p-4 shadow-xs hover:border-[#800020]/50 dark:hover:border-[#F47B20]/50 hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 cursor-pointer flex flex-col justify-between space-y-3 group"
+                className="bg-white dark:bg-[#1B1536] rounded-3xl border border-slate-200 dark:border-[#31275E] p-4 shadow-xs hover:border-[#7045D8]/50 dark:hover:border-[#A78BFA]/50 hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 cursor-pointer flex flex-col justify-between space-y-3 group"
               >
                 <div className="space-y-3">
                   {article.coverImageUrl ? (
-                    <div className="w-full aspect-[16/9] rounded-2xl overflow-hidden bg-[#F7EFE2] dark:bg-[#252A3A]">
+                    <div className="w-full aspect-[16/9] rounded-2xl overflow-hidden bg-slate-100 dark:bg-[#241D48]">
                       <img
                         src={article.coverImageUrl}
                         alt={article.title}
@@ -2180,39 +2180,39 @@ export const NewsPage: React.FC<NewsPageProps> = ({
                       />
                     </div>
                   ) : (
-                    <div className="w-full aspect-[16/9] rounded-2xl overflow-hidden bg-gradient-to-br from-[#800020] via-[#5E0017] to-[#2A000B] border border-[#C99A45]/30 p-4 flex flex-col justify-between text-white relative">
+                    <div className="w-full aspect-[16/9] rounded-2xl overflow-hidden bg-gradient-to-br from-[#7045D8] via-[#5B32BF] to-[#2A000B] border border-[#A78BFA]/30 p-4 flex flex-col justify-between text-white relative">
                       <div className="flex items-center justify-between gap-2">
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#F47B20] text-white text-[9px] font-black uppercase tracking-wider">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#7045D8] text-white text-[11px] font-black uppercase tracking-wider">
                           <Compass className="w-3 h-3" />
                           <span>Disha PYQ</span>
                         </span>
-                        <span className="text-[9.5px] font-black uppercase tracking-wider text-[#C99A45] truncate max-w-[140px]">
+                        <span className="text-[11px] font-black uppercase tracking-wider text-amber-500 truncate max-w-[140px]">
                           {article.category}
                         </span>
                       </div>
-                      <p className="text-xs sm:text-sm font-black text-[#FFF9EF] line-clamp-2 leading-snug font-hindi">
+                      <p className="text-xs sm:text-sm font-black text-white line-clamp-2 leading-snug font-hindi">
                         {article.hindiTitle || article.title}
                       </p>
                     </div>
                   )}
 
                   {/* Category & Read Time Metadata */}
-                  <div className="flex items-center gap-2 text-[10px] font-black text-[#800020] dark:text-[#F47B20] uppercase tracking-wider tabular-nums">
+                  <div className="flex items-center gap-2 text-[11px] font-black text-[#7045D8] dark:text-[#A78BFA] uppercase tracking-wider tabular-nums">
                     <span>{article.category}</span>
-                    <span className="text-[#E8D9C0] dark:text-[#31374A]">·</span>
-                    <span className="text-[#52576A] dark:text-[#CBD2E1]">{getReadingTime(article.content)}</span>
+                    <span className="text-slate-200 dark:text-[#31275E]">·</span>
+                    <span className="text-slate-600 dark:text-slate-300">{getReadingTime(article.content)}</span>
                   </div>
 
-                  <h3 className="text-sm sm:text-base font-black text-[#171923] dark:text-[#FFF9EF] leading-snug line-clamp-2 font-hindi group-hover:text-[#800020] dark:group-hover:text-[#F47B20] transition-colors">
+                  <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-slate-50 leading-snug line-clamp-2 font-hindi group-hover:text-[#7045D8] dark:group-hover:text-[#7045D8] transition-colors">
                     {getDisplayArticleTitle(article)}
                   </h3>
 
-                  <p className="text-xs text-[#52576A] dark:text-[#CBD2E1] line-clamp-2 leading-relaxed font-hindi">
+                  <p className="text-xs text-slate-600 dark:text-slate-300 line-clamp-2 leading-relaxed font-hindi">
                     {article.excerpt}
                   </p>
                 </div>
 
-                <div className="flex items-center justify-between pt-3 border-t border-[#E8D9C0]/70 dark:border-[#31374A] text-[11px] text-[#52576A] dark:text-[#CBD2E1] tabular-nums font-bold">
+                <div className="flex items-center justify-between pt-3 border-t border-slate-200/70 dark:border-[#31275E] text-[11px] text-slate-600 dark:text-slate-300 tabular-nums font-bold">
                   <span>
                     {new Date(
                       article.publishedAt || article.createdAt
@@ -2223,8 +2223,8 @@ export const NewsPage: React.FC<NewsPageProps> = ({
                     })}
                   </span>
                   <div className="flex items-center gap-2">
-                    <span className="text-[#800020] dark:text-[#C99A45] text-xs font-semibold inline-flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
-                      Read More <ArrowRight className="w-3 h-3 text-[#C99A45]" />
+                    <span className="text-[#7045D8] dark:text-[#A78BFA] text-xs font-semibold inline-flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
+                      Read More <ArrowRight className="w-3 h-3 text-amber-500" />
                     </span>
                     <button
                       type="button"
@@ -2232,7 +2232,7 @@ export const NewsPage: React.FC<NewsPageProps> = ({
                         e.stopPropagation();
                         handleOpenShare(article);
                       }}
-                      className="p-1.5 rounded-lg hover:bg-[#F7EFE2] dark:hover:bg-[#252A3A] text-[#52576A] dark:text-[#CBD2E1] hover:text-[#800020] dark:hover:text-[#F47B20] transition-colors cursor-pointer flex items-center gap-1 font-bold text-[11px]"
+                      className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-[#241D48] text-slate-600 dark:text-slate-300 hover:text-[#7045D8] dark:hover:text-[#A78BFA] transition-colors cursor-pointer flex items-center gap-1 font-bold text-[11px]"
                       title="Share article"
                     >
                       <Share2 className="w-3.5 h-3.5" />

@@ -129,3 +129,15 @@ export function showAdminToast(
   triggerAdminToast(type, title || "Admin Notice", message);
 }
 
+/**
+ * Branded in-app toast notification for student/user-facing flows
+ * (replaces blocking native browser alert() dialogs).
+ */
+export function showAppToast(
+  message: string,
+  type: "add" | "delete" | "success" | "error" | "info" | "update" = "info",
+  title?: string
+) {
+  triggerAdminToast(type, title || message, message);
+}
+

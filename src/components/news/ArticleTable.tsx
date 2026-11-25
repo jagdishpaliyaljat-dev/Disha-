@@ -80,7 +80,7 @@ export const ArticleTable: React.FC<ArticleTableProps> = ({
       {caption && (
         <div className="px-4 py-2.5 bg-[#F8FAFC] dark:bg-[#161E2E] border-b border-[#E2E8F0] dark:border-[#27354F] text-xs font-bold text-[#102F65] dark:text-[#93C5FD] font-hindi flex items-center justify-between">
           <span>{caption}</span>
-          <span className="text-[10px] text-[#64748B] dark:text-[#94A3B8] font-normal">
+          <span className="text-[11px] text-[#64748B] dark:text-[#94A3B8] font-normal">
             Swipe horizontally on mobile ↔
           </span>
         </div>
@@ -153,7 +153,7 @@ export const ArticleTable: React.FC<ArticleTableProps> = ({
         )}
       </div>
 
-      <div className="px-3.5 py-1.5 bg-[#F8FAFC] dark:bg-[#161E2E] border-t border-[#E2E8F0] dark:border-[#27354F] flex items-center justify-between text-[10px] text-[#64748B] dark:text-[#94A3B8] tabular-nums">
+      <div className="px-3.5 py-1.5 bg-[#F8FAFC] dark:bg-[#161E2E] border-t border-[#E2E8F0] dark:border-[#27354F] flex items-center justify-between text-[11px] text-[#64748B] dark:text-[#94A3B8] tabular-nums">
         <span>{rows.length} {rows.length === 1 ? "Row" : "Rows"}</span>
         <span className="hidden sm:inline font-semibold text-[#7045D8] dark:text-[#A78BFA]">Disha PYQ Exam Research Table</span>
       </div>

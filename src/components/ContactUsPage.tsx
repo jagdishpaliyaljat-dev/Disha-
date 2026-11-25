@@ -59,32 +59,32 @@ const HELP_CATEGORIES: {
     subject: "General Inquiry",
     desc: "Have questions about Disha PYQ or its available features? Send us your message.",
     icon: HelpCircle,
-    iconColor: "text-[#800020] dark:text-[#F47B20]",
-    bg: "bg-[#800020]/10 dark:bg-[#F47B20]/15",
+    iconColor: "text-[#7045D8] dark:text-[#A78BFA]",
+    bg: "bg-[#7045D8]/10 dark:bg-[#7045D8]/15",
   },
   {
     title: "Technical Support",
     subject: "Technical Support",
     desc: "Experiencing a problem with login, tests, question loading, or another feature? Tell us what happened so we can investigate.",
     icon: LifeBuoy,
-    iconColor: "text-[#F47B20]",
-    bg: "bg-[#F47B20]/10 dark:bg-[#F47B20]/20",
+    iconColor: "text-amber-600 dark:text-amber-400",
+    bg: "bg-amber-500/10 dark:bg-amber-500/20",
   },
   {
     title: "Report an Incorrect Question",
     subject: "Incorrect Question Report",
     desc: "Found an incorrect answer, explanation, or question? Please share the relevant subject, question details, and correct information if available.",
     icon: FileQuestion,
-    iconColor: "text-[#800020] dark:text-[#F47B20]",
-    bg: "bg-[#800020]/10 dark:bg-[#800020]/20",
+    iconColor: "text-[#7045D8] dark:text-[#A78BFA]",
+    bg: "bg-[#7045D8]/10 dark:bg-[#7045D8]/20",
   },
   {
     title: "Suggestions and Feedback",
     subject: "Feedback and Suggestions",
     desc: "Have an idea that could improve Disha PYQ? We welcome constructive feedback and suggestions.",
     icon: Sparkles,
-    iconColor: "text-[#C99A45]",
-    bg: "bg-[#C99A45]/15 dark:bg-[#C99A45]/25",
+    iconColor: "text-emerald-600 dark:text-emerald-400",
+    bg: "bg-emerald-500/10 dark:bg-emerald-500/20",
   },
 ];
 
@@ -228,57 +228,66 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
   };
 
   return (
-    <div className="min-h-full bg-[#FFF9EF] dark:bg-[#171923] text-[#171923] dark:text-[#FFF9EF] flex flex-col pb-24 select-text">
+    <div className="min-h-full bg-[#F8FAFC] dark:bg-[#130E26] text-slate-900 dark:text-slate-50 flex flex-col pb-24 select-text">
       {/* Top Header / Sticky Navigation Bar */}
-      <header className="sticky top-0 z-40 bg-white/95 dark:bg-[#1F2330]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] px-4 py-3 flex items-center justify-between">
+      <header className="sticky top-0 z-40 bg-white/95 dark:bg-[#130E26]/95 backdrop-blur-md border-b border-slate-200 dark:border-[#31275E] pt-[env(safe-area-inset-top,0px)]">
+        <div className="px-4 py-2.5 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           <button
+            type="button"
             onClick={onNavigateHome}
             aria-label="Back to Homepage"
-            className="p-2 -ml-1 rounded-xl text-[#52576A] dark:text-[#CBD2E1] hover:bg-[#F7EFE2] dark:hover:bg-[#252A3A] transition-colors active:scale-95 cursor-pointer flex items-center gap-1.5 text-xs font-bold"
+            className="min-h-[44px] px-3 -ml-1 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#241D48] transition-colors active:scale-95 cursor-pointer flex items-center gap-1.5 text-xs font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
           >
             <ArrowLeft className="w-4 h-4" />
             <span className="hidden sm:inline">Home</span>
           </button>
-          <div className="h-4 w-px bg-[#E8D9C0] dark:bg-[#31374A]" />
+          <div className="h-4 w-px bg-slate-200 dark:bg-[#31275E]" />
           <div
-            className="flex items-center gap-2 cursor-pointer"
+            className="flex items-center gap-2 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8] rounded-xl px-1"
             onClick={onNavigateHome}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onNavigateHome();
+              }
+            }}
             role="button"
             tabIndex={0}
+            aria-label="Disha PYQ Home"
           >
             <AppLogo size="sm" />
             <div className="flex flex-col">
-              <span className="text-sm font-black text-[#171923] dark:text-[#FFF9EF] leading-tight tracking-tight">
+              <span className="text-sm font-black text-slate-900 dark:text-slate-50 leading-tight tracking-tight">
                 DISHA <span className="text-[#7045D8] dark:text-[#A78BFA]">PYQ</span>
               </span>
-              <span className="text-[9px] font-bold text-[#7045D8] dark:text-[#A78BFA] uppercase tracking-widest">
+              <span className="text-[11px] font-bold text-[#7045D8] dark:text-[#A78BFA] uppercase tracking-widest">
                 Support
               </span>
             </div>
           </div>
         </div>
-
+        </div>
       </header>
 
       {/* Main Content Article */}
       <main className="max-w-3xl w-full mx-auto px-4 py-8 space-y-8 flex-1">
         {/* Hero Header */}
         <div className="text-center space-y-3">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] text-[11px] font-black uppercase tracking-wider border border-[#800020]/20 dark:border-[#F47B20]/25">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#7045D8]/10 dark:bg-[#7045D8]/15 text-[#7045D8] dark:text-[#A78BFA] text-[11px] font-black uppercase tracking-wider border border-[#7045D8]/20 dark:border-[#A78BFA]/25">
             <Mail className="w-3.5 h-3.5" />
             <span>Support &amp; Assistance</span>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl font-black text-[#171923] dark:text-[#FFF9EF] tracking-tight">
+          <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-slate-50 tracking-tight">
             Contact Us
           </h1>
 
-          <p className="text-lg font-black text-[#800020] dark:text-[#F47B20]">
+          <p className="text-lg font-black text-[#7045D8] dark:text-[#A78BFA]">
             We're Here to Help!
           </p>
 
-          <div className="max-w-xl mx-auto space-y-2 text-sm text-[#52576A] dark:text-[#CBD2E1] leading-relaxed font-medium">
+          <div className="max-w-xl mx-auto space-y-2 text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
             <p>
               Have a question, suggestion, or issue while using Disha PYQ? We'd love to hear from you.
             </p>
@@ -286,7 +295,7 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
               Whether you need technical assistance, want to report an incorrect question, or have
               suggestions to improve our platform, please contact us using the form below.
             </p>
-            <p className="text-xs text-[#787D91] dark:text-[#929AB0] font-semibold pt-1">
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold pt-1">
               Our goal is to provide a smooth and helpful learning experience for every Disha PYQ user.
             </p>
           </div>
@@ -300,11 +309,11 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
           <div className="text-center sm:text-left">
             <h2
               id="help-categories-heading"
-              className="text-lg font-black text-[#171923] dark:text-[#FFF9EF]"
+              className="text-lg font-black text-slate-900 dark:text-slate-50"
             >
               How Can We Help You?
             </h2>
-            <p className="text-xs text-[#52576A] dark:text-[#CBD2E1] font-medium">
+            <p className="text-xs text-slate-600 dark:text-slate-300 font-medium">
               Select an area below to quickly specify your topic in the form.
             </p>
           </div>
@@ -318,24 +327,24 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
                   key={cat.title}
                   type="button"
                   onClick={() => handleSelectCategory(cat.subject)}
-                  className={`text-left p-4 rounded-2xl border transition-all active:scale-[0.99] cursor-pointer space-y-2 flex flex-col justify-between ${
+                  className={`text-left p-4 rounded-2xl border transition-all active:scale-[0.99] cursor-pointer space-y-2 flex flex-col justify-between focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8] ${
                     isSelected
-                      ? "ring-2 ring-[#800020] dark:ring-[#F47B20] border-[#800020] dark:border-[#F47B20] bg-[#800020]/10 dark:bg-[#F47B20]/15 shadow-sm"
-                      : "bg-white dark:bg-[#1F2330] border-[#E8D9C0] dark:border-[#31374A] hover:border-[#800020]/50 dark:hover:border-[#F47B20]/50 shadow-xs"
+                      ? "ring-2 ring-[#7045D8] dark:ring-[#A78BFA] border-[#7045D8] dark:border-[#A78BFA] bg-[#7045D8]/10 dark:bg-[#7045D8]/15 shadow-sm"
+                      : "bg-white dark:bg-[#1B1536] border-slate-200 dark:border-[#31275E] hover:border-[#7045D8]/50 dark:hover:border-[#A78BFA]/50 shadow-xs"
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
                     <div className={`p-2 rounded-xl shrink-0 ${cat.bg}`}>
                       <Icon className={`w-4 h-4 ${cat.iconColor}`} />
                     </div>
-                    <span className="text-xs font-black text-[#171923] dark:text-[#FFF9EF] leading-tight">
+                    <span className="text-xs font-black text-slate-900 dark:text-slate-50 leading-tight">
                       {cat.title}
                     </span>
                   </div>
-                  <p className="text-[11px] text-[#52576A] dark:text-[#CBD2E1] leading-relaxed font-medium">
+                  <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
                     {cat.desc}
                   </p>
-                  <div className="pt-1 flex items-center gap-1 text-[10px] font-bold text-[#800020] dark:text-[#F47B20]">
+                  <div className="pt-1 flex items-center gap-1 text-[11px] font-bold text-[#7045D8] dark:text-[#A78BFA]">
                     <span>{isSelected ? "Selected for Form" : "Select Topic"}</span>
                     <span>→</span>
                   </div>
@@ -349,14 +358,14 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
         <section
           ref={formContainerRef}
           aria-labelledby="contact-form-heading"
-          className="bg-white dark:bg-[#1F2330] rounded-3xl border border-[#E8D9C0] dark:border-[#31374A] p-6 sm:p-8 shadow-xs space-y-6"
+          className="bg-white dark:bg-[#1B1536] rounded-3xl border border-slate-200 dark:border-[#31275E] p-6 sm:p-8 shadow-xs space-y-6"
         >
           <div>
             <h2
               id="contact-form-heading"
-              className="text-xl font-black text-[#171923] dark:text-[#FFF9EF] flex items-center gap-2 font-hindi"
+              className="text-xl font-black text-slate-900 dark:text-slate-50 flex items-center gap-2 font-hindi"
             >
-              <Send className="w-5 h-5 text-[#800020] dark:text-[#F47B20]" />
+              <Send className="w-5 h-5 text-[#7045D8] dark:text-[#A78BFA]" />
               <span>Send Us a Message</span>
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">
@@ -460,13 +469,13 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
                     aria-required="true"
                     aria-invalid={Boolean(touched.fullName && errors.fullName)}
                     disabled={isSubmitting}
-                    className={`w-full px-4 py-3 rounded-xl bg-[#FFF9EF]/80 dark:bg-[#1F2330] border text-sm text-[#171923] dark:text-[#FFF9EF] placeholder:text-[#787D91] dark:placeholder:text-[#929AB0] focus:outline-hidden transition-all ${
+                    className={`w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-[#241D48] border text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 focus:outline-hidden transition-all ${
                       touched.fullName && errors.fullName
                         ? "border-rose-400 dark:border-rose-500 ring-2 ring-rose-400/20"
-                        : "border-[#E8D9C0] dark:border-[#31374A] focus:border-[#800020] dark:focus:border-[#F47B20] focus:ring-2 focus:ring-[#800020]/20 dark:focus:ring-[#F47B20]/20"
+                        : "border-slate-200 dark:border-[#31275E] focus:border-[#7045D8] dark:focus:border-[#A78BFA] focus:ring-2 focus:ring-[#7045D8]/20"
                     }`}
                   />
-                  <User className="w-4 h-4 text-[#787D91] absolute right-3.5 top-3.5 pointer-events-none" />
+                  <User className="w-4 h-4 text-slate-400 absolute right-3.5 top-3.5 pointer-events-none" />
                 </div>
               </div>
 
@@ -474,7 +483,7 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
               <div className="space-y-1.5">
                 <label
                   htmlFor="contact-email"
-                  className="text-xs font-black text-[#171923] dark:text-[#FFF9EF] flex items-center justify-between"
+                  className="text-xs font-black text-slate-900 dark:text-slate-50 flex items-center justify-between"
                 >
                   <span>
                     Email Address <span className="text-rose-500">*</span>
@@ -503,13 +512,13 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
                     aria-required="true"
                     aria-invalid={Boolean(touched.email && errors.email)}
                     disabled={isSubmitting}
-                    className={`w-full px-4 py-3 rounded-xl bg-[#FFF9EF]/80 dark:bg-[#1F2330] border text-sm text-[#171923] dark:text-[#FFF9EF] placeholder:text-[#787D91] dark:placeholder:text-[#929AB0] focus:outline-hidden transition-all ${
+                    className={`w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-[#241D48] border text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 focus:outline-hidden transition-all ${
                       touched.email && errors.email
                         ? "border-rose-400 dark:border-rose-500 ring-2 ring-rose-400/20"
-                        : "border-[#E8D9C0] dark:border-[#31374A] focus:border-[#800020] dark:focus:border-[#F47B20] focus:ring-2 focus:ring-[#800020]/20 dark:focus:ring-[#F47B20]/20"
+                        : "border-slate-200 dark:border-[#31275E] focus:border-[#7045D8] dark:focus:border-[#A78BFA] focus:ring-2 focus:ring-[#7045D8]/20"
                     }`}
                   />
-                  <Mail className="w-4 h-4 text-[#787D91] absolute right-3.5 top-3.5 pointer-events-none" />
+                  <Mail className="w-4 h-4 text-slate-400 absolute right-3.5 top-3.5 pointer-events-none" />
                 </div>
               </div>
 
@@ -517,7 +526,7 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
               <div className="space-y-1.5">
                 <label
                   htmlFor="contact-subject"
-                  className="text-xs font-black text-[#171923] dark:text-[#FFF9EF] flex items-center justify-between"
+                  className="text-xs font-black text-slate-900 dark:text-slate-50 flex items-center justify-between"
                 >
                   <span>
                     Subject <span className="text-rose-500">*</span>
@@ -544,10 +553,10 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
                     aria-required="true"
                     aria-invalid={Boolean(touched.subject && errors.subject)}
                     disabled={isSubmitting}
-                    className={`w-full px-4 py-3 rounded-xl bg-[#FFF9EF]/80 dark:bg-[#1F2330] border text-sm text-[#171923] dark:text-[#FFF9EF] focus:outline-hidden transition-all appearance-none cursor-pointer ${
+                    className={`w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-[#241D48] border text-sm text-slate-900 dark:text-slate-50 focus:outline-hidden transition-all appearance-none cursor-pointer ${
                       touched.subject && errors.subject
                         ? "border-rose-400 dark:border-rose-500 ring-2 ring-rose-400/20"
-                        : "border-[#E8D9C0] dark:border-[#31374A] focus:border-[#800020] dark:focus:border-[#F47B20] focus:ring-2 focus:ring-[#800020]/20 dark:focus:ring-[#F47B20]/20"
+                        : "border-slate-200 dark:border-[#31275E] focus:border-[#7045D8] dark:focus:border-[#A78BFA] focus:ring-2 focus:ring-[#7045D8]/20"
                     }`}
                   >
                     <option value="" disabled>
@@ -559,7 +568,7 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
                       </option>
                     ))}
                   </select>
-                  <div className="absolute right-3.5 top-3.5 pointer-events-none text-[#787D91]">
+                  <div className="absolute right-3.5 top-3.5 pointer-events-none text-slate-400">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                     </svg>
@@ -571,7 +580,7 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
               <div className="space-y-1.5">
                 <label
                   htmlFor="contact-message"
-                  className="text-xs font-black text-[#171923] dark:text-[#FFF9EF] flex items-center justify-between"
+                  className="text-xs font-black text-slate-900 dark:text-slate-50 flex items-center justify-between"
                 >
                   <span>
                     Message <span className="text-rose-500">*</span>
@@ -599,13 +608,13 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
                   aria-required="true"
                   aria-invalid={Boolean(touched.message && errors.message)}
                   disabled={isSubmitting}
-                  className={`w-full px-4 py-3 rounded-xl bg-[#FFF9EF]/80 dark:bg-[#1F2330] border text-sm text-[#171923] dark:text-[#FFF9EF] placeholder:text-[#787D91] dark:placeholder:text-[#929AB0] focus:outline-hidden transition-all resize-y font-hindi ${
+                  className={`w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-[#241D48] border text-sm text-slate-900 dark:text-slate-50 placeholder:text-slate-400 focus:outline-hidden transition-all resize-y font-hindi ${
                     touched.message && errors.message
                       ? "border-rose-400 dark:border-rose-500 ring-2 ring-rose-400/20"
-                      : "border-[#E8D9C0] dark:border-[#31374A] focus:border-[#800020] dark:focus:border-[#F47B20] focus:ring-2 focus:ring-[#800020]/20 dark:focus:ring-[#F47B20]/20"
+                      : "border-slate-200 dark:border-[#31275E] focus:border-[#7045D8] dark:focus:border-[#A78BFA] focus:ring-2 focus:ring-[#7045D8]/20"
                   }`}
                 />
-                <span className="text-[10px] text-[#787D91] dark:text-[#929AB0] block text-right font-medium">
+                <span className="text-[11px] text-slate-500 dark:text-slate-400 block text-right font-medium">
                   {message.length} characters
                 </span>
               </div>
@@ -614,7 +623,7 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full py-3.5 px-6 rounded-xl bg-[#800020] hover:bg-[#5E0017] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] active:scale-[0.99] disabled:opacity-60 disabled:cursor-not-allowed disabled:active:scale-100 text-white font-black text-sm shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full min-h-[46px] py-3.5 px-6 rounded-xl bg-[#7045D8] hover:bg-[#5B32BF] active:scale-[0.99] disabled:opacity-60 disabled:cursor-not-allowed disabled:active:scale-100 text-white font-black text-sm shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
               >
                 {isSubmitting ? (
                   <>
@@ -635,13 +644,13 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
         {/* Contact Information Section */}
         <section
           aria-labelledby="contact-info-heading"
-          className="bg-white dark:bg-[#1F2330] rounded-3xl border border-[#E8D9C0] dark:border-[#31374A] p-6 sm:p-7 shadow-xs space-y-4"
+          className="bg-white dark:bg-[#1B1536] rounded-3xl border border-slate-200 dark:border-[#31275E] p-6 sm:p-7 shadow-xs space-y-4"
         >
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
             <h2
               id="contact-info-heading"
-              className="text-base font-black text-[#071b49] dark:text-white"
+              className="text-base font-black text-slate-900 dark:text-white"
             >
               Disha PYQ Contact Information
             </h2>
@@ -657,20 +666,20 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
               href="https://t.me/disha2020_official"
               target="_blank"
               rel="noopener noreferrer"
-              className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-sky-400 dark:hover:border-sky-600 transition-colors flex items-center gap-3 group"
+              className="p-3.5 rounded-2xl bg-slate-50 dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] hover:border-[#7045D8] dark:hover:border-[#A78BFA] transition-colors flex items-center gap-3 group"
             >
               <div className="w-9 h-9 rounded-xl bg-sky-100 dark:bg-sky-900/40 text-sky-600 dark:text-sky-300 flex items-center justify-center shrink-0">
                 <Send className="w-4 h-4" />
               </div>
               <div className="min-w-0 flex-1">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 block">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
                   Telegram Channel
                 </span>
-                <span className="text-xs font-black text-slate-800 dark:text-white truncate block group-hover:text-sky-600 transition-colors">
+                <span className="text-xs font-black text-slate-800 dark:text-white truncate block group-hover:text-[#7045D8] dark:group-hover:text-[#A78BFA] transition-colors">
                   t.me/disha2020_official
                 </span>
               </div>
-              <ExternalLink className="w-3.5 h-3.5 text-slate-400 group-hover:text-sky-600 transition-colors" />
+              <ExternalLink className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#7045D8] dark:group-hover:text-[#A78BFA] transition-colors" />
             </a>
 
             {/* Website Link */}
@@ -678,39 +687,39 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
               href="https://disha2020.in"
               target="_blank"
               rel="noopener noreferrer"
-              className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-blue-400 dark:hover:border-blue-600 transition-colors flex items-center gap-3 group"
+              className="p-3.5 rounded-2xl bg-slate-50 dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] hover:border-[#7045D8] dark:hover:border-[#A78BFA] transition-colors flex items-center gap-3 group"
             >
-              <div className="w-9 h-9 rounded-xl bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-300 flex items-center justify-center shrink-0">
+              <div className="w-9 h-9 rounded-xl bg-[#7045D8]/10 dark:bg-[#7045D8]/20 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center shrink-0">
                 <Globe className="w-4 h-4" />
               </div>
               <div className="min-w-0 flex-1">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 block">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
                   Official Website
                 </span>
-                <span className="text-xs font-black text-slate-800 dark:text-white truncate block group-hover:text-blue-600 transition-colors">
+                <span className="text-xs font-black text-slate-800 dark:text-white truncate block group-hover:text-[#7045D8] dark:group-hover:text-[#A78BFA] transition-colors">
                   https://disha2020.in
                 </span>
               </div>
-              <ExternalLink className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-600 transition-colors" />
+              <ExternalLink className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#7045D8] dark:group-hover:text-[#A78BFA] transition-colors" />
             </a>
 
             {/* Verified Support Email */}
             <a
               href="mailto:contact@disha2020.in"
-              className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-blue-400 dark:hover:border-blue-600 transition-colors flex items-center gap-3 group"
+              className="p-3.5 rounded-2xl bg-slate-50 dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] hover:border-[#7045D8] dark:hover:border-[#A78BFA] transition-colors flex items-center gap-3 group"
             >
-              <div className="w-9 h-9 rounded-xl bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-300 flex items-center justify-center shrink-0">
+              <div className="w-9 h-9 rounded-xl bg-[#7045D8]/10 dark:bg-[#7045D8]/20 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center shrink-0">
                 <Mail className="w-4 h-4" />
               </div>
               <div className="min-w-0 flex-1">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 block">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
                   Support Email
                 </span>
-                <span className="text-xs font-black text-slate-800 dark:text-white truncate block group-hover:text-blue-600 transition-colors">
+                <span className="text-xs font-black text-slate-800 dark:text-white truncate block group-hover:text-[#7045D8] dark:group-hover:text-[#A78BFA] transition-colors">
                   contact@disha2020.in
                 </span>
               </div>
-              <ExternalLink className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-600 transition-colors" />
+              <ExternalLink className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#7045D8] dark:group-hover:text-[#A78BFA] transition-colors" />
             </a>
           </div>
 
@@ -722,19 +731,20 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
         </section>
 
         {/* Practice Callout Banner */}
-        <section className="bg-gradient-to-br from-[#071b49] to-[#1e3a8a] text-white rounded-3xl p-6 sm:p-8 text-center space-y-4 shadow-lg">
+        <section className="bg-gradient-to-br from-[#7045D8] to-[#5B32BF] text-white rounded-3xl p-6 sm:p-8 text-center space-y-4 shadow-lg">
           <div className="space-y-1">
             <h3 className="text-xl sm:text-2xl font-black text-white">
               Ready to Practice MCQs?
             </h3>
-            <p className="text-xs text-blue-200 max-w-md mx-auto">
+            <p className="text-xs text-purple-100 max-w-md mx-auto">
               Test your knowledge with chapter-wise quizzes, official PYQ vault, and timed test simulator.
             </p>
           </div>
 
           <button
+            type="button"
             onClick={onStartPracticing}
-            className="px-6 py-2.5 bg-[#ff7a00] hover:bg-[#e06c00] active:scale-95 text-white font-black text-xs rounded-xl shadow-md transition-all cursor-pointer inline-flex items-center gap-2"
+            className="min-h-[44px] px-6 py-2.5 bg-white hover:bg-slate-100 active:scale-95 text-[#7045D8] font-black text-xs rounded-xl shadow-md transition-all cursor-pointer inline-flex items-center gap-2"
           >
             <span>Start Practicing Now</span>
             <span>→</span>
@@ -742,32 +752,36 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
         </section>
 
         {/* Trust & Legal Navigation Footer */}
-        <footer className="pt-4 border-t border-slate-200/80 dark:border-slate-800/80 text-center space-y-3">
+        <footer className="pt-4 border-t border-slate-200/80 dark:border-[#31275E] text-center space-y-3">
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
             <button
+              type="button"
               onClick={onNavigateHome}
-              className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer"
+              className="hover:text-[#7045D8] dark:hover:text-[#A78BFA] transition-colors cursor-pointer"
             >
               Home
             </button>
             <span>•</span>
             <button
+              type="button"
               onClick={onOpenAbout}
-              className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer"
+              className="hover:text-[#7045D8] dark:hover:text-[#A78BFA] transition-colors cursor-pointer"
             >
               About Us
             </button>
             <span>•</span>
             <button
+              type="button"
               onClick={onOpenPrivacyPolicy}
-              className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer"
+              className="hover:text-[#7045D8] dark:hover:text-[#A78BFA] transition-colors cursor-pointer"
             >
               Privacy Policy
             </button>
             <span>•</span>
             <button
+              type="button"
               onClick={onOpenTerms}
-              className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer"
+              className="hover:text-[#7045D8] dark:hover:text-[#A78BFA] transition-colors cursor-pointer"
             >
               Terms of Service
             </button>
@@ -775,14 +789,15 @@ export const ContactUsPage: React.FC<ContactUsPageProps> = ({
             <span className="text-slate-800 dark:text-slate-200 font-bold">Contact Us</span>
             <span>•</span>
             <button
+              type="button"
               onClick={onOpenDisclaimer}
-              className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer"
+              className="hover:text-[#7045D8] dark:hover:text-[#A78BFA] transition-colors cursor-pointer"
             >
               Disclaimer
             </button>
           </div>
 
-          <p className="text-[10px] text-slate-400 dark:text-slate-500">
+          <p className="text-[11px] text-slate-400 dark:text-slate-500">
             © 2026 Disha PYQ. All rights reserved. Online MCQ Practice Platform.
           </p>
         </footer>

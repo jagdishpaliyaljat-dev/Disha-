@@ -40,7 +40,7 @@ export const MobileAppReturnBanner: React.FC<MobileAppReturnBannerProps> = ({ us
           <p className="font-bold truncate">
             {userName ? `Welcome, ${userName}!` : 'Login successful!'}
           </p>
-          <p className="text-[10px] text-purple-100 opacity-90 truncate">
+          <p className="text-[11px] text-purple-100 opacity-90 truncate">
             Tap to open and sync your session with Disha PYQ App
           </p>
         </div>

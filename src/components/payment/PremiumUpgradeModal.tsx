@@ -91,7 +91,7 @@ export const PremiumUpgradeModal: React.FC<PremiumUpgradeModalProps> = ({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 15 }}
           transition={{ duration: 0.2 }}
-          className="relative w-full max-w-lg bg-white dark:bg-[#171329] rounded-3xl border border-emerald-500/30 dark:border-emerald-500/40 shadow-2xl overflow-hidden"
+          className="relative w-full max-w-lg bg-white dark:bg-[#130E26] rounded-3xl border border-emerald-500/30 dark:border-emerald-500/40 shadow-2xl overflow-hidden"
         >
           {/* Header Banner */}
           <div className="relative p-6 bg-gradient-to-br from-emerald-600 via-teal-600 to-[#7045D8] text-white overflow-hidden">

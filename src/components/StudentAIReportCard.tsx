@@ -131,13 +131,13 @@ export const StudentAIReportCard: React.FC<StudentAIReportCardProps> = ({
     } else if (readinessScore >= 65) {
       grade = "A";
       gradeLabel = "Strong Standing (Competitive)";
-      gradeColor = "text-[#800020] dark:text-[#F47B20]";
-      gradeBadgeBg = "bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] border-[#800020]/30 dark:border-[#F47B20]/40";
+      gradeColor = "text-[#7045D8] dark:text-[#A78BFA]";
+      gradeBadgeBg = "bg-[#7045D8]/10 dark:bg-[#7045D8]/15 text-[#7045D8] dark:text-[#A78BFA] border-[#7045D8]/30 dark:border-[#A78BFA]/40";
     } else if (readinessScore >= 50) {
       grade = "B";
       gradeLabel = "Satisfactory (Needs Polish)";
-      gradeColor = "text-[#C99A45] dark:text-[#E5BC6B]";
-      gradeBadgeBg = "bg-[#C99A45]/15 dark:bg-[#C99A45]/20 text-[#946B1E] dark:text-[#E5BC6B] border-[#C99A45]/40";
+      gradeColor = "text-amber-500 dark:text-[#E5BC6B]";
+      gradeBadgeBg = "bg-[#A78BFA]/15 dark:bg-[#7045D8]/20 text-[#946B1E] dark:text-[#E5BC6B] border-[#A78BFA]/40";
     } else if (readinessScore >= 35) {
       grade = "C";
       gradeLabel = "High Risk (Heavy Negative Marks)";
@@ -483,23 +483,23 @@ https://disha2020.in
   return (
     <div className="space-y-4 sm:space-y-5 text-left">
       {/* 1. REPORT CARD OFFICIAL HEADER */}
-      <section className="bg-white dark:bg-[#1F2330] rounded-3xl p-5 sm:p-6 border border-[#E8D9C0] dark:border-[#31374A] shadow-xs relative overflow-hidden">
+      <section className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-6 border border-slate-200 dark:border-[#31275E] shadow-xs relative overflow-hidden">
         {/* Glow */}
         <div className="absolute top-0 right-0 w-56 h-56 bg-gradient-to-bl from-[#7045D8]/15 via-[#A78BFA]/10 to-transparent rounded-full blur-3xl pointer-events-none" />
 
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10 border-b border-[#E8D9C0] dark:border-[#31374A] pb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10 border-b border-slate-200 dark:border-[#31275E] pb-4">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#7045D8] to-[#A78BFA] text-white flex items-center justify-center font-black shadow-md shadow-[#7045D8]/20 shrink-0">
               <Award className="w-6 h-6" />
             </div>
             <div>
-              <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-[#7045D8]/10 dark:bg-[#A78BFA]/15 text-[#7045D8] dark:text-[#A78BFA] mb-1">
+              <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-black uppercase tracking-wider bg-[#7045D8]/10 dark:bg-[#A78BFA]/15 text-[#7045D8] dark:text-[#A78BFA] mb-1">
                 <span>Disha PYQ AI Diagnostic Audit</span>
               </div>
-              <h2 className="text-lg sm:text-xl font-black text-[#171923] dark:text-[#FFF9EF] tracking-tight">
+              <h2 className="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-50 tracking-tight">
                 Student AI Report Card & Weakness Radar
               </h2>
-              <p className="text-[11px] text-[#52576A] dark:text-[#CBD2E1] font-medium">
+              <p className="text-[11px] text-slate-600 dark:text-slate-300 font-medium">
                 Comprehensive diagnostic of your knowledge gaps, negative marks, and improvement areas
               </p>
             </div>
@@ -509,7 +509,7 @@ https://disha2020.in
             <button
               type="button"
               onClick={handleShareReportCard}
-              className="h-9 px-3.5 rounded-xl bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] hover:bg-[#800020] hover:text-white dark:hover:bg-[#F47B20] dark:hover:text-white flex items-center gap-1.5 text-xs font-black transition-all active:scale-95 cursor-pointer border border-[#800020]/20 dark:border-[#F47B20]/30"
+              className="h-9 px-3.5 rounded-xl bg-[#7045D8]/10 dark:bg-[#7045D8]/15 text-[#7045D8] dark:text-[#A78BFA] hover:bg-[#7045D8] hover:text-white dark:hover:bg-[#7045D8] dark:hover:text-white flex items-center gap-1.5 text-xs font-black transition-all active:scale-95 cursor-pointer border border-[#7045D8]/20 dark:border-[#A78BFA]/30"
             >
               {copiedSummary ? <Check className="w-4 h-4 text-emerald-600" /> : <Share2 className="w-4 h-4" />}
               <span>{copiedSummary ? "Copied!" : "Share Report Card"}</span>
@@ -519,35 +519,35 @@ https://disha2020.in
 
         {/* Candidate & Audit Details Bar */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-4 relative z-10 text-[11px]">
-          <div className="p-2.5 rounded-xl bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0]/80 dark:border-[#31374A]">
-            <span className="text-[9px] font-bold uppercase tracking-wider text-[#787D91] dark:text-[#929AB0] block mb-0.5">
+          <div className="p-2.5 rounded-xl bg-[#F8FAFC] dark:bg-[#130E26] border border-slate-200/80 dark:border-[#31275E]">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-0.5">
               Candidate Name
             </span>
-            <span className="font-extrabold text-[#171923] dark:text-[#FFF9EF] truncate block">
+            <span className="font-extrabold text-slate-900 dark:text-slate-50 truncate block">
               {userProfile?.full_name || userProfile?.name || "Student"}
             </span>
           </div>
 
-          <div className="p-2.5 rounded-xl bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0]/80 dark:border-[#31374A]">
-            <span className="text-[9px] font-bold uppercase tracking-wider text-[#787D91] dark:text-[#929AB0] block mb-0.5">
+          <div className="p-2.5 rounded-xl bg-[#F8FAFC] dark:bg-[#130E26] border border-slate-200/80 dark:border-[#31275E]">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-0.5">
               Target Exam
             </span>
-            <span className="font-extrabold text-[#800020] dark:text-[#F47B20] truncate block">
+            <span className="font-extrabold text-[#7045D8] dark:text-[#A78BFA] truncate block">
               {settings?.selectedExam || "Rajasthan Competitive Exam"}
             </span>
           </div>
 
-          <div className="p-2.5 rounded-xl bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0]/80 dark:border-[#31374A]">
-            <span className="text-[9px] font-bold uppercase tracking-wider text-[#787D91] dark:text-[#929AB0] block mb-0.5">
+          <div className="p-2.5 rounded-xl bg-[#F8FAFC] dark:bg-[#130E26] border border-slate-200/80 dark:border-[#31275E]">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-0.5">
               Audit Date
             </span>
-            <span className="font-extrabold text-[#171923] dark:text-[#FFF9EF] block font-mono">
+            <span className="font-extrabold text-slate-900 dark:text-slate-50 block font-mono">
               {todayStr}
             </span>
           </div>
 
-          <div className="p-2.5 rounded-xl bg-[#FFF9EF] dark:bg-[#171923] border border-[#E8D9C0]/80 dark:border-[#31374A]">
-            <span className="text-[9px] font-bold uppercase tracking-wider text-[#787D91] dark:text-[#929AB0] block mb-0.5">
+          <div className="p-2.5 rounded-xl bg-[#F8FAFC] dark:bg-[#130E26] border border-slate-200/80 dark:border-[#31275E]">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-0.5">
               Overall Standing
             </span>
             <span className={`font-black truncate block ${baseStats.gradeColor}`}>
@@ -560,38 +560,38 @@ https://disha2020.in
       {/* 2. HERO: EXAM READINESS & NEGATIVE MARKING DAMAGE METER */}
       <section className="grid grid-cols-1 md:grid-cols-12 gap-3.5 sm:gap-4">
         {/* Score & Readiness Gauge */}
-        <div className="md:col-span-6 bg-white dark:bg-[#1F2330] rounded-3xl p-5 border border-[#E8D9C0] dark:border-[#31374A] shadow-xs flex flex-col justify-between">
+        <div className="md:col-span-6 bg-white dark:bg-[#1B1536] rounded-3xl p-5 border border-slate-200 dark:border-[#31275E] shadow-xs flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-3">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-wider bg-[#F7EFE2] dark:bg-[#252A3A] text-[#800020] dark:text-[#F47B20]">
-                <Target className="w-3.5 h-3.5 text-[#800020] dark:text-[#F47B20]" />
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[11px] font-black uppercase tracking-wider bg-slate-100 dark:bg-[#241D48] text-[#7045D8] dark:text-[#A78BFA]">
+                <Target className="w-3.5 h-3.5 text-[#7045D8] dark:text-[#A78BFA]" />
                 <span>Exam Readiness Index</span>
               </span>
-              <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black border ${baseStats.gradeBadgeBg}`}>
+              <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-black border ${baseStats.gradeBadgeBg}`}>
                 Grade {baseStats.grade}
               </span>
             </div>
 
             <div className="flex items-baseline gap-2 mb-2">
-              <span className="text-4xl sm:text-5xl font-black text-[#171923] dark:text-[#FFF9EF] font-mono tabular-nums tracking-tight">
+              <span className="text-4xl sm:text-5xl font-black text-slate-900 dark:text-slate-50 font-mono tabular-nums tracking-tight">
                 {baseStats.readinessScore}
               </span>
-              <span className="text-lg font-bold text-[#787D91] dark:text-[#929AB0]">/ 100</span>
+              <span className="text-lg font-bold text-slate-500 dark:text-slate-400">/ 100</span>
               <span className={`text-xs font-black ml-auto ${baseStats.gradeColor}`}>
                 {baseStats.gradeLabel}
               </span>
             </div>
 
             {/* Progress Bar */}
-            <div className="w-full h-3 rounded-full bg-[#F7EFE2] dark:bg-[#252A3A] overflow-hidden p-0.5 border border-[#E8D9C0] dark:border-[#31374A]">
+            <div className="w-full h-3 rounded-full bg-slate-100 dark:bg-[#241D48] overflow-hidden p-0.5 border border-slate-200 dark:border-[#31275E]">
               <div
                 className={`h-full rounded-full transition-all duration-700 ${
                   baseStats.readinessScore >= 80
                     ? "bg-emerald-500"
                     : baseStats.readinessScore >= 65
-                    ? "bg-[#800020] dark:bg-[#F47B20]"
+                    ? "bg-[#7045D8] dark:bg-[#7045D8]"
                     : baseStats.readinessScore >= 50
-                    ? "bg-[#C99A45]"
+                    ? "bg-[#A78BFA]"
                     : "bg-[#991B1B]"
                 }`}
                 style={{ width: `${Math.max(5, baseStats.readinessScore)}%` }}
@@ -599,17 +599,17 @@ https://disha2020.in
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-2 pt-4 mt-4 border-t border-[#E8D9C0] dark:border-[#31374A] text-center">
+          <div className="grid grid-cols-3 gap-2 pt-4 mt-4 border-t border-slate-200 dark:border-[#31275E] text-center">
             <div>
-              <span className="text-[9px] font-bold text-[#787D91] dark:text-[#929AB0] uppercase block">
+              <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase block">
                 Total Practiced
               </span>
-              <span className="text-base font-black text-[#171923] dark:text-[#FFF9EF] font-mono tabular-nums">
+              <span className="text-base font-black text-slate-900 dark:text-slate-50 font-mono tabular-nums">
                 {baseStats.totalPracticed} Qs
               </span>
             </div>
             <div>
-              <span className="text-[9px] font-bold text-[#787D91] dark:text-[#929AB0] uppercase block">
+              <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase block">
                 Accuracy
               </span>
               <span className="text-base font-black text-emerald-600 dark:text-emerald-400 font-mono tabular-nums">
@@ -617,10 +617,10 @@ https://disha2020.in
               </span>
             </div>
             <div>
-              <span className="text-[9px] font-bold text-[#787D91] dark:text-[#929AB0] uppercase block">
+              <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase block">
                 Correct Answers
               </span>
-              <span className="text-base font-black text-[#800020] dark:text-[#F47B20] font-mono tabular-nums">
+              <span className="text-base font-black text-[#7045D8] dark:text-[#A78BFA] font-mono tabular-nums">
                 {baseStats.totalCorrect}
               </span>
             </div>
@@ -628,14 +628,14 @@ https://disha2020.in
         </div>
 
         {/* Negative Marking & Mistake Bleed Card */}
-        <div className="md:col-span-6 bg-gradient-to-br from-[#800020]/10 via-[#FFF9EF] to-[#F47B20]/10 dark:from-[#800020]/25 dark:via-[#1F2330] dark:to-[#F47B20]/15 rounded-3xl p-5 border border-[#800020]/25 dark:border-[#800020]/40 shadow-xs flex flex-col justify-between">
+        <div className="md:col-span-6 bg-gradient-to-br from-[#7045D8]/10 via-[#F8FAFC] to-[#7045D8]/10 dark:from-[#7045D8]/25 dark:via-[#1B1536] dark:to-[#7045D8]/15 rounded-3xl p-5 border border-[#7045D8]/25 dark:border-[#A78BFA]/40 shadow-xs flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-2">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-wider bg-[#991B1B]/15 dark:bg-[#991B1B]/30 text-[#991B1B] dark:text-[#FCA5A5] border border-[#991B1B]/20">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[11px] font-black uppercase tracking-wider bg-[#991B1B]/15 dark:bg-[#991B1B]/30 text-[#991B1B] dark:text-[#FCA5A5] border border-[#991B1B]/20">
                 <AlertTriangle className="w-3.5 h-3.5 text-[#991B1B] dark:text-[#FCA5A5]" />
                 <span>Negative Marking Penalty</span>
               </span>
-              <span className="text-[10px] font-black text-[#991B1B] dark:text-[#F87171]">
+              <span className="text-[11px] font-black text-[#991B1B] dark:text-[#F87171]">
                 1/3rd Negative Penalty
               </span>
             </div>
@@ -647,12 +647,12 @@ https://disha2020.in
               <span className="text-sm font-extrabold text-[#991B1B] dark:text-[#F87171]">
                 Marks Lost
               </span>
-              <span className="text-xs font-bold text-[#52576A] dark:text-[#CBD2E1] ml-auto">
+              <span className="text-xs font-bold text-slate-600 dark:text-slate-300 ml-auto">
                 ({baseStats.totalWrong} Incorrect Questions)
               </span>
             </div>
 
-            <div className="bg-white/95 dark:bg-[#1F2330]/95 p-3 rounded-2xl border border-[#800020]/15 dark:border-[#800020]/30 text-[11px] leading-relaxed text-[#171923] dark:text-[#FFF9EF] font-medium space-y-1">
+            <div className="bg-white/95 dark:bg-[#1B1536]/95 p-3 rounded-2xl border border-[#7045D8]/15 dark:border-[#A78BFA]/30 text-[11px] leading-relaxed text-slate-900 dark:text-slate-50 font-medium space-y-1">
               <p className="font-bold text-[#991B1B] dark:text-[#F87171]">
                 ⚠️ Harsh Truth:
               </p>
@@ -670,14 +670,14 @@ https://disha2020.in
             </div>
           </div>
 
-          <div className="pt-3 mt-3 border-t border-[#800020]/15 dark:border-[#800020]/30 flex items-center justify-between text-[11px]">
-            <span className="text-[#52576A] dark:text-[#CBD2E1]">
+          <div className="pt-3 mt-3 border-t border-[#7045D8]/15 dark:border-[#A78BFA]/30 flex items-center justify-between text-[11px]">
+            <span className="text-slate-600 dark:text-slate-300">
               Review and fix incorrect questions immediately:
             </span>
             <button
               type="button"
               onClick={() => onNavigateTab?.("wrong")}
-              className="text-xs font-extrabold text-[#800020] dark:text-[#F47B20] hover:underline flex items-center gap-1 cursor-pointer"
+              className="text-xs font-extrabold text-[#7045D8] dark:text-[#A78BFA] hover:underline flex items-center gap-1 cursor-pointer"
             >
               <span>Review Incorrect Questions ({baseStats.totalWrong})</span>
               <ChevronRight className="w-3.5 h-3.5" />
@@ -687,22 +687,22 @@ https://disha2020.in
       </section>
 
       {/* 3. AI GURU DIRECT DIAGNOSTIC REMARKS ("Unvarnished Diagnostic Insights") */}
-      <section className="bg-white dark:bg-[#1F2330] rounded-3xl p-5 sm:p-6 border border-[#E8D9C0] dark:border-[#31374A] shadow-xs space-y-4">
+      <section className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-6 border border-slate-200 dark:border-[#31275E] shadow-xs space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-[#7045D8]/10 dark:bg-[#7045D8]/15 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center">
               <Brain className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-xs sm:text-sm font-black uppercase tracking-wider text-[#171923] dark:text-[#FFF9EF]">
+              <h3 className="text-xs sm:text-sm font-black uppercase tracking-wider text-slate-900 dark:text-slate-50">
                 AI Mentor Candid Review
               </h3>
-              <p className="text-[10px] font-bold text-[#787D91] dark:text-[#929AB0] uppercase tracking-widest">
+              <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
                 Direct Unvarnished Diagnostic Insights
               </p>
             </div>
           </div>
-          <span className="text-[10px] font-extrabold text-[#800020] dark:text-[#F47B20] px-2 py-0.5 rounded-full bg-[#800020]/10 dark:bg-[#F47B20]/15">
+          <span className="text-[11px] font-extrabold text-[#7045D8] dark:text-[#A78BFA] px-2 py-0.5 rounded-full bg-[#7045D8]/10 dark:bg-[#7045D8]/15">
             Unvarnished Truth
           </span>
         </div>
@@ -714,10 +714,10 @@ https://disha2020.in
               remark.type === "alert"
                 ? "bg-[#991B1B]/5 dark:bg-[#991B1B]/15 border-[#991B1B]/25 dark:border-[#991B1B]/40"
                 : remark.type === "warning"
-                ? "bg-[#C99A45]/10 dark:bg-[#C99A45]/15 border-[#C99A45]/30 dark:border-[#C99A45]/40"
+                ? "bg-[#A78BFA]/10 dark:bg-[#7045D8]/15 border-[#A78BFA]/30 dark:border-[#A78BFA]/40"
                 : remark.type === "success"
                 ? "bg-emerald-500/10 dark:bg-emerald-950/20 border-emerald-500/30 dark:border-emerald-800"
-                : "bg-[#FFF9EF] dark:bg-[#171923] border-[#E8D9C0] dark:border-[#31374A]";
+                : "bg-[#F8FAFC] dark:bg-[#130E26] border-slate-200 dark:border-[#31275E]";
 
             return (
               <div
@@ -725,14 +725,14 @@ https://disha2020.in
                 className={`p-3.5 sm:p-4 rounded-2xl border transition-all ${bgClass}`}
               >
                 <div className="flex items-start gap-2.5">
-                  <div className="p-1.5 rounded-lg bg-white dark:bg-[#1F2330] shadow-xs shrink-0 mt-0.5 border border-[#E8D9C0]/60 dark:border-[#31374A]">
-                    <Icon className="w-4 h-4 text-[#800020] dark:text-[#F47B20]" />
+                  <div className="p-1.5 rounded-lg bg-white dark:bg-[#1B1536] shadow-xs shrink-0 mt-0.5 border border-slate-200/60 dark:border-[#31275E]">
+                    <Icon className="w-4 h-4 text-[#7045D8] dark:text-[#A78BFA]" />
                   </div>
                   <div>
-                    <h4 className="text-xs font-black text-[#171923] dark:text-[#FFF9EF] mb-1">
+                    <h4 className="text-xs font-black text-slate-900 dark:text-slate-50 mb-1">
                       {remark.title}
                     </h4>
-                    <p className="text-[11px] leading-relaxed text-[#52576A] dark:text-[#CBD2E1] font-medium">
+                    <p className="text-[11px] leading-relaxed text-slate-600 dark:text-slate-300 font-medium">
                       {remark.desc}
                     </p>
                   </div>
@@ -744,56 +744,56 @@ https://disha2020.in
       </section>
 
       {/* 4. THE CORE WEAKNESS RADAR (EXACT TOPICS & FLAW REASONS) */}
-      <section className="bg-white dark:bg-[#1F2330] rounded-3xl p-5 sm:p-6 border border-[#E8D9C0] dark:border-[#31374A] shadow-xs space-y-4">
+      <section className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-6 border border-slate-200 dark:border-[#31275E] shadow-xs space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h3 className="text-xs sm:text-sm font-black uppercase tracking-wider text-[#171923] dark:text-[#FFF9EF] flex items-center gap-2">
-              <Target className="w-4 h-4 text-[#800020] dark:text-[#F47B20]" />
+            <h3 className="text-xs sm:text-sm font-black uppercase tracking-wider text-slate-900 dark:text-slate-50 flex items-center gap-2">
+              <Target className="w-4 h-4 text-[#7045D8] dark:text-[#A78BFA]" />
               <span>AI Weakness Radar (Flaw & Vulnerability Matrix)</span>
             </h3>
-            <p className="text-[10px] font-bold text-[#787D91] dark:text-[#929AB0] uppercase tracking-widest mt-0.5">
+            <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-0.5">
               Where marks are lost • Detailed topic-by-topic diagnostic
             </p>
           </div>
 
           {/* Filter Pills */}
-          <div className="flex items-center gap-1 bg-[#F7EFE2] dark:bg-[#252A3A] p-1 rounded-xl border border-[#E8D9C0] dark:border-[#31374A] self-start sm:self-auto">
+          <div className="flex items-center gap-1 bg-slate-100 dark:bg-[#241D48] p-1 rounded-xl border border-slate-200 dark:border-[#31275E] self-start sm:self-auto">
             <button
               onClick={() => setActiveFilter("critical")}
-              className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold transition-all cursor-pointer ${
+              className={`px-2.5 py-1 rounded-lg text-[11px] font-extrabold transition-all cursor-pointer ${
                 activeFilter === "critical"
                   ? "bg-[#991B1B] text-white shadow-xs border border-[#991B1B]/40"
-                  : "text-[#52576A] dark:text-[#CBD2E1] hover:text-[#171923]"
+                  : "text-slate-600 dark:text-slate-300 hover:text-slate-900"
               }`}
             >
               Red Alert ({criticalWeakList.length})
             </button>
             <button
               onClick={() => setActiveFilter("warning")}
-              className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold transition-all cursor-pointer ${
+              className={`px-2.5 py-1 rounded-lg text-[11px] font-extrabold transition-all cursor-pointer ${
                 activeFilter === "warning"
-                  ? "bg-[#C99A45] text-white shadow-xs border border-[#C99A45]/40"
-                  : "text-[#52576A] dark:text-[#CBD2E1] hover:text-[#171923]"
+                  ? "bg-[#A78BFA] text-white shadow-xs border border-[#A78BFA]/40"
+                  : "text-slate-600 dark:text-slate-300 hover:text-slate-900"
               }`}
             >
               Needs Review ({warningList.length})
             </button>
             <button
               onClick={() => setActiveFilter("mastered")}
-              className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold transition-all cursor-pointer ${
+              className={`px-2.5 py-1 rounded-lg text-[11px] font-extrabold transition-all cursor-pointer ${
                 activeFilter === "mastered"
                   ? "bg-emerald-600 text-white shadow-xs border border-emerald-600/40"
-                  : "text-[#52576A] dark:text-[#CBD2E1] hover:text-[#171923]"
+                  : "text-slate-600 dark:text-slate-300 hover:text-slate-900"
               }`}
             >
               Mastered ({masteredList.length})
             </button>
             <button
               onClick={() => setActiveFilter("all")}
-              className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold transition-all cursor-pointer ${
+              className={`px-2.5 py-1 rounded-lg text-[11px] font-extrabold transition-all cursor-pointer ${
                 activeFilter === "all"
-                  ? "bg-[#800020] text-white shadow-xs border border-[#C99A45]/30"
-                  : "text-[#52576A] dark:text-[#CBD2E1] hover:text-[#171923]"
+                  ? "bg-[#7045D8] text-white shadow-xs border border-[#A78BFA]/30"
+                  : "text-slate-600 dark:text-slate-300 hover:text-slate-900"
               }`}
             >
               All Topics ({topicDiagnostics.length})
@@ -803,12 +803,12 @@ https://disha2020.in
 
         {/* Weak Topics List */}
         {displayedList.length === 0 ? (
-          <div className="py-12 text-center bg-[#FFF9EF] dark:bg-[#171923] rounded-2xl border border-dashed border-[#E8D9C0] dark:border-[#31374A] p-6">
+          <div className="py-12 text-center bg-[#F8FAFC] dark:bg-[#130E26] rounded-2xl border border-dashed border-slate-200 dark:border-[#31275E] p-6">
             <ShieldCheck className="w-10 h-10 text-emerald-500 mx-auto mb-2" />
-            <h4 className="text-xs font-black text-[#171923] dark:text-[#FFF9EF]">
+            <h4 className="text-xs font-black text-slate-900 dark:text-slate-50">
               No topics found in this category
             </h4>
-            <p className="text-[11px] text-[#52576A] dark:text-[#CBD2E1] mt-1 max-w-sm mx-auto">
+            <p className="text-[11px] text-slate-600 dark:text-slate-300 mt-1 max-w-sm mx-auto">
               {activeFilter === "critical"
                 ? "Congratulations! No critical red flags detected. Maintain your consistency."
                 : "Practice more questions to populate your diagnostic radar."}
@@ -825,37 +825,37 @@ https://disha2020.in
                   key={item.id}
                   className={`p-3.5 sm:p-4 rounded-2xl transition-all ${
                     isCrit
-                      ? "bg-white dark:bg-[#1F2330] border-l-4 border-l-[#991B1B] border-t border-r border-b border-[#E8D9C0] dark:border-[#31374A] shadow-2xs hover:border-[#991B1B]/60"
+                      ? "bg-white dark:bg-[#1B1536] border-l-4 border-l-[#991B1B] border-t border-r border-b border-slate-200 dark:border-[#31275E] shadow-2xs hover:border-[#991B1B]/60"
                       : isWarn
-                      ? "bg-white dark:bg-[#1F2330] border-l-4 border-l-[#C99A45] border-t border-r border-b border-[#E8D9C0] dark:border-[#31374A] shadow-2xs hover:border-[#C99A45]/60"
-                      : "bg-white dark:bg-[#1F2330] border-l-4 border-l-emerald-500 border-t border-r border-b border-[#E8D9C0] dark:border-[#31374A] shadow-2xs hover:border-emerald-500/60"
+                      ? "bg-white dark:bg-[#1B1536] border-l-4 border-l-[#A78BFA] border-t border-r border-b border-slate-200 dark:border-[#31275E] shadow-2xs hover:border-[#A78BFA]/60"
+                      : "bg-white dark:bg-[#1B1536] border-l-4 border-l-emerald-500 border-t border-r border-b border-slate-200 dark:border-[#31275E] shadow-2xs hover:border-emerald-500/60"
                   }`}
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 mb-1 flex-wrap">
                         <span
-                          className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase border ${
+                          className={`px-2 py-0.5 rounded-full text-[11px] font-black uppercase border ${
                             isCrit
                               ? "bg-[#991B1B]/10 dark:bg-[#991B1B]/20 text-[#991B1B] dark:text-[#FCA5A5] border-[#991B1B]/30"
                               : isWarn
-                              ? "bg-[#C99A45]/15 dark:bg-[#C99A45]/20 text-[#946B1E] dark:text-[#E5BC6B] border-[#C99A45]/30"
+                              ? "bg-[#A78BFA]/15 dark:bg-[#7045D8]/20 text-[#946B1E] dark:text-[#E5BC6B] border-[#A78BFA]/30"
                               : "bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border-emerald-300"
                           }`}
                         >
                           {isCrit ? "🔴 Critical Weakness" : isWarn ? "🟡 Needs Review" : "🟢 Mastered"}
                         </span>
-                        <span className="text-[10px] text-[#787D91] dark:text-[#929AB0] font-bold">
+                        <span className="text-[11px] text-slate-500 dark:text-slate-400 font-bold">
                           {item.chapterName}
                         </span>
                       </div>
 
-                      <h4 className="text-xs sm:text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] truncate">
+                      <h4 className="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-slate-50 truncate">
                         {item.name}
                       </h4>
 
-                      <p className="text-[11px] text-[#52576A] dark:text-[#CBD2E1] font-medium mt-0.5 flex items-center gap-1.5">
-                        <span className={`font-bold ${isCrit ? "text-[#991B1B] dark:text-[#F87171]" : isWarn ? "text-[#C99A45]" : "text-emerald-600"}`}>
+                      <p className="text-[11px] text-slate-600 dark:text-slate-300 font-medium mt-0.5 flex items-center gap-1.5">
+                        <span className={`font-bold ${isCrit ? "text-[#991B1B] dark:text-[#F87171]" : isWarn ? "text-amber-500" : "text-emerald-600"}`}>
                           AI Diagnosis:
                         </span>
                         <span>{item.weakReason}</span>
@@ -871,17 +871,17 @@ https://disha2020.in
                               isCrit
                                 ? "text-[#991B1B] dark:text-[#F87171]"
                                 : isWarn
-                                ? "text-[#C99A45] dark:text-[#E5BC6B]"
+                                ? "text-amber-500 dark:text-[#E5BC6B]"
                                 : "text-emerald-600 dark:text-emerald-400"
                             }`}
                           >
                             {item.accuracy}%
                           </span>
-                          <span className="text-[9px] font-bold text-[#787D91]">
+                          <span className="text-[11px] font-bold text-slate-500">
                             Accuracy
                           </span>
                         </div>
-                        <span className="text-[10px] text-[#787D91] dark:text-[#929AB0] font-mono block">
+                        <span className="text-[11px] text-slate-500 dark:text-slate-400 font-mono block">
                           {item.wrong} Wrong / {item.attempted} Attempted
                         </span>
                       </div>
@@ -892,7 +892,7 @@ https://disha2020.in
                         className={`h-8 px-3 rounded-xl text-xs font-black flex items-center gap-1 active:scale-95 transition-all cursor-pointer ${
                           isCrit
                             ? "bg-[#991B1B] hover:bg-[#7F1D1D] text-white shadow-xs border border-[#991B1B]/30"
-                            : "bg-[#800020] hover:bg-[#5E0017] text-white shadow-xs border border-[#C99A45]/30"
+                            : "bg-[#7045D8] hover:bg-[#5B32BF] text-white shadow-xs border border-[#A78BFA]/30"
                         }`}
                       >
                         <Zap className="w-3.5 h-3.5" />
@@ -902,10 +902,10 @@ https://disha2020.in
                   </div>
 
                   {/* Accuracy Bar */}
-                  <div className="w-full h-1.5 rounded-full bg-[#E8D9C0]/60 dark:bg-[#31374A] overflow-hidden mt-2.5">
+                  <div className="w-full h-1.5 rounded-full bg-slate-200/60 dark:bg-[#31275E] overflow-hidden mt-2.5">
                     <div
                       className={`h-full rounded-full ${
-                        isCrit ? "bg-[#991B1B]" : isWarn ? "bg-[#C99A45]" : "bg-emerald-500"
+                        isCrit ? "bg-[#991B1B]" : isWarn ? "bg-[#A78BFA]" : "bg-emerald-500"
                       }`}
                       style={{ width: `${Math.max(4, item.accuracy)}%` }}
                     />
@@ -918,14 +918,14 @@ https://disha2020.in
       </section>
 
       {/* 5. 1-CLICK CUSTOMIZED BOOSTER TEST (THE BIG ACTION) */}
-      <section className="bg-gradient-to-r from-[#800020] via-[#5E0017] to-[#171923] rounded-3xl p-5 sm:p-6 text-white shadow-xl shadow-[#800020]/25 relative overflow-hidden">
+      <section className="bg-gradient-to-r from-[#7045D8] via-[#5B32BF] to-[#130E26] rounded-3xl p-5 sm:p-6 text-white shadow-xl shadow-[#7045D8]/25 relative overflow-hidden">
         {/* Glow */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-[#F47B20]/30 to-transparent rounded-full blur-2xl pointer-events-none" />
+        <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-[#7045D8]/30 to-transparent rounded-full blur-2xl pointer-events-none" />
 
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5 relative z-10">
           <div className="max-w-xl">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-wider bg-white/15 text-[#FFF9EF] border border-white/20 mb-2">
-              <Sparkles className="w-3.5 h-3.5 text-[#F47B20]" />
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[11px] font-black uppercase tracking-wider bg-white/15 text-white border border-white/20 mb-2">
+              <Sparkles className="w-3.5 h-3.5 text-[#7045D8]" />
               <span>Targeted Remedial Test</span>
             </div>
             <h3 className="text-xl sm:text-2xl font-black tracking-tight leading-snug">
@@ -940,7 +940,7 @@ https://disha2020.in
             <button
               type="button"
               onClick={handleStartCustomizedBoosterTest}
-              className="w-full sm:w-auto h-12 sm:h-14 px-6 rounded-2xl bg-gradient-to-r from-[#F47B20] to-[#E05A10] hover:brightness-110 text-white font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-[#F47B20]/30 active:scale-95 transition-all cursor-pointer border border-amber-300/40"
+              className="w-full sm:w-auto h-12 sm:h-14 px-6 rounded-2xl bg-gradient-to-r from-[#7045D8] to-[#E05A10] hover:brightness-110 text-white font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-[#7045D8]/30 active:scale-95 transition-all cursor-pointer border border-amber-300/40"
             >
               <Flame className="w-5 h-5 fill-white text-white animate-pulse" />
               <span>Start Booster Test (20 Qs)</span>
@@ -953,21 +953,21 @@ https://disha2020.in
       {/* 6. ADDITIONAL PROGRESS METRICS: SPEED, SPACING & RETENTION */}
       <section className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {/* Metric 1: Spaced Retention Due */}
-        <div className="bg-white dark:bg-[#1F2330] rounded-2xl p-4 border border-[#E8D9C0] dark:border-[#31374A] shadow-xs flex flex-col justify-between">
+        <div className="bg-white dark:bg-[#1B1536] rounded-2xl p-4 border border-slate-200 dark:border-[#31275E] shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] font-black uppercase tracking-wider text-[#787D91] dark:text-[#929AB0]">
+            <span className="text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">
               Revision Due (Memory Curve)
             </span>
-            <Brain className="w-4 h-4 text-[#800020] dark:text-[#F47B20]" />
+            <Brain className="w-4 h-4 text-[#7045D8] dark:text-[#A78BFA]" />
           </div>
           <div>
             <div className="flex items-baseline gap-1 font-mono">
-              <span className="text-2xl font-black text-[#171923] dark:text-[#FFF9EF] tabular-nums">
+              <span className="text-2xl font-black text-slate-900 dark:text-slate-50 tabular-nums">
                 {baseStats.dueQuestions.length}
               </span>
-              <span className="text-xs font-bold text-[#787D91]">Questions Remaining</span>
+              <span className="text-xs font-bold text-slate-500">Questions Remaining</span>
             </div>
-            <p className="text-[10px] text-[#52576A] dark:text-[#CBD2E1] font-medium mt-1">
+            <p className="text-[11px] text-slate-600 dark:text-slate-300 font-medium mt-1">
               Essential to review within 24-48 hours
             </p>
           </div>
@@ -985,7 +985,7 @@ https://disha2020.in
                 onNavigateTab?.("topics");
               }
             }}
-            className="text-[11px] font-black text-[#800020] dark:text-[#F47B20] mt-3 pt-2 border-t border-[#E8D9C0]/80 dark:border-[#31374A] flex items-center justify-between hover:underline cursor-pointer"
+            className="text-[11px] font-black text-[#7045D8] dark:text-[#A78BFA] mt-3 pt-2 border-t border-slate-200/80 dark:border-[#31275E] flex items-center justify-between hover:underline cursor-pointer"
           >
             <span>Start Revision</span>
             <ChevronRight className="w-3.5 h-3.5" />
@@ -993,30 +993,30 @@ https://disha2020.in
         </div>
 
         {/* Metric 2: Syllabus Coverage */}
-        <div className="bg-white dark:bg-[#1F2330] rounded-2xl p-4 border border-[#E8D9C0] dark:border-[#31374A] shadow-xs flex flex-col justify-between">
+        <div className="bg-white dark:bg-[#1B1536] rounded-2xl p-4 border border-slate-200 dark:border-[#31275E] shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] font-black uppercase tracking-wider text-[#787D91] dark:text-[#929AB0]">
+            <span className="text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">
               Syllabus Coverage
             </span>
-            <BookOpen className="w-4 h-4 text-[#800020] dark:text-[#F47B20]" />
+            <BookOpen className="w-4 h-4 text-[#7045D8] dark:text-[#A78BFA]" />
           </div>
           <div>
             <div className="flex items-baseline gap-1 font-mono">
-              <span className="text-2xl font-black text-[#171923] dark:text-[#FFF9EF] tabular-nums">
+              <span className="text-2xl font-black text-slate-900 dark:text-slate-50 tabular-nums">
                 {questions.length > 0 ? Math.round((baseStats.totalPracticed / questions.length) * 100) : 0}%
               </span>
-              <span className="text-xs font-bold text-[#787D91]">
+              <span className="text-xs font-bold text-slate-500">
                 ({baseStats.totalPracticed}/{questions.length})
               </span>
             </div>
-            <p className="text-[10px] text-[#52576A] dark:text-[#CBD2E1] font-medium mt-1">
+            <p className="text-[11px] text-slate-600 dark:text-slate-300 font-medium mt-1">
               Portion of Disha PYQ question bank completed
             </p>
           </div>
           <button
             type="button"
             onClick={() => onNavigateTab?.("topics")}
-            className="text-[11px] font-black text-[#800020] dark:text-[#F47B20] mt-3 pt-2 border-t border-[#E8D9C0]/80 dark:border-[#31374A] flex items-center justify-between hover:underline cursor-pointer"
+            className="text-[11px] font-black text-[#7045D8] dark:text-[#A78BFA] mt-3 pt-2 border-t border-slate-200/80 dark:border-[#31275E] flex items-center justify-between hover:underline cursor-pointer"
           >
             <span>Practice New Chapters</span>
             <ChevronRight className="w-3.5 h-3.5" />
@@ -1024,9 +1024,9 @@ https://disha2020.in
         </div>
 
         {/* Metric 3: Weak Topics Count */}
-        <div className="bg-white dark:bg-[#1F2330] rounded-2xl p-4 border border-[#E8D9C0] dark:border-[#31374A] shadow-xs flex flex-col justify-between">
+        <div className="bg-white dark:bg-[#1B1536] rounded-2xl p-4 border border-slate-200 dark:border-[#31275E] shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] font-black uppercase tracking-wider text-[#787D91] dark:text-[#929AB0]">
+            <span className="text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">
               Weak Topics Count
             </span>
             <AlertTriangle className="w-4 h-4 text-[#991B1B] dark:text-[#F87171]" />
@@ -1036,16 +1036,16 @@ https://disha2020.in
               <span className="text-2xl font-black text-[#991B1B] dark:text-[#F87171] tabular-nums">
                 {criticalWeakList.length}
               </span>
-              <span className="text-xs font-bold text-[#787D91]">Chapters Needing Attention</span>
+              <span className="text-xs font-bold text-slate-500">Chapters Needing Attention</span>
             </div>
-            <p className="text-[10px] text-[#52576A] dark:text-[#CBD2E1] font-medium mt-1">
+            <p className="text-[11px] text-slate-600 dark:text-slate-300 font-medium mt-1">
               Where accuracy is under 50% or mistakes are frequent
             </p>
           </div>
           <button
             type="button"
             onClick={() => setActiveFilter("critical")}
-            className="text-[11px] font-black text-[#991B1B] dark:text-[#F87171] mt-3 pt-2 border-t border-[#E8D9C0]/80 dark:border-[#31374A] flex items-center justify-between hover:underline cursor-pointer"
+            className="text-[11px] font-black text-[#991B1B] dark:text-[#F87171] mt-3 pt-2 border-t border-slate-200/80 dark:border-[#31275E] flex items-center justify-between hover:underline cursor-pointer"
           >
             <span>Filter Weaknesses</span>
             <ChevronRight className="w-3.5 h-3.5" />

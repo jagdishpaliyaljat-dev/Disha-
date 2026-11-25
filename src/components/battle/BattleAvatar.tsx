@@ -204,7 +204,7 @@ export const BattleAvatar: React.FC<BattleAvatarProps> = ({
       ) : (
         <span className="font-bold select-none flex items-center justify-center text-stone-800 dark:text-stone-200">
           {isUrl && hasError ? (
-            <span className="text-[10px] uppercase font-bold text-stone-600 dark:text-stone-400">
+            <span className="text-[11px] uppercase font-bold text-stone-600 dark:text-stone-400">
               {name.charAt(0) || "P"}
             </span>
           ) : (
@@ -215,7 +215,7 @@ export const BattleAvatar: React.FC<BattleAvatarProps> = ({
 
       {showBadge && matchedChar && (
         <div
-          className="absolute -bottom-1 -right-1 px-1 py-0.2 rounded-full text-[8px] font-extrabold text-white shadow-xs"
+          className="absolute -bottom-1 -right-1 px-1 py-0.2 rounded-full text-[11px] font-extrabold text-white shadow-xs"
           style={{ backgroundColor: matchedChar.accentColor }}
         >
           {matchedChar.badge}

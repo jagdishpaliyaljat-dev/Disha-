@@ -108,14 +108,27 @@
   html.dark.amoled-black .dark\:bg-\[\#171329\],
   html.dark.amoled-black .dark\:bg-\[\#171923\],
   html.dark.amoled-black .dark\:bg-\[\#1A1417\],
-  html.dark.amoled-black .dark\:bg-\[\#111A2E\] {
+  html.dark.amoled-black .dark\:bg-\[\#111A2E\],
+  html.dark.amoled-black .dark\:bg-\[\#0B1220\],
+  html.dark.amoled-black .dark\:bg-\[\#111622\],
+  html.dark.amoled-black .dark\:bg-\[\#0D111A\],
+  html.dark.amoled-black .dark\:bg-slate-950 {
     background-color: #000000 !important;
   }
 
   html.dark.amoled-black .dark\:bg-\[\#1B1536\],
+  html.dark.amoled-black .dark\:bg-\[\#171329\],
+  html.dark.amoled-black .dark\:bg-\[\#241D48\],
   html.dark.amoled-black .dark\:bg-\[\#1F2330\],
   html.dark.amoled-black .dark\:bg-\[\#252A3A\],
-  html.dark.amoled-black .dark\:bg-\[\#1C1518\] {
+  html.dark.amoled-black .dark\:bg-\[\#1C1518\],
+  html.dark.amoled-black .dark\:bg-\[\#1E1938\],
+  html.dark.amoled-black .dark\:bg-\[\#201B38\],
+  html.dark.amoled-black .dark\:bg-\[\#1E2230\],
+  html.dark.amoled-black .dark\:bg-\[\#262B3D\],
+  html.dark.amoled-black .dark\:bg-\[\#252048\],
+  html.dark.amoled-black .dark\:bg-slate-900,
+  html.dark.amoled-black .dark\:bg-slate-800 {
     background-color: #07070A !important;
   }
 
@@ -123,8 +136,22 @@
   html.dark.amoled-black .dark\:border-\[\#31374A\],
   html.dark.amoled-black .dark\:border-\[\#31275E\],
   html.dark.amoled-black .dark\:border-\[\#2F2227\],
-  html.dark.amoled-black .dark\:border-\[\#2D2226\] {
+  html.dark.amoled-black .dark\:border-\[\#2D2226\],
+  html.dark.amoled-black .dark\:border-\[\#263045\],
+  html.dark.amoled-black .dark\:border-\[\#2D2552\],
+  html.dark.amoled-black .dark\:border-\[\#362E5B\] {
     border-color: #171720 !important;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 
   /* Eye Comfort Warm Reading Shield */
@@ -350,52 +377,5 @@
   }
   .dark .disha-input-field:focus {
     box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.25);
-  }
-
-  /* 60-30-10 Global Color Harmonization */
-  .bg-\[\#800020\],
-  .bg-\[\#5E0017\],
-  .bg-\[\#4A0012\] {
-    background-color: var(--color-disha-purple, #7045D8) !important;
-  }
-
-  .hover\:bg-\[\#5E0017\]:hover,
-  .hover\:bg-\[\#4A0012\]:hover {
-    background-color: var(--color-disha-purple-deep, #5B32BF) !important;
-  }
-
-  .text-\[\#800020\],
-  .text-\[\#5E0017\] {
-    color: var(--color-disha-purple, #7045D8) !important;
-  }
-
-  .border-\[\#800020\],
-  .border-\[\#800020\]\/25,
-  .border-\[\#800020\]\/30,
-  .border-\[\#800020\]\/40,
-  .border-\[\#800020\]\/50 {
-    border-color: rgba(112, 69, 216, 0.3) !important;
-  }
-
-  .bg-\[\#800020\]\/10,
-  .bg-\[\#800020\]\/15,
-  .bg-\[\#800020\]\/20 {
-    background-color: rgba(112, 69, 216, 0.1) !important;
-  }
-
-  .dark .dark\:text-\[\#F47B20\],
-  .dark .dark\:text-\[\#C99A45\] {
-    color: var(--color-disha-purple-light, #A78BFA) !important;
-  }
-
-  .dark .dark\:bg-\[\#F47B20\]\/15,
-  .dark .dark\:bg-\[\#C99A45\]\/15 {
-    background-color: rgba(112, 69, 216, 0.18) !important;
-  }
-
-  .dark .dark\:border-\[\#C99A45\]\/35,
-  .dark .dark\:border-\[\#C99A45\]\/40,
-  .dark .dark\:border-\[\#C99A45\]\/50 {
-    border-color: rgba(167, 139, 250, 0.35) !important;
   }
 }

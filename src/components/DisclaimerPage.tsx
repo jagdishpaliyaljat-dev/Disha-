@@ -62,19 +62,19 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
   };
 
   return (
-    <div className="min-h-full bg-[#FFF9EF] dark:bg-[#171923] text-[#171923] dark:text-[#FFF9EF] flex flex-col pb-24 select-text">
+    <div className="min-h-full bg-[#F8FAFC] dark:bg-[#130E26] text-slate-900 dark:text-slate-50 flex flex-col pb-24 select-text">
       {/* Sticky Header Bar */}
-      <header className="sticky top-0 z-40 bg-white/95 dark:bg-[#1F2330]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] px-4 py-3 flex items-center justify-between">
+      <header className="sticky top-0 z-40 bg-white/95 dark:bg-[#1B1536]/95 backdrop-blur-md border-b border-slate-200 dark:border-[#31275E] px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           <button
             onClick={onNavigateHome}
             aria-label="Back to Homepage"
-            className="p-2 -ml-1 rounded-xl text-[#52576A] dark:text-[#CBD2E1] hover:bg-[#F7EFE2] dark:hover:bg-[#252A3A] transition-colors active:scale-95 cursor-pointer flex items-center gap-1.5 text-xs font-bold"
+            className="p-2 -ml-1 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#241D48] transition-colors active:scale-95 cursor-pointer flex items-center gap-1.5 text-xs font-bold"
           >
             <ArrowLeft className="w-4 h-4" />
             <span className="hidden sm:inline">Home</span>
           </button>
-          <div className="h-4 w-px bg-[#E8D9C0] dark:bg-[#31374A]" />
+          <div className="h-4 w-px bg-slate-200 dark:bg-[#31275E]" />
           <div
             className="flex items-center gap-2 cursor-pointer"
             onClick={onNavigateHome}
@@ -83,17 +83,17 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
           >
             <AppLogo size="sm" />
             <div className="flex flex-col">
-              <span className="text-sm font-black text-[#171923] dark:text-[#FFF9EF] leading-tight tracking-tight">
+              <span className="text-sm font-black text-slate-900 dark:text-slate-50 leading-tight tracking-tight">
                 DISHA <span className="text-[#7045D8] dark:text-[#A78BFA]">PYQ</span>
               </span>
-              <span className="text-[10px] text-[#7045D8] dark:text-[#A78BFA] font-semibold leading-none">Disclaimer</span>
+              <span className="text-[11px] text-[#7045D8] dark:text-[#A78BFA] font-semibold leading-none">Disclaimer</span>
             </div>
           </div>
         </div>
 
         <button
           onClick={onNavigateHome}
-          className="w-10 h-10 rounded-2xl bg-[#F7EFE2] dark:bg-[#252A3A] text-[#52576A] dark:text-[#CBD2E1] flex items-center justify-center hover:bg-[#EFE3CF] dark:hover:bg-[#31374A] border border-[#E8D9C0] dark:border-[#31374A] transition-all active:scale-90 cursor-pointer"
+          className="w-10 h-10 rounded-2xl bg-slate-100 dark:bg-[#241D48] text-slate-600 dark:text-slate-300 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-[#31275E] border border-slate-200 dark:border-[#31275E] transition-all active:scale-90 cursor-pointer"
           aria-label="Close"
         >
           <ChevronRight className="w-5 h-5 rotate-90" />
@@ -104,12 +104,12 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
       <main className="max-w-4xl w-full mx-auto px-4 py-8 space-y-8 flex-1">
         {/* Page Hero Header */}
         <div className="text-center space-y-3">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] text-[11px] font-black uppercase tracking-wider border border-[#800020]/20 dark:border-[#F47B20]/30">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#7045D8]/10 dark:bg-[#7045D8]/15 text-[#7045D8] dark:text-[#A78BFA] text-[11px] font-black uppercase tracking-wider border border-[#7045D8]/20 dark:border-[#A78BFA]/30">
             <AlertCircle className="w-3.5 h-3.5" />
             <span>Educational &amp; Legal Disclaimer</span>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl font-black text-[#171923] dark:text-[#FFF9EF] tracking-tight">
+          <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-slate-50 tracking-tight">
             Disclaimer
           </h1>
 
@@ -119,7 +119,7 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
 
           <div className="max-w-2xl mx-auto space-y-4 text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-medium pt-2">
             <div className="p-4 rounded-[28px] bg-white dark:bg-[#111927] border-2 border-dashed border-slate-200 dark:border-slate-800 text-left space-y-2">
-              <span className="text-[10px] font-black uppercase tracking-widest text-[#1E5BF0] block">Quick Summary</span>
+              <span className="text-[11px] font-black uppercase tracking-widest text-[#1E5BF0] block">Quick Summary</span>
               <p className="text-xs font-bold leading-normal">
                 Disha PYQ is an independent platform for educational practice and MCQ revision. We are NOT a government entity. All content is for self-study purposes only.
               </p>
@@ -146,7 +146,7 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
               <BookOpen className="w-4 h-4 text-[#1E5BF0]" />
               <span>Table of Contents</span>
             </span>
-            <span className="text-[10px] font-bold text-slate-400">13 Sections</span>
+            <span className="text-[11px] font-bold text-slate-400">13 Sections</span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 pt-1">
@@ -158,7 +158,7 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
                   onClick={() => scrollToSection(sec.id)}
                   className="flex items-center gap-2 p-2.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/60 text-left transition-colors group cursor-pointer"
                 >
-                  <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 w-5 shrink-0">
+                  <span className="text-[11px] font-black text-slate-400 dark:text-slate-500 w-5 shrink-0">
                     {sec.num}
                   </span>
                   <Icon className="w-3.5 h-3.5 text-[#1E5BF0] dark:text-blue-400 shrink-0 group-hover:scale-110 transition-transform" />
@@ -186,7 +186,7 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
                 <h2 className="text-lg font-black text-[#071b49] dark:text-white">
                   1. Educational Purpose Only
                 </h2>
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
                   Self-Study & Revision Assistance
                 </span>
               </div>
@@ -221,7 +221,7 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
                 <h2 className="text-lg font-black text-[#071b49] dark:text-white">
                   2. Accuracy of Information
                 </h2>
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
                   Content Quality & Correction Reporting
                 </span>
               </div>
@@ -271,7 +271,7 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
                 <h2 className="text-lg font-black text-[#071b49] dark:text-white">
                   3. No Guarantee of Examination Results
                 </h2>
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
                   Supplementary Practice Disclaimer
                 </span>
               </div>
@@ -317,7 +317,7 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
                 <h2 className="text-lg font-black text-[#071b49] dark:text-white">
                   4. No Government Affiliation
                 </h2>
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
                   Independent Platform Status
                 </span>
               </div>
@@ -352,7 +352,7 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
                 <h2 className="text-lg font-black text-[#071b49] dark:text-white">
                   5. Practice Questions and Answer Explanations
                 </h2>
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
                   Self-Assessment Material Scope
                 </span>
               </div>
@@ -387,7 +387,7 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
                 <h2 className="text-lg font-black text-[#071b49] dark:text-white">
                   6. Current Affairs and Time-Sensitive Information
                 </h2>
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
                   Dynamic Content Updates
                 </span>
               </div>
@@ -419,7 +419,7 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
                 <h2 className="text-lg font-black text-[#071b49] dark:text-white">
                   7. External Links and Third-Party Content
                 </h2>
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
                   Outbound Resources Policy
                 </span>
               </div>
@@ -454,7 +454,7 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
                 <h2 className="text-lg font-black text-[#071b49] dark:text-white">
                   8. Intellectual Property and Content Ownership
                 </h2>
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
                   Trademarks & Copyright Notice
                 </span>
               </div>
@@ -489,7 +489,7 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
                 <h2 className="text-lg font-black text-[#071b49] dark:text-white">
                   9. Website Availability and Technical Issues
                 </h2>
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
                   Service Uptime & Maintenance
                 </span>
               </div>
@@ -524,7 +524,7 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
                 <h2 className="text-lg font-black text-[#071b49] dark:text-white">
                   10. Limitation of Responsibility
                 </h2>
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
                   Legal Disclaimer Scope
                 </span>
               </div>
@@ -559,7 +559,7 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
                 <h2 className="text-lg font-black text-[#071b49] dark:text-white">
                   11. Personal Information and Privacy
                 </h2>
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
                   Data Governance Cross-Reference
                 </span>
               </div>
@@ -599,7 +599,7 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
                 <h2 className="text-lg font-black text-[#071b49] dark:text-white">
                   12. Changes to This Disclaimer
                 </h2>
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
                   Periodic Policy Revisions
                 </span>
               </div>
@@ -631,7 +631,7 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
                 <h2 className="text-lg font-black text-[#071b49] dark:text-white">
                   13. Contact Us
                 </h2>
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
                   Official Communication Channel
                 </span>
               </div>
@@ -653,7 +653,7 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
                     <Globe className="w-4 h-4" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
                       Website
                     </span>
                     <span className="text-xs font-black text-slate-800 dark:text-white truncate block group-hover:text-blue-600 transition-colors">
@@ -670,7 +670,7 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
                     <Mail className="w-4 h-4" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
                       Official Contact Page
                     </span>
                     <span className="text-xs font-black text-slate-800 dark:text-white truncate block group-hover:text-blue-600 transition-colors">
@@ -748,7 +748,7 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
             <span className="text-slate-800 dark:text-slate-200 font-bold">Disclaimer</span>
           </div>
 
-          <p className="text-[10px] text-slate-400 dark:text-slate-500">
+          <p className="text-[11px] text-slate-400 dark:text-slate-500">
             © 2026 Disha PYQ. All rights reserved. Online MCQ Practice Platform.
           </p>
         </footer>

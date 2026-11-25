@@ -75,7 +75,7 @@ export const SyncStatusIndicator: React.FC<SyncStatusIndicatorProps> = ({ isOnli
   const badge = getStatusBadge();
 
   return (
-    <div className="relative w-full flex justify-center items-center py-1 px-2.5 z-30 select-none bg-[#FFF9EF]/90 dark:bg-[#171923]/90 border-b border-[#E8D9C0]/40 dark:border-[#31374A]/40 shrink-0">
+    <div className="relative w-full flex justify-center items-center py-1 px-2.5 z-30 select-none bg-[#F8FAFC]/90 dark:bg-[#130E26]/90 border-b border-slate-200/40 dark:border-[#31275E]/40 shrink-0">
       <button
         onClick={() => setExpanded(!expanded)}
         className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border shadow-2xs transition-all text-[11px] font-semibold leading-tight max-w-full ${badge.color}`}
@@ -87,12 +87,12 @@ export const SyncStatusIndicator: React.FC<SyncStatusIndicatorProps> = ({ isOnli
 
       {expanded && (
         <div 
-          className="absolute top-full left-1/2 -translate-x-1/2 mt-1 w-[calc(100vw-24px)] max-w-xs rounded-xl bg-white dark:bg-[#1E2330] border border-[#E8D9C0] dark:border-[#31374A] shadow-xl p-3 text-[#2D3748] dark:text-[#E2E8F0] z-50 text-xs space-y-2 animate-in fade-in zoom-in-95 duration-100"
+          className="absolute top-full left-1/2 -translate-x-1/2 mt-1 w-[calc(100vw-24px)] max-w-xs rounded-xl bg-white dark:bg-[#1E2330] border border-slate-200 dark:border-[#31275E] shadow-xl p-3 text-[#2D3748] dark:text-[#E2E8F0] z-50 text-xs space-y-2 animate-in fade-in zoom-in-95 duration-100"
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="flex items-center justify-between border-b border-[#E8D9C0]/60 dark:border-[#31374A]/60 pb-1.5">
+          <div className="flex items-center justify-between border-b border-slate-200/60 dark:border-[#31275E]/60 pb-1.5">
             <span className="font-semibold text-sm">24-Hour Sync Status</span>
-            <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
+            <span className="text-[11px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
               Strict Gate
             </span>
           </div>
@@ -116,7 +116,7 @@ export const SyncStatusIndicator: React.FC<SyncStatusIndicatorProps> = ({ isOnli
             </div>
           </div>
 
-          <div className="border-t border-[#E8D9C0]/60 dark:border-[#31374A]/60 pt-1.5 text-[10px] text-gray-500 dark:text-gray-400">
+          <div className="border-t border-slate-200/60 dark:border-[#31275E]/60 pt-1.5 text-[11px] text-gray-500 dark:text-gray-400">
             {syncStatus.lastSuccessfulSyncAt ? (
               <span>Last sync: {new Date(syncStatus.lastSuccessfulSyncAt).toLocaleTimeString()}</span>
             ) : (

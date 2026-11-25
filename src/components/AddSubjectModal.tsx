@@ -121,7 +121,7 @@ export const AddSubjectModal: React.FC<AddSubjectModalProps> = ({
         initial={{ y: "100%" }}
         animate={{ y: 0 }}
         transition={{ type: "spring", damping: 25, stiffness: 300 }}
-        className="w-full sm:max-w-lg bg-white dark:bg-[#0B1220] border-t sm:border border-slate-200 dark:border-slate-800 rounded-t-[2rem] sm:rounded-[2.5rem] shadow-2xl flex flex-col max-h-[90dvh] sm:max-h-[90vh] relative z-10 overflow-hidden"
+        className="w-full sm:max-w-lg bg-white dark:bg-[#130E26] border-t sm:border border-slate-200 dark:border-slate-800 rounded-t-[2rem] sm:rounded-[2.5rem] shadow-2xl flex flex-col max-h-[90dvh] sm:max-h-[90vh] relative z-10 overflow-hidden"
       >
         {/* Header */}
         <div className="flex items-center justify-between p-5 sm:p-6 pb-3 sm:pb-4 border-b border-slate-100 dark:border-slate-800/60 shrink-0">
@@ -133,7 +133,7 @@ export const AddSubjectModal: React.FC<AddSubjectModalProps> = ({
               <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-white leading-tight">
                 Add New Subject
               </h2>
-              <p className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-slate-400">
+              <p className="text-[11px] sm:text-[11px] font-black uppercase tracking-widest text-slate-400">
                 Syllabus Architecture
               </p>
             </div>
@@ -157,7 +157,7 @@ export const AddSubjectModal: React.FC<AddSubjectModalProps> = ({
 
           <form id="add-subject-form" onSubmit={handleSubmit} className="space-y-4 text-left">
             <div>
-              <label className="block text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-slate-400 mb-1.5">
+              <label className="block text-[11px] sm:text-[11px] font-black uppercase tracking-widest text-slate-400 mb-1.5">
                 Subject Name <span className="text-rose-500">*</span>
               </label>
               <input
@@ -176,7 +176,7 @@ export const AddSubjectModal: React.FC<AddSubjectModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-slate-400 mb-1.5">
+              <label className="block text-[11px] sm:text-[11px] font-black uppercase tracking-widest text-slate-400 mb-1.5">
                 English Title (Subject Name)
               </label>
               <input
@@ -191,7 +191,7 @@ export const AddSubjectModal: React.FC<AddSubjectModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-slate-400 mb-1.5">
+              <label className="block text-[11px] sm:text-[11px] font-black uppercase tracking-widest text-slate-400 mb-1.5">
                 Description
               </label>
               <input
@@ -207,7 +207,7 @@ export const AddSubjectModal: React.FC<AddSubjectModalProps> = ({
 
             {/* Icon Picker */}
             <div>
-              <label className="block text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2">
+              <label className="block text-[11px] sm:text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2">
                 Subject Icon
               </label>
               <div className="grid grid-cols-5 gap-2">
@@ -235,7 +235,7 @@ export const AddSubjectModal: React.FC<AddSubjectModalProps> = ({
 
             {/* Color Picker */}
             <div>
-              <label className="block text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2">
+              <label className="block text-[11px] sm:text-[11px] font-black uppercase tracking-widest text-slate-400 mb-2">
                 Theme Color
               </label>
               <div className="flex items-center gap-3">
@@ -259,7 +259,7 @@ export const AddSubjectModal: React.FC<AddSubjectModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center gap-3 p-4 border-t border-slate-100 dark:border-slate-800/60 shrink-0 bg-white dark:bg-[#0B1220]">
+        <div className="flex items-center gap-3 p-4 border-t border-slate-100 dark:border-slate-800/60 shrink-0 bg-white dark:bg-[#130E26]">
           <button
             type="button"
             id="btn-cancel-add-subject"

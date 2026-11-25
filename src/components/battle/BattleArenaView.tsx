@@ -67,9 +67,9 @@ export const BattleArenaView: React.FC<BattleArenaViewProps> = ({
   }
 
   return (
-    <div className="flex flex-col h-full bg-[#FFFDF9] dark:bg-[#171923] text-stone-900 dark:text-[#FFF9EF] select-none overflow-hidden relative">
+    <div className="flex flex-col h-full bg-[#F8FAFC] dark:bg-[#130E26] text-stone-900 dark:text-slate-50 select-none overflow-hidden relative">
       {/* Top Royal HUD */}
-      <div className="bg-gradient-to-r from-[#5E0017] via-[#800020] to-[#5E0017] text-white px-4 pt-3 pb-2 shadow-md border-b border-amber-400/20">
+      <div className="bg-gradient-to-r from-[#5B32BF] via-[#7045D8] to-[#5B32BF] text-white px-4 pt-3 pb-2 shadow-md border-b border-amber-400/20">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
             <span className="text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-amber-400/20 text-amber-300 border border-amber-300/30">
@@ -109,7 +109,7 @@ export const BattleArenaView: React.FC<BattleArenaViewProps> = ({
                     : "bg-white/10 border-white/10 font-medium"
                 }`}
               >
-                <span className="text-[10px] text-amber-300 font-bold">
+                <span className="text-[11px] text-amber-300 font-bold">
                   #{idx + 1}
                 </span>
                 <div className="relative inline-flex items-center">
@@ -128,7 +128,7 @@ export const BattleArenaView: React.FC<BattleArenaViewProps> = ({
                   {player.score}
                 </span>
                 {player.streak >= 2 && (
-                  <span className="flex items-center text-[10px] text-orange-400 font-bold">
+                  <span className="flex items-center text-[11px] text-orange-400 font-bold">
                     <Flame className="w-3 h-3 fill-current inline" />
                     {player.streak}
                   </span>
@@ -192,7 +192,7 @@ export const BattleArenaView: React.FC<BattleArenaViewProps> = ({
                   className={`text-xl font-extrabold font-mono transition-transform ${
                     timeRemainingSec <= 3
                       ? "scale-125 text-red-600 animate-pulse font-black"
-                      : "text-stone-800 dark:text-[#FFF9EF]"
+                      : "text-stone-800 dark:text-slate-50"
                   }`}
                 >
                   {timeRemainingSec}
@@ -200,14 +200,14 @@ export const BattleArenaView: React.FC<BattleArenaViewProps> = ({
               </div>
             </div>
 
-            <span className="text-[10px] font-bold text-stone-500 dark:text-stone-400 mt-1 flex items-center gap-1">
+            <span className="text-[11px] font-bold text-stone-500 dark:text-stone-400 mt-1 flex items-center gap-1">
               <span>⚡ Faster Answer = More Points</span>
             </span>
           </div>
 
           {/* Question Text Card */}
-          <div className="bg-white dark:bg-[#1F2330] rounded-3xl p-4 sm:p-5 shadow-sm border border-amber-900/10 dark:border-[#31374A] mt-2">
-            <h3 className="text-base sm:text-lg font-bold text-stone-800 dark:text-[#FFF9EF] leading-relaxed text-center">
+          <div className="bg-white dark:bg-[#1B1536] rounded-3xl p-4 sm:p-5 shadow-sm border border-amber-900/10 dark:border-[#31275E] mt-2">
+            <h3 className="text-base sm:text-lg font-bold text-stone-800 dark:text-slate-50 leading-relaxed text-center">
               {question.text}
             </h3>
           </div>
@@ -220,8 +220,8 @@ export const BattleArenaView: React.FC<BattleArenaViewProps> = ({
             const isCorrect = Number(idx) === Number(question.correctIndex);
 
             let buttonStyle =
-              "bg-white dark:bg-[#1F2330] border-stone-200/90 dark:border-[#31374A] text-stone-800 dark:text-[#FFF9EF] hover:border-amber-400 shadow-xs";
-            let badgeStyle = "bg-stone-100 dark:bg-[#252A3A] text-stone-700 dark:text-stone-300 border border-stone-200 dark:border-[#31374A]";
+              "bg-white dark:bg-[#1B1536] border-stone-200/90 dark:border-[#31275E] text-stone-800 dark:text-slate-50 hover:border-amber-400 shadow-xs";
+            let badgeStyle = "bg-stone-100 dark:bg-[#241D48] text-stone-700 dark:text-stone-300 border border-stone-200 dark:border-[#31275E]";
 
             if (isRevealing) {
               if (isCorrect) {
@@ -237,8 +237,8 @@ export const BattleArenaView: React.FC<BattleArenaViewProps> = ({
               }
             } else if (isSelected) {
               buttonStyle =
-                "bg-amber-50/90 dark:bg-amber-950/40 border-2 border-[#800020] dark:border-amber-400 text-[#800020] dark:text-amber-300 ring-2 ring-amber-400 font-extrabold shadow-md";
-              badgeStyle = "bg-[#800020] dark:bg-amber-500 text-white dark:text-stone-950 border-[#800020] dark:border-amber-500";
+                "bg-amber-50/90 dark:bg-amber-950/40 border-2 border-[#7045D8] dark:border-amber-400 text-[#7045D8] dark:text-amber-300 ring-2 ring-amber-400 font-extrabold shadow-md";
+              badgeStyle = "bg-[#7045D8] dark:bg-amber-500 text-white dark:text-stone-950 border-[#7045D8] dark:border-amber-500";
             }
 
             // Clean leading redundant option prefixes like "A. " or "(1) "
@@ -276,7 +276,7 @@ export const BattleArenaView: React.FC<BattleArenaViewProps> = ({
                       <XCircle className="w-5 h-5 text-red-500 animate-in spin-in-90 duration-200" />
                     ) : null
                   ) : isSelected ? (
-                    <span className="text-[11px] font-bold text-[#800020] dark:text-amber-300 bg-amber-200/90 dark:bg-amber-950/60 px-2.5 py-0.5 rounded-full border border-amber-300 dark:border-amber-600 animate-pulse">
+                    <span className="text-[11px] font-bold text-[#7045D8] dark:text-amber-300 bg-amber-200/90 dark:bg-amber-950/60 px-2.5 py-0.5 rounded-full border border-amber-300 dark:border-amber-600 animate-pulse">
                       Locked ✓
                     </span>
                   ) : null}
@@ -292,7 +292,7 @@ export const BattleArenaView: React.FC<BattleArenaViewProps> = ({
             <button
               key={emoji}
               onClick={() => onSendEmoji(emoji)}
-              className="w-9 h-9 flex items-center justify-center text-lg rounded-2xl bg-white dark:bg-[#1F2330] shadow-xs border border-stone-200 dark:border-[#31374A] hover:bg-amber-50 dark:hover:bg-[#252A3A] active:scale-125 transition cursor-pointer"
+              className="w-9 h-9 flex items-center justify-center text-lg rounded-2xl bg-white dark:bg-[#1B1536] shadow-xs border border-stone-200 dark:border-[#31275E] hover:bg-amber-50 dark:hover:bg-[#241D48] active:scale-125 transition cursor-pointer"
             >
               {emoji}
             </button>
@@ -302,7 +302,7 @@ export const BattleArenaView: React.FC<BattleArenaViewProps> = ({
 
       {/* Reveal Overlay Footer */}
       {isRevealing && (
-        <div className="bg-white dark:bg-[#1F2330] border-t border-stone-200 dark:border-[#31374A] p-4 shadow-xl animate-in slide-in-from-bottom-2 duration-200">
+        <div className="bg-white dark:bg-[#1B1536] border-t border-stone-200 dark:border-[#31275E] p-4 shadow-xl animate-in slide-in-from-bottom-2 duration-200">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-1.5">
               {selectedOption !== null && Number(selectedOption) === Number(question.correctIndex) ? (
@@ -325,7 +325,7 @@ export const BattleArenaView: React.FC<BattleArenaViewProps> = ({
 
           {question.explanation && (
             <div className="bg-amber-50/60 dark:bg-amber-950/40 p-2.5 rounded-2xl border border-amber-200/70 dark:border-amber-800/50 text-xs text-stone-700 dark:text-stone-200 flex items-start gap-2">
-              <HelpCircle className="w-4 h-4 text-[#800020] dark:text-amber-400 flex-shrink-0 mt-0.5" />
+              <HelpCircle className="w-4 h-4 text-[#7045D8] dark:text-amber-400 flex-shrink-0 mt-0.5" />
               <span>{question.explanation}</span>
             </div>
           )}
@@ -335,8 +335,8 @@ export const BattleArenaView: React.FC<BattleArenaViewProps> = ({
       {/* Slide-over Modal for All Players' Live Ranking */}
       {showAllRanks && (
         <div className="absolute inset-0 z-40 bg-black/60 backdrop-blur-xs flex flex-col justify-end">
-          <div className="bg-white dark:bg-[#1F2330] rounded-t-3xl max-h-[75%] flex flex-col overflow-hidden shadow-2xl border-t border-stone-200 dark:border-[#31374A]">
-            <div className="p-4 bg-gradient-to-r from-[#5E0017] via-[#800020] to-[#5E0017] text-white flex items-center justify-between">
+          <div className="bg-white dark:bg-[#1B1536] rounded-t-3xl max-h-[75%] flex flex-col overflow-hidden shadow-2xl border-t border-stone-200 dark:border-[#31275E]">
+            <div className="p-4 bg-gradient-to-r from-[#5B32BF] via-[#7045D8] to-[#5B32BF] text-white flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Trophy className="w-5 h-5 text-amber-300" />
                 <h3 className="text-sm font-bold">
@@ -360,7 +360,7 @@ export const BattleArenaView: React.FC<BattleArenaViewProps> = ({
                     className={`flex items-center justify-between p-2.5 rounded-2xl border transition ${
                       isMe
                         ? "bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-400/60 font-bold ring-1 ring-amber-400/40"
-                        : "bg-stone-50 dark:bg-[#252A3A] border-stone-200 dark:border-[#31374A]"
+                        : "bg-stone-50 dark:bg-[#241D48] border-stone-200 dark:border-[#31275E]"
                     }`}
                   >
                     <div className="flex items-center gap-2.5">
@@ -370,11 +370,11 @@ export const BattleArenaView: React.FC<BattleArenaViewProps> = ({
                       <BattleAvatar avatar={p.avatar} name={p.name} size="md" />
                       <div>
                         <div className="flex items-center gap-1.5">
-                          <span className="text-xs font-bold text-stone-800 dark:text-[#FFF9EF]">
+                          <span className="text-xs font-bold text-stone-800 dark:text-slate-50">
                             {p.name}
                           </span>
                           {isMe && (
-                            <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-[#800020] text-white">
+                            <span className="text-[11px] font-bold px-1.5 py-0.2 rounded-full bg-[#7045D8] text-white">
                               You
                             </span>
                           )}
@@ -384,12 +384,12 @@ export const BattleArenaView: React.FC<BattleArenaViewProps> = ({
 
                     <div className="text-right flex items-center gap-2">
                       {p.streak >= 2 && (
-                        <span className="text-[10px] text-orange-500 dark:text-orange-400 font-bold flex items-center gap-0.5">
+                        <span className="text-[11px] text-orange-500 dark:text-orange-400 font-bold flex items-center gap-0.5">
                           <Flame className="w-3 h-3 fill-current" />
                           {p.streak}
                         </span>
                       )}
-                      <span className="text-sm font-black text-[#800020] dark:text-amber-400">
+                      <span className="text-sm font-black text-[#7045D8] dark:text-amber-400">
                         {p.score} pts
                       </span>
                     </div>

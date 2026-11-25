@@ -40,6 +40,7 @@ import ShareModal, { ShareData } from "./ShareModal";
 import { buildTopicShareData } from "../utils/shareService";
 import { getSubjectQuestionsCount } from "../utils/questionsStorage";
 import { triggerHaptic, playClickSound } from "../utils/audioFeedback";
+import { showAppToast } from "../utils/adminToast";
 import {
   getSubjectDisplayName,
   getSubjectSecondaryName,
@@ -206,30 +207,32 @@ export const TopicsTab: React.FC<TopicsTabProps> = ({
   // ─────────────────────────────────────────────────────────────
   if (activeChapter) {
     return (
-      <div className="flex flex-col h-full bg-[#FFF9EF] dark:bg-[#171923]" id="topics-explorer">
-        <header className="px-4 pt-[env(safe-area-inset-top,0px)] py-3 bg-white/95 dark:bg-[#1F2330]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] sticky top-0 z-40">
-          <div className="flex items-center gap-3 max-w-4xl mx-auto w-full">
+      <div className="flex flex-col h-full bg-[#F8FAFC] dark:bg-[#130E26]" id="topics-explorer">
+        <header className="bg-white/95 dark:bg-[#130E26]/95 backdrop-blur-md border-b border-slate-200 dark:border-[#31275E] sticky top-0 md:top-14 z-30 pt-[env(safe-area-inset-top,0px)] md:pt-0">
+          <div className="px-4 py-2.5 min-h-[60px] flex items-center gap-3 max-w-4xl mx-auto w-full">
             <button
+              type="button"
               onClick={() => {
                 // Return to chapter list (subject view)
                 onSelectChapter(null);
               }}
-              className="w-9 h-9 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center text-[#171923] dark:text-[#FFF9EF] active:scale-95 transition-all cursor-pointer"
+              aria-label="Back to chapters"
+              className="w-11 h-11 rounded-xl bg-slate-100 dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] flex items-center justify-center text-slate-900 dark:text-slate-50 active:scale-95 transition-all cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
             >
-              <ArrowLeft className="w-4 h-4" />
+              <ArrowLeft className="w-4.5 h-4.5" />
             </button>
             <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-bold text-[#800020] dark:text-[#C99A45] uppercase tracking-wider truncate">
+              <p className="text-[11px] font-bold text-[#7045D8] dark:text-[#A78BFA] uppercase tracking-wider truncate">
                 {activeSubject?.name || "Subject"} · Chapter {activeChapter.number || 1}
               </p>
-              <h2 className="text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] truncate font-hindi">
+              <h2 className="text-sm font-extrabold text-slate-900 dark:text-slate-50 truncate font-hindi">
                 {getChapterDisplayName(activeChapter)}
               </h2>
             </div>
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto px-4 pt-4 pb-20 max-w-4xl mx-auto w-full">
+        <main className="flex-1 overflow-y-auto px-4 pt-4 pb-28 md:pb-8 max-w-4xl mx-auto w-full">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
             {[...(activeChapter.topics || [])]
               .sort((a, b) => (a.number || 0) - (b.number || 0) || (a.title || "").localeCompare(b.title || ""))
@@ -260,30 +263,32 @@ export const TopicsTab: React.FC<TopicsTabProps> = ({
   // ─────────────────────────────────────────────────────────────
   if (activeSubject) {
     return (
-      <div className="flex flex-col h-full bg-[#FFF9EF] dark:bg-[#171923]" id="subject-chapters">
-        <header className="px-4 pt-[env(safe-area-inset-top,0px)] py-3 bg-white/95 dark:bg-[#1F2330]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] sticky top-0 z-40">
-          <div className="flex items-center gap-3 max-w-4xl mx-auto w-full">
+      <div className="flex flex-col h-full bg-[#F8FAFC] dark:bg-[#130E26]" id="subject-chapters">
+        <header className="bg-white/95 dark:bg-[#130E26]/95 backdrop-blur-md border-b border-slate-200 dark:border-[#31275E] sticky top-0 md:top-14 z-30 pt-[env(safe-area-inset-top,0px)] md:pt-0">
+          <div className="px-4 py-2.5 min-h-[60px] flex items-center gap-3 max-w-4xl mx-auto w-full">
             <button
+              type="button"
               onClick={() => {
                 // Return to subject list (all subjects)
                 onSelectSubject(null);
               }}
-              className="w-9 h-9 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center text-[#171923] dark:text-[#FFF9EF] active:scale-95 transition-all cursor-pointer"
+              aria-label="Back to subjects"
+              className="w-11 h-11 rounded-xl bg-slate-100 dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] flex items-center justify-center text-slate-900 dark:text-slate-50 active:scale-95 transition-all cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
             >
-              <ArrowLeft className="w-4 h-4" />
+              <ArrowLeft className="w-4.5 h-4.5" />
             </button>
             <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-bold text-[#7045D8] dark:text-[#A78BFA] uppercase tracking-wider truncate">
+              <p className="text-[11px] font-bold text-[#7045D8] dark:text-[#A78BFA] uppercase tracking-wider truncate">
                 Disha PYQ Syllabus
               </p>
-              <h2 className="text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] truncate font-hindi">
+              <h2 className="text-sm font-extrabold text-slate-900 dark:text-slate-50 truncate font-hindi">
                 {getSubjectDisplayName(activeSubject)}
               </h2>
             </div>
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto px-4 pt-4 pb-20 max-w-4xl mx-auto w-full">
+        <main className="flex-1 overflow-y-auto px-4 pt-4 pb-28 md:pb-8 max-w-4xl mx-auto w-full">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
             {subjectChapters.map((chapter, idx) => {
               const chNum = idx + 1;
@@ -302,22 +307,23 @@ export const TopicsTab: React.FC<TopicsTabProps> = ({
               return (
                 <motion.button
                   key={`${chapter.id || 'ch'}-${idx}`}
+                  type="button"
                   whileTap={{ scale: 0.99 }}
                   onClick={() => onSelectChapter(chapter.id)}
-                  className="w-full bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-xl p-3.5 flex items-center gap-3.5 group hover:border-[#800020]/50 dark:hover:border-[#F47B20]/60 transition-all text-left shadow-xs cursor-pointer"
+                  className="w-full min-h-[64px] bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] rounded-xl p-3.5 flex items-center gap-3.5 group hover:border-[#7045D8]/60 dark:hover:border-[#A78BFA]/60 transition-all text-left shadow-xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
                 >
-                  <div className="w-9 h-9 rounded-xl bg-[#800020]/10 dark:bg-[#F47B20]/15 border border-[#800020]/20 dark:border-[#F47B20]/30 flex items-center justify-center text-xs font-black text-[#800020] dark:text-[#F47B20] shrink-0 font-mono tabular-nums">
+                  <div className="w-9 h-9 rounded-xl bg-[#7045D8]/10 dark:bg-[#A78BFA]/15 border border-[#7045D8]/20 dark:border-[#A78BFA]/30 flex items-center justify-center text-xs font-black text-[#7045D8] dark:text-[#A78BFA] shrink-0 font-mono tabular-nums">
                     {chNum}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <h4 className="text-sm font-bold text-[#171923] dark:text-[#FFF9EF] group-hover:text-[#800020] dark:group-hover:text-[#F47B20] transition-colors font-hindi truncate">
+                    <h4 className="text-sm font-bold text-slate-900 dark:text-slate-50 group-hover:text-[#7045D8] dark:group-hover:text-[#A78BFA] transition-colors font-hindi truncate">
                       {getChapterDisplayName(chapter)}
                     </h4>
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mt-0.5 tabular-nums">
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mt-0.5 tabular-nums">
                       {(chapter.topics || []).length} Topics · {chQuestionCount} {chQuestionCount === 1 ? "Question" : "Questions"}
                     </p>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#800020] dark:group-hover:text-[#F47B20] group-hover:translate-x-0.5 transition-all shrink-0" />
+                  <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#7045D8] dark:group-hover:text-[#A78BFA] group-hover:translate-x-0.5 transition-all shrink-0" />
                 </motion.button>
               );
             })}
@@ -331,11 +337,12 @@ export const TopicsTab: React.FC<TopicsTabProps> = ({
   // LEVEL 1: ALL SUBJECTS
   // ─────────────────────────────────────────────────────────────
   return (
-    <div className="flex flex-col h-full bg-[#FFF9EF] dark:bg-[#171923]" id="all-subjects">
-      <header className="px-3.5 pt-[env(safe-area-inset-top,0px)] py-2.5 bg-white/95 dark:bg-[#1F2330]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] sticky top-0 z-40 select-none shadow-[0_2px_10px_rgba(23,25,35,0.03)]">
-        <div className="max-w-4xl mx-auto w-full space-y-2">
+    <div className="flex flex-col h-full bg-[#F8FAFC] dark:bg-[#130E26]" id="all-subjects">
+      <header className="bg-white/95 dark:bg-[#130E26]/95 backdrop-blur-md border-b border-slate-200 dark:border-[#31275E] sticky top-0 md:top-14 z-30 select-none shadow-xs pt-[env(safe-area-inset-top,0px)] md:pt-0">
+        <div className="max-w-4xl mx-auto w-full px-3.5 sm:px-4 py-2.5 space-y-2.5">
           <div className="flex items-center justify-between gap-2">
             <button
+              type="button"
               onClick={() => {
                 // Priority: clear state/navigate tab via prop
                 if (typeof onBack === "function") {
@@ -344,42 +351,43 @@ export const TopicsTab: React.FC<TopicsTabProps> = ({
                   window.history.back();
                 }
               }}
-              className="w-9 h-9 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center text-[#171923] dark:text-[#FFF9EF] active:scale-95 transition-all cursor-pointer shrink-0"
+              className="md:hidden w-11 h-11 rounded-xl bg-slate-100 dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] flex items-center justify-center text-slate-900 dark:text-slate-50 active:scale-95 transition-all cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
               aria-label="Back"
             >
-              <ArrowLeft className="w-4 h-4" />
+              <ArrowLeft className="w-4.5 h-4.5" />
             </button>
-            <div className="flex-1 text-center min-w-0 px-2">
-              <h1 className="text-base font-extrabold text-[#171923] dark:text-[#FFF9EF] leading-none truncate">
-                Curriculum & Subjects
+            <div className="flex-1 text-center md:text-left min-w-0 px-2 md:px-0">
+              <h1 className="text-base font-extrabold text-slate-900 dark:text-slate-50 leading-none truncate">
+                Curriculum &amp; Subjects
               </h1>
-              <p className="text-[10px] font-medium text-[#800020] dark:text-[#C99A45] mt-0.5 truncate">
-                Subject & Chapter-wise Practice
+              <p className="text-[11px] font-semibold text-[#7045D8] dark:text-[#A78BFA] mt-1 truncate">
+                Subject &amp; Chapter-wise Practice
               </p>
             </div>
             <button
+              type="button"
               onClick={() => onOpenPDFExport?.()}
-              className="w-9 h-9 rounded-xl bg-[#800020]/10 dark:bg-[#F47B20]/15 border border-[#800020]/20 dark:border-[#F47B20]/30 text-[#800020] dark:text-[#F47B20] flex items-center justify-center active:scale-95 transition-all cursor-pointer shrink-0"
+              className="w-11 h-11 rounded-xl bg-[#7045D8]/10 dark:bg-[#A78BFA]/15 border border-[#7045D8]/20 dark:border-[#A78BFA]/30 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center active:scale-95 transition-all cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
               title="Download PDF"
               aria-label="Export PDF"
             >
-              <FileDown className="w-4 h-4" />
+              <FileDown className="w-4.5 h-4.5" />
             </button>
           </div>
           <div className="relative">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search subjects or chapters..."
-              className="w-full bg-[#F7EFE2]/70 dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] rounded-xl py-2 pl-9 pr-3 text-xs focus:ring-2 focus:ring-[#800020]/25 dark:focus:ring-[#F47B20]/30 focus:outline-none transition-all placeholder:text-slate-400 text-[#171923] dark:text-[#FFF9EF]"
+              className="w-full min-h-[44px] bg-slate-100/80 dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] rounded-xl py-2 pl-10 pr-3 text-xs sm:text-sm focus:ring-2 focus:ring-[#7045D8]/35 focus:outline-none transition-all placeholder:text-slate-400 text-slate-900 dark:text-slate-50"
             />
           </div>
         </div>
       </header>
 
-      <main className="flex-1 overflow-y-auto px-4 pt-5 pb-20 max-w-4xl mx-auto w-full">
+      <main className="flex-1 overflow-y-auto px-4 pt-5 pb-28 md:pb-8 max-w-4xl mx-auto w-full">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 sm:gap-3">
           {(() => {
             const q = (searchQuery || "").trim().toLowerCase();
@@ -395,12 +403,12 @@ export const TopicsTab: React.FC<TopicsTabProps> = ({
 
             if (filteredSubjects.length === 0) {
               return (
-                <div className="md:col-span-2 py-12 px-4 text-center space-y-3 bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-3xl shadow-xs">
-                  <div className="w-12 h-12 rounded-2xl bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] flex items-center justify-center mx-auto shadow-xs">
+                <div className="md:col-span-2 py-12 px-4 text-center space-y-3 bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] rounded-3xl shadow-xs">
+                  <div className="w-12 h-12 rounded-2xl bg-[#7045D8]/10 dark:bg-[#A78BFA]/15 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center mx-auto shadow-xs">
                     <BookOpen className="w-6 h-6" />
                   </div>
                   <div className="space-y-1">
-                    <h3 className="text-sm font-black text-[#171923] dark:text-[#FFF9EF]">
+                    <h3 className="text-sm font-black text-slate-900 dark:text-slate-50">
                       {searchQuery ? "No matching subjects found" : "No Subjects Available"}
                     </h3>
                     <p className="text-xs text-slate-500 dark:text-slate-400 max-w-xs mx-auto">
@@ -418,29 +426,30 @@ export const TopicsTab: React.FC<TopicsTabProps> = ({
               return (
                 <motion.button
                   key={`${subject.id || 'sub'}-${idx}`}
+                  type="button"
                   whileTap={{ scale: 0.98 }}
                   onClick={() => onSelectSubject(subject.id)}
-                  className="bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-xl sm:rounded-2xl py-3 px-3.5 sm:p-4 flex items-center justify-between gap-3 sm:gap-4 group hover:border-[#800020]/50 dark:hover:border-[#F47B20]/60 transition-all shadow-xs cursor-pointer"
+                  className="bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] rounded-2xl py-3.5 px-4 flex items-center justify-between gap-3 sm:gap-4 group hover:border-[#7045D8]/60 dark:hover:border-[#A78BFA]/60 transition-all shadow-xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
                 >
                   <div className="flex items-center gap-3 sm:gap-3.5 min-w-0">
-                    <div className="w-8.5 h-8.5 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-[#800020]/10 dark:bg-[#F47B20]/15 border border-[#800020]/20 dark:border-[#F47B20]/30 flex items-center justify-center text-[#800020] dark:text-[#F47B20] font-mono font-black text-xs sm:text-sm shrink-0 tabular-nums">
+                    <div className="w-10 h-10 rounded-xl bg-[#7045D8]/10 dark:bg-[#A78BFA]/15 border border-[#7045D8]/20 dark:border-[#A78BFA]/30 flex items-center justify-center text-[#7045D8] dark:text-[#A78BFA] font-mono font-black text-xs sm:text-sm shrink-0 tabular-nums">
                       {idx + 1}
                     </div>
                     <div className="text-left min-w-0">
-                      <h4 className="text-[14.5px] sm:text-base font-extrabold text-[#171923] dark:text-[#FFF9EF] truncate group-hover:text-[#800020] dark:group-hover:text-[#F47B20] transition-colors leading-snug">
+                      <h4 className="text-[14.5px] sm:text-base font-extrabold text-slate-900 dark:text-slate-50 truncate group-hover:text-[#7045D8] dark:group-hover:text-[#A78BFA] transition-colors leading-snug">
                         {getSubjectDisplayName(subject)}
                       </h4>
                       {getSubjectSecondaryName(subject) && (
-                        <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-hindi truncate mt-0.5">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 font-hindi truncate mt-0.5">
                           {getSubjectSecondaryName(subject)}
                         </p>
                       )}
-                      <p className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mt-0.5 tabular-nums">
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mt-0.5 tabular-nums">
                         {stats.questionsCount} {stats.questionsCount === 1 ? "Question" : "Questions"}
                       </p>
                     </div>
                   </div>
-                  <ChevronRight className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-slate-400 group-hover:text-[#800020] dark:group-hover:text-[#F47B20] group-hover:translate-x-0.5 transition-all shrink-0" />
+                  <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-[#7045D8] dark:group-hover:text-[#A78BFA] group-hover:translate-x-0.5 transition-all shrink-0" />
                 </motion.button>
               );
             });
@@ -481,23 +490,23 @@ function TopicListItem({
         }
       }}
       onClick={onClickTopic}
-      className="w-full bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-xl p-3 sm:p-3.5 flex items-center justify-between gap-3 group cursor-pointer select-none hover:border-[#800020]/50 dark:hover:border-[#F47B20]/60 transition-all shadow-xs"
+      className="w-full bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] rounded-xl p-3 sm:p-3.5 flex items-center justify-between gap-3 group cursor-pointer select-none hover:border-[#7045D8]/50 dark:hover:border-[#A78BFA]/60 transition-all shadow-xs"
     >
       <div className="flex items-center gap-3 min-w-0 flex-1">
-        <div className="w-9 h-9 rounded-xl bg-[#800020]/10 dark:bg-[#F47B20]/15 border border-[#800020]/20 dark:border-[#F47B20]/30 flex items-center justify-center text-xs font-black text-[#800020] dark:text-[#F47B20] shrink-0 font-mono tabular-nums">
+        <div className="w-9 h-9 rounded-xl bg-[#7045D8]/10 dark:bg-[#7045D8]/15 border border-[#7045D8]/20 dark:border-[#A78BFA]/30 flex items-center justify-center text-xs font-black text-[#7045D8] dark:text-[#A78BFA] shrink-0 font-mono tabular-nums">
           {topicNum}
         </div>
         <div className="min-w-0 flex-1">
-          <h4 className="text-sm font-bold text-[#171923] dark:text-[#FFF9EF] group-hover:text-[#800020] dark:group-hover:text-[#F47B20] transition-colors font-hindi truncate">
+          <h4 className="text-sm font-bold text-slate-900 dark:text-slate-50 group-hover:text-[#7045D8] dark:group-hover:text-[#7045D8] transition-colors font-hindi truncate">
             {getTopicDisplayName(topic)}
           </h4>
           <div className="flex flex-wrap items-center gap-1.5 mt-1">
             {qCount > 0 ? (
-              <span className="text-[9.5px] font-bold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 px-1.5 py-0.5 rounded">
+              <span className="text-[11px] font-bold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 px-1.5 py-0.5 rounded">
                 {qCount} Qs
               </span>
             ) : (
-              <span className="text-[9.5px] text-slate-400">
+              <span className="text-[11px] text-slate-400">
                 0 Qs
               </span>
             )}
@@ -506,7 +515,7 @@ function TopicListItem({
       </div>
 
       <div className="flex items-center gap-1.5 shrink-0">
-        <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#800020] dark:group-hover:text-[#F47B20] group-hover:translate-x-0.5 transition-all" />
+        <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-[#7045D8] dark:group-hover:text-[#7045D8] group-hover:translate-x-0.5 transition-all" />
       </div>
     </motion.div>
   );
@@ -584,7 +593,7 @@ function TopicDetailView({
       }
 
       if (validQuestions.length === 0) {
-        alert("No questions available for this topic yet.");
+        showAppToast("No questions available for this topic yet.", "info", "Topic Empty");
         return;
       }
 
@@ -648,23 +657,25 @@ function TopicDetailView({
   const questionCount = topicCount;
 
   return (
-    <div className="flex flex-col h-full bg-[#FFF9EF] dark:bg-[#171923]" id="topic-detail-view">
+    <div className="flex flex-col h-full bg-[#F8FAFC] dark:bg-[#130E26]" id="topic-detail-view">
       {/* Sticky Header */}
-      <header className="px-4 pt-[env(safe-area-inset-top,0px)] py-2.5 bg-white/95 dark:bg-[#1F2330]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] sticky top-0 z-40 shadow-xs">
-        <div className="flex items-center justify-between gap-3 max-w-4xl mx-auto w-full">
+      <header className="bg-white/95 dark:bg-[#130E26]/95 backdrop-blur-md border-b border-slate-200 dark:border-[#31275E] sticky top-0 md:top-14 z-30 shadow-xs pt-[env(safe-area-inset-top,0px)] md:pt-0">
+        <div className="px-4 py-2.5 min-h-[60px] flex items-center justify-between gap-3 max-w-4xl mx-auto w-full">
           <div className="flex items-center gap-3 min-w-0">
             <button
+              type="button"
               onClick={onBack}
-              className="w-9 h-9 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-center text-[#171923] dark:text-[#FFF9EF] active:scale-95 transition-all cursor-pointer shrink-0"
+              className="w-11 h-11 rounded-xl bg-slate-100 dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] flex items-center justify-center text-slate-900 dark:text-slate-50 active:scale-95 transition-all cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
               title="Go Back"
+              aria-label="Go Back"
             >
-              <ArrowLeft className="w-4 h-4" />
+              <ArrowLeft className="w-4.5 h-4.5" />
             </button>
             <div className="min-w-0">
-              <p className="text-[10px] font-bold text-[#800020] dark:text-[#C99A45] uppercase tracking-wider truncate">
+              <p className="text-[11px] font-bold text-[#7045D8] dark:text-[#A78BFA] uppercase tracking-wider truncate">
                 {getSubjectDisplayName(activeSubject)} · {getChapterDisplayName(activeChapter)}
               </p>
-              <h2 className="text-sm font-extrabold text-[#171923] dark:text-[#FFF9EF] truncate font-hindi">
+              <h2 className="text-sm font-extrabold text-slate-900 dark:text-slate-50 truncate font-hindi">
                 {getTopicDisplayName(topic)}
               </h2>
             </div>
@@ -673,16 +684,16 @@ function TopicDetailView({
       </header>
 
       {/* Main Coaching Content */}
-      <main className="flex-1 overflow-y-auto p-3.5 sm:p-6 space-y-4 sm:space-y-5 max-w-4xl mx-auto w-full pb-24">
+      <main className="flex-1 overflow-y-auto p-3.5 sm:p-6 space-y-4 sm:space-y-5 max-w-4xl mx-auto w-full pb-28 md:pb-8">
         {/* Topic Title Card */}
-        <div className="bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xs">
+        <div className="bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xs">
           <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-            <span className="inline-block text-[10px] font-black uppercase tracking-wider text-[#800020] dark:text-[#C99A45] bg-[#800020]/10 dark:bg-[#C99A45]/15 px-2.5 py-1 rounded-full">
+            <span className="inline-block text-[11px] font-black uppercase tracking-wider text-[#7045D8] dark:text-[#A78BFA] bg-[#7045D8]/10 dark:bg-[#7045D8]/15 px-2.5 py-1 rounded-full">
               Topic Practice
             </span>
           </div>
 
-          <h1 className="text-lg sm:text-2xl font-black text-[#171923] dark:text-[#FFF9EF] font-hindi leading-snug">
+          <h1 className="text-lg sm:text-2xl font-black text-slate-900 dark:text-slate-50 font-hindi leading-snug">
             {getTopicDisplayName(topic)}
           </h1>
           {getTopicSecondaryTitle(topic) && (
@@ -693,10 +704,10 @@ function TopicDetailView({
         </div>
 
         {/* 20-20 PRACTICE TEST */}
-        <div className="bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xs space-y-4">
+        <div className="bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xs space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm sm:text-base font-bold text-[#171923] dark:text-[#FFF9EF] flex items-center gap-2">
-              <Award className="w-4.5 h-4.5 text-[#800020] dark:text-[#F47B20]" />
+            <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-slate-50 flex items-center gap-2">
+              <Award className="w-4.5 h-4.5 text-[#7045D8] dark:text-[#A78BFA]" />
               <span>20-20 Practice Test Simulation</span>
             </h2>
             <span className="text-xs font-bold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 px-2.5 py-1 rounded-lg">
@@ -704,28 +715,28 @@ function TopicDetailView({
             </span>
           </div>
 
-          <p className="text-xs sm:text-sm text-[#52576A] dark:text-[#929AB0]">
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
             This topic contains <strong>{questionCount}</strong> high-yield standard questions, including recent competitive exam PYQs and expected questions.
           </p>
 
           <div className="grid grid-cols-2 gap-3">
-            <div className="p-3.5 rounded-xl bg-[#FAF5EB] dark:bg-[#262B3D] border border-[#E8D9C0] dark:border-[#31374A] flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-[#800020] text-white flex items-center justify-center shrink-0">
+            <div className="p-3.5 rounded-xl bg-[#FAF5EB] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-[#7045D8] text-white flex items-center justify-center shrink-0">
                 <HelpCircle className="w-4.5 h-4.5" />
               </div>
               <div>
-                <p className="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400">Total Questions</p>
-                <p className="text-sm sm:text-base font-black text-[#171923] dark:text-[#FFF9EF] tabular-nums">{questionCount} MCQs</p>
+                <p className="text-[11px] font-black uppercase text-slate-500 dark:text-slate-400">Total Questions</p>
+                <p className="text-sm sm:text-base font-black text-slate-900 dark:text-slate-50 tabular-nums">{questionCount} MCQs</p>
               </div>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-[#FAF5EB] dark:bg-[#262B3D] border border-[#E8D9C0] dark:border-[#31374A] flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-[#F47B20] text-white flex items-center justify-center shrink-0">
+            <div className="p-3.5 rounded-xl bg-[#FAF5EB] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-[#7045D8] text-white flex items-center justify-center shrink-0">
                 <Award className="w-4.5 h-4.5" />
               </div>
               <div>
-                <p className="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400">Pattern</p>
-                <p className="text-sm sm:text-base font-black text-[#171923] dark:text-[#FFF9EF]">20-20 Test</p>
+                <p className="text-[11px] font-black uppercase text-slate-500 dark:text-slate-400">Pattern</p>
+                <p className="text-sm sm:text-base font-black text-slate-900 dark:text-slate-50">20-20 Test</p>
               </div>
             </div>
           </div>
@@ -733,18 +744,18 @@ function TopicDetailView({
           <button
             onClick={handleStartTopicMCQ}
             disabled={isFetching}
-            className="w-full py-3.5 px-6 rounded-xl sm:rounded-2xl bg-[#800020] hover:bg-[#600018] text-white font-bold text-sm sm:text-base border border-[#C99A45]/30 shadow-md flex items-center justify-center gap-2.5 transition-all duration-180 active:scale-98 cursor-pointer disabled:opacity-50"
+            className="w-full py-3.5 px-6 rounded-xl sm:rounded-2xl bg-[#7045D8] hover:bg-[#5B32BF] text-white font-bold text-sm sm:text-base border border-[#A78BFA]/30 shadow-md flex items-center justify-center gap-2.5 transition-all duration-180 active:scale-98 cursor-pointer disabled:opacity-50"
           >
             {isFetching ? (
               <>
-                <RefreshCw className="w-4.5 h-4.5 animate-spin text-[#C99A45]" />
+                <RefreshCw className="w-4.5 h-4.5 animate-spin text-amber-500" />
                 <span>Loading Test...</span>
               </>
             ) : (
               <>
                 <Play className="w-4.5 h-4.5 fill-white" />
                 <span>Start Practice Test ({questionCount} Qs)</span>
-                <ChevronRight className="w-4 h-4 text-[#C99A45]" />
+                <ChevronRight className="w-4 h-4 text-amber-500" />
               </>
             )}
           </button>
@@ -752,9 +763,9 @@ function TopicDetailView({
 
         {/* KEY CONCEPTS & SUMMARY */}
         {(topic.introText || topic.seoDescription) && (
-          <div className="bg-[#FAF5EB]/80 dark:bg-[#1E2230] border border-[#E8D9C0] dark:border-[#31374A] rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-xs space-y-2">
-            <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-[#800020] dark:text-[#C99A45]">
-              <Sparkles className="w-4 h-4 text-[#F47B20]" />
+          <div className="bg-[#FAF5EB]/80 dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-xs space-y-2">
+            <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-[#7045D8] dark:text-[#A78BFA]">
+              <Sparkles className="w-4 h-4 text-[#7045D8]" />
               <span>Key Concepts &amp; Exam Pointers</span>
             </div>
             <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-hindi">
