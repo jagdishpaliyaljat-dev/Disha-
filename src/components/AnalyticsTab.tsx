@@ -36,6 +36,11 @@ import {
   Copy,
   LayoutDashboard,
   Layers,
+  Stethoscope,
+  Pill,
+  X,
+  FileText,
+  Activity,
 } from "lucide-react";
 import { StudyAnalyticsChart } from "./StudyAnalyticsChart";
 import { getLast7DaysStudyData, loadStudyHistoryFromStorage } from "../utils/storage";
@@ -43,6 +48,14 @@ import { isDueToday, getTodayDateString } from "../utils/revision";
 import ShareModal, { ShareData } from "./ShareModal";
 import { triggerHaptic, playClickSound } from "../utils/audioFeedback";
 import { loadUserProfile } from "../utils/userProfileStorage";
+import { loadPerformanceStore } from "../utils/performanceStorage";
+import {
+  diagnoseStudentWeaknesses,
+  generateAIWeaknessPrescription,
+  createRemedialTestSession,
+  StudentWeaknessDiagnosis,
+  StudentAIPrescription,
+} from "../services/aiWeaknessPrescriptionService";
 
 interface AnalyticsTabProps {
   progressStore: ProgressStore;
@@ -95,6 +108,45 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
 
   // Filter for Weakness Radar Topics
   const [radarFilter, setRadarFilter] = useState<"critical" | "warning" | "mastered" | "all">("critical");
+
+  // AI Weakness Postmortem Modal & State
+  const [isPostmortemModalOpen, setIsPostmortemModalOpen] = useState(false);
+  const [isGeneratingPrescription, setIsGeneratingPrescription] = useState(false);
+  const [prescriptionData, setPrescriptionData] = useState<StudentAIPrescription | null>(null);
+
+  // Compute live Weakness Diagnosis
+  const diagnosis = useMemo(() => {
+    const perfStore = loadPerformanceStore();
+    return diagnoseStudentWeaknesses(questions, chapters, subjects, progressStore, perfStore);
+  }, [questions, chapters, subjects, progressStore]);
+
+  const handleOpenPostmortem = async () => {
+    triggerHaptic("medium");
+    playClickSound();
+    setIsPostmortemModalOpen(true);
+    if (!prescriptionData) {
+      setIsGeneratingPrescription(true);
+      try {
+        const pres = await generateAIWeaknessPrescription(diagnosis);
+        setPrescriptionData(pres);
+      } catch (e) {
+        console.error("Failed to generate prescription", e);
+      } finally {
+        setIsGeneratingPrescription(false);
+      }
+    }
+  };
+
+  const handleStartPrescriptionBooster = () => {
+    if (!onStartSession) return;
+    triggerHaptic("success");
+    playClickSound();
+    const session = createRemedialTestSession(diagnosis, 15);
+    if (session.questionIds.length > 0) {
+      setIsPostmortemModalOpen(false);
+      onStartSession(session);
+    }
+  };
 
   const currentUserProfile = userProfile || loadUserProfile();
   const studentName = currentUserProfile?.full_name || currentUserProfile?.name || "Aspirant";
@@ -863,7 +915,74 @@ https://disha2020.in
 
         {/* 4. 1-CLICK REMEDIAL & HIGH PRIORITY ACTIONS (Visible on Overview & All) */}
         {(activeSection === "overview" || activeSection === "all") && (
-          <section className="space-y-2.5">
+          <section className="space-y-3">
+            {/* 🩺 AI Weakness Postmortem & Prescription Banner */}
+            <div className="bg-gradient-to-br from-white to-[#FFF9EF] dark:from-[#1F2330] dark:to-[#252A3A] rounded-3xl p-4 sm:p-5 border-2 border-[#800020]/30 dark:border-[#C99A45]/40 shadow-md relative overflow-hidden space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="space-y-1">
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider bg-[#800020]/10 dark:bg-[#C99A45]/20 text-[#800020] dark:text-[#C99A45] border border-[#800020]/20">
+                    <Stethoscope className="w-3.5 h-3.5 text-[#800020] dark:text-[#C99A45]" />
+                    <span>Disha AI Weakness Postmortem</span>
+                  </div>
+                  <h4 className="text-sm sm:text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
+                    <span>🩺 छात्र कमजोरी पोस्टमॉर्टम व अध्ययन नुस्खा</span>
+                  </h4>
+                  <p className="text-xs text-slate-600 dark:text-slate-300 font-medium">
+                    {diagnosis.criticalWeakTopics.length > 0
+                      ? `प्राथमिक कमजोरी: ${diagnosis.primaryDiagnosis}`
+                      : "आपकी तैयारी संतुलित है। 1/3 नेगेटिव मार्किंग विश्लेषण व नुस्खा देखें।"}
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={handleOpenPostmortem}
+                    className="h-10 px-4 rounded-xl bg-gradient-to-r from-[#800020] to-[#5E0017] hover:brightness-110 text-white font-black text-xs flex items-center gap-1.5 shadow-sm active:scale-95 transition-all cursor-pointer border border-[#C99A45]/30"
+                  >
+                    <FileText className="w-3.5 h-3.5" />
+                    <span>विस्तृत नुस्खा (Prescription)</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleStartPrescriptionBooster}
+                    className="h-10 px-3.5 rounded-xl bg-gradient-to-r from-[#F47B20] to-[#E05A10] hover:brightness-110 text-white font-black text-xs flex items-center gap-1.5 shadow-sm active:scale-95 transition-all cursor-pointer"
+                    title="Start 15-Q Remedial Test directly"
+                  >
+                    <Zap className="w-3.5 h-3.5" />
+                    <span>उपचारात्मक टेस्ट</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* 3 Quick Diagnostic Pills */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2 border-t border-[#E8D9C0]/80 dark:border-[#31374A] text-xs">
+                <div className="flex items-center gap-2 p-2 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50">
+                  <TrendingDown className="w-4 h-4 text-rose-600 shrink-0" />
+                  <div className="min-w-0">
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400 block font-bold">नेगेटिव नुकसान</span>
+                    <span className="font-black text-rose-600 font-mono">-{diagnosis.negativeMarksLost} अंक ({diagnosis.totalWrong} गलतियाँ)</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 p-2 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50">
+                  <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+                  <div className="min-w-0">
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400 block font-bold">जल्दबाजी के जाल (Impulse)</span>
+                    <span className="font-black text-amber-600 font-mono">{diagnosis.impulseMistakesCount} प्रश्न (&lt;8s में गलत)</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 p-2 rounded-xl bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-900/50">
+                  <Target className="w-4 h-4 text-purple-600 shrink-0" />
+                  <div className="min-w-0">
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400 block font-bold">गंभीर कमजोर टॉपिक</span>
+                    <span className="font-black text-purple-600 font-mono">{diagnosis.criticalWeakTopics.length} विषय क्षेत्र</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div className="flex items-center justify-between px-1">
               <h3 className="text-xs font-black uppercase tracking-wider text-[#171923] dark:text-[#FFF9EF] flex items-center gap-1.5">
                 <Zap className="w-4 h-4 text-[#F47B20] fill-[#F47B20]" />
@@ -1365,6 +1484,160 @@ https://disha2020.in
           onClose={() => setShareData(null)}
           data={shareData}
         />
+      )}
+
+      {/* 🩺 AI Weakness Postmortem & Study Prescription Modal */}
+      {isPostmortemModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
+          <div className="bg-white dark:bg-[#1A1F2C] border border-[#E8D9C0] dark:border-[#31374A] rounded-3xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+            {/* Modal Header */}
+            <div className="p-4 bg-gradient-to-r from-[#800020] via-[#5E0017] to-[#171923] text-white flex items-center justify-between shrink-0 border-b border-[#C99A45]/30">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center border border-white/20">
+                  <Stethoscope className="w-5 h-5 text-[#F47B20]" />
+                </div>
+                <div>
+                  <h3 className="text-sm sm:text-base font-black">
+                    Disha AI कमजोरी पोस्टमॉर्टम व अध्ययन नुस्खा
+                  </h3>
+                  <p className="text-[11px] text-white/80 font-medium">
+                    Clinical-grade Weakness Diagnosis & 3-Step Treatment Plan
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setIsPostmortemModalOpen(false)}
+                className="p-1.5 rounded-xl hover:bg-white/20 text-white/80 hover:text-white transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-4 sm:p-6 overflow-y-auto space-y-5 text-slate-800 dark:text-slate-100">
+              {isGeneratingPrescription ? (
+                <div className="py-12 flex flex-col items-center justify-center text-center space-y-3">
+                  <Activity className="w-10 h-10 text-[#800020] dark:text-[#C99A45] animate-pulse" />
+                  <h4 className="text-sm font-black text-slate-800 dark:text-white">
+                    परीक्षण रिकॉर्ड का AI पोस्टमॉर्टम हो रहा है...
+                  </h4>
+                  <p className="text-xs text-slate-500 max-w-sm font-medium">
+                    आपकी {diagnosis.totalWrong} गलतियों, 1/3 नेगेटिव पेनल्टी और जल्दबाजी वाले प्रश्नों का अध्ययन किया जा रहा है...
+                  </p>
+                </div>
+              ) : prescriptionData ? (
+                <>
+                  {/* Diagnosis Summary Card */}
+                  <div className="p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/40 space-y-2">
+                    <div className="flex items-center gap-2 text-rose-700 dark:text-rose-400 font-black text-xs uppercase tracking-wider">
+                      <TrendingDown className="w-4 h-4" />
+                      <span>प्राथमिक निदान (Primary Diagnosis)</span>
+                    </div>
+                    <p className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white leading-relaxed">
+                      {prescriptionData.diagnosisSummary}
+                    </p>
+                  </div>
+
+                  {/* Root Cause & Negative Bleed */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                    <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-[#202534] border border-slate-200 dark:border-slate-800 space-y-1.5">
+                      <span className="font-black text-slate-700 dark:text-slate-300 block">
+                        🔍 गलतियों का मूल कारण (Root Cause)
+                      </span>
+                      <p className="text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
+                        {prescriptionData.rootCauseAnalysis}
+                      </p>
+                    </div>
+
+                    <div className="p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 space-y-1.5">
+                      <span className="font-black text-amber-800 dark:text-amber-400 block">
+                        ⚠️ नेगेटिव मार्किंग निवारण सलाह
+                      </span>
+                      <p className="text-amber-900 dark:text-amber-300 leading-relaxed font-medium">
+                        {prescriptionData.negativeMarksImpactAdvice}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Daily 3-Step Treatment */}
+                  <div className="space-y-3">
+                    <h4 className="text-xs font-black uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-2">
+                      <Pill className="w-4 h-4 text-[#800020] dark:text-[#C99A45]" />
+                      <span>दैनिक 3-चरणीय उपचार योजना (3-Step Action Plan)</span>
+                    </h4>
+
+                    <div className="space-y-2.5">
+                      {prescriptionData.dailySteps.map((step) => (
+                        <div
+                          key={step.stepNumber}
+                          className="p-3.5 rounded-2xl bg-white dark:bg-[#202534] border border-[#E8D9C0] dark:border-[#31374A] shadow-2xs space-y-1"
+                        >
+                          <div className="flex items-center gap-2 text-xs font-black text-[#800020] dark:text-[#C99A45]">
+                            <span className="w-5 h-5 rounded-full bg-[#800020]/10 dark:bg-[#C99A45]/20 flex items-center justify-center text-[10px] shrink-0 font-mono">
+                              {step.stepNumber}
+                            </span>
+                            <span>{step.title}</span>
+                          </div>
+                          <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed font-medium pl-7">
+                            {step.actionItem}
+                          </p>
+                          {step.mnemonicOrTip && (
+                            <p className="text-[11px] text-amber-700 dark:text-amber-400 italic pl-7 font-bold">
+                              💡 टिप: {step.mnemonicOrTip}
+                            </p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Impact Summary Banner */}
+                  <div className="p-3.5 rounded-2xl bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20 border border-emerald-200 dark:border-emerald-900/40 flex items-center justify-between gap-3 text-xs">
+                    <div>
+                      <span className="font-black text-emerald-800 dark:text-emerald-400 block">
+                        🎯 अनुमानित मेरिट लाभ (Score Gain)
+                      </span>
+                      <span className="text-[11px] text-emerald-700 dark:text-emerald-300 font-medium">
+                        {prescriptionData.estimatedScoreGain}
+                      </span>
+                    </div>
+                    <span className="text-[10px] text-slate-500 text-right">
+                      प्रामाणिक संदर्भ: {prescriptionData.officialSourcesCitations.slice(0, 2).join(", ")}
+                    </span>
+                  </div>
+                </>
+              ) : null}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-4 bg-slate-50 dark:bg-[#161B26] border-t border-[#E8D9C0] dark:border-[#31374A] flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
+              <span className="text-xs text-slate-500 font-medium">
+                कुल {diagnosis.totalWrong} कमजोर प्रश्नों में से 15 उच्च-प्राथमिकता प्रश्न
+              </span>
+
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <button
+                  type="button"
+                  onClick={() => setIsPostmortemModalOpen(false)}
+                  className="px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer w-full sm:w-auto"
+                >
+                  बंद करें
+                </button>
+                <button
+                  type="button"
+                  onClick={handleStartPrescriptionBooster}
+                  disabled={diagnosis.totalWrong === 0}
+                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#800020] to-[#5E0017] hover:brightness-110 text-white text-xs font-black flex items-center justify-center gap-2 shadow-md active:scale-95 transition-all cursor-pointer w-full sm:w-auto disabled:opacity-50"
+                >
+                  <Flame className="w-4 h-4 fill-white text-white" />
+                  <span>उपचारात्मक टेस्ट शुरू करें (15 Qs)</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -2282,6 +2282,11 @@ export default function App() {
           contextQuestion={aiTutorContextQuestion}
           onClearContextQuestion={() => setAiTutorContextQuestion(null)}
           onOpenApiSettings={() => setIsApiSettingsOpen(true)}
+          progressStore={progressStore}
+          chapters={combinedChapters}
+          subjects={combinedSubjects}
+          questions={combinedQuestions}
+          onStartSession={handleStartSession}
           onNavigateTab={(tab) => {
             if (isKnownTab(tab)) {
               setActiveTab(tab as ActiveTab);

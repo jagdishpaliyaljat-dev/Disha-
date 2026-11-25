@@ -15,7 +15,7 @@ import {
   Loader2, 
   Crown,
 } from "lucide-react";
-import { Question } from "../types";
+import { Question, Chapter, Subject, ProgressStore, PerformanceStore, MCQSession } from "../types";
 import { 
   ChatMessage, 
   askDishaAITutor, 
@@ -23,6 +23,11 @@ import {
   getActiveAICredentials,
   formatFriendlyAIError 
 } from "../utils/aiTutorService";
+import {
+  diagnoseStudentWeaknesses,
+  generateAIWeaknessPrescription,
+  createRemedialTestSession,
+} from "../services/aiWeaknessPrescriptionService";
 import { AIMessageRenderer } from "./AIMessageRenderer";
 import { triggerHaptic } from "../utils/audioFeedback";
 import { InlineSpinner } from "./ui/LoadingScreen";
@@ -36,9 +41,15 @@ interface DishaAITutorModalProps {
   onClearContextQuestion?: () => void;
   onOpenApiSettings: () => void;
   onNavigateTab?: (tab: string) => void;
+  progressStore?: ProgressStore;
+  chapters?: Chapter[];
+  subjects?: Subject[];
+  questions?: Question[];
+  onStartSession?: (session: MCQSession) => void;
 }
 
 const QUICK_SUGGESTIONS = [
+  { label: "🩺 मेरा AI कमजोरी पोस्टमॉर्टम करो", prompt: "ACTION_WEAKNESS_POSTMORTEM", isSpecialAction: true },
   { label: "📅 30-Day Ideal Study Plan", prompt: "My Rajasthan competitive exam is in 30 days. Please create an ideal daily study schedule and timetable for me." },
   { label: "🔍 Trick to Memorize UNESCO 6 Hill Forts", prompt: "Explain the memory trick and key details for Rajasthan's 6 UNESCO World Heritage hill forts." },
   { label: "⚡ How to Avoid Negative Marking?", prompt: "What is the scientific strategy to avoid 1/3 negative marking and eliminate random guessing in RPSC and RSMSSB exams?" },
@@ -53,6 +64,11 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
   onClearContextQuestion,
   onOpenApiSettings,
   onNavigateTab,
+  progressStore,
+  chapters = [],
+  subjects = [],
+  questions = [],
+  onStartSession,
 }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState("");
@@ -233,8 +249,105 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
   };
 
   const handleSendMessage = async (textToSend?: string) => {
-    const query = (textToSend || inputText).trim();
-    if (!query || isLoading) return;
+    const rawQuery = (textToSend || inputText).trim();
+    if (!rawQuery || isLoading) return;
+
+    // Check if triggering AI Weakness Postmortem Action
+    if (rawQuery === "ACTION_WEAKNESS_POSTMORTEM" || rawQuery.includes("पोस्टमॉर्टम") || rawQuery.includes("weakness postmortem")) {
+      triggerHaptic("medium");
+      setInputText("");
+      if (speakingId) {
+        window.speechSynthesis.cancel();
+        setSpeakingId(null);
+      }
+
+      const userMsg: ChatMessage = {
+        id: `user_${Date.now()}`,
+        role: "user",
+        content: "🩺 मेरा AI कमजोरी पोस्टमॉर्टम करो और अध्ययन नुस्खा (Study Prescription) बताओ।",
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      };
+
+      setMessages((prev) => [...prev, userMsg]);
+      setIsLoading(true);
+
+      const aiMsgId = `ai_${Date.now()}`;
+
+      try {
+        const diag = diagnoseStudentWeaknesses(
+          questions,
+          chapters,
+          subjects,
+          progressStore || {}
+        );
+
+        const prescription = await generateAIWeaknessPrescription(diag);
+
+        const stepsMarkdown = prescription.dailySteps
+          .map(
+            (s) =>
+              `### 📌 कदम ${s.stepNumber}: ${s.title}\n- **कार्रवाई**: ${s.actionItem}\n- 💡 **स्मार्ट टिप/निमोनिक**: *${s.mnemonicOrTip || "सटीक रिवीजन करें"}*`
+          )
+          .join("\n\n");
+
+        const postmortemContent = `## 📋 Disha AI कमजोरी पोस्टमॉर्टम व अध्ययन नुस्खा
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+### 🩺 प्राथमिक निदान (Primary Diagnosis)
+> **${prescription.diagnosisSummary}**
+
+### 🔍 विफलता का मूल कारण (Root Cause Analysis)
+${prescription.rootCauseAnalysis}
+
+### ⚠️ नेगेटिव मार्किंग का प्रभाव (Negative Marking Bleed)
+${prescription.negativeMarksImpactAdvice}
+
+---
+
+### 💊 दैनिक 3-चरणीय उपचार (3-Step Daily Treatment)
+${stepsMarkdown}
+
+---
+🎯 **अनुमानित मेरिट सुधार**: **${prescription.estimatedScoreGain}**
+📚 **प्रामाणिक संदर्भ**: ${prescription.officialSourcesCitations.join(" • ")}
+`;
+
+        const remedialSession = createRemedialTestSession(diag, 15);
+
+        const aiMsg: ChatMessage = {
+          id: aiMsgId,
+          role: "assistant",
+          content: postmortemContent,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          suggestedAction: onStartSession && remedialSession.questionIds.length > 0 ? {
+            label: `🔥 15 प्रश्नों का उपचारात्मक टेस्ट शुरू करें (${remedialSession.questionIds.length} Qs)`,
+            action: "start_remedial_session",
+          } : {
+            label: "📊 एनालिटिक्स में विस्तृत रिपोर्ट देखें",
+            tab: "analytics",
+          },
+        };
+
+        setMessages((prev) => [...prev, aiMsg]);
+      } catch (err: any) {
+        const { message, isApiKeyIssue } = formatFriendlyAIError(err);
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: aiMsgId,
+            role: "assistant",
+            content: message,
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            suggestedAction: isApiKeyIssue ? { label: "⚙️ Check / Add API Key", action: "open_settings" } : undefined,
+          },
+        ]);
+      } finally {
+        setIsLoading(false);
+      }
+      return;
+    }
+
+    const query = rawQuery;
 
     triggerHaptic("light");
     setInputText("");
@@ -449,7 +562,14 @@ export const DishaAITutorModal: React.FC<DishaAITutorModalProps> = ({
                           <button
                             onClick={() => {
                               triggerHaptic("light");
-                              if (msg.suggestedAction?.action === "open_settings") {
+                              if (msg.suggestedAction?.action === "start_remedial_session" && onStartSession) {
+                                const diag = diagnoseStudentWeaknesses(questions, chapters, subjects, progressStore || {});
+                                const session = createRemedialTestSession(diag, 15);
+                                if (session.questionIds.length > 0) {
+                                  onStartSession(session);
+                                  onClose();
+                                }
+                              } else if (msg.suggestedAction?.action === "open_settings") {
                                 onOpenApiSettings();
                               } else if (msg.suggestedAction?.tab && onNavigateTab) {
                                 onNavigateTab(msg.suggestedAction.tab);
