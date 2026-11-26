@@ -91,8 +91,10 @@ export function sortSubjectsByTargetExam(subjects: Subject[], targetExam?: strin
   if (!targetExam || !subjects || subjects.length === 0) return subjects;
 
   return [...subjects].sort((a, b) => {
-    const aRec = isSubjectRecommendedForExam(a.name || a.title || '', targetExam) ? 1 : 0;
-    const bRec = isSubjectRecommendedForExam(b.name || b.title || '', targetExam) ? 1 : 0;
+    const aName = a.name || a.hindiName || '';
+    const bName = b.name || b.hindiName || '';
+    const aRec = isSubjectRecommendedForExam(aName, targetExam) ? 1 : 0;
+    const bRec = isSubjectRecommendedForExam(bName, targetExam) ? 1 : 0;
     return bRec - aRec;
   });
 }

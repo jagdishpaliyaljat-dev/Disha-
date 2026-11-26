@@ -676,7 +676,7 @@ function TopicDetailView({
     let active = true;
     import("../utils/indexedDbCache").then(({ getCachedQuestionBundle }) => {
       getCachedQuestionBundle(topic.id).then((cached) => {
-        if (active && cached && cached.questions && cached.questions.length > 0) {
+        if (active && cached && cached.length > 0) {
           setIsDownloaded(true);
         }
       }).catch(() => {});

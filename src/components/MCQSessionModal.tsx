@@ -1512,7 +1512,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
         if (isTestMode) {
           if (currentIndex > 0) handleNavigateQuestionTestMode(currentIndex - 1);
         } else {
-          handlePreviousQuestionPractice();
+          handlePrevQuestionPractice();
         }
       },
     });
@@ -3528,6 +3528,53 @@ function RedesignedLiveAndPYQTestView({
     : undefined;
   const totalQuestions = questions.length;
   const isLive = session.testType === "live" || Boolean(session.isLiveTest);
+
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+  const [isSpeakingHindi, setIsSpeakingHindi] = useState(false);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    if (touch) {
+      touchStartRef.current = { x: touch.clientX, y: touch.clientY };
+    }
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (!touchStartRef.current) return;
+    const touch = e.changedTouches[0];
+    if (!touch) return;
+
+    handleSwipeGesture({
+      startX: touchStartRef.current.x,
+      startY: touchStartRef.current.y,
+      endX: touch.clientX,
+      endY: touch.clientY,
+      onSwipeLeft: () => {
+        if (safeCurrentIndex < totalQuestions - 1) setCurrentIndex(safeCurrentIndex + 1);
+      },
+      onSwipeRight: () => {
+        if (safeCurrentIndex > 0) setCurrentIndex(safeCurrentIndex - 1);
+      },
+    });
+
+    touchStartRef.current = null;
+  };
+
+  const handleToggleHindiTTS = () => {
+    if (isSpeakingHindi) {
+      stopHindiSpeech();
+      setIsSpeakingHindi(false);
+    } else if (currentQuestion) {
+      setIsSpeakingHindi(true);
+      speakHindiQuestion({
+        questionText: currentQuestion.text || currentQuestion.question || "",
+        options: currentQuestion.options,
+        explanation: currentQuestion.explanation,
+        onEnd: () => setIsSpeakingHindi(false),
+        onError: () => setIsSpeakingHindi(false),
+      });
+    }
+  };
 
   // Stats calculation for palette
   const answeredCount = Object.keys(sessionResults).filter(

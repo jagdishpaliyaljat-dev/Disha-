@@ -1299,7 +1299,7 @@ export default function App() {
         onExitApp: () => {},
       };
     }, (msg) => {
-      handleShowToast(msg, 'info');
+      addToast('info', 'दिशा 2020', msg);
     });
   }, [
     activeSession,
@@ -1317,7 +1317,7 @@ export default function App() {
     isPremiumModalOpen,
     isStudentDrawerOpen,
     activeTab,
-    handleShowToast,
+    addToast,
   ]);
 
   // Real-time listener for user profile role updates (e.g., Super Admin promotes user)
