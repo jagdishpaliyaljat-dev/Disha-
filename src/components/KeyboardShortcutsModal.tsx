@@ -41,8 +41,7 @@ export const KeyboardShortcutsModal: React.FC<KeyboardShortcutsModalProps> = ({
       isOpen={isOpen}
       onClose={onClose}
       title="Keyboard Shortcuts"
-      size="md"
-      showCloseButton
+      maxWidth="md"
     >
       <div className="space-y-5 py-1">
         <p className="text-xs text-slate-600 dark:text-slate-300">
