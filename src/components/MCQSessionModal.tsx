@@ -1812,7 +1812,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
             </motion.div>
 
             <div className="space-y-1 relative z-10">
-              <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#FAF5ED] dark:bg-[#251A1E] border border-slate-200 dark:border-[#38262C] text-[11px] font-black uppercase tracking-[0.2em] text-[#7045D8] dark:text-[#A78BFA] font-mono shadow-sm">
+              <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-slate-100 dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] text-[11px] font-black uppercase tracking-[0.2em] text-[#7045D8] dark:text-[#A78BFA] font-mono shadow-sm">
                 <Sparkles className="w-3 h-3 text-amber-500" />
                 {session.isSmartTest ? "Mastery Achieved" : isTestMode ? "Examination Finalized" : "Practice Session Completed"}
               </span>
@@ -1820,7 +1820,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                 {sessionAccuracy >= 80 ? "Outstanding Mastery!" : sessionAccuracy >= 50 ? "Solid Progress!" : "Keep Pushing Forward!"}
               </h2>
               <div className="text-[11px] font-bold text-slate-500 dark:text-[#9E8E95] flex items-center justify-center gap-1.5 flex-wrap px-2">
-                <span className="text-slate-900 dark:text-[#FAF5ED]">{session.title}</span>
+                <span className="text-slate-900 dark:text-slate-100">{session.title}</span>
                 {session.subtitle && (
                   <>
                     <span className="w-1 h-1 rounded-full bg-[#A78BFA]" />
@@ -1832,7 +1832,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
 
             {/* Main Score & Accuracy Grid */}
             <div className="grid grid-cols-2 gap-2.5 sm:gap-3.5 items-stretch pt-0.5 relative z-10">
-              <div className="bg-[#FAF5ED] dark:bg-[#20181B] rounded-xl sm:rounded-2xl p-3 sm:p-3.5 border border-slate-200 dark:border-[#31275E] flex flex-col items-center justify-center">
+              <div className="bg-slate-100 dark:bg-[#241D48] rounded-xl sm:rounded-2xl p-3 sm:p-3.5 border border-slate-200 dark:border-[#31275E] flex flex-col items-center justify-center">
                 <span className="text-[11px] font-black uppercase tracking-widest text-[#7045D8] dark:text-[#A78BFA] mb-1">
                   Score Achieved
                 </span>
@@ -1849,7 +1849,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                 </span>
               </div>
 
-              <div className="bg-[#FAF5ED] dark:bg-[#20181B] rounded-xl sm:rounded-2xl p-3 sm:p-3.5 border border-slate-200 dark:border-[#31275E] flex flex-col items-center justify-center">
+              <div className="bg-slate-100 dark:bg-[#241D48] rounded-xl sm:rounded-2xl p-3 sm:p-3.5 border border-slate-200 dark:border-[#31275E] flex flex-col items-center justify-center">
                 <span className="text-[11px] font-black uppercase tracking-widest text-[#7045D8] dark:text-[#A78BFA] mb-1">
                   Accuracy Rate
                 </span>
@@ -1890,7 +1890,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                   <div className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-[#A78BFA]/20 border border-[#A78BFA]/30 text-[11px] font-black text-[#7045D8] dark:text-[#A78BFA] uppercase tracking-wider mb-1">
                     Flawless
                   </div>
-                  <p className="text-[11px] text-slate-900 dark:text-[#FAF5ED] font-bold leading-tight">
+                  <p className="text-[11px] text-slate-900 dark:text-slate-100 font-bold leading-tight">
                     Outstanding performance! You answered all questions correctly.
                   </p>
                 </div>
@@ -1911,8 +1911,8 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
               {[
                 { label: "CORRECT", val: totalCorrect, color: "text-emerald-700 dark:text-emerald-400", bg: "bg-emerald-50/70 dark:bg-emerald-950/20", border: "border-emerald-200 dark:border-emerald-900/40", icon: CheckCircle2 },
                 { label: "INCORRECT", val: totalWrong, color: "text-rose-700 dark:text-rose-400", bg: "bg-rose-50/70 dark:bg-rose-950/20", border: "border-rose-200 dark:border-rose-900/40", icon: XCircle },
-                { label: "SKIPPED", val: totalSkipped, color: "text-stone-700 dark:text-stone-300", bg: "bg-[#FAF5ED] dark:bg-[#1E171A]", border: "border-slate-200 dark:border-[#31275E]", icon: Filter },
-                { label: "AVG / Q", val: `${avgTimePerQuestion}s`, color: "text-[#7045D8] dark:text-[#A78BFA]", bg: "bg-[#FAF5ED] dark:bg-[#1E171A]", border: "border-slate-200 dark:border-[#31275E]", icon: Clock },
+                { label: "SKIPPED", val: totalSkipped, color: "text-stone-700 dark:text-stone-300", bg: "bg-slate-100 dark:bg-[#241D48]", border: "border-slate-200 dark:border-[#31275E]", icon: Filter },
+                { label: "AVG / Q", val: `${avgTimePerQuestion}s`, color: "text-[#7045D8] dark:text-[#A78BFA]", bg: "bg-slate-100 dark:bg-[#241D48]", border: "border-slate-200 dark:border-[#31275E]", icon: Clock },
               ].map((m, i) => {
                 const Icon = m.icon;
                 return (
@@ -1962,7 +1962,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                       category: "Quiz Scorecard",
                     });
                   }}
-                  className="h-11 px-3 bg-[#FAF5ED] dark:bg-[#1E171A] hover:bg-[#F5EBE1] text-[#7045D8] dark:text-[#A78BFA] rounded-xl font-black text-xs flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer border border-[#A78BFA]/40"
+                  className="h-11 px-3 bg-slate-100 dark:bg-[#241D48] hover:bg-slate-200 dark:hover:bg-[#31275E] text-[#7045D8] dark:text-[#A78BFA] rounded-xl font-black text-xs flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer border border-[#A78BFA]/40"
                 >
                   <Share2 className="w-3.5 h-3.5 text-[#7045D8] dark:text-[#A78BFA]" />
                   <span>Share Result</span>
@@ -2001,7 +2001,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
             {/* Analytics Header */}
             <div className="flex items-center justify-between border-b border-slate-200/70 dark:border-[#31275E] pb-3">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-[#FAF5ED] dark:bg-[#20181B] text-[#7045D8] dark:text-[#A78BFA] border border-[#A78BFA]/40 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-[#241D48] text-[#7045D8] dark:text-[#A78BFA] border border-[#A78BFA]/40 flex items-center justify-center">
                   <Target className="w-4 h-4" />
                 </div>
                 <div>
@@ -2013,7 +2013,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                   </p>
                 </div>
               </div>
-              <span className="px-2.5 py-1 rounded-full bg-[#FAF5ED] dark:bg-[#20181B] border border-[#A78BFA]/30 text-[11px] font-black text-[#7045D8] dark:text-[#A78BFA] font-mono">
+              <span className="px-2.5 py-1 rounded-full bg-slate-100 dark:bg-[#241D48] border border-[#A78BFA]/30 text-[11px] font-black text-[#7045D8] dark:text-[#A78BFA] font-mono">
                 {sessionAccuracy}% ACC
               </span>
             </div>
@@ -2021,13 +2021,13 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
             {/* 1. Proportional Attempt Distribution Bar */}
             <div className="space-y-2">
               <div className="flex items-center justify-between text-[11px] font-bold">
-                <span className="text-slate-900 dark:text-[#FAF5ED]">Attempt Distribution</span>
+                <span className="text-slate-900 dark:text-slate-100">Attempt Distribution</span>
                 <span className="text-slate-500 dark:text-slate-400 font-mono">
                   {totalAttempted}/{questions.length} Attempted ({Math.round((totalAttempted / Math.max(1, questions.length)) * 100)}%)
                 </span>
               </div>
               
-              <div className="h-3.5 w-full bg-[#FAF5ED] dark:bg-[#20181B] rounded-full overflow-hidden flex border border-slate-200/80 dark:border-[#31275E]">
+              <div className="h-3.5 w-full bg-slate-100 dark:bg-[#241D48] rounded-full overflow-hidden flex border border-slate-200/80 dark:border-[#31275E]">
                 {totalCorrect > 0 && (
                   <div 
                     style={{ width: `${(totalCorrect / questions.length) * 100}%` }} 
@@ -2071,7 +2071,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
             {/* 2. Target Benchmark Meter */}
             <div className="space-y-1.5 pt-1">
               <div className="flex items-center justify-between text-[11px] font-bold">
-                <div className="flex items-center gap-1.5 text-slate-900 dark:text-[#FAF5ED]">
+                <div className="flex items-center gap-1.5 text-slate-900 dark:text-slate-100">
                   <Award className="w-3.5 h-3.5 text-amber-500" />
                   <span>Target Benchmark (75% Accuracy)</span>
                 </div>
@@ -2079,7 +2079,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                   {sessionAccuracy >= 75 ? `+${sessionAccuracy - 75}% Above Benchmark` : `${75 - sessionAccuracy}% to Target`}
                 </span>
               </div>
-              <div className="relative h-2 w-full bg-[#FAF5ED] dark:bg-[#20181B] rounded-full overflow-hidden border border-slate-200/80 dark:border-[#31275E]">
+              <div className="relative h-2 w-full bg-slate-100 dark:bg-[#241D48] rounded-full overflow-hidden border border-slate-200/80 dark:border-[#31275E]">
                 <div className="absolute top-0 bottom-0 left-[75%] w-0.5 bg-[#7045D8] dark:bg-[#7045D8] z-10" />
                 <div
                   style={{ width: `${Math.min(100, sessionAccuracy)}%` }}
@@ -2096,7 +2096,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
 
             {/* 3. Time Management Summary */}
             <div className="grid grid-cols-2 gap-2.5 pt-1">
-              <div className="p-3 rounded-xl bg-[#FAF5ED] dark:bg-[#20181B] border border-slate-200 dark:border-[#31275E] flex items-center gap-2.5">
+              <div className="p-3 rounded-xl bg-slate-100 dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-lg bg-white dark:bg-[#130E26] border border-slate-200 dark:border-[#31275E] flex items-center justify-center text-[#7045D8] dark:text-[#A78BFA] shrink-0">
                   <Clock className="w-4 h-4" />
                 </div>
@@ -2110,7 +2110,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                 </div>
               </div>
 
-              <div className="p-3 rounded-xl bg-[#FAF5ED] dark:bg-[#20181B] border border-slate-200 dark:border-[#31275E] flex items-center gap-2.5">
+              <div className="p-3 rounded-xl bg-slate-100 dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-lg bg-white dark:bg-[#130E26] border border-slate-200 dark:border-[#31275E] flex items-center justify-center text-[#7045D8] dark:text-[#A78BFA] shrink-0">
                   <Zap className="w-4 h-4" />
                 </div>
@@ -2134,7 +2134,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                 <span className="text-[11px] font-black uppercase tracking-widest text-[#7045D8] dark:text-[#A78BFA]">
                   Performance Insight
                 </span>
-                <p className="text-[11px] font-bold text-slate-900 dark:text-[#FAF5ED] leading-snug">
+                <p className="text-[11px] font-bold text-slate-900 dark:text-slate-100 leading-snug">
                   {sessionAccuracy >= 85
                     ? "🔥 Excellent accuracy and strong conceptual clarity. Keep this precision level across full length tests."
                     : sessionAccuracy >= 65
@@ -2203,7 +2203,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
             <div className="grid grid-cols-6 sm:grid-cols-8 gap-2.5 sm:gap-3">
               {questions.map((q, idx) => {
                 const res = sessionResults[q.id];
-                let btnClass = "bg-[#FAF5ED] dark:bg-[#20181B] border-slate-200 dark:border-[#31275E] text-slate-500 dark:text-slate-400";
+                let btnClass = "bg-slate-100 dark:bg-[#241D48] border-slate-200 dark:border-[#31275E] text-slate-500 dark:text-slate-400";
                 if (res) {
                   btnClass = res.isCorrect 
                     ? "bg-emerald-600 border-emerald-600 text-white shadow-md shadow-emerald-600/20" 
@@ -2239,7 +2239,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
             </div>
 
             {/* Segmented Filter Control (DISHA 20-20 Burgundy Styling) */}
-            <div className="p-1 bg-[#FAF5ED] dark:bg-[#181114] border border-slate-200 dark:border-[#31275E] rounded-2xl flex items-center gap-1">
+            <div className="p-1 bg-slate-100 dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] rounded-2xl flex items-center gap-1">
               {[
                 { id: "all", label: "All", count: questions.length },
                 { id: "wrong", label: "Wrong", count: totalWrong },
@@ -2288,7 +2288,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                     className="bg-white dark:bg-[#130E26] border border-slate-200 dark:border-[#31275E] rounded-2xl sm:rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col"
                   >
                     {/* Audit Card Header */}
-                    <div className="px-4 py-3 sm:px-5 sm:py-3.5 border-b border-slate-200/80 dark:border-[#31275E] flex items-center justify-between gap-3 bg-[#FAF5ED]/50 dark:bg-[#1F181B]/50">
+                    <div className="px-4 py-3 sm:px-5 sm:py-3.5 border-b border-slate-200/80 dark:border-[#31275E] flex items-center justify-between gap-3 bg-slate-100/50 dark:bg-[#241D48]/50">
                       <div className="flex items-center gap-2.5">
                         <span className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#7045D8] text-white font-mono font-black text-xs flex items-center justify-center border border-[#A78BFA]/30">
                           #{questionNumber}
@@ -2305,7 +2305,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                                 {isCorrect ? "Correct" : "Incorrect"}
                               </span>
                               {questionTimes[q.id] !== undefined && (
-                                <span className="text-[11px] font-black font-mono bg-[#FAF5ED] dark:bg-[#251B1F] border border-slate-200 dark:border-[#31275E] text-[#7045D8] dark:text-[#A78BFA] px-2 py-0.5 rounded-md flex items-center gap-1">
+                                <span className="text-[11px] font-black font-mono bg-slate-100 dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] text-[#7045D8] dark:text-[#A78BFA] px-2 py-0.5 rounded-md flex items-center gap-1">
                                   <Clock size={11} /> {questionTimes[q.id]}s
                                 </span>
                               )}
@@ -2322,10 +2322,10 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                         currentTag={progressStore[q.id]?.bookmarkTag}
                         onToggleBookmark={onToggleBookmark}
                         size="md"
-                        className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl border flex items-center justify-center transition-all cursor-pointer relative ${
+                        className={`w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl border flex items-center justify-center transition-all cursor-pointer relative ${
                           isQBookmarked
-                            ? "bg-[#A78BFA] border-[#A78BFA] text-white shadow-md shadow-[#A78BFA]/20"
-                            : "bg-white dark:bg-[#20181B] border-slate-200 dark:border-[#31275E] text-slate-500"
+                            ? "bg-[#7045D8] border-[#7045D8] text-white shadow-md shadow-[#7045D8]/20"
+                            : "bg-white dark:bg-[#241D48] border-slate-200 dark:border-[#31275E] text-slate-500"
                         }`}
                       />
                     </div>
@@ -2356,7 +2356,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                               if (!looksLikePairing) return null;
                             }
 
-                            let cardClass = "bg-[#FAF5ED]/50 dark:bg-[#1E171A]/50 border-slate-200 dark:border-[#31275E] text-slate-900 dark:text-[#E2D9D2]";
+                            let cardClass = "bg-slate-100/50 dark:bg-[#241D48]/50 border-slate-200 dark:border-[#31275E] text-slate-900 dark:text-[#E2D9D2]";
                             let badgeClass = "bg-slate-200/50 dark:bg-[#241D48] text-slate-500 dark:text-slate-400";
 
                             if (isThisCorrect) {
@@ -2395,7 +2395,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                             </div>
                             <h4 className="text-xs font-black text-[#E5B869] uppercase tracking-[0.2em]">Mastery Keys</h4>
                           </div>
-                          <div className="text-[13px] sm:text-[14px] text-[#FAF5ED] font-hindi leading-relaxed font-bold">
+                          <div className="text-[13px] sm:text-[14px] text-slate-100 font-hindi leading-relaxed font-bold">
                             <RichText text={q.explanation} enablePronunciation={true} />
                           </div>
                         </div>
@@ -2403,13 +2403,13 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
 
                       {/* Expert Tip / Fact */}
                       {q.importantFact && (
-                        <div className="bg-[#FAF5ED] dark:bg-[#1D171A] border border-[#A78BFA]/40 rounded-2xl p-4 flex gap-3">
+                        <div className="bg-slate-100 dark:bg-[#241D48] border border-[#A78BFA]/40 rounded-2xl p-4 flex gap-3">
                           <div className="w-8 h-8 rounded-lg bg-[#A78BFA] text-white flex items-center justify-center shrink-0 mt-0.5">
                             <Lightbulb size={18} fill="currentColor" />
                           </div>
                           <div className="space-y-0.5">
                             <span className="text-[11px] font-black text-[#7045D8] dark:text-[#A78BFA] uppercase tracking-widest">Expert Tip</span>
-                            <p className="font-hindi text-xs sm:text-sm text-slate-900 dark:text-[#FAF5ED] leading-relaxed font-black">
+                            <p className="font-hindi text-xs sm:text-sm text-slate-900 dark:text-slate-100 leading-relaxed font-black">
                               {q.importantFact}
                             </p>
                           </div>
@@ -4526,7 +4526,7 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
             className={`rounded-2xl p-3.5 border text-xs font-bold flex items-center gap-2.5 ${
               liveSubmitError
                 ? "bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300"
-                : "bg-[#FAF5ED] dark:bg-[#20181B] border-[#A78BFA]/40 text-[#7045D8] dark:text-[#A78BFA]"
+                : "bg-slate-100 dark:bg-[#241D48] border-[#A78BFA]/40 text-[#7045D8] dark:text-[#A78BFA]"
             }`}
           >
             <AlertCircle className="w-4 h-4 shrink-0 text-[#7045D8] dark:text-[#A78BFA]" />
@@ -4594,7 +4594,7 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
               hidden: { opacity: 0, scale: 0.8 },
               show: { opacity: 1, scale: 1 }
             }}
-            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-[0.2em] bg-[#FAF5ED] dark:bg-[#251A1E] text-[#7045D8] dark:text-[#A78BFA] border border-slate-200 dark:border-[#38262C] font-mono shadow-sm"
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-[0.2em] bg-slate-100 dark:bg-[#241D48] text-[#7045D8] dark:text-[#A78BFA] border border-slate-200 dark:border-[#31275E] font-mono shadow-sm"
           >
             <CheckCircle2 className="w-3.5 h-3.5 text-amber-500" />
             <span>Examination Complete</span>
@@ -4610,7 +4610,7 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
           </div>
 
           <div className="grid grid-cols-3 gap-2 sm:gap-2.5 pt-0.5 relative z-10">
-            <div className="p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-[#FAF5ED] dark:bg-[#20181B] border border-slate-200 dark:border-[#31275E] shadow-sm">
+            <div className="p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-slate-100 dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] shadow-sm">
               <span className="text-[11px] sm:text-[11px] font-black uppercase tracking-wider text-[#7045D8] dark:text-[#A78BFA] block mb-0.5">Marks</span>
               <span className="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-50 font-mono block">
                 {obtainedMarks}
@@ -4618,7 +4618,7 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
               <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 mt-0.5 block">/ {maxMarks}</span>
             </div>
 
-            <div className="p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-[#FAF5ED] dark:bg-[#20181B] border border-slate-200 dark:border-[#31275E] shadow-sm">
+            <div className="p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-slate-100 dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] shadow-sm">
               <span className="text-[11px] sm:text-[11px] font-black uppercase tracking-wider text-amber-500 block mb-0.5">Score</span>
               <span className="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-50 font-mono block">
                 {scorePercent}%
@@ -4691,7 +4691,7 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
                   <span className="text-[11px] font-black uppercase tracking-[0.15em] text-[#7045D8] dark:text-[#A78BFA] font-mono block mb-0.5">
                     100% Perfect Score
                   </span>
-                  <p className="text-[11px] text-slate-900 dark:text-[#FAF5ED] font-bold leading-tight truncate">
+                  <p className="text-[11px] text-slate-900 dark:text-slate-100 font-bold leading-tight truncate">
                     Outstanding performance! You answered all questions correctly.
                   </p>
                 </div>
@@ -4730,7 +4730,7 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
             <button
               type="button"
               onClick={handleShareResult}
-              className="w-full py-2.5 sm:py-3 px-4 rounded-xl bg-[#FAF5ED] dark:bg-[#1E171A] hover:bg-[#F5EBE1] text-[#7045D8] dark:text-[#A78BFA] border border-[#A78BFA]/40 font-black text-xs sm:text-sm active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+              className="w-full py-2.5 sm:py-3 px-4 rounded-xl bg-slate-100 dark:bg-[#241D48] hover:bg-slate-200 dark:hover:bg-[#31275E] text-[#7045D8] dark:text-[#A78BFA] border border-[#A78BFA]/40 font-black text-xs sm:text-sm active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm"
             >
               <Share2 className="w-4 h-4 text-[#7045D8] dark:text-[#A78BFA]" />
               <span>SHARE SCORECARD</span>
@@ -4749,7 +4749,7 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
           {/* Analytics Header */}
           <div className="flex items-center justify-between border-b border-slate-200/70 dark:border-[#31275E] pb-3">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-[#FAF5ED] dark:bg-[#20181B] text-[#7045D8] dark:text-[#A78BFA] border border-[#A78BFA]/40 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-[#241D48] text-[#7045D8] dark:text-[#A78BFA] border border-[#A78BFA]/40 flex items-center justify-center">
                 <Target className="w-4 h-4" />
               </div>
               <div>
@@ -4761,7 +4761,7 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
                 </p>
               </div>
             </div>
-            <span className="px-2.5 py-1 rounded-full bg-[#FAF5ED] dark:bg-[#20181B] border border-[#A78BFA]/30 text-[11px] font-black text-[#7045D8] dark:text-[#A78BFA] font-mono">
+            <span className="px-2.5 py-1 rounded-full bg-slate-100 dark:bg-[#241D48] border border-[#A78BFA]/30 text-[11px] font-black text-[#7045D8] dark:text-[#A78BFA] font-mono">
               {scorePercent}% MARKS
             </span>
           </div>
@@ -4769,13 +4769,13 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
           {/* 1. Proportional Attempt Distribution Bar */}
           <div className="space-y-2">
             <div className="flex items-center justify-between text-[11px] font-bold">
-              <span className="text-slate-900 dark:text-[#FAF5ED]">Attempt Breakdown</span>
+              <span className="text-slate-900 dark:text-slate-100">Attempt Breakdown</span>
               <span className="text-slate-500 dark:text-slate-400 font-mono">
                 {totalAttempted}/{totalQuestions} Attempted ({Math.round((totalAttempted / Math.max(1, totalQuestions)) * 100)}%)
               </span>
             </div>
             
-            <div className="h-3.5 w-full bg-[#FAF5ED] dark:bg-[#20181B] rounded-full overflow-hidden flex border border-slate-200/80 dark:border-[#31275E]">
+            <div className="h-3.5 w-full bg-slate-100 dark:bg-[#241D48] rounded-full overflow-hidden flex border border-slate-200/80 dark:border-[#31275E]">
               {totalCorrect > 0 && (
                 <div 
                   style={{ width: `${(totalCorrect / totalQuestions) * 100}%` }} 
@@ -4832,7 +4832,7 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
           {/* 2. Qualifying Cutoff Benchmark */}
           <div className="space-y-1.5 pt-1">
             <div className="flex items-center justify-between text-[11px] font-bold">
-              <div className="flex items-center gap-1.5 text-slate-900 dark:text-[#FAF5ED]">
+              <div className="flex items-center gap-1.5 text-slate-900 dark:text-slate-100">
                 <Award className="w-3.5 h-3.5 text-amber-500" />
                 <span>Qualifying Cutoff Benchmark (40%)</span>
               </div>
@@ -4840,7 +4840,7 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
                 {scorePercent >= 40 ? `+${scorePercent - 40}% Above Cutoff` : `${40 - scorePercent}% Below Cutoff`}
               </span>
             </div>
-            <div className="relative h-2 w-full bg-[#FAF5ED] dark:bg-[#20181B] rounded-full overflow-hidden border border-slate-200/80 dark:border-[#31275E]">
+            <div className="relative h-2 w-full bg-slate-100 dark:bg-[#241D48] rounded-full overflow-hidden border border-slate-200/80 dark:border-[#31275E]">
               <div className="absolute top-0 bottom-0 left-[40%] w-0.5 bg-[#7045D8] dark:bg-[#7045D8] z-10" />
               <div
                 style={{ width: `${Math.min(100, scorePercent)}%` }}
@@ -4857,7 +4857,7 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
 
           {/* 3. Time Management Summary */}
           <div className="grid grid-cols-2 gap-2.5 pt-1">
-            <div className="p-3 rounded-xl bg-[#FAF5ED] dark:bg-[#20181B] border border-slate-200 dark:border-[#31275E] flex items-center gap-2.5">
+            <div className="p-3 rounded-xl bg-slate-100 dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-lg bg-white dark:bg-[#130E26] border border-slate-200 dark:border-[#31275E] flex items-center justify-center text-[#7045D8] dark:text-[#A78BFA] shrink-0">
                 <Clock className="w-4 h-4" />
               </div>
@@ -4871,7 +4871,7 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
               </div>
             </div>
 
-            <div className="p-3 rounded-xl bg-[#FAF5ED] dark:bg-[#20181B] border border-slate-200 dark:border-[#31275E] flex items-center gap-2.5">
+            <div className="p-3 rounded-xl bg-slate-100 dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-lg bg-white dark:bg-[#130E26] border border-slate-200 dark:border-[#31275E] flex items-center justify-center text-[#7045D8] dark:text-[#A78BFA] shrink-0">
                 <Zap className="w-4 h-4" />
               </div>
@@ -4895,7 +4895,7 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
               <span className="text-[11px] font-black uppercase tracking-widest text-[#7045D8] dark:text-[#A78BFA]">
                 Examination Strategy Insight
               </span>
-              <p className="text-[11px] font-bold text-slate-900 dark:text-[#FAF5ED] leading-snug">
+              <p className="text-[11px] font-bold text-slate-900 dark:text-slate-100 leading-snug">
                 {scorePercent >= 70
                   ? "🔥 Merit Level Performance! You have scored comfortably above competitive exam cutoffs. Focus on speed drills."
                   : scorePercent >= 40
@@ -4953,7 +4953,7 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
           </div>
 
           {/* Segmented Filter Control */}
-          <div className="p-1 bg-[#FAF5ED] dark:bg-[#181114] border border-slate-200 dark:border-[#31275E] rounded-2xl flex items-center gap-1">
+          <div className="p-1 bg-slate-100 dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] rounded-2xl flex items-center gap-1">
             {[
               { id: "all", label: "All", count: totalQuestions },
               { id: "correct", label: "Correct", count: totalCorrect },
@@ -5008,7 +5008,7 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
                   className="bg-white dark:bg-[#130E26] border border-slate-200 dark:border-[#31275E] rounded-2xl sm:rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col"
                 >
                   {/* Audit Card Header */}
-                  <div className="px-4 py-3 sm:px-5 sm:py-3.5 border-b border-slate-200/80 dark:border-[#31275E] flex items-center justify-between gap-3 bg-[#FAF5ED]/50 dark:bg-[#1F181B]/50">
+                  <div className="px-4 py-3 sm:px-5 sm:py-3.5 border-b border-slate-200/80 dark:border-[#31275E] flex items-center justify-between gap-3 bg-slate-100/50 dark:bg-[#241D48]/50">
                     <div className="flex items-center gap-2.5">
                       <span className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#7045D8] text-white font-mono font-black text-xs flex items-center justify-center border border-[#A78BFA]/30">
                         #{questions.findIndex(item => item.id === q.id) + 1}
@@ -5040,11 +5040,11 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
                           setReportingQuestion(q);
                           setShowReportModal(true);
                         }}
-                        className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl border flex items-center justify-center transition-all cursor-pointer bg-white dark:bg-[#20181B] border-slate-200 dark:border-[#31275E] text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/20"
+                        className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl border flex items-center justify-center transition-all cursor-pointer bg-white dark:bg-[#241D48] border-slate-200 dark:border-[#31275E] text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/20"
                         title="Report Question / Raise Objection"
                         aria-label="Report Question"
                       >
-                        <Flag className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
+                        <Flag className="w-5 h-5" />
                       </motion.button>
 
                       <SmartBookmarkButton
@@ -5053,10 +5053,10 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
                         currentTag={progressStore[q.id]?.bookmarkTag}
                         onToggleBookmark={onToggleBookmark}
                         size="md"
-                        className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl border flex items-center justify-center transition-all cursor-pointer relative ${
+                        className={`w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl border flex items-center justify-center transition-all cursor-pointer relative ${
                           isQBookmarked
-                            ? "bg-[#A78BFA] border-[#A78BFA] text-white shadow-md shadow-[#A78BFA]/20"
-                            : "bg-white dark:bg-[#20181B] border-slate-200 dark:border-[#31275E] text-slate-500"
+                            ? "bg-[#7045D8] border-[#7045D8] text-white shadow-md shadow-[#7045D8]/20"
+                            : "bg-white dark:bg-[#241D48] border-slate-200 dark:border-[#31275E] text-slate-500"
                         }`}
                       />
                     </div>
@@ -5088,7 +5088,7 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
                             if (!looksLikePairing) return null;
                           }
 
-                          let cardClass = "bg-[#FAF5ED]/50 dark:bg-[#1E171A]/50 border-slate-200 dark:border-[#31275E] text-slate-900 dark:text-[#E2D9D2]";
+                          let cardClass = "bg-slate-100/50 dark:bg-[#241D48]/50 border-slate-200 dark:border-[#31275E] text-slate-900 dark:text-[#E2D9D2]";
                           let badgeClass = "bg-slate-200/50 dark:bg-[#241D48] text-slate-500 dark:text-slate-400";
 
                           if (isThisCorrect) {
@@ -5127,7 +5127,7 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
                           </div>
                           <h4 className="text-xs font-black text-[#E5B869] uppercase tracking-[0.2em]">Solution Insight</h4>
                         </div>
-                        <div className="text-[13px] sm:text-[14px] text-[#FAF5ED] font-hindi leading-relaxed font-bold">
+                        <div className="text-[13px] sm:text-[14px] text-slate-100 font-hindi leading-relaxed font-bold">
                           <RichText text={q.explanation} enablePronunciation={true} />
                         </div>
                         <div className="pt-3 mt-3 border-t border-white/10 flex items-center justify-between flex-wrap gap-2.5">
@@ -5176,7 +5176,7 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
           <button
             id="btn-retake-test"
             onClick={onRestart}
-            className="flex-1 h-12 px-4 rounded-xl sm:rounded-2xl bg-[#FAF5ED] dark:bg-[#1E171A] border border-[#A78BFA]/40 text-[#7045D8] dark:text-[#A78BFA] font-black text-xs sm:text-sm hover:bg-[#F5EBE1] transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 shadow-sm"
+            className="flex-1 h-12 px-4 rounded-xl sm:rounded-2xl bg-slate-100 dark:bg-[#241D48] border border-[#A78BFA]/40 text-[#7045D8] dark:text-[#A78BFA] font-black text-xs sm:text-sm hover:bg-slate-200 dark:hover:bg-[#31275E] transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 shadow-sm"
           >
             <RotateCcw className="w-4 h-4" />
             <span>Re-take Test</span>

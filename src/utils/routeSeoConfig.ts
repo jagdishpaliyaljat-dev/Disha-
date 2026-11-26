@@ -1,6 +1,6 @@
 import { ActiveTab } from "../types";
 import { SITE_CONFIG } from "../config/siteConfig";
-import { SEOOptions } from "./seoHelper";
+import { SEOOptions, buildFAQSchema } from "./seoHelper";
 
 export const LEGAL_INFO_TABS: ReadonlySet<ActiveTab> = new Set([
   "about",
@@ -214,6 +214,26 @@ export function getSEOForRoute(tab: ActiveTab, context: RouteSEOContext = {}): S
         description:
           "Learn how Disha PYQ empowers competitive exam aspirants with authentic Previous Year Questions, AI weakness diagnosis, and spaced repetition.",
         canonicalUrl: `${domain}/about`,
+        jsonLdSchemas: [
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Home", item: `${domain}/` },
+              { "@type": "ListItem", position: 2, name: "About Us", item: `${domain}/about` },
+            ],
+          },
+          buildFAQSchema([
+            {
+              question: "दिशा 20-20 का मुख्य उद्देश्य क्या है?",
+              answer: "हमारा उद्देश्य प्रत्येक प्रतियोगी छात्र को पिछले 20 वर्षों के प्रामाणिक प्रश्नों का विषयवार और टॉपिकवार अभ्यास उपलब्ध कराना है।",
+            },
+            {
+              question: "क्या यह ऐप ऑफलाइन काम करती है?",
+              answer: "हाँ, दिशा 20-20 एक प्रोग्रेसिव वेब ऐप (PWA) है जो IndexedDB ऑफलाइन कैशे के साथ बिना इंटरनेट भी अभ्यास करने की सुविधा देती है।",
+            },
+          ]),
+        ],
       };
 
     case "contact":
@@ -263,6 +283,39 @@ export function getSEOForRoute(tab: ActiveTab, context: RouteSEOContext = {}): S
           "RAS PYQ",
           "REET MCQs",
           "Patwar mock tests",
+        ],
+        jsonLdSchemas: [
+          {
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            "@id": `${domain}/#website`,
+            url: `${domain}/`,
+            name: "Disha PYQ",
+            alternateName: "दिशा PYQ",
+            inLanguage: "hi-IN",
+            potentialAction: {
+              "@type": "SearchAction",
+              target: {
+                "@type": "EntryPoint",
+                urlTemplate: `${domain}/?q={search_term_string}`,
+              },
+              "query-input": "required name=search_term_string",
+            },
+          },
+          buildFAQSchema([
+            {
+              question: "दिशा 20-20 (Disha PYQ) क्या है?",
+              answer: "दिशा 20-20 राजस्थान की सभी प्रतियोगी परीक्षाओं जैसे RPSC RAS, REET, CET, Patwar, Police SI के पिछले वर्षों के प्रश्नों (PYQs) और लाइव टेस्ट का डिजिटल अभ्यास मंच है।",
+            },
+            {
+              question: "क्या दिशा 20-20 पर PYQs का अभ्यास निशुल्क है?",
+              answer: "हाँ, दिशा 20-20 पर हजारों पूर्व परीक्षा प्रश्न, विषयवार टेस्ट और विस्तृत हिंदी व्याख्या निशुल्क उपलब्ध हैं।",
+            },
+            {
+              question: "क्या प्रश्नों के साथ 5वां विकल्प (अनुत्तरित प्रश्न) OMR नियम लागू है?",
+              answer: "हाँ, RPSC और RSMSSB के नवीनतम नियमों के अनुसार 5वें विकल्प (E) और 1/3 नेगेटिव मार्किंग की सटीक सिमुलेशन प्रदान की जाती है।",
+            },
+          ]),
         ],
       };
   }

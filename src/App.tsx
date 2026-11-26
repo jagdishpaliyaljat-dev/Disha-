@@ -48,7 +48,7 @@ import { MobileAppReturnBanner } from './components/MobileAppReturnBanner';
 import { BrandSplashAndOnboarding } from './components/BrandSplashAndOnboarding';
 import { AppLogo } from './components/AppLogo';
 import { UserAvatar } from './components/ui/UserAvatar';
-import { ContentLoader } from './components/ui/LoadingScreen';
+import { ContentLoader, TabContentSkeleton } from './components/ui/LoadingScreen';
 import { AdminErrorBoundary } from './components/admin/AdminErrorBoundary';
 import { RouteErrorBoundary } from './components/RouteErrorBoundary';
 import { OverlayErrorBoundary } from './components/OverlayErrorBoundary';
@@ -708,6 +708,7 @@ export default function App() {
   const [htmlImportChapterId, setHtmlImportChapterId] = React.useState<string | undefined>(undefined);
   const [htmlImportTopicId, setHtmlImportTopicId] = React.useState<string | undefined>(undefined);
   const [isGlobalSearchOpen, setIsGlobalSearchOpen] = React.useState(false);
+  const [globalSearchInitialQuery, setGlobalSearchInitialQuery] = React.useState("");
 
   // Global Ctrl+K / Cmd+K Search Shortcut Listener
   React.useEffect(() => {
@@ -719,6 +720,21 @@ export default function App() {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  // Detect URL query parameter for Sitelinks Searchbox (e.g. ?q=ras or ?search=geography)
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const query = params.get('q') || params.get('search');
+      if (query && query.trim()) {
+        setGlobalSearchInitialQuery(query.trim());
+        setIsGlobalSearchOpen(true);
+      }
+    } catch {
+      // Ignore URL parsing errors
+    }
   }, []);
 
   // Detect URL query parameter for Live Quiz Battle (e.g. ?battle=849201 via WhatsApp invite)
@@ -856,6 +872,10 @@ export default function App() {
       setSelectedCoachingId(parsed.coachingId);
       setSelectedExamId(parsed.examId);
       setSelectedSeriesId(parsed.seriesId);
+      if (parsed.searchQuery) {
+        setGlobalSearchInitialQuery(parsed.searchQuery);
+        setIsGlobalSearchOpen(true);
+      }
     };
 
 
@@ -1998,7 +2018,7 @@ export default function App() {
           </div>
         ) : (
         <RouteErrorBoundary tabName={activeTab} onNavigateHome={() => setActiveTab('home')}>
-        <React.Suspense fallback={<ContentLoader message="Loading content..." submessage="Disha PYQ • Precision Learning" minHeight="min-h-[60vh]" />}>
+        <React.Suspense fallback={<TabContentSkeleton className="min-h-[60vh] py-8" />}>
         {activeTab === 'home' && (
           <HomeTab
             progressStore={progressStore}
@@ -2741,10 +2761,14 @@ export default function App() {
       )}
 
       {isGlobalSearchOpen && (
-        <OverlayErrorBoundary viewName="Global Search Modal" onClose={() => setIsGlobalSearchOpen(false)}>
+        <OverlayErrorBoundary viewName="Global Search Modal" onClose={() => { setIsGlobalSearchOpen(false); setGlobalSearchInitialQuery(""); }}>
           <GlobalSearchModal
             isOpen={isGlobalSearchOpen}
-            onClose={() => setIsGlobalSearchOpen(false)}
+            onClose={() => {
+              setIsGlobalSearchOpen(false);
+              setGlobalSearchInitialQuery("");
+            }}
+            initialQuery={globalSearchInitialQuery}
             onSelectQuestion={(q: any) => {
               handleStartSession({
                 title: "Targeted Question Practice",

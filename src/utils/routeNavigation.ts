@@ -9,6 +9,7 @@ export interface ParsedNavState {
   coachingId: string | null;
   examId: string | null;
   seriesId: string | null;
+  searchQuery?: string | null;
   isNotFound?: boolean;
 }
 
@@ -177,6 +178,7 @@ export function resolvePathToNavigationState(
     coachingId,
     examId,
     seriesId,
+    searchQuery: params.get("q") || params.get("search") || null,
     isNotFound,
   };
 }

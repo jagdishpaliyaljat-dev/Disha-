@@ -19,6 +19,7 @@ interface GlobalSearchModalProps {
   onSelectQuestion?: (q: Question) => void;
   onSelectTopic?: (t: Topic) => void;
   onSelectPaper?: (p: PYQPaper) => void;
+  initialQuery?: string;
 }
 
 export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
@@ -27,8 +28,9 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
   onSelectQuestion,
   onSelectTopic,
   onSelectPaper,
+  initialQuery = "",
 }) => {
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(initialQuery);
   const [activeFilter, setActiveFilter] = useState<"all" | "question" | "topic" | "paper">("all");
   const [results, setResults] = useState<SearchResultItem[]>([]);
   const [latency, setLatency] = useState(0);
@@ -38,6 +40,9 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
   // Initialize or re-index when modal opens
   useEffect(() => {
     if (isOpen) {
+      if (initialQuery) {
+        setQuery(initialQuery);
+      }
       if (!fastSearchEngine.isReady()) {
         fastSearchEngine.buildIndex();
       }
@@ -48,7 +53,7 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
       setQuery("");
       setResults([]);
     }
-  }, [isOpen]);
+  }, [isOpen, initialQuery]);
 
   // Execute fast search on query or filter change
   useEffect(() => {
@@ -123,6 +128,9 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-start justify-center p-3 sm:p-6 sm:pt-16 animate-in fade-in duration-150">
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Global Question & Topic Search"
         className="bg-white dark:bg-[#1B1536] rounded-2xl sm:rounded-3xl border border-slate-200 dark:border-[#31275E] w-full max-w-2xl shadow-2xl flex flex-col overflow-hidden max-h-[85vh] animate-in zoom-in-95 duration-150"
         onClick={(e) => e.stopPropagation()}
       >

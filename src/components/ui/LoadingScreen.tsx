@@ -256,7 +256,7 @@ export const InlineSpinner: React.FC<InlineSpinnerProps> = ({
 
 /**
  * Next-Gen Premium Shimmer Skeleton Block
- * Warm ivory base in light mode, obsidian slate in dark mode with gold warmth
+ * Clean Slate base in light mode, Royal Obsidian in dark mode with Purple shimmer
  */
 export const PremiumSkeleton: React.FC<{
   className?: string;
@@ -264,14 +264,124 @@ export const PremiumSkeleton: React.FC<{
 }> = ({ className = "h-4 w-full", rounded = "rounded-xl" }) => {
   return (
     <div
-      className={`relative overflow-hidden bg-[#F0EAE1] dark:bg-[#181F2F] ${rounded} ${className}`}
+      className={`relative overflow-hidden bg-slate-200/80 dark:bg-[#1E173D] ${rounded} ${className}`}
     >
       <motion.div
-        className="absolute inset-0 bg-gradient-to-r from-transparent via-[#F8FAFC]/60 dark:via-[#5B32BF]/10 to-transparent"
+        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/70 dark:via-[#7045D8]/20 to-transparent"
         initial={{ x: "-100%" }}
         animate={{ x: "100%" }}
         transition={{ repeat: Infinity, duration: 1.6, ease: "easeInOut" }}
       />
+    </div>
+  );
+};
+
+/**
+ * Tab Content Skeleton Loader
+ * Layout-matching skeleton for tab transitions (Home, Topics, Analytics, Live Tests, Profile)
+ * Prevents Layout Shift (CLS = 0) and delivers instant perceived responsiveness.
+ */
+export const TabContentSkeleton: React.FC<{ className?: string }> = ({
+  className = "",
+}) => {
+  return (
+    <div
+      role="status"
+      aria-label="Loading content..."
+      className={`max-w-5xl mx-auto px-4 py-6 space-y-6 animate-pulse select-none ${className}`}
+    >
+      {/* 1. Header & Quick Controls Skeleton */}
+      <div className="flex items-center justify-between gap-4">
+        <div className="space-y-2">
+          <div className="h-6 w-40 sm:w-56 bg-slate-200/80 dark:bg-[#241D48] rounded-xl" />
+          <div className="h-3.5 w-28 sm:w-36 bg-slate-200/50 dark:bg-[#1E173D] rounded-lg" />
+        </div>
+        <div className="h-10 w-10 sm:w-28 bg-slate-200/80 dark:bg-[#241D48] rounded-xl" />
+      </div>
+
+      {/* 2. Top Filter / Category Pills Skeleton */}
+      <div className="flex gap-2.5 overflow-x-hidden pt-1">
+        <div className="h-9 w-24 bg-[#7045D8]/20 rounded-full shrink-0" />
+        <div className="h-9 w-28 bg-slate-200/80 dark:bg-[#241D48] rounded-full shrink-0" />
+        <div className="h-9 w-20 bg-slate-200/80 dark:bg-[#241D48] rounded-full shrink-0" />
+        <div className="h-9 w-32 bg-slate-200/80 dark:bg-[#241D48] rounded-full shrink-0" />
+      </div>
+
+      {/* 3. Hero Action Card Skeleton */}
+      <div className="h-36 sm:h-40 w-full bg-gradient-to-br from-slate-200/80 via-slate-200/50 to-slate-200/80 dark:from-[#241D48] dark:via-[#1B1536] dark:to-[#241D48] rounded-3xl p-5 flex flex-col justify-between border border-slate-200/60 dark:border-[#31275E]/60 shadow-xs">
+        <div className="space-y-2">
+          <div className="h-4 w-28 bg-slate-300/70 dark:bg-[#31275E] rounded-md" />
+          <div className="h-6 w-3/4 sm:w-1/2 bg-slate-300/80 dark:bg-[#31275E] rounded-lg" />
+        </div>
+        <div className="flex items-center justify-between pt-2">
+          <div className="h-4 w-32 bg-slate-300/70 dark:bg-[#31275E] rounded-md" />
+          <div className="h-9 w-28 bg-[#7045D8]/30 rounded-xl" />
+        </div>
+      </div>
+
+      {/* 4. Grid Cards Skeleton */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5">
+        {[1, 2, 3, 4, 5, 6].map((i) => (
+          <div
+            key={i}
+            className="h-28 rounded-2xl bg-white/80 dark:bg-[#1B1536] border border-slate-200/80 dark:border-[#31275E] p-4 flex items-center gap-3.5 shadow-xs"
+          >
+            <div className="w-12 h-12 rounded-2xl bg-slate-200/80 dark:bg-[#241D48] shrink-0" />
+            <div className="flex-1 space-y-2">
+              <div className="h-4 w-3/4 bg-slate-200/80 dark:bg-[#241D48] rounded-md" />
+              <div className="h-3 w-1/2 bg-slate-200/50 dark:bg-[#1E173D] rounded-md" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+/**
+ * Question Card Skeleton Loader
+ * Shimmer preview for MCQ questions and test sessions
+ */
+export const QuestionCardSkeleton: React.FC<{ className?: string }> = ({
+  className = "",
+}) => {
+  return (
+    <div
+      role="status"
+      aria-label="Loading question..."
+      className={`max-w-3xl mx-auto p-4 sm:p-6 space-y-5 animate-pulse select-none ${className}`}
+    >
+      {/* Question Header Meta */}
+      <div className="flex items-center justify-between">
+        <div className="h-6 w-28 bg-[#7045D8]/20 rounded-full" />
+        <div className="h-8 w-20 bg-slate-200/80 dark:bg-[#241D48] rounded-xl" />
+      </div>
+
+      {/* Question Body Text */}
+      <div className="space-y-2.5 pt-2">
+        <div className="h-5 w-full bg-slate-200/80 dark:bg-[#241D48] rounded-lg" />
+        <div className="h-5 w-5/6 bg-slate-200/80 dark:bg-[#241D48] rounded-lg" />
+        <div className="h-5 w-2/3 bg-slate-200/60 dark:bg-[#1E173D] rounded-lg" />
+      </div>
+
+      {/* 4 Option Buttons Skeleton */}
+      <div className="space-y-3 pt-3">
+        {[1, 2, 3, 4].map((opt) => (
+          <div
+            key={opt}
+            className="h-14 w-full rounded-2xl bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] p-3.5 flex items-center gap-3.5 shadow-xs"
+          >
+            <div className="w-8 h-8 rounded-xl bg-slate-200/80 dark:bg-[#241D48] shrink-0" />
+            <div className="h-4 w-2/3 bg-slate-200/70 dark:bg-[#241D48] rounded-md" />
+          </div>
+        ))}
+      </div>
+
+      {/* Bottom Actions Bar */}
+      <div className="flex items-center justify-between pt-4">
+        <div className="h-11 w-28 bg-slate-200/80 dark:bg-[#241D48] rounded-xl" />
+        <div className="h-11 w-32 bg-[#7045D8]/30 rounded-xl" />
+      </div>
     </div>
   );
 };

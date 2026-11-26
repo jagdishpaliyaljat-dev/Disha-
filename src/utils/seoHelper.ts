@@ -12,6 +12,7 @@ export interface SEOOptions {
   category?: string;
   keywords?: string[];
   noindex?: boolean;
+  lang?: string;
   jsonLdSchemas?: object[];
 }
 
@@ -33,8 +34,11 @@ export function updateSEOHead(options: SEOOptions) {
   const currentPath = window.location.pathname || "/";
   const fullUrl = options.canonicalUrl || `${origin}${currentPath === "/" ? "/" : currentPath}`;
 
-  // 1. Page Title
+  // 1. Page Title & Language
   document.title = options.title;
+  const lang = options.lang || "hi";
+  document.documentElement.setAttribute("lang", lang);
+  document.documentElement.setAttribute("xml:lang", lang);
 
   // Helper to set/update or remove meta tag
   const setMeta = (attrName: string, attrVal: string, content: string | undefined | null) => {
@@ -168,4 +172,83 @@ export function generateSlug(title: string): string {
     .replace(/-+/g, "-")
     .substring(0, 80)
     .replace(/^-|-$/g, "") || `post-${Date.now().toString(36)}`;
+}
+
+export interface QuizSchemaQuestion {
+  text?: string;
+  question?: string;
+  options?: string[];
+  correctIndex?: number;
+  correct_answer?: number;
+  explanation?: string;
+}
+
+/**
+ * Builds schema.org/Quiz structured data with Question & Answer elements
+ * conforming to Google Search Central's Practice Problems rich results specification.
+ */
+export function buildQuizSchema(
+  title: string,
+  questions: QuizSchemaQuestion[],
+  canonicalUrl?: string
+): Record<string, any> {
+  const origin = getCanonicalOrigin();
+  const slice = (questions || []).slice(0, 10);
+  return {
+    "@context": "https://schema.org",
+    "@type": "Quiz",
+    "name": title,
+    "description": `Practice ${title} multiple-choice questions with official answers and detailed explanations on Disha PYQ.`,
+    "educationalLevel": "Intermediate",
+    "learningResourceType": "Quiz",
+    "url": canonicalUrl || `${origin}/topics`,
+    "hasPart": slice.map((q) => {
+      const qText = q.text || q.question || "";
+      const opts = Array.isArray(q.options) ? q.options : [];
+      const correctIdx = typeof q.correctIndex === "number" ? q.correctIndex : (q.correct_answer ?? 0);
+      const correctOptText = opts[correctIdx] || "";
+      return {
+        "@type": "Question",
+        "eduQuestionType": "Multiple choice",
+        "text": qText,
+        "suggestedAnswer": opts.map((opt, i) => ({
+          "@type": "Answer",
+          "position": i + 1,
+          "text": opt,
+        })),
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "position": correctIdx + 1,
+          "text": correctOptText,
+          "comment": {
+            "@type": "Comment",
+            "text": q.explanation || "Official answer key verified on Disha PYQ.",
+          },
+        },
+      };
+    }),
+  };
+}
+
+export interface FAQItem {
+  question: string;
+  answer: string;
+}
+
+/**
+ * Builds schema.org/FAQPage structured data for rich expandable search accordions in Google SERP.
+ */
+export function buildFAQSchema(faqs: FAQItem[]): Record<string, any> {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": (faqs || []).map((f) => ({
+      "@type": "Question",
+      "name": f.question,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": f.answer,
+      },
+    })),
+  };
 }

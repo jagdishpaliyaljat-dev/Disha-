@@ -141,12 +141,17 @@ export const CustomSmartTestModal: React.FC<CustomSmartTestModalProps> = ({
       id="custom-smart-test-modal"
       className="fixed inset-0 z-50 bg-[#130E26]/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-in fade-in duration-200"
     >
-      <div className="bg-[#F8FAFC] dark:bg-[#130E26] border border-slate-200 dark:border-[#31275E] rounded-3xl max-w-xl w-full my-auto shadow-2xl overflow-hidden flex flex-col max-h-[92dvh]">
+      <div 
+        role="dialog"
+        aria-modal="true"
+        aria-label="Custom Smart Test"
+        className="bg-[#F8FAFC] dark:bg-[#130E26] border border-slate-200 dark:border-[#31275E] rounded-3xl max-w-xl w-full my-auto shadow-2xl overflow-hidden flex flex-col max-h-[92dvh]"
+      >
         {/* Header */}
         <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-[#31275E] flex items-start justify-between bg-white dark:bg-[#1B1536] shrink-0">
           <div className="flex items-start gap-3">
             <div className="w-10 h-10 rounded-2xl bg-[#7045D8] text-white flex items-center justify-center shadow-md shadow-[#7045D8]/20 shrink-0 mt-0.5">
-              <Sparkles className="w-5 h-5 text-[#7045D8]" />
+              <Sparkles className="w-5 h-5 text-white" />
             </div>
             <div>
               <div className="flex items-center gap-2">
@@ -164,10 +169,12 @@ export const CustomSmartTestModal: React.FC<CustomSmartTestModalProps> = ({
           </div>
           <button
             id="btn-close-smart-test-modal"
+            type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-slate-100 dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] text-slate-500 hover:text-slate-900 dark:hover:text-white flex items-center justify-center transition-colors cursor-pointer shrink-0"
+            aria-label="Close smart test modal"
+            className="w-11 h-11 rounded-xl bg-slate-100 dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] text-slate-500 hover:text-slate-900 dark:hover:text-white flex items-center justify-center transition-colors cursor-pointer shrink-0"
           >
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 

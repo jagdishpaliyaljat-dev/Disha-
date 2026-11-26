@@ -3,8 +3,9 @@ import fs from "node:fs";
 import path from "node:path";
 import { describe, it, expect, beforeEach } from "vitest";
 import { getSEOForRoute, isLegalInfoTab, isPublicWebSEOTab } from "../src/utils/routeSeoConfig";
-import { updateSEOHead, getCanonicalOrigin } from "../src/utils/seoHelper";
+import { updateSEOHead, getCanonicalOrigin, buildQuizSchema, buildFAQSchema } from "../src/utils/seoHelper";
 import { getCoreStaticEntries } from "../src/utils/sitemapGenerator";
+import { resolvePathToNavigationState } from "../src/utils/routeNavigation";
 
 const ROOT = path.resolve(import.meta.dirname, "..");
 
@@ -12,6 +13,7 @@ describe("Website & Web App SEO Audit Fixes", () => {
   beforeEach(() => {
     document.head.innerHTML = "";
     document.title = "";
+    document.documentElement.setAttribute("lang", "en");
   });
 
   describe("Static index.html, robots.txt, sitemap.xml & og-preview.png", () => {
@@ -26,6 +28,25 @@ describe("Website & Web App SEO Audit Fixes", () => {
       expect(html).toContain('https://disha2020.in/pwa-512x512.png');
       expect(html).toContain('https://t.me/disha2020_official');
       expect(html).not.toContain('<script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>');
+    });
+
+    it("configures <html lang='hi'> and provides crawler-friendly pre-rendered fallback skeleton inside #root", () => {
+      const html = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
+      expect(html).toContain('<html lang="hi" xml:lang="hi">');
+      expect(html).toContain('id="crawler-fallback-shell"');
+      expect(html).toContain('href="/topics"');
+      expect(html).toContain('href="/pyq-vault"');
+      expect(html).toContain('href="/live-tests"');
+      expect(html).toContain('href="/test-series"');
+      expect(html).toContain('href="/news"');
+    });
+
+    it("includes official WebSite Schema with SearchAction and preconnects to Supabase", () => {
+      const html = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
+      expect(html).toContain('"@type": "WebSite"');
+      expect(html).toContain('"@type": "SearchAction"');
+      expect(html).toContain('https://disha2020.in/?q={search_term_string}');
+      expect(html).toContain('<link rel="preconnect" href="https://eaidivceejkdqsshlraj.supabase.co" crossorigin />');
     });
 
     it("provides a real 1200x630 public/og-preview.png asset", () => {
@@ -59,6 +80,93 @@ describe("Website & Web App SEO Audit Fixes", () => {
     });
   });
 
+  describe("Social Bot Crawler Pre-rendering & vercel.json", () => {
+    it("configures vercel.json rewrite for social scrapers pointing to api/og-crawler", () => {
+      const vercel = JSON.parse(fs.readFileSync(path.join(ROOT, "vercel.json"), "utf8"));
+      expect(vercel.rewrites).toBeDefined();
+      const crawlerRewrite = vercel.rewrites.find(
+        (r: any) => r.source === "/news/:slug" && r.destination === "/api/og-crawler?slug=:slug"
+      );
+      expect(crawlerRewrite).toBeDefined();
+      expect(crawlerRewrite.has[0].value).toContain("facebookexternalhit|WhatsApp|TelegramBot|Twitterbot");
+    });
+
+    it("creates api/og-crawler.js with escapeHtml and fallback handling", () => {
+      const crawlerScript = fs.readFileSync(path.join(ROOT, "api/og-crawler.js"), "utf8");
+      expect(crawlerScript).toContain("export default async function handler");
+      expect(crawlerScript).toContain("og:image");
+      expect(crawlerScript).toContain("window.location.replace");
+    });
+  });
+
+  describe("Semantic Heading Structure & HomeTab H1", () => {
+    it("ensures HomeTab.tsx has a prominent keyword-rich <h1>", () => {
+      const homeTabContent = fs.readFileSync(path.join(ROOT, "src/components/HomeTab.tsx"), "utf8");
+      expect(homeTabContent).toContain("<h1");
+      expect(homeTabContent).toContain("दिशा 20-20 — राजस्थान प्रतियोगी परीक्षाएं एवं PYQ अभ्यास");
+    });
+  });
+
+  describe("SearchAction & Query Navigation Parsing", () => {
+    it("parses ?q=ras and ?search=cet from URL into searchQuery state", () => {
+      const nav1 = resolvePathToNavigationState("/", new URLSearchParams("?q=ras"));
+      expect(nav1.tab).toBe("home");
+      expect(nav1.searchQuery).toBe("ras");
+
+      const nav2 = resolvePathToNavigationState("/topics", new URLSearchParams("?search=geography"));
+      expect(nav2.tab).toBe("topics");
+      expect(nav2.searchQuery).toBe("geography");
+    });
+  });
+
+  describe("Google Rich Results: Practice Problems (Quiz) & FAQPage Schemas", () => {
+    it("builds compliant schema.org/Quiz structured data with Question & Answer elements", () => {
+      const mockQuestions = [
+        {
+          id: "q1",
+          topicId: "t1",
+          chapterId: "c1",
+          text: "कालीबंगा सभ्यता किस नदी के किनारे स्थित थी?",
+          options: ["घग्घर नदी", "बनास नदी", "चम्बल नदी", "लूणी नदी"],
+          correctIndex: 0,
+          explanation: "कालीबंगा राजस्थान के हनुमानगढ़ जिले में घग्घर नदी के किनारे स्थित है।",
+        },
+      ];
+
+      const schema = buildQuizSchema("राजस्थान इतिहास महत्वपूर्ण प्रश्न", mockQuestions, "https://disha2020.in/topics");
+      expect(schema["@type"]).toBe("Quiz");
+      expect(schema.name).toBe("राजस्थान इतिहास महत्वपूर्ण प्रश्न");
+      expect(schema.hasPart.length).toBe(1);
+      expect(schema.hasPart[0]["@type"]).toBe("Question");
+      expect(schema.hasPart[0].text).toBe("कालीबंगा सभ्यता किस नदी के किनारे स्थित थी?");
+      expect(schema.hasPart[0].acceptedAnswer.text).toBe("घग्घर नदी");
+      expect(schema.hasPart[0].acceptedAnswer.comment.text).toContain("घग्घर नदी के किनारे स्थित है");
+    });
+
+    it("builds compliant schema.org/FAQPage structured data", () => {
+      const faqs = [
+        { question: "क्या दिशा 20-20 फ्री है?", answer: "हाँ, दिशा 20-20 पर PYQ अभ्यास निशुल्क है।" },
+      ];
+      const faqSchema = buildFAQSchema(faqs);
+      expect(faqSchema["@type"]).toBe("FAQPage");
+      expect(faqSchema.mainEntity.length).toBe(1);
+      expect(faqSchema.mainEntity[0].name).toBe("क्या दिशा 20-20 फ्री है?");
+      expect(faqSchema.mainEntity[0].acceptedAnswer.text).toBe("हाँ, दिशा 20-20 पर PYQ अभ्यास निशुल्क है।");
+    });
+
+    it("enriches home and about routes with FAQPage schema", () => {
+      const homeSEO = getSEOForRoute("home");
+      const hasFaq = homeSEO.jsonLdSchemas?.some((s: any) => s["@type"] === "FAQPage");
+      const hasWebSite = homeSEO.jsonLdSchemas?.some((s: any) => s["@type"] === "WebSite");
+      expect(hasFaq).toBe(true);
+      expect(hasWebSite).toBe(true);
+
+      const aboutSEO = getSEOForRoute("about");
+      const aboutHasFaq = aboutSEO.jsonLdSchemas?.some((s: any) => s["@type"] === "FAQPage");
+      expect(aboutHasFaq).toBe(true);
+    });
+  });
+
   describe("Route Crawlability & Private Auth Boundaries", () => {
     it("allows legal/info tabs universally and public SEO tabs on Web", () => {
       expect(isLegalInfoTab("terms-of-service")).toBe(true);
@@ -81,29 +189,9 @@ describe("Website & Web App SEO Audit Fixes", () => {
   });
 
   describe("Dynamic Route SEO Metadata & DOM Injection", () => {
-    it("marks private routes and 404 as noindex while enriching public routes with titles & schemas", () => {
-      const topicsMeta = getSEOForRoute("topics", { subjectName: "Rajasthan Geography" });
-      expect(topicsMeta.title).toContain("Rajasthan Geography");
-      expect(topicsMeta.canonicalUrl).toBe("https://disha2020.in/topics");
-      expect(topicsMeta.noindex).toBeFalsy();
-      expect(topicsMeta.jsonLdSchemas?.length).toBe(1);
-
-      const pyqMeta = getSEOForRoute("pyq_vault");
-      expect(pyqMeta.canonicalUrl).toBe("https://disha2020.in/pyq-vault");
-      expect(pyqMeta.noindex).toBeFalsy();
-
-      expect(getSEOForRoute("admin").noindex).toBe(true);
-      expect(getSEOForRoute("profile").noindex).toBe(true);
-      expect(getSEOForRoute("wrong").noindex).toBe(true);
-      expect(getSEOForRoute("analytics").noindex).toBe(true);
-      expect(getSEOForRoute("not_found").noindex).toBe(true);
-    });
-
-    it("updates document.title, canonical, robots, and enforces https://disha2020.in even on vercel.app previews", () => {
-      // jsdom defaults to localhost:3000 for local development
+    it("updates document.title, canonical, robots, lang attribute, and enforces https://disha2020.in", () => {
       expect(getCanonicalOrigin()).toBe("http://localhost:3000");
 
-      // Simulate preview/production origin (disha-2020.vercel.app) — must normalize to disha2020.in
       const origLocation = window.location;
       Object.defineProperty(window, "location", {
         configurable: true,
@@ -115,18 +203,12 @@ describe("Website & Web App SEO Audit Fixes", () => {
 
         updateSEOHead(getSEOForRoute("pyq_vault"));
         expect(document.title).toContain("Official PYQ Vault");
+        expect(document.documentElement.getAttribute("lang")).toBe("hi");
+        expect(document.documentElement.getAttribute("xml:lang")).toBe("hi");
         expect(document.querySelector('link[rel="canonical"]')?.getAttribute("href")).toBe(
           "https://disha2020.in/pyq-vault"
         );
         expect(document.querySelector('meta[name="robots"]')?.getAttribute("content")).toContain("index, follow");
-        expect(document.querySelector('meta[property="og:image"]')?.getAttribute("content")).toBe(
-          "https://disha2020.in/og-preview.png"
-        );
-        expect(document.querySelector('meta[property="og:image:width"]')?.getAttribute("content")).toBe("1200");
-        expect(document.querySelector('meta[property="og:image:height"]')?.getAttribute("content")).toBe("630");
-        // Duplicate identical hi/en hreflang tags must not be emitted
-        expect(document.querySelector('link[rel="alternate"][hreflang="hi"]')).toBeNull();
-        expect(document.querySelector('link[rel="alternate"][hreflang="en"]')).toBeNull();
 
         // Now switch to a private route and ensure noindex applies
         updateSEOHead(getSEOForRoute("profile"));

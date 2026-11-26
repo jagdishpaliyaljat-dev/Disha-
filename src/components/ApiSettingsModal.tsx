@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   X, 
   Sparkles, 
@@ -274,11 +274,27 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
     setShowAddForm(false);
   };
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
   return (
     <div className="fixed inset-0 z-[120] flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
       <div className="fixed inset-0 bg-[#130E26]/80 backdrop-blur-sm" onClick={onClose} />
       
-      <div className="relative w-full max-w-xl bg-[#F8FAFC] dark:bg-[#130E26] rounded-t-[32px] sm:rounded-[32px] shadow-2xl border border-slate-200 dark:border-[#31275E] overflow-hidden flex flex-col max-h-[92vh] animate-in slide-in-from-bottom duration-300">
+      <div 
+        role="dialog"
+        aria-modal="true"
+        aria-label="Study Assistant Setup"
+        className="relative w-full max-w-xl bg-[#F8FAFC] dark:bg-[#130E26] rounded-t-[32px] sm:rounded-[32px] shadow-2xl border border-slate-200 dark:border-[#31275E] overflow-hidden flex flex-col max-h-[92vh] animate-in slide-in-from-bottom duration-300"
+      >
         <div className="h-1 w-full bg-gradient-to-r from-[#7045D8] via-[#7045D8] to-[#A78BFA] shrink-0" />
 
         {/* Header */}
@@ -300,9 +316,10 @@ export const ApiSettingsModal: React.FC<ApiSettingsModalProps> = ({
             </div>
           </div>
           <button 
+            type="button"
             onClick={onClose}
             aria-label="Close"
-            className="w-9 h-9 rounded-full bg-slate-100 dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-[#7045D8] dark:hover:text-[#A78BFA] transition-colors cursor-pointer"
+            className="w-11 h-11 rounded-xl bg-slate-100 dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-[#7045D8] dark:hover:text-[#A78BFA] transition-colors cursor-pointer shrink-0"
           >
             <X size={18} />
           </button>

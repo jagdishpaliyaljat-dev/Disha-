@@ -68,7 +68,6 @@ import { showAppToast } from "../utils/adminToast";
 
 const CreateTestModal = React.lazy(() => import("./CreateTestModal"));
 const ShareModal = React.lazy(() => import("./ShareModal"));
-const WeeklyLeaderboard = React.lazy(() => import("./WeeklyLeaderboard"));
 
 interface HomeTabProps {
   progressStore: ProgressStore;
@@ -130,7 +129,6 @@ export const HomeTab: React.FC<HomeTabProps> = ({
   onOpenMenu,
 }) => {
   const [showCreateTestModal, setShowCreateTestModal] = useState(false);
-  const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [shareData, setShareData] = useState<ShareData | null>(null);
 
   const handleOpenMenu = () => {
@@ -288,6 +286,16 @@ export const HomeTab: React.FC<HomeTabProps> = ({
 
       {/* MAIN CONTENT CANVAS */}
       <main className="w-full max-w-5xl mx-auto px-3 sm:px-6 pt-3 sm:pt-4 space-y-3.5 sm:space-y-4 pb-28 md:pb-8 select-none">
+        {/* Primary Semantic Heading for Googlebot, Search Crawlers & Screen Readers */}
+        <div className="pt-0.5 pb-0.5">
+          <h1 className="text-sm sm:text-base font-black text-slate-900 dark:text-slate-50 tracking-tight font-hindi flex items-center gap-2">
+            <span>दिशा 20-20 — राजस्थान प्रतियोगी परीक्षाएं एवं PYQ अभ्यास</span>
+          </h1>
+          <p className="text-[11px] sm:text-xs text-slate-600 dark:text-slate-300 font-hindi mt-0.5">
+            RPSC RAS, REET, CET, Patwar, Police SI पिछले वर्षों के प्रश्न (PYQs), व्याख्यात्मक हल एवं लाइव टेस्ट सीरीज़।
+          </p>
+        </div>
+
         {/* 2. PROMINENT BANNER CAROUSEL */}
         <BannerSlides banners={activeBanners} onNavigateTab={onNavigateTab} />
 
@@ -642,74 +650,6 @@ export const HomeTab: React.FC<HomeTabProps> = ({
           />
         )}
       </React.Suspense>
-
-      {/* FULL WEEKLY LEADERBOARD MODAL */}
-      <AnimatePresence>
-        {showLeaderboard && (
-          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 sm:p-6">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-[#130E26]/75 backdrop-blur-xs"
-              onClick={() => setShowLeaderboard(false)}
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 12 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 12 }}
-              className="relative w-full max-w-xl bg-[#F8FAFC] dark:bg-[#1B1536] rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] border border-slate-200 dark:border-[#31275E]"
-            >
-              <div className="px-6 pt-5 pb-4 border-b border-slate-200 dark:border-[#31275E] flex items-center justify-between bg-[#F8FAFC] dark:bg-[#1B1536] sticky top-0 z-10">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-[#A78BFA]/15 text-[#946B1E] dark:text-[#E5BC6B] flex items-center justify-center">
-                    <Trophy size={20} />
-                  </div>
-                  <div>
-                    <h3 className="text-base font-extrabold text-slate-900 dark:text-slate-50">
-                      Weekly Rankings
-                    </h3>
-                    <p className="text-[11px] font-bold text-[#5E5873] dark:text-[#A39DBE] uppercase tracking-wider">
-                      Disha PYQ Top Aspirants
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setShowLeaderboard(false)}
-                  className="w-10 h-10 rounded-full bg-slate-100 dark:bg-[#241D48] flex items-center justify-center text-slate-600 hover:text-slate-900 dark:text-slate-300 transition-colors cursor-pointer"
-                  aria-label="Close leaderboard"
-                >
-                  <X size={18} />
-                </button>
-              </div>
-
-              <div className="flex-1 overflow-y-auto p-4 sm:p-6">
-                <React.Suspense
-                  fallback={
-                    <div className="py-12 flex justify-center">
-                      <div className="w-6 h-6 border-2 border-[#7045D8] dark:border-[#A78BFA] border-t-transparent rounded-full animate-spin" />
-                    </div>
-                  }
-                >
-                  <WeeklyLeaderboard
-                    userProfile={currentUserProfile}
-                    className="border-none shadow-none bg-transparent"
-                  />
-                </React.Suspense>
-              </div>
-
-              <div className="p-4 border-t border-slate-200 dark:border-[#31275E] bg-white dark:bg-[#130E26]">
-                <button
-                  onClick={() => setShowLeaderboard(false)}
-                  className="w-full py-3.5 bg-[#7045D8] dark:bg-[#7045D8] text-white rounded-xl text-xs font-extrabold uppercase tracking-wider active:scale-95 transition-transform cursor-pointer"
-                >
-                  Return to Dashboard
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
     </div>
   );
 };

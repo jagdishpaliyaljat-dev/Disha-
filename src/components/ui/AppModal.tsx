@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { X } from "lucide-react";
 import { triggerHaptic } from "../../utils/audioFeedback";
@@ -40,6 +40,19 @@ export const AppModal: React.FC<AppModalProps> = ({
     triggerHaptic("light");
     onClose();
   };
+
+  // Keyboard Escape listener for accessibility & hardware back navigation
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        handleClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen]);
 
   return (
     <AnimatePresence>

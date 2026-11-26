@@ -720,6 +720,9 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Edit Profile"
             className="relative bg-white dark:bg-[#1B1536] rounded-3xl p-6 w-full max-w-md border border-slate-200 dark:border-[#A78BFA]/30 shadow-2xl space-y-5"
           >
             <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-[#31275E]">
@@ -737,10 +740,12 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                 </div>
               </div>
               <button
+                type="button"
                 onClick={() => setShowEditProfileModal(false)}
-                className="w-8 h-8 rounded-full bg-slate-100 dark:bg-[#241D48] flex items-center justify-center text-slate-600 dark:text-slate-50 hover:bg-slate-200 cursor-pointer"
+                aria-label="Close edit profile"
+                className="w-11 h-11 rounded-xl bg-slate-100 dark:bg-[#241D48] flex items-center justify-center text-slate-600 dark:text-slate-100 hover:bg-slate-200 dark:hover:bg-[#31275E] transition-colors cursor-pointer shrink-0"
               >
-                <X size={16} />
+                <X size={18} />
               </button>
             </div>
 
@@ -961,15 +966,20 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
           <motion.div
             initial={{ opacity: 0, scale: 0.94 }}
             animate={{ opacity: 1, scale: 1 }}
+            role="dialog"
+            aria-modal="true"
+            aria-label="About Disha PYQ"
             className="relative bg-white dark:bg-[#1B1536] rounded-3xl p-6 w-full max-w-sm border border-slate-200 dark:border-[#A78BFA]/30 shadow-2xl space-y-4"
           >
             <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-[#31275E]">
               <AppLogo size="sm" variant="horizontal" showTagline={true} />
               <button
+                type="button"
                 onClick={() => setShowAboutModal(false)}
-                className="w-8 h-8 rounded-full bg-slate-100 dark:bg-[#241D48] flex items-center justify-center text-slate-600 dark:text-slate-50 cursor-pointer"
+                aria-label="Close about modal"
+                className="w-11 h-11 rounded-xl bg-slate-100 dark:bg-[#241D48] flex items-center justify-center text-slate-600 dark:text-slate-100 hover:bg-slate-200 dark:hover:bg-[#31275E] transition-colors cursor-pointer shrink-0"
               >
-                <X size={16} />
+                <X size={18} />
               </button>
             </div>
 

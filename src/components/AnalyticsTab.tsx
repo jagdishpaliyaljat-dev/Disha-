@@ -1491,12 +1491,17 @@ https://disha2020.in
       {/* 🩺 AI Weakness Postmortem & Study Prescription Modal */}
       {isPostmortemModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
-          <div className="bg-white dark:bg-[#1A1F2C] border border-slate-200 dark:border-[#31275E] rounded-3xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+          <div 
+            role="dialog"
+            aria-modal="true"
+            aria-label="Disha AI Study Prescription"
+            className="bg-white dark:bg-[#130E26] border border-slate-200 dark:border-[#31275E] rounded-3xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden"
+          >
             {/* Modal Header */}
             <div className="p-4 bg-gradient-to-r from-[#7045D8] via-[#5B32BF] to-[#130E26] text-white flex items-center justify-between shrink-0 border-b border-[#A78BFA]/30">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center border border-white/20">
-                  <Stethoscope className="w-5 h-5 text-[#7045D8]" />
+                <div className="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center border border-white/20 shrink-0">
+                  <Stethoscope className="w-5 h-5 text-white" />
                 </div>
                 <div>
                   <h3 className="text-sm sm:text-base font-black">
@@ -1511,7 +1516,8 @@ https://disha2020.in
               <button
                 type="button"
                 onClick={() => setIsPostmortemModalOpen(false)}
-                className="p-1.5 rounded-xl hover:bg-white/20 text-white/80 hover:text-white transition-colors cursor-pointer"
+                aria-label="Close prescription modal"
+                className="w-11 h-11 rounded-xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors cursor-pointer shrink-0"
               >
                 <X className="w-5 h-5" />
               </button>

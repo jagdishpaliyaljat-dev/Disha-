@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="hi" xml:lang="hi">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -98,9 +98,10 @@
     <link rel="shortcut icon" href="/favicon.ico" />
     <link rel="canonical" href="https://disha2020.in/" />
     <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml" />
+    <link rel="preconnect" href="https://eaidivceejkdqsshlraj.supabase.co" crossorigin />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Hind:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&family=Mukta:wght@600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="dns-prefetch" href="https://eaidivceejkdqsshlraj.supabase.co" />
     <link rel="dns-prefetch" href="https://sdk.cashfree.com" />
     <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
@@ -131,51 +132,68 @@
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "EducationalOrganization",
-      "name": "Disha PYQ",
-      "alternateName": "दिशा PYQ",
-      "description": "Premium competitive-exam preparation platform featuring bilingual MCQs, official PYQ papers, live mock tests, and analytics.",
-      "url": "https://disha2020.in",
-      "logo": {
-        "@type": "ImageObject",
-        "url": "https://disha2020.in/pwa-512x512.png",
-        "width": 512,
-        "height": 512
-      },
-      "sameAs": [
-        "https://t.me/disha2020_official"
-      ],
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "INR",
-        "availability": "https://schema.org/InStock"
-      },
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": "https://disha2020.in/?q={search_term_string}",
-        "query-input": "required name=search_term_string"
-      },
-      "hasOfferCatalog": {
-        "@type": "OfferCatalog",
-        "name": "Exam Preparation Services",
-        "itemListElement": [
-          {
-            "@type": "Offer",
-            "itemOffered": {
-              "@type": "Service",
-              "name": "Official PYQ Vault"
-            }
-          },
-          {
-            "@type": "Offer",
-            "itemOffered": {
-              "@type": "Service",
-              "name": "Live Mock Tests"
-            }
+      "@graph": [
+        {
+          "@type": "WebSite",
+          "@id": "https://disha2020.in/#website",
+          "url": "https://disha2020.in/",
+          "name": "Disha PYQ",
+          "alternateName": "दिशा PYQ",
+          "description": "Premier competitive-exam preparation platform for Previous Year Questions (PYQs), smart MCQs, and Live Mock Tests.",
+          "inLanguage": "hi-IN",
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": {
+              "@type": "EntryPoint",
+              "urlTemplate": "https://disha2020.in/?q={search_term_string}"
+            },
+            "query-input": "required name=search_term_string"
           }
-        ]
-      }
+        },
+        {
+          "@type": "EducationalOrganization",
+          "@id": "https://disha2020.in/#organization",
+          "name": "Disha PYQ",
+          "alternateName": "दिशा PYQ",
+          "description": "Premium competitive-exam preparation platform featuring bilingual MCQs, official PYQ papers, live mock tests, and analytics.",
+          "url": "https://disha2020.in",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://disha2020.in/pwa-512x512.png",
+            "width": 512,
+            "height": 512
+          },
+          "sameAs": [
+            "https://t.me/disha2020_official"
+          ],
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "INR",
+            "availability": "https://schema.org/InStock"
+          },
+          "hasOfferCatalog": {
+            "@type": "OfferCatalog",
+            "name": "Exam Preparation Services",
+            "itemListElement": [
+              {
+                "@type": "Offer",
+                "itemOffered": {
+                  "@type": "Service",
+                  "name": "Official PYQ Vault"
+                }
+              },
+              {
+                "@type": "Offer",
+                "itemOffered": {
+                  "@type": "Service",
+                  "name": "Live Mock Tests"
+                }
+              }
+            ]
+          }
+        }
+      ]
     }
     </script>
     <!-- Google tag (gtag.js) -->
@@ -201,7 +219,31 @@
     <!-- Cashfree SDK is lazy-loaded on demand in cashfreeService.ts to keep initial FCP/LCP fast -->
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Semantic Crawler & Accessibility Fallback Shell (Replaced instantly upon client hydration) -->
+      <div id="crawler-fallback-shell" style="padding: 24px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 800px; margin: 0 auto; line-height: 1.6; color: #1e293b;">
+        <header>
+          <h1 style="font-size: 24px; color: #7045d8; margin-bottom: 8px;">दिशा 20-20 — राजस्थान प्रतियोगी परीक्षाएं एवं PYQ अभ्यास</h1>
+          <p style="font-size: 15px; color: #475569; margin-bottom: 20px;">
+            RPSC RAS, REET, CET, Patwar, Police SI, एवं अन्य प्रतियोगी परीक्षाओं के पिछले वर्षों के प्रश्न (PYQs), विस्तृत हिंदी व्याख्या और ऑनलाइन टेस्ट सीरीज़।
+          </p>
+        </header>
+        <nav aria-label="मुख्य नेविगेशन">
+          <h2 style="font-size: 18px; margin-bottom: 10px;">महत्वपूर्ण अनुभाग</h2>
+          <ul style="padding-left: 20px;">
+            <li><a href="/topics" style="color: #7045d8;">अध्याय एवं विषयवार PYQ प्रश्न (Curriculum Topics)</a></li>
+            <li><a href="/pyq-vault" style="color: #7045d8;">ऑफिशियल परीक्षा प्रश्नपत्र संग्रह (PYQ Vault)</a></li>
+            <li><a href="/live-tests" style="color: #7045d8;">लाइव मॉक टेस्ट एवं ऑल राजस्थान रैंक (Live Tests)</a></li>
+            <li><a href="/test-series" style="color: #7045d8;">कोचिंग एवं एग्जाम टेस्ट सीरीज़ (Test Series)</a></li>
+            <li><a href="/news" style="color: #7045d8;">नवीनतम परीक्षा अपडेट्स एवं करंट अफेयर्स (Exam News)</a></li>
+            <li><a href="/about" style="color: #7045d8;">हमारे बारे में (About Disha PYQ)</a></li>
+            <li><a href="/contact" style="color: #7045d8;">संपर्क करें (Contact Us)</a></li>
+            <li><a href="/privacy-policy" style="color: #7045d8;">गोपनीयता नीति (Privacy Policy)</a></li>
+            <li><a href="/terms-of-service" style="color: #7045d8;">नियम एवं शर्तें (Terms of Service)</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

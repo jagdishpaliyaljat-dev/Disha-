@@ -280,12 +280,18 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 bg-[#130E26]/70 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 overflow-y-auto overscroll-y-contain">
-      <div className="bg-[#F8FAFC] dark:bg-[#130E26] rounded-2xl w-full max-w-2xl max-h-[92vh] flex flex-col shadow-2xl border border-slate-200 dark:border-[#31275E] overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+      <div 
+        role="dialog"
+        aria-modal="true"
+        aria-label="Create Test"
+        className="bg-[#F8FAFC] dark:bg-[#130E26] rounded-2xl w-full max-w-2xl max-h-[92vh] flex flex-col shadow-2xl border border-slate-200 dark:border-[#31275E] overflow-hidden animate-in fade-in zoom-in-95 duration-150"
+      >
         {/* Top Header */}
         <div className="px-5 py-3.5 border-b border-slate-200 dark:border-[#31275E] flex items-center justify-between bg-white dark:bg-[#1B1536] flex-shrink-0">
           <div className="flex items-center gap-3">
             {scope !== "options" && (
               <button
+                type="button"
                 onClick={() => {
                   if (subMode === "custom-select") {
                     setSubMode("smart");
@@ -297,13 +303,14 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({
                     setScope("options");
                   }
                 }}
-                className="p-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#241D48] transition-colors cursor-pointer"
+                aria-label="Go back"
+                className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#241D48] flex items-center justify-center transition-colors cursor-pointer shrink-0"
               >
-                <ArrowLeft className="w-4 h-4" />
+                <ArrowLeft className="w-5 h-5" />
               </button>
             )}
-            <div className="w-8 h-8 rounded-xl bg-[#7045D8] flex items-center justify-center text-white shadow-sm">
-              <Sparkles className="w-4 h-4 text-[#7045D8]" />
+            <div className="w-10 h-10 rounded-xl bg-[#7045D8] flex items-center justify-center text-white shadow-sm shrink-0">
+              <Sparkles className="w-5 h-5 text-white" />
             </div>
             <div>
               <h3 className="font-bold text-slate-900 dark:text-slate-50 text-sm sm:text-base">
@@ -326,8 +333,10 @@ const CreateTestModal: React.FC<CreateTestModalProps> = ({
           </div>
 
           <button
+            type="button"
             onClick={handleClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#241D48] transition-colors cursor-pointer"
+            aria-label="Close create test"
+            className="w-11 h-11 rounded-xl bg-slate-100 dark:bg-[#241D48] flex items-center justify-center text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer shrink-0"
           >
             <X className="w-5 h-5" />
           </button>
