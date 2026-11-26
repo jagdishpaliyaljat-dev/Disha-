@@ -1406,30 +1406,12 @@ export default function App() {
   const isAdmin = userProfile ? isUserAdmin(userProfile) : false;
   const isUserBlocked = Boolean(userProfile?.status === 'blocked' || userProfile?.blocked);
 
-  // Track page views & update dynamic SEO <head> tags on navigation
+  // Track page views dynamically on activeTab navigation
   React.useEffect(() => {
-    const selectedSub = selectedSubjectId
-      ? combinedSubjects.find((s) => s.id === selectedSubjectId)?.name || null
-      : null;
-    const selectedChap = selectedChapterId
-      ? combinedChapters.find((c) => c.id === selectedChapterId)?.title || null
-      : null;
-
-    // For individual articles, NewsPage sets rich NewsArticle/FAQPage JSON-LD & meta tags directly
-    if (!(activeTab === 'news' && selectedArticleSlug)) {
-      updateSEOHead(
-        getSEOForRoute(activeTab, {
-          subjectName: selectedSub,
-          chapterTitle: selectedChap,
-          articleSlug: selectedArticleSlug,
-        })
-      );
-    }
-
     const path = activeTab === 'home' ? '/' : `/${activeTab}`;
-    const title = document.title || `Disha PYQ — ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}`;
+    const title = `Disha PYQ — ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}`;
     trackPageView(path, title, { isUserAdmin: isAdmin, isLoggedIn: isAuthenticated }).catch(() => {});
-  }, [activeTab, selectedArticleSlug, selectedSubjectId, selectedChapterId, combinedSubjects, combinedChapters, isAdmin, isAuthenticated]);
+  }, [activeTab, isAdmin, isAuthenticated]);
 
   // Sync profile to Supabase on boot or change for all users (student, guest, admin)
   React.useEffect(() => {
@@ -1530,6 +1512,27 @@ export default function App() {
       return [];
     }
   }, [questionsStore]);
+
+  // Update dynamic SEO <head> tags on route/curriculum navigation
+  React.useEffect(() => {
+    const selectedSub = selectedSubjectId
+      ? combinedSubjects.find((s) => s.id === selectedSubjectId)?.name || null
+      : null;
+    const selectedChap = selectedChapterId
+      ? combinedChapters.find((c) => c.id === selectedChapterId)?.title || null
+      : null;
+
+    // For individual articles, NewsPage sets rich NewsArticle/FAQPage JSON-LD & meta tags directly
+    if (!(activeTab === 'news' && selectedArticleSlug)) {
+      updateSEOHead(
+        getSEOForRoute(activeTab, {
+          subjectName: selectedSub,
+          chapterTitle: selectedChap,
+          articleSlug: selectedArticleSlug,
+        })
+      );
+    }
+  }, [activeTab, selectedArticleSlug, selectedSubjectId, selectedChapterId, combinedSubjects, combinedChapters]);
 
   const combinedQuestions = React.useMemo(() => {
     try {
