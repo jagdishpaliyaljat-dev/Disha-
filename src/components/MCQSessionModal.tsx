@@ -48,7 +48,11 @@ import {
   Eye,
   Moon,
   Sun,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
+import { handleSwipeGesture } from "../utils/swipeNavigation";
+import { speakHindiQuestion, stopHindiSpeech } from "../utils/hindiSpeechReader";
 import confetti from "canvas-confetti";
 import { MotionConfettiCelebration } from "./MotionConfettiCelebration";
 import { GuestLoginPromptModal } from "./GuestLoginPromptModal";
@@ -187,6 +191,10 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
   // Guest login prompt popup when an unauthenticated user completes practice/test
   const [showGuestLoginPrompt, setShowGuestLoginPrompt] = useState(false);
   const hasPromptedGuestLoginRef = useRef(false);
+
+  // Hindi TTS and touch swipe navigation states
+  const [isSpeakingHindi, setIsSpeakingHindi] = useState(false);
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
     if (isCompleted && !isProfileAuthenticated(userProfile) && !hasPromptedGuestLoginRef.current) {
@@ -1467,6 +1475,64 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
           scrollEl.scrollTo({ top: 0, behavior: "smooth" });
         }
       }, 30);
+    }
+  };
+
+  // Stop Hindi speech when moving between questions
+  useEffect(() => {
+    stopHindiSpeech();
+    setIsSpeakingHindi(false);
+  }, [currentIndex]);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    if (touch) {
+      touchStartRef.current = { x: touch.clientX, y: touch.clientY };
+    }
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (!touchStartRef.current) return;
+    const touch = e.changedTouches[0];
+    if (!touch) return;
+
+    handleSwipeGesture({
+      startX: touchStartRef.current.x,
+      startY: touchStartRef.current.y,
+      endX: touch.clientX,
+      endY: touch.clientY,
+      onSwipeLeft: () => {
+        if (isTestMode) {
+          if (currentIndex < questions.length - 1) handleNavigateQuestionTestMode(currentIndex + 1);
+        } else {
+          handleNextQuestionPractice();
+        }
+      },
+      onSwipeRight: () => {
+        if (isTestMode) {
+          if (currentIndex > 0) handleNavigateQuestionTestMode(currentIndex - 1);
+        } else {
+          handlePreviousQuestionPractice();
+        }
+      },
+    });
+
+    touchStartRef.current = null;
+  };
+
+  const handleToggleHindiTTS = () => {
+    if (isSpeakingHindi) {
+      stopHindiSpeech();
+      setIsSpeakingHindi(false);
+    } else if (currentQuestion) {
+      setIsSpeakingHindi(true);
+      speakHindiQuestion({
+        questionText: currentQuestion.text || currentQuestion.question || "",
+        options: displayedOptions.map(o => o.text),
+        explanation: isSubmitted ? currentQuestion.explanation : undefined,
+        onEnd: () => setIsSpeakingHindi(false),
+        onError: () => setIsSpeakingHindi(false),
+      });
     }
   };
 
@@ -2929,12 +2995,27 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
         <div 
           id="mcq-content-scroll"
           ref={scrollRef}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
           className="flex-1 overflow-y-auto overscroll-contain px-3.5 sm:px-4 pt-4 pb-24 space-y-4"
         >
           <div className="flex items-center gap-2">
             <span className="px-3 py-1 rounded-lg bg-[#7045D8] text-white text-[11px] font-black font-mono tabular-nums uppercase tracking-widest">
               Q{currentIndex + 1} of {totalQuestions}
             </span>
+            <button
+              type="button"
+              onClick={handleToggleHindiTTS}
+              className={`p-1 px-2 rounded-lg border text-xs font-bold flex items-center gap-1 transition-all ${
+                isSpeakingHindi
+                  ? "bg-amber-500 text-white border-amber-600 animate-pulse"
+                  : "bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700"
+              }`}
+              title={isSpeakingHindi ? "बोलना रोकें" : "प्रश्न सुनें"}
+            >
+              {isSpeakingHindi ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+              <span className="text-[10px] hidden sm:inline">{isSpeakingHindi ? "Stop" : "सुनें"}</span>
+            </button>
             <div className="h-[2px] flex-1 bg-slate-200 dark:bg-[#31275E]" />
           </div>
 
@@ -3737,12 +3818,31 @@ function RedesignedLiveAndPYQTestView({
       </div>
 
       {/* 3. QUESTION CANVAS & CBT SPLIT-SCREEN LAYOUT */}
-      <main className="flex-1 overflow-y-auto overscroll-contain bg-[#F8FAFC] dark:bg-[#130E26] px-3 sm:px-4 py-4 sm:py-5">
+      <main 
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        className="flex-1 overflow-y-auto overscroll-contain bg-[#F8FAFC] dark:bg-[#130E26] px-3 sm:px-4 py-4 sm:py-5"
+      >
         <div className="max-w-3xl lg:max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-start">
           {/* Left Column: Question Text & Options */}
           <div className="lg:col-span-8 space-y-5">
             <div className="flex items-center justify-between px-1">
-              <span className="text-[11px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em] font-mono tabular-nums">Question {currentIndex + 1} / {totalQuestions}</span>
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em] font-mono tabular-nums">Question {currentIndex + 1} / {totalQuestions}</span>
+                <button
+                  type="button"
+                  onClick={handleToggleHindiTTS}
+                  className={`p-1 px-2 rounded-lg border text-xs font-bold flex items-center gap-1 transition-all ${
+                    isSpeakingHindi
+                      ? "bg-amber-500 text-white border-amber-600 animate-pulse"
+                      : "bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700"
+                  }`}
+                  title={isSpeakingHindi ? "बोलना रोकें" : "प्रश्न सुनें"}
+                >
+                  {isSpeakingHindi ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+                  <span className="text-[10px] hidden sm:inline">{isSpeakingHindi ? "Stop" : "सुनें"}</span>
+                </button>
+              </div>
               <div className="flex items-center gap-2">
                 <span className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-md text-[11px] font-black font-mono tabular-nums">+{session.marksPerQuestion || (isLive ? 2 : 1)}.0</span>
                 <span className="bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 px-2 py-0.5 rounded-md text-[11px] font-black font-mono tabular-nums">-{session.negativeMarking ?? (isLive ? 0.66 : 0.33)}</span>

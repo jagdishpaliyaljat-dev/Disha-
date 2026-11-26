@@ -678,9 +678,9 @@ export const WrongTab: React.FC<WrongTabProps> = ({
         {/* Segmented Filter Tabs */}
         <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
           {[
-            { id: "bookmarked", label: `Bookmarked (${totalBookmarkedCount})` },
-            { id: "mistakes", label: `Mistakes (${totalWrongCount})` },
-            { id: "by-chapter", label: "By Chapter" },
+            { id: "bookmarked", label: `बुकमार्क (${totalBookmarkedCount})` },
+            { id: "mistakes", label: `गलत प्रश्न (${totalWrongCount})` },
+            { id: "by-chapter", label: "चैप्टर अनुसार (By Chapter)" },
           ].map((tab) => {
             const isActive = activeFilter === tab.id;
             return (
