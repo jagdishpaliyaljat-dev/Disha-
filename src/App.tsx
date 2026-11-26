@@ -42,6 +42,8 @@ import { BottomNav } from './components/BottomNav';
 import { StudentNavigationDrawer } from './components/StudentNavigationDrawer';
 import { DishaAITutorModal, FloatingAIAssistant } from './components/DishaAITutorModal';
 import { OfflineIndicator } from './components/OfflineIndicator';
+import { KeyboardShortcutsModal } from './components/KeyboardShortcutsModal';
+import { crossTabSync } from './utils/crossTabSync';
 import { ToastNotificationContainer, ToastMessage } from './components/ToastNotification';
 import { PWAUpdateToast } from './components/PWAUpdateToast';
 import { MobileAppReturnBanner } from './components/MobileAppReturnBanner';
@@ -709,17 +711,59 @@ export default function App() {
   const [htmlImportTopicId, setHtmlImportTopicId] = React.useState<string | undefined>(undefined);
   const [isGlobalSearchOpen, setIsGlobalSearchOpen] = React.useState(false);
   const [globalSearchInitialQuery, setGlobalSearchInitialQuery] = React.useState("");
+  const [isKeyboardShortcutsOpen, setIsKeyboardShortcutsOpen] = React.useState(false);
 
-  // Global Ctrl+K / Cmd+K Search Shortcut Listener
+  // Global Desktop Keyboard Shortcuts Listener
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+      const activeEl = document.activeElement;
+      const isInput =
+        activeEl?.tagName === "INPUT" ||
+        activeEl?.tagName === "TEXTAREA" ||
+        (activeEl as HTMLElement)?.isContentEditable;
+
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
         setIsGlobalSearchOpen((prev) => !prev);
+      } else if (!isInput && (e.key === "?" || (e.shiftKey && e.key === "/"))) {
+        e.preventDefault();
+        setIsKeyboardShortcutsOpen((prev) => !prev);
+      } else if (!isInput && e.altKey && e.key === "1") {
+        e.preventDefault();
+        setActiveTab("home");
+      } else if (!isInput && e.altKey && e.key === "2") {
+        e.preventDefault();
+        setActiveTab("topics");
+      } else if (!isInput && e.altKey && e.key === "3") {
+        e.preventDefault();
+        setActiveTab("live_tests");
+      } else if (!isInput && e.altKey && e.key === "4") {
+        e.preventDefault();
+        setActiveTab("pyq_vault");
+      } else if (!isInput && e.altKey && e.key === "5") {
+        e.preventDefault();
+        setActiveTab("wrong");
       }
     };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [setActiveTab]);
+
+  // Cross-Tab Synchronization Listener (BroadcastChannel + storage event fallback)
+  React.useEffect(() => {
+    return crossTabSync.subscribe((event) => {
+      if (event.type === "THEME_CHANGED") {
+        setSettings((prev) => {
+          if (prev.darkMode !== event.darkMode) {
+            return { ...prev, darkMode: event.darkMode };
+          }
+          return prev;
+        });
+      } else if (event.type === "AUTH_STATE_CHANGED") {
+        const fresh = loadUserProfile();
+        setUserProfile(fresh);
+      }
+    });
   }, []);
 
   // Detect URL query parameter for Sitelinks Searchbox (e.g. ?q=ras or ?search=geography)
@@ -780,7 +824,7 @@ export default function App() {
     isLiveBattleOpen || isAddSubjectOpen || isAddChapterOpen ||
     isAddTopicOpen || isAddQuestionsOpen || isManageSyllabusOpen || isManageQuestionsOpen ||
     isManageCategoriesOpen || isManagePYQVaultOpen || isManageLiveTestsOpen ||
-    isAIImportOpen || isHTMLImportOpen || isGlobalSearchOpen
+    isAIImportOpen || isHTMLImportOpen || isGlobalSearchOpen || isKeyboardShortcutsOpen
   );
 
   const modalHistoryPushedRef = React.useRef(false);
@@ -856,6 +900,7 @@ export default function App() {
       if (isAIImportOpen) { setIsAIImportOpen(false); return; }
       if (isHTMLImportOpen) { setIsHTMLImportOpen(false); return; }
       if (isGlobalSearchOpen) { setIsGlobalSearchOpen(false); return; }
+      if (isKeyboardShortcutsOpen) { setIsKeyboardShortcutsOpen(false); return; }
 
       // 4. Parse new URL after back/forward action using centralized resolver
       const parsed = resolvePathToNavigationState(path, searchParams);
@@ -2795,6 +2840,14 @@ export default function App() {
         updateInfo={updateInfo}
         onDismiss={() => setIsUpdateDismissed(true)}
       />
+
+      {/* Global Desktop Keyboard Shortcuts Modal */}
+      {isKeyboardShortcutsOpen && (
+        <KeyboardShortcutsModal
+          isOpen={isKeyboardShortcutsOpen}
+          onClose={() => setIsKeyboardShortcutsOpen(false)}
+        />
+      )}
 
 
 

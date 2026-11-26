@@ -1567,6 +1567,21 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
     currentQuestion,
   ]);
 
+  // Web safety: Prevent accidental page reload or tab closure during active test session
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!isStarted || isCompleted) return;
+
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "Your test session is in progress. Are you sure you want to leave?";
+      return e.returnValue;
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [isStarted, isCompleted]);
+
   // If questions empty
   if (questions.length === 0) {
     return (

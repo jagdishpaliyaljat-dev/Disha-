@@ -23,9 +23,11 @@ import {
   LogOut,
   Flame,
   LayoutDashboard,
+  Download,
 } from "lucide-react";
 import { ActiveTab, AppSettings, UserProfile } from "../types";
 import { UserAvatar } from "./ui/UserAvatar";
+import { usePWAInstall } from "../hooks/usePWAInstall";
 
 interface StudentNavigationDrawerProps {
   isOpen: boolean;
@@ -69,6 +71,7 @@ export const StudentNavigationDrawer: React.FC<StudentNavigationDrawerProps> = (
   onLogout,
 }) => {
   const userName = !isAuthenticated ? "Guest Aspirant" : userProfile?.name || "Aspirant";
+  const { isInstallable, install } = usePWAInstall();
 
   const navigateAndClose = (fn: () => void) => {
     fn();
@@ -166,6 +169,32 @@ export const StudentNavigationDrawer: React.FC<StudentNavigationDrawerProps> = (
 
             {/* Scrollable Navigation Links */}
             <div className="flex-1 overflow-y-auto px-3.5 py-4 space-y-5 no-scrollbar">
+              {/* PWA Direct Installation Prompt */}
+              {isInstallable && (
+                <div className="pb-1">
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      await install();
+                      onClose();
+                    }}
+                    className="w-full flex items-center gap-3 p-3 rounded-2xl bg-gradient-to-r from-[#7045D8] to-[#9065E0] text-white shadow-xs hover:brightness-105 active:scale-98 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
+                    aria-label="Install Disha PYQ Web App"
+                  >
+                    <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+                      <Download className="w-4 h-4 text-white" />
+                    </div>
+                    <div className="text-left flex-1 min-w-0">
+                      <span className="text-xs font-bold block leading-tight truncate">Install Web App</span>
+                      <span className="text-[10px] text-white/80 block leading-tight truncate">Offline practice on home screen</span>
+                    </div>
+                    <span className="text-[10px] font-black uppercase bg-white/20 px-2 py-0.5 rounded-full shrink-0">
+                      Install
+                    </span>
+                  </button>
+                </div>
+              )}
+
               {/* 1. Core Learning */}
               <div className="space-y-1">
                 <h4 className="text-[11px] font-extrabold text-slate-500 dark:text-slate-400 uppercase tracking-[0.16em] px-2.5 mb-1.5">

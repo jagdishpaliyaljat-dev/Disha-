@@ -2210,15 +2210,15 @@ export function editQuestionInStore(store: UserQuestionsStore, updatedQuestion: 
     })),
   }));
 
-  // Invalidate individual topic cache
+  // Invalidate individual topic cache without flooding localStorage with bulk question JSON
   try {
     if (typeof localStorage !== "undefined") {
       localStorage.removeItem(`disha2020_mcqs_${updatedQuestion.topicId}`);
       localStorage.removeItem("disha2020_mcqs_all");
-      localStorage.setItem(`disha2020_mcq_${updatedQuestion.id}`, JSON.stringify(qWithTimestamp));
+      localStorage.removeItem(`disha2020_mcq_${updatedQuestion.id}`);
       localStorage.removeItem(`quizpro_mcqs_${updatedQuestion.topicId}`);
       localStorage.removeItem("quizpro_mcqs_all");
-      localStorage.setItem(`quizpro_mcq_${updatedQuestion.id}`, JSON.stringify(qWithTimestamp));
+      localStorage.removeItem(`quizpro_mcq_${updatedQuestion.id}`);
     }
   } catch {}
 
