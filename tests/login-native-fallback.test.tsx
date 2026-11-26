@@ -1,0 +1,93 @@
+// @vitest-environment jsdom
+import React, { act } from 'react';
+import ReactDOM from 'react-dom/client';
+import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
+
+(globalThis as any).IS_REACT_ACT_ENVIRONMENT = true;
+
+const { mockSignInWithOAuth, mockPerformNativeGoogleLogin, mockOpenOAuthBrowser } = vi.hoisted(() => ({
+  mockSignInWithOAuth: vi.fn(async () => ({
+    data: { url: 'https://accounts.google.com/o/oauth2/auth?mock=1' },
+    error: null,
+  })),
+  mockPerformNativeGoogleLogin: vi.fn(async () => ({
+    success: false,
+    cancelled: true,
+    error: 'Google Sign-In cancelled by user',
+    isNative: true,
+  })),
+  mockOpenOAuthBrowser: vi.fn(async () => {}),
+}));
+
+vi.mock('../src/lib/supabase', () => ({
+  isSupabaseConfigured: () => true,
+  supabase: {
+    auth: {
+      signInWithOAuth: mockSignInWithOAuth,
+    },
+  },
+}));
+
+vi.mock('../src/utils/mobileAuthService', () => ({
+  isNativePlatform: () => true,
+  getOAuthRedirectUrl: () => 'com.disha2020.examprep://auth-callback',
+  openOAuthBrowser: mockOpenOAuthBrowser,
+  registerMobileDeepLinkListener: () => () => {},
+  performNativeGoogleLogin: mockPerformNativeGoogleLogin,
+}));
+
+import { LoginPage } from '../src/components/LoginPage';
+
+describe('LoginPage Native Picker Cancellation & Browser Fallback', () => {
+  let container: HTMLDivElement;
+  let root: ReactDOM.Root;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    container = document.createElement('div');
+    document.body.appendChild(container);
+    root = ReactDOM.createRoot(container);
+  });
+
+  afterEach(async () => {
+    await act(async () => {
+      root.unmount();
+    });
+    container.remove();
+  });
+
+  test('clears stale picker banner on cancel and enables 1-tap Browser OAuth fallback', async () => {
+    await act(async () => {
+      root.render(<LoginPage onLoginSuccess={vi.fn()} isMandatory={true} />);
+    });
+
+    const primaryBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Continue with Google')
+    );
+    expect(primaryBtn).toBeTruthy();
+
+    await act(async () => {
+      primaryBtn!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      await new Promise((r) => setTimeout(r, 20));
+    });
+
+    const textAfterCancel = container.textContent || '';
+    expect(textAfterCancel).toContain('cancelled or unavailable');
+    expect(textAfterCancel).not.toContain('Opening Google account picker...');
+
+    const browserFallbackBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Sign in via Browser')
+    );
+    expect(browserFallbackBtn).toBeTruthy();
+
+    await act(async () => {
+      browserFallbackBtn!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      await new Promise((r) => setTimeout(r, 20));
+    });
+
+    expect(mockSignInWithOAuth).toHaveBeenCalledTimes(1);
+    expect(mockOpenOAuthBrowser).toHaveBeenCalledWith(
+      'https://accounts.google.com/o/oauth2/auth?mock=1'
+    );
+  });
+});

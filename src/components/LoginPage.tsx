@@ -7,6 +7,7 @@ import {
   ShieldCheck,
   X,
   CheckCircle2,
+  Globe,
 } from "lucide-react";
 import { UserProfile } from "../types";
 import { supabase, isSupabaseConfigured } from "../lib/supabase";
@@ -75,7 +76,39 @@ export function LoginPage({ onLoginSuccess, onClose, isMandatory = false }: Logi
     return cleanup;
   }, [onLoginSuccess]);
 
-  // Supabase Google Login (Native One-Tap on Android, OAuth fallback on web)
+  // Start Browser-based Google OAuth flow directly
+  const startBrowserOAuth = async () => {
+    setConfigNotice(null);
+    setSuccessNotice("Opening secure Google Sign-In in browser...");
+    const redirectTo = getOAuthRedirectUrl();
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo,
+        queryParams: {
+          access_type: "offline",
+          prompt: "consent",
+        },
+      },
+    });
+
+    if (error) {
+      setSuccessNotice(null);
+      console.warn("Supabase Google OAuth error:", error.message);
+      if (error.message?.toLowerCase().includes("not enabled")) {
+        setConfigNotice("Google Sign-In is currently being initialized. Please try again shortly.");
+      } else {
+        setConfigNotice(`Authentication notice: ${error.message}`);
+      }
+    } else if (data?.url) {
+      await openOAuthBrowser(data.url);
+    } else {
+      setSuccessNotice(null);
+      setConfigNotice("Unable to open Google Sign-In URL. Please try again.");
+    }
+  };
+
+  // Supabase Google Login (Native Account Picker on Android with Browser OAuth fallback)
   const handleGoogleLogin = async () => {
     setIsLoading(true);
     setConfigNotice(null);
@@ -88,53 +121,55 @@ export function LoginPage({ onLoginSuccess, onClose, isMandatory = false }: Logi
         return;
       }
 
-      // 1. Try Native One-Tap first on Android / iOS
+      // 1. Try Native Account Picker first on Android / iOS
       if (isNativePlatform()) {
         setSuccessNotice("Opening Google account picker...");
         const nativeResult = await performNativeGoogleLogin();
 
         if (nativeResult.success && nativeResult.session) {
+          setConfigNotice(null);
           setSuccessNotice("Login successful! Welcome.");
           await syncProfileFromSession(nativeResult.session);
           return;
         }
 
-        // If user cancelled, don't fall back to browser
-        if (nativeResult.error?.toLowerCase().includes("cancel")) {
-          setConfigNotice("Google login was cancelled.");
+        setSuccessNotice(null);
+
+        // If native picker was cancelled/dismissed, inform user and offer 1-tap browser fallback
+        if (nativeResult.cancelled || nativeResult.error?.toLowerCase().includes("cancel")) {
+          setConfigNotice(
+            "Google account picker was cancelled or unavailable. Tap 'Sign in via Browser' below if it doesn't open."
+          );
           return;
         }
 
         console.warn("Native Google login fallback to browser:", nativeResult.error);
       }
 
-      // 2. Standard OAuth Flow (Web or fallback)
-      const redirectTo = getOAuthRedirectUrl();
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo,
-          queryParams: {
-            access_type: "offline",
-            prompt: "consent",
-          },
-        },
-      });
-
-      if (error) {
-        console.warn("Supabase Google OAuth error:", error.message);
-        if (error.message?.toLowerCase().includes("not enabled")) {
-          setConfigNotice("Google Sign-In is currently being initialized. Please try again shortly.");
-        } else {
-          setConfigNotice(`Authentication notice: ${error.message}`);
-        }
-      } else if (data?.url) {
-        await openOAuthBrowser(data.url);
-        return;
-      }
+      // 2. Standard OAuth Flow (Web or automatic fallback on native failure)
+      await startBrowserOAuth();
     } catch (err: any) {
       console.warn("Login attempt error:", err);
+      setSuccessNotice(null);
       setConfigNotice(`Login note: ${err?.message || "Failed to initialize login."}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleBrowserGoogleLogin = async () => {
+    setIsLoading(true);
+    setConfigNotice(null);
+    setSuccessNotice(null);
+    try {
+      if (!isSupabaseConfigured()) {
+        setConfigNotice("Supabase credentials not configured in environment.");
+        return;
+      }
+      await startBrowserOAuth();
+    } catch (err: any) {
+      setSuccessNotice(null);
+      setConfigNotice(`Login note: ${err?.message || "Failed to launch browser sign-in."}`);
     } finally {
       setIsLoading(false);
     }
@@ -166,9 +201,9 @@ export function LoginPage({ onLoginSuccess, onClose, isMandatory = false }: Logi
         {/* 4 Highlight Modules */}
         <div className="w-full grid grid-cols-2 gap-2.5">
           {[
-            { icon: BookOpen, label: "PYQ Practice", sub: "Subject & Chapter" },
+            { icon: BookOpen, label: "PYQ Practice", sub: "Topic-Wise Sets" },
             { icon: Trophy, label: "Live Mock Tests", sub: "State Ranks" },
-            { icon: FileText, label: "Official PYQ Vault", sub: "Authentic Papers" },
+            { icon: FileText, label: "PYQ Vault", sub: "Authentic Papers" },
             { icon: BarChart2, label: "Smart Analytics", sub: "Weak Topics" },
           ].map((feat) => (
             <div
@@ -179,10 +214,10 @@ export function LoginPage({ onLoginSuccess, onClose, isMandatory = false }: Logi
                 <feat.icon className="w-4 h-4" />
               </div>
               <div className="min-w-0">
-                <p className="text-xs font-extrabold text-slate-900 dark:text-slate-50 truncate">
+                <p className="text-xs font-extrabold text-slate-900 dark:text-slate-50 leading-tight">
                   {feat.label}
                 </p>
-                <p className="text-[11px] font-medium text-slate-600 dark:text-slate-300 truncate">
+                <p className="text-[11px] font-medium text-slate-600 dark:text-slate-300 leading-tight mt-0.5">
                   {feat.sub}
                 </p>
               </div>
@@ -243,6 +278,22 @@ export function LoginPage({ onLoginSuccess, onClose, isMandatory = false }: Logi
           <div className="p-2.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 rounded-xl text-xs text-amber-800 dark:text-amber-300 leading-relaxed text-center font-hindi">
             {configNotice}
           </div>
+        )}
+
+        {isNativePlatform() && (
+          <button
+            type="button"
+            onClick={handleBrowserGoogleLogin}
+            disabled={isLoading}
+            className={`w-full min-h-[44px] py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all active:scale-[0.99] cursor-pointer disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8] ${
+              configNotice
+                ? "bg-[#7045D8] hover:bg-[#5B32BF] text-white shadow-sm"
+                : "bg-slate-100 dark:bg-[#241D48] hover:bg-slate-200/80 dark:hover:bg-[#31275E] text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-[#31275E]"
+            }`}
+          >
+            <Globe className="w-4 h-4 shrink-0" />
+            <span>Sign in via Browser (Alternative)</span>
+          </button>
         )}
 
         {successNotice && (

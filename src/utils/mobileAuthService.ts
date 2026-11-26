@@ -20,6 +20,8 @@ export const initNativeSocialLogin = async (): Promise<boolean> => {
       await SocialLogin.initialize({
         google: {
           webClientId: GOOGLE_WEB_CLIENT_ID,
+          mode: 'online',
+          skipAuthOnlyAuthorizationAfterSignIn: true,
         },
       });
       isSocialLoginInitialized = true;
@@ -34,12 +36,13 @@ export const initNativeSocialLogin = async (): Promise<boolean> => {
 /**
  * Trigger Native Google One-Tap Login on Android / iOS
  * Uses native bottom-sheet on device and exchanges Google ID Token directly with Supabase.
- * Returns { success: boolean, session?: any, error?: string, isNative: boolean }
+ * Returns { success: boolean, session?: any, error?: string, cancelled?: boolean, isNative: boolean }
  */
 export const performNativeGoogleLogin = async (): Promise<{
   success: boolean;
   session?: any;
   error?: string;
+  cancelled?: boolean;
   isNative: boolean;
 }> => {
   if (!isNativePlatform()) {
@@ -50,11 +53,13 @@ export const performNativeGoogleLogin = async (): Promise<{
     const { SocialLogin } = await import('@capgo/capacitor-social-login');
     await initNativeSocialLogin();
 
-    console.info('[MobileAuth] Launching Native Google One-Tap Sheet...');
+    console.info('[MobileAuth] Launching Native Google Account Picker...');
     const response = await SocialLogin.login({
       provider: 'google',
       options: {
-        forceRefreshToken: true,
+        style: 'bottom',
+        filterByAuthorizedAccounts: false,
+        autoSelectEnabled: false,
       },
     });
 
@@ -81,10 +86,14 @@ export const performNativeGoogleLogin = async (): Promise<{
 
     return { success: true, session: data?.session, isNative: true };
   } catch (err: any) {
+    const msg = String(err?.message || 'Native Google Sign-In failed.');
+    const cancelled =
+      err?.code === 'USER_CANCELLED' || msg.toLowerCase().includes('cancel');
     console.warn('[MobileAuth] Native Google One-Tap error or cancelled:', err);
     return {
       success: false,
-      error: err?.message || 'Native Google Sign-In failed.',
+      error: msg,
+      cancelled,
       isNative: true,
     };
   }
