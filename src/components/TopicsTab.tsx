@@ -27,6 +27,7 @@ import {
   Play,
   HelpCircle,
   FileDown,
+  Download,
   Share2,
   RefreshCw,
   CheckCircle2,
@@ -655,6 +656,37 @@ function TopicDetailView({
   }, [topic.id, topic.questions?.length, topic.questionCount]);
 
   const questionCount = topicCount;
+  const [isDownloaded, setIsDownloaded] = React.useState(false);
+  const [isDownloading, setIsDownloading] = React.useState(false);
+
+  React.useEffect(() => {
+    let active = true;
+    import("../utils/indexedDbCache").then(({ getCachedQuestionBundle }) => {
+      getCachedQuestionBundle(topic.id).then((cached) => {
+        if (active && cached && cached.questions && cached.questions.length > 0) {
+          setIsDownloaded(true);
+        }
+      }).catch(() => {});
+    });
+    return () => { active = false; };
+  }, [topic.id]);
+
+  const handleOfflineDownload = async () => {
+    setIsDownloading(true);
+    try {
+      const { fetchTopicQuestionsOnDemand } = await import("../utils/questionsStorage");
+      const { saveCachedQuestionBundle } = await import("../utils/indexedDbCache");
+      const qs = await fetchTopicQuestionsOnDemand(topic.id);
+      if (qs && qs.length > 0) {
+        await saveCachedQuestionBundle(topic.id, qs);
+        setIsDownloaded(true);
+      }
+    } catch (err) {
+      console.warn("Offline download failed:", err);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   return (
     <div className="flex flex-col h-full bg-[#F8FAFC] dark:bg-[#130E26]" id="topic-detail-view">
@@ -691,6 +723,33 @@ function TopicDetailView({
             <span className="inline-block text-[11px] font-black uppercase tracking-wider text-[#7045D8] dark:text-[#A78BFA] bg-[#7045D8]/10 dark:bg-[#7045D8]/15 px-2.5 py-1 rounded-full">
               Topic Practice
             </span>
+            <button
+              type="button"
+              onClick={handleOfflineDownload}
+              disabled={isDownloading || isDownloaded}
+              className={`offlineDownload px-3 py-1 rounded-xl text-xs font-bold flex items-center gap-1.5 border transition-all ${
+                isDownloaded
+                  ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800"
+                  : "bg-slate-100 hover:bg-slate-200 dark:bg-[#241D48] dark:hover:bg-[#31275E] text-slate-700 dark:text-slate-300 border-slate-200 dark:border-[#31275E] cursor-pointer"
+              }`}
+            >
+              {isDownloaded ? (
+                <>
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                  <span>ऑफलाइन उपलब्ध (Saved Offline)</span>
+                </>
+              ) : isDownloading ? (
+                <>
+                  <div className="w-3.5 h-3.5 border-2 border-[#7045D8] border-t-transparent rounded-full animate-spin" />
+                  <span>डाउनलोड हो रहा है...</span>
+                </>
+              ) : (
+                <>
+                  <Download className="w-3.5 h-3.5 text-[#7045D8] dark:text-[#A78BFA]" />
+                  <span>ऑफलाइन सेव करें (Save Offline)</span>
+                </>
+              )}
+            </button>
           </div>
 
           <h1 className="text-lg sm:text-2xl font-black text-slate-900 dark:text-slate-50 font-hindi leading-snug">

@@ -12,7 +12,14 @@ import {
   Sparkles,
   Zap,
   Eye,
+  Database,
+  Download,
+  Upload,
 } from "lucide-react";
+import {
+  exportStudentBackupToFile,
+  restoreStudentBackupFromJSON,
+} from "../utils/studentBackupService";
 import {
   playCorrectSound,
   playClickSound,
@@ -31,6 +38,8 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
   onUpdateSettings,
   onClose,
 }) => {
+  const [backupNotice, setBackupNotice] = React.useState<string | null>(null);
+
   const toggleSetting = (key: keyof AppSettings) => {
     const newVal = !settings[key];
     onUpdateSettings({ [key]: newVal });
@@ -349,6 +358,61 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
                   <div className={`w-4.5 h-4.5 rounded-full bg-white shadow-sm transition-transform ${settings.hapticFeedback !== false ? 'translate-x-5.5' : 'translate-x-0'}`} />
                 </button>
               </div>
+            </div>
+          </div>
+
+          {/* Section: Study Data Backup & Restore */}
+          <div className="space-y-2.5">
+            <h4 className="text-[11px] font-black text-[#7045D8] dark:text-[#A78BFA] uppercase tracking-[0.18em] px-1">
+              डेटा बैकअप व सुरक्षा (Data Backup & Restore)
+            </h4>
+            <div className="bg-white dark:bg-[#1B1536] rounded-2xl border border-slate-200 dark:border-[#31275E] shadow-2xs p-4 space-y-3">
+              <div className="flex items-center gap-3.5">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                  <Database size={20} />
+                </div>
+                <div>
+                  <span className="text-sm font-bold text-slate-900 dark:text-slate-50 block">स्मार्ट बुकमार्क व प्रोग्रेस बैकअप</span>
+                  <span className="text-[11px] text-slate-600 dark:text-slate-300 font-medium leading-tight block">अपने बुकमार्क, नोट्स और टेस्ट इतिहास को सुरक्षित सेव या रीस्टोर करें।</span>
+                </div>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => exportStudentBackupToFile()}
+                  className="flex-1 py-2.5 px-3 rounded-xl bg-[#7045D8] hover:bg-[#5B32BF] text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-xs"
+                >
+                  <Download size={14} />
+                  <span>डाउनलोड बैकअप (Export JSON)</span>
+                </button>
+                <label className="flex-1 py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#241D48] dark:hover:bg-[#31275E] text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-[#31275E] text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer">
+                  <Upload size={14} />
+                  <span>रीस्टोर बैकअप (Restore JSON)</span>
+                  <input
+                    type="file"
+                    accept=".json"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      const reader = new FileReader();
+                      reader.onload = (event) => {
+                        const content = event.target?.result as string;
+                        if (content) {
+                          const res = restoreStudentBackupFromJSON(content);
+                          setBackupNotice(res.message);
+                        }
+                      };
+                      reader.readAsText(file);
+                    }}
+                  />
+                </label>
+              </div>
+              {backupNotice && (
+                <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 text-center pt-1 font-hindi">
+                  {backupNotice}
+                </p>
+              )}
             </div>
           </div>
 
