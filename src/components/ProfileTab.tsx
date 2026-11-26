@@ -23,6 +23,8 @@ import {
   Edit2,
   AlertCircle,
   LogOut,
+  Trash2,
+  Star,
   LogIn,
   Share2,
   RefreshCw,
@@ -42,6 +44,7 @@ import { motion, AnimatePresence } from "motion/react";
 import ShareModal, { ShareData } from "./ShareModal";
 import { ApiSettingsModal } from "./ApiSettingsModal";
 import { AppSettingsModal } from "./AppSettingsModal";
+import { PlayStoreReviewPromptModal } from "./PlayStoreReviewPromptModal";
 import { AppLogo } from "./AppLogo";
 import { UserAvatar } from "./ui/UserAvatar";
 
@@ -91,6 +94,10 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showApiSettingsModal, setShowApiSettingsModal] = useState(false);
   const [showAboutModal, setShowAboutModal] = useState(false);
+  const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [showEditProfileModal, setShowEditProfileModal] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [shareData, setShareData] = useState<ShareData | null>(null);
@@ -670,6 +677,30 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
               <ChevronRight size={14} className="text-slate-400" />
             </button>
 
+            {/* Rate on Play Store (ASO Booster) */}
+            <button
+              onClick={() => {
+                triggerHaptic();
+                setShowReviewModal(true);
+              }}
+              className="w-full flex items-center justify-between p-3.5 hover:bg-amber-50/50 dark:hover:bg-amber-950/20 rounded-2xl transition-all group cursor-pointer text-left border border-amber-200/40 dark:border-amber-500/20 my-1"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-400 text-white flex items-center justify-center shrink-0 shadow-md shadow-amber-500/20">
+                  <Star size={16} className="fill-white" />
+                </div>
+                <div>
+                  <span className="text-xs font-black text-amber-600 dark:text-amber-400 block">
+                    Rate us on Play Store ★★★★★
+                  </span>
+                  <span className="text-[11px] text-slate-500 dark:text-slate-300 block">
+                    Support Rajasthan's free PYQ education
+                  </span>
+                </div>
+              </div>
+              <ChevronRight size={14} className="text-amber-500" />
+            </button>
+
             {/* Logout */}
             {isAuthenticated && (
               <button
@@ -690,6 +721,33 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                   </div>
                 </div>
                 <ChevronRight size={14} className="text-slate-400" />
+              </button>
+            )}
+
+            {/* Delete Account (Mandatory Google Play Policy) */}
+            {isAuthenticated && (
+              <button
+                onClick={() => {
+                  triggerHaptic();
+                  setShowDeleteAccountModal(true);
+                  setDeleteConfirmText("");
+                }}
+                className="w-full flex items-center justify-between p-3.5 hover:bg-rose-50/50 dark:hover:bg-rose-950/20 rounded-2xl transition-all group cursor-pointer text-left border border-rose-200/30 dark:border-rose-900/30 mt-1"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-xl bg-rose-500/10 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
+                    <Trash2 size={16} />
+                  </div>
+                  <div>
+                    <span className="text-xs font-black text-rose-600 dark:text-rose-400 block">
+                      Delete Account & Data
+                    </span>
+                    <span className="text-[11px] text-slate-400 dark:text-slate-500 block">
+                      Permanently remove account and stored history
+                    </span>
+                  </div>
+                </div>
+                <ChevronRight size={14} className="text-rose-400" />
               </button>
             )}
           </div>
@@ -988,6 +1046,11 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                 <strong>Disha PYQ</strong> is a dedicated smart preparation and previous year questions practice platform for all competitive exams (RPSC RAS, SI, REET, CET, Patwar, etc.).
               </p>
 
+              {/* Non-Government Disclaimer for Google Play Compliance */}
+              <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-[11px] text-amber-700 dark:text-amber-300 leading-relaxed font-semibold">
+                ⚠️ <strong>Disclaimer:</strong> Disha PYQ is an independent, non-governmental private educational app created for exam practice. It is not affiliated with, authorized, or endorsed by RPSC, RSMSSB, or any Rajasthan government organization.
+              </div>
+
               <div className="space-y-2 bg-[#F8FAFC] dark:bg-[#130E26] p-3.5 rounded-2xl border border-slate-200 dark:border-[#31275E]">
                 <div className="flex items-center gap-2.5 text-[#7045D8] dark:text-[#A78BFA]">
                   <Check size={14} className="stroke-[3] text-emerald-600" />
@@ -1044,6 +1107,92 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
           data={shareData}
         />
       )}
+
+      {/* Delete Account Modal (Google Play Policy Compliance) */}
+      <AnimatePresence>
+        {showDeleteAccountModal && (
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+            <div
+              className="fixed inset-0 bg-black/75 backdrop-blur-xs"
+              onClick={() => setShowDeleteAccountModal(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="relative w-full max-w-sm bg-white dark:bg-[#1A1435] rounded-3xl p-6 shadow-2xl border border-rose-200 dark:border-rose-900/50 z-10"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-rose-100 dark:bg-rose-950/50 text-rose-600 flex items-center justify-center mx-auto mb-4">
+                <Trash2 size={24} />
+              </div>
+
+              <h3 className="text-base font-black text-slate-900 dark:text-white text-center mb-1.5">
+                Delete Account Permanently?
+              </h3>
+              <p className="text-xs text-slate-600 dark:text-slate-400 text-center mb-4 leading-relaxed">
+                यह क्रिया अपरिवर्तनीय है। आपका खाता, टेस्ट इतिहास और प्रोग्रेस डेटा स्थायी रूप से मिटा दिया जाएगा।
+              </p>
+
+              <div className="mb-4">
+                <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1.5">
+                  कृपया पुष्टि के लिए नीचे <span className="text-rose-600 font-black">DELETE</span> लिखें:
+                </label>
+                <input
+                  type="text"
+                  value={deleteConfirmText}
+                  onChange={(e) => setDeleteConfirmText(e.target.value)}
+                  placeholder="DELETE"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-[#251D4B] border border-slate-200 dark:border-[#3A2D75] text-slate-900 dark:text-white text-xs font-bold focus:outline-none focus:ring-2 focus:ring-rose-500"
+                />
+              </div>
+
+              <div className="flex gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => setShowDeleteAccountModal(false)}
+                  className="flex-1 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold cursor-pointer hover:bg-slate-50 dark:hover:bg-[#251D4B] transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  disabled={deleteConfirmText !== "DELETE" || isDeletingAccount}
+                  onClick={async () => {
+                    setIsDeletingAccount(true);
+                    triggerHaptic();
+                    try {
+                      // Clear client storage
+                      safeClearLocalStorage();
+                      safeClearSessionStorage();
+                      await clearIndexedDB();
+                      setToastMessage("Account & data deleted successfully");
+                      setShowDeleteAccountModal(false);
+                      if (onLogout) onLogout();
+                      setTimeout(() => {
+                        window.location.reload();
+                      }, 800);
+                    } catch (err) {
+                      setToastMessage("Failed to delete all data");
+                    } finally {
+                      setIsDeletingAccount(false);
+                    }
+                  }}
+                  className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-black shadow-md shadow-rose-600/30 transition-all cursor-pointer"
+                >
+                  {isDeletingAccount ? "Deleting..." : "Delete Forever"}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Review Prompt Modal (Play Store ASO) */}
+      <PlayStoreReviewPromptModal
+        isOpen={showReviewModal}
+        onClose={() => setShowReviewModal(false)}
+        appPackageName="com.disha2020.examprep"
+      />
 
       {/* Toast Notification */}
       <AnimatePresence>
