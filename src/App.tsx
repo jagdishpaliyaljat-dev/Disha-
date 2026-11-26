@@ -1537,6 +1537,31 @@ export default function App() {
     }
   }, [combinedQuestions]);
 
+  React.useEffect(() => {
+    const openDrawer = () => setIsStudentDrawerOpen(true);
+    window.addEventListener("disha_open_student_drawer", openDrawer);
+    return () => window.removeEventListener("disha_open_student_drawer", openDrawer);
+  }, []);
+
+  const drawerStats = React.useMemo(() => {
+    let attempted = 0;
+    let correct = 0;
+    for (let i = 0; i < combinedQuestions.length; i++) {
+      const q = combinedQuestions[i];
+      if (!q?.id) continue;
+      const p = progressStore?.[q.id];
+      if (p && p.status !== "unattempted") {
+        attempted++;
+        if (p.status === "correct") correct++;
+      }
+    }
+    return {
+      attemptedCount: attempted,
+      correctCount: correct,
+      accuracy: attempted > 0 ? Math.round((correct / attempted) * 100) : 0,
+    };
+  }, [combinedQuestions, progressStore]);
+
   // Curriculum handlers are now managed by useCurriculumManager
 
   const handleImportQuestions = async (newQuestions: Question[], alreadyCommitted: boolean = false) => {
@@ -1772,31 +1797,6 @@ export default function App() {
       </React.Suspense>
     );
   }
-
-  React.useEffect(() => {
-    const openDrawer = () => setIsStudentDrawerOpen(true);
-    window.addEventListener("disha_open_student_drawer", openDrawer);
-    return () => window.removeEventListener("disha_open_student_drawer", openDrawer);
-  }, []);
-
-  const drawerStats = React.useMemo(() => {
-    let attempted = 0;
-    let correct = 0;
-    for (let i = 0; i < combinedQuestions.length; i++) {
-      const q = combinedQuestions[i];
-      if (!q?.id) continue;
-      const p = progressStore?.[q.id];
-      if (p && p.status !== "unattempted") {
-        attempted++;
-        if (p.status === "correct") correct++;
-      }
-    }
-    return {
-      attemptedCount: attempted,
-      correctCount: correct,
-      accuracy: attempted > 0 ? Math.round((correct / attempted) * 100) : 0,
-    };
-  }, [combinedQuestions, progressStore]);
 
   return (
     <MotionConfig reducedMotion="user">
