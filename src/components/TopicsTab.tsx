@@ -39,6 +39,8 @@ import {
 } from "lucide-react";
 import ShareModal, { ShareData } from "./ShareModal";
 import { buildTopicShareData } from "../utils/shareService";
+import { sortSubjectsByTargetExam, isSubjectRecommendedForExam } from "../utils/examPersonalization";
+import { loadUserProfile } from "../utils/userProfileStorage";
 import { getSubjectQuestionsCount } from "../utils/questionsStorage";
 import { triggerHaptic, playClickSound } from "../utils/audioFeedback";
 import { showAppToast } from "../utils/adminToast";
@@ -392,7 +394,9 @@ export const TopicsTab: React.FC<TopicsTabProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 sm:gap-3">
           {(() => {
             const q = (searchQuery || "").trim().toLowerCase();
-            const filteredSubjects = subjects
+            const activeUser = loadUserProfile();
+            const targetExam = activeUser?.targetExam;
+            const matchingSubjects = subjects
               .filter(s => {
                 if (!s) return false;
                 if (!q) return true;
@@ -401,6 +405,8 @@ export const TopicsTab: React.FC<TopicsTabProps> = ({
                 return matchName || matchHindi;
               })
               .sort((a, b) => (a.order || 0) - (b.order || 0) || (a.name || "").localeCompare(b.name || ""));
+
+            const filteredSubjects = sortSubjectsByTargetExam(matchingSubjects, targetExam);
 
             if (filteredSubjects.length === 0) {
               return (
@@ -437,9 +443,16 @@ export const TopicsTab: React.FC<TopicsTabProps> = ({
                       {idx + 1}
                     </div>
                     <div className="text-left min-w-0">
-                      <h4 className="text-[14.5px] sm:text-base font-extrabold text-slate-900 dark:text-slate-50 truncate group-hover:text-[#7045D8] dark:group-hover:text-[#A78BFA] transition-colors leading-snug">
-                        {getSubjectDisplayName(subject)}
-                      </h4>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <h4 className="text-[14.5px] sm:text-base font-extrabold text-slate-900 dark:text-slate-50 truncate group-hover:text-[#7045D8] dark:group-hover:text-[#A78BFA] transition-colors leading-snug">
+                          {getSubjectDisplayName(subject)}
+                        </h4>
+                        {isSubjectRecommendedForExam(subject.name || subject.hindiName || '', targetExam) && (
+                          <span className="shrink-0 px-2 py-0.5 rounded-md bg-[#7045D8]/10 text-[#7045D8] dark:bg-[#A78BFA]/20 dark:text-[#A78BFA] text-[10px] font-black uppercase tracking-wider">
+                            🎯 लक्ष्य
+                          </span>
+                        )}
+                      </div>
                       {getSubjectSecondaryName(subject) && (
                         <p className="text-xs text-slate-500 dark:text-slate-400 font-hindi truncate mt-0.5">
                           {getSubjectSecondaryName(subject)}

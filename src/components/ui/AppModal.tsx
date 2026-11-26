@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { X } from "lucide-react";
 import { triggerHaptic } from "../../utils/audioFeedback";
@@ -26,6 +26,8 @@ export const AppModal: React.FC<AppModalProps> = ({
   footer,
   className = "",
 }) => {
+  const modalRef = useRef<HTMLDivElement>(null);
+
   const maxWidthClasses = {
     sm: "max-w-sm",
     md: "max-w-md",
@@ -41,15 +43,41 @@ export const AppModal: React.FC<AppModalProps> = ({
     onClose();
   };
 
-  // Keyboard Escape listener for accessibility & hardware back navigation
+  // Keyboard Escape & Tab focusTrap listener for accessibility (WCAG 2.2)
   useEffect(() => {
     if (!isOpen) return;
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         e.preventDefault();
         handleClose();
+        return;
+      }
+
+      // Keyboard focusTrap for Tab / Shift+Tab cycling inside active modal
+      if (e.key === "Tab" && modalRef.current) {
+        const focusable = modalRef.current.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+        if (focusable.length === 0) return;
+
+        const firstEl = focusable[0];
+        const lastEl = focusable[focusable.length - 1];
+
+        if (e.shiftKey) {
+          if (document.activeElement === firstEl) {
+            e.preventDefault();
+            lastEl.focus();
+          }
+        } else {
+          if (document.activeElement === lastEl) {
+            e.preventDefault();
+            firstEl.focus();
+          }
+        }
       }
     };
+
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen]);
@@ -69,6 +97,7 @@ export const AppModal: React.FC<AppModalProps> = ({
 
           {/* Modal Container */}
           <motion.div
+            ref={modalRef}
             initial={{ opacity: 0, scale: 0.95, y: 15 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 15 }}
