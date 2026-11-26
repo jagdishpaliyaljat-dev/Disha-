@@ -1,3 +1,5 @@
+import { SITE_CONFIG } from "../config/siteConfig";
+
 export interface SEOOptions {
   title: string;
   description: string;
@@ -13,19 +15,34 @@ export interface SEOOptions {
   jsonLdSchemas?: object[];
 }
 
+export function getCanonicalOrigin(): string {
+  if (
+    typeof window !== "undefined" &&
+    window.location &&
+    (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+  ) {
+    return window.location.origin;
+  }
+  return SITE_CONFIG.domain;
+}
+
 export function updateSEOHead(options: SEOOptions) {
   if (typeof window === "undefined" || typeof document === "undefined") return;
 
-  const origin = window.location.origin;
-  const currentPath = window.location.pathname;
-  const fullUrl = options.canonicalUrl || `${origin}${currentPath}`;
+  const origin = getCanonicalOrigin();
+  const currentPath = window.location.pathname || "/";
+  const fullUrl = options.canonicalUrl || `${origin}${currentPath === "/" ? "/" : currentPath}`;
 
   // 1. Page Title
   document.title = options.title;
 
-  // Helper to set/update meta tag
-  const setMeta = (attrName: string, attrVal: string, content: string) => {
+  // Helper to set/update or remove meta tag
+  const setMeta = (attrName: string, attrVal: string, content: string | undefined | null) => {
     let element = document.querySelector(`meta[${attrName}="${attrVal}"]`);
+    if (!content) {
+      if (element) element.remove();
+      return;
+    }
     if (!element) {
       element = document.createElement("meta");
       element.setAttribute(attrName, attrVal);
@@ -35,15 +52,21 @@ export function updateSEOHead(options: SEOOptions) {
   };
 
   // Helper to set/update link tag
-  const setLink = (relVal: string, hrefVal: string, extraAttrs?: Record<string, string>) => {
+  const setLink = (relVal: string, hrefVal: string | undefined | null, extraAttrs?: Record<string, string>) => {
     let selector = `link[rel="${relVal}"]`;
     if (extraAttrs) {
       const extraStr = Object.entries(extraAttrs)
         .map(([k, v]) => `[${k}="${v}"]`)
         .join("");
       selector += extraStr;
+    } else {
+      selector += ":not([hreflang])";
     }
     let element = document.querySelector(selector);
+    if (!hrefVal) {
+      if (element) element.remove();
+      return;
+    }
     if (!element) {
       element = document.createElement("link");
       element.setAttribute("rel", relVal);
@@ -60,39 +83,48 @@ export function updateSEOHead(options: SEOOptions) {
   if (options.keywords && options.keywords.length > 0) {
     setMeta("name", "keywords", options.keywords.join(", "));
   }
-
-  // Robots Tag
-  if (options.noindex) {
-    setMeta("name", "robots", "noindex, nofollow");
-  } else {
-    setMeta("name", "robots", "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1");
+  if (SITE_CONFIG.googleSiteVerification) {
+    setMeta("name", "google-site-verification", SITE_CONFIG.googleSiteVerification);
   }
 
-  // 3. Canonical Link & Hreflang
-  setLink("canonical", fullUrl);
-  setLink("alternate", fullUrl, { hreflang: "hi" });
-  setLink("alternate", fullUrl, { hreflang: "en" });
-  setLink("alternate", fullUrl, { hreflang: "x-default" });
+  // Robots Tag (plus googlebot/bingbot alignment)
+  const robotsValue = options.noindex
+    ? "noindex, nofollow"
+    : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1";
+  setMeta("name", "robots", robotsValue);
+  setMeta("name", "googlebot", robotsValue);
+  setMeta("name", "bingbot", robotsValue);
 
-  // 4. OpenGraph Tags
-  const defaultImage = options.ogImage || `${origin}/og-preview.png`;
+  // 3. Canonical Link & Clean Hreflang (avoid duplicate same-URL language tags)
+  setLink("canonical", fullUrl);
+  setLink("alternate", null, { hreflang: "hi" });
+  setLink("alternate", null, { hreflang: "en" });
+  setLink("alternate", options.noindex ? null : fullUrl, { hreflang: "x-default" });
+
+  // 4. OpenGraph Tags (defaulting to 1200x630 PNG social card)
+  const isDefaultImg = !options.ogImage;
+  const effectiveImage = options.ogImage || `${origin}/og-preview.png`;
   setMeta("property", "og:title", options.title);
   setMeta("property", "og:description", options.description);
   setMeta("property", "og:type", options.ogType || "website");
   setMeta("property", "og:url", fullUrl);
-  setMeta("property", "og:image", defaultImage);
-  setMeta("property", "og:site_name", "Disha PYQ");
+  setMeta("property", "og:image", effectiveImage);
+  setMeta("property", "og:image:width", isDefaultImg ? "1200" : null);
+  setMeta("property", "og:image:height", isDefaultImg ? "630" : null);
+  setMeta("property", "og:image:alt", options.title);
+  setMeta("property", "og:site_name", SITE_CONFIG.siteName);
   setMeta("property", "og:locale", "en_IN");
-  setMeta("property", "og:locale:alternate", "en_US");
+  setMeta("property", "og:locale:alternate", "hi_IN");
 
   // 5. Twitter Card Tags
   setMeta("name", "twitter:card", "summary_large_image");
+  setMeta("name", "twitter:url", fullUrl);
   setMeta("name", "twitter:title", options.title);
   setMeta("name", "twitter:description", options.description);
-  setMeta("name", "twitter:image", defaultImage);
+  setMeta("name", "twitter:image", effectiveImage);
+  setMeta("name", "twitter:image:alt", options.title);
 
-  // 6. JSON-LD Schemas Injections
-  // Remove existing dynamic jsonld scripts
+  // 6. JSON-LD Schemas Injection
   const existingScripts = document.querySelectorAll("script[data-seo-jsonld]");
   existingScripts.forEach((el) => el.remove());
 

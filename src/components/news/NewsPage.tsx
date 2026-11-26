@@ -55,7 +55,7 @@ import {
   injectInternalLinks,
 } from "../../utils/articleStorage";
 import ShareModal, { ShareData } from "../ShareModal";
-import { updateSEOHead } from "../../utils/seoHelper";
+import { updateSEOHead, getCanonicalOrigin } from "../../utils/seoHelper";
 import { SITE_CONFIG } from "../../config/siteConfig";
 import { parseSmartText } from "../../utils/smartArticleImporter";
 import { FullScreenLoader, ContentLoader } from "../ui/LoadingScreen";
@@ -207,10 +207,7 @@ export const NewsPage: React.FC<NewsPageProps> = ({
         title: "Exam News, Economic Analysis & Preparation Guides — Disha PYQ",
         description:
           "Stay updated with Rajasthan Economic Survey highlights, RPSC RAS exam strategies, notification updates, and preparation guides on Disha PYQ.",
-        canonicalUrl:
-          typeof window !== "undefined"
-            ? `${window.location.origin}/news`
-            : `${SITE_CONFIG.domain}/news`,
+        canonicalUrl: `${getCanonicalOrigin()}/news`,
         ogType: "website",
       });
       return;
@@ -220,8 +217,7 @@ export const NewsPage: React.FC<NewsPageProps> = ({
       try {
         const art = await fetchArticleBySlug(selectedSlug!);
         setActiveArticle(art);
-        const origin =
-          typeof window !== "undefined" ? window.location.origin : SITE_CONFIG.domain;
+        const origin = getCanonicalOrigin();
 
         if (art) {
           const fullUrl = `${origin}/news/${art.slug}`;
@@ -231,14 +227,14 @@ export const NewsPage: React.FC<NewsPageProps> = ({
               "@type": "NewsArticle",
               headline: art.title,
               description: art.excerpt,
-              image: [art.coverImageUrl || `${origin}/logo.svg`],
+              image: [art.coverImageUrl || `${origin}/og-preview.png`],
               datePublished: art.publishedAt || art.createdAt,
               dateModified: art.updatedAt || art.publishedAt || art.createdAt,
               author: [{ "@type": "Person", name: art.authorName || "Disha PYQ Editorial Team" }],
               publisher: {
                 "@type": "Organization",
                 name: "Disha PYQ",
-                logo: { "@type": "ImageObject", url: `${origin}/logo.svg` },
+                logo: { "@type": "ImageObject", url: `${origin}/pwa-512x512.png`, width: 512, height: 512 },
               },
               mainEntityOfPage: { "@type": "WebPage", "@id": fullUrl },
             },

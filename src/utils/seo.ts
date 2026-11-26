@@ -79,20 +79,20 @@ export function updateDocumentHead(meta: SEOMetadata): void {
   // 4. Canonical URL & hreflang
   setLink("canonical", meta.canonicalUrl);
   
-  if (meta.hasHindiAlternate || meta.canonicalUrl.includes("/news/") || meta.canonicalUrl.includes("/topics/")) {
+  if (meta.hasHindiAlternate) {
     setLink("alternate", meta.canonicalUrl, "en");
     setLink("alternate", `${meta.canonicalUrl}?lang=hi`, "hi");
     setLink("alternate", meta.canonicalUrl, "x-default");
   } else {
     setLink("alternate", null, "en");
     setLink("alternate", null, "hi");
-    setLink("alternate", null, "x-default");
+    setLink("alternate", meta.canonicalUrl, "x-default");
   }
 
   // 5. OpenGraph Social Sharing Card Tags
   const isLocal = typeof window !== "undefined" && (window.location.hostname.includes("localhost") || window.location.hostname.includes("127.0.0.1"));
   const origin = isLocal && typeof window !== "undefined" ? window.location.origin : SITE_CONFIG.domain;
-  const ogImg = meta.ogImage || `${origin}/logo.svg`;
+  const ogImg = meta.ogImage || `${origin}/og-preview.png`;
 
   setMeta("property", "og:title", meta.title);
   setMeta("property", "og:description", meta.description);

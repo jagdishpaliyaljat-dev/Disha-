@@ -60,6 +60,9 @@ import { isFeatureVipLocked } from './services/payment/premiumConfigService';
 import { loadUserProfile, saveUserProfile, isUserAdmin, isProfileAuthenticated } from './utils/userProfileStorage';
 import { setSentryUser, clearSentryUser } from './utils/sentryInit';
 import { resolvePathToNavigationState, buildCanonicalPath, isKnownTab } from './utils/routeNavigation';
+import { updateSEOHead } from './utils/seoHelper';
+import { getSEOForRoute, isLegalInfoTab, isPublicWebSEOTab } from './utils/routeSeoConfig';
+import { isNativePlatform } from './utils/mobileAuthService';
 import { prefetchCoreRoutes } from './utils/routePrefetcher';
 import { loadSettingsFromStorage, saveSettingsToStorage, loadProgressFromStorage, saveProgressToStorage, recordStudyAnswerToHistory, loadStudyHistoryFromStorage, saveStudyHistoryToStorage, mergeRealtimeProgressDelta } from './utils/storage';
 import { loadNotifications, saveNotifications } from './utils/notificationsStorage';
@@ -1403,12 +1406,30 @@ export default function App() {
   const isAdmin = userProfile ? isUserAdmin(userProfile) : false;
   const isUserBlocked = Boolean(userProfile?.status === 'blocked' || userProfile?.blocked);
 
-  // Track page views dynamically on activeTab navigation
+  // Track page views & update dynamic SEO <head> tags on navigation
   React.useEffect(() => {
+    const selectedSub = selectedSubjectId
+      ? combinedSubjects.find((s) => s.id === selectedSubjectId)?.name || null
+      : null;
+    const selectedChap = selectedChapterId
+      ? combinedChapters.find((c) => c.id === selectedChapterId)?.title || null
+      : null;
+
+    // For individual articles, NewsPage sets rich NewsArticle/FAQPage JSON-LD & meta tags directly
+    if (!(activeTab === 'news' && selectedArticleSlug)) {
+      updateSEOHead(
+        getSEOForRoute(activeTab, {
+          subjectName: selectedSub,
+          chapterTitle: selectedChap,
+          articleSlug: selectedArticleSlug,
+        })
+      );
+    }
+
     const path = activeTab === 'home' ? '/' : `/${activeTab}`;
-    const title = `Disha PYQ — ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}`;
+    const title = document.title || `Disha PYQ — ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}`;
     trackPageView(path, title, { isUserAdmin: isAdmin, isLoggedIn: isAuthenticated }).catch(() => {});
-  }, [activeTab, isAdmin, isAuthenticated]);
+  }, [activeTab, selectedArticleSlug, selectedSubjectId, selectedChapterId, combinedSubjects, combinedChapters, isAdmin, isAuthenticated]);
 
   // Sync profile to Supabase on boot or change for all users (student, guest, admin)
   React.useEffect(() => {
@@ -1768,8 +1789,15 @@ export default function App() {
     );
   }
 
-  // 2. Unauthenticated Gate: Show ONLY the full-screen Google Login Screen
-  if (!isAuthenticated || !userProfile || !isProfileAuthenticated(userProfile)) {
+  // 2. Unauthenticated Gate:
+  // Always allow legal/info routes (so Terms & Privacy links from LoginPage never trap users).
+  // On Web (!isNativePlatform()), allow public SEO routes so search engines & visitors can browse,
+  // while keeping private routes (admin, profile, wrong, analytics, etc.) and native app gated.
+  const hasValidSession = Boolean(isAuthenticated && userProfile && isProfileAuthenticated(userProfile));
+  const allowUnauthenticatedRoute =
+    isLegalInfoTab(activeTab) || (!isNativePlatform() && isPublicWebSEOTab(activeTab));
+
+  if (!hasValidSession && !allowUnauthenticatedRoute) {
     return (
       <React.Suspense
         fallback={
@@ -1781,7 +1809,8 @@ export default function App() {
       >
         <ToastNotificationContainer toasts={toasts} onDismiss={handleDismissToast} />
         <LoginPage
-          isMandatory={true}
+          isMandatory={isNativePlatform()}
+          onClose={!isNativePlatform() ? () => setActiveTab('home') : undefined}
           onLoginSuccess={(profile: UserProfile) => {
             setUserProfile(profile);
             setIsAuthenticated(true);

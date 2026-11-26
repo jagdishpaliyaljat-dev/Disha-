@@ -2,4 +2,11 @@ User-agent: *
 Allow: /
 Disallow: /admin
 Disallow: /api/
+Disallow: /profile
+Disallow: /wrong
+Disallow: /analytics
+Disallow: /notifications
+Disallow: /analyzer
+Disallow: /checkout.html
+
 Sitemap: https://disha2020.in/sitemap.xml

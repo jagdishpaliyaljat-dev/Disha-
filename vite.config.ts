@@ -22,6 +22,7 @@ export default defineConfig(({ command }) => {
           'pwa-512x512.png',
           'pwa-maskable-192x192.png',
           'pwa-maskable-512x512.png',
+          'og-preview.png',
           'icon.svg'
         ],
         manifest: {

@@ -96,30 +96,36 @@
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="shortcut icon" href="/favicon.ico" />
-    <link rel="canonical" href="https://disha-2020.vercel.app" />
+    <link rel="canonical" href="https://disha2020.in/" />
+    <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Hind:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&family=Mukta:wght@600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet" />
-    <link rel="dns-prefetch" href="https://firestore.googleapis.com" />
-    <link rel="dns-prefetch" href="https://identitytoolkit.googleapis.com" />
+    <link rel="dns-prefetch" href="https://eaidivceejkdqsshlraj.supabase.co" />
+    <link rel="dns-prefetch" href="https://sdk.cashfree.com" />
     <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
     
     <!-- OpenGraph Social Cards -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://disha-2020.vercel.app" />
+    <meta property="og:url" content="https://disha2020.in/" />
     <meta property="og:title" content="Disha PYQ — Previous Year Questions &amp; Exam Prep" />
     <meta property="og:description" content="Master Rajasthan and Indian competitive exams with authentic Previous Year Questions, Live Mock Tests, and smart analytics on Disha PYQ." />
     <meta property="og:site_name" content="Disha PYQ" />
-    <meta property="og:image" content="https://disha-2020.vercel.app/pwa-512x512.png" />
-    <meta property="og:image:width" content="512" />
-    <meta property="og:image:height" content="512" />
+    <meta property="og:locale" content="en_IN" />
+    <meta property="og:locale:alternate" content="hi_IN" />
+    <meta property="og:image" content="https://disha2020.in/og-preview.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Disha PYQ — Previous Year Questions &amp; Competitive Exam Prep" />
     
     <!-- Twitter / X Cards -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:url" content="https://disha-2020.vercel.app" />
+    <meta name="twitter:url" content="https://disha2020.in/" />
     <meta name="twitter:title" content="Disha PYQ — Master Competitive Exams with Mock Tests &amp; PYQs" />
     <meta name="twitter:description" content="Prepare for Rajasthan and Indian competitive exams with structured MCQs, official PYQs, and smart analytics on Disha PYQ." />
-    <meta name="twitter:image" content="https://disha-2020.vercel.app/pwa-512x512.png" />
+    <meta name="twitter:image" content="https://disha2020.in/og-preview.png" />
+    <meta name="twitter:image:alt" content="Disha PYQ — Competitive Exam Preparation" />
     
     <!-- Structured Data (JSON-LD) -->
     <script type="application/ld+json">
@@ -127,12 +133,17 @@
       "@context": "https://schema.org",
       "@type": "EducationalOrganization",
       "name": "Disha PYQ",
-      "alternateName": "Disha PYQ",
+      "alternateName": "दिशा PYQ",
       "description": "Premium competitive-exam preparation platform featuring bilingual MCQs, official PYQ papers, live mock tests, and analytics.",
-      "url": "https://disha-2020.vercel.app",
-      "logo": "https://disha-2020.vercel.app/icon.svg",
+      "url": "https://disha2020.in",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://disha2020.in/pwa-512x512.png",
+        "width": 512,
+        "height": 512
+      },
       "sameAs": [
-        "https://t.me/dishapyq_official"
+        "https://t.me/disha2020_official"
       ],
       "offers": {
         "@type": "Offer",
@@ -187,8 +198,7 @@
         }
       } catch (e) {}
     </script>
-    <!-- Cashfree Payment Gateway JS SDK v3 -->
-    <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
+    <!-- Cashfree SDK is lazy-loaded on demand in cashfreeService.ts to keep initial FCP/LCP fast -->
   </head>
   <body>
     <div id="root"></div>

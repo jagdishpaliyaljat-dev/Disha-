@@ -108,16 +108,34 @@ export function getCoreStaticEntries(): SitemapUrlEntry[] {
       priority: 0.8,
     },
     {
-      loc: `${CANONICAL_SITE_URL}/pyq_vault`,
+      loc: `${CANONICAL_SITE_URL}/pyq-vault`,
+      lastmod: today,
+      changefreq: "weekly",
+      priority: 0.9,
+    },
+    {
+      loc: `${CANONICAL_SITE_URL}/live-tests`,
       lastmod: today,
       changefreq: "weekly",
       priority: 0.8,
     },
     {
-      loc: `${CANONICAL_SITE_URL}/live_tests`,
+      loc: `${CANONICAL_SITE_URL}/test-series`,
       lastmod: today,
       changefreq: "weekly",
       priority: 0.8,
+    },
+    {
+      loc: `${CANONICAL_SITE_URL}/about`,
+      lastmod: today,
+      changefreq: "monthly",
+      priority: 0.6,
+    },
+    {
+      loc: `${CANONICAL_SITE_URL}/contact`,
+      lastmod: today,
+      changefreq: "monthly",
+      priority: 0.5,
     },
   ];
 }
