@@ -8,6 +8,8 @@ const config: CapacitorConfig = {
     androidScheme: 'https',
     allowNavigation: [
       '*.cashfree.com',
+      'disha2020.in',
+      'www.disha2020.in',
       'disha-2020.vercel.app',
       'eaidivceejkdqsshlraj.supabase.co'
     ]

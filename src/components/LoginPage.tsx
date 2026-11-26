@@ -8,6 +8,7 @@ import {
   X,
   CheckCircle2,
   Globe,
+  UserCheck,
 } from "lucide-react";
 import { UserProfile } from "../types";
 import { supabase, isSupabaseConfigured } from "../lib/supabase";
@@ -20,6 +21,7 @@ import {
   registerMobileDeepLinkListener,
   performNativeGoogleLogin,
 } from "../utils/mobileAuthService";
+import { createGuestUserProfile } from "../utils/guestManager";
 
 interface LoginPageProps {
   onLoginSuccess: (profile: UserProfile) => void;
@@ -295,6 +297,19 @@ export function LoginPage({ onLoginSuccess, onClose, isMandatory = false }: Logi
             <span>Sign in via Browser (Alternative)</span>
           </button>
         )}
+
+        {/* Guest Mode Onboarding Button */}
+        <button
+          type="button"
+          onClick={() => {
+            const guest = createGuestUserProfile();
+            onLoginSuccess(guest);
+          }}
+          className="w-full min-h-[44px] py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 bg-slate-50 dark:bg-[#1f193d] hover:bg-slate-100 dark:hover:bg-[#2a2254] text-slate-700 dark:text-slate-300 border border-dashed border-slate-300 dark:border-slate-700 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
+        >
+          <UserCheck className="w-4 h-4 text-[#7045D8] dark:text-[#A78BFA] shrink-0" />
+          <span>बिना लॉगिन जारी रखें (Continue as Guest)</span>
+        </button>
 
         {successNotice && (
           <div className="p-2.5 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/60 rounded-xl text-xs text-emerald-800 dark:text-emerald-300 leading-relaxed text-center font-hindi flex items-center justify-center gap-1.5">

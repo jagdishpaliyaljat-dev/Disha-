@@ -65,6 +65,7 @@ import { resolvePathToNavigationState, buildCanonicalPath, isKnownTab } from './
 import { updateSEOHead } from './utils/seoHelper';
 import { getSEOForRoute, isLegalInfoTab, isPublicWebSEOTab } from './utils/routeSeoConfig';
 import { isNativePlatform } from './utils/mobileAuthService';
+import { registerCapacitorBackListener } from './utils/hardwareBackButton';
 import { prefetchCoreRoutes } from './utils/routePrefetcher';
 import { loadSettingsFromStorage, saveSettingsToStorage, loadProgressFromStorage, saveProgressToStorage, recordStudyAnswerToHistory, loadStudyHistoryFromStorage, saveStudyHistoryToStorage, mergeRealtimeProgressDelta } from './utils/storage';
 import { loadNotifications, saveNotifications } from './utils/notificationsStorage';
@@ -1256,6 +1257,69 @@ export default function App() {
     };
   }, [updateProgress]);
 
+  // Hardware Back Button listener for native Android devices
+  React.useEffect(() => {
+    return registerCapacitorBackListener(() => {
+      let activeModal: string | null = null;
+      if (activeSession) activeModal = 'activeSession';
+      else if (isLoginOpen) activeModal = 'isLoginOpen';
+      else if (isSettingsOpen) activeModal = 'isSettingsOpen';
+      else if (isKeyboardShortcutsOpen) activeModal = 'isKeyboardShortcutsOpen';
+      else if (isGlobalSearchOpen) activeModal = 'isGlobalSearchOpen';
+      else if (isPDFOpen) activeModal = 'isPDFOpen';
+      else if (isFullExamOpen) activeModal = 'isFullExamOpen';
+      else if (isCustomTestOpen) activeModal = 'isCustomTestOpen';
+      else if (isExamAnalyzerOpen) activeModal = 'isExamAnalyzerOpen';
+      else if (isLiveBattleOpen) activeModal = 'isLiveBattleOpen';
+      else if (isAITutorOpen) activeModal = 'isAITutorOpen';
+      else if (isLeaderboardOpen) activeModal = 'isLeaderboardOpen';
+      else if (isPremiumModalOpen) activeModal = 'isPremiumModalOpen';
+
+      return {
+        activeModal,
+        isDrawerOpen: isStudentDrawerOpen,
+        activeTab,
+        onCloseModal: (modalName: string) => {
+          if (modalName === 'activeSession') setActiveSession(null);
+          else if (modalName === 'isLoginOpen') setIsLoginOpen(false);
+          else if (modalName === 'isSettingsOpen') setIsSettingsOpen(false);
+          else if (modalName === 'isKeyboardShortcutsOpen') setIsKeyboardShortcutsOpen(false);
+          else if (modalName === 'isGlobalSearchOpen') setIsGlobalSearchOpen(false);
+          else if (modalName === 'isPDFOpen') setIsPDFOpen(false);
+          else if (modalName === 'isFullExamOpen') setIsFullExamOpen(false);
+          else if (modalName === 'isCustomTestOpen') setIsCustomTestOpen(false);
+          else if (modalName === 'isExamAnalyzerOpen') setIsExamAnalyzerOpen(false);
+          else if (modalName === 'isLiveBattleOpen') setIsLiveBattleOpen(false);
+          else if (modalName === 'isAITutorOpen') setIsAITutorOpen(false);
+          else if (modalName === 'isLeaderboardOpen') setIsLeaderboardOpen(false);
+          else if (modalName === 'isPremiumModalOpen') setIsPremiumModalOpen(false);
+        },
+        onCloseDrawer: () => setIsStudentDrawerOpen(false),
+        onNavigateHome: () => setActiveTab('home'),
+        onExitApp: () => {},
+      };
+    }, (msg) => {
+      handleShowToast(msg, 'info');
+    });
+  }, [
+    activeSession,
+    isLoginOpen,
+    isSettingsOpen,
+    isKeyboardShortcutsOpen,
+    isGlobalSearchOpen,
+    isPDFOpen,
+    isFullExamOpen,
+    isCustomTestOpen,
+    isExamAnalyzerOpen,
+    isLiveBattleOpen,
+    isAITutorOpen,
+    isLeaderboardOpen,
+    isPremiumModalOpen,
+    isStudentDrawerOpen,
+    activeTab,
+    handleShowToast,
+  ]);
+
   // Real-time listener for user profile role updates (e.g., Super Admin promotes user)
   React.useEffect(() => {
     if (!isAuthenticated || !userProfile?.id) return;
@@ -1877,8 +1941,8 @@ export default function App() {
       >
         <ToastNotificationContainer toasts={toasts} onDismiss={handleDismissToast} />
         <LoginPage
-          isMandatory={isNativePlatform()}
-          onClose={!isNativePlatform() ? () => setActiveTab('home') : undefined}
+          isMandatory={false}
+          onClose={() => setActiveTab('home')}
           onLoginSuccess={(profile: UserProfile) => {
             setUserProfile(profile);
             setIsAuthenticated(true);

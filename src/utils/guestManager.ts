@@ -21,6 +21,24 @@ export function isGuestSession(profile?: UserProfile | null): boolean {
 }
 
 /**
+ * Creates a default Guest user profile for immediate offline or exploratory usage
+ */
+export function createGuestUserProfile(): UserProfile {
+  return {
+    id: "guest",
+    name: "अतिथि छात्र (Guest)",
+    email: "",
+    photoUrl: "",
+    role: "student",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    targetExam: "REET / RAS / CET राजस्थान प्रतियोगी परीक्षाएं",
+    dailyGoalQuestions: 30,
+    streakDays: 1,
+  };
+}
+
+/**
  * Save Guest Attempt strictly into Local Storage (0 Cloud Writes)
  */
 export function saveGuestAttemptLocally(attempt: Attempt): void {
