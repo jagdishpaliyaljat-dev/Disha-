@@ -1,7 +1,7 @@
 {
   "name": "disha-20-20-exam-prep",
   "private": true,
-  "version": "1.0.57",
+  "version": "1.0.58",
   "type": "module",
   "scripts": {
     "dev": "vite",

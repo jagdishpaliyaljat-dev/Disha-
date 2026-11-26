@@ -408,7 +408,7 @@ export const ExamPaperAnalyzerModal: React.FC<ExamPaperAnalyzerModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-x-0 top-0 bottom-[60px] z-40 overflow-y-auto bg-[#FFF9EF] dark:bg-[#171923] flex flex-col pb-32">
+    <div className="fixed inset-x-0 top-0 bottom-[60px] md:bottom-0 z-40 overflow-y-auto bg-[#FFF9EF] dark:bg-[#171923] flex flex-col pb-32 md:pb-12">
       {/* Top Navigation Bar with Step Progression */}
       <header className="sticky top-0 z-30 bg-[#FFF9EF]/95 dark:bg-[#1F2330]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] px-3.5 sm:px-5 py-2.5 shadow-2xs">
         <div className="max-w-4xl mx-auto flex items-center justify-between gap-3">

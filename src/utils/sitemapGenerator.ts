@@ -137,6 +137,98 @@ export function getCoreStaticEntries(): SitemapUrlEntry[] {
       changefreq: "monthly",
       priority: 0.5,
     },
+    // Core Rajasthan Examinations Deep Landing URLs
+    {
+      loc: `${CANONICAL_SITE_URL}/exam/reet`,
+      lastmod: today,
+      changefreq: "daily",
+      priority: 0.9,
+    },
+    {
+      loc: `${CANONICAL_SITE_URL}/exam/ras`,
+      lastmod: today,
+      changefreq: "daily",
+      priority: 0.9,
+    },
+    {
+      loc: `${CANONICAL_SITE_URL}/exam/cet`,
+      lastmod: today,
+      changefreq: "daily",
+      priority: 0.9,
+    },
+    {
+      loc: `${CANONICAL_SITE_URL}/exam/patwar`,
+      lastmod: today,
+      changefreq: "weekly",
+      priority: 0.8,
+    },
+    {
+      loc: `${CANONICAL_SITE_URL}/exam/rajasthan-police`,
+      lastmod: today,
+      changefreq: "weekly",
+      priority: 0.8,
+    },
+    {
+      loc: `${CANONICAL_SITE_URL}/exam/1st-grade-teacher`,
+      lastmod: today,
+      changefreq: "weekly",
+      priority: 0.8,
+    },
+    {
+      loc: `${CANONICAL_SITE_URL}/exam/2nd-grade-teacher`,
+      lastmod: today,
+      changefreq: "weekly",
+      priority: 0.8,
+    },
+    {
+      loc: `${CANONICAL_SITE_URL}/exam/high-court-ldc`,
+      lastmod: today,
+      changefreq: "weekly",
+      priority: 0.7,
+    },
+    // Rajasthan GK Curriculum Subjects Deep Landing URLs
+    {
+      loc: `${CANONICAL_SITE_URL}/topics/rajasthan-history`,
+      lastmod: today,
+      changefreq: "weekly",
+      priority: 0.9,
+    },
+    {
+      loc: `${CANONICAL_SITE_URL}/topics/rajasthan-geography`,
+      lastmod: today,
+      changefreq: "weekly",
+      priority: 0.9,
+    },
+    {
+      loc: `${CANONICAL_SITE_URL}/topics/rajasthan-art-culture`,
+      lastmod: today,
+      changefreq: "weekly",
+      priority: 0.9,
+    },
+    {
+      loc: `${CANONICAL_SITE_URL}/topics/rajasthan-polity`,
+      lastmod: today,
+      changefreq: "weekly",
+      priority: 0.8,
+    },
+    {
+      loc: `${CANONICAL_SITE_URL}/topics/rajasthan-economy`,
+      lastmod: today,
+      changefreq: "weekly",
+      priority: 0.8,
+    },
+    {
+      loc: `${CANONICAL_SITE_URL}/topics/general-science`,
+      lastmod: today,
+      changefreq: "weekly",
+      priority: 0.8,
+    },
+    {
+      loc: `${CANONICAL_SITE_URL}/topics/hindi-grammar`,
+      lastmod: today,
+      changefreq: "weekly",
+      priority: 0.8,
+    },
   ];
 }
 

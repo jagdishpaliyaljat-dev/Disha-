@@ -154,3 +154,70 @@ export function buildBreadcrumbJsonLd(items: { name: string; url: string }[]): o
     })),
   };
 }
+
+export interface QuizQuestionItem {
+  questionText: string;
+  options: string[];
+  correctAnswer: string;
+  explanation?: string;
+}
+
+export interface QuizSchemaOptions {
+  name: string;
+  description: string;
+  questions: QuizQuestionItem[];
+}
+
+/**
+ * Builds Google-certified Schema.org Quiz & Practice Problems JSON-LD markup.
+ */
+export function generateQuizSchema(options: QuizSchemaOptions): Record<string, any> {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Quiz",
+    "name": options.name,
+    "description": options.description,
+    "educationalLevel": "Competitive Examination",
+    "about": {
+      "@type": "Thing",
+      "name": "Rajasthan Competitive Examinations",
+    },
+    "hasPart": options.questions.map((q) => ({
+      "@type": "Question",
+      "eduQuestionType": "Multiple choice",
+      "text": q.questionText,
+      "suggestedAnswer": q.options.map((opt) => ({
+        "@type": "Answer",
+        "text": opt,
+      })),
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": q.correctAnswer,
+        ...(q.explanation ? { "comment": { "@type": "Comment", "text": q.explanation } } : {}),
+      },
+    })),
+  };
+}
+
+export interface FAQItem {
+  question: string;
+  answer: string;
+}
+
+/**
+ * Builds Google-certified Schema.org FAQPage JSON-LD markup.
+ */
+export function generateFAQSchema(faqs: FAQItem[]): Record<string, any> {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqs.map((faq) => ({
+      "@type": "Question",
+      "name": faq.question,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": faq.answer,
+      },
+    })),
+  };
+}

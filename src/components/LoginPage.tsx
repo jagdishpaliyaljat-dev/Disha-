@@ -229,7 +229,7 @@ export function LoginPage({ onLoginSuccess, onClose, isMandatory = false }: Logi
       </main>
 
       {/* Bottom Sign-In Card: Exclusively Google Sign-In */}
-      <footer className="w-full max-w-md mx-auto bg-white dark:bg-[#1B1536] rounded-t-3xl px-5 sm:px-6 pt-6 pb-[calc(24px+env(safe-area-inset-bottom,0px))] shadow-[0_-10px_30px_rgba(23,19,41,0.08)] border-t border-slate-200 dark:border-[#31275E] space-y-4 shrink-0 z-30">
+      <footer className="w-full max-w-md mx-auto bg-white dark:bg-[#1B1536] rounded-t-3xl sm:rounded-3xl px-5 sm:px-6 pt-6 pb-[calc(24px+env(safe-area-inset-bottom,0px))] sm:pb-6 shadow-[0_-10px_30px_rgba(23,19,41,0.08)] sm:shadow-xl border-t sm:border border-slate-200 dark:border-[#31275E] space-y-4 shrink-0 z-30 sm:mb-6">
         <div className="text-center space-y-1">
           <h1 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-slate-50 tracking-tight">
             Welcome to DISHA <span className="text-[#7045D8] dark:text-[#A78BFA]">PYQ</span>
