@@ -46,7 +46,7 @@ export function formatCategoryLabel(category?: string): string {
     try {
       const subjects = getCombinedSubjects();
       const match = subjects.find((s) => s.id === category);
-      if (match && match.title) return match.title;
+      if (match) return match.hindiName || match.name || "राजस्थान ज्ञान";
     } catch {
       // safe fallback
     }
