@@ -286,8 +286,8 @@ export const HomeTab: React.FC<HomeTabProps> = ({
 
       {/* MAIN CONTENT CANVAS */}
       <main className="w-full max-w-5xl mx-auto px-3 sm:px-6 pt-3 sm:pt-4 space-y-3.5 sm:space-y-4 pb-28 md:pb-8 select-none">
-        {/* Primary Semantic Heading for Googlebot, Search Crawlers & Screen Readers */}
-        <div className="pt-0.5 pb-0.5">
+        {/* Screen-reader and search crawler semantic H1 (visually hidden from app UI) */}
+        <div className="sr-only">
           <h1 className="text-sm sm:text-base font-black text-slate-900 dark:text-slate-50 tracking-tight font-hindi flex items-center gap-2">
             <span>दिशा 20-20 — राजस्थान प्रतियोगी परीक्षाएं एवं PYQ अभ्यास</span>
           </h1>
