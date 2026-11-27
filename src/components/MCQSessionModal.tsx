@@ -81,6 +81,12 @@ import {
   playClickSound,
   triggerHaptic,
 } from "../utils/audioFeedback";
+import {
+  calculateNextStreak,
+  getStreakBadgeTier,
+  shouldTriggerStreakCelebration,
+  getOptionMicroDelightStyles,
+} from "../utils/streakManager";
 import { apiFetch } from "../utils/api";
 
 // Fisher-Yates shuffle algorithm for reliable randomisation
@@ -195,6 +201,10 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
   // Hindi TTS and touch swipe navigation states
   const [isSpeakingHindi, setIsSpeakingHindi] = useState(false);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+
+  // Consecutive correct streak multiplier and max streak tracking
+  const [consecutiveStreak, setConsecutiveStreak] = useState<number>(0);
+  const [maxStreak, setMaxStreak] = useState<number>(0);
 
   useEffect(() => {
     if (isCompleted && !isProfileAuthenticated(userProfile) && !hasPromptedGuestLoginRef.current) {
@@ -1375,6 +1385,12 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
       { isAdminPreview: session.isAdminPreview }
     );
 
+    // Update consecutive streak multiplier
+    const nextStreak = calculateNextStreak(consecutiveStreak, isCorrect, isUnattemptedE);
+    const hasStreakCelebration = shouldTriggerStreakCelebration(consecutiveStreak, nextStreak);
+    setConsecutiveStreak(nextStreak);
+    setMaxStreak((prev) => Math.max(prev, nextStreak));
+
     if (isUnattemptedE) {
       triggerHaptic("light", settings.hapticFeedback !== false);
     } else if (isCorrect) {
@@ -1382,8 +1398,8 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
       triggerHaptic("success", settings.hapticFeedback !== false);
       try {
         confetti({
-          particleCount: 25,
-          spread: 45,
+          particleCount: hasStreakCelebration ? 50 : 25,
+          spread: hasStreakCelebration ? 70 : 45,
           origin: { y: 0.8 },
         });
       } catch (e) {
@@ -1984,6 +2000,38 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                   <span>Replay</span>
                   <span>🎉</span>
                 </button>
+              </motion.div>
+            )}
+
+            {/* Best Streak Combo Card in Practice Summary */}
+            {maxStreak >= 3 && (
+              <motion.div
+                initial={{ scale: 0.96, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.4 }}
+                className="p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/10 border border-amber-500/30 flex items-center justify-between text-left shadow-sm relative overflow-hidden"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center font-bold text-lg shadow-sm shrink-0">
+                    {maxStreak >= 10 ? "👑" : maxStreak >= 5 ? "⚡" : "🔥"}
+                  </div>
+                  <div>
+                    <h5 className="text-xs font-black text-amber-900 dark:text-amber-200 uppercase tracking-wider font-hindi">
+                      सर्वश्रेष्ठ स्ट्रीक (Best Streak)
+                    </h5>
+                    <p className="text-[11px] font-bold text-amber-700 dark:text-amber-300">
+                      लगातार सही उत्तरों का शानदार रिकॉर्ड
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right shrink-0">
+                  <span className="text-xl sm:text-2xl font-black text-amber-600 dark:text-amber-400 font-mono">
+                    {maxStreak}
+                  </span>
+                  <span className="text-[10px] font-bold text-amber-700 dark:text-amber-300 block">
+                    इन अ रो
+                  </span>
+                </div>
               </motion.div>
             )}
 
@@ -2999,10 +3047,33 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
           onTouchEnd={handleTouchEnd}
           className="flex-1 overflow-y-auto overscroll-contain px-3.5 sm:px-4 pt-4 pb-24 space-y-4"
         >
-          <div className="flex items-center gap-2">
-            <span className="px-3 py-1 rounded-lg bg-[#7045D8] text-white text-[11px] font-black font-mono tabular-nums uppercase tracking-widest">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="px-3 py-1 rounded-lg bg-[#7045D8] text-white text-[11px] font-black font-mono tabular-nums uppercase tracking-widest shadow-2xs">
               Q{currentIndex + 1} of {totalQuestions}
             </span>
+
+            {/* Streak Combo Multiplier Badge */}
+            <AnimatePresence>
+              {consecutiveStreak >= 3 && (() => {
+                const badge = getStreakBadgeTier(consecutiveStreak);
+                if (!badge) return null;
+                return (
+                  <motion.div
+                    key={`streak-${consecutiveStreak}`}
+                    initial={{ scale: 0.75, opacity: 0, x: -8 }}
+                    animate={{ scale: [1, 1.08, 1], opacity: 1, x: 0 }}
+                    exit={{ scale: 0.75, opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className={`flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-black text-white shadow-md border ${badge.borderClass} ${badge.shadowClass} bg-gradient-to-r ${badge.gradientClass} select-none`}
+                  >
+                    <span className="text-xs">{badge.icon}</span>
+                    <span className="tracking-wide">{badge.label}</span>
+                    <span className="text-[10px] font-hindi font-bold opacity-90 hidden xs:inline">{badge.subLabel}</span>
+                  </motion.div>
+                );
+              })()}
+            </AnimatePresence>
+
             <button
               type="button"
               onClick={handleToggleHindiTTS}
@@ -3016,7 +3087,7 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
               {isSpeakingHindi ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
               <span className="text-[10px] hidden sm:inline">{isSpeakingHindi ? "Stop" : "सुनें"}</span>
             </button>
-            <div className="h-[2px] flex-1 bg-slate-200 dark:bg-[#31275E]" />
+            <div className="h-[2px] flex-1 min-w-[20px] bg-slate-200 dark:bg-[#31275E]" />
           </div>
 
           <div key={currentQuestion?.id || 'q'} className="bg-white dark:bg-[#1B1536] p-[0.85rem] sm:p-[1.19rem] rounded-[21px] border border-slate-200 dark:border-[#31275E] shadow-2xs">
@@ -3031,49 +3102,21 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
             {displayedOptions.map((opt, idx) => {
               const isSelected = selectedOptionIndex === opt.originalIndex;
               const isCorrectOption = currentQuestion ? opt.originalIndex === currentQuestion.correctIndex : false;
+              const isUnattemptedOption = opt.originalIndex === 4;
 
-              let cardStyles = "bg-white dark:bg-[#1B1536] border-slate-200 dark:border-slate-800";
-              let labelStyles = "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400";
-              let textStyles = "text-slate-900 dark:text-white";
-
-              if (!isTestMode && isSubmitted) {
-                if (isCorrectOption) {
-                  cardStyles = "bg-emerald-50 dark:bg-emerald-950/20 border-emerald-500 shadow-sm shadow-emerald-500/10";
-                  labelStyles = "bg-emerald-600 text-white";
-                  textStyles = "text-emerald-900 dark:text-emerald-50 font-black";
-                } else if (isSelected && opt.originalIndex === 4) {
-                  // Option E selected in practice: Unattempted neutral
-                  cardStyles = "bg-amber-50 dark:bg-amber-950/20 border-amber-500 shadow-sm shadow-amber-500/10";
-                  labelStyles = "bg-amber-600 text-white";
-                  textStyles = "text-amber-900 dark:text-amber-50 font-bold";
-                } else if (isSelected && !isCorrectOption) {
-                  cardStyles = "bg-rose-50 dark:bg-rose-950/20 border-rose-500 shadow-sm shadow-rose-500/10";
-                  labelStyles = "bg-rose-600 text-white";
-                  textStyles = "text-rose-900 dark:text-rose-50 font-black";
-                } else {
-                  cardStyles = "bg-slate-50/50 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800 opacity-60";
-                  labelStyles = "bg-slate-100 dark:bg-slate-800 text-slate-400";
-                  textStyles = "text-slate-500 dark:text-slate-400 font-bold";
-                }
-              } else if (isSelected) {
-                if (opt.originalIndex === 4) {
-                  // Option E in active test
-                  cardStyles = "bg-amber-600 border-amber-600 shadow-lg shadow-amber-600/20 scale-[1.02]";
-                  labelStyles = "bg-white/20 text-white";
-                  textStyles = "text-white font-black";
-                } else {
-                  // Strict Exam Mode: Blue highlight without revealing correct or wrong answers
-                  cardStyles = "bg-blue-600 border-blue-600 shadow-lg shadow-blue-600/20 scale-[1.02]";
-                  labelStyles = "bg-white/20 text-white";
-                  textStyles = "text-white font-black";
-                }
-              }
+              const optDelight = getOptionMicroDelightStyles({
+                isSubmitted,
+                isCorrectOption,
+                isSelected,
+                isTestMode,
+                isUnattemptedOption,
+              });
 
               const feedbackAnimation = (!isTestMode && isSubmitted)
                 ? isCorrectOption
                   ? { scale: [1, 1.05, 1], transition: { duration: 0.3 } }
                   : isSelected
-                  ? { x: [0, -10, 10, -10, 10, 0], transition: { duration: 0.4 } }
+                  ? { x: [0, -8, 8, -6, 6, 0], transition: { duration: 0.35 } }
                   : {}
                 : isSelected
                 ? { scale: 1.02 }
@@ -3092,13 +3135,18 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                   }}
                   animate={feedbackAnimation}
                   whileTap={isTestMode || !isSubmitted ? { scale: 0.96 } : undefined}
-                  className={`w-full text-left p-[0.68rem] sm:p-[0.85rem] rounded-[17px] border-2 flex items-center justify-between gap-3.5 transition-all duration-200 cursor-pointer ${cardStyles}`}
+                  className={`w-full text-left p-[0.68rem] sm:p-[0.85rem] rounded-[17px] border-2 flex items-center justify-between gap-3.5 transition-all duration-200 cursor-pointer relative overflow-hidden ${optDelight.cardClass}`}
                 >
-                  <div className="flex items-start gap-2.5 sm:gap-3 flex-1 min-w-0">
-                    <span className={`shrink-0 w-[1.53rem] h-[1.53rem] sm:w-[1.72rem] sm:h-[1.72rem] rounded-lg sm:rounded-xl flex items-center justify-center font-black text-xs sm:text-[13px] font-mono transition-all ${labelStyles}`}>
+                  {/* Subtle emerald glowing ripple effect on correct option in practice */}
+                  {optDelight.hasRippleGlow && (
+                    <span className="absolute inset-0 bg-emerald-500/10 pointer-events-none animate-pulse rounded-[15px]" />
+                  )}
+
+                  <div className="flex items-start gap-2.5 sm:gap-3 flex-1 min-w-0 relative z-10">
+                    <span className={`shrink-0 w-[1.53rem] h-[1.53rem] sm:w-[1.72rem] sm:h-[1.72rem] rounded-lg sm:rounded-xl flex items-center justify-center font-black text-xs sm:text-[13px] font-mono transition-all ${optDelight.labelClass}`}>
                       {optionLabels[idx]}
                     </span>
-                    <div className={`flex-1 pt-0.5 font-hindi leading-snug font-bold min-w-0 break-words [overflow-wrap:anywhere] ${textStyles} ${optionFontSizeClass}`}>
+                    <div className={`flex-1 pt-0.5 font-hindi leading-snug font-bold min-w-0 break-words [overflow-wrap:anywhere] ${optDelight.textClass} ${optionFontSizeClass}`}>
                       <RichText text={opt.text} enablePronunciation={true} />
                     </div>
                   </div>
@@ -3107,17 +3155,19 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                   {!isTestMode && isSubmitted && isCorrectOption && (
                     <motion.div
                       initial={{ scale: 0, rotate: -45 }}
-                      animate={{ scale: 1, rotate: 0 }}
-                      className="shrink-0 w-7 h-7 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-lg"
+                      animate={{ scale: [1, 1.25, 1], rotate: 0 }}
+                      transition={{ type: "spring", stiffness: 450, damping: 15 }}
+                      className="relative shrink-0 w-7 h-7 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-lg shadow-emerald-500/40 z-10"
                     >
-                      <CheckCircle2 size={18} />
+                      <span className="absolute inset-0 rounded-full bg-emerald-400 animate-ping opacity-35 pointer-events-none" />
+                      <CheckCircle2 size={18} className="relative z-10" />
                     </motion.div>
                   )}
                   {!isTestMode && isSubmitted && isSelected && !isCorrectOption && (
                     <motion.div
                       initial={{ scale: 0, rotate: 45 }}
                       animate={{ scale: 1, rotate: 0 }}
-                      className="shrink-0 w-7 h-7 rounded-full bg-rose-500 text-white flex items-center justify-center shadow-lg"
+                      className="shrink-0 w-7 h-7 rounded-full bg-rose-500 text-white flex items-center justify-center shadow-lg shadow-rose-500/30 z-10"
                     >
                       <XCircle size={18} />
                     </motion.div>
@@ -3239,20 +3289,52 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
                 )}
               </div>
             ) : (
-              !isSubmitted ? (
-                <div className="flex-1 flex items-center justify-center bg-[#F8FAFC] dark:bg-[#130E26] rounded-2xl border-2 border-dashed border-slate-200 dark:border-[#31275E]">
-                  <span className="text-[11px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.15em]">Select an Answer</span>
-                </div>
-              ) : (
+              <>
+                {/* Ergonomic Mobile Thumb Zone Quick Actions */}
                 <button
                   type="button"
-                  onClick={handleNextQuestionPractice}
-                  className="flex-1 h-14 bg-[#7045D8] hover:bg-[#5B32BF] dark:bg-[#7045D8] dark:hover:bg-[#5B32BF] text-white rounded-2xl font-black text-base shadow-xl shadow-[#7045D8]/25 flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer"
+                  onClick={handleToggleHindiTTS}
+                  className={`h-12 sm:h-14 px-3 sm:px-3.5 rounded-2xl border flex items-center justify-center gap-1.5 font-bold text-xs transition-all active:scale-95 cursor-pointer shrink-0 ${
+                    isSpeakingHindi
+                      ? "bg-amber-500 text-white border-amber-600 shadow-md shadow-amber-500/30"
+                      : "bg-slate-100 dark:bg-[#241D48] text-slate-700 dark:text-slate-200 border-slate-200 dark:border-[#31275E] hover:bg-slate-200 dark:hover:bg-[#31275E]"
+                  }`}
+                  title={isSpeakingHindi ? "बोलना रोकें" : "प्रश्न सुनें"}
+                  aria-label="Hindi Audio Reader"
                 >
-                  <span>{currentIndex < questions.length - 1 ? "Next Question" : "View Final Result"}</span>
-                  <ArrowRight size={20} />
+                  {isSpeakingHindi ? <VolumeX className="w-5 h-5 animate-pulse text-white" /> : <Volume2 className="w-5 h-5 text-[#7045D8] dark:text-[#A78BFA]" />}
+                  <span className="hidden sm:inline font-hindi text-xs">{isSpeakingHindi ? "रोकें" : "सुनें"}</span>
                 </button>
-              )
+
+                {currentQuestion && (
+                  <div className="shrink-0 flex items-center">
+                    <SmartBookmarkButton
+                      questionId={currentQuestion.id}
+                      isBookmarked={isBookmarked}
+                      currentTag={currentProgress?.bookmarkTag}
+                      onToggleBookmark={onToggleBookmark}
+                      size="md"
+                    />
+                  </div>
+                )}
+
+                {!isSubmitted ? (
+                  <div className="flex-1 h-12 sm:h-14 flex items-center justify-center bg-[#F8FAFC] dark:bg-[#130E26] rounded-2xl border-2 border-dashed border-slate-200 dark:border-[#31275E] min-w-0 px-2 select-none">
+                    <span className="text-[11px] sm:text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider truncate">
+                      Select an Answer
+                    </span>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleNextQuestionPractice}
+                    className="flex-1 h-12 sm:h-14 bg-gradient-to-r from-[#7045D8] to-[#8B5CF6] hover:from-[#5B32BF] hover:to-[#7C3AED] text-white rounded-2xl font-black text-xs sm:text-sm shadow-xl shadow-[#7045D8]/25 flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer min-w-0 px-3"
+                  >
+                    <span className="truncate">{currentIndex < questions.length - 1 ? "Next Question" : "View Final Result"}</span>
+                    <ArrowRight size={18} className="shrink-0" />
+                  </button>
+                )}
+              </>
             )}
           </div>
         </footer>
