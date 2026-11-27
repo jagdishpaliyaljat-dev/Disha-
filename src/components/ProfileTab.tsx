@@ -1206,7 +1206,6 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
       {/* Settings Modal */}
       {showSettingsModal && (
         <AppSettingsModal
-          isOpen={showSettingsModal}
           onClose={() => setShowSettingsModal(false)}
           settings={settings}
           onUpdateSettings={onUpdateSettings}
@@ -1216,7 +1215,6 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
       {/* API Settings Modal */}
       {showApiSettingsModal && (
         <ApiSettingsModal
-          isOpen={showApiSettingsModal}
           onClose={() => setShowApiSettingsModal(false)}
           settings={settings}
           onUpdateSettings={onUpdateSettings}
@@ -1228,7 +1226,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
         <ShareModal
           isOpen={Boolean(shareData)}
           onClose={() => setShareData(null)}
-          shareData={shareData}
+          data={shareData}
         />
       )}
 

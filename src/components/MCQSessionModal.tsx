@@ -4631,6 +4631,7 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
   const [filter, setFilter] = useState<"all" | "correct" | "wrong" | "skipped">("all");
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportingQuestion, setReportingQuestion] = useState<any>(null);
+  const [showReviewPrompt, setShowReviewPrompt] = useState(false);
 
   const isLive = session.testType === "live" || session.isLiveTest;
 

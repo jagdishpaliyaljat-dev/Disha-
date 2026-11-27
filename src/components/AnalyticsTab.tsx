@@ -354,16 +354,9 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
     } else if (stats.wrongQuestions.length > 0) {
       const qIds = stats.wrongQuestions.slice(0, 15).map((q) => q.id);
       onStartSession({
-        id: `weak_remedial_${Date.now()}`,
         title: "Disha Smart Remedial Drill",
-        category: "topic",
+        source: "topic",
         questionIds: qIds,
-        currentIndex: 0,
-        userAnswers: {},
-        timeRemaining: qIds.length * 60,
-        isCompleted: false,
-        startTime: Date.now(),
-        allowImmediateReview: true,
       });
     }
   };
@@ -376,16 +369,10 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
 
     const qIds = topicItem.questions.slice(0, 15).map((q) => q.id);
     onStartSession({
-      id: `topic_focus_${topicItem.id}_${Date.now()}`,
       title: `${topicItem.name} • Remedial Session`,
-      category: "topic",
+      source: "topic",
+      topicId: topicItem.id,
       questionIds: qIds,
-      currentIndex: 0,
-      userAnswers: {},
-      timeRemaining: qIds.length * 60,
-      isCompleted: false,
-      startTime: Date.now(),
-      allowImmediateReview: true,
     });
   };
 
@@ -847,9 +834,7 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
         <ShareModal
           isOpen={Boolean(shareData)}
           onClose={() => setShareData(null)}
-          title={shareData.title}
-          text={shareData.text}
-          url={shareData.url}
+          data={shareData}
         />
       )}
     </div>

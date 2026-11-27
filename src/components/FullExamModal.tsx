@@ -148,19 +148,6 @@ export const FullExamModal: React.FC<FullExamModalProps> = ({
     }
   }, [screen, userProfile]);
 
-  // ASO Booster: Auto trigger 5-star Play Store review prompt on high score exam completion
-  useEffect(() => {
-    if (screen === "result") {
-      ratingReviewService.recordTestCompletion();
-      if (ratingReviewService.shouldTriggerReviewPrompt(accuracy)) {
-        const timer = setTimeout(() => {
-          setShowReviewPrompt(true);
-        }, 1500);
-        return () => clearTimeout(timer);
-      }
-    }
-  }, [screen, accuracy]);
-
   // Timer Ref
   const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const questionStartTimeRef = useRef<number>(Date.now());
@@ -536,6 +523,19 @@ export const FullExamModal: React.FC<FullExamModalProps> = ({
     totalExamDurationMinutes,
     remainingSeconds,
   ]);
+
+  // ASO Booster: Auto trigger 5-star Play Store review prompt on high score exam completion
+  useEffect(() => {
+    if (screen === "result") {
+      ratingReviewService.recordTestCompletion();
+      if (ratingReviewService.shouldTriggerReviewPrompt(examResults.accuracy)) {
+        const timer = setTimeout(() => {
+          setShowReviewPrompt(true);
+        }, 1500);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [screen, examResults.accuracy]);
 
   if (!isOpen) return null;
 
