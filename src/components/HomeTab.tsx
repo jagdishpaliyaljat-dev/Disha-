@@ -60,7 +60,6 @@ import {
   Sparkles,
 } from "lucide-react";
 import { BannerSlides } from "./BannerSlides";
-import { AppLogo } from "./AppLogo";
 import { UserAvatar } from "./ui/UserAvatar";
 import type { ShareData } from "./ShareModal";
 import { subscribeToActiveBanners, getLocalBanners } from "../utils/bannerStorage";
@@ -211,10 +210,10 @@ export const HomeTab: React.FC<HomeTabProps> = ({
       id="home-container"
     >
       {/* 1. OPTIMIZED COMPACT BRAND HEADER (Mobile: safe-area separated from inner bar) */}
-      <header className="sticky top-0 z-40 bg-white/95 dark:bg-[#130E26]/95 backdrop-blur-md border-b border-slate-200 dark:border-[#31275E] select-none md:hidden w-full max-w-full overflow-hidden shadow-xs transition-colors pt-[env(safe-area-inset-top,0px)]">
-        <div className="min-h-[64px] px-3 sm:px-5 max-w-5xl mx-auto flex items-center justify-between gap-2">
-          {/* Left Brand Identity: Drawer Trigger + Unified Logo */}
-          <div className="flex items-center gap-2 sm:gap-2.5 min-w-0 shrink-0">
+      <header className="sticky top-0 z-40 bg-white/95 dark:bg-[#130E26]/95 backdrop-blur-md border-b border-slate-200 dark:border-[#31275E] select-none md:hidden w-full max-w-full overflow-hidden shadow-xs transition-colors pt-[env(safe-area-inset-top,0px)] pr-[env(safe-area-inset-right,0px)] pl-[env(safe-area-inset-left,0px)]">
+        <div className="min-h-[64px] px-3.5 sm:px-5 max-w-5xl mx-auto flex items-center justify-between gap-3">
+          {/* Left Brand Identity: Drawer Trigger */}
+          <div className="flex items-center min-w-0 shrink-0">
             <button
               type="button"
               onClick={handleOpenMenu}
@@ -223,11 +222,10 @@ export const HomeTab: React.FC<HomeTabProps> = ({
             >
               <Menu className="w-5 h-5" />
             </button>
-            <AppLogo size="sm" variant="horizontal" showTagline={false} />
           </div>
 
           {/* Right Action Icons: Notification, Theme, Compact Sign In / Avatar */}
-          <div className="flex items-center gap-1.5 shrink-0">
+          <div className="flex items-center gap-2 shrink-0">
             <button
               type="button"
               onClick={onOpenNotifications || (() => onNavigateTab?.("notifications"))}
@@ -260,7 +258,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
               <button
                 type="button"
                 onClick={onOpenLogin}
-                className="flex items-center gap-1.5 min-h-[44px] px-3 rounded-xl bg-[#7045D8] hover:bg-[#5B32BF] text-white text-xs font-black shadow-xs transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
+                className="flex items-center gap-1.5 min-h-[44px] px-3.5 py-2 rounded-xl bg-[#7045D8] hover:bg-[#5B32BF] text-white text-xs font-black shadow-xs transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
                 aria-label="Login to Disha PYQ"
               >
                 <LogIn className="w-3.5 h-3.5 shrink-0" />

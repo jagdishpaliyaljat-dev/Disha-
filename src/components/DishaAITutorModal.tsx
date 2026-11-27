@@ -15,6 +15,7 @@ import {
   Loader2, 
   Crown,
 } from "lucide-react";
+import { DishaAIIcon } from "./DishaAIIcon";
 import { Question, Chapter, Subject, ProgressStore, PerformanceStore, MCQSession } from "../types";
 import { 
   ChatMessage, 
@@ -439,7 +440,7 @@ ${stepsMarkdown}
           <div className="flex items-center gap-3">
             <div className="relative">
               <div className="w-10 h-10 rounded-2xl bg-white/10 backdrop-blur-md border border-[#A78BFA]/40 flex items-center justify-center text-white shadow-xs">
-                <Bot className="w-5 h-5 text-amber-500" />
+                <DishaAIIcon size={22} glow />
               </div>
               <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-400 border-2 border-[#7045D8] rounded-full animate-pulse" />
             </div>
@@ -694,3 +695,5 @@ ${stepsMarkdown}
  */
 export { FloatingAIAssistant } from "./FloatingAIAssistant";
 export type { FloatingAIAssistantProps } from "./FloatingAIAssistant";
+export { DishaAIIcon } from "./DishaAIIcon";
+export type { DishaAIIconProps } from "./DishaAIIcon";
