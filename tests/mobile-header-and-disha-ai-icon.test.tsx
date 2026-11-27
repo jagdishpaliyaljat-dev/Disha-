@@ -3,6 +3,7 @@ import { describe, it, expect } from 'vitest';
 import { renderToString } from 'react-dom/server';
 import { DishaAIIcon } from '../src/components/DishaAIIcon';
 import { FloatingAIAssistant } from '../src/components/FloatingAIAssistant';
+import { AppLogo } from '../src/components/AppLogo';
 import fs from 'fs';
 import path from 'path';
 
@@ -43,15 +44,26 @@ describe('DishaAIIcon & Mobile Header Polish', () => {
     expect(html).toBe('');
   });
 
-  it('verifies HomeTab.tsx has removed top-left AppLogo to avoid header overflow', () => {
+  it('supports AppLogo with showIcon=false to display only app name without graphic mark', () => {
+    const htmlWithIcon = renderToString(<AppLogo size="sm" variant="horizontal" showIcon={true} />);
+    expect(htmlWithIcon).toContain('<img');
+    expect(htmlWithIcon).toContain('DISHA');
+    expect(htmlWithIcon).toContain('PYQ');
+
+    const htmlWithoutIcon = renderToString(<AppLogo size="sm" variant="horizontal" showIcon={false} />);
+    expect(htmlWithoutIcon).not.toContain('<img');
+    expect(htmlWithoutIcon).toContain('DISHA');
+    expect(htmlWithoutIcon).toContain('PYQ');
+  });
+
+  it('verifies HomeTab.tsx renders only app name without logo icon in mobile header', () => {
     const homeTabContent = fs.readFileSync(
       path.resolve(__dirname, '../src/components/HomeTab.tsx'),
       'utf-8'
     );
 
-    // AppLogo must NOT be imported or used in HomeTab.tsx
-    expect(homeTabContent).not.toMatch(/import\s*\{\s*AppLogo\s*\}\s*from/);
-    expect(homeTabContent).not.toContain('<AppLogo');
+    // AppLogo must be configured with showIcon={false} in header
+    expect(homeTabContent).toContain('showIcon={false}');
 
     // Drawer button and Sign In button must be present in header
     expect(homeTabContent).toContain('aria-label="Open menu drawer"');

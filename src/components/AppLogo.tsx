@@ -13,6 +13,7 @@ interface AppLogoProps {
   showText?: boolean;
   showTagline?: boolean;
   showHindi?: boolean;
+  showIcon?: boolean;
 }
 
 export const AppLogo: React.FC<AppLogoProps> = ({
@@ -23,6 +24,7 @@ export const AppLogo: React.FC<AppLogoProps> = ({
   className = "",
   showText = true,
   showTagline = false,
+  showIcon = true,
 }) => {
   const effectiveTheme: LogoTheme =
     theme ??
@@ -79,9 +81,11 @@ export const AppLogo: React.FC<AppLogoProps> = ({
   if (variant === "primary") {
     return (
       <div className={`inline-flex flex-col items-center text-center select-none ${className}`}>
-        <div className={`${sizeMap[size]} shrink-0 mb-2 shadow-sm rounded-2xl overflow-hidden`}>
-          {renderMark()}
-        </div>
+        {showIcon && (
+          <div className={`${sizeMap[size]} shrink-0 mb-2 shadow-sm rounded-2xl overflow-hidden`}>
+            {renderMark()}
+          </div>
+        )}
         <div className="flex items-center gap-2 leading-none shrink-0 whitespace-nowrap">
           <span
             className={`font-black tracking-tight shrink-0 whitespace-nowrap ${brandWordClasses} ${
@@ -108,10 +112,12 @@ export const AppLogo: React.FC<AppLogoProps> = ({
 
   // Horizontal lockup (default for top bars & cards)
   return (
-    <div className={`inline-flex items-center gap-2.5 select-none min-w-0 shrink-0 whitespace-nowrap ${className}`}>
-      <div className={`${sizeMap[size]} shrink-0 flex items-center justify-center`}>
-        {renderMark()}
-      </div>
+    <div className={`inline-flex items-center ${showIcon ? "gap-2.5" : "gap-0"} select-none min-w-0 shrink-0 whitespace-nowrap ${className}`}>
+      {showIcon && (
+        <div className={`${sizeMap[size]} shrink-0 flex items-center justify-center`}>
+          {renderMark()}
+        </div>
+      )}
       <div className="flex flex-col min-w-0 shrink-0">
         <div className="flex items-center gap-1.5 leading-none shrink-0 whitespace-nowrap">
           <span

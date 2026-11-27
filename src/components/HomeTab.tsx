@@ -60,6 +60,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { BannerSlides } from "./BannerSlides";
+import { AppLogo } from "./AppLogo";
 import { UserAvatar } from "./ui/UserAvatar";
 import type { ShareData } from "./ShareModal";
 import { subscribeToActiveBanners, getLocalBanners } from "../utils/bannerStorage";
@@ -211,37 +212,38 @@ export const HomeTab: React.FC<HomeTabProps> = ({
     >
       {/* 1. OPTIMIZED COMPACT BRAND HEADER (Mobile: safe-area separated from inner bar) */}
       <header className="sticky top-0 z-40 bg-white/95 dark:bg-[#130E26]/95 backdrop-blur-md border-b border-slate-200 dark:border-[#31275E] select-none md:hidden w-full max-w-full overflow-hidden shadow-xs transition-colors pt-[env(safe-area-inset-top,0px)] pr-[env(safe-area-inset-right,0px)] pl-[env(safe-area-inset-left,0px)]">
-        <div className="min-h-[64px] px-3.5 sm:px-5 max-w-5xl mx-auto flex items-center justify-between gap-3">
-          {/* Left Brand Identity: Drawer Trigger */}
-          <div className="flex items-center min-w-0 shrink-0">
+        <div className="min-h-[64px] px-3.5 sm:px-5 max-w-5xl mx-auto flex items-center justify-between gap-2.5">
+          {/* Left Brand Identity: Drawer Trigger + App Name (Icon removed per user request) */}
+          <div className="flex items-center gap-2 min-w-0 shrink-0">
             <button
               type="button"
               onClick={handleOpenMenu}
-              className="w-11 h-11 rounded-xl bg-slate-100 dark:bg-[#241D48] hover:bg-slate-200/80 dark:hover:bg-[#31275E] flex items-center justify-center text-slate-900 dark:text-slate-50 active:scale-95 transition-all shrink-0 cursor-pointer border border-slate-200 dark:border-[#31275E] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
+              className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-[#241D48] hover:bg-slate-200/80 dark:hover:bg-[#31275E] flex items-center justify-center text-slate-900 dark:text-slate-50 active:scale-95 transition-all shrink-0 cursor-pointer border border-slate-200 dark:border-[#31275E] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
               aria-label="Open menu drawer"
             >
               <Menu className="w-5 h-5" />
             </button>
+            <AppLogo size="sm" variant="horizontal" showIcon={false} showTagline={false} />
           </div>
 
           {/* Right Action Icons: Notification, Theme, Compact Sign In / Avatar */}
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-1.5 shrink-0">
             <button
               type="button"
               onClick={onOpenNotifications || (() => onNavigateTab?.("notifications"))}
-              className="relative w-11 h-11 rounded-xl bg-slate-100 dark:bg-[#241D48] hover:bg-slate-200/80 dark:hover:bg-[#31275E] flex items-center justify-center text-slate-900 dark:text-slate-50 active:scale-95 transition-all cursor-pointer border border-slate-200 dark:border-[#31275E] shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
+              className="relative w-10 h-10 rounded-xl bg-slate-100 dark:bg-[#241D48] hover:bg-slate-200/80 dark:hover:bg-[#31275E] flex items-center justify-center text-slate-900 dark:text-slate-50 active:scale-95 transition-all cursor-pointer border border-slate-200 dark:border-[#31275E] shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
               aria-label="Notifications"
             >
               <Bell className="w-4.5 h-4.5" />
               {unreadNotificationsCount > 0 && (
-                <span className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-[#7045D8] dark:bg-[#A78BFA] ring-2 ring-white dark:ring-[#171329]" />
+                <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#7045D8] dark:bg-[#A78BFA] ring-2 ring-white dark:ring-[#171329]" />
               )}
             </button>
 
             <button
               type="button"
               onClick={onToggleDarkMode}
-              className="w-11 h-11 rounded-xl bg-slate-100 dark:bg-[#241D48] hover:bg-slate-200/80 dark:hover:bg-[#31275E] flex items-center justify-center text-slate-900 dark:text-[#A78BFA] active:scale-95 transition-all cursor-pointer border border-slate-200 dark:border-[#31275E] shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
+              className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-[#241D48] hover:bg-slate-200/80 dark:hover:bg-[#31275E] flex items-center justify-center text-slate-900 dark:text-[#A78BFA] active:scale-95 transition-all cursor-pointer border border-slate-200 dark:border-[#31275E] shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
               aria-label={!settings.darkMode ? "Light Mode" : !settings.amoledBlack ? "Charcoal Dark" : "AMOLED Black"}
               title={!settings.darkMode ? "Light Mode (Tap for Charcoal Dark)" : !settings.amoledBlack ? "Charcoal Dark (Tap for AMOLED Black)" : "AMOLED Black (Tap for Light)"}
             >
@@ -258,7 +260,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
               <button
                 type="button"
                 onClick={onOpenLogin}
-                className="flex items-center gap-1.5 min-h-[44px] px-3.5 py-2 rounded-xl bg-[#7045D8] hover:bg-[#5B32BF] text-white text-xs font-black shadow-xs transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
+                className="flex items-center gap-1.5 min-h-[40px] px-3 py-1.5 rounded-xl bg-[#7045D8] hover:bg-[#5B32BF] text-white text-xs font-black shadow-xs transition-all active:scale-95 cursor-pointer shrink-0 whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
                 aria-label="Login to Disha PYQ"
               >
                 <LogIn className="w-3.5 h-3.5 shrink-0" />
@@ -268,7 +270,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
               <button
                 type="button"
                 onClick={() => onNavigateTab?.("profile")}
-                className="w-11 h-11 rounded-full ring-2 ring-[#7045D8]/40 hover:ring-[#7045D8] flex items-center justify-center overflow-hidden active:scale-95 transition-all cursor-pointer bg-slate-100 dark:bg-[#241D48] shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
+                className="w-10 h-10 rounded-full ring-2 ring-[#7045D8]/40 hover:ring-[#7045D8] flex items-center justify-center overflow-hidden active:scale-95 transition-all cursor-pointer bg-slate-100 dark:bg-[#241D48] shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
                 aria-label="User Profile"
               >
                 <UserAvatar
