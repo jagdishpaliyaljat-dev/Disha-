@@ -134,7 +134,7 @@ export const LeaderboardManagerSection: React.FC = () => {
           {entries.length === 0 && (
             <button
               onClick={handleSeedData}
-              className="px-3 py-2 text-xs font-semibold rounded-xl bg-blue-600/20 text-blue-400 border border-blue-500/30 hover:bg-blue-600/30 flex items-center gap-1.5 transition"
+              className="px-3 py-2 text-xs font-semibold rounded-xl bg-[#7045D8]/20 text-blue-400 border border-blue-500/30 hover:bg-[#7045D8]/30 flex items-center gap-1.5 transition"
             >
               <Sparkles className="w-3.5 h-3.5" />
               <span>Seed Benchmark Cohort</span>

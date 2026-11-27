@@ -4,7 +4,7 @@
 
 import { GlobalAppConfig } from './appConfigService';
 
-export const CURRENT_APP_VERSION = '1.0.52';
+export const CURRENT_APP_VERSION = '1.0.60';
 
 /**
  * Compares two semantic version strings (e.g. '1.0.52' vs '1.0.51').
@@ -56,7 +56,7 @@ export function checkAppUpdateStatus(
   const latestVersion = vc?.latestVersion || config?.version || CURRENT_APP_VERSION;
   const minSupportedVersion = vc?.minSupportedVersion || config?.minSupportedVersion || '1.0.0';
   const forceUpdateGlobal = vc?.forceUpdate ?? false;
-  const downloadUrl = vc?.downloadUrl || config?.forceUpdateUrl || 'https://github.com/jagdishpaliyaljat-dev/disha-20-20-app/releases/latest';
+  const downloadUrl = vc?.downloadUrl || config?.forceUpdateUrl || 'https://play.google.com/store/apps/details?id=com.disha2020.examprep';
   const title = vc?.title || 'New Update Available!';
   const message = vc?.message || 'A newer version of Disha 20-20 is available with new exam features and bug fixes.';
   

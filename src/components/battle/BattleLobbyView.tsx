@@ -638,7 +638,7 @@ export const BattleLobbyView: React.FC<BattleLobbyViewProps> = ({
                           </span>
                         )}
                         {player.isBot && (
-                          <span className="text-[11px] font-bold px-1.5 py-0.2 rounded-full bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800/60">
+                          <span className="text-[11px] font-bold px-1.5 py-0.2 rounded-full bg-violet-100 dark:bg-violet-950/60 text-[#7045D8] dark:text-[#A78BFA] border border-violet-200 dark:border-violet-800/60">
                             AI
                           </span>
                         )}

@@ -215,7 +215,7 @@ const CompactToastItem: React.FC<ItemProps> = ({ toast, onDismiss }) => {
           : isError
           ? "bg-[#240b0b]/95 text-white border-red-500/40 shadow-red-950/30"
           : isInfo
-          ? "bg-[#0b1329]/95 text-white border-indigo-500/40 shadow-indigo-950/30"
+          ? "bg-[#0b1329]/95 text-white border-[#7045D8]/40 shadow-violet-950/30"
           : "bg-[#082015]/95 text-white border-emerald-500/40 shadow-emerald-950/30"
       }`}
     >
@@ -226,7 +226,7 @@ const CompactToastItem: React.FC<ItemProps> = ({ toast, onDismiss }) => {
         ) : isError ? (
           <AlertTriangle className="w-[18px] h-[18px] text-red-400" />
         ) : isInfo ? (
-          <Info className="w-[18px] h-[18px] text-indigo-400" />
+          <Info className="w-[18px] h-[18px] text-[#A78BFA]" />
         ) : (
           <CheckCircle2 className="w-[18px] h-[18px] text-emerald-400" />
         )}

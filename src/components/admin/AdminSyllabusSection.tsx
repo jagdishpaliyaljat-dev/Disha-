@@ -37,7 +37,7 @@ export const AdminSyllabusSection = React.memo((props: AdminSyllabusSectionProps
             <PlusCircle className="w-3.5 h-3.5 text-emerald-400" />
             <span>Add Subject</span>
           </button>
-          <button onClick={() => props.onShowAddChapter()} className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95">
+          <button onClick={() => props.onShowAddChapter()} className="px-3.5 py-2 bg-[#7045D8] hover:bg-[#5B32BF] text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95">
             <FolderPlus className="w-3.5 h-3.5 text-indigo-200" />
             <span>Add Chapter</span>
           </button>
@@ -86,7 +86,7 @@ export const AdminSyllabusSection = React.memo((props: AdminSyllabusSectionProps
                 </div>
                 <button
                   onClick={props.onShowAddSubject}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all inline-flex items-center gap-1.5 cursor-pointer active:scale-95"
+                  className="px-4 py-2 bg-[#7045D8] hover:bg-[#5B32BF] text-white rounded-xl text-xs font-bold shadow-xs transition-all inline-flex items-center gap-1.5 cursor-pointer active:scale-95"
                 >
                   <PlusCircle className="w-4 h-4 text-white" />
                   <span>Add First Subject</span>
@@ -132,7 +132,7 @@ export const AdminSyllabusSection = React.memo((props: AdminSyllabusSectionProps
                 </div>
                 <button
                   onClick={() => props.onShowAddChapter()}
-                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all inline-flex items-center gap-1.5 cursor-pointer active:scale-95"
+                  className="px-4 py-2 bg-[#7045D8] hover:bg-[#5B32BF] text-white rounded-xl text-xs font-bold shadow-xs transition-all inline-flex items-center gap-1.5 cursor-pointer active:scale-95"
                 >
                   <FolderPlus className="w-4 h-4 text-white" />
                   <span>Add First Chapter</span>

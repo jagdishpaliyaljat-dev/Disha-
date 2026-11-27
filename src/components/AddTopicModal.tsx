@@ -633,7 +633,7 @@ export const AddTopicModal: React.FC<AddTopicModalProps> = ({
                 type="submit"
                 id="btn-submit-add-topic"
                 disabled={isSaving || availableChapters.length === 0 || !title.trim()}
-                className="flex-1 py-3.5 sm:py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:pointer-events-none text-white text-xs font-black uppercase tracking-widest shadow-xl shadow-indigo-500/20 flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-95"
+                className="flex-1 py-3.5 sm:py-4 rounded-2xl bg-[#7045D8] hover:bg-[#5B32BF] disabled:opacity-50 disabled:pointer-events-none text-white text-xs font-black uppercase tracking-widest shadow-xl shadow-[#7045D8]/20 flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-95"
               >
                 {isSaving ? (
                   <>
@@ -663,7 +663,7 @@ export const AddTopicModal: React.FC<AddTopicModalProps> = ({
                 type="submit"
                 id="btn-submit-add-topic"
                 disabled={isSaving || availableChapters.length === 0 || !title.trim()}
-                className="flex-1 py-3.5 sm:py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:pointer-events-none text-white text-xs font-black uppercase tracking-widest shadow-xl shadow-indigo-500/20 flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-95"
+                className="flex-1 py-3.5 sm:py-4 rounded-2xl bg-[#7045D8] hover:bg-[#5B32BF] disabled:opacity-50 disabled:pointer-events-none text-white text-xs font-black uppercase tracking-widest shadow-xl shadow-[#7045D8]/20 flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-95"
               >
                 {isSaving ? (
                   <>

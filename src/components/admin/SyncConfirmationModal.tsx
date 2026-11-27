@@ -26,7 +26,7 @@ export const SyncConfirmationModal: React.FC<{
 
         <button 
             onClick={onConfirm}
-            className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-black text-sm transition-all active:scale-95"
+            className="w-full py-3 bg-[#7045D8] hover:bg-[#5B32BF] text-white rounded-2xl font-black text-sm transition-all active:scale-95"
         >
             Proceed with Sync
         </button>

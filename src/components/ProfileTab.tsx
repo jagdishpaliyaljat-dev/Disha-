@@ -39,6 +39,7 @@ import {
   Crown,
   ArrowLeft,
   Eye,
+  FileText,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import ShareModal, { ShareData } from "./ShareModal";
@@ -86,7 +87,6 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
   onResetProgress,
   onNavigateTab,
   onLogout,
-  onOpenPremium,
 }) => {
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [resetConfirmText, setResetConfirmText] = useState("");
@@ -125,14 +125,14 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
     }
   }, [activeProfile, settings.dailyGoal]);
 
-  const userName = !isAuthenticated 
-    ? "Guest Aspirant" 
-    : (activeProfile?.name && activeProfile.name !== "Student" && activeProfile.name !== "Guest Aspirant" ? activeProfile.name : (activeProfile?.email?.split('@')[0] || "Aspirant"));
+  const userName = !isAuthenticated
+    ? "Guest Aspirant"
+    : (activeProfile?.name && activeProfile.name !== "Student" && activeProfile.name !== "Guest Aspirant"
+        ? activeProfile.name
+        : (activeProfile?.email?.split("@")[0] || "Aspirant"));
   const isAdmin = isUserAdmin(activeProfile);
 
-  // ─────────────────────────────────────────────────────────────
-  // ANALYTICS & COMPUTED METRICS
-  // ─────────────────────────────────────────────────────────────
+  // Computed Metrics
   const progressValues = useMemo(() => Object.values(progressStore), [progressStore]);
 
   const attemptedCount = useMemo(() => {
@@ -144,7 +144,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
 
   const dailyGoal = activeProfile?.dailyGoalQuestions || settings.dailyGoal || 30;
 
-  // Level & XP System (Gamification)
+  // Level & XP System
   const currentLevel = Math.max(1, Math.floor(attemptedCount / 25) + 1);
   const questionsInCurrentLevel = attemptedCount % 25;
   const remainingForNextLevel = 25 - questionsInCurrentLevel;
@@ -158,8 +158,8 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
   const handleShareInvite = () => {
     triggerHaptic("light");
     setShareData({
-      title: "Disha PYQ — Competitive Exam Preparation & Previous Year Questions",
-      text: `Hello! I am preparing for ${activeProfile.targetExam || "Rajasthan & National Competitive Exams"} on Disha PYQ. It features authentic PYQs, chapter-wise practice, and live mock tests with Option E. Join now:`,
+      title: "Disha PYQ — Exam Preparation Platform",
+      text: `Hello! I am preparing for ${activeProfile.targetExam || "Rajasthan Competitive Exams"} on Disha PYQ with authentic previous year questions and live mock tests. Join me:`,
       url: typeof window !== "undefined" ? window.location.origin : "https://disha2020.in",
       category: "Study Group Invite",
     });
@@ -178,35 +178,20 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
     onUpdateProfile?.(updated);
     onUpdateSettings({ dailyGoal: Number(editDailyGoal) || 30 });
     setShowEditProfileModal(false);
-    showToast("Profile successfully updated!");
-  };
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.05,
-        delayChildren: 0.05,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 12 },
-    show: { opacity: 1, y: 0 },
+    showToast("Profile updated successfully!");
   };
 
   return (
     <div
-      className="flex flex-col h-full bg-[#F8FAFC] dark:bg-[#130E26] overflow-y-auto pb-28 md:pb-8 selection:bg-[#7045D8] selection:text-white"
+      className="flex flex-col h-full bg-[#F8FAFC] dark:bg-[#130E26] overflow-y-auto pb-28 md:pb-10 selection:bg-[#7045D8] selection:text-white"
       id="profile-tab"
     >
-      {/* 1. COMPACT STICKY PROFILE HEADER */}
-      <header className="sticky top-0 md:top-14 z-30 bg-white/95 dark:bg-[#130E26]/95 backdrop-blur-md border-b border-slate-200 dark:border-[#31275E] select-none w-full max-w-full overflow-hidden shadow-xs transition-colors pt-[env(safe-area-inset-top,0px)] md:pt-0">
-        <div className="min-h-[64px] px-3.5 sm:px-5 py-2 max-w-4xl mx-auto flex items-center justify-between gap-2">
-          {/* Left: Back Navigation + Title */}
-          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+      {/* ─────────────────────────────────────────────────────────────
+          1. MINIMAL STICKY APP BAR
+      ───────────────────────────────────────────────────────────── */}
+      <header className="sticky top-0 md:top-14 z-30 bg-white/95 dark:bg-[#130E26]/95 backdrop-blur-md border-b border-slate-200 dark:border-[#31275E] select-none w-full max-w-full overflow-hidden transition-colors pt-[env(safe-area-inset-top,0px)] md:pt-0">
+        <div className="min-h-[58px] px-4 sm:px-6 py-2 max-w-2xl mx-auto flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
             <button
               type="button"
               onClick={() => {
@@ -217,40 +202,41 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                   window.history.back();
                 }
               }}
-              className="md:hidden w-11 h-11 rounded-xl bg-slate-100 dark:bg-[#241D48] hover:bg-slate-200/80 dark:hover:bg-[#31275E] border border-slate-200 dark:border-[#31275E] flex items-center justify-center text-slate-900 dark:text-slate-50 active:scale-95 transition-all cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
+              className="md:hidden w-9 h-9 rounded-xl bg-slate-100 dark:bg-[#1B1536] hover:bg-slate-200 dark:hover:bg-[#241D48] border border-slate-200 dark:border-[#31275E] flex items-center justify-center text-slate-700 dark:text-slate-200 active:scale-95 transition-all cursor-pointer shrink-0"
               aria-label="Back to Home"
-              title="Back"
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="w-4.5 h-4.5" />
             </button>
             <div className="min-w-0">
               <h1 className="text-base sm:text-lg font-black tracking-tight text-slate-900 dark:text-slate-50 leading-tight truncate">
                 Profile &amp; Settings
               </h1>
-              <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-none mt-0.5 truncate">
-                Account information and preferences
+              <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400 leading-none mt-0.5 truncate">
+                Preferences, target exams &amp; storage
               </p>
             </div>
           </div>
 
-          {/* Right: Eye Comfort + Theme Toggle + Settings Modal Button */}
-          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          <div className="flex items-center gap-1.5 shrink-0">
+            {/* Eye Comfort Toggle */}
             <button
               type="button"
               onClick={() => {
                 triggerHaptic("light");
                 onUpdateSettings({ eyeComfort: !settings.eyeComfort });
               }}
-              className={`w-11 h-11 rounded-xl border flex items-center justify-center active:scale-95 transition-all cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8] ${
+              className={`w-9 h-9 rounded-xl border flex items-center justify-center active:scale-95 transition-all cursor-pointer shrink-0 ${
                 settings.eyeComfort
-                  ? "bg-amber-500/20 border-amber-500 text-amber-500 shadow-xs"
-                  : "bg-slate-100 dark:bg-[#241D48] hover:bg-slate-200/80 dark:hover:bg-[#31275E] border-slate-200 dark:border-[#31275E] text-slate-600 dark:text-slate-300"
+                  ? "bg-amber-500/15 border-amber-500 text-amber-500"
+                  : "bg-slate-100 dark:bg-[#1B1536] hover:bg-slate-200 dark:hover:bg-[#241D48] border-slate-200 dark:border-[#31275E] text-slate-600 dark:text-slate-300"
               }`}
               aria-label="Toggle Eye Comfort"
-              title={settings.eyeComfort ? "Eye Comfort On (Tap to Turn Off)" : "Eye Comfort Off (Tap to Turn On)"}
+              title={settings.eyeComfort ? "Eye Comfort On" : "Eye Comfort Off"}
             >
-              <Eye className="w-4.5 h-4.5" />
+              <Eye className="w-4 h-4" />
             </button>
+
+            {/* Dark / Light / AMOLED Theme Toggle */}
             <button
               type="button"
               onClick={() => {
@@ -263,56 +249,47 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                   onUpdateSettings({ darkMode: false, amoledBlack: false });
                 }
               }}
-              className="w-11 h-11 rounded-xl bg-slate-100 dark:bg-[#241D48] hover:bg-slate-200/80 dark:hover:bg-[#31275E] border border-slate-200 dark:border-[#31275E] flex items-center justify-center text-slate-900 dark:text-[#A78BFA] active:scale-95 transition-all cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
+              className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-[#1B1536] hover:bg-slate-200 dark:hover:bg-[#241D48] border border-slate-200 dark:border-[#31275E] flex items-center justify-center text-slate-700 dark:text-slate-200 active:scale-95 transition-all cursor-pointer shrink-0"
               aria-label="Toggle Theme"
-              title={!settings.darkMode ? "Light Mode (Tap for Charcoal Dark)" : !settings.amoledBlack ? "Charcoal Dark (Tap for AMOLED Black)" : "AMOLED Black (Tap for Light)"}
+              title="Toggle Theme"
             >
               {!settings.darkMode ? (
-                <Moon className="w-4.5 h-4.5 text-[#7045D8]" />
+                <Moon className="w-4 h-4 text-[#7045D8]" />
               ) : settings.amoledBlack ? (
-                <Sparkles className="w-4.5 h-4.5 text-amber-400" />
+                <Sparkles className="w-4 h-4 text-amber-400" />
               ) : (
-                <Sun className="w-4.5 h-4.5 text-amber-400" />
+                <Sun className="w-4 h-4 text-amber-400" />
               )}
             </button>
+
+            {/* Quick Practice Settings */}
             <button
               type="button"
               onClick={() => {
                 triggerHaptic("light");
                 setShowSettingsModal(true);
               }}
-              className="w-11 h-11 rounded-xl bg-slate-100 dark:bg-[#241D48] hover:bg-slate-200/80 dark:hover:bg-[#31275E] border border-slate-200 dark:border-[#31275E] flex items-center justify-center text-[#7045D8] dark:text-[#A78BFA] active:scale-95 transition-all cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
-              aria-label="App Settings"
-              title="App Settings"
+              className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-[#1B1536] hover:bg-slate-200 dark:hover:bg-[#241D48] border border-slate-200 dark:border-[#31275E] flex items-center justify-center text-[#7045D8] dark:text-[#A78BFA] active:scale-95 transition-all cursor-pointer shrink-0"
+              aria-label="Practice Settings"
+              title="Practice Settings"
             >
-              <Settings className="w-4.5 h-4.5" />
+              <Settings className="w-4 h-4" />
             </button>
           </div>
         </div>
       </header>
 
       {/* ─────────────────────────────────────────────────────────────
-          2. MAIN PROFILE BODY & SETTINGS
+          2. MAIN CONTENT CONTAINER (MINIMALIST & CLEAN)
       ───────────────────────────────────────────────────────────── */}
-      <motion.main
-        variants={containerVariants}
-        initial="hidden"
-        animate="show"
-        className="px-3 sm:px-6 pt-3 space-y-4 max-w-4xl mx-auto w-full"
-      >
-        {/* Aspirant Hero Card (20% More Compact) */}
-        <motion.div
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col sm:flex-row items-center sm:items-start gap-3 sm:gap-4.5 bg-gradient-to-b from-[#F8FAFC] to-white dark:from-[#130E26] dark:to-[#1B1536] p-3 sm:p-4 rounded-2xl border border-slate-200 dark:border-[#31275E] shadow-xs relative overflow-hidden"
-          >
-            {/* Royal Corner Accent */}
-            <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-[#A78BFA]/15 to-transparent rounded-bl-full pointer-events-none" />
-
-            {/* Avatar with Triple-Hue Royal Ring */}
+      <main className="px-4 sm:px-6 pt-4 space-y-5 max-w-2xl mx-auto w-full">
+        {/* HERO ASPIRANT IDENTITY CARD */}
+        <section className="bg-white dark:bg-[#1B1536] p-4 sm:p-5 rounded-2xl border border-slate-200 dark:border-[#31275E] shadow-xs relative overflow-hidden">
+          <div className="flex items-start gap-4">
+            {/* Avatar with Disha Royal Ring */}
             <div className="relative shrink-0">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl p-0.5 sm:p-1 bg-gradient-to-tr from-[#7045D8] via-[#7045D8] to-[#A78BFA] shadow-sm">
-                <div className="w-full h-full rounded-[14px] sm:rounded-[18px] border border-white dark:border-[#1B1536] overflow-hidden bg-[#F8FAFC] dark:bg-[#130E26] flex items-center justify-center">
+              <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-2xl p-0.5 bg-gradient-to-tr from-[#7045D8] via-[#5B32BF] to-[#A78BFA] shadow-xs">
+                <div className="w-full h-full rounded-[14px] overflow-hidden bg-slate-100 dark:bg-[#130E26] flex items-center justify-center">
                   <UserAvatar
                     name={userName}
                     photoURL={activeProfile?.photoURL}
@@ -330,449 +307,525 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                   triggerHaptic("light");
                   setShowEditProfileModal(true);
                 }}
-                className="absolute -bottom-1.5 -right-1.5 w-9 h-9 rounded-xl bg-[#7045D8] hover:bg-[#5B32BF] text-white flex items-center justify-center shadow-sm border-2 border-white dark:border-[#1B1536] active:scale-90 transition-transform cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
+                className="absolute -bottom-1 -right-1 w-7 h-7 rounded-lg bg-[#7045D8] hover:bg-[#5B32BF] text-white flex items-center justify-center shadow-xs border-2 border-white dark:border-[#1B1536] active:scale-90 transition-transform cursor-pointer"
                 aria-label="Edit Profile"
-                title="Edit Profile"
               >
-                <Edit2 size={14} />
+                <Edit2 size={12} />
               </button>
             </div>
 
-            {/* Aspirant Details */}
-            <div className="flex-1 text-center sm:text-left min-w-0 space-y-1.5">
-              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-1.5">
-                {isAdmin ? (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-[#A78BFA]/20 to-[#A78BFA]/30 text-[#7045D8] dark:text-[#A78BFA] border border-[#A78BFA]/40 text-[11px] font-black uppercase tracking-wider">
-                    <Crown size={10} className="text-amber-500" />
-                    <span>Admin</span>
-                  </span>
-                ) : !isAuthenticated ? (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 text-[11px] font-black uppercase tracking-wider">
-                    <Award size={10} />
-                    <span>Guest Mode</span>
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#7045D8]/10 dark:bg-[#7045D8]/15 text-[#7045D8] dark:text-[#A78BFA] border border-[#7045D8]/20 dark:border-[#A78BFA]/30 text-[11px] font-black uppercase tracking-wider">
-                    <Award size={10} />
-                    <span>Aspirant</span>
-                  </span>
-                )}
-                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-slate-100 dark:bg-[#241D48] text-slate-700 dark:text-slate-200 text-[11px] font-black border border-slate-200 dark:border-[#31275E]">
-                  <Zap size={9} className="text-amber-500" />
-                  <span>LVL {currentLevel}</span>
-                </span>
-              </div>
-
-              <div>
-                <h2 className="text-base sm:text-xl font-black text-slate-900 dark:text-slate-50 tracking-tight truncate leading-tight">
+            {/* Profile Info */}
+            <div className="flex-1 min-w-0 space-y-1.5">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-slate-50 tracking-tight truncate leading-tight">
                   {userName}
                 </h2>
-                {activeProfile?.email && (
-                  <div className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-500 dark:text-slate-200/70 mt-0.5">
-                    <Mail size={10} />
-                    <span className="truncate">{activeProfile.email}</span>
-                    <CheckCircle2 size={10} className="text-emerald-500 shrink-0" />
-                  </div>
-                )}
-              </div>
-
-              {/* Target Exam Badge */}
-              <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-white dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] text-[11px] font-black text-[#7045D8] dark:text-[#A78BFA] shadow-2xs">
-                <Target size={11} className="text-[#7045D8]" />
-                <span className="truncate">{activeProfile?.targetExam || "RPSC RAS Pre & Competitive Exams"}</span>
-              </div>
-
-              {/* Level & XP Progress Bar */}
-              <div className="pt-0.5 max-w-xs mx-auto sm:mx-0">
-                <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 dark:text-slate-200/80 mb-0.5">
-                  <span>Level {currentLevel}</span>
-                  <span className="font-mono">{remainingForNextLevel} Qs to Next Level</span>
-                </div>
-                <div className="w-full h-1.5 rounded-full bg-slate-200/60 dark:bg-[#31275E] overflow-hidden">
-                  <div
-                    className="h-full rounded-full bg-gradient-to-r from-[#7045D8] via-[#7045D8] to-[#A78BFA] transition-all duration-500"
-                    style={{ width: `${levelProgressPercent}%` }}
-                  />
-                </div>
-              </div>
-
-              {/* CTA Buttons */}
-              <div className="pt-0.5 flex flex-wrap items-center justify-center sm:justify-start gap-1.5">
-                {!isAuthenticated ? (
-                  <button
-                    onClick={onOpenLogin}
-                    className="px-3.5 py-1.5 bg-gradient-to-r from-[#7045D8] via-[#5B32BF] to-[#7045D8] hover:opacity-95 text-white rounded-lg sm:rounded-xl text-[11px] font-black shadow-sm border border-[#A78BFA]/30 transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer"
-                  >
-                    <LogIn size={11} />
-                    <span>Sign In</span>
-                  </button>
+                {isAdmin ? (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#7045D8]/10 text-[#7045D8] dark:text-[#A78BFA] text-[10px] font-black uppercase tracking-wider border border-[#7045D8]/20">
+                    <Crown size={9} className="text-amber-500" />
+                    Admin
+                  </span>
+                ) : !isAuthenticated ? (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-700 dark:text-amber-400 text-[10px] font-black uppercase tracking-wider border border-amber-500/20">
+                    Guest
+                  </span>
                 ) : (
-                  <button
-                    onClick={() => {
-                      triggerHaptic("light");
-                      setShowEditProfileModal(true);
-                    }}
-                    className="px-3 py-1 bg-[#F8FAFC] dark:bg-[#241D48] hover:border-[#7045D8] dark:hover:border-[#A78BFA] text-slate-900 dark:text-slate-50 border border-slate-200 dark:border-[#31275E] rounded-lg sm:rounded-xl text-[11px] font-black transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer shadow-2xs"
-                  >
-                    <Edit2 size={11} className="text-[#7045D8] dark:text-[#A78BFA]" />
-                    <span>Edit Profile</span>
-                  </button>
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#7045D8]/10 text-[#7045D8] dark:text-[#A78BFA] text-[10px] font-black uppercase tracking-wider border border-[#7045D8]/20">
+                    Aspirant
+                  </span>
                 )}
               </div>
-            </div>
-          </motion.div>
 
+              {activeProfile?.email && (
+                <div className="flex items-center gap-1 text-[11px] font-medium text-slate-500 dark:text-slate-400 truncate">
+                  <Mail size={11} className="shrink-0" />
+                  <span className="truncate">{activeProfile.email}</span>
+                  <CheckCircle2 size={11} className="text-emerald-500 shrink-0" />
+                </div>
+              )}
 
-        {!isAuthenticated && (
-          <motion.div
-            variants={itemVariants}
-            className="p-4 rounded-2xl bg-gradient-to-r from-[#F8FAFC] via-white to-slate-100 dark:from-[#241D48] dark:to-[#1B1536] border-2 border-[#7045D8]/30 dark:border-[#A78BFA]/40 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#7045D8]/10 dark:bg-[#7045D8]/20 flex items-center justify-center text-[#7045D8] dark:text-[#A78BFA] shrink-0">
-                <LogIn size={20} />
-              </div>
-              <div>
-                <h3 className="font-black text-sm text-slate-900 dark:text-slate-50">
-                  You are in Guest Mode
-                </h3>
-                <p className="text-xs text-slate-600 dark:text-slate-200/80 mt-0.5">
-                  Sign in with your Google account to synchronize your exam progress, scores, and bookmarks.
-                </p>
+              {/* Target Exam Chip */}
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-50 dark:bg-[#130E26] border border-slate-200/80 dark:border-[#31275E] text-xs font-semibold text-[#7045D8] dark:text-[#A78BFA] max-w-full">
+                <Target size={12} className="text-[#7045D8] shrink-0" />
+                <span className="truncate">{activeProfile?.targetExam || "RPSC RAS Pre"}</span>
               </div>
             </div>
-            <button
-              onClick={() => {
-                triggerHaptic("medium");
-                onOpenLogin?.();
-              }}
-              className="w-full sm:w-auto px-4 py-2 bg-gradient-to-r from-[#7045D8] to-[#5B32BF] hover:opacity-95 text-white rounded-xl text-xs font-black shadow-sm active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0"
-            >
-              <LogIn size={13} />
-              <span>Sign In</span>
-            </button>
-          </motion.div>
-        )}
+          </div>
+
+          {/* Level & XP Mini Bar */}
+          <div className="mt-4 pt-3.5 border-t border-slate-100 dark:border-[#31275E]/60">
+            <div className="flex items-center justify-between text-xs font-bold text-slate-600 dark:text-slate-300 mb-1.5">
+              <span className="flex items-center gap-1.5">
+                <Zap size={12} className="text-amber-500" />
+                Level {currentLevel} Aspirant
+              </span>
+              <span className="text-[11px] font-semibold text-slate-400 dark:text-slate-500">
+                {remainingForNextLevel} Qs to Level {currentLevel + 1}
+              </span>
+            </div>
+            <div className="w-full h-1.5 rounded-full bg-slate-100 dark:bg-[#130E26] overflow-hidden">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-[#7045D8] to-[#A78BFA] transition-all duration-500"
+                style={{ width: `${levelProgressPercent}%` }}
+              />
+            </div>
+          </div>
+
+          {/* Guest Mode Sign-In Banner */}
+          {!isAuthenticated && (
+            <div className="mt-3.5 pt-3 border-t border-slate-100 dark:border-[#31275E]/60 flex items-center justify-between gap-3">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Sign in to sync your bookmarks, streaks &amp; live ranks.
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  triggerHaptic("medium");
+                  onOpenLogin?.();
+                }}
+                className="px-3.5 py-1.5 bg-[#7045D8] hover:bg-[#5B32BF] text-white rounded-xl text-xs font-bold shadow-xs active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer shrink-0"
+              >
+                <LogIn size={13} />
+                <span>Sign In</span>
+              </button>
+            </div>
+          )}
+        </section>
+
+        {/* ADMIN PORTAL QUICK ACCESS (IF ADMIN) */}
         {isAdmin && (
-          <motion.div
-            variants={itemVariants}
-            className="p-4 rounded-3xl bg-gradient-to-r from-[#7045D8] via-[#5B32BF] to-[#7045D8] text-white shadow-md border border-[#A78BFA]/40 flex items-center justify-between gap-3"
-          >
-            <div className="flex items-center gap-3.5 min-w-0">
-              <div className="w-11 h-11 rounded-2xl bg-[#A78BFA]/20 flex items-center justify-center text-amber-500 shrink-0 border border-[#A78BFA]/40 shadow-inner">
-                <Crown size={22} className="text-amber-500" />
+          <section className="bg-gradient-to-r from-[#7045D8] to-[#5B32BF] text-white p-3.5 rounded-2xl border border-[#A78BFA]/30 shadow-xs flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
+                <Crown size={18} className="text-amber-400" />
               </div>
               <div className="min-w-0">
-                <div className="font-black text-sm sm:text-base flex items-center gap-2 flex-wrap text-white">
-                  <span>Administrator Portal Active</span>
-                  <span className="text-[11px] bg-[#A78BFA] text-slate-900 px-2 py-0.5 rounded-full font-black tracking-wider uppercase">
-                    Admin Access
-                  </span>
-                </div>
-                <p className="text-xs text-white/80 truncate mt-0.5">
-                  Manage curriculum, question banks, and live tests
-                </p>
+                <h3 className="text-xs font-black uppercase tracking-wider text-white">Administrator Access</h3>
+                <p className="text-[11px] text-white/80 truncate">Manage questions, exams &amp; users</p>
               </div>
             </div>
             <button
+              type="button"
               onClick={() => {
                 triggerHaptic("medium");
                 onNavigateTab?.("admin");
               }}
-              className="px-4 py-2 bg-[#A78BFA] hover:bg-[#d4a853] active:scale-95 text-slate-900 text-xs font-black rounded-xl transition-all shrink-0 cursor-pointer shadow-md flex items-center gap-1.5"
+              className="px-3 py-1.5 bg-white text-[#7045D8] hover:bg-slate-100 rounded-xl text-xs font-black active:scale-95 transition-all shrink-0 cursor-pointer shadow-xs flex items-center gap-1"
             >
               <span>Admin Panel</span>
-              <ChevronRight size={14} />
+              <ChevronRight size={13} />
             </button>
-          </motion.div>
+          </section>
         )}
+
         {/* ─────────────────────────────────────────────────────────────
-            A. ASPIRANT TOOLKIT & PREFERENCES
+            3. GROUPED MINIMAL ACTION LISTS
         ───────────────────────────────────────────────────────────── */}
-        <motion.section variants={itemVariants} className="space-y-2.5">
-          <h3 className="text-xs font-black text-slate-600 dark:text-slate-200 uppercase tracking-wider px-1">
-            Preferences
+
+        {/* Group A: Study & App Experience */}
+        <section className="space-y-1.5">
+          <h3 className="text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 px-1">
+            Study Experience
           </h3>
-          <div className="bg-white dark:bg-[#1B1536] rounded-3xl border border-slate-200 dark:border-[#31275E] shadow-xs overflow-hidden divide-y divide-slate-200/60 dark:divide-[#31275E]">
-            {/* App & Practice Settings */}
+          <div className="bg-white dark:bg-[#1B1536] rounded-2xl border border-slate-200 dark:border-[#31275E] shadow-xs overflow-hidden divide-y divide-slate-100 dark:divide-[#31275E]/60">
+            {/* Practice Settings */}
             <button
+              type="button"
               onClick={() => {
                 triggerHaptic("light");
                 setShowSettingsModal(true);
               }}
-              className="w-full flex items-center justify-between p-4 hover:bg-[#F8FAFC] dark:hover:bg-[#241D48]/60 transition-colors group cursor-pointer text-left"
+              className="w-full flex items-center justify-between p-3.5 hover:bg-slate-50 dark:hover:bg-[#241D48]/50 transition-colors cursor-pointer text-left group"
             >
-              <div className="flex items-center gap-3.5">
-                <div className="w-10 h-10 rounded-2xl bg-[#7045D8]/10 dark:bg-[#7045D8]/15 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center shrink-0 shadow-2xs">
-                  <Settings size={19} />
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-9 h-9 rounded-xl bg-[#7045D8]/10 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center shrink-0">
+                  <Settings size={17} />
                 </div>
-                <div className="min-w-0 flex-1">
-                  <span className="text-sm font-black text-slate-900 dark:text-slate-50 block truncate">
-                    Practice Settings
+                <div className="min-w-0">
+                  <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-50 block truncate">
+                    Practice Preferences
                   </span>
-                  <span className="text-[11px] text-slate-500 dark:text-slate-300 font-bold block truncate">
-                    Daily goal: {dailyGoal} Qs • Sound &amp; Timer
+                  <span className="text-[11px] text-slate-500 dark:text-slate-400 block truncate">
+                    Daily Goal: {dailyGoal} Qs • Audio • Vibrations
                   </span>
                 </div>
               </div>
-              <ChevronRight size={18} className="text-slate-400 group-hover:text-[#7045D8] dark:group-hover:text-amber-500 transition-colors" />
+              <ChevronRight size={16} className="text-slate-400 group-hover:text-[#7045D8] transition-colors shrink-0" />
             </button>
 
-            {/* AI Assistant Preferences */}
+            {/* AI Assistant Configuration */}
             <button
+              type="button"
               onClick={() => {
                 triggerHaptic("light");
                 setShowApiSettingsModal(true);
               }}
-              className="w-full flex items-center justify-between p-4 hover:bg-[#F8FAFC] dark:hover:bg-[#241D48]/60 transition-colors group cursor-pointer text-left"
+              className="w-full flex items-center justify-between p-3.5 hover:bg-slate-50 dark:hover:bg-[#241D48]/50 transition-colors cursor-pointer text-left group"
             >
-              <div className="flex items-center gap-3.5">
-                <div className="w-10 h-10 rounded-2xl bg-[#A78BFA]/20 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center shrink-0 shadow-2xs">
-                  <Sparkles size={19} />
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-9 h-9 rounded-xl bg-[#A78BFA]/15 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center shrink-0">
+                  <Sparkles size={17} />
                 </div>
-                <div className="min-w-0 flex-1">
-                  <span className="text-sm font-black text-slate-900 dark:text-slate-50 block truncate">
-                    AI Assistant
+                <div className="min-w-0">
+                  <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-50 block truncate">
+                    AI Doubt Solver
                   </span>
-                  <span className="text-[11px] text-slate-500 dark:text-slate-300 font-bold block truncate">
-                    {settings.aiMode === "personal_keys" ? "Personal Gemini Key" : "Default AI Model"}
+                  <span className="text-[11px] text-slate-500 dark:text-slate-400 block truncate">
+                    {settings.aiMode === "personal_keys" ? "Custom Gemini API Key" : "Default Built-in AI Model"}
                   </span>
                 </div>
               </div>
-              <ChevronRight size={18} className="text-slate-400 group-hover:text-[#7045D8] dark:group-hover:text-amber-500 transition-colors" />
+              <ChevronRight size={16} className="text-slate-400 group-hover:text-[#7045D8] transition-colors shrink-0" />
+            </button>
+          </div>
+        </section>
+
+        {/* Group B: Community & Support */}
+        <section className="space-y-1.5">
+          <h3 className="text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 px-1">
+            Community &amp; Sharing
+          </h3>
+          <div className="bg-white dark:bg-[#1B1536] rounded-2xl border border-slate-200 dark:border-[#31275E] shadow-xs overflow-hidden divide-y divide-slate-100 dark:divide-[#31275E]/60">
+            {/* Rate on Google Play (ASO Trigger) */}
+            <button
+              type="button"
+              onClick={() => {
+                triggerHaptic("light");
+                setShowReviewModal(true);
+              }}
+              className="w-full flex items-center justify-between p-3.5 hover:bg-amber-50/40 dark:hover:bg-amber-950/20 transition-colors cursor-pointer text-left group"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0">
+                  <Star size={17} className="fill-amber-500" />
+                </div>
+                <div className="min-w-0">
+                  <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-50 block truncate">
+                    Rate 5 Stars on Google Play
+                  </span>
+                  <span className="text-[11px] text-amber-600 dark:text-amber-400 font-semibold block truncate">
+                    Help other aspirants find Disha PYQ
+                  </span>
+                </div>
+              </div>
+              <ChevronRight size={16} className="text-amber-400 group-hover:text-amber-500 transition-colors shrink-0" />
             </button>
 
             {/* Share App */}
             <button
+              type="button"
               onClick={handleShareInvite}
-              className="w-full flex items-center justify-between p-4 hover:bg-[#F8FAFC] dark:hover:bg-[#241D48]/60 transition-colors group cursor-pointer text-left"
+              className="w-full flex items-center justify-between p-3.5 hover:bg-slate-50 dark:hover:bg-[#241D48]/50 transition-colors cursor-pointer text-left group"
             >
-              <div className="flex items-center gap-3.5">
-                <div className="w-10 h-10 rounded-2xl bg-[#7045D8]/15 text-[#7045D8] flex items-center justify-center shrink-0 shadow-2xs">
-                  <Share2 size={19} />
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-9 h-9 rounded-xl bg-[#7045D8]/10 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center shrink-0">
+                  <Share2 size={17} />
                 </div>
-                <div className="min-w-0 flex-1">
-                  <span className="text-sm font-black text-slate-900 dark:text-slate-50 block truncate">
-                    Share App
+                <div className="min-w-0">
+                  <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-50 block truncate">
+                    Share with Study Partners
                   </span>
-                  <span className="text-[11px] text-slate-500 dark:text-slate-300 font-bold block truncate">
-                    Invite friends on WhatsApp &amp; Telegram
+                  <span className="text-[11px] text-slate-500 dark:text-slate-400 block truncate">
+                    Invite friends via WhatsApp &amp; Telegram
                   </span>
                 </div>
               </div>
-              <ChevronRight size={18} className="text-slate-400 group-hover:text-[#7045D8] dark:group-hover:text-amber-500 transition-colors" />
+              <ChevronRight size={16} className="text-slate-400 group-hover:text-[#7045D8] transition-colors shrink-0" />
             </button>
-          </div>
-        </motion.section>
 
-        {/* ─────────────────────────────────────────────────────────────
-            5. COMMUNITY, HELP & LEGAL GRID
-        ───────────────────────────────────────────────────────────── */}
-        <motion.section variants={itemVariants} className="space-y-2.5">
-          <h3 className="text-xs font-black text-slate-600 dark:text-slate-200 uppercase tracking-wider px-1">
-            Support &amp; Info
-          </h3>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-            {[
-              {
-                label: "Telegram",
-                sub: "Community",
-                icon: Send,
-                color: "text-[#7045D8] dark:text-[#A78BFA]",
-                bg: "bg-[#7045D8]/10 dark:bg-[#7045D8]/15",
-                action: () => window.open("https://t.me/disha2020_official", "_blank"),
-              },
-              {
-                label: "Support",
-                sub: "Help Desk",
-                icon: Mail,
-                color: "text-[#7045D8]",
-                bg: "bg-[#7045D8]/15",
-                action: () => onNavigateTab?.("contact"),
-              },
-              {
-                label: "About",
-                sub: "Version & Info",
-                icon: Info,
-                color: "text-amber-500",
-                bg: "bg-[#A78BFA]/15",
-                action: () => setShowAboutModal(true),
-              },
-              {
-                label: "Privacy",
-                sub: "Terms & Policy",
-                icon: Shield,
-                color: "text-emerald-600 dark:text-emerald-400",
-                bg: "bg-emerald-500/10",
-                action: () => onNavigateTab?.("privacy-policy"),
-              },
-            ].map((item, i) => (
-              <button
-                key={i}
-                onClick={item.action}
-                className="bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] p-3.5 rounded-2xl flex flex-col items-center text-center gap-2 shadow-2xs hover:border-[#7045D8] dark:hover:border-[#A78BFA] active:scale-95 transition-all cursor-pointer group"
-              >
-                <div
-                  className={`w-10 h-10 rounded-xl ${item.bg} ${item.color} flex items-center justify-center group-hover:scale-105 transition-transform shrink-0`}
-                >
-                  <item.icon size={18} />
-                </div>
-                <div className="min-w-0 w-full px-0.5">
-                  <span className="text-[11px] font-black text-slate-900 dark:text-slate-50 block truncate">
-                    {item.label}
-                  </span>
-                  <span className="text-[11px] font-bold text-slate-500 dark:text-slate-300 block truncate">
-                    {item.sub}
-                  </span>
-                </div>
-              </button>
-            ))}
-          </div>
-        </motion.section>
-
-        {/* ─────────────────────────────────────────────────────────────
-            6. SYSTEM DATA & STORAGE ACTIONS
-        ───────────────────────────────────────────────────────────── */}
-        <motion.section variants={itemVariants} className="pt-1">
-          <div className="bg-slate-100 dark:bg-[#1B1536] rounded-3xl p-2 space-y-1.5 border border-slate-200 dark:border-[#31275E]">
-            {/* Reset Progress */}
+            {/* Telegram Channel */}
             <button
-              onClick={() => setShowResetConfirm(true)}
-              className="w-full flex items-center justify-between p-3.5 hover:bg-white dark:hover:bg-[#241D48] rounded-2xl transition-all group cursor-pointer text-left"
+              type="button"
+              onClick={() => {
+                triggerHaptic("light");
+                window.open("https://t.me/disha2020_official", "_blank");
+              }}
+              className="w-full flex items-center justify-between p-3.5 hover:bg-slate-50 dark:hover:bg-[#241D48]/50 transition-colors cursor-pointer text-left group"
             >
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
-                  <RotateCcw size={16} />
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-9 h-9 rounded-xl bg-sky-500/10 text-sky-500 flex items-center justify-center shrink-0">
+                  <Send size={17} />
                 </div>
-                <div>
-                  <span className="text-xs font-black text-rose-600 dark:text-rose-400 block">
-                    Reset Progress
+                <div className="min-w-0">
+                  <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-50 block truncate">
+                    Official Telegram Channel
                   </span>
-                  <span className="text-[11px] text-slate-500 dark:text-slate-300 block">
-                    Clear practice history &amp; stats
+                  <span className="text-[11px] text-slate-500 dark:text-slate-400 block truncate">
+                    Daily exam alerts &amp; notes updates
                   </span>
                 </div>
               </div>
-              <ChevronRight size={14} className="text-rose-400/80" />
+              <ChevronRight size={16} className="text-slate-400 group-hover:text-[#7045D8] transition-colors shrink-0" />
+            </button>
+          </div>
+        </section>
+
+        {/* Group C: Legal & Transparency */}
+        <section className="space-y-1.5">
+          <h3 className="text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 px-1">
+            Transparency &amp; Legal
+          </h3>
+          <div className="bg-white dark:bg-[#1B1536] rounded-2xl border border-slate-200 dark:border-[#31275E] shadow-xs overflow-hidden divide-y divide-slate-100 dark:divide-[#31275E]/60">
+            {/* About Us */}
+            <button
+              type="button"
+              onClick={() => {
+                triggerHaptic("light");
+                setShowAboutModal(true);
+              }}
+              className="w-full flex items-center justify-between p-3.5 hover:bg-slate-50 dark:hover:bg-[#241D48]/50 transition-colors cursor-pointer text-left group"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-9 h-9 rounded-xl bg-[#7045D8]/10 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center shrink-0">
+                  <Info size={17} />
+                </div>
+                <div className="min-w-0">
+                  <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-50 block truncate">
+                    About Disha PYQ
+                  </span>
+                  <span className="text-[11px] text-slate-500 dark:text-slate-400 block truncate">
+                    Mission, version &amp; features
+                  </span>
+                </div>
+              </div>
+              <ChevronRight size={16} className="text-slate-400 group-hover:text-[#7045D8] transition-colors shrink-0" />
             </button>
 
+            {/* Privacy Policy */}
+            <button
+              type="button"
+              onClick={() => {
+                triggerHaptic("light");
+                onNavigateTab?.("privacy-policy");
+              }}
+              className="w-full flex items-center justify-between p-3.5 hover:bg-slate-50 dark:hover:bg-[#241D48]/50 transition-colors cursor-pointer text-left group"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                  <Shield size={17} />
+                </div>
+                <div className="min-w-0">
+                  <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-50 block truncate">
+                    Privacy Policy
+                  </span>
+                  <span className="text-[11px] text-slate-500 dark:text-slate-400 block truncate">
+                    Data protection &amp; Google Play compliance
+                  </span>
+                </div>
+              </div>
+              <ChevronRight size={16} className="text-slate-400 group-hover:text-[#7045D8] transition-colors shrink-0" />
+            </button>
+
+            {/* Terms of Service */}
+            <button
+              type="button"
+              onClick={() => {
+                triggerHaptic("light");
+                onNavigateTab?.("terms-of-service");
+              }}
+              className="w-full flex items-center justify-between p-3.5 hover:bg-slate-50 dark:hover:bg-[#241D48]/50 transition-colors cursor-pointer text-left group"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-[#241D48] text-slate-600 dark:text-slate-300 flex items-center justify-center shrink-0">
+                  <FileText size={17} />
+                </div>
+                <div className="min-w-0">
+                  <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-50 block truncate">
+                    Terms of Service
+                  </span>
+                  <span className="text-[11px] text-slate-500 dark:text-slate-400 block truncate">
+                    Fair usage &amp; intellectual property
+                  </span>
+                </div>
+              </div>
+              <ChevronRight size={16} className="text-slate-400 group-hover:text-[#7045D8] transition-colors shrink-0" />
+            </button>
+
+            {/* Disclaimer */}
+            <button
+              type="button"
+              onClick={() => {
+                triggerHaptic("light");
+                onNavigateTab?.("disclaimer");
+              }}
+              className="w-full flex items-center justify-between p-3.5 hover:bg-slate-50 dark:hover:bg-[#241D48]/50 transition-colors cursor-pointer text-left group"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                  <AlertCircle size={17} />
+                </div>
+                <div className="min-w-0">
+                  <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-50 block truncate">
+                    Government Disclaimer
+                  </span>
+                  <span className="text-[11px] text-slate-500 dark:text-slate-400 block truncate">
+                    Independent private education platform
+                  </span>
+                </div>
+              </div>
+              <ChevronRight size={16} className="text-slate-400 group-hover:text-[#7045D8] transition-colors shrink-0" />
+            </button>
+
+            {/* Contact Us */}
+            <button
+              type="button"
+              onClick={() => {
+                triggerHaptic("light");
+                onNavigateTab?.("contact");
+              }}
+              className="w-full flex items-center justify-between p-3.5 hover:bg-slate-50 dark:hover:bg-[#241D48]/50 transition-colors cursor-pointer text-left group"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-9 h-9 rounded-xl bg-[#7045D8]/10 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center shrink-0">
+                  <Mail size={17} />
+                </div>
+                <div className="min-w-0">
+                  <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-50 block truncate">
+                    Help &amp; Contact Desk
+                  </span>
+                  <span className="text-[11px] text-slate-500 dark:text-slate-400 block truncate">
+                    Support query &amp; feedback
+                  </span>
+                </div>
+              </div>
+              <ChevronRight size={16} className="text-slate-400 group-hover:text-[#7045D8] transition-colors shrink-0" />
+            </button>
+          </div>
+        </section>
+
+        {/* Group D: Storage & Account Zone */}
+        <section className="space-y-1.5">
+          <h3 className="text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 px-1">
+            Data &amp; Account
+          </h3>
+          <div className="bg-white dark:bg-[#1B1536] rounded-2xl border border-slate-200 dark:border-[#31275E] shadow-xs overflow-hidden divide-y divide-slate-100 dark:divide-[#31275E]/60">
             {/* Clear Cache */}
             <button
-              onClick={() => setShowCacheResetConfirm(true)}
-              className="w-full flex items-center justify-between p-3.5 hover:bg-white dark:hover:bg-[#241D48] rounded-2xl transition-all group cursor-pointer text-left"
+              type="button"
+              onClick={() => {
+                triggerHaptic("light");
+                setShowCacheResetConfirm(true);
+              }}
+              className="w-full flex items-center justify-between p-3.5 hover:bg-slate-50 dark:hover:bg-[#241D48]/50 transition-colors cursor-pointer text-left group"
             >
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-xl bg-white dark:bg-[#241D48] text-slate-700 dark:text-slate-50 flex items-center justify-center border border-slate-200 dark:border-[#31275E] shrink-0">
-                  <RefreshCw size={16} />
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-[#241D48] text-slate-700 dark:text-slate-300 flex items-center justify-center shrink-0">
+                  <RefreshCw size={17} />
                 </div>
-                <div>
-                  <span className="text-xs font-black text-slate-900 dark:text-slate-50 block">
-                    Clear Cache
+                <div className="min-w-0">
+                  <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-50 block truncate">
+                    Clear Offline Cache
                   </span>
-                  <span className="text-[11px] text-slate-500 dark:text-slate-300 block">
-                    Refresh offline data &amp; re-sync
+                  <span className="text-[11px] text-slate-500 dark:text-slate-400 block truncate">
+                    Re-sync question banks &amp; solve stuck assets
                   </span>
                 </div>
               </div>
-              <ChevronRight size={14} className="text-slate-400" />
+              <ChevronRight size={16} className="text-slate-400 group-hover:text-[#7045D8] transition-colors shrink-0" />
             </button>
 
-            {/* Rate on Play Store (ASO Booster) */}
+            {/* Reset Progress */}
             <button
+              type="button"
               onClick={() => {
-                triggerHaptic();
-                setShowReviewModal(true);
+                triggerHaptic("light");
+                setShowResetConfirm(true);
               }}
-              className="w-full flex items-center justify-between p-3.5 hover:bg-amber-50/50 dark:hover:bg-amber-950/20 rounded-2xl transition-all group cursor-pointer text-left border border-amber-200/40 dark:border-amber-500/20 my-1"
+              className="w-full flex items-center justify-between p-3.5 hover:bg-rose-50/40 dark:hover:bg-rose-950/20 transition-colors cursor-pointer text-left group"
             >
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-400 text-white flex items-center justify-center shrink-0 shadow-md shadow-amber-500/20">
-                  <Star size={16} className="fill-white" />
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-9 h-9 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
+                  <RotateCcw size={17} />
                 </div>
-                <div>
-                  <span className="text-xs font-black text-amber-600 dark:text-amber-400 block">
-                    Rate us on Play Store ★★★★★
+                <div className="min-w-0">
+                  <span className="text-xs sm:text-sm font-bold text-rose-600 dark:text-rose-400 block truncate">
+                    Reset Practice History
                   </span>
-                  <span className="text-[11px] text-slate-500 dark:text-slate-300 block">
-                    Support Rajasthan's free PYQ education
+                  <span className="text-[11px] text-slate-500 dark:text-slate-400 block truncate">
+                    Clear attempted questions &amp; accuracy stats
                   </span>
                 </div>
               </div>
-              <ChevronRight size={14} className="text-amber-500" />
+              <ChevronRight size={16} className="text-rose-400/80 shrink-0" />
             </button>
 
             {/* Logout */}
             {isAuthenticated && (
               <button
-                onClick={onLogout}
-                className="w-full flex items-center justify-between p-3.5 hover:bg-white dark:hover:bg-[#241D48] rounded-2xl transition-all group cursor-pointer text-left"
+                type="button"
+                onClick={() => {
+                  triggerHaptic("light");
+                  onLogout?.();
+                }}
+                className="w-full flex items-center justify-between p-3.5 hover:bg-slate-50 dark:hover:bg-[#241D48]/50 transition-colors cursor-pointer text-left group"
               >
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-xl bg-[#7045D8] text-white flex items-center justify-center shrink-0">
-                    <LogOut size={16} />
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-9 h-9 rounded-xl bg-[#7045D8]/10 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center shrink-0">
+                    <LogOut size={17} />
                   </div>
-                  <div>
-                    <span className="text-xs font-black text-[#7045D8] dark:text-rose-400 block">
-                      Log Out
+                  <div className="min-w-0">
+                    <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-50 block truncate">
+                      Sign Out
                     </span>
-                    <span className="text-[11px] text-slate-500 dark:text-slate-300 block">
-                      Sign out from this device
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400 block truncate">
+                      Disconnect this device
                     </span>
                   </div>
                 </div>
-                <ChevronRight size={14} className="text-slate-400" />
+                <ChevronRight size={16} className="text-slate-400 group-hover:text-[#7045D8] transition-colors shrink-0" />
               </button>
             )}
 
             {/* Delete Account (Mandatory Google Play Policy) */}
             {isAuthenticated && (
               <button
+                type="button"
                 onClick={() => {
-                  triggerHaptic();
+                  triggerHaptic("medium");
                   setShowDeleteAccountModal(true);
                   setDeleteConfirmText("");
                 }}
-                className="w-full flex items-center justify-between p-3.5 hover:bg-rose-50/50 dark:hover:bg-rose-950/20 rounded-2xl transition-all group cursor-pointer text-left border border-rose-200/30 dark:border-rose-900/30 mt-1"
+                className="w-full flex items-center justify-between p-3.5 hover:bg-rose-50/50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer text-left group"
               >
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-xl bg-rose-500/10 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
-                    <Trash2 size={16} />
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-9 h-9 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
+                    <Trash2 size={17} />
                   </div>
-                  <div>
-                    <span className="text-xs font-black text-rose-600 dark:text-rose-400 block">
-                      Delete Account & Data
+                  <div className="min-w-0">
+                    <span className="text-xs sm:text-sm font-bold text-rose-600 dark:text-rose-400 block truncate">
+                      Delete Account &amp; Data
                     </span>
-                    <span className="text-[11px] text-slate-400 dark:text-slate-500 block">
-                      Permanently remove account and stored history
+                    <span className="text-[11px] text-rose-500/80 block truncate">
+                      Permanently purge account &amp; learning record
                     </span>
                   </div>
                 </div>
-                <ChevronRight size={14} className="text-rose-400" />
+                <ChevronRight size={16} className="text-rose-400 shrink-0" />
               </button>
             )}
           </div>
-        </motion.section>
+        </section>
 
-        {/* Footer Brand Banner */}
-        <motion.section variants={itemVariants} className="text-center pt-2 pb-6 space-y-1">
-          <p className="text-[11px] font-black text-[#7045D8] dark:text-[#A78BFA] uppercase tracking-widest">
-            Disha PYQ • Previous Year Questions & Precision Learning
+        {/* Minimal Footer */}
+        <div className="text-center pt-2 pb-6 space-y-1 select-none">
+          <p className="text-[11px] font-bold text-[#7045D8] dark:text-[#A78BFA] tracking-wide">
+            Disha PYQ • Rajasthan Exam Specialist
           </p>
-          <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500">
-            RPSC • RSMSSB • REET • CET • RAS • Competitive Exam Specialist
+          <p className="text-[10px] text-slate-400 dark:text-slate-500">
+            RPSC • RSMSSB • REET • CET • Patwar • SI
           </p>
-        </motion.section>
-      </motion.main>
+        </div>
+      </main>
 
       {/* ─────────────────────────────────────────────────────────────
-          7. MODALS
+          4. POPUPS & ACTION MODALS
       ───────────────────────────────────────────────────────────── */}
 
       {/* Edit Profile Modal */}
       {showEditProfileModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div
-            className="fixed inset-0 bg-black/75 backdrop-blur-xs"
+            className="fixed inset-0 bg-black/60 backdrop-blur-xs"
             onClick={() => setShowEditProfileModal(false)}
           />
           <motion.div
@@ -781,117 +834,103 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
             role="dialog"
             aria-modal="true"
             aria-label="Edit Profile"
-            className="relative bg-white dark:bg-[#1B1536] rounded-3xl p-6 w-full max-w-md border border-slate-200 dark:border-[#A78BFA]/30 shadow-2xl space-y-5"
+            className="relative bg-white dark:bg-[#1B1536] rounded-2xl p-5 w-full max-w-sm border border-slate-200 dark:border-[#31275E] shadow-2xl space-y-4"
           >
-            <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-[#31275E]">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-[#7045D8]/10 dark:bg-[#7045D8]/15 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center">
-                  <User size={20} />
+            <div className="flex items-center justify-between pb-2.5 border-b border-slate-100 dark:border-[#31275E]">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-[#7045D8]/10 text-[#7045D8] flex items-center justify-center">
+                  <User size={16} />
                 </div>
-                <div>
-                  <h3 className="text-base font-black text-slate-900 dark:text-slate-50">
-                    Edit Profile
-                  </h3>
-                  <p className="text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider">
-                    Target exam &amp; daily goal
-                  </p>
-                </div>
+                <h3 className="text-sm font-black text-slate-900 dark:text-slate-50">
+                  Edit Aspirant Profile
+                </h3>
               </div>
               <button
                 type="button"
                 onClick={() => setShowEditProfileModal(false)}
-                aria-label="Close edit profile"
-                className="w-11 h-11 rounded-xl bg-slate-100 dark:bg-[#241D48] flex items-center justify-center text-slate-600 dark:text-slate-100 hover:bg-slate-200 dark:hover:bg-[#31275E] transition-colors cursor-pointer shrink-0"
+                className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-[#241D48] flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
               >
-                <X size={18} />
+                <X size={16} />
               </button>
             </div>
 
-            <form onSubmit={handleSaveProfile} className="space-y-4">
-              {/* Full Name */}
-              <div className="space-y-1">
-                <label className="text-[11px] font-black text-slate-700 dark:text-slate-200 uppercase tracking-wider block">
-                  Full Name *
+            <form onSubmit={handleSaveProfile} className="space-y-3.5">
+              <div>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                  Full Name
                 </label>
                 <input
                   type="text"
-                  required
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-[#F8FAFC] dark:bg-[#130E26] border border-slate-200 dark:border-[#31275E] text-sm font-bold text-slate-900 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#7045D8] dark:focus:ring-[#A78BFA]"
-                  placeholder="Enter your name"
+                  placeholder="Your Name"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#130E26] border border-slate-200 dark:border-[#31275E] text-xs font-medium text-slate-900 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#7045D8]"
                 />
               </div>
 
-              {/* Target Exam */}
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-black text-slate-700 dark:text-slate-200 uppercase tracking-wider block">
-                  Target Exam *
+              <div>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                  Target Exam
                 </label>
                 <input
                   type="text"
-                  required
                   value={editTargetExam}
                   onChange={(e) => setEditTargetExam(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-[#F8FAFC] dark:bg-[#130E26] border border-slate-200 dark:border-[#31275E] text-sm font-bold text-slate-900 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#7045D8] dark:focus:ring-[#A78BFA]"
-                  placeholder="e.g. RPSC RAS Pre / CET / SI"
+                  placeholder="e.g. RPSC RAS Pre"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#130E26] border border-slate-200 dark:border-[#31275E] text-xs font-medium text-slate-900 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#7045D8]"
                 />
 
-                {/* Popular Exam Chips */}
-                <div className="flex flex-wrap gap-1.5 pt-1">
-                  {POPULAR_TARGET_EXAMS.map((exam) => (
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  {POPULAR_TARGET_EXAMS.slice(0, 4).map((exam) => (
                     <button
-                      type="button"
                       key={exam}
-                      onClick={() => setEditTargetExam(exam)}
-                      className={`px-2.5 py-1 rounded-lg text-[11px] font-black transition-all cursor-pointer ${
-                        editTargetExam === exam
-                          ? "bg-[#7045D8] dark:bg-[#7045D8] text-white dark:text-slate-950 shadow-2xs"
-                          : "bg-slate-100 dark:bg-[#241D48] text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-[#31275E]"
-                      }`}
-                    >
-                      {exam}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Daily Goal Question Selector */}
-              <div className="space-y-1.5 pt-1">
-                <label className="text-[11px] font-black text-slate-700 dark:text-slate-200 uppercase tracking-wider block">
-                  Daily Question Goal
-                </label>
-                <div className="grid grid-cols-4 gap-2">
-                  {[20, 30, 50, 100].map((goal) => (
-                    <button
                       type="button"
-                      key={goal}
-                      onClick={() => setEditDailyGoal(goal)}
-                      className={`py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
-                        editDailyGoal === goal
-                          ? "bg-gradient-to-r from-[#7045D8] to-[#5B32BF] dark:from-[#A78BFA] dark:to-[#B88934] text-white dark:text-slate-950 shadow-xs"
-                          : "bg-slate-100 dark:bg-[#241D48] text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-[#31275E]"
+                      onClick={() => setEditTargetExam(exam)}
+                      className={`text-[10px] font-semibold px-2 py-1 rounded-lg border transition-all cursor-pointer ${
+                        editTargetExam === exam
+                          ? "bg-[#7045D8] text-white border-[#7045D8]"
+                          : "bg-slate-50 dark:bg-[#130E26] border-slate-200 dark:border-[#31275E] text-slate-600 dark:text-slate-300 hover:border-[#7045D8]"
                       }`}
                     >
-                      {goal} Qs
+                      {exam.split(" ")[1] || exam}
                     </button>
                   ))}
                 </div>
               </div>
 
-              <div className="pt-2 flex items-center gap-2">
-                <button
-                  type="submit"
-                  className="flex-1 py-3 bg-gradient-to-r from-[#7045D8] via-[#5B32BF] to-[#7045D8] hover:opacity-95 text-white rounded-xl text-xs font-black shadow-md border border-[#A78BFA]/30 cursor-pointer active:scale-95 transition-all"
-                >
-                  Save Changes
-                </button>
+              <div>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                  Daily Question Goal ({editDailyGoal} Qs)
+                </label>
+                <input
+                  type="range"
+                  min="10"
+                  max="100"
+                  step="5"
+                  value={editDailyGoal}
+                  onChange={(e) => setEditDailyGoal(Number(e.target.value))}
+                  className="w-full accent-[#7045D8]"
+                />
+                <div className="flex justify-between text-[10px] text-slate-400 mt-0.5">
+                  <span>10 Qs</span>
+                  <span>50 Qs</span>
+                  <span>100 Qs</span>
+                </div>
+              </div>
+
+              <div className="flex gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowEditProfileModal(false)}
-                  className="px-4 py-3 bg-slate-100 dark:bg-[#241D48] text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold cursor-pointer"
+                  className="flex-1 py-2 rounded-xl border border-slate-200 dark:border-[#31275E] text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#241D48] transition-colors"
                 >
                   Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 py-2 rounded-xl bg-[#7045D8] hover:bg-[#5B32BF] text-white text-xs font-bold shadow-xs active:scale-95 transition-all"
+                >
+                  Save Profile
                 </button>
               </div>
             </form>
@@ -899,115 +938,119 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
         </div>
       )}
 
-      {/* Reset Confirmation Modal */}
+      {/* Reset Progress Confirmation Modal */}
       {showResetConfirm && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div
-            className="fixed inset-0 bg-black/75 backdrop-blur-xs"
+            className="fixed inset-0 bg-black/60 backdrop-blur-xs"
             onClick={() => setShowResetConfirm(false)}
           />
           <motion.div
-            initial={{ opacity: 0, scale: 0.94 }}
+            initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="relative bg-white dark:bg-[#1B1536] rounded-3xl p-6 w-full max-w-sm border border-rose-200 dark:border-rose-900/50 shadow-2xl space-y-4"
+            className="relative bg-white dark:bg-[#1B1536] rounded-2xl p-5 w-full max-w-sm border border-rose-200 dark:border-rose-900/40 shadow-2xl space-y-3.5 text-center"
           >
-            <div className="w-14 h-14 rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center mx-auto">
-              <AlertCircle size={28} />
+            <div className="w-12 h-12 rounded-xl bg-rose-500/10 text-rose-600 flex items-center justify-center mx-auto">
+              <AlertCircle size={24} />
             </div>
-            <h3 className="text-lg font-black text-slate-900 dark:text-slate-50 text-center tracking-tight">
-              Reset Study Progress?
-            </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-300 text-center leading-relaxed">
-              This will permanently delete all your practiced questions, scores, and analytics. This action cannot be undone.
-            </p>
+            <div>
+              <h3 className="text-base font-black text-slate-900 dark:text-slate-50">
+                Reset Study Progress?
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                This will reset your question attempts, streaks, and analytics. This cannot be undone.
+              </p>
+            </div>
 
-            <div className="space-y-1.5">
-              <label className="text-[11px] font-black text-slate-600 dark:text-slate-200 uppercase tracking-widest block text-center">
-                Type &quot;RESET&quot; to confirm
+            <div>
+              <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 block mb-1">
+                Type <span className="text-rose-600 font-bold">RESET</span> to confirm:
               </label>
               <input
                 type="text"
                 value={resetConfirmText}
                 onChange={(e) => setResetConfirmText(e.target.value.toUpperCase())}
                 placeholder="RESET"
-                className="w-full px-4 py-2.5 rounded-xl bg-[#F8FAFC] dark:bg-[#130E26] border border-rose-300 dark:border-rose-800 text-center text-sm font-black text-rose-600 focus:outline-none focus:ring-2 focus:ring-rose-500/30"
+                className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#130E26] border border-rose-300 dark:border-rose-800 text-center text-xs font-black text-rose-600 focus:outline-none focus:ring-2 focus:ring-rose-500"
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-2.5 pt-2">
+            <div className="flex gap-2 pt-1">
               <button
+                type="button"
                 onClick={() => {
                   setShowResetConfirm(false);
                   setResetConfirmText("");
                 }}
-                className="py-2.5 rounded-xl bg-slate-100 dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] text-xs font-black text-slate-700 dark:text-slate-300 active:scale-95 transition-transform cursor-pointer"
+                className="flex-1 py-2 rounded-xl border border-slate-200 dark:border-[#31275E] text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#241D48] transition-colors"
               >
                 Cancel
               </button>
               <button
+                type="button"
+                disabled={resetConfirmText !== "RESET"}
                 onClick={() => {
                   if (resetConfirmText === "RESET") {
                     onResetProgress();
                     setShowResetConfirm(false);
                     setResetConfirmText("");
-                    showToast("Study progress successfully reset.");
+                    showToast("Study progress reset successfully");
                   }
                 }}
-                disabled={resetConfirmText !== "RESET"}
-                className={`py-2.5 rounded-xl text-white text-xs font-black shadow-md transition-all active:scale-95 ${
-                  resetConfirmText === "RESET"
-                    ? "bg-rose-600 hover:bg-rose-700 cursor-pointer shadow-rose-600/30"
-                    : "bg-slate-300 dark:bg-slate-700 text-slate-500 cursor-not-allowed shadow-none"
-                }`}
+                className="flex-1 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-bold shadow-xs active:scale-95 transition-all"
               >
-                Yes, Reset
+                Confirm Reset
               </button>
             </div>
           </motion.div>
         </div>
       )}
 
-      {/* Cache Purge Modal */}
+      {/* Clear Cache Modal */}
       {showCacheResetConfirm && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div
-            className="fixed inset-0 bg-black/75 backdrop-blur-xs"
+            className="fixed inset-0 bg-black/60 backdrop-blur-xs"
             onClick={() => setShowCacheResetConfirm(false)}
           />
           <motion.div
-            initial={{ opacity: 0, scale: 0.94 }}
+            initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="relative bg-white dark:bg-[#1B1536] rounded-3xl p-6 w-full max-w-sm border border-slate-200 dark:border-[#31275E] shadow-2xl space-y-4"
+            className="relative bg-white dark:bg-[#1B1536] rounded-2xl p-5 w-full max-w-sm border border-slate-200 dark:border-[#31275E] shadow-2xl space-y-3.5 text-center"
           >
-            <div className="w-14 h-14 rounded-2xl bg-[#7045D8]/15 text-[#7045D8] flex items-center justify-center mx-auto">
-              <RefreshCw size={28} />
+            <div className="w-12 h-12 rounded-xl bg-[#7045D8]/10 text-[#7045D8] flex items-center justify-center mx-auto">
+              <RefreshCw size={24} />
             </div>
-            <h3 className="text-lg font-black text-slate-900 dark:text-slate-50 text-center tracking-tight">
-              Purge Cache &amp; Re-sync?
-            </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-300 text-center leading-relaxed font-medium">
-              This will clear local cache and re-download the latest questions and data from cloud.
-            </p>
-            <div className="grid grid-cols-2 gap-2.5 pt-2">
+            <div>
+              <h3 className="text-base font-black text-slate-900 dark:text-slate-50">
+                Clear Offline Cache?
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                Local cached questions will be refreshed from the server.
+              </p>
+            </div>
+            <div className="flex gap-2 pt-1">
               <button
+                type="button"
                 onClick={() => setShowCacheResetConfirm(false)}
-                className="py-2.5 rounded-xl bg-slate-100 dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] text-xs font-black text-slate-700 dark:text-slate-300 active:scale-95 transition-transform cursor-pointer"
+                className="flex-1 py-2 rounded-xl border border-slate-200 dark:border-[#31275E] text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#241D48] transition-colors"
               >
                 Cancel
               </button>
               <button
+                type="button"
                 onClick={async () => {
                   triggerHaptic("light");
                   safeClearLocalStorage();
                   safeClearSessionStorage();
                   await clearIndexedDB().catch(() => {});
                   setShowCacheResetConfirm(false);
-                  showToast("System cache cleared. Reloading...");
-                  setTimeout(() => window.location.reload(), 1200);
+                  showToast("Cache purged. Refreshing...");
+                  setTimeout(() => window.location.reload(), 1000);
                 }}
-                className="py-2.5 rounded-xl bg-gradient-to-r from-[#7045D8] to-[#E06A14] text-white text-xs font-black shadow-md shadow-[#7045D8]/25 active:scale-95 transition-transform cursor-pointer"
+                className="flex-1 py-2 rounded-xl bg-[#7045D8] hover:bg-[#5B32BF] text-white text-xs font-bold shadow-xs active:scale-95 transition-all"
               >
-                Yes, Refresh
+                Purge &amp; Refresh
               </button>
             </div>
           </motion.div>
@@ -1018,62 +1061,58 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
       {showAboutModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div
-            className="fixed inset-0 bg-black/75 backdrop-blur-xs"
+            className="fixed inset-0 bg-black/60 backdrop-blur-xs"
             onClick={() => setShowAboutModal(false)}
           />
           <motion.div
-            initial={{ opacity: 0, scale: 0.94 }}
+            initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             role="dialog"
             aria-modal="true"
             aria-label="About Disha PYQ"
-            className="relative bg-white dark:bg-[#1B1536] rounded-3xl p-6 w-full max-w-sm border border-slate-200 dark:border-[#A78BFA]/30 shadow-2xl space-y-4"
+            className="relative bg-white dark:bg-[#1B1536] rounded-2xl p-5 w-full max-w-sm border border-slate-200 dark:border-[#31275E] shadow-2xl space-y-3.5"
           >
-            <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-[#31275E]">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-[#31275E]">
               <AppLogo size="sm" variant="horizontal" showTagline={true} />
               <button
                 type="button"
                 onClick={() => setShowAboutModal(false)}
-                aria-label="Close about modal"
-                className="w-11 h-11 rounded-xl bg-slate-100 dark:bg-[#241D48] flex items-center justify-center text-slate-600 dark:text-slate-100 hover:bg-slate-200 dark:hover:bg-[#31275E] transition-colors cursor-pointer shrink-0"
+                className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-[#241D48] flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
               >
-                <X size={18} />
+                <X size={16} />
               </button>
             </div>
 
-            <div className="space-y-3 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+            <div className="space-y-2.5 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
               <p>
-                <strong>Disha PYQ</strong> is a dedicated smart preparation and previous year questions practice platform for all competitive exams (RPSC RAS, SI, REET, CET, Patwar, etc.).
+                <strong>Disha PYQ</strong> is a high-yield previous year question practice platform designed for Rajasthan competitive exams.
               </p>
 
-              {/* Non-Government Disclaimer for Google Play Compliance */}
-              <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-[11px] text-amber-700 dark:text-amber-300 leading-relaxed font-semibold">
-                ⚠️ <strong>Disclaimer:</strong> Disha PYQ is an independent, non-governmental private educational app created for exam practice. It is not affiliated with, authorized, or endorsed by RPSC, RSMSSB, or any Rajasthan government organization.
+              {/* Mandatory Non-Government Disclaimer */}
+              <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-[11px] text-amber-700 dark:text-amber-400 font-medium">
+                ⚠️ <strong>Disclaimer:</strong> Disha PYQ is an independent educational app and is not affiliated with or endorsed by RPSC, RSMSSB, or any Rajasthan government agency.
               </div>
 
-              <div className="space-y-2 bg-[#F8FAFC] dark:bg-[#130E26] p-3.5 rounded-2xl border border-slate-200 dark:border-[#31275E]">
-                <div className="flex items-center gap-2.5 text-[#7045D8] dark:text-[#A78BFA]">
-                  <Check size={14} className="stroke-[3] text-emerald-600" />
-                  <span className="text-xs font-black">RPSC Option E (5th Option) Compliance</span>
+              <div className="space-y-1.5 pt-1 text-[11px] font-semibold text-slate-700 dark:text-slate-300">
+                <div className="flex items-center gap-2">
+                  <Check size={13} className="text-emerald-500 shrink-0" />
+                  <span>RPSC 5th Option (Option E) Standard Compliance</span>
                 </div>
-                <div className="flex items-center gap-2.5 text-[#7045D8] dark:text-[#A78BFA]">
-                  <Check size={14} className="stroke-[3] text-emerald-600" />
-                  <span className="text-xs font-black">Rajasthan PYQ Vault (Past 25 Years)</span>
+                <div className="flex items-center gap-2">
+                  <Check size={13} className="text-emerald-500 shrink-0" />
+                  <span>25+ Years Verified Question Bank &amp; Explanations</span>
                 </div>
-                <div className="flex items-center gap-2.5 text-[#7045D8] dark:text-[#A78BFA]">
-                  <Check size={14} className="stroke-[3] text-emerald-600" />
-                  <span className="text-xs font-black">AI Weakness Radar &amp; Customized Practice</span>
-                </div>
-                <div className="flex items-center gap-2.5 text-[#7045D8] dark:text-[#A78BFA]">
-                  <Check size={14} className="stroke-[3] text-emerald-600" />
-                  <span className="text-xs font-black">All-Rajasthan Live Mock Tests &amp; Merit Ranks</span>
+                <div className="flex items-center gap-2">
+                  <Check size={13} className="text-emerald-500 shrink-0" />
+                  <span>AI Weakness Analysis &amp; Topic Radar</span>
                 </div>
               </div>
             </div>
 
             <button
+              type="button"
               onClick={() => setShowAboutModal(false)}
-              className="w-full py-3 bg-gradient-to-r from-[#7045D8] via-[#5B32BF] to-[#7045D8] text-white rounded-xl text-xs font-black shadow-md border border-[#A78BFA]/30 cursor-pointer active:scale-95 transition-all"
+              className="w-full py-2 bg-[#7045D8] hover:bg-[#5B32BF] text-white rounded-xl text-xs font-bold active:scale-95 transition-all"
             >
               Close
             </button>
@@ -1081,76 +1120,54 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
         </div>
       )}
 
-      {/* Settings Modal */}
-      {showSettingsModal && (
-        <AppSettingsModal
-          settings={settings}
-          onUpdateSettings={onUpdateSettings}
-          onClose={() => setShowSettingsModal(false)}
-        />
-      )}
-
-      {/* API Settings Modal */}
-      {showApiSettingsModal && (
-        <ApiSettingsModal
-          settings={settings}
-          onUpdateSettings={onUpdateSettings}
-          onClose={() => setShowApiSettingsModal(false)}
-        />
-      )}
-
-      {/* Share Modal */}
-      {shareData && (
-        <ShareModal
-          isOpen={!!shareData}
-          onClose={() => setShareData(null)}
-          data={shareData}
-        />
-      )}
-
-      {/* Delete Account Modal (Google Play Policy Compliance) */}
+      {/* Delete Account Modal (Google Play Policy Mandate) */}
       <AnimatePresence>
         {showDeleteAccountModal && (
           <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
-            <div
-              className="fixed inset-0 bg-black/75 backdrop-blur-xs"
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/60 backdrop-blur-xs"
               onClick={() => setShowDeleteAccountModal(false)}
             />
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="relative w-full max-w-sm bg-white dark:bg-[#1A1435] rounded-3xl p-6 shadow-2xl border border-rose-200 dark:border-rose-900/50 z-10"
+              className="relative w-full max-w-sm bg-white dark:bg-[#1B1536] rounded-2xl p-5 shadow-2xl border border-rose-200 dark:border-rose-900/40 z-10 space-y-3.5"
             >
-              <div className="w-12 h-12 rounded-2xl bg-rose-100 dark:bg-rose-950/50 text-rose-600 flex items-center justify-center mx-auto mb-4">
+              <div className="w-12 h-12 rounded-xl bg-rose-500/10 text-rose-600 flex items-center justify-center mx-auto">
                 <Trash2 size={24} />
               </div>
 
-              <h3 className="text-base font-black text-slate-900 dark:text-white text-center mb-1.5">
-                Delete Account Permanently?
-              </h3>
-              <p className="text-xs text-slate-600 dark:text-slate-400 text-center mb-4 leading-relaxed">
-                यह क्रिया अपरिवर्तनीय है। आपका खाता, टेस्ट इतिहास और प्रोग्रेस डेटा स्थायी रूप से मिटा दिया जाएगा।
-              </p>
+              <div className="text-center">
+                <h3 className="text-base font-black text-slate-900 dark:text-slate-50">
+                  Delete Account &amp; Data?
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                  This action is permanent and irreversible. All test attempts, bookmarked questions, and account data will be permanently wiped.
+                </p>
+              </div>
 
-              <div className="mb-4">
-                <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1.5">
-                  कृपया पुष्टि के लिए नीचे <span className="text-rose-600 font-black">DELETE</span> लिखें:
+              <div>
+                <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1">
+                  Type <span className="text-rose-600 font-bold">DELETE</span> to confirm:
                 </label>
                 <input
                   type="text"
                   value={deleteConfirmText}
-                  onChange={(e) => setDeleteConfirmText(e.target.value)}
+                  onChange={(e) => setDeleteConfirmText(e.target.value.toUpperCase())}
                   placeholder="DELETE"
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-[#251D4B] border border-slate-200 dark:border-[#3A2D75] text-slate-900 dark:text-white text-xs font-bold focus:outline-none focus:ring-2 focus:ring-rose-500"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#130E26] border border-slate-200 dark:border-[#31275E] text-slate-900 dark:text-white text-xs font-bold text-center focus:outline-none focus:ring-2 focus:ring-rose-500"
                 />
               </div>
 
-              <div className="flex gap-2.5">
+              <div className="flex gap-2 pt-1">
                 <button
                   type="button"
                   onClick={() => setShowDeleteAccountModal(false)}
-                  className="flex-1 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold cursor-pointer hover:bg-slate-50 dark:hover:bg-[#251D4B] transition-colors"
+                  className="flex-1 py-2 rounded-xl border border-slate-200 dark:border-[#31275E] text-slate-700 dark:text-slate-300 text-xs font-bold hover:bg-slate-50 dark:hover:bg-[#241D48] transition-colors"
                 >
                   Cancel
                 </button>
@@ -1159,13 +1176,12 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                   disabled={deleteConfirmText !== "DELETE" || isDeletingAccount}
                   onClick={async () => {
                     setIsDeletingAccount(true);
-                    triggerHaptic();
+                    triggerHaptic("medium");
                     try {
-                      // Clear client storage
                       safeClearLocalStorage();
                       safeClearSessionStorage();
-                      await clearIndexedDB();
-                      setToastMessage("Account & data deleted successfully");
+                      await clearIndexedDB().catch(() => {});
+                      setToastMessage("Account & data purged");
                       setShowDeleteAccountModal(false);
                       if (onLogout) onLogout();
                       setTimeout(() => {
@@ -1177,9 +1193,9 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                       setIsDeletingAccount(false);
                     }
                   }}
-                  className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-black shadow-md shadow-rose-600/30 transition-all cursor-pointer"
+                  className="flex-1 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-bold shadow-xs active:scale-95 transition-all"
                 >
-                  {isDeletingAccount ? "Deleting..." : "Delete Forever"}
+                  {isDeletingAccount ? "Deleting..." : "Permanently Delete"}
                 </button>
               </div>
             </motion.div>
@@ -1187,7 +1203,36 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
         )}
       </AnimatePresence>
 
-      {/* Review Prompt Modal (Play Store ASO) */}
+      {/* Settings Modal */}
+      {showSettingsModal && (
+        <AppSettingsModal
+          isOpen={showSettingsModal}
+          onClose={() => setShowSettingsModal(false)}
+          settings={settings}
+          onUpdateSettings={onUpdateSettings}
+        />
+      )}
+
+      {/* API Settings Modal */}
+      {showApiSettingsModal && (
+        <ApiSettingsModal
+          isOpen={showApiSettingsModal}
+          onClose={() => setShowApiSettingsModal(false)}
+          settings={settings}
+          onUpdateSettings={onUpdateSettings}
+        />
+      )}
+
+      {/* Share Modal */}
+      {shareData && (
+        <ShareModal
+          isOpen={Boolean(shareData)}
+          onClose={() => setShareData(null)}
+          shareData={shareData}
+        />
+      )}
+
+      {/* Play Store Review Modal (ASO Booster) */}
       <PlayStoreReviewPromptModal
         isOpen={showReviewModal}
         onClose={() => setShowReviewModal(false)}
@@ -1198,12 +1243,12 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
       <AnimatePresence>
         {toastMessage && (
           <motion.div
-            initial={{ opacity: 0, y: 50 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
-            className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[150] bg-gradient-to-r from-[#7045D8] to-[#5B32BF] text-white px-5 py-3 rounded-2xl shadow-2xl text-xs font-black tracking-wide border border-[#A78BFA]/40 flex items-center gap-2"
+            className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[150] bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-4 py-2 rounded-xl shadow-xl text-xs font-bold flex items-center gap-2"
           >
-            <CheckCircle2 size={15} className="text-amber-500" />
+            <CheckCircle2 size={14} className="text-emerald-500" />
             <span>{toastMessage}</span>
           </motion.div>
         )}

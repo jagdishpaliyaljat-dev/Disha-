@@ -13,16 +13,19 @@ import {
   RefreshCw,
   Sliders,
   Check,
+  Star,
 } from 'lucide-react';
-import { appConfigService, GlobalAppConfig, VersionControlConfig } from '../../utils/appConfigService';
+import { appConfigService, GlobalAppConfig, VersionControlConfig, InAppReviewConfig } from '../../utils/appConfigService';
 import { triggerAdminToast } from '../../utils/adminToast';
 import { CURRENT_APP_VERSION, checkAppUpdateStatus } from '../../utils/versionUtils';
 import { AppUpdateModal } from '../AppUpdateModal';
+import { PlayStoreReviewPromptModal } from '../PlayStoreReviewPromptModal';
 
 export const AppConfigMaintenanceSection: React.FC = () => {
   const [config, setConfig] = useState<GlobalAppConfig>(() => appConfigService.getConfig());
   const [saving, setSaving] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [showReviewPreview, setShowReviewPreview] = useState(false);
 
   useEffect(() => {
     const unsub = appConfigService.subscribe(setConfig);
@@ -35,7 +38,7 @@ export const AppConfigMaintenanceSection: React.FC = () => {
     latestVersion: CURRENT_APP_VERSION,
     minSupportedVersion: '1.0.51',
     forceUpdate: false,
-    downloadUrl: 'https://github.com/jagdishpaliyaljat-dev/disha-20-20-app/releases/latest',
+    downloadUrl: 'https://play.google.com/store/apps/details?id=com.disha2020.examprep',
     releaseNotes: '• Fixed English vocabulary audio pronunciation in MCQs\n• High performance native Speech Synthesis engine\n• Offline stability and crash safeguards',
     title: 'New Update Available!',
     message: 'A newer, faster version of Disha 20-20 is available with new exam features and bug fixes.',
@@ -46,6 +49,24 @@ export const AppConfigMaintenanceSection: React.FC = () => {
       ...config,
       versionControl: {
         ...vc,
+        ...partial,
+      },
+    });
+  };
+
+  const rc: InAppReviewConfig = config.reviewConfig || {
+    enabled: true,
+    minScorePercent: 75,
+    minTestsCompleted: 2,
+    snoozeDays: 5,
+    smartSentimentRouting: true,
+  };
+
+  const updateReviewConfig = (partial: Partial<InAppReviewConfig>) => {
+    setConfig({
+      ...config,
+      reviewConfig: {
+        ...rc,
         ...partial,
       },
     });
@@ -418,6 +439,106 @@ export const AppConfigMaintenanceSection: React.FC = () => {
         </div>
       </div>
 
+      {/* SECTION 4: PLAY STORE 5-STAR IN-APP RATING TRIGGER (ASO BOOSTER) */}
+      <div className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-4">
+        <div className="flex items-center justify-between pb-4 border-b border-slate-800/80">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-amber-500/20 text-amber-400">
+              <Star className="w-5 h-5 fill-amber-400" />
+            </div>
+            <div>
+              <h3 className="text-sm font-black text-white flex items-center gap-2">
+                <span>Play Store 5-Star Rating & Review Trigger</span>
+                <span className="px-2 py-0.5 rounded-full bg-[#7045D8]/20 border border-[#A78BFA]/40 text-[#A78BFA] text-[10px] font-bold uppercase tracking-wider">
+                  ASO Booster
+                </span>
+              </h3>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Automatically prompt high-scoring students to rate 5-stars on Google Play Store
+              </p>
+            </div>
+          </div>
+
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              checked={rc.enabled}
+              onChange={(e) => updateReviewConfig({ enabled: e.target.checked })}
+              className="sr-only peer"
+            />
+            <div className="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+          </label>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
+          <div>
+            <label className="text-xs font-bold text-slate-300 block mb-1">
+              Minimum Score Threshold (%)
+            </label>
+            <input
+              type="number"
+              min={50}
+              max={100}
+              value={rc.minScorePercent}
+              onChange={(e) => updateReviewConfig({ minScorePercent: parseInt(e.target.value, 10) || 75 })}
+              className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white outline-none focus:border-amber-400"
+            />
+            <p className="text-[11px] text-slate-400 mt-1">Prompt only students scoring at or above this score</p>
+          </div>
+
+          <div>
+            <label className="text-xs font-bold text-slate-300 block mb-1">
+              Minimum Tests Completed
+            </label>
+            <input
+              type="number"
+              min={1}
+              max={10}
+              value={rc.minTestsCompleted}
+              onChange={(e) => updateReviewConfig({ minTestsCompleted: parseInt(e.target.value, 10) || 2 })}
+              className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white outline-none focus:border-amber-400"
+            />
+            <p className="text-[11px] text-slate-400 mt-1">Don't prompt brand-new users on their very first test</p>
+          </div>
+
+          <div>
+            <label className="text-xs font-bold text-slate-300 block mb-1">
+              Snooze Duration (Days)
+            </label>
+            <input
+              type="number"
+              min={1}
+              max={30}
+              value={rc.snoozeDays}
+              onChange={(e) => updateReviewConfig({ snoozeDays: parseInt(e.target.value, 10) || 5 })}
+              className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white outline-none focus:border-amber-400"
+            />
+            <p className="text-[11px] text-slate-400 mt-1">Days before prompting again if user taps 'Remind later'</p>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between pt-2 border-t border-slate-800/60 flex-wrap gap-2">
+          <label className="flex items-center gap-2 cursor-pointer text-xs text-slate-300 font-bold">
+            <input
+              type="checkbox"
+              checked={rc.smartSentimentRouting}
+              onChange={(e) => updateReviewConfig({ smartSentimentRouting: e.target.checked })}
+              className="rounded bg-slate-950 border-slate-700 text-[#7045D8] focus:ring-0"
+            />
+            <span>Smart Sentiment Routing (4-5 Stars ➔ Play Store, 1-3 Stars ➔ Internal Feedback)</span>
+          </label>
+
+          <button
+            type="button"
+            onClick={() => setShowReviewPreview(true)}
+            className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs flex items-center gap-1.5 border border-slate-700 transition cursor-pointer"
+          >
+            <Eye className="w-3.5 h-3.5 text-amber-400" />
+            <span>Preview Rating Dialog</span>
+          </button>
+        </div>
+      </div>
+
       {/* Save Button Bar */}
       <div className="flex justify-end pt-2">
         <button
@@ -437,6 +558,16 @@ export const AppConfigMaintenanceSection: React.FC = () => {
           updateInfo={previewUpdateResult}
           onDismiss={() => setShowPreview(false)}
           isPreview={true}
+        />
+      )}
+
+      {/* Rating Prompt Preview Modal */}
+      {showReviewPreview && (
+        <PlayStoreReviewPromptModal
+          isOpen={showReviewPreview}
+          onClose={() => setShowReviewPreview(false)}
+          appPackageName="com.disha2020.examprep"
+          userScorePercent={88}
         />
       )}
     </div>

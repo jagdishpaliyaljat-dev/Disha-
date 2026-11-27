@@ -1008,7 +1008,7 @@ export function AdminNewsSection({
                 <button
                   type="submit"
                   disabled={!newCategoryInput.trim()}
-                  className="px-4 py-2 bg-[#1E5BF0] hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer disabled:opacity-50 shrink-0"
+                  className="px-4 py-2 bg-[#1E5BF0] hover:bg-[#5B32BF] text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer disabled:opacity-50 shrink-0"
                 >
                   Create
                 </button>

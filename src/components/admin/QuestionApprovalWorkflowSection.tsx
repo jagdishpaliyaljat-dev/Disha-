@@ -301,7 +301,7 @@ export const QuestionApprovalWorkflowSection: React.FC<QuestionApprovalWorkflowS
           onClick={() => setActiveTab("approved")}
           className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-black transition-all shrink-0 cursor-pointer ${
             activeTab === "approved"
-              ? "bg-blue-600 text-white shadow-xs"
+              ? "bg-[#7045D8] text-white shadow-xs"
               : "bg-white dark:bg-[#111A2E] text-slate-600 dark:text-slate-300 border border-slate-200/80 dark:border-slate-800 hover:bg-slate-50"
           }`}
         >
@@ -368,7 +368,7 @@ export const QuestionApprovalWorkflowSection: React.FC<QuestionApprovalWorkflowS
               </button>
               <button
                 onClick={() => handleBulkApprove(false)}
-                className="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-extrabold shadow-xs transition-colors"
+                className="px-3 py-1.5 rounded-xl bg-[#7045D8] hover:bg-[#5B32BF] text-white text-xs font-extrabold shadow-xs transition-colors"
               >
                 Bulk Approve ({selectedIds.length})
               </button>
@@ -553,7 +553,7 @@ export const QuestionApprovalWorkflowSection: React.FC<QuestionApprovalWorkflowS
                         <button
                           onClick={() => handleApprove(q.id, false)}
                           disabled={actionLoadingId === q.id}
-                          className="px-3 py-1.5 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-xs transition-colors flex items-center gap-1 cursor-pointer"
+                          className="px-3 py-1.5 rounded-xl text-xs font-bold bg-[#7045D8] hover:bg-[#5B32BF] text-white shadow-xs transition-colors flex items-center gap-1 cursor-pointer"
                         >
                           <CheckCircle2 className="w-3.5 h-3.5" />
                           <span>Approve (Draft)</span>
@@ -807,7 +807,7 @@ const QuickEditQuestionModal: React.FC<QuickEditQuestionModalProps> = ({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-5 py-2 rounded-xl font-extrabold bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs transition-colors flex items-center gap-1.5"
+              className="px-5 py-2 rounded-xl font-extrabold bg-[#7045D8] hover:bg-[#5B32BF] text-white shadow-xs transition-colors flex items-center gap-1.5"
             >
               {isSubmitting ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
               <span>{isSubmitting ? "Saving..." : "Save Edits"}</span>

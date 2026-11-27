@@ -294,6 +294,18 @@ export default defineConfig(({ command }) => {
             if (id.includes('node_modules/@sentry/')) {
               return 'vendor-sentry';
             }
+            if (id.includes('node_modules/@supabase/')) {
+              return 'vendor-supabase';
+            }
+            if (id.includes('node_modules/react-markdown/') || id.includes('node_modules/remark-') || id.includes('node_modules/micromark') || id.includes('node_modules/mdast-') || id.includes('node_modules/unist-')) {
+              return 'vendor-markdown';
+            }
+            if (id.includes('node_modules/canvas-confetti/')) {
+              return 'vendor-confetti';
+            }
+            if (id.includes('node_modules/d3/') || id.includes('node_modules/d3-')) {
+              return 'vendor-d3';
+            }
           },
         },
       } : {},

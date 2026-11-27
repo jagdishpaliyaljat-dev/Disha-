@@ -660,7 +660,7 @@ export const ManageQuestionsModal: React.FC<ManageQuestionsModalProps> = ({
                   <button
                     type="button"
                     onClick={() => handleSelectCustomQuantity()}
-                    className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-xs cursor-pointer active:scale-95 shrink-0"
+                    className="px-4 py-2 rounded-xl bg-[#7045D8] hover:bg-[#5B32BF] text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-xs cursor-pointer active:scale-95 shrink-0"
                   >
                     <CheckSquare className="w-3.5 h-3.5" />
                     <span>Select Questions</span>
@@ -849,7 +849,7 @@ export const ManageQuestionsModal: React.FC<ManageQuestionsModalProps> = ({
                     onClick={() => setFilterType("all")}
                     className={`px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shrink-0 cursor-pointer ${
                       filterType === "all"
-                        ? "bg-blue-600 text-white shadow-xs"
+                        ? "bg-[#7045D8] text-white shadow-xs"
                         : "bg-white dark:bg-[#111A2E] border border-slate-200/80 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50"
                     }`}
                   >
@@ -859,7 +859,7 @@ export const ManageQuestionsModal: React.FC<ManageQuestionsModalProps> = ({
                     onClick={() => setFilterType("custom")}
                     className={`px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shrink-0 cursor-pointer ${
                       filterType === "custom"
-                        ? "bg-blue-600 text-white shadow-xs"
+                        ? "bg-[#7045D8] text-white shadow-xs"
                         : "bg-white dark:bg-[#111A2E] border border-slate-200/80 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50"
                     }`}
                   >
@@ -873,7 +873,7 @@ export const ManageQuestionsModal: React.FC<ManageQuestionsModalProps> = ({
                     onClick={() => setFilterType("base")}
                     className={`px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shrink-0 cursor-pointer ${
                       filterType === "base"
-                        ? "bg-blue-600 text-white shadow-xs"
+                        ? "bg-[#7045D8] text-white shadow-xs"
                         : "bg-white dark:bg-[#111A2E] border border-slate-200/80 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50"
                     }`}
                   >
@@ -935,7 +935,7 @@ export const ManageQuestionsModal: React.FC<ManageQuestionsModalProps> = ({
                   <button
                     type="button"
                     onClick={() => handleSelectCustomQuantity()}
-                    className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-xs cursor-pointer active:scale-95 shrink-0"
+                    className="px-4 py-2 rounded-xl bg-[#7045D8] hover:bg-[#5B32BF] text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-xs cursor-pointer active:scale-95 shrink-0"
                   >
                     <CheckSquare className="w-3.5 h-3.5" />
                     <span>Select Questions</span>
@@ -974,7 +974,7 @@ export const ManageQuestionsModal: React.FC<ManageQuestionsModalProps> = ({
                     <div className="flex items-center gap-1.5">
                       <button
                         onClick={() => setShowBulkMoveModal(true)}
-                        className="px-2.5 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-1 cursor-pointer active:scale-95"
+                        className="px-2.5 py-1 rounded-lg bg-[#7045D8] hover:bg-[#5B32BF] text-white font-bold text-xs flex items-center gap-1 cursor-pointer active:scale-95"
                         title="Move selected questions to another topic"
                       >
                         <FolderInput className="w-3.5 h-3.5" />
@@ -1079,7 +1079,7 @@ export const ManageQuestionsModal: React.FC<ManageQuestionsModalProps> = ({
               <button
                 id="btn-bulk-move-questions"
                 onClick={() => setShowBulkMoveModal(true)}
-                className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold flex items-center gap-1.5 transition-colors shadow-sm cursor-pointer active:scale-95"
+                className="px-3.5 py-2 rounded-xl bg-[#7045D8] hover:bg-[#5B32BF] text-white text-xs font-bold flex items-center gap-1.5 transition-colors shadow-sm cursor-pointer active:scale-95"
                 title="Move selected questions to another topic"
               >
                 <FolderInput className="w-4 h-4" />
@@ -1187,7 +1187,7 @@ export const ManageQuestionsModal: React.FC<ManageQuestionsModalProps> = ({
               <button 
                 onClick={handleConfirmMergeDuplicates}
                 disabled={isMergingDuplicates}
-                className="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold text-xs cursor-pointer"
+                className="flex-1 py-3 bg-[#7045D8] text-white rounded-xl font-bold text-xs cursor-pointer"
               >
                 {isMergingDuplicates ? auditMergeProgress : "Merge Duplicates"}
               </button>

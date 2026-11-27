@@ -118,8 +118,8 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
           </p>
 
           <div className="max-w-2xl mx-auto space-y-4 text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-medium pt-2">
-            <div className="p-4 rounded-[28px] bg-white dark:bg-[#111927] border-2 border-dashed border-slate-200 dark:border-slate-800 text-left space-y-2">
-              <span className="text-[11px] font-black uppercase tracking-widest text-[#1E5BF0] block">Quick Summary</span>
+            <div className="p-4 rounded-[28px] bg-white dark:bg-[#1B1536] border-2 border-dashed border-slate-200 dark:border-[#31275E] text-left space-y-2">
+              <span className="text-[11px] font-black uppercase tracking-widest text-[#7045D8] block">Quick Summary</span>
               <p className="text-xs font-bold leading-normal">
                 Disha PYQ is an independent platform for educational practice and MCQ revision. We are NOT a government entity. All content is for self-study purposes only.
               </p>
@@ -130,7 +130,7 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
                 href="https://disha2020.in"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[#1E5BF0] hover:underline font-bold"
+                className="text-[#7045D8] hover:underline font-bold"
               >
                 https://disha2020.in
               </a>{" "}
@@ -140,10 +140,10 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
         </div>
 
         {/* Quick Table of Contents Jump Nav */}
-        <div className="bg-white dark:bg-[#111927] rounded-3xl border border-slate-200/90 dark:border-slate-800 p-5 shadow-sm space-y-3">
-          <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-            <span className="text-xs font-black uppercase tracking-wider text-[#071b49] dark:text-white flex items-center gap-1.5">
-              <BookOpen className="w-4 h-4 text-[#1E5BF0]" />
+        <div className="bg-white dark:bg-[#1B1536] rounded-3xl border border-slate-200/90 dark:border-[#31275E] p-5 shadow-sm space-y-3">
+          <div className="flex items-center justify-between border-b border-slate-100 dark:border-[#31275E] pb-3">
+            <span className="text-xs font-black uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-1.5">
+              <BookOpen className="w-4 h-4 text-[#7045D8]" />
               <span>Table of Contents</span>
             </span>
             <span className="text-[11px] font-bold text-slate-400">13 Sections</span>
@@ -161,8 +161,8 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
                   <span className="text-[11px] font-black text-slate-400 dark:text-slate-500 w-5 shrink-0">
                     {sec.num}
                   </span>
-                  <Icon className="w-3.5 h-3.5 text-[#1E5BF0] dark:text-blue-400 shrink-0 group-hover:scale-110 transition-transform" />
-                  <span className="text-xs font-bold text-slate-700 dark:text-slate-200 group-hover:text-[#1E5BF0] transition-colors line-clamp-1">
+                  <Icon className="w-3.5 h-3.5 text-[#7045D8] dark:text-[#A78BFA] shrink-0 group-hover:scale-110 transition-transform" />
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-200 group-hover:text-[#7045D8] transition-colors line-clamp-1">
                     {sec.title}
                   </span>
                 </button>
@@ -176,14 +176,14 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
           {/* 1. Educational Purpose Only */}
           <section
             id="educational-purpose"
-            className="bg-white dark:bg-[#111927] rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 shadow-sm space-y-4"
+            className="bg-white dark:bg-[#1B1536] rounded-3xl border border-slate-200/90 dark:border-[#31275E] p-6 shadow-sm space-y-4"
           >
-            <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
-              <div className="w-9 h-9 rounded-2xl bg-blue-100/80 dark:bg-blue-950/60 text-[#1E5BF0] dark:text-blue-400 flex items-center justify-center font-black text-sm shrink-0">
+            <div className="flex items-center gap-3 border-b border-slate-100 dark:border-[#31275E] pb-3">
+              <div className="w-9 h-9 rounded-2xl bg-violet-100/80 dark:bg-violet-950/60 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center font-black text-sm shrink-0">
                 01
               </div>
               <div>
-                <h2 className="text-lg font-black text-[#071b49] dark:text-white">
+                <h2 className="text-lg font-black text-slate-900 dark:text-white">
                   1. Educational Purpose Only
                 </h2>
                 <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
@@ -211,14 +211,14 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
           {/* 2. Accuracy of Information */}
           <section
             id="accuracy-information"
-            className="bg-white dark:bg-[#111927] rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 shadow-sm space-y-4"
+            className="bg-white dark:bg-[#1B1536] rounded-3xl border border-slate-200/90 dark:border-[#31275E] p-6 shadow-sm space-y-4"
           >
-            <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
+            <div className="flex items-center gap-3 border-b border-slate-100 dark:border-[#31275E] pb-3">
               <div className="w-9 h-9 rounded-2xl bg-emerald-100/80 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-black text-sm shrink-0">
                 02
               </div>
               <div>
-                <h2 className="text-lg font-black text-[#071b49] dark:text-white">
+                <h2 className="text-lg font-black text-slate-900 dark:text-white">
                   2. Accuracy of Information
                 </h2>
                 <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
@@ -238,7 +238,7 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
                 We do not guarantee that all information available on the platform is complete, accurate, current, or suitable for every user's needs.
               </p>
 
-              <div className="pt-2 p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div className="pt-2 p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-[#31275E] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                 <div className="space-y-1">
                   <span className="text-xs font-black text-slate-800 dark:text-slate-100 block">
                     Found an incorrect question or explanation?
@@ -249,7 +249,7 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
                 </div>
                 <button
                   onClick={onOpenContact}
-                  className="px-4 py-2 bg-[#1E5BF0] hover:bg-blue-700 active:scale-95 text-white text-xs font-bold rounded-xl transition-all shrink-0 cursor-pointer flex items-center gap-1.5"
+                  className="px-4 py-2 bg-[#7045D8] hover:bg-[#5B32BF] active:scale-95 text-white text-xs font-bold rounded-xl transition-all shrink-0 cursor-pointer flex items-center gap-1.5"
                 >
                   <Mail className="w-3.5 h-3.5" />
                   <span>Report Error on Contact Us</span>
@@ -261,14 +261,14 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
           {/* 3. No Guarantee of Examination Results */}
           <section
             id="no-results-guarantee"
-            className="bg-white dark:bg-[#111927] rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 shadow-sm space-y-4"
+            className="bg-white dark:bg-[#1B1536] rounded-3xl border border-slate-200/90 dark:border-[#31275E] p-6 shadow-sm space-y-4"
           >
-            <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
+            <div className="flex items-center gap-3 border-b border-slate-100 dark:border-[#31275E] pb-3">
               <div className="w-9 h-9 rounded-2xl bg-amber-100/80 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center font-black text-sm shrink-0">
                 03
               </div>
               <div>
-                <h2 className="text-lg font-black text-[#071b49] dark:text-white">
+                <h2 className="text-lg font-black text-slate-900 dark:text-white">
                   3. No Guarantee of Examination Results
                 </h2>
                 <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
@@ -307,14 +307,14 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
           {/* 4. No Government Affiliation */}
           <section
             id="no-government-affiliation"
-            className="bg-white dark:bg-[#111927] rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 shadow-sm space-y-4"
+            className="bg-white dark:bg-[#1B1536] rounded-3xl border border-slate-200/90 dark:border-[#31275E] p-6 shadow-sm space-y-4"
           >
-            <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
-              <div className="w-9 h-9 rounded-2xl bg-indigo-100/80 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-black text-sm shrink-0">
+            <div className="flex items-center gap-3 border-b border-slate-100 dark:border-[#31275E] pb-3">
+              <div className="w-9 h-9 rounded-2xl bg-purple-100/80 dark:bg-purple-950/60 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center font-black text-sm shrink-0">
                 04
               </div>
               <div>
-                <h2 className="text-lg font-black text-[#071b49] dark:text-white">
+                <h2 className="text-lg font-black text-slate-900 dark:text-white">
                   4. No Government Affiliation
                 </h2>
                 <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
@@ -342,14 +342,14 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
           {/* 5. Practice Questions and Answer Explanations */}
           <section
             id="questions-explanations"
-            className="bg-white dark:bg-[#111927] rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 shadow-sm space-y-4"
+            className="bg-white dark:bg-[#1B1536] rounded-3xl border border-slate-200/90 dark:border-[#31275E] p-6 shadow-sm space-y-4"
           >
-            <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
+            <div className="flex items-center gap-3 border-b border-slate-100 dark:border-[#31275E] pb-3">
               <div className="w-9 h-9 rounded-2xl bg-purple-100/80 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center font-black text-sm shrink-0">
                 05
               </div>
               <div>
-                <h2 className="text-lg font-black text-[#071b49] dark:text-white">
+                <h2 className="text-lg font-black text-slate-900 dark:text-white">
                   5. Practice Questions and Answer Explanations
                 </h2>
                 <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
@@ -377,14 +377,14 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
           {/* 6. Current Affairs and Time-Sensitive Information */}
           <section
             id="time-sensitive-info"
-            className="bg-white dark:bg-[#111927] rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 shadow-sm space-y-4"
+            className="bg-white dark:bg-[#1B1536] rounded-3xl border border-slate-200/90 dark:border-[#31275E] p-6 shadow-sm space-y-4"
           >
-            <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
+            <div className="flex items-center gap-3 border-b border-slate-100 dark:border-[#31275E] pb-3">
               <div className="w-9 h-9 rounded-2xl bg-cyan-100/80 dark:bg-cyan-950/60 text-cyan-600 dark:text-cyan-400 flex items-center justify-center font-black text-sm shrink-0">
                 06
               </div>
               <div>
-                <h2 className="text-lg font-black text-[#071b49] dark:text-white">
+                <h2 className="text-lg font-black text-slate-900 dark:text-white">
                   6. Current Affairs and Time-Sensitive Information
                 </h2>
                 <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
@@ -400,7 +400,7 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
               <p>
                 Although we may update relevant content when appropriate, we cannot guarantee that every item reflects the latest official position at all times.
               </p>
-              <p className="text-xs font-semibold text-[#1E5BF0] dark:text-blue-400">
+              <p className="text-xs font-semibold text-[#7045D8] dark:text-[#A78BFA]">
                 Always verify time-sensitive information through authoritative and up-to-date sources before relying on it for an examination or other important decision.
               </p>
             </div>
@@ -409,14 +409,14 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
           {/* 7. External Links and Third-Party Content */}
           <section
             id="external-links"
-            className="bg-white dark:bg-[#111927] rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 shadow-sm space-y-4"
+            className="bg-white dark:bg-[#1B1536] rounded-3xl border border-slate-200/90 dark:border-[#31275E] p-6 shadow-sm space-y-4"
           >
-            <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
+            <div className="flex items-center gap-3 border-b border-slate-100 dark:border-[#31275E] pb-3">
               <div className="w-9 h-9 rounded-2xl bg-sky-100/80 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 flex items-center justify-center font-black text-sm shrink-0">
                 07
               </div>
               <div>
-                <h2 className="text-lg font-black text-[#071b49] dark:text-white">
+                <h2 className="text-lg font-black text-slate-900 dark:text-white">
                   7. External Links and Third-Party Content
                 </h2>
                 <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
@@ -444,14 +444,14 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
           {/* 8. Intellectual Property and Content Ownership */}
           <section
             id="intellectual-property"
-            className="bg-white dark:bg-[#111927] rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 shadow-sm space-y-4"
+            className="bg-white dark:bg-[#1B1536] rounded-3xl border border-slate-200/90 dark:border-[#31275E] p-6 shadow-sm space-y-4"
           >
-            <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
+            <div className="flex items-center gap-3 border-b border-slate-100 dark:border-[#31275E] pb-3">
               <div className="w-9 h-9 rounded-2xl bg-teal-100/80 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400 flex items-center justify-center font-black text-sm shrink-0">
                 08
               </div>
               <div>
-                <h2 className="text-lg font-black text-[#071b49] dark:text-white">
+                <h2 className="text-lg font-black text-slate-900 dark:text-white">
                   8. Intellectual Property and Content Ownership
                 </h2>
                 <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
@@ -479,14 +479,14 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
           {/* 9. Website Availability and Technical Issues */}
           <section
             id="website-availability"
-            className="bg-white dark:bg-[#111927] rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 shadow-sm space-y-4"
+            className="bg-white dark:bg-[#1B1536] rounded-3xl border border-slate-200/90 dark:border-[#31275E] p-6 shadow-sm space-y-4"
           >
-            <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
-              <div className="w-9 h-9 rounded-2xl bg-[#3557D5]/10 text-[#3557D5] dark:text-blue-400 flex items-center justify-center font-black text-sm shrink-0">
+            <div className="flex items-center gap-3 border-b border-slate-100 dark:border-[#31275E] pb-3">
+              <div className="w-9 h-9 rounded-2xl bg-[#7045D8]/10 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center font-black text-sm shrink-0">
                 09
               </div>
               <div>
-                <h2 className="text-lg font-black text-[#071b49] dark:text-white">
+                <h2 className="text-lg font-black text-slate-900 dark:text-white">
                   9. Website Availability and Technical Issues
                 </h2>
                 <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
@@ -514,14 +514,14 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
           {/* 10. Limitation of Responsibility */}
           <section
             id="limitation-responsibility"
-            className="bg-white dark:bg-[#111927] rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 shadow-sm space-y-4"
+            className="bg-white dark:bg-[#1B1536] rounded-3xl border border-slate-200/90 dark:border-[#31275E] p-6 shadow-sm space-y-4"
           >
-            <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
+            <div className="flex items-center gap-3 border-b border-slate-100 dark:border-[#31275E] pb-3">
               <div className="w-9 h-9 rounded-2xl bg-orange-100/80 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400 flex items-center justify-center font-black text-sm shrink-0">
                 10
               </div>
               <div>
-                <h2 className="text-lg font-black text-[#071b49] dark:text-white">
+                <h2 className="text-lg font-black text-slate-900 dark:text-white">
                   10. Limitation of Responsibility
                 </h2>
                 <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
@@ -549,14 +549,14 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
           {/* 11. Personal Information and Privacy */}
           <section
             id="privacy-data"
-            className="bg-white dark:bg-[#111927] rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 shadow-sm space-y-4"
+            className="bg-white dark:bg-[#1B1536] rounded-3xl border border-slate-200/90 dark:border-[#31275E] p-6 shadow-sm space-y-4"
           >
-            <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
+            <div className="flex items-center gap-3 border-b border-slate-100 dark:border-[#31275E] pb-3">
               <div className="w-9 h-9 rounded-2xl bg-emerald-100/80 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-black text-sm shrink-0">
                 11
               </div>
               <div>
-                <h2 className="text-lg font-black text-[#071b49] dark:text-white">
+                <h2 className="text-lg font-black text-slate-900 dark:text-white">
                   11. Personal Information and Privacy
                 </h2>
                 <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
@@ -589,14 +589,14 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
           {/* 12. Changes to This Disclaimer */}
           <section
             id="changes-disclaimer"
-            className="bg-white dark:bg-[#111927] rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 shadow-sm space-y-4"
+            className="bg-white dark:bg-[#1B1536] rounded-3xl border border-slate-200/90 dark:border-[#31275E] p-6 shadow-sm space-y-4"
           >
-            <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
-              <div className="w-9 h-9 rounded-2xl bg-blue-100/80 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center font-black text-sm shrink-0">
+            <div className="flex items-center gap-3 border-b border-slate-100 dark:border-[#31275E] pb-3">
+              <div className="w-9 h-9 rounded-2xl bg-violet-100/80 dark:bg-violet-950/60 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center font-black text-sm shrink-0">
                 12
               </div>
               <div>
-                <h2 className="text-lg font-black text-[#071b49] dark:text-white">
+                <h2 className="text-lg font-black text-slate-900 dark:text-white">
                   12. Changes to This Disclaimer
                 </h2>
                 <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
@@ -621,14 +621,14 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
           {/* 13. Contact Us */}
           <section
             id="contact-us"
-            className="bg-white dark:bg-[#111927] rounded-3xl border border-slate-200/90 dark:border-slate-800 p-6 shadow-sm space-y-4"
+            className="bg-white dark:bg-[#1B1536] rounded-3xl border border-slate-200/90 dark:border-[#31275E] p-6 shadow-sm space-y-4"
           >
-            <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
-              <div className="w-9 h-9 rounded-2xl bg-indigo-100/80 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-black text-sm shrink-0">
+            <div className="flex items-center gap-3 border-b border-slate-100 dark:border-[#31275E] pb-3">
+              <div className="w-9 h-9 rounded-2xl bg-purple-100/80 dark:bg-purple-950/60 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center font-black text-sm shrink-0">
                 13
               </div>
               <div>
-                <h2 className="text-lg font-black text-[#071b49] dark:text-white">
+                <h2 className="text-lg font-black text-slate-900 dark:text-white">
                   13. Contact Us
                 </h2>
                 <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
@@ -647,16 +647,16 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
                   href="https://disha2020.in"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-blue-400 transition-colors flex items-center gap-3 group"
+                  className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-[#31275E] hover:border-[#7045D8] transition-colors flex items-center gap-3 group"
                 >
-                  <div className="w-9 h-9 rounded-xl bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-300 flex items-center justify-center shrink-0">
+                  <div className="w-9 h-9 rounded-xl bg-violet-100 dark:bg-violet-900/40 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center shrink-0">
                     <Globe className="w-4 h-4" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
                       Website
                     </span>
-                    <span className="text-xs font-black text-slate-800 dark:text-white truncate block group-hover:text-blue-600 transition-colors">
+                    <span className="text-xs font-black text-slate-800 dark:text-white truncate block group-hover:text-[#7045D8] transition-colors">
                       https://disha2020.in
                     </span>
                   </div>
@@ -664,16 +664,16 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
 
                 <button
                   onClick={onOpenContact}
-                  className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-blue-400 transition-colors flex items-center gap-3 group text-left cursor-pointer"
+                  className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-[#31275E] hover:border-[#7045D8] transition-colors flex items-center gap-3 group text-left cursor-pointer"
                 >
-                  <div className="w-9 h-9 rounded-xl bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-300 flex items-center justify-center shrink-0">
+                  <div className="w-9 h-9 rounded-xl bg-violet-100 dark:bg-violet-900/40 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center shrink-0">
                     <Mail className="w-4 h-4" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
                       Official Contact Page
                     </span>
-                    <span className="text-xs font-black text-slate-800 dark:text-white truncate block group-hover:text-blue-600 transition-colors">
+                    <span className="text-xs font-black text-slate-800 dark:text-white truncate block group-hover:text-[#7045D8] transition-colors">
                       https://disha2020.in/contact
                     </span>
                   </div>
@@ -688,12 +688,12 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
         </div>
 
         {/* Practice Callout Banner */}
-        <section className="bg-gradient-to-br from-[#071b49] to-[#1e3a8a] text-white rounded-3xl p-6 sm:p-8 text-center space-y-4 shadow-lg">
+        <section className="bg-gradient-to-br from-[#1B1536] via-[#2A1E5C] to-[#5B32BF] text-white rounded-3xl p-6 sm:p-8 text-center space-y-4 shadow-lg">
           <div className="space-y-1">
             <h3 className="text-xl sm:text-2xl font-black text-white">
               Ready to Practice MCQs?
             </h3>
-            <p className="text-xs text-blue-200 max-w-md mx-auto">
+            <p className="text-xs text-violet-200 max-w-md mx-auto">
               Test your knowledge with chapter-wise quizzes, official PYQ vault, and timed test simulator.
             </p>
           </div>
@@ -708,39 +708,39 @@ export const DisclaimerPage: React.FC<DisclaimerPageProps> = ({
         </section>
 
         {/* Navigation Footer */}
-        <footer className="pt-4 border-t border-slate-200/80 dark:border-slate-800/80 text-center space-y-3">
+        <footer className="pt-4 border-t border-slate-200/80 dark:border-[#31275E]/80 text-center space-y-3">
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
             <button
               onClick={onNavigateHome}
-              className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer"
+              className="hover:text-[#7045D8] dark:hover:text-[#A78BFA] transition-colors cursor-pointer"
             >
               Home
             </button>
             <span>•</span>
             <button
               onClick={onOpenAbout}
-              className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer"
+              className="hover:text-[#7045D8] dark:hover:text-[#A78BFA] transition-colors cursor-pointer"
             >
               About Us
             </button>
             <span>•</span>
             <button
               onClick={onOpenPrivacyPolicy}
-              className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer"
+              className="hover:text-[#7045D8] dark:hover:text-[#A78BFA] transition-colors cursor-pointer"
             >
               Privacy Policy
             </button>
             <span>•</span>
             <button
               onClick={onOpenTerms}
-              className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer"
+              className="hover:text-[#7045D8] dark:hover:text-[#A78BFA] transition-colors cursor-pointer"
             >
               Terms of Service
             </button>
             <span>•</span>
             <button
               onClick={onOpenContact}
-              className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer"
+              className="hover:text-[#7045D8] dark:hover:text-[#A78BFA] transition-colors cursor-pointer"
             >
               Contact Us
             </button>

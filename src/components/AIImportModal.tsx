@@ -2758,7 +2758,7 @@ export const AIImportModal: React.FC<AIImportModalProps> = ({
                                     type="button"
                                     onClick={handleAddExamToEdit}
                                     disabled={!newExamName.trim()}
-                                    className="px-2.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-black disabled:opacity-50 cursor-pointer"
+                                    className="px-2.5 py-1.5 rounded-lg bg-[#7045D8] hover:bg-[#5B32BF] text-white text-[10px] font-black disabled:opacity-50 cursor-pointer"
                                   >
                                     + Add Exam
                                   </button>
@@ -2773,7 +2773,7 @@ export const AIImportModal: React.FC<AIImportModalProps> = ({
                                 </button>
                                 <button
                                   onClick={() => handleSaveEdit(r.tempId)}
-                                  className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold cursor-pointer"
+                                  className="px-4 py-1.5 bg-[#7045D8] hover:bg-[#5B32BF] text-white rounded-lg text-xs font-bold cursor-pointer"
                                 >
                                   Save & Re-Validate
                                 </button>
@@ -2957,7 +2957,7 @@ export const AIImportModal: React.FC<AIImportModalProps> = ({
                         <span>{processingStatus || "Saving questions to database..."}</span>
                       </div>
                       {commitProgressText && (
-                        <span className="px-2.5 py-0.5 rounded-lg bg-blue-600 text-white font-mono text-[11px] font-black tracking-wider shrink-0">
+                        <span className="px-2.5 py-0.5 rounded-lg bg-[#7045D8] text-white font-mono text-[11px] font-black tracking-wider shrink-0">
                           {commitProgressText}
                         </span>
                       )}
@@ -3003,7 +3003,7 @@ export const AIImportModal: React.FC<AIImportModalProps> = ({
               </div>
               <button
                 onClick={onClose}
-                className="w-full py-4 rounded-2xl font-black text-sm text-white bg-blue-600 hover:bg-blue-700 shadow-xl shadow-blue-600/20 cursor-pointer"
+                className="w-full py-4 rounded-2xl font-black text-sm text-white bg-[#7045D8] hover:bg-[#5B32BF] shadow-xl shadow-[#7045D8]/20 cursor-pointer"
               >
                 Done & Close
               </button>
@@ -3146,7 +3146,7 @@ export const AIImportModal: React.FC<AIImportModalProps> = ({
                 type="button"
                 onClick={handleBulkAssignExams}
                 disabled={!bulkExamName.trim()}
-                className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black disabled:opacity-50 shadow-lg shadow-indigo-600/20 cursor-pointer"
+                className="px-5 py-2 rounded-xl bg-[#7045D8] hover:bg-[#5B32BF] text-white text-xs font-black disabled:opacity-50 shadow-lg shadow-[#7045D8]/20 cursor-pointer"
               >
                 Apply Exam Info
               </button>

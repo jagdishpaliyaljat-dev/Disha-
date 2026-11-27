@@ -402,7 +402,7 @@ export const SmartArticleImportModal: React.FC<SmartArticleImportModalProps> = (
         <div className="px-4 sm:px-8 py-3.5 sm:py-4 border-b border-slate-200/80 dark:border-slate-800 flex flex-col gap-3 bg-slate-50/90 dark:bg-slate-900/60 shrink-0">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-md shadow-blue-500/20 shrink-0">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-md shadow-[#7045D8]/20 shrink-0">
                 <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
               <div className="min-w-0">
@@ -480,7 +480,7 @@ export const SmartArticleImportModal: React.FC<SmartArticleImportModalProps> = (
           <div className="flex-1 p-4 sm:p-8 overflow-y-auto space-y-5 bg-white dark:bg-[#111A2E]">
             <div className="p-4 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border border-blue-200/80 dark:border-blue-900/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 shadow-xs">
               <div className="flex items-start gap-3">
-                <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
+                <div className="w-9 h-9 rounded-xl bg-[#7045D8] text-white flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
                   <BookOpen className="w-4 h-4" />
                 </div>
                 <div>
@@ -495,7 +495,7 @@ export const SmartArticleImportModal: React.FC<SmartArticleImportModalProps> = (
               <button
                 type="button"
                 onClick={handleLoadSample}
-                className="min-h-[44px] px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-black shadow-md shadow-blue-500/20 transition-all active:scale-95 shrink-0 flex items-center justify-center gap-2 cursor-pointer"
+                className="min-h-[44px] px-4 py-2.5 bg-[#7045D8] hover:bg-[#5B32BF] text-white rounded-xl text-xs font-black shadow-md shadow-[#7045D8]/20 transition-all active:scale-95 shrink-0 flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Sparkles className="w-4 h-4" />
                 <span>Load Sample Article</span>
@@ -713,7 +713,7 @@ export const SmartArticleImportModal: React.FC<SmartArticleImportModalProps> = (
                 type="button"
                 onClick={() => setStructuringFilter("intro")}
                 className={`min-h-[36px] px-3 py-1 rounded-xl text-xs font-black transition-all shrink-0 cursor-pointer ${
-                  structuringFilter === "intro" ? "bg-blue-600 text-white shadow-xs" : "text-slate-600 dark:text-slate-400 hover:bg-slate-200/60"
+                  structuringFilter === "intro" ? "bg-[#7045D8] text-white shadow-xs" : "text-slate-600 dark:text-slate-400 hover:bg-slate-200/60"
                 }`}
               >
                 Intro ({blockCounts.intro})
@@ -723,7 +723,7 @@ export const SmartArticleImportModal: React.FC<SmartArticleImportModalProps> = (
                 type="button"
                 onClick={() => setStructuringFilter("sections")}
                 className={`min-h-[36px] px-3 py-1 rounded-xl text-xs font-black transition-all shrink-0 cursor-pointer ${
-                  structuringFilter === "sections" ? "bg-indigo-600 text-white shadow-xs" : "text-slate-600 dark:text-slate-400 hover:bg-slate-200/60"
+                  structuringFilter === "sections" ? "bg-[#7045D8] text-white shadow-xs" : "text-slate-600 dark:text-slate-400 hover:bg-slate-200/60"
                 }`}
               >
                 Sections ({blockCounts.sections})
@@ -858,7 +858,7 @@ export const SmartArticleImportModal: React.FC<SmartArticleImportModalProps> = (
                   </div>
                   <div className="h-1.5 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden border border-blue-500/10">
                     <motion.div 
-                      className="h-full bg-blue-600 shadow-[0_0_8px_rgba(37,99,235,0.4)]"
+                      className="h-full bg-[#7045D8] shadow-[0_0_8px_rgba(37,99,235,0.4)]"
                       initial={{ width: 0 }}
                       animate={{ width: `${saveProgress.percent}%` }}
                     />
@@ -1052,7 +1052,7 @@ export const SmartArticleImportModal: React.FC<SmartArticleImportModalProps> = (
                           {block.type === "intro" && (
                             <div className="p-3.5 rounded-xl bg-blue-50/50 dark:bg-blue-950/20 border-l-4 border-l-blue-600 border-y border-r border-blue-200/60 dark:border-blue-900/40 space-y-2">
                               <div className="flex items-center gap-2 text-xs font-black text-blue-700 dark:text-blue-400">
-                                <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse" />
+                                <span className="w-2 h-2 rounded-full bg-[#7045D8] animate-pulse" />
                                 <span>Article Introduction / Hook</span>
                               </div>
                               <textarea
@@ -1161,7 +1161,7 @@ export const SmartArticleImportModal: React.FC<SmartArticleImportModalProps> = (
                                     placeholder="Image URL or upload file"
                                     className="flex-1 p-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono"
                                   />
-                                  <label className="min-h-[40px] px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold cursor-pointer flex items-center gap-1 shrink-0">
+                                  <label className="min-h-[40px] px-3 py-2 bg-[#7045D8] hover:bg-[#5B32BF] text-white rounded-xl text-xs font-bold cursor-pointer flex items-center gap-1 shrink-0">
                                     <Upload className="w-3.5 h-3.5" />
                                     <span>Upload</span>
                                     <input
@@ -1382,7 +1382,7 @@ export const SmartArticleImportModal: React.FC<SmartArticleImportModalProps> = (
                           placeholder="https://images.unsplash.com/... or upload below"
                           className="flex-1 p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-mono"
                         />
-                        <label className="min-h-[44px] px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold cursor-pointer transition-colors flex items-center justify-center gap-1.5 shrink-0">
+                        <label className="min-h-[44px] px-4 py-3 bg-[#7045D8] hover:bg-[#5B32BF] text-white rounded-xl text-xs font-bold cursor-pointer transition-colors flex items-center justify-center gap-1.5 shrink-0">
                           <Upload className="w-3.5 h-3.5" />
                           <span>Upload IMG</span>
                           <input
@@ -1550,7 +1550,7 @@ export const SmartArticleImportModal: React.FC<SmartArticleImportModalProps> = (
                       <div className="p-4 rounded-xl bg-blue-50/60 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900/40">
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-black text-blue-700 dark:text-blue-300">Internal Links Auto-Added</span>
-                          <span className="px-2.5 py-0.5 rounded-full bg-blue-600 text-white text-xs font-black">
+                          <span className="px-2.5 py-0.5 rounded-full bg-[#7045D8] text-white text-xs font-black">
                             {importResult.detectedMeta.internalLinksDetected || 0}
                           </span>
                         </div>
@@ -1622,7 +1622,7 @@ export const SmartArticleImportModal: React.FC<SmartArticleImportModalProps> = (
                               <button
                                 type="button"
                                 onClick={() => handleInsertInternalLink(item)}
-                                className="min-h-[36px] px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-black shrink-0 transition-colors cursor-pointer text-center"
+                                className="min-h-[36px] px-3 py-1.5 bg-[#7045D8] hover:bg-[#5B32BF] text-white rounded-lg text-xs font-black shrink-0 transition-colors cursor-pointer text-center"
                               >
                                 + Insert Link Box
                               </button>

@@ -466,7 +466,7 @@ export const MotionConfettiCelebration: React.FC<MotionConfettiCelebrationProps>
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.65 }}
-            className="mt-5 p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-emerald-500/10 to-blue-500/10 border border-amber-200 dark:border-amber-900/50 flex items-center justify-around gap-2"
+            className="mt-5 p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-emerald-500/10 to-violet-500/10 border border-amber-200 dark:border-amber-900/50 flex items-center justify-around gap-2"
           >
             <div className="text-center">
               <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
@@ -483,7 +483,7 @@ export const MotionConfettiCelebration: React.FC<MotionConfettiCelebrationProps>
               <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
                 Correct
               </span>
-              <span className="text-xl sm:text-2xl font-black text-blue-600 dark:text-blue-400 font-mono">
+              <span className="text-xl sm:text-2xl font-black text-[#7045D8] dark:text-[#A78BFA] font-mono">
                 {totalQuestions} / {totalQuestions}
               </span>
             </div>

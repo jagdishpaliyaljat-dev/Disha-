@@ -457,11 +457,11 @@ export const HomeTab: React.FC<HomeTabProps> = ({
               }`}
             >
               <div className="flex items-center justify-between w-full">
-                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-indigo-500/10 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#7045D8]/10 dark:bg-[#7045D8]/20 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center shrink-0">
                   <Compass className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
                 </div>
                 <span className={`text-[11px] font-extrabold uppercase tracking-wider ${
-                  isEnabled("custom_test") ? "text-indigo-600 dark:text-indigo-400" : "text-slate-400"
+                  isEnabled("custom_test") ? "text-[#7045D8] dark:text-[#A78BFA]" : "text-slate-400"
                 }`}>
                   {isEnabled("custom_test") ? "PYQ SET" : "PAUSED"}
                 </span>

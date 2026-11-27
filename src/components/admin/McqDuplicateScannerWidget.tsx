@@ -122,7 +122,7 @@ export const McqDuplicateScannerWidget: React.FC = () => {
           <button
             onClick={handleRunScan}
             disabled={loading}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-all disabled:opacity-50 cursor-pointer shadow-xs active:scale-95"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#7045D8] hover:bg-[#5B32BF] text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-all disabled:opacity-50 cursor-pointer shadow-xs active:scale-95"
           >
             {loading ? <RefreshCw className="w-3 h-3 animate-spin" /> : <Search className="w-3 h-3" />}
             <span>{loading ? "Scanning..." : "Scan Database"}</span>

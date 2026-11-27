@@ -25,7 +25,7 @@ export const ExportDataWidget: React.FC<ExportDataWidgetProps> = ({ questionsSto
     <AdminCard className="p-3">
       <button
         onClick={handleExport}
-        className="w-full flex items-center justify-center gap-2.5 px-4 py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-[20px] text-xs font-black uppercase tracking-tight transition-all active:scale-95 cursor-pointer shadow-lg shadow-blue-500/20"
+        className="w-full flex items-center justify-center gap-2.5 px-4 py-3.5 bg-[#7045D8] hover:bg-[#5B32BF] text-white rounded-[20px] text-xs font-black uppercase tracking-tight transition-all active:scale-95 cursor-pointer shadow-lg shadow-[#7045D8]/20"
       >
         <Download className="w-4 h-4" />
         <span>Export Data Registry</span>

@@ -561,7 +561,7 @@ export const BackupRestoreSection: React.FC<BackupRestoreSectionProps> = ({ user
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-xs animate-pulse">
+                <div className="w-8 h-8 rounded-xl bg-[#7045D8] text-white flex items-center justify-center font-bold text-xs animate-pulse">
                   <RefreshCw className="w-4 h-4 animate-spin" />
                 </div>
                 <div>
@@ -579,7 +579,7 @@ export const BackupRestoreSection: React.FC<BackupRestoreSectionProps> = ({ user
             {/* Progress Bar */}
             <div className="w-full bg-slate-200 dark:bg-slate-700 h-2.5 rounded-full overflow-hidden">
               <div
-                className="bg-blue-600 h-full rounded-full transition-all duration-300"
+                className="bg-[#7045D8] h-full rounded-full transition-all duration-300"
                 style={{ width: `${Math.max(5, activeJob.progressPercent)}%` }}
               />
             </div>
@@ -700,7 +700,7 @@ export const BackupRestoreSection: React.FC<BackupRestoreSectionProps> = ({ user
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <AdminCard className="p-5 flex flex-col justify-between space-y-4 bg-gradient-to-br from-blue-50/50 to-indigo-50/30 dark:from-slate-900 dark:to-[#111A2E]">
               <div className="space-y-2">
-                <div className="w-10 h-10 rounded-2xl bg-blue-600 text-white flex items-center justify-center shadow-md shadow-blue-500/20">
+                <div className="w-10 h-10 rounded-2xl bg-[#7045D8] text-white flex items-center justify-center shadow-md shadow-[#7045D8]/20">
                   <Download className="w-5 h-5" />
                 </div>
                 <h3 className="text-base font-black text-slate-900 dark:text-white">Full Application Export</h3>
@@ -711,7 +711,7 @@ export const BackupRestoreSection: React.FC<BackupRestoreSectionProps> = ({ user
 
               <button
                 onClick={handleStartFullExport}
-                className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl text-xs font-black flex items-center justify-center gap-2 shadow-lg shadow-blue-600/20 active:scale-95 transition-all cursor-pointer"
+                className="w-full py-3 px-4 bg-[#7045D8] hover:bg-[#5B32BF] text-white rounded-2xl text-xs font-black flex items-center justify-center gap-2 shadow-lg shadow-[#7045D8]/20 active:scale-95 transition-all cursor-pointer"
               >
                 <Download className="w-4 h-4" />
                 <span>Export Full Backup ZIP</span>
@@ -851,7 +851,7 @@ export const BackupRestoreSection: React.FC<BackupRestoreSectionProps> = ({ user
             <button
               onClick={handleStartFullExport}
               disabled={activeJob?.status === "running"}
-              className="w-full py-3.5 px-4 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-2xl text-xs font-black flex items-center justify-center gap-2 shadow-lg shadow-blue-600/20 active:scale-95 transition-all cursor-pointer"
+              className="w-full py-3.5 px-4 bg-[#7045D8] hover:bg-[#5B32BF] disabled:opacity-50 text-white rounded-2xl text-xs font-black flex items-center justify-center gap-2 shadow-lg shadow-[#7045D8]/20 active:scale-95 transition-all cursor-pointer"
             >
               <Download className="w-4 h-4" />
               <span>{activeJob?.status === "running" ? "Export Running..." : "Start Complete Backup Export"}</span>
@@ -926,7 +926,7 @@ export const BackupRestoreSection: React.FC<BackupRestoreSectionProps> = ({ user
             <button
               onClick={handleStartSelectiveExport}
               disabled={selectedCollections.size === 0 || activeJob?.status === "running"}
-              className="w-full py-3.5 px-4 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-2xl text-xs font-black flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20 active:scale-95 transition-all cursor-pointer"
+              className="w-full py-3.5 px-4 bg-[#7045D8] hover:bg-[#5B32BF] disabled:opacity-50 text-white rounded-2xl text-xs font-black flex items-center justify-center gap-2 shadow-lg shadow-[#7045D8]/20 active:scale-95 transition-all cursor-pointer"
             >
               <Download className="w-4 h-4" />
               <span>Export Selected Collections ({selectedCollections.size})</span>
@@ -1120,7 +1120,7 @@ export const BackupRestoreSection: React.FC<BackupRestoreSectionProps> = ({ user
                     <a
                       href={`/api/admin/backup/download/${backup.backupId}`}
                       download={backup.filename}
-                      className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs"
+                      className="px-3 py-1.5 bg-[#7045D8] hover:bg-[#5B32BF] text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs"
                     >
                       <Download className="w-3.5 h-3.5" />
                       <span>Download</span>

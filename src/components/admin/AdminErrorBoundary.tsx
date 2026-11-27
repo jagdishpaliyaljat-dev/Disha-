@@ -54,7 +54,7 @@ export class AdminErrorBoundary extends React.Component<AdminErrorBoundaryProps,
           <div className="flex items-center gap-2.5">
             <button
               onClick={this.handleRetry}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-sm transition-all active:scale-95 cursor-pointer"
+              className="px-4 py-2 bg-[#7045D8] hover:bg-[#5B32BF] text-white rounded-xl text-xs font-bold shadow-sm transition-all active:scale-95 cursor-pointer"
             >
               Retry Loading
             </button>

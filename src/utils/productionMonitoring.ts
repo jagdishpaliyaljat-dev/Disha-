@@ -11,6 +11,8 @@
  * 7. Automated health thresholds (CRITICAL, HIGH, MEDIUM, LOW)
  */
 
+import { reportCrashToSupabase } from "../services/crashReportingService";
+
 export type MonitoringCategory =
   | "RUNTIME_ERROR"
   | "UNHANDLED_PROMISE"
@@ -331,14 +333,12 @@ class ProductionMonitoringService {
 
     if (severity === "CRITICAL" || severity === "HIGH") {
       try {
-        import("../services/crashReportingService").then(({ reportCrashToSupabase }) => {
-          reportCrashToSupabase({
-            error,
-            category: category as any,
-            severity: severity as any,
-            componentName: context?.component,
-            metadata: context,
-          }).catch(() => {});
+        reportCrashToSupabase({
+          error,
+          category: category as any,
+          severity: severity as any,
+          componentName: context?.component,
+          metadata: context,
         }).catch(() => {});
       } catch {}
     }

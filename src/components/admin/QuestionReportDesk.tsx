@@ -891,7 +891,7 @@ export const QuestionReportDesk: React.FC<QuestionReportDeskProps> = ({
                                 ? st === "resolved"
                                   ? "bg-emerald-600 text-white shadow-xs"
                                   : st === "under_review"
-                                  ? "bg-blue-600 text-white shadow-xs"
+                                  ? "bg-[#7045D8] text-white shadow-xs"
                                   : "bg-rose-600 text-white shadow-xs"
                                 : "bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400"
                             }`}
@@ -1020,7 +1020,7 @@ export const QuestionReportDesk: React.FC<QuestionReportDeskProps> = ({
                 disabled={isQuickActionProcessing}
                 className={`px-4 py-2 text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer ${
                   quickActionReport.action === "under_review"
-                    ? "bg-blue-600 hover:bg-blue-700"
+                    ? "bg-[#7045D8] hover:bg-[#5B32BF]"
                     : "bg-rose-600 hover:bg-rose-700"
                 }`}
               >

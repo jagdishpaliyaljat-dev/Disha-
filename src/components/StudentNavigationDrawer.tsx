@@ -285,15 +285,15 @@ export const StudentNavigationDrawer: React.FC<StudentNavigationDrawerProps> = (
                     onClick={() => navigateAndClose(() => onNavigateTab(item.tab))}
                     className="group w-full min-h-[44px] flex items-center gap-3 px-2.5 py-1.5 rounded-xl hover:bg-white dark:hover:bg-[#1B1536] border border-transparent hover:border-slate-200 dark:hover:border-[#31275E] transition-all duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
                   >
-                    <div className="w-9 h-9 rounded-xl bg-indigo-500/10 dark:bg-indigo-500/15 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+                    <div className="w-9 h-9 rounded-xl bg-[#7045D8]/10 dark:bg-[#7045D8]/15 border border-[#7045D8]/20 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center shrink-0">
                       <item.icon size={16} strokeWidth={1.9} />
                     </div>
-                    <span className="text-xs sm:text-[13px] font-semibold text-slate-900 dark:text-slate-100 tracking-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                    <span className="text-xs sm:text-[13px] font-semibold text-slate-900 dark:text-slate-100 tracking-tight group-hover:text-[#7045D8] dark:group-hover:text-[#A78BFA] transition-colors">
                       {item.label}
                     </span>
                     <ChevronRight
                       size={14}
-                      className="ml-auto text-slate-400 group-hover:text-indigo-600 group-hover:translate-x-0.5 transition-all"
+                      className="ml-auto text-slate-400 group-hover:text-[#7045D8] group-hover:translate-x-0.5 transition-all"
                     />
                   </button>
                 ))}

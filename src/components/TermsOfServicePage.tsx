@@ -139,7 +139,7 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
           <div className="p-4 bg-slate-50 dark:bg-slate-900/60 rounded-2xl border border-slate-200/60 dark:border-slate-800/60 text-xs sm:text-sm text-slate-700 dark:text-slate-200 leading-relaxed space-y-2.5">
             <p>
               <strong>Welcome to Disha PYQ.</strong> These Terms of Service (&quot;Terms&quot;) govern your access to and use of the Disha PYQ website, available at{" "}
-              <a href="https://disha2020.in" className="text-blue-600 dark:text-blue-400 underline font-semibold">https://disha2020.in</a>, and the educational services, multiple-choice questions, and mock test features provided through the platform.
+              <a href="https://disha2020.in" className="text-[#7045D8] dark:text-[#A78BFA] underline font-semibold">https://disha2020.in</a>, and the educational services, multiple-choice questions, and mock test features provided through the platform.
             </p>
             <p className="font-medium text-slate-900 dark:text-slate-100">
               By accessing or using Disha PYQ, you agree to these Terms. If you do not agree, please discontinue using the platform.
@@ -152,7 +152,7 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
               <span className="text-xs font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500">
                 Table of Contents (16 Sections)
               </span>
-              <span className="text-[11px] text-blue-600 dark:text-blue-400 font-semibold">
+              <span className="text-[11px] text-[#7045D8] dark:text-[#A78BFA] font-semibold">
                 Tap to jump
               </span>
             </div>
@@ -166,7 +166,7 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
                     onClick={() => scrollToSection(sec.id)}
                     className={`flex items-center gap-2.5 p-2.5 rounded-xl border text-left text-xs font-medium transition-all cursor-pointer ${
                       isSelected
-                        ? "bg-blue-50 dark:bg-blue-950/40 border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300 shadow-xs"
+                        ? "bg-violet-50 dark:bg-violet-950/40 border-violet-300 dark:border-violet-700 text-[#7045D8] dark:text-[#A78BFA] shadow-xs"
                         : "bg-white dark:bg-slate-900/40 border-slate-200/70 dark:border-slate-800/70 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50"
                     }`}
                   >
@@ -187,8 +187,8 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
           id="about-disha"
           className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
         >
-          <div className="flex items-center gap-2.5 text-blue-600 dark:text-blue-400">
-            <span className="px-2.5 py-0.5 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-xs font-black">01</span>
+          <div className="flex items-center gap-2.5 text-[#7045D8] dark:text-[#A78BFA]">
+            <span className="px-2.5 py-0.5 rounded-lg bg-violet-50 dark:bg-violet-950/50 text-[#7045D8] dark:text-[#A78BFA] text-xs font-black">01</span>
             <BookOpen className="w-5 h-5" />
             <h2 className="text-lg sm:text-xl font-black tracking-tight text-slate-900 dark:text-white">
               1. About Disha PYQ
@@ -218,8 +218,8 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
           id="eligibility"
           className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
         >
-          <div className="flex items-center gap-2.5 text-blue-600 dark:text-blue-400">
-            <span className="px-2.5 py-0.5 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-xs font-black">02</span>
+          <div className="flex items-center gap-2.5 text-[#7045D8] dark:text-[#A78BFA]">
+            <span className="px-2.5 py-0.5 rounded-lg bg-violet-50 dark:bg-violet-950/50 text-[#7045D8] dark:text-[#A78BFA] text-xs font-black">02</span>
             <UserCheck className="w-5 h-5" />
             <h2 className="text-lg sm:text-xl font-black tracking-tight text-slate-900 dark:text-white">
               2. Eligibility and User Responsibilities
@@ -257,8 +257,8 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
           id="educational-disclaimer"
           className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
         >
-          <div className="flex items-center gap-2.5 text-blue-600 dark:text-blue-400">
-            <span className="px-2.5 py-0.5 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-xs font-black">03</span>
+          <div className="flex items-center gap-2.5 text-[#7045D8] dark:text-[#A78BFA]">
+            <span className="px-2.5 py-0.5 rounded-lg bg-violet-50 dark:bg-violet-950/50 text-[#7045D8] dark:text-[#A78BFA] text-xs font-black">03</span>
             <AlertTriangle className="w-5 h-5 text-amber-500" />
             <h2 className="text-lg sm:text-xl font-black tracking-tight text-slate-900 dark:text-white">
               3. Educational Purpose and Disclaimer
@@ -294,8 +294,8 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
           id="user-accounts"
           className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
         >
-          <div className="flex items-center gap-2.5 text-blue-600 dark:text-blue-400">
-            <span className="px-2.5 py-0.5 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-xs font-black">04</span>
+          <div className="flex items-center gap-2.5 text-[#7045D8] dark:text-[#A78BFA]">
+            <span className="px-2.5 py-0.5 rounded-lg bg-violet-50 dark:bg-violet-950/50 text-[#7045D8] dark:text-[#A78BFA] text-xs font-black">04</span>
             <Lock className="w-5 h-5" />
             <h2 className="text-lg sm:text-xl font-black tracking-tight text-slate-900 dark:text-white">
               4. User Accounts
@@ -314,7 +314,7 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
                 "Ensuring that activity carried out through your account complies with these Terms.",
               ].map((item, idx) => (
                 <li key={idx} className="flex items-start gap-2.5">
-                  <Check className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
+                  <Check className="w-4 h-4 text-[#7045D8] shrink-0 mt-0.5" />
                   <span>{item}</span>
                 </li>
               ))}
@@ -333,8 +333,8 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
           id="acceptable-use"
           className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
         >
-          <div className="flex items-center gap-2.5 text-blue-600 dark:text-blue-400">
-            <span className="px-2.5 py-0.5 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-xs font-black">05</span>
+          <div className="flex items-center gap-2.5 text-[#7045D8] dark:text-[#A78BFA]">
+            <span className="px-2.5 py-0.5 rounded-lg bg-violet-50 dark:bg-violet-950/50 text-[#7045D8] dark:text-[#A78BFA] text-xs font-black">05</span>
             <ShieldCheck className="w-5 h-5" />
             <h2 className="text-lg sm:text-xl font-black tracking-tight text-slate-900 dark:text-white">
               5. Acceptable Use
@@ -370,8 +370,8 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
           id="intellectual-property"
           className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
         >
-          <div className="flex items-center gap-2.5 text-blue-600 dark:text-blue-400">
-            <span className="px-2.5 py-0.5 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-xs font-black">06</span>
+          <div className="flex items-center gap-2.5 text-[#7045D8] dark:text-[#A78BFA]">
+            <span className="px-2.5 py-0.5 rounded-lg bg-violet-50 dark:bg-violet-950/50 text-[#7045D8] dark:text-[#A78BFA] text-xs font-black">06</span>
             <Copyright className="w-5 h-5" />
             <h2 className="text-lg sm:text-xl font-black tracking-tight text-slate-900 dark:text-white">
               6. Intellectual Property Rights
@@ -396,8 +396,8 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
           id="user-submissions"
           className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
         >
-          <div className="flex items-center gap-2.5 text-blue-600 dark:text-blue-400">
-            <span className="px-2.5 py-0.5 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-xs font-black">07</span>
+          <div className="flex items-center gap-2.5 text-[#7045D8] dark:text-[#A78BFA]">
+            <span className="px-2.5 py-0.5 rounded-lg bg-violet-50 dark:bg-violet-950/50 text-[#7045D8] dark:text-[#A78BFA] text-xs font-black">07</span>
             <MessageSquare className="w-5 h-5" />
             <h2 className="text-lg sm:text-xl font-black tracking-tight text-slate-900 dark:text-white">
               7. User Content and Feedback
@@ -419,8 +419,8 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
           id="practice-tests"
           className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
         >
-          <div className="flex items-center gap-2.5 text-blue-600 dark:text-blue-400">
-            <span className="px-2.5 py-0.5 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-xs font-black">08</span>
+          <div className="flex items-center gap-2.5 text-[#7045D8] dark:text-[#A78BFA]">
+            <span className="px-2.5 py-0.5 rounded-lg bg-violet-50 dark:bg-violet-950/50 text-[#7045D8] dark:text-[#A78BFA] text-xs font-black">08</span>
             <Award className="w-5 h-5" />
             <h2 className="text-lg sm:text-xl font-black tracking-tight text-slate-900 dark:text-white">
               8. Practice Questions, Mock Tests, and Scores
@@ -446,8 +446,8 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
           id="third-party"
           className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
         >
-          <div className="flex items-center gap-2.5 text-blue-600 dark:text-blue-400">
-            <span className="px-2.5 py-0.5 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-xs font-black">09</span>
+          <div className="flex items-center gap-2.5 text-[#7045D8] dark:text-[#A78BFA]">
+            <span className="px-2.5 py-0.5 rounded-lg bg-violet-50 dark:bg-violet-950/50 text-[#7045D8] dark:text-[#A78BFA] text-xs font-black">09</span>
             <ExternalLink className="w-5 h-5" />
             <h2 className="text-lg sm:text-xl font-black tracking-tight text-slate-900 dark:text-white">
               9. Third-Party Services and External Links
@@ -469,8 +469,8 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
           id="service-availability"
           className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
         >
-          <div className="flex items-center gap-2.5 text-blue-600 dark:text-blue-400">
-            <span className="px-2.5 py-0.5 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-xs font-black">10</span>
+          <div className="flex items-center gap-2.5 text-[#7045D8] dark:text-[#A78BFA]">
+            <span className="px-2.5 py-0.5 rounded-lg bg-violet-50 dark:bg-violet-950/50 text-[#7045D8] dark:text-[#A78BFA] text-xs font-black">10</span>
             <Server className="w-5 h-5" />
             <h2 className="text-lg sm:text-xl font-black tracking-tight text-slate-900 dark:text-white">
               10. Service Availability, Modifications, and Termination
@@ -495,8 +495,8 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
           id="disclaimer-warranties"
           className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
         >
-          <div className="flex items-center gap-2.5 text-blue-600 dark:text-blue-400">
-            <span className="px-2.5 py-0.5 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-xs font-black">11</span>
+          <div className="flex items-center gap-2.5 text-[#7045D8] dark:text-[#A78BFA]">
+            <span className="px-2.5 py-0.5 rounded-lg bg-violet-50 dark:bg-violet-950/50 text-[#7045D8] dark:text-[#A78BFA] text-xs font-black">11</span>
             <HelpCircle className="w-5 h-5" />
             <h2 className="text-lg sm:text-xl font-black tracking-tight text-slate-900 dark:text-white">
               11. Disclaimer of Warranties
@@ -523,8 +523,8 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
           id="limitation-liability"
           className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
         >
-          <div className="flex items-center gap-2.5 text-blue-600 dark:text-blue-400">
-            <span className="px-2.5 py-0.5 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-xs font-black">12</span>
+          <div className="flex items-center gap-2.5 text-[#7045D8] dark:text-[#A78BFA]">
+            <span className="px-2.5 py-0.5 rounded-lg bg-violet-50 dark:bg-violet-950/50 text-[#7045D8] dark:text-[#A78BFA] text-xs font-black">12</span>
             <ShieldAlert className="w-5 h-5" />
             <h2 className="text-lg sm:text-xl font-black tracking-tight text-slate-900 dark:text-white">
               12. Limitation of Liability
@@ -546,8 +546,8 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
           id="indemnification"
           className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
         >
-          <div className="flex items-center gap-2.5 text-blue-600 dark:text-blue-400">
-            <span className="px-2.5 py-0.5 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-xs font-black">13</span>
+          <div className="flex items-center gap-2.5 text-[#7045D8] dark:text-[#A78BFA]">
+            <span className="px-2.5 py-0.5 rounded-lg bg-violet-50 dark:bg-violet-950/50 text-[#7045D8] dark:text-[#A78BFA] text-xs font-black">13</span>
             <Scale className="w-5 h-5" />
             <h2 className="text-lg sm:text-xl font-black tracking-tight text-slate-900 dark:text-white">
               13. Indemnification
@@ -560,15 +560,15 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
             </p>
             <ul className="space-y-2 pl-1">
               <li className="flex items-start gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0 mt-2" />
+                <span className="w-1.5 h-1.5 rounded-full bg-[#7045D8] shrink-0 mt-2" />
                 <span>Your violation of these Terms of Service.</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0 mt-2" />
+                <span className="w-1.5 h-1.5 rounded-full bg-[#7045D8] shrink-0 mt-2" />
                 <span>Your improper or unauthorized use of the platform.</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0 mt-2" />
+                <span className="w-1.5 h-1.5 rounded-full bg-[#7045D8] shrink-0 mt-2" />
                 <span>Your infringement of any third-party intellectual property or privacy rights.</span>
               </li>
             </ul>
@@ -580,8 +580,8 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
           id="governing-law"
           className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
         >
-          <div className="flex items-center gap-2.5 text-blue-600 dark:text-blue-400">
-            <span className="px-2.5 py-0.5 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-xs font-black">14</span>
+          <div className="flex items-center gap-2.5 text-[#7045D8] dark:text-[#A78BFA]">
+            <span className="px-2.5 py-0.5 rounded-lg bg-violet-50 dark:bg-violet-950/50 text-[#7045D8] dark:text-[#A78BFA] text-xs font-black">14</span>
             <Gavel className="w-5 h-5" />
             <h2 className="text-lg sm:text-xl font-black tracking-tight text-slate-900 dark:text-white">
               14. Governing Law and Dispute Resolution
@@ -603,8 +603,8 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
           id="changes-terms"
           className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
         >
-          <div className="flex items-center gap-2.5 text-blue-600 dark:text-blue-400">
-            <span className="px-2.5 py-0.5 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-xs font-black">15</span>
+          <div className="flex items-center gap-2.5 text-[#7045D8] dark:text-[#A78BFA]">
+            <span className="px-2.5 py-0.5 rounded-lg bg-violet-50 dark:bg-violet-950/50 text-[#7045D8] dark:text-[#A78BFA] text-xs font-black">15</span>
             <RefreshCw className="w-5 h-5" />
             <h2 className="text-lg sm:text-xl font-black tracking-tight text-slate-900 dark:text-white">
               15. Changes to These Terms
@@ -629,8 +629,8 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
           id="contact-info"
           className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
         >
-          <div className="flex items-center gap-2.5 text-blue-600 dark:text-blue-400">
-            <span className="px-2.5 py-0.5 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-xs font-black">16</span>
+          <div className="flex items-center gap-2.5 text-[#7045D8] dark:text-[#A78BFA]">
+            <span className="px-2.5 py-0.5 rounded-lg bg-violet-50 dark:bg-violet-950/50 text-[#7045D8] dark:text-[#A78BFA] text-xs font-black">16</span>
             <Mail className="w-5 h-5" />
             <h2 className="text-lg sm:text-xl font-black tracking-tight text-slate-900 dark:text-white">
               16. Contact Information
@@ -650,7 +650,7 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
                     href="https://disha2020.in"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="font-bold text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-1"
+                    className="font-bold text-[#7045D8] dark:text-[#A78BFA] hover:underline inline-flex items-center gap-1"
                   >
                     <span>https://disha2020.in</span>
                     <ExternalLink className="w-3.5 h-3.5" />
@@ -663,7 +663,7 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
                 <div>
                   <a
                     href="mailto:contact@disha2020.in"
-                    className="font-bold text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-1"
+                    className="font-bold text-[#7045D8] dark:text-[#A78BFA] hover:underline inline-flex items-center gap-1"
                   >
                     <span>contact@disha2020.in</span>
                     <Mail className="w-3.5 h-3.5" />
@@ -676,7 +676,7 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
               For privacy-related matters, please review our{" "}
               <button
                 onClick={onOpenPrivacyPolicy}
-                className="text-blue-600 dark:text-blue-400 underline font-semibold cursor-pointer"
+                className="text-[#7045D8] dark:text-[#A78BFA] underline font-semibold cursor-pointer"
               >
                 Privacy Policy
               </button>
@@ -686,7 +686,7 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
         </section>
 
         {/* Bottom CTA Card */}
-        <section className="bg-gradient-to-br from-[#0B1F3A] to-[#1E3A8A] text-white rounded-3xl p-6 sm:p-8 shadow-md space-y-4 text-center">
+        <section className="bg-gradient-to-br from-[#1B1536] via-[#2A1E5C] to-[#5B32BF] text-white rounded-3xl p-6 sm:p-8 shadow-md space-y-4 text-center">
           <div className="space-y-1.5 max-w-md mx-auto">
             <h2 className="text-lg sm:text-xl font-black tracking-tight">
               Ready to Prepare for Your Exams?
@@ -732,21 +732,21 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
             <button
               onClick={onNavigateHome}
-              className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer"
+              className="hover:text-[#7045D8] dark:hover:text-[#A78BFA] transition-colors cursor-pointer"
             >
               Home
             </button>
             <span>•</span>
             <button
               onClick={onOpenAbout}
-              className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer"
+              className="hover:text-[#7045D8] dark:hover:text-[#A78BFA] transition-colors cursor-pointer"
             >
               About Us
             </button>
             <span>•</span>
             <button
               onClick={onOpenPrivacyPolicy}
-              className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer"
+              className="hover:text-[#7045D8] dark:hover:text-[#A78BFA] transition-colors cursor-pointer"
             >
               Privacy Policy
             </button>
@@ -755,14 +755,14 @@ export const TermsOfServicePage: React.FC<TermsOfServicePageProps> = ({
             <span>•</span>
             <button
               onClick={onOpenContact}
-              className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer"
+              className="hover:text-[#7045D8] dark:hover:text-[#A78BFA] transition-colors cursor-pointer"
             >
               Contact Us
             </button>
             <span>•</span>
             <button
               onClick={onOpenDisclaimer}
-              className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer"
+              className="hover:text-[#7045D8] dark:hover:text-[#A78BFA] transition-colors cursor-pointer"
             >
               Disclaimer
             </button>

@@ -48,7 +48,7 @@ export const SyncProgressModal: React.FC<{
           <div className="w-full h-2.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
             <div 
               className={`h-full transition-all duration-300 ${
-                progress.status === 'error' ? 'bg-rose-500' : progress.status === 'success' ? 'bg-emerald-500' : 'bg-blue-600'
+                progress.status === 'error' ? 'bg-rose-500' : progress.status === 'success' ? 'bg-emerald-500' : 'bg-[#7045D8]'
               }`} 
               style={{ width: `${progress.progressPercentage}%` }}
             />

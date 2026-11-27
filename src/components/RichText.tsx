@@ -34,8 +34,8 @@ const PronounceableWord: React.FC<{ word: string }> = ({ word }) => {
       }}
       className={`inline cursor-pointer select-text transition-colors duration-150 ${
         isPlaying
-          ? 'text-indigo-600 dark:text-indigo-400 font-extrabold underline decoration-indigo-400/80 underline-offset-2'
-          : 'hover:text-indigo-600 dark:hover:text-indigo-400 hover:underline hover:decoration-indigo-300/60 underline-offset-2'
+          ? 'text-[#7045D8] dark:text-[#A78BFA] font-extrabold underline decoration-[#7045D8]/80 underline-offset-2'
+          : 'hover:text-[#7045D8] dark:hover:text-[#A78BFA] hover:underline hover:decoration-[#7045D8]/60 underline-offset-2'
       }`}
       title={`Tap to listen: ${word} (British English)`}
     >
@@ -201,9 +201,9 @@ export const RichText: React.FC<RichTextProps> = ({
                   />
                 </div>
               ) : (
-                <div className="p-3 sm:p-4 border border-indigo-200/80 dark:border-indigo-900/60 rounded-2xl bg-indigo-50/40 dark:bg-indigo-950/20 flex flex-col gap-1.5 shadow-2xs">
+                <div className="p-3 sm:p-4 border border-[#7045D8]/20 dark:border-[#A78BFA]/30 rounded-2xl bg-[#7045D8]/5 dark:bg-[#7045D8]/10 flex flex-col gap-1.5 shadow-2xs">
                   <div className="flex items-center gap-2">
-                    <span className="px-2 py-0.5 rounded-md bg-indigo-600 text-white font-black text-[11px] uppercase">
+                    <span className="px-2 py-0.5 rounded-md bg-[#7045D8] text-white font-black text-[11px] uppercase">
                       📐 Diagram
                     </span>
                   </div>

@@ -1778,7 +1778,7 @@ Explanation: Both statements are true. Indira Gandhi Canal originates from Harik
             <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black ${
               draftQuestions 
                 ? "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200/30" 
-                : "bg-blue-600 text-white"
+                : "bg-[#7045D8] text-white"
             }`}>
               {draftQuestions ? "✓" : "1"}
             </span>
@@ -1790,7 +1790,7 @@ Explanation: Both statements are true. Indira Gandhi Canal originates from Harik
           <div className="flex items-center gap-1.5 font-bold">
             <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black ${
               draftQuestions 
-                ? "bg-blue-600 text-white" 
+                ? "bg-[#7045D8] text-white" 
                 : "bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600"
             }`}>
               2
@@ -1808,7 +1808,7 @@ Explanation: Both statements are true. Indira Gandhi Canal originates from Harik
             <div className="bg-white dark:bg-[#111A2E] border border-slate-200/80 dark:border-slate-800 rounded-2xl p-3 sm:p-3.5 space-y-2.5 shadow-xs">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] uppercase tracking-wider font-extrabold text-slate-400 dark:text-slate-500 flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-blue-600" />
+                  <span className="w-2 h-2 rounded-full bg-[#7045D8]" />
                   <span>Target Syllabus Location</span>
                   {isLoadingSyllabus && <Loader2 className="w-3 h-3 animate-spin text-blue-600 ml-1" />}
                 </span>
@@ -2799,7 +2799,7 @@ Format B: { "testId": "...", "questions": [ { "question": "...", "options": { "A
 
                   <button
                     onClick={handleProcessManual}
-                    className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs sm:text-sm font-black transition-all cursor-pointer active:scale-95 shadow-sm"
+                    className="w-full py-3 bg-[#7045D8] hover:bg-[#5B32BF] text-white rounded-xl text-xs sm:text-sm font-black transition-all cursor-pointer active:scale-95 shadow-sm"
                   >
                     Preview Question
                   </button>
@@ -2875,7 +2875,7 @@ Format B: { "testId": "...", "questions": [ { "question": "...", "options": { "A
                     setDraftQuestions(null);
                     onClose();
                   }}
-                  className="w-full py-3 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-black flex items-center justify-center gap-1.5 transition-all shadow-sm cursor-pointer min-h-[44px]"
+                  className="w-full py-3 px-4 rounded-xl bg-[#7045D8] hover:bg-[#5B32BF] text-white text-xs sm:text-sm font-black flex items-center justify-center gap-1.5 transition-all shadow-sm cursor-pointer min-h-[44px]"
                 >
                   <Check className="w-4 h-4" />
                   <span>Done & Close</span>
@@ -3231,7 +3231,7 @@ Format B: { "testId": "...", "questions": [ { "question": "...", "options": { "A
                           !draft.isValid
                             ? "bg-rose-50/20 dark:bg-rose-950/20 border-rose-300 dark:border-rose-900/60 ring-1 ring-rose-500/20"
                             : isSelected
-                            ? "bg-white dark:bg-[#111A2E] border-blue-400 dark:border-blue-600 shadow-xs"
+                            ? "bg-white dark:bg-[#111A2E] border-blue-400 dark:border-[#7045D8] shadow-xs"
                             : "bg-white dark:bg-[#111A2E] border-slate-200/80 dark:border-slate-800"
                         }`}
                       >
@@ -3559,7 +3559,7 @@ Format B: { "testId": "...", "questions": [ { "question": "...", "options": { "A
                 setDraftQuestions(null);
                 onClose();
               }}
-              className="w-full py-3.5 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs sm:text-sm font-black cursor-pointer active:scale-95 transition-all shadow-sm flex items-center justify-center gap-2 min-h-[48px]"
+              className="w-full py-3.5 px-4 bg-[#7045D8] hover:bg-[#5B32BF] text-white rounded-xl text-xs sm:text-sm font-black cursor-pointer active:scale-95 transition-all shadow-sm flex items-center justify-center gap-2 min-h-[48px]"
             >
               <Check className="w-4 h-4" />
               <span>Done & Return to Question Bank</span>
@@ -3864,7 +3864,7 @@ export const SyllabusSelectionModal: React.FC<SyllabusSelectionModalProps> = ({
                         {/* Radio Button */}
                         <div className={`w-[18px] h-[18px] rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
                           isSelected 
-                            ? "border-blue-600 dark:border-blue-500 bg-blue-600 dark:bg-blue-500 shadow-sm" 
+                            ? "border-[#7045D8] dark:border-blue-500 bg-[#7045D8] dark:bg-blue-500 shadow-sm" 
                             : "border-slate-300 dark:border-slate-700 group-hover:border-slate-400"
                         }`}>
                           {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white shadow-sm" />}
@@ -4122,7 +4122,7 @@ const InlineDraftEditor: React.FC<InlineDraftEditorProps> = ({
         <button
           type="button"
           onClick={handleSave}
-          className="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs sm:text-sm font-black shadow-xs cursor-pointer active:scale-95 transition-all"
+          className="flex-1 py-3 bg-[#7045D8] hover:bg-[#5B32BF] text-white rounded-xl text-xs sm:text-sm font-black shadow-xs cursor-pointer active:scale-95 transition-all"
         >
           Save & Apply Changes
         </button>

@@ -1015,7 +1015,7 @@ const InviteStaffModal: React.FC<InviteStaffModalProps> = ({ onClose, onSuccess 
                     onClick={() => setRole(r)}
                     className={`p-3 rounded-2xl border text-left transition-all ${
                       isSelected
-                        ? "border-indigo-600 bg-indigo-50/60 dark:bg-indigo-950/40 text-indigo-950 dark:text-white shadow-xs"
+                        ? "border-[#7045D8] bg-indigo-50/60 dark:bg-indigo-950/40 text-indigo-950 dark:text-white shadow-xs"
                         : "border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/40 text-slate-700 dark:text-slate-300"
                     }`}
                   >
@@ -1054,7 +1054,7 @@ const InviteStaffModal: React.FC<InviteStaffModalProps> = ({ onClose, onSuccess 
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-5 py-2.5 rounded-xl font-extrabold bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs transition-colors flex items-center gap-2"
+              className="px-5 py-2.5 rounded-xl font-extrabold bg-[#7045D8] hover:bg-[#5B32BF] text-white shadow-xs transition-colors flex items-center gap-2"
             >
               {isSubmitting ? <RefreshCw className="w-4 h-4 animate-spin" /> : <UserPlus className="w-4 h-4" />}
               <span>{isSubmitting ? "Inviting..." : "Send Invitation"}</span>
@@ -1140,7 +1140,7 @@ const EditStaffModal: React.FC<EditStaffModalProps> = ({ member, onClose, onSucc
                     onClick={() => setRole(r)}
                     className={`p-3 rounded-2xl border text-left transition-all ${
                       isSelected
-                        ? "border-indigo-600 bg-indigo-50/60 dark:bg-indigo-950/40 text-indigo-950 dark:text-white shadow-xs"
+                        ? "border-[#7045D8] bg-indigo-50/60 dark:bg-indigo-950/40 text-indigo-950 dark:text-white shadow-xs"
                         : "border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/40 text-slate-700 dark:text-slate-300"
                     }`}
                   >
@@ -1179,7 +1179,7 @@ const EditStaffModal: React.FC<EditStaffModalProps> = ({ member, onClose, onSucc
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-5 py-2.5 rounded-xl font-extrabold bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs transition-colors flex items-center gap-2"
+              className="px-5 py-2.5 rounded-xl font-extrabold bg-[#7045D8] hover:bg-[#5B32BF] text-white shadow-xs transition-colors flex items-center gap-2"
             >
               {isSubmitting ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
               <span>{isSubmitting ? "Saving..." : "Save Changes"}</span>

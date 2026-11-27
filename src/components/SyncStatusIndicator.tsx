@@ -42,13 +42,13 @@ export const SyncStatusIndicator: React.FC<SyncStatusIndicatorProps> = ({ isOnli
       case "initial_download_required":
         return {
           label: "Initial Download Needed",
-          color: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 border-blue-300 dark:border-blue-700/50",
+          color: "bg-violet-100 text-[#7045D8] dark:bg-violet-900/30 dark:text-[#A78BFA] border-violet-300 dark:border-violet-700/50",
           icon: <RefreshCw className="w-3.5 h-3.5 animate-spin" />,
         };
       case "sync_in_progress":
         return {
           label: "Syncing 24h Data...",
-          color: "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300 border-indigo-300 dark:border-indigo-700/50",
+          color: "bg-violet-100 text-[#7045D8] dark:bg-violet-900/30 dark:text-[#A78BFA] border-violet-300 dark:border-violet-700/50",
           icon: <RefreshCw className="w-3.5 h-3.5 animate-spin" />,
         };
       case "sync_failed":

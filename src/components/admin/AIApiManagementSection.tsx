@@ -496,7 +496,7 @@ export const AIApiManagementSection: React.FC = () => {
                   setEditingConfig(null);
                   setShowModal(true);
                 }}
-                className="h-9 px-4 bg-indigo-600 text-white rounded-lg text-xs font-bold shadow-sm shadow-indigo-100 flex items-center gap-2 transition-all active:scale-[0.98]"
+                className="h-9 px-4 bg-[#7045D8] text-white rounded-lg text-xs font-bold shadow-sm shadow-indigo-100 flex items-center gap-2 transition-all active:scale-[0.98]"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>Add Key</span>

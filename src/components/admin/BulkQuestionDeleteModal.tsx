@@ -613,7 +613,7 @@ export const BulkQuestionDeleteModal: React.FC<BulkQuestionDeleteModalProps> = (
                 onClick={() => setTypeFilter("base")}
                 className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
                   typeFilter === "base"
-                    ? "bg-blue-600 text-white shadow-xs"
+                    ? "bg-[#7045D8] text-white shadow-xs"
                     : "bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 hover:bg-blue-100"
                 }`}
               >

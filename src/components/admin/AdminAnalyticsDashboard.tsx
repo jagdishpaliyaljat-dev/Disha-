@@ -944,7 +944,7 @@ export const AdminAnalyticsDashboard: React.FC<AdminAnalyticsDashboardProps> = (
                       : source.includes("whatsapp")
                       ? "bg-emerald-500"
                       : source.includes("google")
-                      ? "bg-blue-600"
+                      ? "bg-[#7045D8]"
                       : source.includes("youtube")
                       ? "bg-rose-500"
                       : "bg-[#800020]";

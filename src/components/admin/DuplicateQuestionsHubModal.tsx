@@ -462,7 +462,7 @@ export const DuplicateQuestionsHubModal: React.FC<DuplicateQuestionsHubModalProp
                 onClick={() => setFilterBand("90to95")}
                 className={`px-2.5 py-1 rounded-lg font-bold cursor-pointer ${
                   filterBand === "90to95"
-                    ? "bg-indigo-600 text-white"
+                    ? "bg-[#7045D8] text-white"
                     : "text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
                 }`}
               >

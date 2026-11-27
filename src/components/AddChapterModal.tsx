@@ -221,7 +221,7 @@ export const AddChapterModal: React.FC<AddChapterModalProps> = ({
             form="add-chapter-form"
             type="submit"
             id="btn-submit-add-chapter"
-            className="flex-1 py-4 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-black uppercase tracking-widest shadow-xl shadow-blue-500/20 flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-95"
+            className="flex-1 py-4 rounded-2xl bg-[#7045D8] hover:bg-[#5B32BF] text-white text-xs font-black uppercase tracking-widest shadow-xl shadow-[#7045D8]/20 flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-95"
           >
             <Plus className="w-5 h-5 stroke-[3]" />
             <span>Save</span>

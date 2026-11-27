@@ -156,7 +156,7 @@ export const SitemapManagerModal: React.FC<SitemapManagerModalProps> = ({
               href={gscSitemapsUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-600 text-white text-xs font-semibold shadow-sm hover:bg-blue-700 transition-colors"
+              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#7045D8] text-white text-xs font-semibold shadow-sm hover:bg-[#5B32BF] transition-colors"
             >
               <ExternalLink className="w-3.5 h-3.5" />
               Open GSC
@@ -170,7 +170,7 @@ export const SitemapManagerModal: React.FC<SitemapManagerModalProps> = ({
             onClick={() => setActiveTab("overview")}
             className={`px-4 py-2 text-xs font-bold rounded-t-xl border-b-2 transition-all ${
               activeTab === "overview"
-                ? "border-blue-600 text-blue-600 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-950/20"
+                ? "border-[#7045D8] text-blue-600 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-950/20"
                 : "border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
             }`}
           >
@@ -180,7 +180,7 @@ export const SitemapManagerModal: React.FC<SitemapManagerModalProps> = ({
             onClick={() => setActiveTab("urls")}
             className={`px-4 py-2 text-xs font-bold rounded-t-xl border-b-2 transition-all ${
               activeTab === "urls"
-                ? "border-blue-600 text-blue-600 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-950/20"
+                ? "border-[#7045D8] text-blue-600 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-950/20"
                 : "border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
             }`}
           >
@@ -190,7 +190,7 @@ export const SitemapManagerModal: React.FC<SitemapManagerModalProps> = ({
             onClick={() => setActiveTab("raw")}
             className={`px-4 py-2 text-xs font-bold rounded-t-xl border-b-2 transition-all ${
               activeTab === "raw"
-                ? "border-blue-600 text-blue-600 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-950/20"
+                ? "border-[#7045D8] text-blue-600 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-950/20"
                 : "border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
             }`}
           >
@@ -271,7 +271,7 @@ export const SitemapManagerModal: React.FC<SitemapManagerModalProps> = ({
                 <button
                   onClick={handleRefresh}
                   disabled={loading}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md transition-all disabled:opacity-60"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#7045D8] hover:bg-[#5B32BF] text-white font-bold text-xs shadow-md transition-all disabled:opacity-60"
                 >
                   <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
                   {loading ? "Regenerating..." : "Regenerate & Update Sitemap"}

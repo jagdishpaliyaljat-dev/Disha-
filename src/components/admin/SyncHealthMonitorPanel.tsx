@@ -180,7 +180,7 @@ export const SyncHealthMonitorPanel: React.FC<SyncHealthMonitorPanelProps> = ({
           <button
             onClick={runHealthScan}
             disabled={isScanning}
-            className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-black shadow-lg transition-all disabled:opacity-50 active:scale-95 cursor-pointer"
+            className="flex items-center gap-2 px-4 py-2.5 bg-[#7045D8] hover:bg-[#5B32BF] text-white rounded-xl text-xs font-black shadow-lg transition-all disabled:opacity-50 active:scale-95 cursor-pointer"
           >
             <RefreshCw className={`w-4 h-4 ${isScanning ? "animate-spin" : ""}`} />
             <span>{isScanning ? "Scanning..." : "Re-Scan Health"}</span>

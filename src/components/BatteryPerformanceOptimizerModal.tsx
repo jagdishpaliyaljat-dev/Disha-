@@ -65,7 +65,7 @@ export const BatteryPerformanceOptimizerModal: React.FC<BatteryPerformanceOptimi
             {/* RAM */}
             <div className="p-3.5 rounded-xl bg-slate-800/60 border border-slate-700/50 flex flex-col">
               <span className="text-xs text-slate-400 flex items-center gap-1.5 mb-1">
-                <Cpu className="w-3.5 h-3.5 text-blue-400" /> System RAM
+                <Cpu className="w-3.5 h-3.5 text-[#A78BFA]" /> System RAM
               </span>
               <span className="text-base font-semibold text-slate-200">
                 ~{hardware.deviceMemoryGB} GB
@@ -143,14 +143,14 @@ export const BatteryPerformanceOptimizerModal: React.FC<BatteryPerformanceOptimi
                 onClick={() => setTier('balanced')}
                 className={`p-3 rounded-xl border text-left transition flex flex-col justify-between ${
                   settings.tier === 'balanced'
-                    ? 'bg-blue-500/15 border-blue-500/50 text-blue-300'
+                    ? 'bg-[#7045D8]/15 border-[#7045D8]/50 text-[#A78BFA]'
                     : 'bg-slate-800/40 border-slate-700/60 text-slate-400 hover:border-slate-600'
                 }`}
               >
                 <div className="flex items-center justify-between mb-2">
-                  <Gauge className="w-5 h-5 text-blue-400" />
+                  <Gauge className="w-5 h-5 text-[#A78BFA]" />
                   {settings.tier === 'balanced' && (
-                    <CheckCircle2 className="w-4 h-4 text-blue-400" />
+                    <CheckCircle2 className="w-4 h-4 text-[#A78BFA]" />
                   )}
                 </div>
                 <div>
@@ -214,7 +214,7 @@ export const BatteryPerformanceOptimizerModal: React.FC<BatteryPerformanceOptimi
             <label className="flex items-center justify-between cursor-pointer pt-2 border-t border-slate-800/80">
               <div className="space-y-0.5">
                 <span className="text-xs sm:text-sm font-medium text-slate-200 flex items-center gap-2">
-                  <Layers className="w-4 h-4 text-blue-400" />
+                  <Layers className="w-4 h-4 text-[#A78BFA]" />
                   Reduce Backdrop Blurs & Shadows
                 </span>
                 <p className="text-[11px] text-slate-400">
@@ -227,7 +227,7 @@ export const BatteryPerformanceOptimizerModal: React.FC<BatteryPerformanceOptimi
                 onChange={(e) =>
                   updateSettings({ reduceBlurAndShadows: e.target.checked })
                 }
-                className="w-4 h-4 text-blue-500 rounded bg-slate-900 border-slate-700"
+                className="w-4 h-4 text-[#7045D8] rounded bg-slate-900 border-slate-700"
               />
             </label>
 

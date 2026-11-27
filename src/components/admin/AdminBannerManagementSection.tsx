@@ -241,7 +241,7 @@ export const AdminBannerManagementSection: React.FC<{ onBannerUpdated?: () => vo
             </button>
             <button 
               onClick={handleAddNew}
-              className="h-10 px-4 bg-indigo-600 text-white rounded-lg font-bold text-xs uppercase tracking-wider transition-all active:scale-[0.98] shadow-sm shadow-indigo-100 flex items-center gap-2"
+              className="h-10 px-4 bg-[#7045D8] text-white rounded-lg font-bold text-xs uppercase tracking-wider transition-all active:scale-[0.98] shadow-sm shadow-indigo-100 flex items-center gap-2"
             >
               <Plus className="w-4 h-4" />
               <span>Create Slide</span>
@@ -348,7 +348,7 @@ export const AdminBannerManagementSection: React.FC<{ onBannerUpdated?: () => vo
                     <button type="button" onClick={() => fileInputRef.current?.click()} className="h-11 bg-slate-900 text-white rounded-lg font-bold text-xs uppercase tracking-wider shadow-sm transition-all active:scale-[0.98]">Upload Asset</button>
                     <div className="flex gap-2">
                       <input type="url" value={urlInput} onChange={e => setUrlInput(e.target.value)} placeholder="Remote URL..." className="flex-1 px-4 h-11 bg-slate-50 border border-slate-100 rounded-lg text-sm font-semibold focus:ring-2 focus:ring-indigo-500/10 transition-all" />
-                      <button type="button" onClick={handleApplyUrl} className="h-11 px-4 bg-indigo-600 text-white rounded-lg font-bold text-xs uppercase">Link</button>
+                      <button type="button" onClick={handleApplyUrl} className="h-11 px-4 bg-[#7045D8] text-white rounded-lg font-bold text-xs uppercase">Link</button>
                     </div>
                   </div>
                 </div>
@@ -388,7 +388,7 @@ export const AdminBannerManagementSection: React.FC<{ onBannerUpdated?: () => vo
 
                 <div className="flex gap-3 pt-2">
                   <button type="button" onClick={() => setIsEditing(false)} className="flex-1 h-12 bg-white border border-slate-200 text-slate-600 rounded-lg font-bold text-xs uppercase tracking-wider transition-all hover:bg-slate-50">Discard</button>
-                  <button type="submit" disabled={saving || compressing} className="flex-[2] h-12 bg-indigo-600 text-white rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg shadow-indigo-100 disabled:opacity-50 transition-all active:scale-[0.98]">
+                  <button type="submit" disabled={saving || compressing} className="flex-[2] h-12 bg-[#7045D8] text-white rounded-lg font-bold text-xs uppercase tracking-wider shadow-lg shadow-indigo-100 disabled:opacity-50 transition-all active:scale-[0.98]">
                     {saving ? "Publishing..." : "Publish Campaign"}
                   </button>
                 </div>

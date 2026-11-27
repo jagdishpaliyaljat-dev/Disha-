@@ -843,7 +843,7 @@ export const HTMLImportMCQModal: React.FC<HTMLImportMCQModalProps> = ({
               </button>
               <button
                 onClick={onClose}
-                className="px-5 py-2 text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-700 rounded-xl shadow-xs transition-all cursor-pointer"
+                className="px-5 py-2 text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 dark:bg-[#7045D8] dark:hover:bg-[#5B32BF] rounded-xl shadow-xs transition-all cursor-pointer"
               >
                 Done & Close
               </button>

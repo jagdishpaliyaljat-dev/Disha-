@@ -1594,7 +1594,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                       </button>
                       <button
                         onClick={() => setShowCoachingHierarchyModal(true)}
-                        className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
+                        className="px-3 py-2 bg-[#7045D8] hover:bg-[#5B32BF] text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
                       >
                         <Building2 className="w-3.5 h-3.5" />
                         <span>Coaching Hierarchy</span>
@@ -1765,7 +1765,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
 
                         <button
                           onClick={() => setShowCoachingHierarchyModal(true)}
-                          className="w-full mt-5 py-2.5 sm:py-3 px-4 bg-blue-600 hover:bg-blue-700 active:scale-98 text-white rounded-2xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer"
+                          className="w-full mt-5 py-2.5 sm:py-3 px-4 bg-[#7045D8] hover:bg-[#5B32BF] active:scale-98 text-white rounded-2xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer"
                         >
                           <span>Configure Hierarchy</span>
                           <ArrowRight className="w-4 h-4" />

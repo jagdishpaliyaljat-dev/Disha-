@@ -221,7 +221,7 @@ export const AddSubjectModal: React.FC<AddSubjectModalProps> = ({
                       onClick={() => setSelectedIcon(item.name)}
                       className={`h-12 rounded-xl border flex flex-col items-center justify-center transition-all cursor-pointer ${
                         isSelected
-                          ? "bg-blue-50 dark:bg-blue-950/60 border-blue-600 text-blue-600 dark:text-blue-400 scale-105 shadow-sm"
+                          ? "bg-blue-50 dark:bg-blue-950/60 border-[#7045D8] text-blue-600 dark:text-blue-400 scale-105 shadow-sm"
                           : "bg-slate-50 dark:bg-slate-800/40 border-slate-200 dark:border-slate-700 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700"
                       }`}
                       title={item.label}
@@ -273,7 +273,7 @@ export const AddSubjectModal: React.FC<AddSubjectModalProps> = ({
             type="submit"
             id="btn-submit-add-subject"
             disabled={isLoading}
-            className={`flex-1 py-4 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-black uppercase tracking-widest shadow-xl shadow-blue-500/20 flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-95 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className={`flex-1 py-4 rounded-2xl bg-[#7045D8] hover:bg-[#5B32BF] text-white text-xs font-black uppercase tracking-widest shadow-xl shadow-[#7045D8]/20 flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-95 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             {isLoading ? (
               "Saving..."

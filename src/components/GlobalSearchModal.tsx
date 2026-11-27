@@ -119,7 +119,7 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
       case "topic":
         return <BookOpen className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />;
       case "paper":
-        return <FileText className="w-4 h-4 text-blue-600 dark:text-blue-400" />;
+        return <FileText className="w-4 h-4 text-[#7045D8] dark:text-[#A78BFA]" />;
       default:
         return <HelpCircle className="w-4 h-4 text-slate-500" />;
     }

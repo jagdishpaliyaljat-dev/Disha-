@@ -214,7 +214,7 @@ export const ManageSyllabusModal: React.FC<ManageSyllabusModalProps> = ({
               onClick={() => setActiveTab("subjects")}
               className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shrink-0 whitespace-nowrap min-h-[38px] ${
                 activeTab === "subjects"
-                  ? "bg-blue-600 text-white shadow-xs"
+                  ? "bg-[#7045D8] text-white shadow-xs"
                   : "bg-slate-100 dark:bg-slate-800/60 text-slate-600 dark:text-slate-400 hover:bg-slate-200"
               }`}
             >
@@ -226,7 +226,7 @@ export const ManageSyllabusModal: React.FC<ManageSyllabusModalProps> = ({
               onClick={() => setActiveTab("chapters")}
               className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shrink-0 whitespace-nowrap min-h-[38px] ${
                 activeTab === "chapters"
-                  ? "bg-indigo-600 text-white shadow-xs"
+                  ? "bg-[#7045D8] text-white shadow-xs"
                   : "bg-slate-100 dark:bg-slate-800/60 text-slate-600 dark:text-slate-400 hover:bg-slate-200"
               }`}
             >
@@ -251,7 +251,7 @@ export const ManageSyllabusModal: React.FC<ManageSyllabusModalProps> = ({
             {activeTab === "chapters" && onShowAddChapter && (
               <button
                 onClick={() => onShowAddChapter()}
-                className="px-3 py-1.5 rounded-xl bg-indigo-600 text-white text-xs font-bold flex items-center gap-1 transition-all shadow-xs cursor-pointer active:scale-95 whitespace-nowrap"
+                className="px-3 py-1.5 rounded-xl bg-[#7045D8] text-white text-xs font-bold flex items-center gap-1 transition-all shadow-xs cursor-pointer active:scale-95 whitespace-nowrap"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>Add Chapter</span>
@@ -326,7 +326,7 @@ export const ManageSyllabusModal: React.FC<ManageSyllabusModalProps> = ({
                               </button>
                               <button
                                 onClick={saveEditSubject}
-                                className="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-blue-600 text-white flex items-center gap-1"
+                                className="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-[#7045D8] text-white flex items-center gap-1"
                               >
                                 <Check className="w-3.5 h-3.5" />
                                 <span>Save Changes</span>
@@ -448,7 +448,7 @@ export const ManageSyllabusModal: React.FC<ManageSyllabusModalProps> = ({
                             </button>
                             <button
                               onClick={saveEditChapter}
-                              className="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-indigo-600 text-white flex items-center gap-1"
+                              className="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-[#7045D8] text-white flex items-center gap-1"
                             >
                               <Check className="w-3.5 h-3.5" />
                               <span>Save Changes</span>

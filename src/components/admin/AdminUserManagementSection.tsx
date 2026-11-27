@@ -80,7 +80,7 @@ const UserDetailView: React.FC<{
 
         {/* Profile Header */}
         <div className="flex flex-col sm:flex-row sm:items-center gap-5">
-          <div className="w-20 h-20 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold text-2xl shadow-md">
+          <div className="w-20 h-20 rounded-lg bg-[#7045D8] text-white flex items-center justify-center font-bold text-2xl shadow-md">
             {user.name?.slice(0, 1).toUpperCase() || "S"}
           </div>
           <div className="space-y-1">
@@ -201,7 +201,7 @@ const UserDetailView: React.FC<{
                 className={`w-full py-3 rounded-lg font-bold text-[11px] uppercase tracking-wider transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2 shadow-sm border cursor-pointer ${
                   user.role === 'admin'
                     ? 'bg-rose-50 text-rose-700 hover:bg-rose-100 border-rose-200'
-                    : 'bg-indigo-600 text-white hover:bg-indigo-700 border-indigo-500'
+                    : 'bg-[#7045D8] text-white hover:bg-[#5B32BF] border-indigo-500'
                 }`}
               >
                 {actionLoading === 'role' ? <RefreshCw className="w-3.5 h-3.5 animate-spin"/> : <ShieldCheck className="w-3.5 h-3.5"/>}
@@ -563,7 +563,7 @@ export const AdminUserManagementSection: React.FC<AdminUserManagementSectionProp
             <button
               onClick={handleLoadMoreCloudUsers}
               disabled={loadingMoreCloud}
-              className="ml-2 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold text-xs flex items-center gap-1.5 transition-all shadow-xs cursor-pointer active:scale-95 disabled:opacity-50 shrink-0"
+              className="ml-2 px-3 py-1.5 bg-[#7045D8] hover:bg-[#5B32BF] text-white rounded-lg font-bold text-xs flex items-center gap-1.5 transition-all shadow-xs cursor-pointer active:scale-95 disabled:opacity-50 shrink-0"
             >
               {loadingMoreCloud ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
               <span>Load More Cloud</span>
@@ -673,7 +673,7 @@ export const AdminUserManagementSection: React.FC<AdminUserManagementSectionProp
                   key={f} 
                   onClick={() => setStatusFilter(f as any)} 
                   className={`px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all shrink-0 ${
-                    statusFilter === f ? "bg-indigo-600 text-white shadow-sm" : "text-slate-500 hover:bg-slate-100"
+                    statusFilter === f ? "bg-[#7045D8] text-white shadow-sm" : "text-slate-500 hover:bg-slate-100"
                   }`}
                 >
                   {f}
@@ -703,7 +703,7 @@ export const AdminUserManagementSection: React.FC<AdminUserManagementSectionProp
                   className="group bg-white border border-slate-200 rounded-xl p-5 shadow-sm hover:border-indigo-500/30 hover:shadow-md transition-all cursor-pointer relative active:scale-[0.99]"
                 >
                   <div className="flex items-center gap-4 mb-5">
-                    <div className="w-12 h-12 rounded-lg bg-slate-50 text-slate-400 flex items-center justify-center font-bold text-lg group-hover:bg-indigo-600 group-hover:text-white transition-all shrink-0 uppercase">
+                    <div className="w-12 h-12 rounded-lg bg-slate-50 text-slate-400 flex items-center justify-center font-bold text-lg group-hover:bg-[#7045D8] group-hover:text-white transition-all shrink-0 uppercase">
                       {user.name?.slice(0, 1) || "?"}
                     </div>
                     <div className="min-w-0 flex-1">
@@ -824,7 +824,7 @@ export const AdminUserManagementSection: React.FC<AdminUserManagementSectionProp
                 <button
                   type="submit"
                   disabled={isPromotingEmail || !emailToPromote.trim()}
-                  className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm cursor-pointer"
+                  className="px-5 py-2 bg-[#7045D8] hover:bg-[#5B32BF] disabled:opacity-50 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm cursor-pointer"
                 >
                   {isPromotingEmail ? (
                     <>

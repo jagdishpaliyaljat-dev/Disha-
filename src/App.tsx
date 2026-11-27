@@ -40,9 +40,8 @@ import {
 } from 'lucide-react';
 import { BottomNav } from './components/BottomNav';
 import { StudentNavigationDrawer } from './components/StudentNavigationDrawer';
-import { DishaAITutorModal, FloatingAIAssistant } from './components/DishaAITutorModal';
+import { FloatingAIAssistant } from './components/FloatingAIAssistant';
 import { OfflineIndicator } from './components/OfflineIndicator';
-import { KeyboardShortcutsModal } from './components/KeyboardShortcutsModal';
 import { crossTabSync } from './utils/crossTabSync';
 import { ToastNotificationContainer, ToastMessage } from './components/ToastNotification';
 import { PWAUpdateToast } from './components/PWAUpdateToast';
@@ -64,16 +63,21 @@ import { setSentryUser, clearSentryUser } from './utils/sentryInit';
 import { resolvePathToNavigationState, buildCanonicalPath, isKnownTab } from './utils/routeNavigation';
 import { updateSEOHead } from './utils/seoHelper';
 import { getSEOForRoute, isLegalInfoTab, isPublicWebSEOTab } from './utils/routeSeoConfig';
-import { isNativePlatform } from './utils/mobileAuthService';
+import { 
+  isNativePlatform, 
+  isMobileBrowser, 
+  getAppDeepLinkFromSession, 
+  registerMobileDeepLinkListener, 
+  checkLaunchUrlForAuth 
+} from './utils/mobileAuthService';
 import { registerCapacitorBackListener } from './utils/hardwareBackButton';
 import { prefetchCoreRoutes } from './utils/routePrefetcher';
 import { loadSettingsFromStorage, saveSettingsToStorage, loadProgressFromStorage, saveProgressToStorage, recordStudyAnswerToHistory, loadStudyHistoryFromStorage, saveStudyHistoryToStorage, mergeRealtimeProgressDelta } from './utils/storage';
 import { loadNotifications, saveNotifications } from './utils/notificationsStorage';
 import { getTodayDateString, calculateNextProgress } from './utils/revision';
-import { AppUpdateModal } from './components/AppUpdateModal';
 import { appConfigService, GlobalAppConfig } from './utils/appConfigService';
 import { CURRENT_APP_VERSION, checkAppUpdateStatus } from './utils/versionUtils';
-import { trackPageView } from './utils/analytics';
+import { trackPageView, detectAndCacheDistrict } from './utils/analytics';
 import { triggerHaptic } from './utils/audioFeedback';
 import { 
   loadUserQuestionsStore, 
@@ -203,6 +207,9 @@ const GlobalSearchModal = safeLazy<typeof import('./components/GlobalSearchModal
 const LiveBattleModal = safeLazy<typeof import('./components/battle/LiveBattleModal').LiveBattleModal>(() => import('./components/battle/LiveBattleModal'), 'LiveBattleModal');
 const PremiumUpgradeModal = safeLazy<typeof import('./components/payment/PremiumUpgradeModal').PremiumUpgradeModal>(() => import('./components/payment/PremiumUpgradeModal'), 'PremiumUpgradeModal');
 const WeeklyLeaderboard = safeLazy<typeof import('./components/WeeklyLeaderboard').WeeklyLeaderboard>(() => import('./components/WeeklyLeaderboard'), 'WeeklyLeaderboard');
+const DishaAITutorModal = safeLazy<typeof import('./components/DishaAITutorModal').DishaAITutorModal>(() => import('./components/DishaAITutorModal'), 'DishaAITutorModal');
+const KeyboardShortcutsModal = safeLazy<typeof import('./components/KeyboardShortcutsModal').KeyboardShortcutsModal>(() => import('./components/KeyboardShortcutsModal'), 'KeyboardShortcutsModal');
+const AppUpdateModal = safeLazy<typeof import('./components/AppUpdateModal').AppUpdateModal>(() => import('./components/AppUpdateModal'), 'AppUpdateModal');
 
 export default function App() {
   const initialNavState = React.useMemo(() => {
@@ -379,9 +386,9 @@ export default function App() {
 
   // Background district detection for regional Rajasthan analytics
   React.useEffect(() => {
-    import("./utils/analytics")
-      .then(({ detectAndCacheDistrict }) => detectAndCacheDistrict())
-      .catch(() => {});
+    try {
+      detectAndCacheDistrict();
+    } catch {}
   }, []);
 
   // Sync URL with Tab, Subject, Chapter, Topic and Session changes
@@ -1090,6 +1097,19 @@ export default function App() {
     prefetchCoreRoutes();
   }, []);
 
+  // 🛡️ GUARANTEED SPLASH SCREEN SAFETY TIMEOUT:
+  // Never allow "Initializing Disha PYQ..." to hang indefinitely.
+  // If local user is already authenticated, unlock immediately; otherwise unlock within 1.5s max.
+  React.useEffect(() => {
+    const isLocalUserReady = Boolean(userProfile && isProfileAuthenticated(userProfile));
+    const delay = isLocalUserReady ? 250 : 1500;
+    const safetyTimer = setTimeout(() => {
+      setIsAuthReady(true);
+    }, delay);
+
+    return () => clearTimeout(safetyTimer);
+  }, [userProfile]);
+
   // Supabase Auth & Session Lifecycle Listener
   React.useEffect(() => {
     let unsub = () => {};
@@ -1193,7 +1213,6 @@ export default function App() {
 
           // If running in mobile browser and this was a fresh OAuth redirect with tokens:
           try {
-            const { isNativePlatform, isMobileBrowser, getAppDeepLinkFromSession } = await import('./utils/mobileAuthService');
             if (!isNativePlatform() && isMobileBrowser() && session?.access_token && session?.refresh_token) {
               const hashHasTokens = typeof window !== 'undefined' && (
                 window.location.hash.includes('access_token=') ||
@@ -1223,20 +1242,29 @@ export default function App() {
 
       // Native Capacitor Deep Link Listener & Cold-Start check
       let cleanupDeepLink = () => {};
-      import('./utils/mobileAuthService').then(({ registerMobileDeepLinkListener, checkLaunchUrlForAuth }) => {
+      try {
         cleanupDeepLink = registerMobileDeepLinkListener((session) => {
           processSession(session).catch(() => {});
         });
         checkLaunchUrlForAuth((session) => {
           processSession(session).catch(() => {});
         });
-      }).catch(() => {});
+      } catch {}
 
-      supabase.auth.getSession().then(({ data: { session } }) => {
-        processSession(session).catch(() => {});
-      }).catch(() => {
-        setIsAuthReady(true);
-      });
+      const sessionTimeout = new Promise<{ data: { session: null } }>((resolve) =>
+        setTimeout(() => resolve({ data: { session: null } }), 1200)
+      );
+
+      Promise.race([supabase.auth.getSession(), sessionTimeout])
+        .then(({ data: { session } }: any) => {
+          processSession(session).catch(() => {});
+        })
+        .catch(() => {
+          setIsAuthReady(true);
+        })
+        .finally(() => {
+          setIsAuthReady(true);
+        });
 
       const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
         processSession(session).catch(() => {});
@@ -1917,6 +1945,13 @@ export default function App() {
         <p className="text-xs font-bold text-[#5E5873] dark:text-[#A39DBE] tracking-wider uppercase">
           Initializing Disha PYQ...
         </p>
+        <button
+          type="button"
+          onClick={() => setIsAuthReady(true)}
+          className="mt-4 px-4 py-2 rounded-xl text-xs font-bold text-[#7045D8] dark:text-[#A78BFA] hover:bg-[#7045D8]/10 transition-all cursor-pointer opacity-80 hover:opacity-100"
+        >
+          बिना प्रतीक्षा जारी रखें (Continue) →
+        </button>
       </div>
     );
   }
@@ -2113,7 +2148,7 @@ export default function App() {
               </div>
               <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400 space-y-1.5 text-left">
                 <p className="font-semibold text-slate-700 dark:text-slate-300">Contact for Support & Appeals:</p>
-                <p className="font-mono text-indigo-600 dark:text-indigo-400 select-all">disha2020prep@gmail.com</p>
+                <p className="font-mono text-[#7045D8] dark:text-[#A78BFA] select-all">disha2020prep@gmail.com</p>
               </div>
               <button
                 type="button"

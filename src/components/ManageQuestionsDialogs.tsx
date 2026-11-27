@@ -189,7 +189,7 @@ export const MoveQuestionsDialog: React.FC<MoveQuestionsDialogProps> = ({
           <button
             onClick={() => onConfirmMove(targetChapterId, targetTopicId)}
             disabled={isMoving || isSameLocation || !targetTopicId}
-            className="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl text-xs sm:text-sm font-bold shadow-md shadow-blue-600/20 flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 py-3 bg-[#7045D8] hover:bg-[#5B32BF] text-white rounded-2xl text-xs sm:text-sm font-bold shadow-md shadow-[#7045D8]/20 flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isMoving ? (
               <>
@@ -522,7 +522,7 @@ export const EditQuestionDialog: React.FC<EditQuestionDialogProps> = ({
           </button>
           <button
             onClick={handleSave}
-            className="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl text-xs sm:text-sm font-bold shadow-md shadow-blue-600/20 cursor-pointer active:scale-95 transition-all"
+            className="flex-1 py-3 bg-[#7045D8] hover:bg-[#5B32BF] text-white rounded-2xl text-xs sm:text-sm font-bold shadow-md shadow-[#7045D8]/20 cursor-pointer active:scale-95 transition-all"
           >
             Save Changes
           </button>

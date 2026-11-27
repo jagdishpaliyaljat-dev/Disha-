@@ -163,7 +163,7 @@ export const UTMLinkBuilder: React.FC<UTMLinkBuilderProps> = ({ articleSlugs = [
             className={`px-4 py-2 rounded-xl text-xs font-black flex items-center gap-1.5 transition-all cursor-pointer shrink-0 ${
               copied
                 ? "bg-emerald-600 text-white"
-                : "bg-blue-600 hover:bg-blue-700 text-white shadow-xs active:scale-95"
+                : "bg-[#7045D8] hover:bg-[#5B32BF] text-white shadow-xs active:scale-95"
             }`}
           >
             {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}

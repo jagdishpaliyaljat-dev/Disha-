@@ -38,6 +38,14 @@ export interface VersionControlConfig {
   message: string;
 }
 
+export interface InAppReviewConfig {
+  enabled: boolean;
+  minScorePercent: number;
+  minTestsCompleted: number;
+  snoozeDays: number;
+  smartSentimentRouting: boolean;
+}
+
 export interface GlobalAppConfig {
   version: string;
   maintenance: MaintenanceWindow;
@@ -53,6 +61,7 @@ export interface GlobalAppConfig {
   minSupportedVersion: string;
   forceUpdateUrl?: string;
   versionControl?: VersionControlConfig;
+  reviewConfig?: InAppReviewConfig;
   updatedAt: string;
   updatedBy: string;
 }
@@ -85,13 +94,20 @@ export const DEFAULT_APP_CONFIG: GlobalAppConfig = {
   },
   minSupportedVersion: '1.0.0',
   versionControl: {
-    latestVersion: '1.0.52',
-    minSupportedVersion: '1.0.51',
+    latestVersion: '1.0.55',
+    minSupportedVersion: '1.0.50',
     forceUpdate: false,
-    downloadUrl: 'https://github.com/jagdishpaliyaljat-dev/disha-20-20-app/releases/latest',
-    releaseNotes: '• Fixed English vocabulary audio pronunciation in MCQs\n• High performance native Speech Synthesis engine\n• Offline stability and crash safeguards',
-    title: 'New Update Available!',
-    message: 'A newer, faster version of Disha 20-20 is available with new exam features and bug fixes.',
+    downloadUrl: 'https://play.google.com/store/apps/details?id=com.disha2020.examprep',
+    releaseNotes: '• Full Length RPSC & RSMSSB Mock Test Simulation\n• Real-time State Merit Rank & Percentile\n• Detailed Hindi Solutions & AI Remedial Revision\n• Offline Bookmark & High Performance Engine',
+    title: 'New Update Available on Play Store!',
+    message: 'A newer, faster version of Disha PYQ is available with latest exam papers and speed optimizations.',
+  },
+  reviewConfig: {
+    enabled: true,
+    minScorePercent: 75,
+    minTestsCompleted: 2,
+    snoozeDays: 5,
+    smartSentimentRouting: true,
   },
   updatedAt: new Date().toISOString(),
   updatedBy: 'System',

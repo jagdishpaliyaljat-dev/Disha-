@@ -189,8 +189,8 @@ export const ParsedQuestion: React.FC<ParsedQuestionProps> = ({
                 }}
                 className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold transition-all shadow-2xs ${
                   isPlayingAudio
-                    ? "bg-indigo-600 text-white shadow-md animate-pulse"
-                    : "bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/40 dark:hover:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200/60 dark:border-indigo-800/60"
+                    ? "bg-[#7045D8] text-white shadow-md animate-pulse"
+                    : "bg-[#7045D8]/10 hover:bg-[#7045D8]/20 dark:bg-[#7045D8]/20 dark:hover:bg-[#7045D8]/30 text-[#7045D8] dark:text-[#A78BFA] border border-[#7045D8]/20 dark:border-[#A78BFA]/30"
                 }`}
                 title={isPlayingAudio ? "Stop pronunciation" : "Listen question in English"}
               >

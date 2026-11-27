@@ -39,7 +39,7 @@ export const QuickActionsWidget: React.FC<QuickActionsWidgetProps> = ({
         aria-label="Synchronize data with cloud database"
         className="flex flex-col items-center gap-2 p-3 sm:p-4 rounded-2xl bg-white dark:bg-[#111A2E] border border-slate-200/80 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-800 group transition-all cursor-pointer shadow-xs disabled:opacity-60"
       >
-        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-400 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-400 group-hover:bg-[#7045D8] group-hover:text-white transition-colors">
           <RefreshCw className={`w-4.5 h-4.5 sm:w-5 sm:h-5 ${isRefreshing ? "animate-spin text-indigo-600" : ""}`} />
         </div>
         <span className="text-[11px] sm:text-xs font-black text-slate-500 dark:text-slate-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">

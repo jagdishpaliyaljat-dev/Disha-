@@ -330,7 +330,7 @@ export const ManageCoachingHierarchyModal: React.FC<ManageCoachingHierarchyModal
               }}
               className={`flex-1 py-2 px-3 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                 activeTab === tab.id
-                  ? "bg-blue-600 text-white shadow-sm"
+                  ? "bg-[#7045D8] text-white shadow-sm"
                   : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
               }`}
             >
@@ -383,7 +383,7 @@ export const ManageCoachingHierarchyModal: React.FC<ManageCoachingHierarchyModal
                   )}
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-extrabold rounded-xl shadow-xs"
+                    className="px-4 py-2 bg-[#7045D8] hover:bg-[#5B32BF] text-white text-xs font-extrabold rounded-xl shadow-xs"
                   >
                     {editingCoachingId ? "Update Coaching" : "Add Coaching"}
                   </button>
@@ -500,7 +500,7 @@ export const ManageCoachingHierarchyModal: React.FC<ManageCoachingHierarchyModal
                   )}
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-extrabold rounded-xl shadow-xs"
+                    className="px-4 py-2 bg-[#7045D8] hover:bg-[#5B32BF] text-white text-xs font-extrabold rounded-xl shadow-xs"
                   >
                     {editingExamId ? "Update Exam" : "Add Exam"}
                   </button>
@@ -646,7 +646,7 @@ export const ManageCoachingHierarchyModal: React.FC<ManageCoachingHierarchyModal
                   )}
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-extrabold rounded-xl shadow-xs"
+                    className="px-4 py-2 bg-[#7045D8] hover:bg-[#5B32BF] text-white text-xs font-extrabold rounded-xl shadow-xs"
                   >
                     {editingSeriesId ? "Update Series" : "Create Test Series"}
                   </button>

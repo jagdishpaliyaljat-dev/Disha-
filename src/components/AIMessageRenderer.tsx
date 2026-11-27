@@ -49,7 +49,7 @@ export const AIMessageRenderer: React.FC<AIMessageRendererProps> = ({
             </p>
           ),
           strong: ({ node, children, ...props }) => (
-            <strong className="font-extrabold text-indigo-950 dark:text-indigo-200" {...props}>
+            <strong className="font-extrabold text-slate-900 dark:text-slate-100" {...props}>
               {children}
             </strong>
           ),
@@ -59,17 +59,17 @@ export const AIMessageRenderer: React.FC<AIMessageRendererProps> = ({
             </em>
           ),
           h1: ({ node, children, ...props }) => (
-            <h1 className="font-black text-[15.5px] sm:text-[17.5px] text-indigo-950 dark:text-indigo-100 mt-3 mb-1.5 border-b border-indigo-100 dark:border-slate-700/60 pb-1" {...props}>
+            <h1 className="font-black text-[15.5px] sm:text-[17.5px] text-slate-900 dark:text-slate-100 mt-3 mb-1.5 border-b border-violet-100 dark:border-violet-900/40 dark:border-slate-700/60 pb-1" {...props}>
               {children}
             </h1>
           ),
           h2: ({ node, children, ...props }) => (
-            <h2 className="font-bold text-[14px] sm:text-[16px] text-indigo-950 dark:text-indigo-100 mt-2.5 mb-1 border-b border-indigo-50 dark:border-slate-700/40 pb-0.5" {...props}>
+            <h2 className="font-bold text-[14px] sm:text-[16px] text-slate-900 dark:text-slate-100 mt-2.5 mb-1 border-b border-violet-50 dark:border-violet-900/30 dark:border-slate-700/40 pb-0.5" {...props}>
               {children}
             </h2>
           ),
           h3: ({ node, children, ...props }) => (
-            <h3 className="font-bold text-[13.5px] sm:text-[15px] text-indigo-900 dark:text-indigo-200 mt-2 mb-1" {...props}>
+            <h3 className="font-bold text-[13.5px] sm:text-[15px] text-slate-900 dark:text-slate-100 mt-2 mb-1" {...props}>
               {children}
             </h3>
           ),
@@ -89,7 +89,7 @@ export const AIMessageRenderer: React.FC<AIMessageRendererProps> = ({
             </li>
           ),
           blockquote: ({ node, children, ...props }) => (
-            <blockquote className="border-l-3 border-indigo-500 pl-3 py-1.5 my-2 bg-indigo-50/60 dark:bg-indigo-950/40 rounded-r-lg italic text-slate-700 dark:text-slate-300 text-[13.5px] sm:text-[15.5px]" {...props}>
+            <blockquote className="border-l-3 border-violet-50 dark:border-violet-900/300 pl-3 py-1.5 my-2 bg-violet-50/60 dark:bg-violet-950/40 rounded-r-lg italic text-slate-700 dark:text-slate-300 text-[13.5px] sm:text-[15.5px]" {...props}>
               {children}
             </blockquote>
           ),
@@ -97,7 +97,7 @@ export const AIMessageRenderer: React.FC<AIMessageRendererProps> = ({
             const isBlock = codeClass || (typeof children === "string" && children.includes("\n"));
             if (!isBlock) {
               return (
-                <code className="px-1.5 py-0.5 rounded-md bg-indigo-50 dark:bg-slate-800 text-indigo-700 dark:text-indigo-300 font-mono text-[12px] sm:text-[13.5px] font-semibold border border-indigo-100 dark:border-slate-700" {...props}>
+                <code className="px-1.5 py-0.5 rounded-md bg-violet-50 dark:bg-slate-800 text-[#7045D8] dark:text-[#A78BFA] font-mono text-[12px] sm:text-[13.5px] font-semibold border border-violet-100 dark:border-violet-900/40 dark:border-slate-700" {...props}>
                   {children}
                 </code>
               );
@@ -120,7 +120,7 @@ export const AIMessageRenderer: React.FC<AIMessageRendererProps> = ({
             </div>
           ),
           thead: ({ node, children, ...props }) => (
-            <thead className="bg-indigo-50 dark:bg-slate-800 text-indigo-950 dark:text-indigo-200 border-b border-slate-200 dark:border-slate-700" {...props}>
+            <thead className="bg-violet-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 border-b border-slate-200 dark:border-slate-700" {...props}>
               {children}
             </thead>
           ),
@@ -152,7 +152,7 @@ export const AIMessageRenderer: React.FC<AIMessageRendererProps> = ({
               href={href}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-indigo-600 dark:text-indigo-400 font-bold underline underline-offset-2 hover:text-indigo-800 dark:hover:text-indigo-300"
+              className="text-[#7045D8] dark:text-[#A78BFA] font-bold underline underline-offset-2 hover:text-[#5B32BF] dark:hover:text-[#A78BFA]"
               {...props}
             >
               {children}

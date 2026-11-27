@@ -343,7 +343,7 @@ export const ArticleSEOControlPanel: React.FC<ArticleSEOControlPanelProps> = ({
           <button
             type="button"
             onClick={handleAutoInjectLinks}
-            className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-black flex items-center gap-2 shadow-md active:scale-95 cursor-pointer"
+            className="px-4 py-2.5 bg-[#7045D8] hover:bg-[#5B32BF] text-white rounded-xl text-xs font-black flex items-center gap-2 shadow-md active:scale-95 cursor-pointer"
             title="Auto-detect keywords and inject internal & external links"
           >
             <LinkIcon className="w-4 h-4 text-indigo-200" />
@@ -353,7 +353,7 @@ export const ArticleSEOControlPanel: React.FC<ArticleSEOControlPanelProps> = ({
           <button
             type="button"
             onClick={handleGenerateSeoDefaults}
-            className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-black flex items-center gap-2 shadow-md active:scale-95 cursor-pointer"
+            className="px-4 py-2.5 bg-[#7045D8] hover:bg-[#5B32BF] text-white rounded-xl text-xs font-black flex items-center gap-2 shadow-md active:scale-95 cursor-pointer"
             title="Parse title and first paragraph to propose SEO title & meta description"
           >
             <Wand2 className="w-4 h-4 text-amber-300" />

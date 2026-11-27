@@ -221,7 +221,7 @@ export const ArticleSectionReorderDnd: React.FC<ArticleSectionReorderDndProps> =
       {/* Top Controls Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-slate-100/70 dark:bg-slate-900/40 border border-slate-200/80 dark:border-slate-800">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-sm">
+          <div className="w-9 h-9 rounded-xl bg-[#7045D8] text-white flex items-center justify-center shadow-sm">
             <GripVertical className="w-5 h-5" />
           </div>
           <div>
@@ -240,7 +240,7 @@ export const ArticleSectionReorderDnd: React.FC<ArticleSectionReorderDndProps> =
         <button
           type="button"
           onClick={handleApplySeoPreset}
-          className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-black shadow-sm transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer shrink-0"
+          className="px-3.5 py-2 bg-[#7045D8] hover:bg-[#5B32BF] text-white rounded-xl text-xs font-black shadow-sm transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer shrink-0"
         >
           <Sparkles className="w-3.5 h-3.5" />
           <span>Apply Standard SEO Order</span>

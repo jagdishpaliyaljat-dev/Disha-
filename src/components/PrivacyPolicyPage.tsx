@@ -19,6 +19,7 @@ import {
   CheckCircle2,
   HelpCircle,
   ChevronRight,
+  Trash2,
 } from "lucide-react";
 import { AppLogo } from "./AppLogo";
 
@@ -142,7 +143,7 @@ export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({
                 <button
                   key={sec.id}
                   onClick={() => scrollToSection(sec.id)}
-                  className="flex items-center gap-2 px-3 py-2 rounded-xl text-left font-semibold text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50/50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
+                  className="flex items-center gap-2 px-3 py-2 rounded-xl text-left font-semibold text-slate-600 dark:text-slate-300 hover:text-[#7045D8] dark:hover:text-[#A78BFA] hover:bg-violet-50/50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
                 >
                   <span className="text-[11px] font-mono text-slate-400 dark:text-slate-500 w-5 shrink-0">
                     {sec.num}.
@@ -160,7 +161,7 @@ export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({
           className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
         >
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+            <div className="w-9 h-9 rounded-xl bg-[#7045D8]/10 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center shrink-0">
               <Database className="w-5 h-5" />
             </div>
             <div>
@@ -179,7 +180,7 @@ export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({
             {/* Subsection A */}
             <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/70 dark:border-slate-800 space-y-2">
               <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                <span className="w-5 h-5 rounded-md bg-blue-500/10 text-blue-600 dark:text-blue-400 text-xs font-mono font-black flex items-center justify-center">A</span>
+                <span className="w-5 h-5 rounded-md bg-[#7045D8]/10 text-[#7045D8] dark:text-[#A78BFA] text-xs font-mono font-black flex items-center justify-center">A</span>
                 Personal Information
               </h3>
               <p className="text-xs text-slate-600 dark:text-slate-300">
@@ -196,7 +197,7 @@ export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({
             {/* Subsection B */}
             <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/70 dark:border-slate-800 space-y-2">
               <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                <span className="w-5 h-5 rounded-md bg-blue-500/10 text-blue-600 dark:text-blue-400 text-xs font-mono font-black flex items-center justify-center">B</span>
+                <span className="w-5 h-5 rounded-md bg-[#7045D8]/10 text-[#7045D8] dark:text-[#A78BFA] text-xs font-mono font-black flex items-center justify-center">B</span>
                 Study and Activity Information
               </h3>
               <p className="text-xs text-slate-600 dark:text-slate-300">
@@ -214,7 +215,7 @@ export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({
             {/* Subsection C */}
             <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/70 dark:border-slate-800 space-y-2">
               <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                <span className="w-5 h-5 rounded-md bg-blue-500/10 text-blue-600 dark:text-blue-400 text-xs font-mono font-black flex items-center justify-center">C</span>
+                <span className="w-5 h-5 rounded-md bg-[#7045D8]/10 text-[#7045D8] dark:text-[#A78BFA] text-xs font-mono font-black flex items-center justify-center">C</span>
                 Technical Information
               </h3>
               <p className="text-xs text-slate-600 dark:text-slate-300">
@@ -241,7 +242,7 @@ export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({
           className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
         >
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+            <div className="w-9 h-9 rounded-xl bg-violet-500/10 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center shrink-0">
               <FileText className="w-5 h-5" />
             </div>
             <div>
@@ -516,10 +517,38 @@ export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({
                 key={idx}
                 className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800/60 text-xs text-slate-700 dark:text-slate-200 flex items-start gap-2"
               >
-                <CheckCircle2 className="w-3.5 h-3.5 text-blue-500 shrink-0 mt-0.5" />
+                <CheckCircle2 className="w-3.5 h-3.5 text-[#7045D8] shrink-0 mt-0.5" />
                 <span>{right}</span>
               </div>
             ))}
+          </div>
+
+          {/* Google Play Store Mandated Account & Data Deletion Instructions */}
+          <div
+            id="account-deletion"
+            className="p-4 sm:p-5 rounded-2xl bg-violet-50/70 dark:bg-[#241D48]/70 border border-[#7045D8]/20 dark:border-[#31275E] space-y-3 scroll-mt-20"
+          >
+            <div className="flex items-center gap-2 text-sm font-black text-[#7045D8] dark:text-[#A78BFA]">
+              <Trash2 className="w-4 h-4 shrink-0" />
+              <span>How to Request Account & Data Deletion (Google Play Compliance)</span>
+            </div>
+            <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
+              Disha PYQ empowers users with full ownership of their data. You can request permanent deletion of your account and all associated personal data via either method below:
+            </p>
+            <div className="space-y-2 text-xs text-slate-600 dark:text-slate-300">
+              <div className="flex items-start gap-2">
+                <span className="font-black text-[#7045D8] dark:text-[#A78BFA] shrink-0">1. In-App:</span>
+                <span>Open Profile Tab → Settings & Privacy → Tap <strong>"Clear Data & Delete Account"</strong>.</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="font-black text-[#7045D8] dark:text-[#A78BFA] shrink-0">2. By Email:</span>
+                <span>Send an email to <a href="mailto:disha2020prep@gmail.com?subject=Account%20Deletion%20Request" className="font-mono text-[#7045D8] dark:text-[#A78BFA] underline font-bold">disha2020prep@gmail.com</a> with subject <em>"Account Deletion Request"</em> from your registered email address.</span>
+              </div>
+            </div>
+            <div className="pt-2 text-[11px] text-slate-500 dark:text-slate-400 border-t border-[#7045D8]/15 space-y-1">
+              <p><strong>Data Deleted:</strong> Your profile details, email, full name, avatar, quiz attempt logs, mock test scores, and bookmark history are permanently purged within 30 days of request.</p>
+              <p><strong>Data Retained:</strong> Only fully anonymized, aggregate metrics that cannot be linked to any individual user are retained for exam question difficulty calibration.</p>
+            </div>
           </div>
 
           <p className="text-xs text-slate-500 dark:text-slate-400 pt-2 border-t border-slate-100 dark:border-slate-800">
@@ -560,7 +589,7 @@ export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({
           className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
         >
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+            <div className="w-9 h-9 rounded-xl bg-[#7045D8]/10 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center shrink-0">
               <GraduationCap className="w-5 h-5" />
             </div>
             <div>
@@ -609,7 +638,7 @@ export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({
           className="bg-white dark:bg-[#1B1536] rounded-3xl p-5 sm:p-7 border border-slate-200/80 dark:border-slate-800/80 shadow-xs space-y-4 scroll-mt-20"
         >
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+            <div className="w-9 h-9 rounded-xl bg-[#7045D8]/10 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center shrink-0">
               <Mail className="w-5 h-5" />
             </div>
             <div>
@@ -632,7 +661,7 @@ export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({
                 href="https://disha2020.in"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-600 dark:text-blue-400 underline font-semibold hover:text-blue-700"
+                className="text-[#7045D8] dark:text-[#A78BFA] underline font-semibold hover:text-[#5B32BF]"
               >
                 https://disha2020.in
               </a>
@@ -641,7 +670,7 @@ export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({
               <span className="text-slate-400 w-24 shrink-0 font-medium">Email:</span>
               <a
                 href="mailto:contact@disha2020.in"
-                className="text-blue-600 dark:text-blue-400 underline font-semibold hover:text-blue-700"
+                className="text-[#7045D8] dark:text-[#A78BFA] underline font-semibold hover:text-[#5B32BF]"
               >
                 contact@disha2020.in
               </a>
@@ -650,7 +679,7 @@ export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({
               <span className="text-slate-400 w-24 shrink-0 font-medium">Alternative:</span>
               <a
                 href="mailto:jagdishpaliyaljat2003@gmail.com"
-                className="text-blue-600 dark:text-blue-400 underline font-semibold hover:text-blue-700 font-mono text-xs break-all"
+                className="text-[#7045D8] dark:text-[#A78BFA] underline font-semibold hover:text-[#5B32BF] font-mono text-xs break-all"
               >
                 jagdishpaliyaljat2003@gmail.com
               </a>
@@ -669,7 +698,7 @@ export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({
         </section>
 
         {/* CTA & Quick Jump Section */}
-        <section className="bg-gradient-to-br from-[#071B49] via-[#0D2869] to-[#1E3A8A] rounded-3xl p-6 sm:p-8 text-white text-center space-y-4 shadow-xl">
+        <section className="bg-gradient-to-br from-[#1B1536] via-[#2A1E5C] to-[#5B32BF] rounded-3xl p-6 sm:p-8 text-white text-center space-y-4 shadow-xl">
           <h3 className="text-lg sm:text-xl font-black text-white">
             Ready to Practice?
           </h3>
@@ -699,14 +728,14 @@ export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
             <button
               onClick={onNavigateHome}
-              className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer"
+              className="hover:text-[#7045D8] dark:hover:text-[#A78BFA] transition-colors cursor-pointer"
             >
               Home
             </button>
             <span>•</span>
             <button
               onClick={onOpenAbout}
-              className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer"
+              className="hover:text-[#7045D8] dark:hover:text-[#A78BFA] transition-colors cursor-pointer"
             >
               About Us
             </button>
@@ -715,21 +744,21 @@ export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({
             <span>•</span>
             <button
               onClick={onOpenTerms}
-              className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer"
+              className="hover:text-[#7045D8] dark:hover:text-[#A78BFA] transition-colors cursor-pointer"
             >
               Terms & Conditions
             </button>
             <span>•</span>
             <button
               onClick={onOpenContact}
-              className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer"
+              className="hover:text-[#7045D8] dark:hover:text-[#A78BFA] transition-colors cursor-pointer"
             >
               Contact Us
             </button>
             <span>•</span>
             <button
               onClick={onOpenDisclaimer}
-              className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer"
+              className="hover:text-[#7045D8] dark:hover:text-[#A78BFA] transition-colors cursor-pointer"
             >
               Disclaimer
             </button>

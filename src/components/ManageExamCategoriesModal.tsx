@@ -181,7 +181,7 @@ export const ManageExamCategoriesModal: React.FC<ManageExamCategoriesModalProps>
                 <button
                   onClick={handleSave}
                   disabled={isSaving || !name.trim()}
-                  className="flex-1 p-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-xl text-xs font-black shadow-sm flex items-center justify-center gap-1.5 transition-all active:scale-95 cursor-pointer"
+                  className="flex-1 p-2.5 bg-[#7045D8] hover:bg-[#5B32BF] disabled:opacity-50 text-white rounded-xl text-xs font-black shadow-sm flex items-center justify-center gap-1.5 transition-all active:scale-95 cursor-pointer"
                 >
                   <Save className="w-3.5 h-3.5" />
                   <span>{editingId ? "Update" : "Add"}</span>
@@ -227,7 +227,7 @@ export const ManageExamCategoriesModal: React.FC<ManageExamCategoriesModalProps>
                   categories.map((cat) => (
                     <div
                       key={cat.id}
-                      className="flex items-center justify-between p-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl group hover:border-indigo-400 dark:hover:border-indigo-600 transition-all shadow-xs"
+                      className="flex items-center justify-between p-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl group hover:border-indigo-400 dark:hover:border-[#7045D8] transition-all shadow-xs"
                     >
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500 flex items-center justify-center font-mono text-xs font-black">

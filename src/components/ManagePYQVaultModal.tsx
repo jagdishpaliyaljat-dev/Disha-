@@ -647,7 +647,7 @@ export const ManagePYQVaultModal: React.FC<ManagePYQVaultModalProps> = ({
                     <button
                       type="button"
                       onClick={() => setShowQuestionForm(!showQuestionForm)}
-                      className="px-3 py-1.5 bg-blue-600 text-white rounded-xl text-xs font-bold hover:bg-blue-700 cursor-pointer flex items-center gap-1"
+                      className="px-3 py-1.5 bg-[#7045D8] text-white rounded-xl text-xs font-bold hover:bg-[#5B32BF] cursor-pointer flex items-center gap-1"
                     >
                       <Plus className="w-3.5 h-3.5" />
                       <span>Add Question</span>

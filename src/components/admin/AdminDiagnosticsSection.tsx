@@ -337,7 +337,7 @@ export const AdminDiagnosticsSection: React.FC<AdminDiagnosticsSectionProps> = (
           <button
             onClick={runReadOnlyScan}
             disabled={scanning}
-            className="px-4 py-2.5 rounded-xl bg-slate-900 dark:bg-indigo-600 hover:bg-slate-800 dark:hover:bg-indigo-700 text-white text-xs font-bold flex items-center gap-2 shadow-xs transition-all cursor-pointer active:scale-95 disabled:opacity-50 self-start sm:self-auto"
+            className="px-4 py-2.5 rounded-xl bg-slate-900 dark:bg-[#7045D8] hover:bg-slate-800 dark:hover:bg-[#5B32BF] text-white text-xs font-bold flex items-center gap-2 shadow-xs transition-all cursor-pointer active:scale-95 disabled:opacity-50 self-start sm:self-auto"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${scanning ? "animate-spin" : ""}`} />
             <span>{scanning ? "Auditing Database..." : "Run Integrity Audit"}</span>

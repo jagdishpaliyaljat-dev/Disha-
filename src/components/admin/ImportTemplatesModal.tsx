@@ -67,7 +67,7 @@ export const ImportTemplatesModal: React.FC<ImportTemplatesModalProps> = ({ isOp
         </div>
         <div className="flex gap-2 mb-4">
           {(["Text", "JSON", "CSV"] as const).map(tab => (
-            <button key={tab} className={`px-4 py-2 rounded ${activeTab === tab ? 'bg-blue-600 text-white' : 'bg-gray-200'}`} onClick={() => setActiveTab(tab)}>{tab}</button>
+            <button key={tab} className={`px-4 py-2 rounded ${activeTab === tab ? 'bg-[#7045D8] text-white' : 'bg-gray-200'}`} onClick={() => setActiveTab(tab)}>{tab}</button>
           ))}
         </div>
         <div className="space-y-6">

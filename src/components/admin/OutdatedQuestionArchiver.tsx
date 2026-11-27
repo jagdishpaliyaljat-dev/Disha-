@@ -714,7 +714,7 @@ export const OutdatedQuestionArchiver: React.FC<OutdatedQuestionArchiverProps> =
               }}
               className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
                 activeTab === "historical"
-                  ? "bg-blue-600 text-white shadow-xs"
+                  ? "bg-[#7045D8] text-white shadow-xs"
                   : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
               }`}
             >
@@ -870,7 +870,7 @@ export const OutdatedQuestionArchiver: React.FC<OutdatedQuestionArchiverProps> =
                             : item.classification === "needs_refresh"
                             ? "bg-amber-600"
                             : item.classification === "historical_pyq"
-                            ? "bg-blue-600"
+                            ? "bg-[#7045D8]"
                             : "bg-emerald-600"
                         }`}
                       >
