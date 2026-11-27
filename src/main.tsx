@@ -10,6 +10,18 @@ import './index.css';
 // Initialize Sentry crash reporting FIRST (before any React render)
 initSentry();
 
+// Capture incoming OAuth redirect tokens before Supabase auth strips them from URL
+if (typeof window !== "undefined") {
+  try {
+    const isAuthLanding =
+      window.location.hash.includes("access_token=") ||
+      window.location.search.includes("code=") ||
+      window.location.pathname.includes("auth-callback");
+    if (isAuthLanding) {
+      sessionStorage.setItem("disha_oauth_redirect_pending", "true");
+    }
+  } catch (_) {}
+}
 
 // Deep cache purge and URL cleanup when booting in recovery mode (?recovery=1 / ?repaired=1)
 if (typeof window !== "undefined") {

@@ -54,14 +54,26 @@ export const performNativeGoogleLogin = async (): Promise<{
     await initNativeSocialLogin();
 
     console.info('[MobileAuth] Launching Native Google Account Picker...');
-    const response = await SocialLogin.login({
-      provider: 'google',
-      options: {
-        style: 'bottom',
-        filterByAuthorizedAccounts: false,
-        autoSelectEnabled: false,
-      },
-    });
+    let response: any = null;
+    try {
+      response = await SocialLogin.login({
+        provider: 'google',
+        options: {
+          style: 'bottom',
+          filterByAuthorizedAccounts: false,
+          autoSelectEnabled: false,
+        },
+      });
+    } catch (bottomErr: any) {
+      console.info('[MobileAuth] Bottom sheet One-Tap skipped, trying standard UI:', bottomErr?.message);
+      // Fallback to standard Google sign-in UI if bottom sheet fails
+      response = await SocialLogin.login({
+        provider: 'google',
+        options: {
+          style: 'standard',
+        },
+      });
+    }
 
     const idToken = (response?.result as any)?.idToken;
     if (!idToken) {
@@ -201,6 +213,9 @@ export const parseAuthTokensFromUrl = (url: string): {
   return { accessToken, refreshToken, code, errorDescription };
 };
 
+let activeExchangePromise: Promise<boolean> | null = null;
+let lastHandledAuthUrl = '';
+
 /**
  * Handle incoming OAuth callback URL and set Supabase session
  */
@@ -212,62 +227,78 @@ export const handleIncomingAuthUrl = async (
     return false;
   }
 
-  const { accessToken, refreshToken, code, errorDescription } = parseAuthTokensFromUrl(rawUrl);
-
-  if (errorDescription) {
-    console.warn('[MobileAuth] OAuth error description received:', errorDescription);
-    try {
-      await Browser.close();
-    } catch {}
-    return false;
+  // Deduplicate concurrent triggers for the exact same callback URL across listeners
+  if (rawUrl === lastHandledAuthUrl && activeExchangePromise) {
+    return activeExchangePromise;
   }
 
-  // Flow A: Implicit Hash Flow (access_token + refresh_token)
-  if (accessToken && refreshToken) {
+  lastHandledAuthUrl = rawUrl;
+  activeExchangePromise = (async () => {
     try {
-      const { data, error } = await supabase.auth.setSession({
-        access_token: accessToken,
-        refresh_token: refreshToken,
-      });
+      const { accessToken, refreshToken, code, errorDescription } = parseAuthTokensFromUrl(rawUrl);
 
-      try {
-        await Browser.close();
-      } catch {}
+      if (errorDescription) {
+        console.warn('[MobileAuth] OAuth error description received:', errorDescription);
+        try {
+          await Browser.close();
+        } catch {}
+        return false;
+      }
 
-      if (!error && data?.session) {
-        if (onSessionEstablished) onSessionEstablished(data.session);
-        return true;
+      // Flow A: Implicit Hash Flow (access_token + refresh_token)
+      if (accessToken && refreshToken) {
+        try {
+          const { data, error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          });
+
+          try {
+            await Browser.close();
+          } catch {}
+
+          if (!error && data?.session) {
+            if (onSessionEstablished) onSessionEstablished(data.session);
+            return true;
+          }
+          if (error) {
+            console.warn('[MobileAuth] Failed to setSession:', error.message);
+          }
+        } catch (err) {
+          console.warn('[MobileAuth] Exception setting session from tokens:', err);
+        }
       }
-      if (error) {
-        console.warn('[MobileAuth] Failed to setSession:', error.message);
+
+      // Flow B: PKCE Auth Code Flow (code)
+      if (code) {
+        try {
+          const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+
+          try {
+            await Browser.close();
+          } catch {}
+
+          if (!error && data?.session) {
+            if (onSessionEstablished) onSessionEstablished(data.session);
+            return true;
+          }
+          if (error) {
+            console.warn('[MobileAuth] Failed to exchangeCodeForSession:', error.message);
+          }
+        } catch (err) {
+          console.warn('[MobileAuth] Exception exchanging auth code:', err);
+        }
       }
-    } catch (err) {
-      console.warn('[MobileAuth] Exception setting session from tokens:', err);
+
+      return false;
+    } finally {
+      setTimeout(() => {
+        activeExchangePromise = null;
+      }, 2500);
     }
-  }
+  })();
 
-  // Flow B: PKCE Auth Code Flow (code)
-  if (code) {
-    try {
-      const { data, error } = await supabase.auth.exchangeCodeForSession(code);
-
-      try {
-        await Browser.close();
-      } catch {}
-
-      if (!error && data?.session) {
-        if (onSessionEstablished) onSessionEstablished(data.session);
-        return true;
-      }
-      if (error) {
-        console.warn('[MobileAuth] Failed to exchangeCodeForSession:', error.message);
-      }
-    } catch (err) {
-      console.warn('[MobileAuth] Exception exchanging auth code:', err);
-    }
-  }
-
-  return false;
+  return activeExchangePromise;
 };
 
 /**

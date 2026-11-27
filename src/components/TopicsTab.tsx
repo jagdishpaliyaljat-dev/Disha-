@@ -36,6 +36,10 @@ import {
   Save,
   X,
   Plus,
+  Zap,
+  Target,
+  Clock,
+  Sparkle,
 } from "lucide-react";
 import ShareModal, { ShareData } from "./ShareModal";
 import { buildTopicShareData } from "../utils/shareService";
@@ -702,25 +706,26 @@ function TopicDetailView({
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#F8FAFC] dark:bg-[#130E26]" id="topic-detail-view">
-      {/* Sticky Header */}
-      <header className="bg-white/95 dark:bg-[#130E26]/95 backdrop-blur-md border-b border-slate-200 dark:border-[#31275E] sticky top-0 md:top-14 z-30 shadow-xs pt-[env(safe-area-inset-top,0px)] md:pt-0">
-        <div className="px-4 py-2.5 min-h-[60px] flex items-center justify-between gap-3 max-w-4xl mx-auto w-full">
+    <div className="flex flex-col h-full bg-[#F8FAFC] dark:bg-[#0F0A1E]" id="topic-detail-view">
+      {/* Premium Sticky Header */}
+      <header className="bg-white/90 dark:bg-[#130E26]/90 backdrop-blur-xl border-b border-slate-200/80 dark:border-white/10 sticky top-0 md:top-14 z-30 shadow-xs pt-[env(safe-area-inset-top,0px)] md:pt-0">
+        <div className="px-4 py-3 min-h-[64px] flex items-center justify-between gap-3 max-w-4xl mx-auto w-full">
           <div className="flex items-center gap-3 min-w-0">
             <button
               type="button"
               onClick={onBack}
-              className="w-11 h-11 rounded-xl bg-slate-100 dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] flex items-center justify-center text-slate-900 dark:text-slate-50 active:scale-95 transition-all cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
+              className="w-10 h-10 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/15 border border-slate-200/60 dark:border-white/10 flex items-center justify-center text-slate-800 dark:text-slate-100 active:scale-95 transition-all cursor-pointer shrink-0 shadow-xs"
               title="Go Back"
               aria-label="Go Back"
             >
-              <ArrowLeft className="w-4.5 h-4.5" />
+              <ArrowLeft className="w-5 h-5" />
             </button>
             <div className="min-w-0">
-              <p className="text-[11px] font-bold text-[#7045D8] dark:text-[#A78BFA] uppercase tracking-wider truncate">
+              <p className="text-[11px] font-black tracking-wider uppercase text-purple-600 dark:text-purple-400 truncate flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-purple-500 inline-block animate-pulse" />
                 {getSubjectDisplayName(activeSubject)} · {getChapterDisplayName(activeChapter)}
               </p>
-              <h2 className="text-sm font-extrabold text-slate-900 dark:text-slate-50 truncate font-hindi">
+              <h2 className="text-base font-black text-slate-900 dark:text-white truncate font-hindi">
                 {getTopicDisplayName(topic)}
               </h2>
             </div>
@@ -729,115 +734,147 @@ function TopicDetailView({
       </header>
 
       {/* Main Coaching Content */}
-      <main className="flex-1 overflow-y-auto p-3.5 sm:p-6 space-y-4 sm:space-y-5 max-w-4xl mx-auto w-full pb-28 md:pb-8">
-        {/* Topic Title Card */}
-        <div className="bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xs">
-          <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-            <span className="inline-block text-[11px] font-black uppercase tracking-wider text-[#7045D8] dark:text-[#A78BFA] bg-[#7045D8]/10 dark:bg-[#7045D8]/15 px-2.5 py-1 rounded-full">
-              Topic Practice
-            </span>
+      <main className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 sm:space-y-6 max-w-4xl mx-auto w-full pb-32 md:pb-12">
+        {/* HERO CARD - Modern Gradient Aura */}
+        <div className="relative overflow-hidden rounded-3xl p-5 sm:p-7 bg-gradient-to-br from-[#7045D8] via-[#5B32BF] to-[#3B1F8E] text-white shadow-xl shadow-purple-600/20 border border-white/15">
+          {/* Subtle Ambient Decorative Circles */}
+          <div className="absolute -top-12 -right-12 w-48 h-48 bg-white/10 rounded-full blur-2xl pointer-events-none" />
+          <div className="absolute -bottom-10 -left-10 w-44 h-44 bg-amber-400/20 rounded-full blur-2xl pointer-events-none" />
+
+          {/* Top Badges Row */}
+          <div className="relative z-10 flex flex-wrap items-center justify-between gap-2.5 mb-4">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-white/20 backdrop-blur-md text-white border border-white/20 shadow-xs">
+                <Sparkle className="w-3.5 h-3.5 text-amber-300 fill-amber-300" />
+                Topic Mastery
+              </span>
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-400/20 border border-amber-300/30 text-amber-200">
+                <Zap className="w-3 h-3 text-amber-300" />
+                High Yield
+              </span>
+            </div>
+
             <button
               type="button"
               onClick={handleOfflineDownload}
               disabled={isDownloading || isDownloaded}
-              className={`offlineDownload px-3 py-1 rounded-xl text-xs font-bold flex items-center gap-1.5 border transition-all ${
+              className={`px-3.5 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 backdrop-blur-md transition-all active:scale-95 shadow-xs border ${
                 isDownloaded
-                  ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800"
-                  : "bg-slate-100 hover:bg-slate-200 dark:bg-[#241D48] dark:hover:bg-[#31275E] text-slate-700 dark:text-slate-300 border-slate-200 dark:border-[#31275E] cursor-pointer"
+                  ? "bg-emerald-500/20 text-emerald-200 border-emerald-400/40"
+                  : "bg-white/15 hover:bg-white/25 text-white border-white/25 cursor-pointer"
               }`}
             >
               {isDownloaded ? (
                 <>
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                  <span>ऑफलाइन उपलब्ध (Saved Offline)</span>
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />
+                  <span>सेव है (Offline Ready)</span>
                 </>
               ) : isDownloading ? (
                 <>
-                  <div className="w-3.5 h-3.5 border-2 border-[#7045D8] border-t-transparent rounded-full animate-spin" />
-                  <span>डाउनलोड हो रहा है...</span>
+                  <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span>डाउनलोड...</span>
                 </>
               ) : (
                 <>
-                  <Download className="w-3.5 h-3.5 text-[#7045D8] dark:text-[#A78BFA]" />
-                  <span>ऑफलाइन सेव करें (Save Offline)</span>
+                  <Download className="w-3.5 h-3.5 text-white" />
+                  <span>ऑफलाइन सेव करें</span>
                 </>
               )}
             </button>
           </div>
 
-          <h1 className="text-lg sm:text-2xl font-black text-slate-900 dark:text-slate-50 font-hindi leading-snug">
-            {getTopicDisplayName(topic)}
-          </h1>
-          {getTopicSecondaryTitle(topic) && (
-            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-hindi mt-1">
-              {getTopicSecondaryTitle(topic)}
+          {/* Title Area */}
+          <div className="relative z-10">
+            <h1 className="text-xl sm:text-3xl font-black text-white font-hindi leading-tight tracking-tight drop-shadow-xs">
+              {getTopicDisplayName(topic)}
+            </h1>
+            {getTopicSecondaryTitle(topic) && (
+              <p className="text-xs sm:text-sm text-purple-100/90 font-hindi mt-1.5">
+                {getTopicSecondaryTitle(topic)}
+              </p>
+            )}
+            <p className="text-xs sm:text-sm text-purple-200/80 mt-2 font-medium">
+              इस टॉपिक से संबंधित आरपीएससी व राजस्थान कर्मचारी चयन बोर्ड के विगत वर्षों के प्रश्न।
             </p>
-          )}
+          </div>
         </div>
 
-        {/* 20-20 PRACTICE TEST */}
-        <div className="bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xs space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-slate-50 flex items-center gap-2">
-              <Award className="w-4.5 h-4.5 text-[#7045D8] dark:text-[#A78BFA]" />
-              <span>20-20 Practice Test Simulation</span>
-            </h2>
-            <span className="text-xs font-bold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 px-2.5 py-1 rounded-lg">
-              High Yield Practice
+        {/* 20-20 PRACTICE SIMULATION CARD */}
+        <div className="bg-white dark:bg-[#1B1536] border border-slate-200/80 dark:border-white/10 rounded-3xl p-5 sm:p-6 shadow-sm hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2.5">
+              <div className="w-10 h-10 rounded-2xl bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800 flex items-center justify-center text-[#7045D8] dark:text-[#A78BFA] shadow-xs">
+                <Target className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-base font-extrabold text-slate-900 dark:text-white">
+                  20–20 Practice Test Simulation
+                </h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Real Exam Environment with Instant Analytics
+                </p>
+              </div>
+            </div>
+            <span className="hidden sm:inline-block text-xs font-bold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50 px-3 py-1 rounded-full">
+              OMR 5th Option Enabled
             </span>
           </div>
 
-          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
-            This topic contains <strong>{questionCount}</strong> high-yield standard questions, including recent competitive exam PYQs and expected questions.
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
+            इस अभ्यास सत्र में कुल <strong>{questionCount}</strong> मानक एवं परीक्षा उपयोगी प्रश्न संकलित हैं, जो आपकी गति और सटीकता को निखारेंगे।
           </p>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="p-3.5 rounded-xl bg-[#FAF5EB] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-[#7045D8] text-white flex items-center justify-center shrink-0">
-                <HelpCircle className="w-4.5 h-4.5" />
+          {/* Interactive Stat Pills */}
+          <div className="grid grid-cols-2 gap-3 mb-5">
+            <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-[#241D48]/70 border border-slate-200/60 dark:border-white/5 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-300 flex items-center justify-center shrink-0">
+                <HelpCircle className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-[11px] font-black uppercase text-slate-500 dark:text-slate-400">Total Questions</p>
-                <p className="text-sm sm:text-base font-black text-slate-900 dark:text-slate-50 tabular-nums">{questionCount} MCQs</p>
+                <p className="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-400">Total Questions</p>
+                <p className="text-base font-black text-slate-900 dark:text-white tabular-nums">{questionCount} MCQs</p>
               </div>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-[#FAF5EB] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-[#7045D8] text-white flex items-center justify-center shrink-0">
-                <Award className="w-4.5 h-4.5" />
+            <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-[#241D48]/70 border border-slate-200/60 dark:border-white/5 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-300 flex items-center justify-center shrink-0">
+                <Award className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-[11px] font-black uppercase text-slate-500 dark:text-slate-400">Pattern</p>
-                <p className="text-sm sm:text-base font-black text-slate-900 dark:text-slate-50">20-20 Test</p>
+                <p className="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-400">Negative Penalty</p>
+                <p className="text-base font-black text-slate-900 dark:text-white">1/3 Penalty / 5th OMR</p>
               </div>
             </div>
           </div>
 
+          {/* Primary Action Button */}
           <button
             onClick={handleStartTopicMCQ}
             disabled={isFetching}
-            className="w-full py-3.5 px-6 rounded-xl sm:rounded-2xl bg-[#7045D8] hover:bg-[#5B32BF] text-white font-bold text-sm sm:text-base border border-[#A78BFA]/30 shadow-md flex items-center justify-center gap-2.5 transition-all duration-180 active:scale-98 cursor-pointer disabled:opacity-50"
+            className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-[#7045D8] to-[#5B32BF] hover:from-[#6339CA] hover:to-[#4F29AC] text-white font-extrabold text-base shadow-lg shadow-purple-600/30 hover:shadow-purple-600/40 border border-white/20 flex items-center justify-center gap-3 transition-all duration-150 active:scale-[0.98] cursor-pointer disabled:opacity-50"
           >
             {isFetching ? (
               <>
-                <RefreshCw className="w-4.5 h-4.5 animate-spin text-amber-500" />
-                <span>Loading Test...</span>
+                <RefreshCw className="w-5 h-5 animate-spin text-amber-300" />
+                <span>लोड हो रहा है (Loading)...</span>
               </>
             ) : (
               <>
-                <Play className="w-4.5 h-4.5 fill-white" />
+                <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center">
+                  <Play className="w-4 h-4 fill-white text-white translate-x-0.5" />
+                </div>
                 <span>Start Practice Test ({questionCount} Qs)</span>
-                <ChevronRight className="w-4 h-4 text-amber-500" />
+                <ChevronRight className="w-5 h-5 text-amber-300" />
               </>
             )}
           </button>
         </div>
 
-        {/* KEY CONCEPTS & SUMMARY */}
+        {/* KEY CONCEPTS & SUMMARY CARD */}
         {(topic.introText || topic.seoDescription) && (
-          <div className="bg-[#FAF5EB]/80 dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-xs space-y-2">
-            <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-[#7045D8] dark:text-[#A78BFA]">
-              <Sparkles className="w-4 h-4 text-[#7045D8]" />
+          <div className="bg-white dark:bg-[#1B1536] border border-slate-200/80 dark:border-white/10 rounded-3xl p-5 shadow-xs space-y-2.5">
+            <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-purple-600 dark:text-purple-400">
+              <Sparkles className="w-4 h-4 text-purple-600 dark:text-purple-400" />
               <span>Key Concepts &amp; Exam Pointers</span>
             </div>
             <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-hindi">

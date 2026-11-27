@@ -1212,18 +1212,22 @@ export default function App() {
             }
           } catch {}
 
-          // If running in mobile browser and this was a fresh OAuth redirect with tokens:
+          // If running in mobile browser and this was an OAuth redirect with established session:
           try {
-            if (!isNativePlatform() && isMobileBrowser() && session?.access_token && session?.refresh_token) {
-              const hashHasTokens = typeof window !== 'undefined' && (
-                window.location.hash.includes('access_token=') ||
-                window.location.search.includes('code=')
-              );
-              if (hashHasTokens) {
-                const deepLink = getAppDeepLinkFromSession(session.access_token, session.refresh_token);
-                // Attempt automatic handover to the installed Disha 20-20 App
-                window.location.href = deepLink;
-              }
+            const wasOAuthRedirect =
+              safeGetSessionStorageItem("disha_oauth_redirect_pending") === "true" ||
+              (typeof window !== "undefined" && (
+                window.location.hash.includes("access_token=") ||
+                window.location.search.includes("code=") ||
+                window.location.pathname.includes("auth-callback")
+              ));
+
+            if (!isNativePlatform() && isMobileBrowser() && session?.access_token && session?.refresh_token && wasOAuthRedirect) {
+              safeRemoveSessionStorageItem("disha_oauth_redirect_pending");
+              const deepLink = getAppDeepLinkFromSession(session.access_token, session.refresh_token);
+              // Automatic handover to the installed Disha PYQ native app
+              console.info("[App] Handing over session to native app via deep link:", deepLink);
+              window.location.href = deepLink;
             }
           } catch {}
         } else {

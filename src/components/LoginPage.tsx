@@ -93,36 +93,48 @@ export function LoginPage({ onLoginSuccess, onClose, isMandatory = false }: Logi
   // Start Browser-based Google OAuth flow directly
   const startBrowserOAuth = async () => {
     setConfigNotice(null);
-    setSuccessNotice("Opening secure Google Sign-In in browser...");
-    const redirectTo = getOAuthRedirectUrl();
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo,
-        queryParams: {
-          access_type: "offline",
-          prompt: "consent",
-        },
-      },
-    });
+    setSuccessNotice("Opening Google Sign-In in browser...");
+    setIsLoading(true);
 
-    if (error) {
-      setSuccessNotice(null);
-      console.warn("Supabase Google OAuth error:", error.message);
-      if (error.message?.toLowerCase().includes("not enabled")) {
-        setConfigNotice("Google Sign-In is currently initializing. Please try again or use Guest mode.");
+    try {
+      const redirectTo = getOAuthRedirectUrl();
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo,
+          queryParams: {
+            access_type: "offline",
+            prompt: "select_account",
+          },
+        },
+      });
+
+      if (error) {
+        setIsLoading(false);
+        setSuccessNotice(null);
+        console.warn("Supabase Google OAuth error:", error.message);
+        if (error.message?.toLowerCase().includes("not enabled")) {
+          setConfigNotice("Google Sign-In is initializing. Please try again or use Email OTP / Guest mode.");
+        } else {
+          setConfigNotice(`Authentication notice: ${error.message}`);
+        }
+      } else if (data?.url) {
+        await openOAuthBrowser(data.url);
+        setSuccessNotice("Complete Google Sign-In in the browser window to return to Disha PYQ.");
+        setIsLoading(false);
       } else {
-        setConfigNotice(`Authentication notice: ${error.message}`);
+        setIsLoading(false);
+        setSuccessNotice(null);
+        setConfigNotice("Unable to open Google Sign-In URL. Please try again or use Email OTP.");
       }
-    } else if (data?.url) {
-      await openOAuthBrowser(data.url);
-    } else {
+    } catch (err: any) {
+      setIsLoading(false);
       setSuccessNotice(null);
-      setConfigNotice("Unable to open Google Sign-In URL. Please try again.");
+      setConfigNotice(`Login error: ${err?.message || "Failed to open browser sign-in."}`);
     }
   };
 
-  // Supabase Google Login (Native Account Picker on Android with Browser OAuth auto-fallback)
+  // Supabase Google Login (Seamless Native Account Picker with auto-fallback to Browser OAuth)
   const handleGoogleLogin = async () => {
     setIsLoading(true);
     setConfigNotice(null);
@@ -133,43 +145,39 @@ export function LoginPage({ onLoginSuccess, onClose, isMandatory = false }: Logi
     try {
       if (!isSupabaseConfigured()) {
         setConfigNotice("Supabase credentials not configured in environment.");
+        setIsLoading(false);
         return;
       }
 
-      // 1. Try Native Account Picker first on Android / iOS
+      // 1. Try Native One-Tap / Account Picker first on Android / iOS
       if (isNativePlatform()) {
-        setSuccessNotice("Opening Google account picker...");
-        const nativeResult = await performNativeGoogleLogin();
+        setSuccessNotice("Connecting with Google...");
+        try {
+          const nativeResult = await performNativeGoogleLogin();
 
-        if (nativeResult.success && nativeResult.session) {
-          setConfigNotice(null);
-          setSuccessNotice("Login successful! Welcome.");
-          await syncProfileFromSession(nativeResult.session);
-          return;
+          if (nativeResult.success && nativeResult.session) {
+            setConfigNotice(null);
+            setSuccessNotice("Login successful! Welcome.");
+            await syncProfileFromSession(nativeResult.session);
+            return;
+          }
+
+          // If native one-tap could not complete (SHA-1 pending, dismissed, or restricted Play Services):
+          // NEVER halt the user — seamlessly auto-fallback to Browser OAuth!
+          console.info("[LoginPage] Native account picker not available, switching to browser sign-in:", nativeResult.error);
+          setSuccessNotice("Opening secure browser sign-in...");
+        } catch (nativeErr: any) {
+          console.warn("[LoginPage] Native login exception, switching to browser:", nativeErr);
+          setSuccessNotice("Opening secure browser sign-in...");
         }
-
-        setSuccessNotice(null);
-
-        // If user explicitly cancelled / dismissed sheet, inform them cleanly
-        if (nativeResult.cancelled) {
-          setConfigNotice(
-            "Google account picker was dismissed. Tap 'Continue with Google' again, use Browser Sign-In, or Continue as Guest."
-          );
-          return;
-        }
-
-        // If native picker failed due to system/services issue, auto-fallback to browser
-        console.warn("Native Google login error, auto-falling back to browser:", nativeResult.error);
-        setSuccessNotice("Switching to secure browser sign-in...");
       }
 
-      // 2. Standard OAuth Flow (Web or automatic fallback on native failure)
+      // 2. Standard OAuth Flow (Web or automatic fallback on native)
       await startBrowserOAuth();
     } catch (err: any) {
       console.warn("Login attempt error:", err);
       setSuccessNotice(null);
       setConfigNotice(`Login note: ${err?.message || "Failed to initialize login."}`);
-    } finally {
       setIsLoading(false);
     }
   };
@@ -182,13 +190,13 @@ export function LoginPage({ onLoginSuccess, onClose, isMandatory = false }: Logi
     try {
       if (!isSupabaseConfigured()) {
         setConfigNotice("Supabase credentials not configured in environment.");
+        setIsLoading(false);
         return;
       }
       await startBrowserOAuth();
     } catch (err: any) {
       setSuccessNotice(null);
       setConfigNotice(`Login note: ${err?.message || "Failed to launch browser sign-in."}`);
-    } finally {
       setIsLoading(false);
     }
   };
