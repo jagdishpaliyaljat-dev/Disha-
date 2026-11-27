@@ -1,34 +1,29 @@
 import * as React from "react";
 import { 
-  BookOpen, Layers, LayoutDashboard, Users, Image as ImageIcon, Terminal, Flame, X, 
-  FolderPlus, PlusCircle, Database, LayoutGrid, Settings, ShieldCheck, 
-  Upload, Sparkles, Menu, ChevronRight, ChevronLeft, HardDrive, Activity, Cpu, RefreshCw, Newspaper,
-  Trophy, CheckCircle2, ListFilter, ChevronDown, Trash2, AlertCircle, Building2,
-  FileCode, Archive, LogOut, ArrowRight, Timer, FileText, FileSpreadsheet, Home, Bot, Swords, ShieldAlert,
-  Crown, ArchiveRestore, FileCheck, GraduationCap, Headphones, AlertTriangle, CalendarClock,
-  Search, ExternalLink, SlidersHorizontal, Stethoscope, RefreshCcw, BarChart3, HelpCircle
+  BookOpen, LayoutDashboard, Users, Terminal, X, 
+  PlusCircle, Database, Settings, ShieldCheck, 
+  Upload, Sparkles, Menu, ChevronRight, ChevronLeft, Activity, Cpu, RefreshCw, Newspaper,
+  Trophy, ChevronDown, Trash2, Building2,
+  FileCode, Archive, LogOut, Timer, FileSpreadsheet, Home, Bot, Swords, ShieldAlert,
+  ArchiveRestore, FileCheck, CalendarClock,
+  Search, Stethoscope, BarChart3, Sun, Moon, Layers, HardDrive, Wrench
 } from "lucide-react";
 import { Subject, Chapter, UserQuestionsStore, UserProfile } from "../types";
 import { ConfirmDialog } from "./admin/ConfirmDialog";
 import { deleteSubject, deleteChapter, saveUserQuestionsStore, loadUserQuestionsStore, editQuestionInStore } from "../utils/questionsStorage";
 import { AdminSectionLoader } from "./admin/AdminSkeletonLoaders";
 import type { SyncProgressState } from "./admin/SyncProgressModal";
-import { isUserAdmin, clearUserProfile } from "../utils/userProfileStorage";
+import { clearUserProfile } from "../utils/userProfileStorage";
 import { 
-  ROLE_CONFIGS, 
   getStaffRole, 
-  isSuperAdminRole, 
-  isStaffUser, 
-  hasPermission 
+  isSuperAdminRole
 } from "../utils/rbac";
-import { getTotalDisplayCount, getCombinedSubjects, getCombinedChapters, getCombinedQuestions } from "../utils/questionsStorage";
-import { loadLocalPYQPapers, getDeletedPYQIds } from "../utils/pyqStorage";
-import { loadLocalLiveTests, getDeletedLiveTestIds } from "../utils/liveTestStorage";
-import { getDeletedBannerIds } from "../utils/bannerStorage";
-import { triggerAdminToast, AdminToastPayload } from "../utils/adminToast";
+import { getCombinedSubjects, getCombinedChapters, getCombinedQuestions } from "../utils/questionsStorage";
+import { loadLocalPYQPapers } from "../utils/pyqStorage";
+import { loadLocalLiveTests } from "../utils/liveTestStorage";
+import { triggerAdminToast } from "../utils/adminToast";
 import { supabase } from "../lib/supabase";
 import { AdminQuotaAlert } from "./admin/AdminQuotaAlert";
-import { getOAuthRedirectUrl, openOAuthBrowser, performNativeGoogleLogin, isNativePlatform } from "../utils/mobileAuthService";
 
 // Resilient lazy loader helper for admin subcomponents compatible with React 19
 function adminSafeLazy<T extends React.ComponentType<any>>(
@@ -39,14 +34,14 @@ function adminSafeLazy<T extends React.ComponentType<any>>(
     importFn().then((mod) => {
       const component = exportName ? mod[exportName] || mod.default : mod.default || Object.values(mod)[0];
       if (!component) {
-        throw new Error(`Admin subcomponent '${exportName || 'default'}' not found`);
+        throw new Error(`Admin subcomponent '${exportName || "default"}' not found`);
       }
       return { default: component };
     })
   ) as unknown as T;
 }
 
-// Feature-wise On-Demand Lazy Loaded Admin Modules
+// Lazy Loaded Admin Modules
 const AdminDashboardSection = adminSafeLazy<any>(() => import("./admin/AdminDashboardSection"), "AdminDashboardSection");
 const AdminAnalyticsDashboard = adminSafeLazy<any>(() => import("./admin/AdminAnalyticsDashboard"), "AdminAnalyticsDashboard");
 const AdminSyllabusSection = adminSafeLazy<any>(() => import("./admin/AdminSyllabusSection"), "AdminSyllabusSection");
@@ -60,14 +55,11 @@ const SupabaseAuditConsole = adminSafeLazy<any>(() => import("./admin/SupabaseAu
 const ProductionStabilityPanel = adminSafeLazy<any>(() => import("./admin/ProductionStabilityPanel"), "ProductionStabilityPanel");
 const SupabaseHealthPanel = adminSafeLazy<any>(() => import("./admin/SupabaseHealthPanel"), "SupabaseHealthPanel");
 const SyncHealthMonitorPanel = adminSafeLazy<any>(() => import("./admin/SyncHealthMonitorPanel"), "SyncHealthMonitorPanel");
-const AdminDiagnosticsSection = adminSafeLazy<any>(() => import("./admin/AdminDiagnosticsSection"), "AdminDiagnosticsSection");
-const DiagnosticReport = adminSafeLazy<any>(() => import("./admin/DiagnosticReport"), "DiagnosticReport");
 const CrashReportsSection = adminSafeLazy<any>(() => import("./admin/CrashReportsSection"), "CrashReportsSection");
 const DishaAIDashboard = adminSafeLazy<any>(() => import("./admin/DishaAIDashboard"), "DishaAIDashboard");
 const AIApiManagementSection = adminSafeLazy<any>(() => import("./admin/AIApiManagementSection"), "AIApiManagementSection");
 const ExportDataWidget = adminSafeLazy<any>(() => import("./admin/ExportDataWidget"), "ExportDataWidget");
 const BackupRestoreSection = adminSafeLazy<any>(() => import("./admin/BackupRestoreSection"), "BackupRestoreSection");
-const AuditLogWidget = adminSafeLazy<any>(() => import("./admin/AuditLogWidget"), "AuditLogWidget");
 const AdminFeatureControlSection = adminSafeLazy<any>(() => import("./admin/AdminFeatureControlSection"), "AdminFeatureControlSection");
 const SyncProgressModal = adminSafeLazy<any>(() => import("./admin/SyncProgressModal"), "SyncProgressModal");
 const SyncConfirmationModal = adminSafeLazy<any>(() => import("./admin/SyncConfirmationModal"), "SyncConfirmationModal");
@@ -115,17 +107,15 @@ interface AdminTabProps {
   onLogout?: () => void;
 }
 
-// 6 Core Executive Pillars for the Modernized Admin Panel
-export type AdminPillar = 
-  | "dashboard"  // 1. Executive Dashboard & Metrics
-  | "academic"   // 2. Academic Hub (Syllabus, Questions, Imports, QA Station, Approval)
-  | "tests"      // 3. Tests & Live Arena (Mock tests, PYQs, Coaching, Battles, Merit)
-  | "editorial"  // 4. Editorial & Learners (Articles, Banners, Users, Doubts, Broadcasts, Messages)
-  | "ai"         // 5. Disha AI Engine (Token Analytics, Gemini Key Rotation)
-  | "system";    // 6. Cloud & System Settings (Supabase, Features, Config, Staff, Crashes, Backups)
+export type AdminPillar =
+  | "dashboard"
+  | "academic"
+  | "tests"
+  | "editorial"
+  | "ai"
+  | "system";
 
-// Backward-compatible type alias
-export type AdminGroupSection = 
+export type AdminGroupSection =
   | AdminPillar
   | "syllabus"
   | "questions"
@@ -142,7 +132,6 @@ export type AdminGroupSection =
   | "backup"
   | "settings";
 
-// Helper to map any legacy URL query or path to the clean 6-pillar architecture
 function resolvePillarAndSubTab(input: string | null): { pillar: AdminPillar; subTab?: string } {
   if (!input) return { pillar: "dashboard", subTab: "overview" };
   const raw = input.toLowerCase().trim();
@@ -153,7 +142,6 @@ function resolvePillarAndSubTab(input: string | null): { pillar: AdminPillar; su
     case "questions":
       return { pillar: "academic", subTab: "questions" };
     case "content-health":
-      return { pillar: "academic", subTab: "qa" };
     case "outdated-archiver":
     case "archiver":
       return { pillar: "academic", subTab: "qa" };
@@ -184,7 +172,6 @@ function resolvePillarAndSubTab(input: string | null): { pillar: AdminPillar; su
     case "database":
       return { pillar: "system", subTab: "database" };
     case "diagnostics":
-      return { pillar: "system", subTab: "diagnostics" };
     case "crashes":
       return { pillar: "system", subTab: "crashes" };
     case "integrations":
@@ -208,7 +195,6 @@ function resolvePillarAndSubTab(input: string | null): { pillar: AdminPillar; su
 }
 
 export const AdminTab: React.FC<AdminTabProps> = (props) => {
-  // Initial URL Parameter Resolver
   const initialNav = React.useMemo(() => {
     if (typeof window !== "undefined") {
       const searchParams = new URLSearchParams(window.location.search);
@@ -216,57 +202,73 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
       if (sec) return resolvePillarAndSubTab(sec);
       const p = window.location.pathname;
       const h = window.location.hash;
-      if (p.includes("/admin/database") || h.includes("#admin/database") || p.includes("/admin/supabase") || h.includes("#admin/supabase")) return { pillar: "system" as AdminPillar, subTab: "database" };
-      if (p.includes("/admin/news") || h.includes("#admin/news")) return { pillar: "editorial" as AdminPillar, subTab: "news" };
-      if (p.includes("/admin/content-health") || h.includes("#admin/content-health")) return { pillar: "academic" as AdminPillar, subTab: "qa" };
-      if (p.includes("/admin/outdated") || h.includes("#admin/outdated")) return { pillar: "academic" as AdminPillar, subTab: "qa" };
-      if (p.includes("/admin/syllabus") || h.includes("#admin/syllabus")) return { pillar: "academic" as AdminPillar, subTab: "syllabus" };
+      if (p.includes("/admin/database") || h.includes("#admin/database") || p.includes("/admin/supabase") || h.includes("#admin/supabase")) {
+        return { pillar: "system" as AdminPillar, subTab: "database" };
+      }
+      if (p.includes("/admin/news") || h.includes("#admin/news")) {
+        return { pillar: "editorial" as AdminPillar, subTab: "news" };
+      }
+      if (p.includes("/admin/content-health") || h.includes("#admin/content-health")) {
+        return { pillar: "academic" as AdminPillar, subTab: "qa" };
+      }
+      if (p.includes("/admin/outdated") || h.includes("#admin/outdated")) {
+        return { pillar: "academic" as AdminPillar, subTab: "qa" };
+      }
+      if (p.includes("/admin/syllabus") || h.includes("#admin/syllabus")) {
+        return { pillar: "academic" as AdminPillar, subTab: "syllabus" };
+      }
     }
     return { pillar: "dashboard" as AdminPillar, subTab: "overview" };
   }, []);
 
-  // Primary 6-Pillar Active State
   const [activePillar, setActivePillar] = React.useState<AdminPillar>(initialNav.pillar);
 
-  // Pillar 1: Dashboard Subtabs
+  // Subtabs per pillar (clean, shallow hierarchy)
   const [subTabDashboard, setSubTabDashboard] = React.useState<"overview" | "analytics" | "heatmap" | "grid">(
-    (initialNav.subTab as any) || "overview"
+    initialNav.pillar === "dashboard" && initialNav.subTab ? (initialNav.subTab as any) : "overview"
   );
-
-  // Pillar 2: Academic Hub Subtabs
   const [subTabAcademic, setSubTabAcademic] = React.useState<"syllabus" | "questions" | "import" | "qa" | "approval">(
-    (initialNav.subTab as any) || "syllabus"
+    initialNav.pillar === "academic" && initialNav.subTab ? (initialNav.subTab as any) : "syllabus"
   );
-  // Content QA active subtool inside QA Station
-  const [activeQATool, setActiveQATool] = React.useState<"duplicate" | "health" | "outdated" | "recycle" | "bulk">("duplicate");
-
-  // Pillar 3: Tests & Battles Subtabs
-  const [subTabTests, setSubTabTests] = React.useState<"mock" | "battle" | "hierarchy">(
-    (initialNav.subTab as any) || "mock"
+  const [activeQATool, setActiveQATool] = React.useState<"duplicate" | "health" | "outdated" | "recycle" | "bulk">("health");
+  const [subTabTests, setSubTabTests] = React.useState<"mock" | "battle">(
+    initialNav.pillar === "tests" && initialNav.subTab ? (initialNav.subTab as any) : "mock"
   );
-
-  // Pillar 4: Editorial & Users Subtabs
   const [subTabEditorial, setSubTabEditorial] = React.useState<"news" | "banners" | "directory" | "doubts" | "notifications" | "messages">(
-    (initialNav.subTab as any) || "news"
+    initialNav.pillar === "editorial" && initialNav.subTab ? (initialNav.subTab as any) : "news"
   );
-
-  // Pillar 5: Disha AI Engine Subtabs
   const [subTabAI, setSubTabAI] = React.useState<"tokens" | "keys">(
-    (initialNav.subTab as any) || "tokens"
+    initialNav.pillar === "ai" && initialNav.subTab ? (initialNav.subTab as any) : "tokens"
   );
-
-  // Pillar 6: Cloud & System Settings Subtabs
-  const [subTabSystem, setSubTabSystem] = React.useState<"database" | "features" | "config" | "leaderboard" | "staff" | "crashes" | "backups" | "diagnostics">(
-    (initialNav.subTab as any) || "database"
+  const [subTabSystem, setSubTabSystem] = React.useState<"database" | "features" | "staff" | "crashes" | "backups">(
+    initialNav.pillar === "system" && initialNav.subTab ? (initialNav.subTab as any) : "database"
   );
-  const [subTabSupabase, setSubTabSupabase] = React.useState<"overview" | "explorer" | "diagnostics" | "report" | "audit" | "sync">("overview");
+  const [dbToolView, setDbToolView] = React.useState<"overview" | "explorer" | "sync">("overview");
+  const [staffOrLeaderboard, setStaffOrLeaderboard] = React.useState<"staff" | "leaderboard">("staff");
+  const [featureOrConfig, setFeatureOrConfig] = React.useState<"features" | "config">("features");
 
-  // Layout & Navigation State
+  // Layout & Theme State
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = React.useState(false);
-  const [searchQuery, setSearchQuery] = React.useState("");
+  const [isDark, setIsDark] = React.useState(() => {
+    if (typeof document !== "undefined") {
+      return document.documentElement.classList.contains("dark");
+    }
+    return false;
+  });
 
-  // Modal Triggers
+  const toggleTheme = () => {
+    if (typeof document !== "undefined") {
+      const next = !document.documentElement.classList.contains("dark");
+      document.documentElement.classList.toggle("dark", next);
+      try {
+        localStorage.setItem("disha_theme", next ? "dark" : "light");
+      } catch {}
+      setIsDark(next);
+    }
+  };
+
+  // Modals
   const [selectedUserForDetails, setSelectedUserForDetails] = React.useState<UserProfile | null>(null);
   const [showQATestRunner, setShowQATestRunner] = React.useState(false);
   const [showCoachingHierarchyModal, setShowCoachingHierarchyModal] = React.useState(false);
@@ -278,18 +280,12 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
   const [isAdminMenuOpen, setIsAdminMenuOpen] = React.useState(false);
   const adminMenuRef = React.useRef<HTMLDivElement>(null);
 
-  // Cloud Auth State
   const [cloudAuthState, setCloudAuthState] = React.useState<{
     checked: boolean;
     hasActiveSession: boolean;
     userEmail: string | null;
-  }>({
-    checked: false,
-    hasActiveSession: false,
-    userEmail: null,
-  });
+  }>({ checked: false, hasActiveSession: false, userEmail: null });
 
-  // Cloud Delete & Sync Confirmation State
   const [deleteConfirmTarget, setDeleteConfirmTarget] = React.useState<{
     type: "subject" | "chapter";
     id: string;
@@ -299,7 +295,6 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
   const [showConfirm, setShowConfirm] = React.useState(false);
   const [syncProgress, setSyncProgress] = React.useState<SyncProgressState | null>(null);
 
-  // Authentication & Session Listener
   React.useEffect(() => {
     let mounted = true;
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -311,9 +306,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
         });
       }
     }).catch(() => {
-      if (mounted) {
-        setCloudAuthState({ checked: true, hasActiveSession: false, userEmail: null });
-      }
+      if (mounted) setCloudAuthState({ checked: true, hasActiveSession: false, userEmail: null });
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -332,7 +325,6 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
     };
   }, []);
 
-  // Click outside admin menu dismissal
   React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (adminMenuRef.current && !adminMenuRef.current.contains(event.target as Node)) {
@@ -342,12 +334,10 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
     if (isAdminMenuOpen) {
       document.addEventListener("mousedown", handleClickOutside);
     }
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isAdminMenuOpen]);
 
-  // Combined Data calculations
+  // Data Calculations
   const combinedSubjectsList = React.useMemo(() => {
     return props.subjects && props.subjects.length > 0
       ? props.subjects
@@ -366,14 +356,11 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
     }, 0);
   }, [combinedChaptersList]);
 
-  // Aggregated Test Statistics
   const testsStats = React.useMemo(() => {
     let lt: any[] = [];
     let pyq: any[] = [];
     let pyqQCount = 0;
-    try {
-      lt = loadLocalLiveTests();
-    } catch {}
+    try { lt = loadLocalLiveTests(); } catch {}
     try {
       pyq = loadLocalPYQPapers();
       pyqQCount = pyq.reduce((acc, p) => acc + (p.questions?.length || 0), 0);
@@ -395,16 +382,9 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
     };
   }, []);
 
-  // RBAC permissions for the logged-in staff
-  const staffRole = React.useMemo(() => {
-    return getStaffRole(props.userProfile);
-  }, [props.userProfile]);
+  const staffRole = React.useMemo(() => getStaffRole(props.userProfile), [props.userProfile]);
+  const isSuperAdmin = React.useMemo(() => isSuperAdminRole(props.userProfile), [props.userProfile]);
 
-  const isSuperAdmin = React.useMemo(() => {
-    return isSuperAdminRole(props.userProfile);
-  }, [props.userProfile]);
-
-  // Navigation Selection Handler
   const handleSelectPillar = (pillar: AdminPillar, subTab?: string) => {
     setActivePillar(pillar);
     if (subTab) {
@@ -416,8 +396,6 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
       if (pillar === "system") setSubTabSystem(subTab as any);
     }
     setIsSidebarOpen(false);
-
-    // Update URL query smoothly without reloading
     if (typeof window !== "undefined") {
       const url = new URL(window.location.href);
       url.searchParams.set("section", pillar);
@@ -425,13 +403,10 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
     }
   };
 
-  // Sign out handler
   const handleAdminSignOut = async () => {
     setIsAdminMenuOpen(false);
     setIsSidebarOpen(false);
-    try {
-      await supabase.auth.signOut();
-    } catch {}
+    try { await supabase.auth.signOut(); } catch {}
     clearUserProfile();
     if (props.onLogout) {
       props.onLogout();
@@ -440,7 +415,6 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
     }
   };
 
-  // Cloud Sync Handlers
   const getSyncCost = () => {
     const customQ = props.questionsStore?.customQuestions?.length || 0;
     const customC = props.questionsStore?.customChapters?.length || 0;
@@ -448,9 +422,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
     return customQ + customC + customT;
   };
 
-  const handleSyncInit = () => {
-    setShowConfirm(true);
-  };
+  const handleSyncInit = () => setShowConfirm(true);
 
   const handleSyncClick = async () => {
     setShowConfirm(false);
@@ -514,11 +486,9 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
           const nextStore = deleteSubject(props.questionsStore, id);
           saveUserQuestionsStore(nextStore);
           props.onStoreUpdated?.(nextStore);
-          if (!res.success) {
-            throw new Error(res.message);
-          }
+          if (!res.success) throw new Error(res.message);
         }
-        triggerAdminToast("delete", "Subject Deleted from Supabase", `Subject "${title}" has been removed.`);
+        triggerAdminToast("delete", "Subject Deleted", `Subject "${title}" has been removed.`);
       } else {
         if (props.onDeleteChapter) {
           await props.onDeleteChapter(id);
@@ -528,11 +498,9 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
           const nextStore = deleteChapter(props.questionsStore, id);
           saveUserQuestionsStore(nextStore);
           props.onStoreUpdated?.(nextStore);
-          if (!res.success) {
-            throw new Error(res.message);
-          }
+          if (!res.success) throw new Error(res.message);
         }
-        triggerAdminToast("delete", "Chapter Deleted from Supabase", `Chapter "${title}" has been removed.`);
+        triggerAdminToast("delete", "Chapter Deleted", `Chapter "${title}" has been removed.`);
       }
     } catch (e: any) {
       triggerAdminToast("error", "Delete Failed", e.message || "Could not delete from cloud.");
@@ -542,414 +510,429 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
     }
   };
 
-  // 6 Primary Executive Pillars Definition
+  // 6 Executive Pillars
   const executivePillars: {
     id: AdminPillar;
+    shortTitle: string;
     title: string;
-    description: string;
+    subtitle: string;
     icon: any;
     badge?: string;
-    category: "Core Operations" | "Academic & Community" | "Platform & Security";
+    category: "Core Operations" | "Exams & Community" | "AI & Infrastructure";
   }[] = [
     {
       id: "dashboard",
+      shortTitle: "Overview",
       title: "Dashboard & Metrics",
-      description: "Platform health, live activity, accuracy heatmap & category matrix",
+      subtitle: "Live KPIs, analytics, accuracy heatmap & 21 category matrix",
       icon: LayoutDashboard,
       category: "Core Operations"
     },
     {
       id: "academic",
+      shortTitle: "Academic",
       title: "Academic Hub",
-      description: "Syllabus, MCQs, Unified Import Hub, QA Station & Approval Queue",
+      subtitle: "Syllabus tree, question bank, unified import & QA station",
       icon: BookOpen,
       badge: `${totalQuestionsCount}`,
       category: "Core Operations"
     },
     {
       id: "tests",
-      title: "Tests & Battle Arena",
-      description: "Live Mocks, PYQ Vault, Coaching Batches, 1v1 Telemetry & Merit Lists",
+      shortTitle: "Tests",
+      title: "Tests & Battles",
+      subtitle: "Mock test series, PYQ vault, coaching & live battle arena",
       icon: Trophy,
       badge: testsStats.liveActiveCount > 0 ? `${testsStats.liveActiveCount} Live` : undefined,
-      category: "Academic & Community"
+      category: "Exams & Community"
     },
     {
       id: "editorial",
+      shortTitle: "Community",
       title: "Editorial & Learners",
-      description: "Articles CMS, App Banners, Student Directory, Doubts & Broadcasts",
-      icon: Newspaper,
-      category: "Academic & Community"
+      subtitle: "Articles CMS, app banners, students, doubt desk & broadcasts",
+      icon: Users,
+      category: "Exams & Community"
     },
     {
       id: "ai",
+      shortTitle: "Disha AI",
       title: "Disha AI Engine",
-      description: "Token analytics, query audit, latency logs & Gemini API key rotation",
+      subtitle: "Real-time token analytics & Gemini API key rotation",
       icon: Bot,
-      category: "Platform & Security"
+      category: "AI & Infrastructure"
     },
     {
       id: "system",
-      title: "Cloud & System Settings",
-      description: "Postgres Explorer, Feature Toggles, Maintenance, Staff RBAC & Backups",
+      shortTitle: "System",
+      title: "Cloud & System",
+      subtitle: "Supabase database, feature toggles, staff RBAC & backups",
       icon: Settings,
-      category: "Platform & Security"
+      category: "AI & Infrastructure"
     }
   ];
 
-  return (
-    <div className="flex flex-col min-h-screen bg-[#FDFBF7] dark:bg-[#0E091D] text-slate-900 dark:text-slate-100 transition-colors duration-200">
-      {/* 1. TOP EXECUTIVE HEADER */}
-      <header className="sticky top-0 z-40 bg-white/95 dark:bg-[#16102E]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#2E2556] shadow-xs">
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 h-16 flex items-center justify-between gap-3">
-          {/* Left: Mobile Toggle & Brand Emblem */}
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="lg:hidden p-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-              aria-label="Toggle navigation drawer"
-            >
-              <Menu className="w-5 h-5" />
-            </button>
+  const currentPillarMeta = executivePillars.find((p) => p.id === activePillar) || executivePillars[0];
 
-            <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#800020] via-[#A81D37] to-[#F59E0B] p-0.5 shadow-xs flex items-center justify-center">
+  return (
+    <div className="min-h-screen flex bg-[#F8FAFC] dark:bg-[#130E26] text-slate-900 dark:text-slate-50 font-sans selection:bg-[#7045D8] selection:text-white transition-colors duration-200">
+      
+      {/* ===================================================================== */}
+      {/* 1. DESKTOP FULL-HEIGHT SIDEBAR (lg+)                                  */}
+      {/* ===================================================================== */}
+      <aside
+        className={`hidden lg:flex flex-col shrink-0 sticky top-0 h-screen border-r border-slate-200 dark:border-[#31275E] bg-white dark:bg-[#1B1536] transition-all duration-200 z-30 ${
+          isSidebarCollapsed ? "w-[76px]" : "w-64"
+        }`}
+      >
+        {/* Brand Header */}
+        <div className="h-16 px-4 flex items-center justify-between border-b border-slate-200/80 dark:border-[#31275E]">
+          {!isSidebarCollapsed && (
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#7045D8] to-[#5B32BF] flex items-center justify-center shadow-sm shrink-0">
                 <ShieldCheck className="w-5 h-5 text-white" />
               </div>
-              <div className="flex flex-col">
+              <div className="min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <span className="font-extrabold text-sm sm:text-base tracking-tight text-slate-900 dark:text-white">
-                    Disha Console
+                  <span className="font-black text-sm tracking-tight text-slate-900 dark:text-white truncate">
+                    Disha Admin
                   </span>
-                  <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-[#800020]/10 text-[#800020] dark:bg-[#F59E0B]/15 dark:text-[#F59E0B] border border-[#800020]/20 dark:border-[#F59E0B]/30">
-                    v1.0.69
+                  <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-[#7045D8]/10 text-[#7045D8] dark:bg-[#A78BFA]/15 dark:text-[#A78BFA]">
+                    PRO
                   </span>
                 </div>
-                <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400 hidden sm:inline">
-                  Super Admin Management Suite
-                </span>
+                <p className="text-[10px] font-medium text-slate-500 dark:text-slate-400 truncate">
+                  {isSuperAdmin ? "Super Admin" : staffRole || "Console"}
+                </p>
               </div>
-            </div>
-          </div>
-
-          {/* Right: Actions, Sync Indicator, Return to Student App, Profile */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            {/* Direct 1-Tap "Return to Student App" */}
-            {props.onExitAdmin && (
-              <button
-                onClick={props.onExitAdmin}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/20 shadow-2xs font-bold text-xs transition-all active:scale-95 cursor-pointer"
-                title="Return to Student Application View"
-              >
-                <Home className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-                <span className="hidden xs:inline">Student App</span>
-              </button>
-            )}
-
-            {/* Supabase Cloud Sync Button */}
-            {props.onSyncToCloud && (
-              <button
-                onClick={handleSyncInit}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 shadow-2xs font-bold text-xs transition-all active:scale-95 cursor-pointer"
-                title="Synchronize offline and staged changes with Supabase Database"
-              >
-                <RefreshCw className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                <span className="hidden sm:inline">Cloud Sync</span>
-              </button>
-            )}
-
-            {/* Profile & Session Dropdown */}
-            <div className="relative" ref={adminMenuRef}>
-              <button
-                onClick={() => setIsAdminMenuOpen(!isAdminMenuOpen)}
-                className="flex items-center gap-2 p-1.5 sm:px-3 sm:py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition-all cursor-pointer"
-              >
-                <div className="w-6 h-6 rounded-lg bg-gradient-to-tr from-[#800020] to-[#F59E0B] text-white flex items-center justify-center font-bold text-xs">
-                  {props.userProfile?.name?.charAt(0) || "A"}
-                </div>
-                <div className="hidden md:flex flex-col text-left">
-                  <span className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate max-w-[100px]">
-                    {props.userProfile?.name || "Administrator"}
-                  </span>
-                  <span className="text-[9px] font-semibold text-slate-500 uppercase tracking-wider">
-                    {staffRole || "Super Admin"}
-                  </span>
-                </div>
-                <ChevronDown className="w-3.5 h-3.5 text-slate-400 hidden sm:block" />
-              </button>
-
-              {isAdminMenuOpen && (
-                <div className="absolute right-0 mt-2 w-56 rounded-2xl bg-white dark:bg-[#1A1435] border border-slate-200 dark:border-[#352B63] shadow-xl p-2 z-50">
-                  <div className="px-3 py-2 border-b border-slate-100 dark:border-slate-800 mb-1">
-                    <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
-                      {props.userProfile?.email || "admin@dishapyq.com"}
-                    </p>
-                    <p className="text-[10px] text-slate-500 dark:text-slate-400 capitalize">
-                      Role: {staffRole}
-                    </p>
-                  </div>
-
-                  {props.onExitAdmin && (
-                    <button
-                      onClick={() => {
-                        setIsAdminMenuOpen(false);
-                        props.onExitAdmin?.();
-                      }}
-                      className="w-full text-left px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 rounded-xl flex items-center gap-2"
-                    >
-                      <Home className="w-3.5 h-3.5 text-amber-500" />
-                      <span>Back to Student App</span>
-                    </button>
-                  )}
-
-                  <button
-                    onClick={() => {
-                      setIsAdminMenuOpen(false);
-                      setShowQATestRunner(true);
-                    }}
-                    className="w-full text-left px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 rounded-xl flex items-center gap-2"
-                  >
-                    <Terminal className="w-3.5 h-3.5 text-emerald-500" />
-                    <span>Run Automated QA Suite</span>
-                  </button>
-
-                  <div className="h-px bg-slate-100 dark:bg-slate-800 my-1" />
-
-                  <button
-                    onClick={handleAdminSignOut}
-                    className="w-full text-left px-3 py-2 text-xs font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/20 rounded-xl flex items-center gap-2"
-                  >
-                    <LogOut className="w-3.5 h-3.5" />
-                    <span>Sign Out of Console</span>
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Quota Notification Banner if active */}
-      <AdminQuotaAlert />
-
-      {/* 2. BODY LAYOUT: SIDEBAR + MAIN CONTENT AREA */}
-      <div className="flex-1 max-w-7xl w-full mx-auto flex">
-        {/* DESKTOP SIDEBAR */}
-        <aside
-          className={`hidden lg:flex flex-col shrink-0 border-r border-[#E8D9C0] dark:border-[#2E2556] bg-white/70 dark:bg-[#140E2A]/70 backdrop-blur-sm transition-all duration-200 ${
-            isSidebarCollapsed ? "w-20" : "w-64"
-          }`}
-        >
-          {/* Sidebar Collapse Toggle */}
-          <div className="p-3 flex justify-end border-b border-[#E8D9C0]/60 dark:border-[#2E2556]/60">
-            <button
-              onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-              title={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
-            >
-              {isSidebarCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
-            </button>
-          </div>
-
-          {/* Navigation Items Grouped by Category */}
-          <div className="flex-1 overflow-y-auto p-3 space-y-6">
-            {(["Core Operations", "Academic & Community", "Platform & Security"] as const).map((category) => {
-              const items = executivePillars.filter((p) => p.category === category);
-              return (
-                <div key={category} className="space-y-1">
-                  {!isSidebarCollapsed && (
-                    <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 px-3">
-                      {category}
-                    </span>
-                  )}
-                  {items.map((pillar) => {
-                    const Icon = pillar.icon;
-                    const isActive = activePillar === pillar.id;
-                    return (
-                      <button
-                        key={pillar.id}
-                        onClick={() => handleSelectPillar(pillar.id)}
-                        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all cursor-pointer ${
-                          isActive
-                            ? "bg-gradient-to-r from-[#800020] to-[#991B1E] text-white shadow-md font-bold"
-                            : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 font-medium"
-                        }`}
-                        title={pillar.title}
-                      >
-                        <Icon className={`w-5 h-5 shrink-0 ${isActive ? "text-amber-300" : "text-slate-500 dark:text-slate-400"}`} />
-                        {!isSidebarCollapsed && (
-                          <div className="flex-1 flex items-center justify-between min-w-0 text-left">
-                            <span className="text-xs truncate">{pillar.title}</span>
-                            {pillar.badge && (
-                              <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
-                                isActive ? "bg-white/20 text-white" : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
-                              }`}>
-                                {pillar.badge}
-                              </span>
-                            )}
-                          </div>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Return to App in Sidebar Bottom */}
-          {props.onExitAdmin && !isSidebarCollapsed && (
-            <div className="p-3 border-t border-[#E8D9C0]/60 dark:border-[#2E2556]/60">
-              <button
-                onClick={props.onExitAdmin}
-                className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-amber-500/10 hover:text-amber-700 dark:hover:text-amber-300 text-xs font-bold transition-all"
-              >
-                <Home className="w-4 h-4" />
-                <span>Return to Student App</span>
-              </button>
             </div>
           )}
-        </aside>
+          <button
+            onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+            className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-[#241D48] transition-colors cursor-pointer mx-auto"
+            title={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+            aria-label={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+          >
+            {isSidebarCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+          </button>
+        </div>
 
-        {/* MOBILE DRAWER OVERLAY */}
-        {isSidebarOpen && (
-          <div className="lg:hidden fixed inset-0 z-50 flex">
-            <div
-              className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
-              onClick={() => setIsSidebarOpen(false)}
-            />
-            <div className="relative w-72 max-w-[80vw] bg-[#FDFBF7] dark:bg-[#140E2A] h-full shadow-2xl flex flex-col p-4 border-r border-[#E8D9C0] dark:border-[#2E2556] z-10">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
-                <span className="font-extrabold text-sm text-[#800020] dark:text-[#F59E0B]">
-                  Admin Navigation
-                </span>
-                <button
-                  onClick={() => setIsSidebarOpen(false)}
-                  className="p-1 rounded-lg text-slate-400 hover:text-slate-600"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              <div className="flex-1 overflow-y-auto py-3 space-y-4">
-                {(["Core Operations", "Academic & Community", "Platform & Security"] as const).map((category) => {
-                  const items = executivePillars.filter((p) => p.category === category);
+        {/* Navigation Links */}
+        <nav className="flex-1 overflow-y-auto p-3 space-y-5" aria-label="Admin Sidebar Navigation">
+          {(["Core Operations", "Exams & Community", "AI & Infrastructure"] as const).map((cat) => {
+            const items = executivePillars.filter((p) => p.category === cat);
+            return (
+              <div key={cat} className="space-y-1">
+                {!isSidebarCollapsed && (
+                  <p className="px-3 pb-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                    {cat}
+                  </p>
+                )}
+                {items.map((pillar) => {
+                  const Icon = pillar.icon;
+                  const isActive = activePillar === pillar.id;
                   return (
-                    <div key={category} className="space-y-1">
-                      <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 px-3">
-                        {category}
-                      </span>
-                      {items.map((pillar) => {
-                        const Icon = pillar.icon;
-                        const isActive = activePillar === pillar.id;
-                        return (
-                          <button
-                            key={pillar.id}
-                            onClick={() => handleSelectPillar(pillar.id)}
-                            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all cursor-pointer ${
+                    <button
+                      key={pillar.id}
+                      onClick={() => handleSelectPillar(pillar.id)}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all cursor-pointer min-h-[42px] ${
+                        isActive
+                          ? "bg-[#7045D8] text-white shadow-sm font-bold"
+                          : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#241D48] font-semibold"
+                      }`}
+                      title={pillar.title}
+                    >
+                      <Icon className={`w-4.5 h-4.5 shrink-0 ${isActive ? "text-white" : "text-slate-500 dark:text-slate-400"}`} />
+                      {!isSidebarCollapsed && (
+                        <div className="flex-1 flex items-center justify-between min-w-0 text-left">
+                          <span className="text-xs truncate">{pillar.title}</span>
+                          {pillar.badge && (
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                               isActive
-                                ? "bg-[#800020] text-white shadow-md font-bold"
-                                : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 font-medium"
-                            }`}
-                          >
-                            <Icon className={`w-5 h-5 ${isActive ? "text-amber-300" : "text-slate-500"}`} />
-                            <span className="text-xs flex-1 text-left">{pillar.title}</span>
-                            {pillar.badge && (
-                              <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
-                                {pillar.badge}
-                              </span>
-                            )}
-                          </button>
-                        );
-                      })}
-                    </div>
+                                ? "bg-white/20 text-white"
+                                : "bg-slate-100 dark:bg-[#241D48] text-slate-700 dark:text-slate-300"
+                            }`}>
+                              {pillar.badge}
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </button>
                   );
                 })}
               </div>
+            );
+          })}
+        </nav>
 
-              {props.onExitAdmin && (
-                <div className="pt-3 border-t border-slate-200 dark:border-slate-800">
-                  <button
-                    onClick={() => {
-                      setIsSidebarOpen(false);
-                      props.onExitAdmin?.();
-                    }}
-                    className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-amber-500/10 text-amber-700 dark:text-amber-300 font-bold text-xs"
-                  >
-                    <Home className="w-4 h-4" />
-                    <span>Return to Student App</span>
-                  </button>
-                </div>
-              )}
-            </div>
+        {/* Bottom Student App Switcher */}
+        {props.onExitAdmin && (
+          <div className="p-3 border-t border-slate-200/80 dark:border-[#31275E]">
+            <button
+              onClick={props.onExitAdmin}
+              className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-slate-100 dark:bg-[#241D48] hover:bg-[#7045D8]/10 hover:text-[#7045D8] dark:hover:text-[#A78BFA] text-slate-700 dark:text-slate-200 text-xs font-bold transition-all cursor-pointer min-h-[40px]"
+              title="Return to Student App"
+            >
+              <Home className="w-4 h-4 shrink-0" />
+              {!isSidebarCollapsed && <span>Student App</span>}
+            </button>
           </div>
         )}
+      </aside>
 
-        {/* 3. MAIN PILLAR CONTENT CANVAS */}
-        <main className="flex-1 overflow-y-auto p-3 sm:p-6 lg:p-8 pb-28 lg:pb-12">
-          <div className="max-w-6xl mx-auto space-y-6">
+      {/* ===================================================================== */}
+      {/* 2. MOBILE SLIDE-OVER DRAWER (< lg)                                    */}
+      {/* ===================================================================== */}
+      {isSidebarOpen && (
+        <div className="lg:hidden fixed inset-0 z-50 flex">
+          <div
+            className="fixed inset-0 bg-black/60 backdrop-blur-xs"
+            onClick={() => setIsSidebarOpen(false)}
+          />
+          <div className="relative w-72 max-w-[82vw] bg-white dark:bg-[#1B1536] h-full shadow-2xl flex flex-col border-r border-slate-200 dark:border-[#31275E] z-10 pt-[env(safe-area-inset-top,0px)] pb-[env(safe-area-inset-bottom,0px)]">
+            <div className="h-16 px-4 flex items-center justify-between border-b border-slate-200 dark:border-[#31275E]">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#7045D8] to-[#5B32BF] flex items-center justify-center">
+                  <ShieldCheck className="w-4.5 h-4.5 text-white" />
+                </div>
+                <div>
+                  <p className="font-black text-sm text-slate-900 dark:text-white">Disha Console</p>
+                  <p className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">Admin Navigation</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsSidebarOpen(false)}
+                className="p-2 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-[#241D48] cursor-pointer"
+                aria-label="Close menu"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
 
-            {/* Mobile Top Horizontal Quick Pillar Strip (lg:hidden) */}
-            <div className="lg:hidden flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 -mx-1 px-1 touch-pan-x">
-              {executivePillars.map((pillar) => {
-                const Icon = pillar.icon;
-                const isActive = activePillar === pillar.id;
+            <div className="flex-1 overflow-y-auto p-3 space-y-5">
+              {(["Core Operations", "Exams & Community", "AI & Infrastructure"] as const).map((cat) => {
+                const items = executivePillars.filter((p) => p.category === cat);
                 return (
-                  <button
-                    key={pillar.id}
-                    onClick={() => handleSelectPillar(pillar.id)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shrink-0 cursor-pointer ${
-                      isActive
-                        ? "bg-[#800020] text-white shadow-xs"
-                        : "bg-white dark:bg-[#1A1435] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-[#352B63]"
-                    }`}
-                  >
-                    <Icon className="w-3.5 h-3.5" />
-                    <span>{pillar.title.split(" ")[0]}</span>
-                  </button>
+                  <div key={cat} className="space-y-1">
+                    <p className="px-3 pb-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+                      {cat}
+                    </p>
+                    {items.map((pillar) => {
+                      const Icon = pillar.icon;
+                      const isActive = activePillar === pillar.id;
+                      return (
+                        <button
+                          key={pillar.id}
+                          onClick={() => handleSelectPillar(pillar.id)}
+                          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all cursor-pointer min-h-[44px] ${
+                            isActive
+                              ? "bg-[#7045D8] text-white shadow-sm font-bold"
+                              : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-[#241D48] font-semibold"
+                          }`}
+                        >
+                          <Icon className="w-4.5 h-4.5 shrink-0" />
+                          <span className="text-xs flex-1 text-left">{pillar.title}</span>
+                          {pillar.badge && (
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                              isActive ? "bg-white/20 text-white" : "bg-slate-100 dark:bg-[#241D48] text-slate-700 dark:text-slate-300"
+                            }`}>
+                              {pillar.badge}
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
                 );
               })}
             </div>
+
+            <div className="p-3 border-t border-slate-200 dark:border-[#31275E] space-y-2">
+              {props.onExitAdmin && (
+                <button
+                  onClick={() => {
+                    setIsSidebarOpen(false);
+                    props.onExitAdmin?.();
+                  }}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-[#7045D8]/10 text-[#7045D8] dark:text-[#A78BFA] font-bold text-xs min-h-[42px] cursor-pointer"
+                >
+                  <Home className="w-4 h-4" />
+                  <span>Return to Student App</span>
+                </button>
+              )}
+              <button
+                onClick={handleAdminSignOut}
+                className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 font-bold text-xs min-h-[42px] cursor-pointer"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>Sign Out</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===================================================================== */}
+      {/* 3. MAIN WORKSPACE COLUMN                                              */}
+      {/* ===================================================================== */}
+      <div className="flex-1 min-w-0 flex flex-col">
+        {/* UNIFIED TOP BAR (Safe-area aware for Android + clean on Web) */}
+        <header className="sticky top-0 z-30 bg-white/95 dark:bg-[#130E26]/95 backdrop-blur-md border-b border-slate-200 dark:border-[#31275E] pt-[env(safe-area-inset-top,0px)]">
+          <div className="px-3 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-2 max-w-6xl mx-auto w-full">
+            {/* Left: Mobile Menu + Active Pillar Title */}
+            <div className="flex items-center gap-2.5 min-w-0">
+              <button
+                onClick={() => setIsSidebarOpen(true)}
+                className="lg:hidden w-10 h-10 rounded-xl bg-slate-100 dark:bg-[#241D48] hover:bg-slate-200 dark:hover:bg-[#31275E] flex items-center justify-center text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-[#31275E] shrink-0 cursor-pointer active:scale-95 transition-all"
+                aria-label="Open menu"
+              >
+                <Menu className="w-4.5 h-4.5" />
+              </button>
+
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <h1 className="font-extrabold text-sm sm:text-base text-slate-900 dark:text-white truncate">
+                    {currentPillarMeta.title}
+                  </h1>
+                  <span className="hidden sm:inline-flex text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#7045D8]/10 text-[#7045D8] dark:bg-[#A78BFA]/15 dark:text-[#A78BFA] border border-[#7045D8]/20">
+                    v1.0.70
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate hidden md:block">
+                  {currentPillarMeta.subtitle}
+                </p>
+              </div>
+            </div>
+
+            {/* Right: Student App + Cloud Sync + Theme + Profile */}
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+              {props.onExitAdmin && (
+                <button
+                  onClick={props.onExitAdmin}
+                  className="flex items-center gap-1.5 h-9 sm:h-10 px-2.5 sm:px-3 rounded-xl bg-[#7045D8]/10 hover:bg-[#7045D8]/20 text-[#7045D8] dark:text-[#A78BFA] border border-[#7045D8]/20 font-bold text-xs transition-all active:scale-95 cursor-pointer"
+                  title="Switch to Student App"
+                >
+                  <Home className="w-3.5 h-3.5 shrink-0" />
+                  <span className="hidden sm:inline">Student App</span>
+                </button>
+              )}
+
+              {props.onSyncToCloud && (
+                <button
+                  onClick={handleSyncInit}
+                  className="flex items-center gap-1.5 h-9 sm:h-10 px-2.5 sm:px-3 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 font-bold text-xs transition-all active:scale-95 cursor-pointer"
+                  title="Sync to Supabase Cloud"
+                >
+                  <RefreshCw className="w-3.5 h-3.5 shrink-0" />
+                  <span className="hidden md:inline">Cloud Sync</span>
+                </button>
+              )}
+
+              <button
+                onClick={toggleTheme}
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-100 dark:bg-[#241D48] hover:bg-slate-200 dark:hover:bg-[#31275E] border border-slate-200 dark:border-[#31275E] flex items-center justify-center text-slate-700 dark:text-[#A78BFA] cursor-pointer active:scale-95 transition-all"
+                title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
+                aria-label="Toggle theme"
+              >
+                {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4 text-[#7045D8]" />}
+              </button>
+
+              <div className="relative" ref={adminMenuRef}>
+                <button
+                  onClick={() => setIsAdminMenuOpen(!isAdminMenuOpen)}
+                  className="flex items-center gap-1.5 h-9 sm:h-10 pl-1.5 pr-2 sm:pr-2.5 rounded-xl bg-slate-100 dark:bg-[#241D48] hover:bg-slate-200 dark:hover:bg-[#31275E] border border-slate-200 dark:border-[#31275E] transition-all cursor-pointer"
+                  aria-label="Admin Account Menu"
+                >
+                  <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-gradient-to-tr from-[#7045D8] to-[#A78BFA] text-white flex items-center justify-center font-black text-xs">
+                    {props.userProfile?.name?.charAt(0) || "A"}
+                  </div>
+                  <ChevronDown className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 hidden sm:block" />
+                </button>
+
+                {isAdminMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-56 rounded-2xl bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] shadow-xl p-2 z-50">
+                    <div className="px-3 py-2 border-b border-slate-100 dark:border-[#31275E] mb-1">
+                      <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                        {props.userProfile?.name || "Administrator"}
+                      </p>
+                      <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+                        {props.userProfile?.email || "admin@dishapyq.com"}
+                      </p>
+                    </div>
+
+                    {props.onExitAdmin && (
+                      <button
+                        onClick={() => {
+                          setIsAdminMenuOpen(false);
+                          props.onExitAdmin?.();
+                        }}
+                        className="w-full text-left px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-[#241D48] rounded-xl flex items-center gap-2 cursor-pointer"
+                      >
+                        <Home className="w-3.5 h-3.5 text-[#7045D8] dark:text-[#A78BFA]" />
+                        <span>Return to Student App</span>
+                      </button>
+                    )}
+
+                    <button
+                      onClick={() => {
+                        setIsAdminMenuOpen(false);
+                        setShowQATestRunner(true);
+                      }}
+                      className="w-full text-left px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-[#241D48] rounded-xl flex items-center gap-2 cursor-pointer"
+                    >
+                      <Terminal className="w-3.5 h-3.5 text-emerald-500" />
+                      <span>Automated QA Runner</span>
+                    </button>
+
+                    <div className="h-px bg-slate-100 dark:bg-[#31275E] my-1" />
+
+                    <button
+                      onClick={handleAdminSignOut}
+                      className="w-full text-left px-3 py-2 text-xs font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/20 rounded-xl flex items-center gap-2 cursor-pointer"
+                    >
+                      <LogOut className="w-3.5 h-3.5" />
+                      <span>Sign Out</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <AdminQuotaAlert />
+
+        {/* MAIN SCROLLABLE CONTENT */}
+        <main className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 sm:py-6 pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] lg:pb-10">
+          <div className="max-w-6xl mx-auto space-y-5">
 
             {/* ============================================================== */}
             {/* PILLAR 1: DASHBOARD & METRICS                                  */}
             {/* ============================================================== */}
             {activePillar === "dashboard" && (
-              <div className="space-y-6">
-                {/* Header & Subtab Selector */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div>
-                    <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-                      Platform Executive Dashboard
-                    </h1>
-                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-                      High-level telemetry, accuracy heatmaps, category matrix & activity streams.
-                    </p>
-                  </div>
-
-                  <div className="flex items-center p-1 bg-white dark:bg-[#1A1435] rounded-2xl border border-slate-200 dark:border-[#352B63] shadow-xs self-start sm:self-auto overflow-x-auto max-w-full">
-                    {[
-                      { id: "overview", label: "Overview KPI" },
-                      { id: "analytics", label: "Analytics" },
-                      { id: "heatmap", label: "Accuracy Heatmap" },
-                      { id: "grid", label: "21 Institutional Grid" }
-                    ].map((tab) => (
-                      <button
-                        key={tab.id}
-                        onClick={() => setSubTabDashboard(tab.id as any)}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
-                          subTabDashboard === tab.id
-                            ? "bg-slate-900 dark:bg-[#800020] text-white shadow-xs"
-                            : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-                        }`}
-                      >
-                        {tab.label}
-                      </button>
-                    ))}
-                  </div>
+              <div className="space-y-5">
+                {/* Clean Single-Row Subtab Bar */}
+                <div className="flex items-center gap-1.5 p-1 bg-white dark:bg-[#1B1536] rounded-2xl border border-slate-200 dark:border-[#31275E] shadow-xs overflow-x-auto no-scrollbar">
+                  {[
+                    { id: "overview", label: "KPI Summary" },
+                    { id: "analytics", label: "Analytics" },
+                    { id: "heatmap", label: "Accuracy Heatmap" },
+                    { id: "grid", label: "21 Category Matrix" }
+                  ].map((tab) => (
+                    <button
+                      key={tab.id}
+                      onClick={() => setSubTabDashboard(tab.id as any)}
+                      className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer shrink-0 ${
+                        subTabDashboard === tab.id
+                          ? "bg-[#7045D8] text-white shadow-xs"
+                          : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#241D48]"
+                      }`}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
                 </div>
 
-                {/* Subtab Content */}
                 <React.Suspense fallback={<AdminSectionLoader type="cards" title="Loading Dashboard..." />}>
                   {subTabDashboard === "overview" && (
                     <AdminDashboardSection
@@ -991,47 +974,36 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
             {/* PILLAR 2: ACADEMIC HUB                                         */}
             {/* ============================================================== */}
             {activePillar === "academic" && (
-              <div className="space-y-6">
-                {/* Header & Academic Hub Subtabs */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div>
-                    <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-                      Academic Content Hub
-                    </h1>
-                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-                      Manage subjects, syllabus hierarchies, batch imports, content quality audits & review queue.
-                    </p>
-                  </div>
-
-                  <div className="flex items-center p-1 bg-white dark:bg-[#1A1435] rounded-2xl border border-slate-200 dark:border-[#352B63] shadow-xs self-start sm:self-auto overflow-x-auto max-w-full">
-                    {[
-                      { id: "syllabus", label: "Syllabus Tree", icon: BookOpen },
-                      { id: "questions", label: "Question Directory", icon: Database },
-                      { id: "import", label: "Unified Import Hub", icon: Upload },
-                      { id: "qa", label: "Content QA & Health", icon: Stethoscope },
-                      { id: "approval", label: "Review Queue", icon: FileCheck },
-                    ].map((tab) => {
-                      const Icon = tab.icon;
-                      const isActive = subTabAcademic === tab.id;
-                      return (
-                        <button
-                          key={tab.id}
-                          onClick={() => setSubTabAcademic(tab.id as any)}
-                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
-                            isActive
-                              ? "bg-slate-900 dark:bg-[#800020] text-white shadow-xs"
-                              : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-                          }`}
-                        >
-                          <Icon className="w-3.5 h-3.5" />
-                          <span>{tab.label}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
+              <div className="space-y-5">
+                {/* Clean Subtab Bar */}
+                <div className="flex items-center gap-1.5 p-1 bg-white dark:bg-[#1B1536] rounded-2xl border border-slate-200 dark:border-[#31275E] shadow-xs overflow-x-auto no-scrollbar">
+                  {[
+                    { id: "syllabus", label: "Syllabus Tree", icon: Layers },
+                    { id: "questions", label: "Question Bank", icon: Database },
+                    { id: "import", label: "Import Hub", icon: Upload },
+                    { id: "qa", label: "QA & Health", icon: Stethoscope },
+                    { id: "approval", label: "Review Queue", icon: FileCheck },
+                  ].map((tab) => {
+                    const Icon = tab.icon;
+                    const isActive = subTabAcademic === tab.id;
+                    return (
+                      <button
+                        key={tab.id}
+                        onClick={() => setSubTabAcademic(tab.id as any)}
+                        className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer shrink-0 ${
+                          isActive
+                            ? "bg-[#7045D8] text-white shadow-xs"
+                            : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#241D48]"
+                        }`}
+                      >
+                        <Icon className="w-3.5 h-3.5" />
+                        <span>{tab.label}</span>
+                      </button>
+                    );
+                  })}
                 </div>
 
-                {/* Subtab 1: Syllabus Tree */}
+                {/* 1. Syllabus Tree */}
                 {subTabAcademic === "syllabus" && (
                   <React.Suspense fallback={<AdminSectionLoader type="list" title="Loading Syllabus Tree..." />}>
                     <AdminSyllabusSection
@@ -1053,240 +1025,231 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                   </React.Suspense>
                 )}
 
-                {/* Subtab 2: Question Directory (Streamlined, Zero Duplicate Clutter) */}
+                {/* 2. Question Bank (Clean, Zero Duplicate Buttons) */}
                 {subTabAcademic === "questions" && (
-                  <div className="space-y-6">
-                    {/* Clean Executive Action Banner */}
-                    <div className="bg-white dark:bg-[#1A1435] rounded-3xl p-5 border border-slate-200 dark:border-[#352B63] shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div className="space-y-5">
+                    <div className="bg-white dark:bg-[#1B1536] rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-slate-200 dark:border-[#31275E] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                       <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <Database className="w-5 h-5 text-[#800020] dark:text-[#F59E0B]" />
-                          <h2 className="text-base font-bold text-slate-900 dark:text-white">
-                            Master Question Directory
+                        <div className="flex flex-wrap items-center gap-2">
+                          <div className="w-9 h-9 rounded-xl bg-[#7045D8]/10 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center">
+                            <Database className="w-5 h-5" />
+                          </div>
+                          <h2 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white">
+                            Master Question Bank
                           </h2>
-                          <span className="text-xs font-black px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                          <span className="text-xs font-black px-2.5 py-0.5 rounded-full bg-[#7045D8]/10 text-[#7045D8] dark:text-[#A78BFA]">
                             {totalQuestionsCount.toLocaleString()} MCQs
                           </span>
                         </div>
                         <p className="text-xs text-slate-500 dark:text-slate-400">
-                          Search, inspect, edit, or filter active questions across all 21 RPSC / RSMSSB subjects.
+                          Search, inspect, edit, or filter MCQs across {combinedSubjectsList.length} subjects and {combinedChaptersList.length} chapters.
                         </p>
                       </div>
 
                       <div className="flex flex-wrap items-center gap-2">
                         <button
                           onClick={props.onShowManageQuestions}
-                          className="px-4 py-2 bg-[#800020] hover:bg-[#991B1E] text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                          className="flex-1 sm:flex-none px-4 py-2.5 bg-[#7045D8] hover:bg-[#5B32BF] text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 min-h-[42px]"
                         >
                           <Search className="w-3.5 h-3.5" />
-                          <span>Browse Repository</span>
+                          <span>Browse &amp; Edit MCQs</span>
                         </button>
 
                         <button
                           onClick={() => props.onShowAddQuestions(undefined, undefined, undefined, "paste")}
-                          className="px-4 py-2 bg-slate-900 dark:bg-slate-700 hover:bg-slate-800 text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                          className="flex-1 sm:flex-none px-4 py-2.5 bg-slate-100 dark:bg-[#241D48] hover:bg-slate-200 dark:hover:bg-[#31275E] text-slate-900 dark:text-white border border-slate-200 dark:border-[#31275E] text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 min-h-[42px]"
                         >
-                          <PlusCircle className="w-3.5 h-3.5 text-amber-400" />
-                          <span>+ Add New Question</span>
+                          <PlusCircle className="w-3.5 h-3.5 text-[#7045D8] dark:text-[#A78BFA]" />
+                          <span>Quick Add MCQ</span>
                         </button>
                       </div>
                     </div>
 
-                    {/* Quick Access to Unified Import & QA Hub */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div
-                        onClick={() => setSubTabAcademic("import")}
-                        className="p-5 rounded-3xl bg-gradient-to-br from-emerald-500/10 via-teal-500/5 to-transparent border border-emerald-500/20 hover:border-emerald-500/40 transition-all cursor-pointer group flex items-center justify-between"
-                      >
-                        <div className="flex items-center gap-3.5">
-                          <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                            <Upload className="w-6 h-6" />
-                          </div>
-                          <div>
-                            <h3 className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
-                              Unified Import Hub
-                            </h3>
-                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                              Batch import via Excel/CSV, AI Smart Parser, HTML or Quick Paste.
-                            </p>
-                          </div>
-                        </div>
-                        <ChevronRight className="w-5 h-5 text-slate-400 group-hover:translate-x-1 transition-transform" />
+                    {/* Subject-wise Question Distribution */}
+                    <div className="bg-white dark:bg-[#1B1536] rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-[#31275E] shadow-xs space-y-3">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                          Subject-wise MCQ Distribution
+                        </h3>
+                        <span className="text-[11px] font-bold text-[#7045D8] dark:text-[#A78BFA]">
+                          {combinedSubjectsList.length} Subjects
+                        </span>
                       </div>
-
-                      <div
-                        onClick={() => setSubTabAcademic("qa")}
-                        className="p-5 rounded-3xl bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-transparent border border-amber-500/20 hover:border-amber-500/40 transition-all cursor-pointer group flex items-center justify-between"
-                      >
-                        <div className="flex items-center gap-3.5">
-                          <div className="w-12 h-12 rounded-2xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                            <Stethoscope className="w-6 h-6" />
-                          </div>
-                          <div>
-                            <h3 className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
-                              Content QA &amp; Health Station
-                            </h3>
-                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                              Duplicate Control (≥90%), Error Auditor, Outdated Facts &amp; Recycle Bin.
-                            </p>
-                          </div>
-                        </div>
-                        <ChevronRight className="w-5 h-5 text-slate-400 group-hover:translate-x-1 transition-transform" />
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Subtab 3: Unified Import Hub (Replaces Scattered Import Buttons) */}
-                {subTabAcademic === "import" && (
-                  <div className="space-y-6">
-                    <div className="border-b border-slate-200 dark:border-slate-800 pb-3">
-                      <h2 className="text-base font-black text-slate-900 dark:text-white">
-                        Unified Question Import Hub
-                      </h2>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">
-                        Choose your preferred ingestion pipeline. All formats support Hindi Unicode, RPSC 5-option format, and subject/chapter auto-tagging.
-                      </p>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                      {/* 1. Excel / CSV Spreadsheet */}
-                      <div className="bg-white dark:bg-[#1A1435] rounded-3xl p-5 border border-slate-200 dark:border-[#352B63] shadow-xs flex flex-col justify-between hover:border-emerald-500 transition-all group">
-                        <div className="space-y-3">
-                          <div className="w-11 h-11 rounded-2xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center group-hover:scale-105 transition-transform">
-                            <FileSpreadsheet className="w-6 h-6" />
-                          </div>
-                          <div>
-                            <h3 className="text-sm font-bold text-slate-900 dark:text-white">Excel / CSV Importer</h3>
-                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                              Upload standard `.xlsx`, `.csv` or `.tsv` files. Column mapper automatically detects Question, Options A-E, and Explanation.
-                            </p>
-                          </div>
-                        </div>
-                        <button
-                          onClick={() => setShowExcelCsvImporter(true)}
-                          className="mt-4 w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition-all active:scale-95 cursor-pointer"
-                        >
-                          Launch Excel Importer
-                        </button>
-                      </div>
-
-                      {/* 2. AI Smart Parser */}
-                      <div className="bg-white dark:bg-[#1A1435] rounded-3xl p-5 border border-slate-200 dark:border-[#352B63] shadow-xs flex flex-col justify-between hover:border-amber-500 transition-all group">
-                        <div className="space-y-3">
-                          <div className="w-11 h-11 rounded-2xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center group-hover:scale-105 transition-transform">
-                            <Sparkles className="w-6 h-6" />
-                          </div>
-                          <div>
-                            <h3 className="text-sm font-bold text-slate-900 dark:text-white">AI Smart Parser</h3>
-                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                              Paste raw unformatted text or PDF extracts in Hindi or English. Disha AI instantly structures questions, answers, and tags.
-                            </p>
-                          </div>
-                        </div>
-                        <button
-                          onClick={props.onShowAIImport}
-                          className="mt-4 w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold text-xs shadow-xs transition-all active:scale-95 cursor-pointer"
-                        >
-                          Open AI Parser
-                        </button>
-                      </div>
-
-                      {/* 3. HTML Code / Web Importer */}
-                      <div className="bg-white dark:bg-[#1A1435] rounded-3xl p-5 border border-slate-200 dark:border-[#352B63] shadow-xs flex flex-col justify-between hover:border-orange-500 transition-all group">
-                        <div className="space-y-3">
-                          <div className="w-11 h-11 rounded-2xl bg-orange-500/15 text-orange-600 dark:text-orange-400 flex items-center justify-center group-hover:scale-105 transition-transform">
-                            <FileCode className="w-6 h-6" />
-                          </div>
-                          <div>
-                            <h3 className="text-sm font-bold text-slate-900 dark:text-white">HTML File &amp; Code</h3>
-                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                              Ingest questions directly from HTML web files, online test platforms, or DOM source tables with automated sanitization.
-                            </p>
-                          </div>
-                        </div>
-                        <button
-                          onClick={props.onShowHTMLImport}
-                          className="mt-4 w-full py-2.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs shadow-xs transition-all active:scale-95 cursor-pointer"
-                        >
-                          Open HTML Parser
-                        </button>
-                      </div>
-
-                      {/* 4. Quick Paste / Manual Builder */}
-                      <div className="bg-white dark:bg-[#1A1435] rounded-3xl p-5 border border-slate-200 dark:border-[#352B63] shadow-xs flex flex-col justify-between hover:border-[#800020] transition-all group">
-                        <div className="space-y-3">
-                          <div className="w-11 h-11 rounded-2xl bg-[#800020]/15 text-[#800020] dark:text-amber-400 flex items-center justify-center group-hover:scale-105 transition-transform">
-                            <PlusCircle className="w-6 h-6" />
-                          </div>
-                          <div>
-                            <h3 className="text-sm font-bold text-slate-900 dark:text-white">Quick Paste &amp; Manual</h3>
-                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                              Paste formatted lines or type questions individually with complete formatting controls, hints, and explanations.
-                            </p>
-                          </div>
-                        </div>
-                        <button
-                          onClick={() => props.onShowAddQuestions(undefined, undefined, undefined, "paste")}
-                          className="mt-4 w-full py-2.5 rounded-xl bg-slate-900 dark:bg-slate-700 hover:bg-slate-800 text-white font-bold text-xs shadow-xs transition-all active:scale-95 cursor-pointer"
-                        >
-                          Quick Add Questions
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Subtab 4: Content QA & Health Station (Unified Station for 5 QA Tools) */}
-                {subTabAcademic === "qa" && (
-                  <div className="space-y-6">
-                    {/* Tool Bar Switcher */}
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800 pb-3">
-                      <div>
-                        <h2 className="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
-                          <Stethoscope className="w-5 h-5 text-amber-500" />
-                          <span>Content Quality Assurance &amp; Health Station</span>
-                        </h2>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">
-                          Detect similarity duplicates, audit question structure, archive outdated district data, or manage the recycle bin.
-                        </p>
-                      </div>
-
-                      {/* Tool Tabs */}
-                      <div className="flex items-center p-1 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-x-auto max-w-full">
-                        {[
-                          { id: "duplicate", label: "Duplicate Control (≥90%)", icon: ShieldAlert },
-                          { id: "health", label: "Health Auditor", icon: Activity },
-                          { id: "outdated", label: "2024-25 Outdated Facts", icon: CalendarClock },
-                          { id: "recycle", label: `Recycle Bin (${props.questionsStore?.recycleBinQuestions?.length || 0})`, icon: ArchiveRestore },
-                          { id: "bulk", label: "Bulk Delete", icon: Trash2 },
-                        ].map((tool) => {
-                          const Icon = tool.icon;
-                          const isActive = activeQATool === tool.id;
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                        {combinedSubjectsList.map((subj) => {
+                          const subjChapters = combinedChaptersList.filter((c) => c.subjectId === subj.id);
+                          const subjQCount = subjChapters.reduce(
+                            (acc, ch) => acc + (ch.topics || []).reduce((tAcc, t) => tAcc + (t.questions || []).length, 0),
+                            0
+                          );
                           return (
-                            <button
-                              key={tool.id}
-                              onClick={() => {
-                                setActiveQATool(tool.id as any);
-                                if (tool.id === "duplicate") setShowDuplicateHubModal(true);
-                                if (tool.id === "recycle") setShowRecycleBinModal(true);
-                                if (tool.id === "bulk") setShowBulkDeleteModal(true);
-                              }}
-                              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
-                                isActive
-                                  ? "bg-white dark:bg-[#1A1435] text-slate-900 dark:text-white shadow-2xs"
-                                  : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-                              }`}
+                            <div
+                              key={subj.id}
+                              className="p-3 rounded-xl bg-slate-50 dark:bg-[#130E26] border border-slate-200/80 dark:border-[#31275E] flex items-center justify-between gap-2"
                             >
-                              <Icon className="w-3.5 h-3.5" />
-                              <span>{tool.label}</span>
-                            </button>
+                              <div className="min-w-0">
+                                <p className="text-xs font-bold text-slate-900 dark:text-white truncate font-hindi">
+                                  {subj.hindiName || subj.name}
+                                </p>
+                                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                                  {subjChapters.length} chapters · {subjQCount.toLocaleString()} MCQs
+                                </p>
+                              </div>
+                              <button
+                                onClick={() => props.onShowAddQuestions(undefined, undefined, subj.id, "paste")}
+                                className="px-2.5 py-1.5 rounded-lg bg-[#7045D8]/10 hover:bg-[#7045D8] text-[#7045D8] hover:text-white dark:text-[#A78BFA] text-[11px] font-bold transition-colors shrink-0 cursor-pointer"
+                              >
+                                + Add
+                              </button>
+                            </div>
                           );
                         })}
                       </div>
                     </div>
+                  </div>
+                )}
 
-                    {/* Active QA Tool View */}
+                {/* 3. Unified Import Hub */}
+                {subTabAcademic === "import" && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="bg-white dark:bg-[#1B1536] rounded-2xl p-5 border border-slate-200 dark:border-[#31275E] shadow-xs flex flex-col justify-between">
+                      <div className="space-y-3">
+                        <div className="w-11 h-11 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                          <FileSpreadsheet className="w-5.5 h-5.5" />
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-bold text-slate-900 dark:text-white">Excel / CSV</h3>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                            Upload `.xlsx`, `.csv` or `.tsv` spreadsheets with automatic column mapping.
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => setShowExcelCsvImporter(true)}
+                        className="mt-4 w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition-all active:scale-95 cursor-pointer min-h-[40px]"
+                      >
+                        Import Excel / CSV
+                      </button>
+                    </div>
+
+                    <div className="bg-white dark:bg-[#1B1536] rounded-2xl p-5 border border-slate-200 dark:border-[#31275E] shadow-xs flex flex-col justify-between">
+                      <div className="space-y-3">
+                        <div className="w-11 h-11 rounded-xl bg-[#7045D8]/10 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center">
+                          <Sparkles className="w-5.5 h-5.5" />
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-bold text-slate-900 dark:text-white">AI Smart Parser</h3>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                            Paste raw Hindi or English text and let Disha AI structure MCQs and explanations.
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={props.onShowAIImport}
+                        className="mt-4 w-full py-2.5 rounded-xl bg-[#7045D8] hover:bg-[#5B32BF] text-white font-bold text-xs transition-all active:scale-95 cursor-pointer min-h-[40px]"
+                      >
+                        Launch AI Parser
+                      </button>
+                    </div>
+
+                    <div className="bg-white dark:bg-[#1B1536] rounded-2xl p-5 border border-slate-200 dark:border-[#31275E] shadow-xs flex flex-col justify-between">
+                      <div className="space-y-3">
+                        <div className="w-11 h-11 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+                          <FileCode className="w-5.5 h-5.5" />
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-bold text-slate-900 dark:text-white">HTML Importer</h3>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                            Extract clean MCQs directly from HTML test files or web page markup.
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={props.onShowHTMLImport}
+                        className="mt-4 w-full py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs transition-all active:scale-95 cursor-pointer min-h-[40px]"
+                      >
+                        Open HTML Parser
+                      </button>
+                    </div>
+
+                    <div className="bg-white dark:bg-[#1B1536] rounded-2xl p-5 border border-slate-200 dark:border-[#31275E] shadow-xs flex flex-col justify-between">
+                      <div className="space-y-3">
+                        <div className="w-11 h-11 rounded-xl bg-slate-100 dark:bg-[#241D48] text-slate-700 dark:text-slate-200 flex items-center justify-center">
+                          <PlusCircle className="w-5.5 h-5.5" />
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-bold text-slate-900 dark:text-white">Quick Paste</h3>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                            Paste formatted lines or manually author individual questions with hints.
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => props.onShowAddQuestions(undefined, undefined, undefined, "paste")}
+                        className="mt-4 w-full py-2.5 rounded-xl bg-slate-800 dark:bg-[#241D48] hover:bg-slate-900 text-white font-bold text-xs transition-all active:scale-95 cursor-pointer min-h-[40px]"
+                      >
+                        Quick Add MCQ
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* 4. Content QA & Health Station */}
+                {subTabAcademic === "qa" && (
+                  <div className="space-y-5">
+                    {/* Unified Action Grid for the 5 QA Tools */}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3">
+                      <button
+                        onClick={() => setActiveQATool("health")}
+                        className={`p-3 rounded-2xl border text-left transition-all cursor-pointer flex flex-col gap-1.5 ${
+                          activeQATool === "health"
+                            ? "bg-[#7045D8] text-white border-[#7045D8] shadow-sm"
+                            : "bg-white dark:bg-[#1B1536] border-slate-200 dark:border-[#31275E] hover:border-[#7045D8]"
+                        }`}
+                      >
+                        <Activity className={`w-4.5 h-4.5 ${activeQATool === "health" ? "text-white" : "text-[#7045D8] dark:text-[#A78BFA]"}`} />
+                        <span className="text-xs font-bold">Health Auditor</span>
+                      </button>
+
+                      <button
+                        onClick={() => setActiveQATool("outdated")}
+                        className={`p-3 rounded-2xl border text-left transition-all cursor-pointer flex flex-col gap-1.5 ${
+                          activeQATool === "outdated"
+                            ? "bg-[#7045D8] text-white border-[#7045D8] shadow-sm"
+                            : "bg-white dark:bg-[#1B1536] border-slate-200 dark:border-[#31275E] hover:border-[#7045D8]"
+                        }`}
+                      >
+                        <CalendarClock className={`w-4.5 h-4.5 ${activeQATool === "outdated" ? "text-white" : "text-amber-500"}`} />
+                        <span className="text-xs font-bold">2024-25 Facts</span>
+                      </button>
+
+                      <button
+                        onClick={() => setShowDuplicateHubModal(true)}
+                        className="p-3 rounded-2xl border bg-white dark:bg-[#1B1536] border-slate-200 dark:border-[#31275E] hover:border-amber-500 text-left transition-all cursor-pointer flex flex-col gap-1.5"
+                      >
+                        <ShieldAlert className="w-4.5 h-4.5 text-amber-500" />
+                        <span className="text-xs font-bold text-slate-900 dark:text-white">Duplicates (≥90%)</span>
+                      </button>
+
+                      <button
+                        onClick={() => setShowRecycleBinModal(true)}
+                        className="p-3 rounded-2xl border bg-white dark:bg-[#1B1536] border-slate-200 dark:border-[#31275E] hover:border-sky-500 text-left transition-all cursor-pointer flex flex-col gap-1.5"
+                      >
+                        <ArchiveRestore className="w-4.5 h-4.5 text-sky-500" />
+                        <span className="text-xs font-bold text-slate-900 dark:text-white">
+                          Recycle Bin ({props.questionsStore?.recycleBinQuestions?.length || 0})
+                        </span>
+                      </button>
+
+                      <button
+                        onClick={() => setShowBulkDeleteModal(true)}
+                        className="col-span-2 sm:col-span-1 p-3 rounded-2xl border bg-white dark:bg-[#1B1536] border-slate-200 dark:border-[#31275E] hover:border-rose-500 text-left transition-all cursor-pointer flex flex-col gap-1.5"
+                      >
+                        <Trash2 className="w-4.5 h-4.5 text-rose-500" />
+                        <span className="text-xs font-bold text-slate-900 dark:text-white">Bulk Delete</span>
+                      </button>
+                    </div>
+
                     {activeQATool === "health" && (
                       <React.Suspense fallback={<AdminSectionLoader type="cards" title="Auditing Content Health..." />}>
                         <QuestionHealthAuditor
@@ -1299,7 +1262,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                     )}
 
                     {activeQATool === "outdated" && (
-                      <React.Suspense fallback={<AdminSectionLoader type="cards" title="Analyzing Outdated Facts..." />}>
+                      <React.Suspense fallback={<AdminSectionLoader type="cards" title="Checking Outdated Facts..." />}>
                         <OutdatedQuestionArchiver
                           chapters={combinedChaptersList}
                           subjects={combinedSubjectsList}
@@ -1308,71 +1271,12 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                         />
                       </React.Suspense>
                     )}
-
-                    {/* Card overview when duplicate / recycle / bulk modal is triggerable */}
-                    {(activeQATool === "duplicate" || activeQATool === "recycle" || activeQATool === "bulk") && (
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                        <div className="bg-white dark:bg-[#1A1435] rounded-3xl p-5 border border-slate-200 dark:border-[#352B63] shadow-xs flex flex-col justify-between">
-                          <div className="space-y-2">
-                            <div className="w-10 h-10 rounded-xl bg-amber-500/15 text-amber-600 flex items-center justify-center">
-                              <ShieldAlert className="w-5 h-5" />
-                            </div>
-                            <h3 className="text-sm font-bold text-slate-900 dark:text-white">Duplicate Detection (≥90%)</h3>
-                            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                              Scans the entire database with fuzzy string matching. Lets you merge duplicates, preserve high-quality explanations, and delete redundant entries.
-                            </p>
-                          </div>
-                          <button
-                            onClick={() => setShowDuplicateHubModal(true)}
-                            className="mt-4 w-full py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-xs transition-all active:scale-95 cursor-pointer"
-                          >
-                            Launch Duplicate Hub
-                          </button>
-                        </div>
-
-                        <div className="bg-white dark:bg-[#1A1435] rounded-3xl p-5 border border-slate-200 dark:border-[#352B63] shadow-xs flex flex-col justify-between">
-                          <div className="space-y-2">
-                            <div className="w-10 h-10 rounded-xl bg-blue-500/15 text-blue-600 flex items-center justify-center">
-                              <ArchiveRestore className="w-5 h-5" />
-                            </div>
-                            <h3 className="text-sm font-bold text-slate-900 dark:text-white">Question Recycle Bin</h3>
-                            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                              Soft-deleted questions are staged here safely. Restore accidentally removed questions with 1-click or permanently purge trash.
-                            </p>
-                          </div>
-                          <button
-                            onClick={() => setShowRecycleBinModal(true)}
-                            className="mt-4 w-full py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-xs transition-all active:scale-95 cursor-pointer"
-                          >
-                            Open Recycle Bin ({props.questionsStore?.recycleBinQuestions?.length || 0})
-                          </button>
-                        </div>
-
-                        <div className="bg-white dark:bg-[#1A1435] rounded-3xl p-5 border border-slate-200 dark:border-[#352B63] shadow-xs flex flex-col justify-between">
-                          <div className="space-y-2">
-                            <div className="w-10 h-10 rounded-xl bg-rose-500/15 text-rose-600 flex items-center justify-center">
-                              <Trash2 className="w-5 h-5" />
-                            </div>
-                            <h3 className="text-sm font-bold text-slate-900 dark:text-white">Bulk Safe Delete</h3>
-                            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                              Selectively remove large batches of obsolete questions by Subject, Chapter, or Topic with audit confirmations.
-                            </p>
-                          </div>
-                          <button
-                            onClick={() => setShowBulkDeleteModal(true)}
-                            className="mt-4 w-full py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-xs transition-all active:scale-95 cursor-pointer"
-                          >
-                            Open Bulk Delete Tool
-                          </button>
-                        </div>
-                      </div>
-                    )}
                   </div>
                 )}
 
-                {/* Subtab 5: Teacher Review & Approval Workflow */}
+                {/* 5. Review Queue */}
                 {subTabAcademic === "approval" && (
-                  <React.Suspense fallback={<AdminSectionLoader type="list" title="Loading Approval Workflow..." />}>
+                  <React.Suspense fallback={<AdminSectionLoader type="list" title="Loading Review Queue..." />}>
                     <QuestionApprovalWorkflowSection
                       questionsStore={props.questionsStore}
                       subjects={combinedSubjectsList}
@@ -1385,183 +1289,142 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
             )}
 
             {/* ============================================================== */}
-            {/* PILLAR 3: TESTS & LIVE BATTLE ARENA                            */}
+            {/* PILLAR 3: TESTS & BATTLE ARENA                                 */}
             {/* ============================================================== */}
             {activePillar === "tests" && (
-              <div className="space-y-6">
-                {/* Header & Subtab Selector */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div>
-                    <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-                      Examinations &amp; Live Battle Arena
-                    </h1>
-                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-                      Full-length RPSC mock test schedules, PYQ papers vault, coaching tiers &amp; real-time battle telemetry.
-                    </p>
-                  </div>
-
-                  <div className="flex items-center p-1 bg-white dark:bg-[#1A1435] rounded-2xl border border-slate-200 dark:border-[#352B63] shadow-xs self-start sm:self-auto overflow-x-auto max-w-full">
+              <div className="space-y-5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="flex items-center gap-1.5 p-1 bg-white dark:bg-[#1B1536] rounded-2xl border border-slate-200 dark:border-[#31275E] shadow-xs self-start">
                     <button
                       onClick={() => setSubTabTests("mock")}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                      className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                         subTabTests === "mock"
-                          ? "bg-slate-900 dark:bg-[#800020] text-white shadow-xs"
-                          : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                          ? "bg-[#7045D8] text-white shadow-xs"
+                          : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#241D48]"
                       }`}
                     >
                       <Timer className="w-3.5 h-3.5" />
-                      <span>Mock Tests &amp; PYQs</span>
+                      <span>Mocks, PYQ &amp; Coaching</span>
                     </button>
 
                     <button
                       onClick={() => setSubTabTests("battle")}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                      className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                         subTabTests === "battle"
-                          ? "bg-gradient-to-r from-amber-600 to-[#800020] text-white shadow-xs font-extrabold"
-                          : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                          ? "bg-[#7045D8] text-white shadow-xs"
+                          : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#241D48]"
                       }`}
                     >
-                      <Swords className="w-3.5 h-3.5 text-amber-400" />
-                      <span>Live Battle Telemetry</span>
+                      <Swords className="w-3.5 h-3.5" />
+                      <span>Live Battle Arena</span>
                       <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                     </button>
                   </div>
+
+                  {subTabTests === "mock" && (
+                    <button
+                      onClick={() => setShowMeritListModal(true)}
+                      className="self-start sm:self-auto px-3.5 py-2 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer active:scale-95 min-h-[40px]"
+                    >
+                      <Trophy className="w-3.5 h-3.5" />
+                      <span>Merit PDF &amp; Telegram</span>
+                    </button>
+                  )}
                 </div>
 
                 {subTabTests === "battle" ? (
-                  <React.Suspense fallback={<AdminSectionLoader type="cards" title="Loading Live Battle Telemetry..." />}>
+                  <React.Suspense fallback={<AdminSectionLoader type="cards" title="Loading Battle Telemetry..." />}>
                     <LiveBattleDashboard />
                   </React.Suspense>
                 ) : (
-                  <>
-                    {/* Top Action Bar for Tests */}
-                    <div className="flex flex-wrap items-center justify-end gap-2">
-                      <button
-                        onClick={() => setShowMeritListModal(true)}
-                        className="px-3.5 py-2 bg-gradient-to-r from-amber-600 via-orange-600 to-amber-700 hover:from-amber-700 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
-                      >
-                        <Trophy className="w-3.5 h-3.5 text-amber-200" />
-                        <span>Merit PDF &amp; Telegram</span>
-                      </button>
-
-                      <button
-                        onClick={() => setShowCoachingHierarchyModal(true)}
-                        className="px-3.5 py-2 bg-[#7045D8] hover:bg-[#5B32BF] text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
-                      >
-                        <Building2 className="w-3.5 h-3.5" />
-                        <span>Coaching Hierarchy</span>
-                      </button>
-
-                      <button
-                        onClick={props.onShowManagePYQVault}
-                        className="px-3.5 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
-                      >
-                        <PlusCircle className="w-3.5 h-3.5" />
-                        <span>+ PYQ Paper</span>
-                      </button>
-
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
+                    <div className="bg-white dark:bg-[#1B1536] rounded-2xl p-5 border border-slate-200 dark:border-[#31275E] shadow-xs flex flex-col justify-between">
+                      <div className="space-y-3">
+                        <div className="flex items-start justify-between">
+                          <div className="w-11 h-11 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center">
+                            <Timer className="w-5.5 h-5.5" />
+                          </div>
+                          <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400">
+                            {testsStats.liveActiveCount} Active
+                          </span>
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-bold text-slate-900 dark:text-white">Live Mock Tests</h3>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                            Timed full-length exams with state ranking &amp; RPSC negative marking.
+                          </p>
+                        </div>
+                        <div className="pt-2 border-t border-slate-100 dark:border-[#31275E] text-xs flex justify-between">
+                          <span className="text-slate-500 dark:text-slate-400">Total Series:</span>
+                          <span className="font-bold text-slate-900 dark:text-white">{testsStats.liveTestsTotal} Tests</span>
+                        </div>
+                      </div>
                       <button
                         onClick={props.onShowManageLiveTests}
-                        className="px-3.5 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
+                        className="mt-5 w-full py-2.5 rounded-xl bg-[#7045D8] hover:bg-[#5B32BF] text-white font-bold text-xs transition-all active:scale-95 cursor-pointer min-h-[40px]"
                       >
-                        <PlusCircle className="w-3.5 h-3.5" />
-                        <span>+ Live Test</span>
+                        Manage Live Tests
                       </button>
                     </div>
 
-                    {/* Clean Test Management Cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                      {/* Live Mock Tests Card */}
-                      <div className="bg-white dark:bg-[#1A1435] rounded-3xl p-6 border border-slate-200 dark:border-[#352B63] shadow-xs flex flex-col justify-between hover:border-rose-400 transition-all group">
-                        <div className="space-y-4">
-                          <div className="flex items-start justify-between">
-                            <div className="w-12 h-12 rounded-2xl bg-rose-500/15 text-rose-600 flex items-center justify-center group-hover:scale-105 transition-transform">
-                              <Timer className="w-6 h-6" />
-                            </div>
-                            <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-rose-500/10 text-rose-600 border border-rose-500/20">
-                              {testsStats.liveActiveCount} Active
-                            </span>
+                    <div className="bg-white dark:bg-[#1B1536] rounded-2xl p-5 border border-slate-200 dark:border-[#31275E] shadow-xs flex flex-col justify-between">
+                      <div className="space-y-3">
+                        <div className="flex items-start justify-between">
+                          <div className="w-11 h-11 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+                            <Archive className="w-5.5 h-5.5" />
                           </div>
-                          <div>
-                            <h3 className="text-base font-bold text-slate-900 dark:text-white">Live Mock Examinations</h3>
-                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                              Timed full-length examinations with state percentile scoring, RPSC negative marking &amp; instant merit generation.
-                            </p>
-                          </div>
-                          <div className="pt-2 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-500 flex justify-between">
-                            <span>Total Test Series:</span>
-                            <span className="font-bold text-slate-900 dark:text-white">{testsStats.liveTestsTotal} Tests</span>
-                          </div>
+                          <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                            {testsStats.pyqTotal} Papers
+                          </span>
                         </div>
-                        <button
-                          onClick={props.onShowManageLiveTests}
-                          className="mt-6 w-full py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-xs transition-all active:scale-95 cursor-pointer"
-                        >
-                          Manage Live Tests
-                        </button>
-                      </div>
-
-                      {/* PYQ Vault Card */}
-                      <div className="bg-white dark:bg-[#1A1435] rounded-3xl p-6 border border-slate-200 dark:border-[#352B63] shadow-xs flex flex-col justify-between hover:border-amber-400 transition-all group">
-                        <div className="space-y-4">
-                          <div className="flex items-start justify-between">
-                            <div className="w-12 h-12 rounded-2xl bg-amber-500/15 text-amber-600 flex items-center justify-center group-hover:scale-105 transition-transform">
-                              <Archive className="w-6 h-6" />
-                            </div>
-                            <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/10 text-amber-600 border border-amber-500/20">
-                              {testsStats.pyqTotal} Papers
-                            </span>
-                          </div>
-                          <div>
-                            <h3 className="text-base font-bold text-slate-900 dark:text-white">Official PYQ Paper Vault</h3>
-                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                              RPSC RAS Pre, 1st/2nd Grade, Patwar, REET &amp; Police Constable previous year papers with official answer keys.
-                            </p>
-                          </div>
-                          <div className="pt-2 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-500 flex justify-between">
-                            <span>Total PYQ MCQs:</span>
-                            <span className="font-bold text-slate-900 dark:text-white">{testsStats.pyqQuestionsTotal} MCQs</span>
-                          </div>
+                        <div>
+                          <h3 className="text-sm font-bold text-slate-900 dark:text-white">PYQ Paper Vault</h3>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                            Official RPSC RAS, REET, Patwar &amp; Grade papers with answer keys.
+                          </p>
                         </div>
-                        <button
-                          onClick={props.onShowManagePYQVault}
-                          className="mt-6 w-full py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-xs transition-all active:scale-95 cursor-pointer"
-                        >
-                          Manage PYQ Papers
-                        </button>
-                      </div>
-
-                      {/* Coaching Batches Card */}
-                      <div className="bg-white dark:bg-[#1A1435] rounded-3xl p-6 border border-slate-200 dark:border-[#352B63] shadow-xs flex flex-col justify-between hover:border-indigo-400 transition-all group">
-                        <div className="space-y-4">
-                          <div className="flex items-start justify-between">
-                            <div className="w-12 h-12 rounded-2xl bg-indigo-500/15 text-indigo-600 flex items-center justify-center group-hover:scale-105 transition-transform">
-                              <Building2 className="w-6 h-6" />
-                            </div>
-                            <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-500/10 text-indigo-600 border border-indigo-500/20">
-                              Enterprise
-                            </span>
-                          </div>
-                          <div>
-                            <h3 className="text-base font-bold text-slate-900 dark:text-white">Coaching Institutes &amp; Batches</h3>
-                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                              Multi-tenant hierarchy to create private test series, batch-specific student rosters, and branded rank reports.
-                            </p>
-                          </div>
-                          <div className="pt-2 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-500 flex justify-between">
-                            <span>Status:</span>
-                            <span className="font-bold text-emerald-600 dark:text-emerald-400">Integrated</span>
-                          </div>
+                        <div className="pt-2 border-t border-slate-100 dark:border-[#31275E] text-xs flex justify-between">
+                          <span className="text-slate-500 dark:text-slate-400">Total MCQs:</span>
+                          <span className="font-bold text-slate-900 dark:text-white">{testsStats.pyqQuestionsTotal} MCQs</span>
                         </div>
-                        <button
-                          onClick={() => setShowCoachingHierarchyModal(true)}
-                          className="mt-6 w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-xs transition-all active:scale-95 cursor-pointer"
-                        >
-                          Manage Coaching Centers
-                        </button>
                       </div>
+                      <button
+                        onClick={props.onShowManagePYQVault}
+                        className="mt-5 w-full py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs transition-all active:scale-95 cursor-pointer min-h-[40px]"
+                      >
+                        Manage PYQ Vault
+                      </button>
                     </div>
-                  </>
+
+                    <div className="bg-white dark:bg-[#1B1536] rounded-2xl p-5 border border-slate-200 dark:border-[#31275E] shadow-xs flex flex-col justify-between">
+                      <div className="space-y-3">
+                        <div className="flex items-start justify-between">
+                          <div className="w-11 h-11 rounded-xl bg-[#7045D8]/10 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center">
+                            <Building2 className="w-5.5 h-5.5" />
+                          </div>
+                          <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                            Multi-Tenant
+                          </span>
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-bold text-slate-900 dark:text-white">Coaching Hierarchy</h3>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                            Manage coaching institutes, student batches &amp; private test series.
+                          </p>
+                        </div>
+                        <div className="pt-2 border-t border-slate-100 dark:border-[#31275E] text-xs flex justify-between">
+                          <span className="text-slate-500 dark:text-slate-400">Status:</span>
+                          <span className="font-bold text-emerald-600 dark:text-emerald-400">Active</span>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => setShowCoachingHierarchyModal(true)}
+                        className="mt-5 w-full py-2.5 rounded-xl bg-slate-800 dark:bg-[#241D48] hover:bg-slate-900 text-white font-bold text-xs transition-all active:scale-95 cursor-pointer min-h-[40px]"
+                      >
+                        Manage Institutes
+                      </button>
+                    </div>
+                  </div>
                 )}
               </div>
             )}
@@ -1570,43 +1433,31 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
             {/* PILLAR 4: EDITORIAL & LEARNERS                                 */}
             {/* ============================================================== */}
             {activePillar === "editorial" && (
-              <div className="space-y-6">
-                {/* Header & Subtabs */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div>
-                    <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-                      Editorial Content &amp; Learner Community
-                    </h1>
-                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-                      Publish exam notifications &amp; news, manage banners, student profiles, doubt desk &amp; push notifications.
-                    </p>
-                  </div>
-
-                  <div className="flex items-center p-1 bg-white dark:bg-[#1A1435] rounded-2xl border border-slate-200 dark:border-[#352B63] shadow-xs self-start sm:self-auto overflow-x-auto max-w-full">
-                    {[
-                      { id: "news", label: "Articles CMS" },
-                      { id: "banners", label: "App Banners" },
-                      { id: "directory", label: "Student Directory" },
-                      { id: "doubts", label: "Doubt Desk" },
-                      { id: "notifications", label: "Push Broadcasts" },
-                      { id: "messages", label: "Inquiries" }
-                    ].map((tab) => (
-                      <button
-                        key={tab.id}
-                        onClick={() => setSubTabEditorial(tab.id as any)}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
-                          subTabEditorial === tab.id
-                            ? "bg-slate-900 dark:bg-[#800020] text-white shadow-xs"
-                            : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-                        }`}
-                      >
-                        {tab.label}
-                      </button>
-                    ))}
-                  </div>
+              <div className="space-y-5">
+                <div className="flex items-center gap-1.5 p-1 bg-white dark:bg-[#1B1536] rounded-2xl border border-slate-200 dark:border-[#31275E] shadow-xs overflow-x-auto no-scrollbar">
+                  {[
+                    { id: "news", label: "Articles CMS" },
+                    { id: "banners", label: "App Banners" },
+                    { id: "directory", label: "Students" },
+                    { id: "doubts", label: "Doubt Desk" },
+                    { id: "notifications", label: "Broadcasts" },
+                    { id: "messages", label: "Inquiries" }
+                  ].map((tab) => (
+                    <button
+                      key={tab.id}
+                      onClick={() => setSubTabEditorial(tab.id as any)}
+                      className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer shrink-0 ${
+                        subTabEditorial === tab.id
+                          ? "bg-[#7045D8] text-white shadow-xs"
+                          : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#241D48]"
+                      }`}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
                 </div>
 
-                <React.Suspense fallback={<AdminSectionLoader type="cards" title="Loading Editorial..." />}>
+                <React.Suspense fallback={<AdminSectionLoader type="cards" title="Loading Community Tools..." />}>
                   {subTabEditorial === "news" && <AdminNewsSection onBackToAdmin={() => handleSelectPillar("dashboard")} />}
                   {subTabEditorial === "banners" && <AdminBannerManagementSection />}
                   {subTabEditorial === "directory" && (
@@ -1624,9 +1475,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                         if (props.questionsStore) {
                           const updatedStore = editQuestionInStore(props.questionsStore, updatedQ);
                           saveUserQuestionsStore(updatedStore);
-                          if (props.onStoreUpdated) {
-                            props.onStoreUpdated(updatedStore);
-                          }
+                          props.onStoreUpdated?.(updatedStore);
                           import("../utils/supabaseSyncService").then(({ upsertQuestionsToSupabase }) => {
                             upsertQuestionsToSupabase([updatedQ]).catch(console.warn);
                           });
@@ -1641,164 +1490,213 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
             )}
 
             {/* ============================================================== */}
-            {/* PILLAR 5: DISHA AI ENGINE & TOKEN ANALYTICS                   */}
+            {/* PILLAR 5: DISHA AI ENGINE                                      */}
             {/* ============================================================== */}
             {activePillar === "ai" && (
-              <div className="space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#800020] to-[#F59E0B] text-white flex items-center justify-center shrink-0 shadow-xs">
-                      <Bot className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                      <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-                        Disha AI Engine &amp; Quota Manager
-                      </h1>
-                      <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-                        Token telemetry, latency analytics, question explanation generator &amp; API key rotation.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center p-1 bg-white dark:bg-[#1A1435] rounded-2xl border border-slate-200 dark:border-[#352B63] shadow-xs self-start sm:self-auto">
-                    <button
-                      onClick={() => setSubTabAI("tokens")}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                        subTabAI === "tokens"
-                          ? "bg-slate-900 dark:bg-[#800020] text-white shadow-xs"
-                          : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-                      }`}
-                    >
-                      <BarChart3 className="w-3.5 h-3.5" />
-                      <span>Token Usage &amp; Logs</span>
-                    </button>
-                    <button
-                      onClick={() => setSubTabAI("keys")}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                        subTabAI === "keys"
-                          ? "bg-slate-900 dark:bg-[#800020] text-white shadow-xs"
-                          : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-                      }`}
-                    >
-                      <Cpu className="w-3.5 h-3.5" />
-                      <span>Gemini API Key Rotation</span>
-                    </button>
-                  </div>
+              <div className="space-y-5">
+                <div className="flex items-center gap-1.5 p-1 bg-white dark:bg-[#1B1536] rounded-2xl border border-slate-200 dark:border-[#31275E] shadow-xs self-start w-fit">
+                  <button
+                    onClick={() => setSubTabAI("tokens")}
+                    className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                      subTabAI === "tokens"
+                        ? "bg-[#7045D8] text-white shadow-xs"
+                        : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#241D48]"
+                    }`}
+                  >
+                    <BarChart3 className="w-3.5 h-3.5" />
+                    <span>Token Analytics</span>
+                  </button>
+                  <button
+                    onClick={() => setSubTabAI("keys")}
+                    className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                      subTabAI === "keys"
+                        ? "bg-[#7045D8] text-white shadow-xs"
+                        : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#241D48]"
+                    }`}
+                  >
+                    <Cpu className="w-3.5 h-3.5" />
+                    <span>API Key Rotation</span>
+                  </button>
                 </div>
 
-                <React.Suspense fallback={<AdminSectionLoader type="cards" title="Loading Disha AI Telemetry..." />}>
+                <React.Suspense fallback={<AdminSectionLoader type="cards" title="Loading Disha AI..." />}>
                   {subTabAI === "tokens" ? <DishaAIDashboard /> : <AIApiManagementSection />}
                 </React.Suspense>
               </div>
             )}
 
             {/* ============================================================== */}
-            {/* PILLAR 6: CLOUD DATABASE & SYSTEM CONTROLS                     */}
+            {/* PILLAR 6: CLOUD & SYSTEM SETTINGS                              */}
             {/* ============================================================== */}
             {activePillar === "system" && (
-              <div className="space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div>
-                    <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-                      Cloud Database &amp; System Settings
-                    </h1>
-                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-                      PostgreSQL Supabase explorer, client feature toggles, maintenance mode, staff RBAC &amp; backups.
-                    </p>
-                  </div>
-
-                  <div className="flex items-center p-1 bg-white dark:bg-[#1A1435] rounded-2xl border border-slate-200 dark:border-[#352B63] shadow-xs self-start sm:self-auto overflow-x-auto max-w-full">
-                    {[
-                      { id: "database", label: "PostgreSQL Supabase" },
-                      { id: "features", label: "Feature Toggles" },
-                      { id: "config", label: "Maintenance Mode" },
-                      { id: "leaderboard", label: "Leaderboard" },
-                      { id: "staff", label: "Staff RBAC" },
-                      { id: "crashes", label: "Crash Sentry" },
-                      { id: "backups", label: "Disaster Recovery" },
-                      { id: "diagnostics", label: "Diagnostics" }
-                    ].map((tab) => (
+              <div className="space-y-5">
+                {/* Flattened 5-tab bar (no crowded 8-tab overflow!) */}
+                <div className="flex items-center gap-1.5 p-1 bg-white dark:bg-[#1B1536] rounded-2xl border border-slate-200 dark:border-[#31275E] shadow-xs overflow-x-auto no-scrollbar">
+                  {[
+                    { id: "database", label: "Cloud & Sync", icon: HardDrive },
+                    { id: "features", label: "App & Features", icon: Wrench },
+                    { id: "staff", label: "Staff & Ranks", icon: ShieldCheck },
+                    { id: "crashes", label: "Crashes & QA", icon: Terminal },
+                    { id: "backups", label: "Backups", icon: Archive },
+                  ].map((tab) => {
+                    const Icon = tab.icon;
+                    const isActive = subTabSystem === tab.id;
+                    return (
                       <button
                         key={tab.id}
                         onClick={() => setSubTabSystem(tab.id as any)}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
-                          subTabSystem === tab.id
-                            ? "bg-slate-900 dark:bg-[#800020] text-white shadow-xs"
-                            : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                        className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer shrink-0 ${
+                          isActive
+                            ? "bg-[#7045D8] text-white shadow-xs"
+                            : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#241D48]"
                         }`}
                       >
-                        {tab.label}
+                        <Icon className="w-3.5 h-3.5" />
+                        <span>{tab.label}</span>
                       </button>
-                    ))}
-                  </div>
+                    );
+                  })}
                 </div>
 
-                <React.Suspense fallback={<AdminSectionLoader type="cards" title="Loading System Panel..." />}>
-                  {/* PostgreSQL Supabase Explorer */}
+                <React.Suspense fallback={<AdminSectionLoader type="cards" title="Loading System Tools..." />}>
+                  {/* 1. Cloud & Sync */}
                   {subTabSystem === "database" && (
-                    <div className="space-y-6">
-                      <div className="flex items-center p-1 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-x-auto max-w-full">
-                        <button onClick={() => setSubTabSupabase("overview")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${subTabSupabase === "overview" ? "bg-white dark:bg-[#1A1435] text-slate-900 dark:text-white shadow-2xs" : "text-slate-500"}`}>Overview</button>
-                        <button onClick={() => setSubTabSupabase("explorer")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${subTabSupabase === "explorer" ? "bg-white dark:bg-[#1A1435] text-slate-900 dark:text-white shadow-2xs" : "text-slate-500"}`}>Tables Explorer</button>
-                        <button onClick={() => setSubTabSupabase("diagnostics")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${subTabSupabase === "diagnostics" ? "bg-white dark:bg-[#1A1435] text-slate-900 dark:text-white shadow-2xs" : "text-slate-500"}`}>Diagnostics</button>
-                        <button onClick={() => setSubTabSupabase("report")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${subTabSupabase === "report" ? "bg-white dark:bg-[#1A1435] text-slate-900 dark:text-white shadow-2xs" : "text-slate-500"}`}>Row Counts</button>
-                        <button onClick={() => setSubTabSupabase("audit")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${subTabSupabase === "audit" ? "bg-white dark:bg-[#1A1435] text-slate-900 dark:text-white shadow-2xs" : "text-slate-500"}`}>Audit Log</button>
-                        <button onClick={() => setSubTabSupabase("sync")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${subTabSupabase === "sync" ? "bg-white dark:bg-[#1A1435] text-slate-900 dark:text-white shadow-2xs" : "text-slate-500"}`}>Sync Monitor</button>
+                    <div className="space-y-5">
+                      <div className="flex flex-wrap gap-2">
+                        {[
+                          { id: "overview", label: "Cloud Health" },
+                          { id: "explorer", label: "Tables Explorer" },
+                          { id: "sync", label: "Sync & Audit" },
+                        ].map((t) => (
+                          <button
+                            key={t.id}
+                            onClick={() => setDbToolView(t.id as any)}
+                            className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+                              dbToolView === t.id
+                                ? "bg-[#7045D8]/10 text-[#7045D8] dark:text-[#A78BFA] border-[#7045D8]/30"
+                                : "bg-white dark:bg-[#1B1536] text-slate-600 dark:text-slate-300 border-slate-200 dark:border-[#31275E]"
+                            }`}
+                          >
+                            {t.label}
+                          </button>
+                        ))}
                       </div>
 
-                      {subTabSupabase === "overview" && (
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      {dbToolView === "overview" && (
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                           <ProductionStabilityPanel />
                           <SupabaseHealthPanel onBulkSync={handleSyncInit} />
                         </div>
                       )}
-                      {subTabSupabase === "explorer" && <SupabaseDataExplorer userProfile={props.userProfile} />}
-                      {subTabSupabase === "diagnostics" && <AdminDiagnosticsSection userProfile={props.userProfile} subjects={combinedSubjectsList} chapters={combinedChaptersList} />}
-                      {subTabSupabase === "report" && <DiagnosticReport userProfile={props.userProfile} />}
-                      {subTabSupabase === "audit" && <SupabaseAuditConsole userProfile={props.userProfile} />}
-                      {subTabSupabase === "sync" && <SyncHealthMonitorPanel questionsStore={props.questionsStore} onStoreUpdated={props.onStoreUpdated} userProfile={props.userProfile} />}
+                      {dbToolView === "explorer" && <SupabaseDataExplorer userProfile={props.userProfile} />}
+                      {dbToolView === "sync" && (
+                        <div className="space-y-5">
+                          <SyncHealthMonitorPanel
+                            questionsStore={props.questionsStore}
+                            onStoreUpdated={props.onStoreUpdated}
+                            userProfile={props.userProfile}
+                          />
+                          <SupabaseAuditConsole userProfile={props.userProfile} />
+                        </div>
+                      )}
                     </div>
                   )}
 
+                  {/* 2. App & Features (Feature Toggles + Maintenance Config) */}
                   {subTabSystem === "features" && (
-                    <AdminFeatureControlSection adminEmail={cloudAuthState.userEmail || props.userProfile?.email || "admin"} />
-                  )}
-
-                  {subTabSystem === "config" && <AppConfigMaintenanceSection />}
-
-                  {subTabSystem === "leaderboard" && <LeaderboardManagerSection />}
-
-                  {subTabSystem === "staff" && (
-                    <StaffManagementSection currentUserProfile={props.userProfile} />
-                  )}
-
-                  {subTabSystem === "crashes" && <CrashReportsSection />}
-
-                  {subTabSystem === "backups" && (
-                    <div className="space-y-6">
-                      <BackupRestoreSection userProfile={props.userProfile} />
-                      <div className="border-t border-slate-200 dark:border-slate-800 pt-6">
-                        <ExportDataWidget questionsStore={props.questionsStore} />
+                    <div className="space-y-5">
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          onClick={() => setFeatureOrConfig("features")}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+                            featureOrConfig === "features"
+                              ? "bg-[#7045D8]/10 text-[#7045D8] dark:text-[#A78BFA] border-[#7045D8]/30"
+                              : "bg-white dark:bg-[#1B1536] text-slate-600 dark:text-slate-300 border-slate-200 dark:border-[#31275E]"
+                          }`}
+                        >
+                          Feature Toggles &amp; Ads
+                        </button>
+                        <button
+                          onClick={() => setFeatureOrConfig("config")}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+                            featureOrConfig === "config"
+                              ? "bg-[#7045D8]/10 text-[#7045D8] dark:text-[#A78BFA] border-[#7045D8]/30"
+                              : "bg-white dark:bg-[#1B1536] text-slate-600 dark:text-slate-300 border-slate-200 dark:border-[#31275E]"
+                          }`}
+                        >
+                          App Config &amp; Maintenance
+                        </button>
                       </div>
+
+                      {featureOrConfig === "features" ? (
+                        <AdminFeatureControlSection adminEmail={cloudAuthState.userEmail || props.userProfile?.email || "admin"} />
+                      ) : (
+                        <AppConfigMaintenanceSection />
+                      )}
                     </div>
                   )}
 
-                  {subTabSystem === "diagnostics" && (
-                    <div className="space-y-6">
-                      <div className="bg-white dark:bg-[#1A1435] rounded-3xl p-5 border border-slate-200 dark:border-[#352B63] flex flex-col sm:flex-row items-center justify-between gap-4">
+                  {/* 3. Staff & Ranks */}
+                  {subTabSystem === "staff" && (
+                    <div className="space-y-5">
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          onClick={() => setStaffOrLeaderboard("staff")}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+                            staffOrLeaderboard === "staff"
+                              ? "bg-[#7045D8]/10 text-[#7045D8] dark:text-[#A78BFA] border-[#7045D8]/30"
+                              : "bg-white dark:bg-[#1B1536] text-slate-600 dark:text-slate-300 border-slate-200 dark:border-[#31275E]"
+                          }`}
+                        >
+                          Staff &amp; RBAC Roles
+                        </button>
+                        <button
+                          onClick={() => setStaffOrLeaderboard("leaderboard")}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+                            staffOrLeaderboard === "leaderboard"
+                              ? "bg-[#7045D8]/10 text-[#7045D8] dark:text-[#A78BFA] border-[#7045D8]/30"
+                              : "bg-white dark:bg-[#1B1536] text-slate-600 dark:text-slate-300 border-slate-200 dark:border-[#31275E]"
+                          }`}
+                        >
+                          Leaderboard Manager
+                        </button>
+                      </div>
+
+                      {staffOrLeaderboard === "staff" ? (
+                        <StaffManagementSection currentUserProfile={props.userProfile} />
+                      ) : (
+                        <LeaderboardManagerSection />
+                      )}
+                    </div>
+                  )}
+
+                  {/* 4. Crashes & QA */}
+                  {subTabSystem === "crashes" && (
+                    <div className="space-y-5">
+                      <div className="bg-white dark:bg-[#1B1536] rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-[#31275E] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div>
-                          <h3 className="text-base font-bold text-slate-900 dark:text-white">Automated QA Test Runner</h3>
-                          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Run automated parser verifications, question schema checks, and memory profiling.</p>
+                          <h3 className="text-sm font-bold text-slate-900 dark:text-white">Automated QA Suite</h3>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                            Verify parser schemas, question integrity, and runtime stability.
+                          </p>
                         </div>
                         <button
                           onClick={() => setShowQATestRunner(true)}
-                          className="px-4 py-2.5 rounded-xl bg-slate-900 dark:bg-slate-700 text-white font-bold text-xs flex items-center gap-2 shadow-xs cursor-pointer active:scale-95"
+                          className="px-4 py-2.5 rounded-xl bg-[#7045D8] hover:bg-[#5B32BF] text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer active:scale-95 transition-all min-h-[40px]"
                         >
-                          <Terminal className="w-4 h-4 text-emerald-400" />
+                          <Terminal className="w-4 h-4" />
                           <span>Launch QA Runner</span>
                         </button>
                       </div>
-                      <DiagnosticReport userProfile={props.userProfile} />
+                      <CrashReportsSection />
+                    </div>
+                  )}
+
+                  {/* 5. Backups & Export */}
+                  {subTabSystem === "backups" && (
+                    <div className="space-y-5">
+                      <BackupRestoreSection userProfile={props.userProfile} />
+                      <ExportDataWidget questionsStore={props.questionsStore} />
                     </div>
                   )}
                 </React.Suspense>
@@ -1809,7 +1707,9 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
         </main>
       </div>
 
-      {/* 4. MODALS & SUBCOMPONENT DIALOGS */}
+      {/* ===================================================================== */}
+      {/* 4. MODALS & DIALOGS                                                   */}
+      {/* ===================================================================== */}
       {showQATestRunner && (
         <React.Suspense fallback={null}>
           <QATestRunnerModal isOpen={showQATestRunner} onClose={() => setShowQATestRunner(false)} />
@@ -1837,12 +1737,12 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                 const currentTopics = props.questionsStore.customTopics || [];
                 const currentChapters = props.questionsStore.customChapters || [];
 
-                let updatedTopics = [...currentTopics];
+                const updatedTopics = [...currentTopics];
                 if (newTopic && !updatedTopics.some(t => t.id === newTopic.id)) {
                   updatedTopics.push(newTopic);
                 }
 
-                let updatedChapters = [...currentChapters];
+                const updatedChapters = [...currentChapters];
                 if (newTopic) {
                   const chIdx = updatedChapters.findIndex(c => c.id === newTopic.chapterId);
                   if (chIdx !== -1) {
@@ -1959,53 +1859,49 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
         }}
       />
 
-      {/* 5. MOBILE FIXED BOTTOM ACTION BAR (lg:hidden) */}
+      {/* ===================================================================== */}
+      {/* 5. MOBILE BOTTOM NAVIGATION BAR (< lg)                                */}
+      {/* ===================================================================== */}
       <nav
-        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#16102E]/95 backdrop-blur-md border-t border-[#E8D9C0] dark:border-[#2E2556] shadow-[0_-4px_20px_rgba(0,0,0,0.06)] px-1 py-1 safe-area-pb"
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#1B1536]/95 backdrop-blur-md border-t border-slate-200 dark:border-[#31275E] shadow-[0_-4px_20px_rgba(0,0,0,0.06)] px-2 pt-1.5 pb-[calc(0.375rem+env(safe-area-inset-bottom,0px))]"
         aria-label="Admin Mobile Navigation"
       >
         <div className="flex items-center justify-around max-w-lg mx-auto">
-          {executivePillars.slice(0, 5).map((pillar) => {
+          {executivePillars.slice(0, 4).map((pillar) => {
             const Icon = pillar.icon;
             const isActive = activePillar === pillar.id;
             return (
               <button
                 key={pillar.id}
                 onClick={() => handleSelectPillar(pillar.id)}
-                className={`flex-1 flex flex-col items-center justify-center py-1 px-1 rounded-xl transition-all cursor-pointer min-h-[46px] relative ${
+                className={`flex-1 flex flex-col items-center justify-center py-1 rounded-xl transition-all cursor-pointer min-h-[48px] ${
                   isActive
-                    ? "text-[#800020] dark:text-[#F59E0B] font-black"
-                    : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                    ? "text-[#7045D8] dark:text-[#A78BFA] font-extrabold"
+                    : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-semibold"
                 }`}
               >
-                <div className={`p-1 rounded-lg transition-transform ${isActive ? "scale-110 bg-[#800020]/10 dark:bg-[#F59E0B]/15" : ""}`}>
+                <div className={`px-3 py-1 rounded-full transition-colors ${isActive ? "bg-[#7045D8]/12 dark:bg-[#7045D8]/25" : ""}`}>
                   <Icon className="w-4.5 h-4.5" />
                 </div>
-                <span className="text-[10px] tracking-tight truncate max-w-[56px]">
-                  {pillar.title.split(" ")[0]}
+                <span className="text-[10px] tracking-tight mt-0.5 truncate max-w-[64px]">
+                  {pillar.shortTitle}
                 </span>
-                {isActive && (
-                  <span className="w-4 h-0.5 bg-[#800020] dark:bg-[#F59E0B] rounded-full mt-0.5" />
-                )}
               </button>
             );
           })}
 
           <button
             onClick={() => setIsSidebarOpen(true)}
-            className={`flex-1 flex flex-col items-center justify-center py-1 px-1 rounded-xl transition-all cursor-pointer min-h-[46px] ${
-              activePillar === "system"
-                ? "text-[#800020] dark:text-[#F59E0B] font-black"
-                : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+            className={`flex-1 flex flex-col items-center justify-center py-1 rounded-xl transition-all cursor-pointer min-h-[48px] ${
+              activePillar === "ai" || activePillar === "system"
+                ? "text-[#7045D8] dark:text-[#A78BFA] font-extrabold"
+                : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-semibold"
             }`}
           >
-            <div className="p-1 rounded-lg">
+            <div className={`px-3 py-1 rounded-full transition-colors ${activePillar === "ai" || activePillar === "system" ? "bg-[#7045D8]/12 dark:bg-[#7045D8]/25" : ""}`}>
               <Menu className="w-4.5 h-4.5" />
             </div>
-            <span className="text-[10px] tracking-tight">More</span>
-            {activePillar === "system" && (
-              <span className="w-4 h-0.5 bg-[#800020] dark:bg-[#F59E0B] rounded-full mt-0.5" />
-            )}
+            <span className="text-[10px] tracking-tight mt-0.5">More</span>
           </button>
         </div>
       </nav>
