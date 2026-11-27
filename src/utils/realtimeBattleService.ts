@@ -585,6 +585,27 @@ export function shuffleQuestionOptions(question: BattleQuestion): BattleQuestion
   };
 }
 
+// Formats raw subject/category IDs (e.g. Subj-1793126120889-Ojzu2) into human-readable Hindi names
+export function resolveCleanCategoryName(raw: any): string {
+  if (raw?.subjectTitle && !raw.subjectTitle.includes("Subj-")) {
+    return raw.subjectTitle;
+  }
+  const rawVal = raw?.subjectId || raw?.category || "";
+  if (!rawVal || rawVal === "all" || rawVal === "General" || rawVal === "general") {
+    return "राजस्थान ज्ञान";
+  }
+  // Check if it's a raw database ID
+  if (/^(Subj|ch|top|q|test)-/i.test(rawVal) || rawVal.includes("Subj-") || rawVal.includes("ch-")) {
+    try {
+      const subjects = getCombinedSubjects();
+      const match = subjects.find((s) => s.id === rawVal || rawVal.includes(s.id) || (s.id && rawVal.startsWith(s.id)));
+      if (match) return match.hindiName || match.name || "राजस्थान ज्ञान";
+    } catch {}
+    return "राजस्थान ज्ञान";
+  }
+  return rawVal;
+}
+
 // Internal helper to convert any app question format to BattleQuestion
 export function formatToBattleQuestion(raw: any, fallbackIdPrefix = "q"): BattleQuestion {
   const options = Array.isArray(raw?.options) && raw.options.length >= 2
@@ -597,7 +618,7 @@ export function formatToBattleQuestion(raw: any, fallbackIdPrefix = "q"): Battle
     options,
     correctIndex: resolveCorrectIndex(raw, options),
     explanation: String(raw?.explanation || "").trim(),
-    category: raw?.subjectId || raw?.category || "General",
+    category: resolveCleanCategoryName(raw),
     difficulty: raw?.difficulty || "medium",
   };
 }

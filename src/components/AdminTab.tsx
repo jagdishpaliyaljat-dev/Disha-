@@ -5,7 +5,8 @@ import {
   Upload, Sparkles, Menu, ChevronRight, ChevronLeft, HardDrive, Activity, Cpu, RefreshCw, Newspaper,
   Trophy, CheckCircle2, ListFilter, ChevronDown, Trash2, AlertCircle, Building2,
   FileCode, Archive, LogOut, ArrowRight, Timer, FileText, FileSpreadsheet, Home, Bot, Swords, ShieldAlert,
-  Crown, ArchiveRestore, FileCheck, GraduationCap, Headphones, AlertTriangle, CalendarClock
+  Crown, ArchiveRestore, FileCheck, GraduationCap, Headphones, AlertTriangle, CalendarClock,
+  Search, ExternalLink, SlidersHorizontal, Stethoscope, RefreshCcw, BarChart3, HelpCircle
 } from "lucide-react";
 import { Subject, Chapter, UserQuestionsStore, UserProfile } from "../types";
 import { ConfirmDialog } from "./admin/ConfirmDialog";
@@ -45,11 +46,10 @@ function adminSafeLazy<T extends React.ComponentType<any>>(
   ) as unknown as T;
 }
 
-// Feature-wise On-Demand Lazy Loaded Admin Modules (cached automatically by React)
+// Feature-wise On-Demand Lazy Loaded Admin Modules
 const AdminDashboardSection = adminSafeLazy<any>(() => import("./admin/AdminDashboardSection"), "AdminDashboardSection");
 const AdminAnalyticsDashboard = adminSafeLazy<any>(() => import("./admin/AdminAnalyticsDashboard"), "AdminAnalyticsDashboard");
 const AdminSyllabusSection = adminSafeLazy<any>(() => import("./admin/AdminSyllabusSection"), "AdminSyllabusSection");
-const McqDuplicateScannerWidget = adminSafeLazy<any>(() => import("./admin/McqDuplicateScannerWidget"), "McqDuplicateScannerWidget");
 const AdminNewsSection = adminSafeLazy<any>(() => import("./admin/AdminNewsSectionV2"), "AdminNewsSection");
 const AdminBannerManagementSection = adminSafeLazy<any>(() => import("./admin/AdminBannerManagementSection"), "AdminBannerManagementSection");
 const AdminUserManagementSection = adminSafeLazy<any>(() => import("./admin/AdminUserManagementSection"), "AdminUserManagementSection");
@@ -87,6 +87,7 @@ const OutdatedQuestionArchiver = adminSafeLazy<any>(() => import("./admin/Outdat
 const EnterpriseAdminCategoryGrid = adminSafeLazy<any>(() => import("./admin/EnterpriseAdminCategoryGrid"), "EnterpriseAdminCategoryGrid");
 const LeaderboardManagerSection = adminSafeLazy<any>(() => import("./admin/LeaderboardManagerSection"), "LeaderboardManagerSection");
 const AppConfigMaintenanceSection = adminSafeLazy<any>(() => import("./admin/AppConfigMaintenanceSection"), "AppConfigMaintenanceSection");
+const SubjectTopicAccuracyHeatmap = adminSafeLazy<any>(() => import("./admin/SubjectTopicAccuracyHeatmap"), "SubjectTopicAccuracyHeatmap");
 
 interface AdminTabProps {
   userProfile: UserProfile | null;
@@ -114,15 +115,24 @@ interface AdminTabProps {
   onLogout?: () => void;
 }
 
+// 6 Core Executive Pillars for the Modernized Admin Panel
+export type AdminPillar = 
+  | "dashboard"  // 1. Executive Dashboard & Metrics
+  | "academic"   // 2. Academic Hub (Syllabus, Questions, Imports, QA Station, Approval)
+  | "tests"      // 3. Tests & Live Arena (Mock tests, PYQs, Coaching, Battles, Merit)
+  | "editorial"  // 4. Editorial & Learners (Articles, Banners, Users, Doubts, Broadcasts, Messages)
+  | "ai"         // 5. Disha AI Engine (Token Analytics, Gemini Key Rotation)
+  | "system";    // 6. Cloud & System Settings (Supabase, Features, Config, Staff, Crashes, Backups)
+
+// Backward-compatible type alias
 export type AdminGroupSection = 
-  | "dashboard"
+  | AdminPillar
   | "syllabus"
   | "questions"
   | "content-health"
   | "outdated-archiver"
   | "approval"
   | "staff"
-  | "tests"
   | "content"
   | "users"
   | "supabase"
@@ -132,32 +142,131 @@ export type AdminGroupSection =
   | "backup"
   | "settings";
 
+// Helper to map any legacy URL query or path to the clean 6-pillar architecture
+function resolvePillarAndSubTab(input: string | null): { pillar: AdminPillar; subTab?: string } {
+  if (!input) return { pillar: "dashboard", subTab: "overview" };
+  const raw = input.toLowerCase().trim();
+
+  switch (raw) {
+    case "syllabus":
+      return { pillar: "academic", subTab: "syllabus" };
+    case "questions":
+      return { pillar: "academic", subTab: "questions" };
+    case "content-health":
+      return { pillar: "academic", subTab: "qa" };
+    case "outdated-archiver":
+    case "archiver":
+      return { pillar: "academic", subTab: "qa" };
+    case "approval":
+      return { pillar: "academic", subTab: "approval" };
+    case "tests":
+    case "mocks":
+      return { pillar: "tests", subTab: "mock" };
+    case "battle":
+    case "battles":
+      return { pillar: "tests", subTab: "battle" };
+    case "content":
+    case "news":
+    case "articles":
+      return { pillar: "editorial", subTab: "news" };
+    case "banners":
+      return { pillar: "editorial", subTab: "banners" };
+    case "users":
+    case "students":
+      return { pillar: "editorial", subTab: "directory" };
+    case "reports":
+    case "doubts":
+      return { pillar: "editorial", subTab: "doubts" };
+    case "staff":
+    case "team":
+      return { pillar: "system", subTab: "staff" };
+    case "supabase":
+    case "database":
+      return { pillar: "system", subTab: "database" };
+    case "diagnostics":
+      return { pillar: "system", subTab: "diagnostics" };
+    case "crashes":
+      return { pillar: "system", subTab: "crashes" };
+    case "integrations":
+    case "ai":
+    case "tokens":
+      return { pillar: "ai", subTab: "tokens" };
+    case "backup":
+    case "backups":
+      return { pillar: "system", subTab: "backups" };
+    case "settings":
+    case "features":
+      return { pillar: "system", subTab: "features" };
+    case "academic":
+    case "editorial":
+    case "system":
+    case "dashboard":
+      return { pillar: raw as AdminPillar };
+    default:
+      return { pillar: "dashboard", subTab: "overview" };
+  }
+}
+
 export const AdminTab: React.FC<AdminTabProps> = (props) => {
-  // Active Group Section State
-  const [activeGroup, setActiveGroup] = React.useState<AdminGroupSection>(() => {
+  // Initial URL Parameter Resolver
+  const initialNav = React.useMemo(() => {
     if (typeof window !== "undefined") {
       const searchParams = new URLSearchParams(window.location.search);
-      const sec = searchParams.get("section") as AdminGroupSection | null;
-      if (sec) return sec;
+      const sec = searchParams.get("section");
+      if (sec) return resolvePillarAndSubTab(sec);
       const p = window.location.pathname;
       const h = window.location.hash;
-      if (p.includes("/admin/database") || h.includes("#admin/database") || p.includes("/admin/supabase") || h.includes("#admin/supabase")) return "supabase";
-      if (p.includes("/admin/news") || h.includes("#admin/news")) return "content";
-      if (p.includes("/admin/content-health") || h.includes("#admin/content-health") || p.includes("/admin/health-auditor") || h.includes("#admin/health-auditor")) return "content-health";
-      if (p.includes("/admin/outdated") || h.includes("#admin/outdated") || p.includes("/admin/archiver") || h.includes("#admin/archiver")) return "outdated-archiver";
+      if (p.includes("/admin/database") || h.includes("#admin/database") || p.includes("/admin/supabase") || h.includes("#admin/supabase")) return { pillar: "system" as AdminPillar, subTab: "database" };
+      if (p.includes("/admin/news") || h.includes("#admin/news")) return { pillar: "editorial" as AdminPillar, subTab: "news" };
+      if (p.includes("/admin/content-health") || h.includes("#admin/content-health")) return { pillar: "academic" as AdminPillar, subTab: "qa" };
+      if (p.includes("/admin/outdated") || h.includes("#admin/outdated")) return { pillar: "academic" as AdminPillar, subTab: "qa" };
+      if (p.includes("/admin/syllabus") || h.includes("#admin/syllabus")) return { pillar: "academic" as AdminPillar, subTab: "syllabus" };
     }
-    return "dashboard";
-  });
+    return { pillar: "dashboard" as AdminPillar, subTab: "overview" };
+  }, []);
 
-  // Sub-tab toggles for multi-view groups
-  const [subTabDashboard, setSubTabDashboard] = React.useState<"overview" | "analytics" | "categories" | "heatmap">("categories");
-  const [subTabContent, setSubTabContent] = React.useState<"news" | "banners">("news");
-  const [subTabUsers, setSubTabUsers] = React.useState<"directory" | "messages" | "reports" | "notifications">("directory");
+  // Primary 6-Pillar Active State
+  const [activePillar, setActivePillar] = React.useState<AdminPillar>(initialNav.pillar);
+
+  // Pillar 1: Dashboard Subtabs
+  const [subTabDashboard, setSubTabDashboard] = React.useState<"overview" | "analytics" | "heatmap" | "grid">(
+    (initialNav.subTab as any) || "overview"
+  );
+
+  // Pillar 2: Academic Hub Subtabs
+  const [subTabAcademic, setSubTabAcademic] = React.useState<"syllabus" | "questions" | "import" | "qa" | "approval">(
+    (initialNav.subTab as any) || "syllabus"
+  );
+  // Content QA active subtool inside QA Station
+  const [activeQATool, setActiveQATool] = React.useState<"duplicate" | "health" | "outdated" | "recycle" | "bulk">("duplicate");
+
+  // Pillar 3: Tests & Battles Subtabs
+  const [subTabTests, setSubTabTests] = React.useState<"mock" | "battle" | "hierarchy">(
+    (initialNav.subTab as any) || "mock"
+  );
+
+  // Pillar 4: Editorial & Users Subtabs
+  const [subTabEditorial, setSubTabEditorial] = React.useState<"news" | "banners" | "directory" | "doubts" | "notifications" | "messages">(
+    (initialNav.subTab as any) || "news"
+  );
+
+  // Pillar 5: Disha AI Engine Subtabs
+  const [subTabAI, setSubTabAI] = React.useState<"tokens" | "keys">(
+    (initialNav.subTab as any) || "tokens"
+  );
+
+  // Pillar 6: Cloud & System Settings Subtabs
+  const [subTabSystem, setSubTabSystem] = React.useState<"database" | "features" | "config" | "leaderboard" | "staff" | "crashes" | "backups" | "diagnostics">(
+    (initialNav.subTab as any) || "database"
+  );
   const [subTabSupabase, setSubTabSupabase] = React.useState<"overview" | "explorer" | "diagnostics" | "report" | "audit" | "sync">("overview");
-  const [subTabAI, setSubTabAI] = React.useState<"dashboard" | "configs">("dashboard");
-  const [subTabTests, setSubTabTests] = React.useState<"mock" | "battle">("mock");
-  const [subTabSettings, setSubTabSettings] = React.useState<"features" | "maintenance" | "leaderboard" | "appconfig">("features");
 
+  // Layout & Navigation State
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = React.useState(false);
+  const [searchQuery, setSearchQuery] = React.useState("");
+
+  // Modal Triggers
   const [selectedUserForDetails, setSelectedUserForDetails] = React.useState<UserProfile | null>(null);
   const [showQATestRunner, setShowQATestRunner] = React.useState(false);
   const [showCoachingHierarchyModal, setShowCoachingHierarchyModal] = React.useState(false);
@@ -169,20 +278,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
   const [isAdminMenuOpen, setIsAdminMenuOpen] = React.useState(false);
   const adminMenuRef = React.useRef<HTMLDivElement>(null);
 
-  const handleAdminSignOut = async () => {
-    setIsAdminMenuOpen(false);
-    setIsSidebarOpen(false);
-    try {
-      await supabase.auth.signOut();
-    } catch {}
-    clearUserProfile();
-    if (props.onLogout) {
-      props.onLogout();
-    } else if (typeof window !== "undefined") {
-      window.location.href = "/";
-    }
-  };
-
+  // Cloud Auth State
   const [cloudAuthState, setCloudAuthState] = React.useState<{
     checked: boolean;
     hasActiveSession: boolean;
@@ -193,6 +289,17 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
     userEmail: null,
   });
 
+  // Cloud Delete & Sync Confirmation State
+  const [deleteConfirmTarget, setDeleteConfirmTarget] = React.useState<{
+    type: "subject" | "chapter";
+    id: string;
+    title: string;
+  } | null>(null);
+  const [isDeletingCloud, setIsDeletingCloud] = React.useState(false);
+  const [showConfirm, setShowConfirm] = React.useState(false);
+  const [syncProgress, setSyncProgress] = React.useState<SyncProgressState | null>(null);
+
+  // Authentication & Session Listener
   React.useEffect(() => {
     let mounted = true;
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -225,6 +332,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
     };
   }, []);
 
+  // Click outside admin menu dismissal
   React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (adminMenuRef.current && !adminMenuRef.current.contains(event.target as Node)) {
@@ -239,7 +347,26 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
     };
   }, [isAdminMenuOpen]);
 
-  // Aggregate metrics for tests tab overview
+  // Combined Data calculations
+  const combinedSubjectsList = React.useMemo(() => {
+    return props.subjects && props.subjects.length > 0
+      ? props.subjects
+      : getCombinedSubjects(props.questionsStore);
+  }, [props.subjects, props.questionsStore]);
+
+  const combinedChaptersList = React.useMemo(() => {
+    return props.chapters && props.chapters.length > 0
+      ? props.chapters
+      : getCombinedChapters(props.questionsStore);
+  }, [props.chapters, props.questionsStore]);
+
+  const totalQuestionsCount = React.useMemo(() => {
+    return combinedChaptersList.reduce((acc, ch) => {
+      return acc + (ch.topics || []).reduce((tAcc, t) => tAcc + (t.questions || []).length, 0);
+    }, 0);
+  }, [combinedChaptersList]);
+
+  // Aggregated Test Statistics
   const testsStats = React.useMemo(() => {
     let lt: any[] = [];
     let pyq: any[] = [];
@@ -249,126 +376,134 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
     } catch {}
     try {
       pyq = loadLocalPYQPapers();
-      pyq.forEach(p => { pyqQCount += (p.questions?.length || 0); });
+      pyqQCount = pyq.reduce((acc, p) => acc + (p.questions?.length || 0), 0);
     } catch {}
-    const activeLt = lt.filter(t => t.status === "live" || t.status === "upcoming").length;
+
+    const now = new Date();
+    const liveActiveCount = lt.filter((t) => {
+      if (!t.isActive) return false;
+      const start = new Date(t.startTime);
+      const end = new Date(t.endTime);
+      return now >= start && now <= end;
+    }).length;
+
     return {
       liveTestsTotal: lt.length,
-      liveActiveCount: activeLt,
-      pyqPapersTotal: pyq.length,
+      liveActiveCount,
+      pyqTotal: pyq.length,
       pyqQuestionsTotal: pyqQCount,
     };
-  }, [props.questionsStore, activeGroup]);
-  const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = React.useState<boolean>(() => {
+  }, []);
+
+  // RBAC permissions for the logged-in staff
+  const staffRole = React.useMemo(() => {
+    return getStaffRole(props.userProfile);
+  }, [props.userProfile]);
+
+  const isSuperAdmin = React.useMemo(() => {
+    return isSuperAdminRole(props.userProfile);
+  }, [props.userProfile]);
+
+  // Navigation Selection Handler
+  const handleSelectPillar = (pillar: AdminPillar, subTab?: string) => {
+    setActivePillar(pillar);
+    if (subTab) {
+      if (pillar === "dashboard") setSubTabDashboard(subTab as any);
+      if (pillar === "academic") setSubTabAcademic(subTab as any);
+      if (pillar === "tests") setSubTabTests(subTab as any);
+      if (pillar === "editorial") setSubTabEditorial(subTab as any);
+      if (pillar === "ai") setSubTabAI(subTab as any);
+      if (pillar === "system") setSubTabSystem(subTab as any);
+    }
+    setIsSidebarOpen(false);
+
+    // Update URL query smoothly without reloading
     if (typeof window !== "undefined") {
-      return localStorage.getItem("disha_admin_sidebar_collapsed") === "true";
+      const url = new URL(window.location.href);
+      url.searchParams.set("section", pillar);
+      window.history.replaceState({}, "", url.toString());
     }
-    return false;
-  });
-
-  const toggleSidebarCollapsed = () => {
-    setIsSidebarCollapsed((prev) => {
-      const next = !prev;
-      if (typeof window !== "undefined") {
-        try {
-          localStorage.setItem("disha_admin_sidebar_collapsed", String(next));
-        } catch {}
-      }
-      return next;
-    });
   };
-  const [syncProgress, setSyncProgress] = React.useState<SyncProgressState | null>(null);
-  const [isSyncing, setIsSyncing] = React.useState(false);
-  const [showConfirm, setShowConfirm] = React.useState(false);
 
-  // Deletion Confirmation Dialog State for Subject / Chapter
-  const [deleteConfirmTarget, setDeleteConfirmTarget] = React.useState<{
-    type: "subject" | "chapter";
-    id: string;
-    title: string;
-  } | null>(null);
-  const [isDeletingCloud, setIsDeletingCloud] = React.useState(false);
-  const [deleteNotification, setDeleteNotification] = React.useState<{ type: "success" | "error"; message: string } | null>(null);
-  const [topToast, setTopToast] = React.useState<AdminToastPayload | null>(null);
-  const [syllabusViewTab, setSyllabusViewTab] = React.useState<"subjects" | "chapters">("subjects");
-  const [isPullingLiveSupabase, setIsPullingLiveSupabase] = React.useState(false);
-
-  // ── Authoritative Live Sync with Supabase on Admin Tab Mount & Request ──
-  const pullLiveSupabaseData = React.useCallback(async (notify = false) => {
+  // Sign out handler
+  const handleAdminSignOut = async () => {
+    setIsAdminMenuOpen(false);
+    setIsSidebarOpen(false);
     try {
-      setIsPullingLiveSupabase(true);
-      const { fetchFullAuthoritativeCurriculum } = await import("../utils/supabaseSyncService");
-      const { subjects, chapters, topics, questions } = await fetchFullAuthoritativeCurriculum({ force: true });
-      if (props.onStoreUpdated && subjects) {
-        props.onStoreUpdated({
-          ...props.questionsStore,
-          customSubjects: subjects,
-          customChapters: chapters,
-          customTopics: topics,
-          cloudCacheQuestions: questions || [],
-        });
-      }
-      if (notify) {
-        triggerAdminToast({
-          message: `Supabase Live Sync: ${subjects?.length || 0} Subjects, ${chapters?.length || 0} Chapters, ${questions?.length || 0} Questions`,
-          type: "success",
-        });
-      }
-    } catch (err: any) {
-      console.warn("[AdminTab] Live Supabase pull note:", err);
-      if (notify) {
-        triggerAdminToast({
-          message: `Supabase Sync Note: ${err?.message || "Using active cache"}`,
-          type: "error",
-        });
-      }
-    } finally {
-      setIsPullingLiveSupabase(false);
+      await supabase.auth.signOut();
+    } catch {}
+    clearUserProfile();
+    if (props.onLogout) {
+      props.onLogout();
+    } else if (typeof window !== "undefined") {
+      window.location.href = "/";
     }
-  }, [props.onStoreUpdated, props.questionsStore]);
-
-  React.useEffect(() => {
-    pullLiveSupabaseData(false);
-  }, []);
-
-  React.useEffect(() => {
-    const handleToastEvent = (e: Event) => {
-      const customEvent = e as CustomEvent<AdminToastPayload>;
-      if (customEvent.detail) {
-        setTopToast(customEvent.detail);
-      }
-    };
-    window.addEventListener("disha2020_admin_toast", handleToastEvent);
-    window.addEventListener("quizpro_admin_toast", handleToastEvent);
-    return () => {
-      window.removeEventListener("disha2020_admin_toast", handleToastEvent);
-      window.removeEventListener("quizpro_admin_toast", handleToastEvent);
-    };
-  }, []);
-
-  React.useEffect(() => {
-    if (topToast) {
-      const timer = setTimeout(() => {
-        setTopToast(null);
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [topToast]);
-
-  const promptDeleteSubject = (id: string, title: string) => {
-    setDeleteConfirmTarget({ type: "subject", id, title });
   };
 
-  const promptDeleteChapter = (id: string, title: string) => {
-    setDeleteConfirmTarget({ type: "chapter", id, title });
+  // Cloud Sync Handlers
+  const getSyncCost = () => {
+    const customQ = props.questionsStore?.customQuestions?.length || 0;
+    const customC = props.questionsStore?.customChapters?.length || 0;
+    const customT = props.questionsStore?.customTopics?.length || 0;
+    return customQ + customC + customT;
+  };
+
+  const handleSyncInit = () => {
+    setShowConfirm(true);
+  };
+
+  const handleSyncClick = async () => {
+    setShowConfirm(false);
+    if (props.onSyncToCloud) {
+      const initialProgress: SyncProgressState = {
+        status: "validating",
+        totalRecords: getSyncCost(),
+        validRecords: 0,
+        invalidRecords: 0,
+        existingRecords: 0,
+        uploadedRecords: 0,
+        updatedRecords: 0,
+        skippedRecords: 0,
+        failedRecords: 0,
+        currentBatch: 0,
+        totalBatches: 0,
+        progressPercentage: 0,
+        currentStatusMessage: "Validating data records and preparing Supabase sync...",
+        errorDetails: []
+      };
+      setSyncProgress(initialProgress);
+
+      try {
+        const { executeSupabaseBulkSync } = await import("../utils/supabaseSyncService");
+        const report = await executeSupabaseBulkSync(props.questionsStore, (p) => setSyncProgress(p));
+        if (report.success) {
+          triggerAdminToast("success", "Cloud Sync Complete", "All questions and chapters synchronized with Supabase!");
+        }
+      } catch (err: any) {
+        setSyncProgress({
+          status: "error",
+          totalRecords: 0,
+          validRecords: 0,
+          invalidRecords: 0,
+          existingRecords: 0,
+          uploadedRecords: 0,
+          updatedRecords: 0,
+          skippedRecords: 0,
+          failedRecords: 1,
+          currentBatch: 0,
+          totalBatches: 0,
+          progressPercentage: 0,
+          currentStatusMessage: `Sync failed: ${err.message || "Unknown error"}`,
+          errorDetails: [err.message || "Unknown error"]
+        });
+      }
+    }
   };
 
   const handleConfirmDelete = async () => {
     if (!deleteConfirmTarget) return;
-    const { type, id, title } = deleteConfirmTarget;
     setIsDeletingCloud(true);
-
+    const { id, title, type } = deleteConfirmTarget;
     try {
       if (type === "subject") {
         if (props.onDeleteSubject) {
@@ -383,15 +518,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
             throw new Error(res.message);
           }
         }
-        setDeleteNotification({
-          type: "success",
-          message: `Subject "${title}" deleted from Supabase & local storage.`
-        });
-        triggerAdminToast(
-          "delete",
-          "Subject Deleted from Supabase",
-          `Subject "${title}" has been removed from Supabase and is immediately removed from the student app.`
-        );
+        triggerAdminToast("delete", "Subject Deleted from Supabase", `Subject "${title}" has been removed.`);
       } else {
         if (props.onDeleteChapter) {
           await props.onDeleteChapter(id);
@@ -405,595 +532,196 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
             throw new Error(res.message);
           }
         }
-        setDeleteNotification({
-          type: "success",
-          message: `Chapter "${title}" has been deleted from Supabase.`
-        });
-        triggerAdminToast(
-          "delete",
-          "Chapter Deleted from Supabase",
-          `Chapter "${title}" has been removed from Supabase and is immediately removed from the student app.`
-        );
+        triggerAdminToast("delete", "Chapter Deleted from Supabase", `Chapter "${title}" has been removed.`);
       }
-      setTimeout(() => setDeleteNotification(null), 3500);
-    } catch (err: any) {
-      setDeleteNotification({
-        type: "error",
-        message: err?.message || `Failed to delete ${type} from Cloud.`
-      });
-      setTimeout(() => setDeleteNotification(null), 4000);
+    } catch (e: any) {
+      triggerAdminToast("error", "Delete Failed", e.message || "Could not delete from cloud.");
     } finally {
       setIsDeletingCloud(false);
       setDeleteConfirmTarget(null);
     }
   };
 
-  React.useEffect(() => {
-    const handlePopState = () => {
-      if (typeof window !== "undefined") {
-        const search = new URLSearchParams(window.location.search);
-        const sec = search.get("section") as AdminGroupSection | null;
-        const userId = search.get("userId");
-
-        if (!userId) {
-          setSelectedUserForDetails(null);
-        }
-        if (sec) {
-          setActiveGroup(sec);
-        } else if (window.location.pathname === "/admin") {
-          setActiveGroup("dashboard");
-        } else if (window.location.pathname === "/admin/database" || window.location.hash === "#admin/database" || window.location.pathname === "/admin/supabase" || window.location.hash === "#admin/supabase") {
-          setActiveGroup("supabase");
-          setSubTabSupabase("explorer");
-        } else if (window.location.pathname === "/admin/news" || window.location.hash === "#admin/news") {
-          setActiveGroup("content");
-          setSubTabContent("news");
-        }
-      }
-    };
-    window.addEventListener("popstate", handlePopState);
-    return () => window.removeEventListener("popstate", handlePopState);
-  }, []);
-
-  const handleSelectGroup = React.useCallback((group: AdminGroupSection) => {
-    setActiveGroup(group);
-    setIsSidebarOpen(false);
-    if (typeof window !== "undefined") {
-      try {
-        if (group === "supabase" && subTabSupabase === "explorer") {
-          window.history.pushState({ group }, "", "/admin/database");
-        } else if (group === "content" && subTabContent === "news") {
-          window.history.pushState({ group }, "", "/admin/news");
-        } else if (group === "dashboard") {
-          if (window.location.pathname + window.location.search !== "/admin") {
-            window.history.pushState({ group: "dashboard" }, "", "/admin");
-          }
-        } else {
-          const target = `/admin?section=${group}`;
-          if (window.location.pathname + window.location.search !== target) {
-            window.history.pushState({ group }, "", target);
-          }
-        }
-      } catch (err) {
-        console.warn("Failed to push history state:", err);
-      }
-    }
-  }, [subTabSupabase, subTabContent]);
-
-  // Compatibility helper for legacy section triggers
-  const handleLegacyNavigateSection = (sec: string) => {
-    switch (sec) {
-      case "dashboard":
-        setActiveGroup("dashboard");
-        setSubTabDashboard("overview");
-        break;
-      case "analytics":
-        setActiveGroup("dashboard");
-        setSubTabDashboard("analytics");
-        break;
-      case "curriculum":
-        setActiveGroup("syllabus");
-        break;
-      case "questions":
-        setActiveGroup("questions");
-        break;
-      case "content-health":
-      case "health-auditor":
-      case "question-health":
-        setActiveGroup("content-health");
-        break;
-      case "outdated-archiver":
-      case "outdated":
-      case "fact-archiver":
-      case "archiver":
-        setActiveGroup("outdated-archiver");
-        break;
-      case "tests":
-      case "live-tests":
-      case "pyq":
-        setActiveGroup("tests");
-        setSubTabTests("mock");
-        break;
-      case "battle":
-      case "live-battle":
-        setActiveGroup("tests");
-        setSubTabTests("battle");
-        break;
-      case "users":
-        setActiveGroup("users");
-        setSubTabUsers("directory");
-        break;
-      case "messages":
-        setActiveGroup("users");
-        setSubTabUsers("messages");
-        break;
-      case "plans":
-        setActiveGroup("users");
-        setSubTabUsers("directory");
-        break;
-      case "news":
-        setActiveGroup("content");
-        setSubTabContent("news");
-        break;
-      case "banners":
-        setActiveGroup("content");
-        setSubTabContent("banners");
-        break;
-      case "health":
-        setActiveGroup("supabase");
-        setSubTabSupabase("overview");
-        break;
-      case "sync-health":
-        setActiveGroup("supabase");
-        setSubTabSupabase("sync");
-        break;
-      case "database":
-      case "supabase":
-        setActiveGroup("supabase");
-        setSubTabSupabase("explorer");
-        break;
-      case "ai-api":
-        setActiveGroup("integrations");
-        setSubTabAI("dashboard");
-        break;
-      case "backup":
-      case "restore":
-        setActiveGroup("backup");
-        break;
-      default:
-        setActiveGroup("dashboard");
-    }
-  };
-
-  const [activeSyncCost, setActiveSyncCost] = React.useState<number | null>(null);
-
-  const computeSyncCost = React.useCallback(() => {
-    const combinedSubjects = props.subjects || [];
-    const combinedChapters = props.chapters;
-    const curriculumQuestions = getCombinedQuestions(combinedChapters);
-    
-    // Core curriculum deletions
-    const delCount = (props.questionsStore.deletedQuestionIds?.length || 0) + 
-                     (props.questionsStore.deletedSubjectIds?.length || 0) + 
-                     (props.questionsStore.deletedChapterIds?.length || 0) + 
-                     (props.questionsStore.deletedTopicIds?.length || 0);
-
-    let pyqCount = 0;
-    let pyqQCount = 0;
-    let pyqDelCount = 0;
-    try {
-      const papers = loadLocalPYQPapers();
-      pyqCount = papers.length;
-      papers.forEach(p => pyqQCount += (p.questions?.length || 0));
-      pyqDelCount = getDeletedPYQIds().length;
-    } catch {}
-    
-    let liveCount = 0;
-    let liveQCount = 0;
-    let liveDelCount = 0;
-    try {
-      const tests = loadLocalLiveTests();
-      liveCount = tests.length;
-      tests.forEach(t => liveQCount += (t.questions?.length || 0));
-      liveDelCount = getDeletedLiveTestIds().length;
-    } catch {}
-    
-    let bannerDelCount = 0;
-    try {
-        bannerDelCount = getDeletedBannerIds().length;
-    } catch {}
-
-    return combinedSubjects.length + combinedChapters.length + curriculumQuestions.length + 
-           pyqCount + pyqQCount + liveCount + liveQCount + 
-           delCount + pyqDelCount + liveDelCount + bannerDelCount + 1;
-  }, [props.questionsStore, props.subjects, props.chapters]);
-
-  const getSyncCost = React.useCallback(() => {
-    if (activeSyncCost !== null) return activeSyncCost;
-    return computeSyncCost();
-  }, [activeSyncCost, computeSyncCost]);
-
-  const handleSyncInit = () => {
-    const cost = computeSyncCost();
-    setActiveSyncCost(cost);
-    if (cost > 0) {
-      setShowConfirm(true);
-    } else {
-      alert("All custom data is already synced with Supabase Database.");
-    }
-  };
-
-  const handleSyncClick = async () => {
-    setShowConfirm(false);
-    setIsSyncing(true);
-
-    // Diagnostic Log for Sync Initialization
-    console.log("[AdminSync] Initializing bulk sync to Supabase...", {
-      user: props.userProfile?.email || "unknown",
-      isAdmin: isUserAdmin(props.userProfile),
-      recordCount: getSyncCost()
-    });
-
-    const initialProgress: SyncProgressState = {
-      status: "validating",
-      totalRecords: getSyncCost(),
-      validRecords: 0,
-      invalidRecords: 0,
-      existingRecords: 0,
-      uploadedRecords: 0,
-      updatedRecords: 0,
-      skippedRecords: 0,
-      failedRecords: 0,
-      currentBatch: 0,
-      totalBatches: 0,
-      progressPercentage: 0,
-      currentStatusMessage: "Validating data records and preparing Supabase sync...",
-      errorDetails: []
-    };
-    setSyncProgress(initialProgress);
-
-    try {
-      const { executeSupabaseBulkSync } = await import("../utils/supabaseSyncService");
-      const report = await executeSupabaseBulkSync(props.questionsStore, (p) => setSyncProgress(p));
-      if (report.success) {
-        // Clear deleted IDs from store after successful sync
-        const syncedStore: UserQuestionsStore = {
-          ...props.questionsStore,
-          deletedQuestionIds: [],
-          deletedSubjectIds: [],
-          deletedChapterIds: [],
-          deletedTopicIds: [],
-        };
-        
-        // Clear deletions from other storage modules
-        try {
-          const { clearDeletedPYQIds } = await import("../utils/pyqStorage");
-          const { clearDeletedLiveTestIds } = await import("../utils/liveTestStorage");
-          // Both helpers are defined in their respective modules below.
-          const { clearDeletedBannerIds } = await import("../utils/bannerStorage");
-          clearDeletedPYQIds();
-          clearDeletedLiveTestIds();
-          clearDeletedBannerIds();
-        } catch (clearErr) {
-          console.warn("Could not clear supplemental deleted ID lists:", clearErr);
-        }
-
-        if (props.onStoreUpdated) {
-          props.onStoreUpdated(syncedStore);
-        }
-      } else if (props.onStoreUpdated) {
-        props.onStoreUpdated(props.questionsStore);
-      }
-    } catch (e: any) {
-      console.error("Bulk sync error:", e);
-      const errMsg = e?.message || "Sync failed unexpectedly.";
-      setSyncProgress({
-        status: "error",
-        totalRecords: getSyncCost(),
-        validRecords: 0,
-        invalidRecords: 0,
-        existingRecords: 0,
-        uploadedRecords: 0,
-        updatedRecords: 0,
-        skippedRecords: 0,
-        failedRecords: 1,
-        currentBatch: 0,
-        totalBatches: 0,
-        progressPercentage: 0,
-        currentStatusMessage: errMsg,
-        errorDetails: [errMsg]
-      });
-    } finally {
-      setIsSyncing(false);
-    }
-  };
-
-  const combinedSubjectsList = React.useMemo(() => (props.subjects && props.subjects.length > 0 ? props.subjects : getCombinedSubjects(props.questionsStore)), [props.subjects, props.questionsStore]);
-  const combinedChaptersList = React.useMemo(() => (props.chapters && props.chapters.length > 0 ? props.chapters : getCombinedChapters(props.questionsStore)), [props.chapters, props.questionsStore]);
-  const subjectCount = React.useMemo(() => combinedSubjectsList.length, [combinedSubjectsList]);
-  const questionCount = React.useMemo(() => {
-    return combinedChaptersList.reduce((acc, ch) => {
-      return acc + (ch.topics || []).reduce((tAcc, t) => tAcc + (t.questions || []).length, 0);
-    }, 0);
-  }, [combinedChaptersList]);
-
-  // Nav Groups definition mapping to the requested professional structure with RBAC filtering
-  const navGroupItems: {
-    id: AdminGroupSection;
+  // 6 Primary Executive Pillars Definition
+  const executivePillars: {
+    id: AdminPillar;
     title: string;
+    description: string;
     icon: any;
     badge?: string;
-  }[] = React.useMemo(() => {
-    const isSuper = isSuperAdminRole(props.userProfile);
-    const role = getStaffRole(props.userProfile);
-    const items: { id: AdminGroupSection; title: string; icon: any; badge?: string }[] = [
-      { id: "dashboard", title: "Overview", icon: LayoutDashboard },
-    ];
-
-    if (isSuper || role === "content_reviewer" || role === "sme_teacher" || role === "admin") {
-      items.push({ id: "approval", title: "Review Queue", icon: FileCheck, badge: "QA" });
+    category: "Core Operations" | "Academic & Community" | "Platform & Security";
+  }[] = [
+    {
+      id: "dashboard",
+      title: "Dashboard & Metrics",
+      description: "Platform health, live activity, accuracy heatmap & category matrix",
+      icon: LayoutDashboard,
+      category: "Core Operations"
+    },
+    {
+      id: "academic",
+      title: "Academic Hub",
+      description: "Syllabus, MCQs, Unified Import Hub, QA Station & Approval Queue",
+      icon: BookOpen,
+      badge: `${totalQuestionsCount}`,
+      category: "Core Operations"
+    },
+    {
+      id: "tests",
+      title: "Tests & Battle Arena",
+      description: "Live Mocks, PYQ Vault, Coaching Batches, 1v1 Telemetry & Merit Lists",
+      icon: Trophy,
+      badge: testsStats.liveActiveCount > 0 ? `${testsStats.liveActiveCount} Live` : undefined,
+      category: "Academic & Community"
+    },
+    {
+      id: "editorial",
+      title: "Editorial & Learners",
+      description: "Articles CMS, App Banners, Student Directory, Doubts & Broadcasts",
+      icon: Newspaper,
+      category: "Academic & Community"
+    },
+    {
+      id: "ai",
+      title: "Disha AI Engine",
+      description: "Token analytics, query audit, latency logs & Gemini API key rotation",
+      icon: Bot,
+      category: "Platform & Security"
+    },
+    {
+      id: "system",
+      title: "Cloud & System Settings",
+      description: "Postgres Explorer, Feature Toggles, Maintenance, Staff RBAC & Backups",
+      icon: Settings,
+      category: "Platform & Security"
     }
-    if (isSuper || role === "sme_teacher" || role === "content_reviewer" || role === "admin") {
-      items.push({ id: "syllabus", title: "Syllabus", icon: Layers, badge: subjectCount > 0 ? `${subjectCount}` : undefined });
-      items.push({ id: "questions", title: "Question Bank", icon: Database, badge: questionCount > 0 ? `${questionCount}` : undefined });
-      items.push({ id: "tests", title: "Exams & Tests", icon: Trophy });
-    }
-    if (isSuper || role === "content_reviewer" || role === "admin") {
-      items.push({ id: "content", title: "News & Banners", icon: Newspaper });
-    }
-    if (isSuper || role === "support_agent" || role === "admin") {
-      items.push({ id: "users", title: "Students & Doubts", icon: Users });
-    }
-    if (isSuper || role === "admin") {
-      items.push({ id: "staff", title: "Staff & RBAC", icon: ShieldCheck, badge: "RBAC" });
-      items.push({ id: "supabase", title: "Supabase DB", icon: HardDrive, badge: "PG" });
-      items.push({ id: "integrations", title: "Disha AI", icon: Bot, badge: "AI" });
-      items.push({ id: "backup", title: "Backup & Restore", icon: Archive });
-      items.push({ id: "settings", title: "System Settings", icon: Settings });
-    }
-    return items;
-  }, [subjectCount, questionCount, props.userProfile]);
-
-  const categorizedNavGroups = React.useMemo(() => {
-    const isSuper = isSuperAdminRole(props.userProfile);
-    const role = getStaffRole(props.userProfile);
-
-    const groups: {
-      category: string;
-      items: {
-        id: AdminGroupSection;
-        title: string;
-        icon: any;
-        badge?: string;
-      }[];
-    }[] = [];
-
-    // Academic Engine
-    const academicItems: { id: AdminGroupSection; title: string; icon: any; badge?: string }[] = [
-      { id: "dashboard", title: "Overview", icon: LayoutDashboard },
-    ];
-    if (isSuper || role === "content_reviewer" || role === "sme_teacher" || role === "admin") {
-      academicItems.push({ id: "approval", title: "Review Queue", icon: FileCheck, badge: "QA" });
-    }
-    if (isSuper || role === "sme_teacher" || role === "content_reviewer" || role === "admin") {
-      academicItems.push({ id: "syllabus", title: "Syllabus", icon: Layers, badge: subjectCount > 0 ? `${subjectCount}` : undefined });
-      academicItems.push({ id: "questions", title: "Question Bank", icon: Database, badge: questionCount > 0 ? `${questionCount}` : undefined });
-      academicItems.push({ id: "content-health", title: "Content Health Auditor", icon: Activity, badge: "AI Audit" });
-      academicItems.push({ id: "outdated-archiver", title: "Outdated Facts Archiver", icon: CalendarClock, badge: "2024-25" });
-      academicItems.push({ id: "tests", title: "Exams & Tests", icon: Trophy });
-    }
-    groups.push({ category: "Academic Engine", items: academicItems });
-
-    // Community & Editorial
-    const communityItems: { id: AdminGroupSection; title: string; icon: any; badge?: string }[] = [];
-    if (isSuper || role === "content_reviewer" || role === "admin") {
-      communityItems.push({ id: "content", title: "News & Banners", icon: Newspaper });
-    }
-    if (isSuper || role === "support_agent" || role === "admin") {
-      communityItems.push({ id: "users", title: "Students & Doubts", icon: Users });
-    }
-    if (communityItems.length > 0) {
-      groups.push({ category: "Community & Editorial", items: communityItems });
-    }
-
-    // Team & Security (Governance)
-    if (isSuper || role === "admin") {
-      groups.push({
-        category: "Team & Security",
-        items: [
-          { id: "staff", title: "Staff & RBAC", icon: ShieldCheck, badge: "RBAC" },
-        ],
-      });
-    }
-
-    // Cloud & System Platform
-    if (isSuper || role === "admin") {
-      groups.push({
-        category: "Cloud & System Platform",
-        items: [
-          { id: "supabase", title: "Supabase Cloud", icon: HardDrive, badge: "PG" },
-          { id: "crashes", title: "Crash Reports", icon: ShieldAlert, badge: "Live" },
-          { id: "integrations", title: "Disha AI & APIs", icon: Bot, badge: "AI" },
-          { id: "backup", title: "Backup & Restore", icon: Archive },
-          { id: "settings", title: "System Settings", icon: Settings },
-        ],
-      });
-    } else if (role === "support_agent") {
-      groups.push({
-        category: "Telemetry",
-        items: [
-          { id: "crashes", title: "Crash Reports", icon: ShieldAlert, badge: "Live" },
-        ],
-      });
-    }
-
-    return groups;
-  }, [subjectCount, questionCount, props.userProfile]);
-
-  const mobileBottomShortcuts: { id: AdminGroupSection; label: string; icon: any }[] = React.useMemo(() => [
-    { id: "dashboard", label: "Overview", icon: LayoutDashboard },
-    { id: "syllabus", label: "Syllabus", icon: Layers },
-    { id: "questions", label: "Questions", icon: Database },
-    { id: "tests", label: "Tests", icon: Trophy },
-    { id: "supabase", label: "Supabase", icon: HardDrive },
-  ], []);
-
-  if (!isStaffUser(props.userProfile) && !isUserAdmin(props.userProfile)) {
-    return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center p-6 text-center">
-        <div className="w-16 h-16 rounded-2xl bg-rose-500/10 text-rose-600 flex items-center justify-center mb-4">
-          <ShieldCheck className="w-8 h-8" />
-        </div>
-        <h2 className="text-xl font-black text-slate-900 dark:text-white">Access Denied</h2>
-        <p className="text-xs text-slate-500 max-w-sm mt-1">
-          This portal is restricted to authorized Disha 20-20 staff and administrators. Please sign in with an authorized account.
-        </p>
-      </div>
-    );
-  }
+  ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FFF9EF] dark:bg-[#171923] text-[#171923] dark:text-[#FFF9EF] font-sans selection:bg-[#800020] selection:text-white">
-      
-      {/* 1. Sticky Compact Header */}
-      <header className="sticky top-0 z-40 bg-white/95 dark:bg-[#1F2330]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] pt-[env(safe-area-inset-top,0px)]">
-        <div className="max-w-screen-2xl mx-auto flex items-center justify-between px-3 sm:px-6 h-14 sm:h-16">
-          
-          <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+    <div className="flex flex-col min-h-screen bg-[#FDFBF7] dark:bg-[#0E091D] text-slate-900 dark:text-slate-100 transition-colors duration-200">
+      {/* 1. TOP EXECUTIVE HEADER */}
+      <header className="sticky top-0 z-40 bg-white/95 dark:bg-[#16102E]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#2E2556] shadow-xs">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 h-16 flex items-center justify-between gap-3">
+          {/* Left: Mobile Toggle & Brand Emblem */}
+          <div className="flex items-center gap-3">
             <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="lg:hidden p-2 -ml-1 rounded-xl text-[#52576A] hover:bg-[#F7EFE2] dark:hover:bg-[#252A3A] transition-colors shrink-0 cursor-pointer"
-              aria-label="Toggle Menu"
+              className="lg:hidden p-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              aria-label="Toggle navigation drawer"
             >
-              {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              <Menu className="w-5 h-5" />
             </button>
 
-            <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
-              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#800020] text-[#FFF9EF] flex items-center justify-center font-black text-xs sm:text-sm shadow-xs shrink-0">
-                D
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#800020] via-[#A81D37] to-[#F59E0B] p-0.5 shadow-xs flex items-center justify-center">
+                <ShieldCheck className="w-5 h-5 text-white" />
               </div>
-              <h1 className="text-sm sm:text-base font-bold tracking-tight text-[#171923] dark:text-[#FFF9EF] truncate">
-                Disha PYQ Admin
-              </h1>
-            </div>
-            
-            <div className="hidden md:flex items-center gap-2 text-[#E8D9C0] dark:text-[#31374A] ml-2">
-              <span className="text-xs">/</span>
-              <span className="text-xs font-semibold text-[#800020] dark:text-[#F47B20] capitalize">{activeGroup.replace('_', ' ')}</span>
+              <div className="flex flex-col">
+                <div className="flex items-center gap-1.5">
+                  <span className="font-extrabold text-sm sm:text-base tracking-tight text-slate-900 dark:text-white">
+                    Disha Console
+                  </span>
+                  <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-[#800020]/10 text-[#800020] dark:bg-[#F59E0B]/15 dark:text-[#F59E0B] border border-[#800020]/20 dark:border-[#F59E0B]/30">
+                    v1.0.69
+                  </span>
+                </div>
+                <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400 hidden sm:inline">
+                  Super Admin Management Suite
+                </span>
+              </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-1 sm:gap-3 shrink-0">
-            <button
-              onClick={() => pullLiveSupabaseData(true)}
-              className={`p-2 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer ${isPullingLiveSupabase ? "animate-spin text-blue-600" : ""}`}
-              title="Supabase Live Sync (Pull latest data from Supabase)"
-            >
-              <RefreshCw className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
-            </button>
-            
-            <button
-              onClick={() => { setActiveGroup("users"); setSubTabUsers("notifications"); }}
-              className="p-2 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors relative cursor-pointer"
-              title="View Broadcasts & System Alerts"
-            >
-              <Activity className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
-              <span className="absolute top-2 right-2 w-2 h-2 bg-rose-500 rounded-full border-2 border-white dark:border-[#0B1220]"></span>
-            </button>
-
-            {cloudAuthState.checked && (
-              cloudAuthState.hasActiveSession ? (
-                <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/50 text-[11px] font-bold text-emerald-700 dark:text-emerald-300">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                  <span className="max-w-[140px] truncate" title={cloudAuthState.userEmail || "Cloud Connected"}>Cloud Live</span>
-                </div>
-              ) : (
-                <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/50 text-[11px] font-bold text-amber-700 dark:text-amber-300">
-                  <span className="w-2 h-2 rounded-full bg-amber-500"></span>
-                  <span>Local Mode</span>
-                </div>
-              )
+          {/* Right: Actions, Sync Indicator, Return to Student App, Profile */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Direct 1-Tap "Return to Student App" */}
+            {props.onExitAdmin && (
+              <button
+                onClick={props.onExitAdmin}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/20 shadow-2xs font-bold text-xs transition-all active:scale-95 cursor-pointer"
+                title="Return to Student Application View"
+              >
+                <Home className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                <span className="hidden xs:inline">Student App</span>
+              </button>
             )}
 
-            <div className="h-5 sm:h-6 w-px bg-slate-200 dark:bg-slate-800 hidden xs:block"></div>
+            {/* Supabase Cloud Sync Button */}
+            {props.onSyncToCloud && (
+              <button
+                onClick={handleSyncInit}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 shadow-2xs font-bold text-xs transition-all active:scale-95 cursor-pointer"
+                title="Synchronize offline and staged changes with Supabase Database"
+              >
+                <RefreshCw className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                <span className="hidden sm:inline">Cloud Sync</span>
+              </button>
+            )}
 
+            {/* Profile & Session Dropdown */}
             <div className="relative" ref={adminMenuRef}>
               <button
                 onClick={() => setIsAdminMenuOpen(!isAdminMenuOpen)}
-                className="flex items-center gap-1.5 sm:gap-2 pl-1 pr-1 sm:pr-2 py-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-                title="Staff Account Profile"
-                aria-expanded={isAdminMenuOpen}
-                aria-haspopup="true"
+                className="flex items-center gap-2 p-1.5 sm:px-3 sm:py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition-all cursor-pointer"
               >
-                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-xs font-bold text-slate-600 dark:text-slate-400">
+                <div className="w-6 h-6 rounded-lg bg-gradient-to-tr from-[#800020] to-[#F59E0B] text-white flex items-center justify-center font-bold text-xs">
                   {props.userProfile?.name?.charAt(0) || "A"}
                 </div>
-                <div className="hidden sm:flex flex-col text-left">
-                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300 leading-tight">
-                    {props.userProfile?.name?.split(' ')[0] || "Staff"}
+                <div className="hidden md:flex flex-col text-left">
+                  <span className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate max-w-[100px]">
+                    {props.userProfile?.name || "Administrator"}
                   </span>
-                  <span className="text-[10px] text-indigo-600 dark:text-indigo-400 font-black leading-tight">
-                    {ROLE_CONFIGS[getStaffRole(props.userProfile)]?.shortLabel || "Admin"}
+                  <span className="text-[9px] font-semibold text-slate-500 uppercase tracking-wider">
+                    {staffRole || "Super Admin"}
                   </span>
                 </div>
-                <ChevronDown className={`w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400 hidden sm:inline transition-transform duration-200 ${isAdminMenuOpen ? "rotate-180" : ""}`} />
+                <ChevronDown className="w-3.5 h-3.5 text-slate-400 hidden sm:block" />
               </button>
 
               {isAdminMenuOpen && (
-                <div className="absolute right-0 mt-2 w-72 max-w-[calc(100vw-24px)] rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800 shadow-xl z-50 p-3 space-y-3">
-                  <div className="flex items-center gap-3 pb-3 border-b border-slate-100 dark:border-slate-800/80">
-                    <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-sm shrink-0">
-                      {props.userProfile?.name?.charAt(0) || "A"}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
-                          {props.userProfile?.name || "Staff Member"}
-                        </p>
-                        <span className={`px-1.5 py-0.5 rounded text-[10px] font-black uppercase tracking-wider shrink-0 ${ROLE_CONFIGS[getStaffRole(props.userProfile)]?.badgeBg || "bg-indigo-50"} ${ROLE_CONFIGS[getStaffRole(props.userProfile)]?.badgeText || "text-indigo-700"}`}>
-                          {ROLE_CONFIGS[getStaffRole(props.userProfile)]?.label || "Admin"}
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
-                        {props.userProfile?.email || "staff@disha2020.in"}
-                      </p>
-                    </div>
+                <div className="absolute right-0 mt-2 w-56 rounded-2xl bg-white dark:bg-[#1A1435] border border-slate-200 dark:border-[#352B63] shadow-xl p-2 z-50">
+                  <div className="px-3 py-2 border-b border-slate-100 dark:border-slate-800 mb-1">
+                    <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                      {props.userProfile?.email || "admin@dishapyq.com"}
+                    </p>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 capitalize">
+                      Role: {staffRole}
+                    </p>
                   </div>
 
-                  <div className="space-y-1">
+                  {props.onExitAdmin && (
                     <button
                       onClick={() => {
                         setIsAdminMenuOpen(false);
-                        if (typeof window !== "undefined") {
-                          window.location.href = "/";
-                        }
+                        props.onExitAdmin?.();
                       }}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-colors text-left cursor-pointer"
+                      className="w-full text-left px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 rounded-xl flex items-center gap-2"
                     >
-                      <Home className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                      <span>Return to Student App</span>
+                      <Home className="w-3.5 h-3.5 text-amber-500" />
+                      <span>Back to Student App</span>
                     </button>
+                  )}
 
-                    <button
-                      onClick={() => {
-                        setActiveGroup("users");
-                        setSubTabUsers("directory");
-                        setIsAdminMenuOpen(false);
-                      }}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-left cursor-pointer"
-                    >
-                      <Users className="w-4 h-4 text-blue-500" />
-                      <span>View Student Directory</span>
-                    </button>
+                  <button
+                    onClick={() => {
+                      setIsAdminMenuOpen(false);
+                      setShowQATestRunner(true);
+                    }}
+                    className="w-full text-left px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 rounded-xl flex items-center gap-2"
+                  >
+                    <Terminal className="w-3.5 h-3.5 text-emerald-500" />
+                    <span>Run Automated QA Suite</span>
+                  </button>
 
-                    <button
-                      onClick={handleAdminSignOut}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors text-left cursor-pointer"
-                    >
-                      <LogOut className="w-4 h-4 text-rose-500" />
-                      <span>Sign Out</span>
-                    </button>
-                  </div>
+                  <div className="h-px bg-slate-100 dark:bg-slate-800 my-1" />
+
+                  <button
+                    onClick={handleAdminSignOut}
+                    className="w-full text-left px-3 py-2 text-xs font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/20 rounded-xl flex items-center gap-2"
+                  >
+                    <LogOut className="w-3.5 h-3.5" />
+                    <span>Sign Out of Console</span>
+                  </button>
                 </div>
               )}
             </div>
@@ -1001,577 +729,700 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
         </div>
       </header>
 
-      <div className="flex flex-1 overflow-hidden">
-        
-        {/* Mobile Backdrop Overlay */}
-        {isSidebarOpen && (
-          <div
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsSidebarOpen(false);
-            }}
-            className="fixed inset-0 z-40 bg-black/40 backdrop-blur-xs lg:hidden cursor-pointer"
-            aria-hidden="true"
-          />
-        )}
+      {/* Quota Notification Banner if active */}
+      <AdminQuotaAlert />
 
-        {/* 2. Responsive Navigation Drawer / Collapsible Sidebar */}
+      {/* 2. BODY LAYOUT: SIDEBAR + MAIN CONTENT AREA */}
+      <div className="flex-1 max-w-7xl w-full mx-auto flex">
+        {/* DESKTOP SIDEBAR */}
         <aside
-          className={`fixed inset-y-0 left-0 z-50 bg-white dark:bg-[#1F2330] border-r border-[#E8D9C0] dark:border-[#31374A] transform ${
-            isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-          } lg:translate-x-0 transition-all duration-200 ease-in-out lg:static lg:z-0 flex flex-col ${
-            isSidebarCollapsed ? "lg:w-20 w-72" : "w-64"
+          className={`hidden lg:flex flex-col shrink-0 border-r border-[#E8D9C0] dark:border-[#2E2556] bg-white/70 dark:bg-[#140E2A]/70 backdrop-blur-sm transition-all duration-200 ${
+            isSidebarCollapsed ? "w-20" : "w-64"
           }`}
         >
-          {/* Mobile-only Drawer Header */}
-          <div className="flex items-center justify-between px-4 py-3.5 border-b border-[#E8D9C0]/70 dark:border-[#31374A] lg:hidden">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-[#800020] text-[#FFF9EF] flex items-center justify-center font-black text-sm shadow-xs">
-                D
-              </div>
-              <div>
-                <span className="text-sm font-bold text-[#171923] dark:text-[#FFF9EF] block leading-tight">Admin Console</span>
-                <span className="text-[10px] text-[#787D91] dark:text-[#929AB0] font-medium">Disha PYQ Management</span>
-              </div>
-            </div>
+          {/* Sidebar Collapse Toggle */}
+          <div className="p-3 flex justify-end border-b border-[#E8D9C0]/60 dark:border-[#2E2556]/60">
             <button
-              onClick={() => setIsSidebarOpen(false)}
-              className="p-2 rounded-xl text-[#52576A] hover:text-[#171923] dark:hover:text-[#FFF9EF] hover:bg-[#F7EFE2] dark:hover:bg-[#252A3A] transition-colors cursor-pointer"
-              aria-label="Close sidebar"
+              onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              title={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
             >
-              <X className="w-5 h-5" />
+              {isSidebarCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
             </button>
           </div>
 
-          {/* Categorized Nav Groups */}
-          <div className="flex-1 overflow-y-auto py-3 px-2 sm:px-3 space-y-4 no-scrollbar">
-            {categorizedNavGroups.map((group) => (
-              <div key={group.category} className="space-y-1">
-                <div className={`px-2.5 pt-1 pb-1 ${isSidebarCollapsed ? "lg:hidden" : ""}`}>
-                  <p className="text-[10px] font-extrabold text-[#787D91] dark:text-[#929AB0] uppercase tracking-wider">
-                    {group.category}
-                  </p>
-                </div>
-
-                {group.items.map((item) => {
-                  const Icon = item.icon;
-                  const isActive = activeGroup === item.id;
-                  return (
-                    <button
-                      key={item.id}
-                      onClick={() => handleSelectGroup(item.id)}
-                      title={item.title}
-                      className={`w-full flex items-center rounded-xl transition-all cursor-pointer touch-manipulation min-h-[42px] relative ${
-                        isSidebarCollapsed
-                          ? "lg:justify-center lg:px-2 px-3 py-2.5 justify-between"
-                          : "justify-between px-3 py-2.5"
-                      } ${
-                        isActive
-                          ? "bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] font-black"
-                          : "text-[#52576A] dark:text-[#CBD2E1] hover:bg-[#F7EFE2] dark:hover:bg-[#252A3A] hover:text-[#171923] dark:hover:text-[#FFF9EF]"
-                      }`}
-                    >
-                      <div className="flex items-center gap-3 min-w-0">
-                        <Icon className={`w-4.5 h-4.5 shrink-0 ${isActive ? "text-[#800020] dark:text-[#F47B20]" : "text-[#787D91]"}`} />
-                        <span className={`truncate text-sm ${isSidebarCollapsed ? "lg:hidden" : ""}`}>
-                          {item.title}
-                        </span>
-                      </div>
-
-                      {item.badge && (
-                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md shrink-0 ${
-                          isSidebarCollapsed ? "lg:hidden" : ""
-                        } ${
+          {/* Navigation Items Grouped by Category */}
+          <div className="flex-1 overflow-y-auto p-3 space-y-6">
+            {(["Core Operations", "Academic & Community", "Platform & Security"] as const).map((category) => {
+              const items = executivePillars.filter((p) => p.category === category);
+              return (
+                <div key={category} className="space-y-1">
+                  {!isSidebarCollapsed && (
+                    <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 px-3">
+                      {category}
+                    </span>
+                  )}
+                  {items.map((pillar) => {
+                    const Icon = pillar.icon;
+                    const isActive = activePillar === pillar.id;
+                    return (
+                      <button
+                        key={pillar.id}
+                        onClick={() => handleSelectPillar(pillar.id)}
+                        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all cursor-pointer ${
                           isActive
-                            ? "bg-[#800020]/15 dark:bg-[#F47B20]/25 text-[#800020] dark:text-[#F47B20]"
-                            : "bg-[#F7EFE2] dark:bg-[#252A3A] text-[#787D91] dark:text-[#929AB0]"
-                        }`}>
-                          {item.badge}
-                        </span>
-                      )}
+                            ? "bg-gradient-to-r from-[#800020] to-[#991B1E] text-white shadow-md font-bold"
+                            : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 font-medium"
+                        }`}
+                        title={pillar.title}
+                      >
+                        <Icon className={`w-5 h-5 shrink-0 ${isActive ? "text-amber-300" : "text-slate-500 dark:text-slate-400"}`} />
+                        {!isSidebarCollapsed && (
+                          <div className="flex-1 flex items-center justify-between min-w-0 text-left">
+                            <span className="text-xs truncate">{pillar.title}</span>
+                            {pillar.badge && (
+                              <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
+                                isActive ? "bg-white/20 text-white" : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
+                              }`}>
+                                {pillar.badge}
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              );
+            })}
+          </div>
 
-                      {/* Dot badge in collapsed mode */}
-                      {item.badge && isSidebarCollapsed && (
-                        <span className="hidden lg:block absolute top-2 right-2 w-2 h-2 rounded-full bg-[#800020] dark:bg-[#F47B20]" />
-                      )}
-                    </button>
+          {/* Return to App in Sidebar Bottom */}
+          {props.onExitAdmin && !isSidebarCollapsed && (
+            <div className="p-3 border-t border-[#E8D9C0]/60 dark:border-[#2E2556]/60">
+              <button
+                onClick={props.onExitAdmin}
+                className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-amber-500/10 hover:text-amber-700 dark:hover:text-amber-300 text-xs font-bold transition-all"
+              >
+                <Home className="w-4 h-4" />
+                <span>Return to Student App</span>
+              </button>
+            </div>
+          )}
+        </aside>
+
+        {/* MOBILE DRAWER OVERLAY */}
+        {isSidebarOpen && (
+          <div className="lg:hidden fixed inset-0 z-50 flex">
+            <div
+              className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
+              onClick={() => setIsSidebarOpen(false)}
+            />
+            <div className="relative w-72 max-w-[80vw] bg-[#FDFBF7] dark:bg-[#140E2A] h-full shadow-2xl flex flex-col p-4 border-r border-[#E8D9C0] dark:border-[#2E2556] z-10">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
+                <span className="font-extrabold text-sm text-[#800020] dark:text-[#F59E0B]">
+                  Admin Navigation
+                </span>
+                <button
+                  onClick={() => setIsSidebarOpen(false)}
+                  className="p-1 rounded-lg text-slate-400 hover:text-slate-600"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto py-3 space-y-4">
+                {(["Core Operations", "Academic & Community", "Platform & Security"] as const).map((category) => {
+                  const items = executivePillars.filter((p) => p.category === category);
+                  return (
+                    <div key={category} className="space-y-1">
+                      <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 px-3">
+                        {category}
+                      </span>
+                      {items.map((pillar) => {
+                        const Icon = pillar.icon;
+                        const isActive = activePillar === pillar.id;
+                        return (
+                          <button
+                            key={pillar.id}
+                            onClick={() => handleSelectPillar(pillar.id)}
+                            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all cursor-pointer ${
+                              isActive
+                                ? "bg-[#800020] text-white shadow-md font-bold"
+                                : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 font-medium"
+                            }`}
+                          >
+                            <Icon className={`w-5 h-5 ${isActive ? "text-amber-300" : "text-slate-500"}`} />
+                            <span className="text-xs flex-1 text-left">{pillar.title}</span>
+                            {pillar.badge && (
+                              <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
+                                {pillar.badge}
+                              </span>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
                   );
                 })}
               </div>
-            ))}
-          </div>
 
-          {/* Sidebar Footer Controls */}
-          <div className="p-2 sm:p-3 border-t border-[#E8D9C0]/70 dark:border-[#31374A] space-y-1">
-            <button
-              onClick={() => {
-                setIsSidebarOpen(false);
-                if (props.onExitAdmin) {
-                  props.onExitAdmin();
-                } else if (typeof window !== "undefined") {
-                  window.location.href = "/";
-                }
-              }}
-              title="Return to Student App"
-              className={`w-full flex items-center rounded-xl text-xs font-semibold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-colors min-h-[40px] cursor-pointer ${
-                isSidebarCollapsed ? "lg:justify-center lg:px-2 px-3 py-2 justify-start gap-3" : "px-3 py-2 gap-3"
-              }`}
-            >
-              <Home className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-              <span className={isSidebarCollapsed ? "lg:hidden" : ""}>Return to Student App</span>
-            </button>
-
-            <button
-              onClick={handleAdminSignOut}
-              title="Sign Out Admin"
-              className={`w-full flex items-center rounded-xl text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors min-h-[40px] cursor-pointer ${
-                isSidebarCollapsed ? "lg:justify-center lg:px-2 px-3 py-2 justify-start gap-3" : "px-3 py-2 gap-3"
-              }`}
-            >
-              <LogOut className="w-4 h-4 text-rose-500 shrink-0" />
-              <span className={isSidebarCollapsed ? "lg:hidden" : ""}>Sign Out</span>
-            </button>
-
-            <button
-              onClick={() => {
-                setShowQATestRunner(true);
-                setIsSidebarOpen(false);
-              }}
-              title="QA Debug Suite"
-              className={`w-full flex items-center rounded-xl text-xs font-semibold text-[#52576A] dark:text-[#CBD2E1] hover:bg-[#F7EFE2] dark:hover:bg-[#252A3A] transition-colors min-h-[40px] cursor-pointer ${
-                isSidebarCollapsed ? "lg:justify-center lg:px-2 px-3 py-2 justify-start gap-3" : "px-3 py-2 gap-3"
-              }`}
-            >
-              <Terminal className="w-4 h-4 text-[#787D91] shrink-0" />
-              <span className={isSidebarCollapsed ? "lg:hidden" : ""}>QA Debug Suite</span>
-            </button>
-
-            {/* Desktop Collapsible Toggle */}
-            <button
-              onClick={toggleSidebarCollapsed}
-              title={isSidebarCollapsed ? "Expand Sidebar (Wider Navigation)" : "Collapse Sidebar (More Workspace)"}
-              className="hidden lg:flex items-center justify-center gap-2 w-full py-2 px-2.5 rounded-xl text-xs font-semibold text-[#787D91] dark:text-[#929AB0] hover:bg-[#F7EFE2] dark:hover:bg-[#252A3A] hover:text-[#171923] dark:hover:text-[#FFF9EF] transition-colors cursor-pointer"
-            >
-              {isSidebarCollapsed ? (
-                <ChevronRight className="w-4 h-4" />
-              ) : (
-                <>
-                  <ChevronLeft className="w-4 h-4" />
-                  <span>Collapse Sidebar</span>
-                </>
+              {props.onExitAdmin && (
+                <div className="pt-3 border-t border-slate-200 dark:border-slate-800">
+                  <button
+                    onClick={() => {
+                      setIsSidebarOpen(false);
+                      props.onExitAdmin?.();
+                    }}
+                    className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-amber-500/10 text-amber-700 dark:text-amber-300 font-bold text-xs"
+                  >
+                    <Home className="w-4 h-4" />
+                    <span>Return to Student App</span>
+                  </button>
+                </div>
               )}
-            </button>
+            </div>
           </div>
-        </aside>
+        )}
 
-        {/* 3. Main Content Workspace */}
-        <main className="flex-1 overflow-y-auto bg-[#FFF9EF]/40 dark:bg-[#171923] p-3 sm:p-6 lg:p-8 pb-28 lg:pb-12">
-          <div className="max-w-screen-xl mx-auto space-y-5 sm:space-y-6">
-            
-            {/* Mobile Horizontal Quick Navigation Strip (lg:hidden) */}
+        {/* 3. MAIN PILLAR CONTENT CANVAS */}
+        <main className="flex-1 overflow-y-auto p-3 sm:p-6 lg:p-8 pb-28 lg:pb-12">
+          <div className="max-w-6xl mx-auto space-y-6">
+
+            {/* Mobile Top Horizontal Quick Pillar Strip (lg:hidden) */}
             <div className="lg:hidden flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 -mx-1 px-1 touch-pan-x">
-              {navGroupItems.map((item) => {
-                const Icon = item.icon;
-                const isActive = activeGroup === item.id;
+              {executivePillars.map((pillar) => {
+                const Icon = pillar.icon;
+                const isActive = activePillar === pillar.id;
                 return (
                   <button
-                    key={item.id}
-                    onClick={() => handleSelectGroup(item.id)}
+                    key={pillar.id}
+                    onClick={() => handleSelectPillar(pillar.id)}
                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shrink-0 cursor-pointer ${
                       isActive
-                        ? "bg-[#800020] dark:bg-[#F47B20] text-white shadow-xs"
-                        : "bg-white dark:bg-[#1F2330] text-[#52576A] dark:text-[#CBD2E1] border border-[#E8D9C0] dark:border-[#31374A] hover:bg-[#F7EFE2]"
+                        ? "bg-[#800020] text-white shadow-xs"
+                        : "bg-white dark:bg-[#1A1435] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-[#352B63]"
                     }`}
                   >
                     <Icon className="w-3.5 h-3.5" />
-                    <span>{item.title}</span>
+                    <span>{pillar.title.split(" ")[0]}</span>
                   </button>
                 );
               })}
             </div>
 
-            <React.Suspense fallback={null}>
-              <AdminQuotaAlert />
-            </React.Suspense>
-
-            {cloudAuthState.checked && !cloudAuthState.hasActiveSession && (
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 sm:p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 shadow-2xs">
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-700 dark:text-amber-300 flex items-center justify-center shrink-0 mt-0.5">
-                    <AlertCircle className="w-4 h-4" />
-                  </div>
+            {/* ============================================================== */}
+            {/* PILLAR 1: DASHBOARD & METRICS                                  */}
+            {/* ============================================================== */}
+            {activePillar === "dashboard" && (
+              <div className="space-y-6">
+                {/* Header & Subtab Selector */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
-                    <h3 className="text-xs sm:text-sm font-extrabold text-amber-950 dark:text-amber-200">
-                      Local Offline Mode Active
-                    </h3>
-                    <p className="text-[11px] sm:text-xs text-amber-800/90 dark:text-amber-300/90 mt-0.5 leading-relaxed">
-                      Changes to Subjects, Chapters, Topics, and Questions are preserved in your browser's local storage. To synchronize live with Supabase Cloud, sign in with your admin Google account (<strong>jagdishpaliyaljat@gmail.com</strong>).
+                    <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+                      Platform Executive Dashboard
+                    </h1>
+                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+                      High-level telemetry, accuracy heatmaps, category matrix & activity streams.
                     </p>
                   </div>
-                </div>
-                <button
-                  onClick={async () => {
-                    try {
-                      if (isNativePlatform()) {
-                        const nativeRes = await performNativeGoogleLogin();
-                        if (nativeRes.success && nativeRes.session) {
-                          triggerAdminToast({
-                            type: "success",
-                            title: "Cloud Sync Connected",
-                            message: "Signed in successfully with your Google account."
-                          });
-                          return;
-                        }
-                        if (nativeRes.error?.toLowerCase().includes("cancel")) {
-                          return;
-                        }
-                      }
-                      const redirectTo = getOAuthRedirectUrl();
-                      const { data, error } = await supabase.auth.signInWithOAuth({
-                        provider: "google",
-                        options: { redirectTo }
-                      });
-                      if (data?.url) {
-                        await openOAuthBrowser(data.url);
-                      }
-                    } catch (e: any) {
-                      console.warn("OAuth sign-in error:", e);
-                    }
-                  }}
-                  className="px-3.5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-extrabold text-xs shadow-xs transition-colors shrink-0 flex items-center justify-center gap-1.5 cursor-pointer"
-                >
-                  <ShieldCheck className="w-3.5 h-3.5" />
-                  <span>Sign In for Cloud Sync</span>
-                </button>
-              </div>
-            )}
-            
-            {activeGroup === "dashboard" && (
-              <div className="space-y-5 sm:space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
-                  <div>
-                    <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">Dashboard Overview</h2>
-                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">Real-time system health and student activity metrics.</p>
-                  </div>
-                  
-                  <div className="flex items-center p-1 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xs self-start sm:self-auto overflow-x-auto max-w-full no-scrollbar">
-                    <button
-                      onClick={() => setSubTabDashboard("categories")}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
-                        subTabDashboard === "categories"
-                          ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs"
-                          : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-                      }`}
-                    >
-                      21 Institutional Categories
-                    </button>
-                    <button
-                      onClick={() => setSubTabDashboard("overview")}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
-                        subTabDashboard === "overview"
-                          ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs"
-                          : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-                      }`}
-                    >
-                      Real-time
-                    </button>
-                    <button
-                      onClick={() => setSubTabDashboard("analytics")}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
-                        subTabDashboard === "analytics"
-                          ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs"
-                          : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-                      }`}
-                    >
-                      Analytics
-                    </button>
-                    <button
-                      onClick={() => setSubTabDashboard("heatmap")}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
-                        subTabDashboard === "heatmap"
-                          ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs"
-                          : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-                      }`}
-                    >
-                      🎯 Accuracy Heatmap
-                    </button>
+
+                  <div className="flex items-center p-1 bg-white dark:bg-[#1A1435] rounded-2xl border border-slate-200 dark:border-[#352B63] shadow-xs self-start sm:self-auto overflow-x-auto max-w-full">
+                    {[
+                      { id: "overview", label: "Overview KPI" },
+                      { id: "analytics", label: "Analytics" },
+                      { id: "heatmap", label: "Accuracy Heatmap" },
+                      { id: "grid", label: "21 Institutional Grid" }
+                    ].map((tab) => (
+                      <button
+                        key={tab.id}
+                        onClick={() => setSubTabDashboard(tab.id as any)}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                          subTabDashboard === tab.id
+                            ? "bg-slate-900 dark:bg-[#800020] text-white shadow-xs"
+                            : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                        }`}
+                      >
+                        {tab.label}
+                      </button>
+                    ))}
                   </div>
                 </div>
 
-                <React.Suspense fallback={<AdminSectionLoader type="metrics" title="Loading Dashboard..." />}>
-                  {subTabDashboard === "categories" ? (
-                    <EnterpriseAdminCategoryGrid
-                      onSelectCategory={(cat: any) => {
-                        if (cat.id === "leaderboard") {
-                          setActiveGroup("settings");
-                          setSubTabSettings("leaderboard");
-                        } else if (cat.id === "maintenance" || cat.id === "config") {
-                          setActiveGroup("settings");
-                          setSubTabSettings("appconfig");
-                        } else if (cat.id === "objections") {
-                          setActiveGroup("users");
-                          setSubTabUsers("reports");
-                        } else if (cat.id === "analytics") {
-                          setSubTabDashboard("analytics");
-                        } else {
-                          setActiveGroup(cat.targetGroup);
-                        }
-                      }}
-                      onNavigateToGroup={(group: any) => setActiveGroup(group)}
-                      activeGroup={activeGroup}
-                    />
-                  ) : subTabDashboard === "overview" ? (
+                {/* Subtab Content */}
+                <React.Suspense fallback={<AdminSectionLoader type="cards" title="Loading Dashboard..." />}>
+                  {subTabDashboard === "overview" && (
                     <AdminDashboardSection
-                      onNavigateSection={handleLegacyNavigateSection}
-                      onSelectUser={(user: any) => {
-                        setSelectedUserForDetails(user);
-                        setActiveGroup("users");
-                        setSubTabUsers("directory");
+                      userProfile={props.userProfile}
+                      subjects={combinedSubjectsList}
+                      chapters={combinedChaptersList}
+                      questionsStore={props.questionsStore}
+                      onStoreUpdated={props.onStoreUpdated}
+                      onShowAddQuestions={props.onShowAddQuestions}
+                      onShowManageQuestions={props.onShowManageQuestions}
+                      onShowManageSyllabus={props.onShowManageSyllabus}
+                      onNavigateToGroup={(group: any) => {
+                        const resolved = resolvePillarAndSubTab(group);
+                        handleSelectPillar(resolved.pillar, resolved.subTab);
                       }}
-                      onOpenQARunner={() => setShowQATestRunner(true)}
+                    />
+                  )}
+                  {subTabDashboard === "analytics" && <AdminAnalyticsDashboard />}
+                  {subTabDashboard === "heatmap" && (
+                    <SubjectTopicAccuracyHeatmap
+                      subjects={combinedSubjectsList}
+                      chapters={combinedChaptersList}
                       questionsStore={props.questionsStore}
                     />
-                  ) : subTabDashboard === "heatmap" ? (
-                    <AdminAnalyticsDashboard
-                      initialSection="heatmap"
-                      onInspectTopic={(_topicId, _chapterId, _subjectId) => {
-                        setActiveGroup("content-health");
-                      }}
-                    />
-                  ) : (
-                    <AdminAnalyticsDashboard
-                      onInspectTopic={(_topicId, _chapterId, _subjectId) => {
-                        setActiveGroup("content-health");
-                      }}
+                  )}
+                  {subTabDashboard === "grid" && (
+                    <EnterpriseAdminCategoryGrid
+                      subjects={combinedSubjectsList}
+                      chapters={combinedChaptersList}
+                      questionsStore={props.questionsStore}
+                      onSelectSubject={() => handleSelectPillar("academic", "syllabus")}
                     />
                   )}
                 </React.Suspense>
               </div>
             )}
 
-            {activeGroup === "syllabus" && (
-              <React.Suspense fallback={<AdminSectionLoader type="list" title="Loading Syllabus..." />}>
-                <AdminSyllabusSection
-                  subjects={combinedSubjectsList}
-                  chapters={combinedChaptersList}
-                  onShowAddSubject={props.onShowAddSubject}
-                  onShowAddChapter={props.onShowAddChapter}
-                  onShowAddTopic={props.onShowAddTopic}
-                  onShowManageSyllabus={props.onShowManageSyllabus}
-                  onShowManageExamCategories={props.onShowManageExamCategories}
-                  promptDeleteSubject={promptDeleteSubject}
-                  promptDeleteChapter={promptDeleteChapter}
-                  isDeletingCloud={isDeletingCloud}
-                  syllabusViewTab={syllabusViewTab}
-                  setSyllabusViewTab={setSyllabusViewTab}
-                />
-              </React.Suspense>
-            )}
-
-            {/* Question Review Queue Section */}
-            {activeGroup === "approval" && (
-              <React.Suspense fallback={<AdminSectionLoader type="list" title="Loading Question Review Queue..." />}>
-                <QuestionApprovalWorkflowSection currentUserProfile={props.userProfile} />
-              </React.Suspense>
-            )}
-
-            {/* Content Health & Error Auditor Section */}
-            {activeGroup === "content-health" && (
-              <React.Suspense fallback={<AdminSectionLoader type="cards" title="Auditing Content Health & Error Scanner..." />}>
-                <QuestionHealthAuditor
-                  questionsStore={props.questionsStore}
-                  chapters={props.chapters}
-                  onStoreUpdated={props.onStoreUpdated}
-                />
-              </React.Suspense>
-            )}
-
-            {/* Outdated Data & Fact Expiry Controller Section */}
-            {activeGroup === "outdated-archiver" && (
-              <React.Suspense fallback={<AdminSectionLoader type="cards" title="Scanning Question Bank for Outdated Facts..." />}>
-                <OutdatedQuestionArchiver
-                  questionsStore={props.questionsStore}
-                  chapters={props.chapters}
-                  onStoreUpdated={props.onStoreUpdated}
-                />
-              </React.Suspense>
-            )}
-
-            {/* Question Bank Section */}
-            {activeGroup === "questions" && (
-              <div className="space-y-5 sm:space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
-                  <div className="space-y-0.5">
-                    <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">Question Repository</h2>
-                    <p className="text-xs sm:text-sm text-slate-500 font-medium">Manage thousands of MCQs and batch imports.</p>
+            {/* ============================================================== */}
+            {/* PILLAR 2: ACADEMIC HUB                                         */}
+            {/* ============================================================== */}
+            {activePillar === "academic" && (
+              <div className="space-y-6">
+                {/* Header & Academic Hub Subtabs */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+                      Academic Content Hub
+                    </h1>
+                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+                      Manage subjects, syllabus hierarchies, batch imports, content quality audits & review queue.
+                    </p>
                   </div>
-                  <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-                    <button
-                      onClick={() => setActiveGroup("content-health")}
-                      className="px-3.5 py-2 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white text-xs font-black rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
-                      title="AI-Powered Content Health & Question Error Auditor"
-                    >
-                      <Activity className="w-3.5 h-3.5" />
-                      <span>Health Auditor</span>
-                    </button>
-                    <button
-                      onClick={() => setActiveGroup("outdated-archiver")}
-                      className="px-3.5 py-2 bg-gradient-to-r from-amber-600 to-rose-600 hover:from-amber-700 hover:to-rose-700 text-white text-xs font-black rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
-                      title="Outdated Data & Fact Expiry Controller (2024-25 Freshness)"
-                    >
-                      <CalendarClock className="w-3.5 h-3.5" />
-                      <span>Outdated Facts (2024-25)</span>
-                    </button>
-                    <button
-                      onClick={() => setShowExcelCsvImporter(true)}
-                      className="px-3.5 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
-                      title="Import MCQs from Excel (.csv, .tsv) spreadsheets"
-                    >
-                      <FileSpreadsheet className="w-3.5 h-3.5" />
-                      <span>Excel / CSV</span>
-                    </button>
-                    <button
-                      onClick={props.onShowHTMLImport}
-                      className="px-3.5 py-2 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
-                      title="Import MCQs from HTML files or HTML source code"
-                    >
-                      <FileCode className="w-3.5 h-3.5" />
-                      <span>HTML Import</span>
-                    </button>
-                    <button onClick={props.onShowManageQuestions} className="px-3.5 py-2 bg-slate-900 dark:bg-slate-700 text-white text-xs font-bold rounded-xl shadow-xs hover:bg-slate-800 dark:hover:bg-slate-600 transition-all cursor-pointer active:scale-95">
-                      Browse Repository
-                    </button>
-                    <button onClick={props.onShowAIImport} className="px-3.5 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs font-bold rounded-xl shadow-xs hover:bg-slate-50 dark:hover:bg-slate-700 transition-all flex items-center gap-1.5 cursor-pointer active:scale-95">
-                      <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                      AI Import
-                    </button>
-                    <button
-                      onClick={() => setShowDuplicateHubModal(true)}
-                      className="px-3.5 py-2 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white text-xs font-black rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
-                      title="Fuzzy similarity duplicate detector (>=90%) with 1-click cleanup"
-                    >
-                      <ShieldAlert className="w-3.5 h-3.5" />
-                      <span>Duplicate Control (≥90%)</span>
-                    </button>
-                    <button
-                      onClick={() => setShowBulkDeleteModal(true)}
-                      className="px-3.5 py-2 bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-700 hover:to-red-700 text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
-                      title="Mass question removal tool with hierarchy filter & safety confirmation"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                      <span>Bulk Delete</span>
-                    </button>
-                    <button
-                      onClick={() => setShowRecycleBinModal(true)}
-                      className="px-3.5 py-2 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
-                      title="क्वेश्चन रीसायकल बिन - हटाये गये प्रश्नों की सूची व रीस्टोर टूल"
-                    >
-                      <ArchiveRestore className="w-3.5 h-3.5" />
-                      <span>Recycle Bin ({props.questionsStore?.recycleBinQuestions?.length || 0})</span>
-                    </button>
+
+                  <div className="flex items-center p-1 bg-white dark:bg-[#1A1435] rounded-2xl border border-slate-200 dark:border-[#352B63] shadow-xs self-start sm:self-auto overflow-x-auto max-w-full">
+                    {[
+                      { id: "syllabus", label: "Syllabus Tree", icon: BookOpen },
+                      { id: "questions", label: "Question Directory", icon: Database },
+                      { id: "import", label: "Unified Import Hub", icon: Upload },
+                      { id: "qa", label: "Content QA & Health", icon: Stethoscope },
+                      { id: "approval", label: "Review Queue", icon: FileCheck },
+                    ].map((tab) => {
+                      const Icon = tab.icon;
+                      const isActive = subTabAcademic === tab.id;
+                      return (
+                        <button
+                          key={tab.id}
+                          onClick={() => setSubTabAcademic(tab.id as any)}
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                            isActive
+                              ? "bg-slate-900 dark:bg-[#800020] text-white shadow-xs"
+                              : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                          }`}
+                        >
+                          <Icon className="w-3.5 h-3.5" />
+                          <span>{tab.label}</span>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-10 gap-2.5 sm:gap-3">
-                  {[
-                    { label: "Directory", action: props.onShowManageQuestions, icon: Database, isSpecial: false },
-                    { label: "Health Auditor", action: () => setActiveGroup("content-health"), icon: Activity, isSpecial: true, specialColor: "emerald" },
-                    { label: "Fact Archiver", action: () => setActiveGroup("outdated-archiver"), icon: CalendarClock, isSpecial: true, specialColor: "amber" },
-                    { label: "Excel / CSV", action: () => setShowExcelCsvImporter(true), icon: FileSpreadsheet, isSpecial: true, specialColor: "emerald" },
-                    { label: "AI Import", action: props.onShowAIImport, icon: Sparkles, isSpecial: true, specialColor: "amber" },
-                    { label: "HTML Import", action: props.onShowHTMLImport, icon: FileCode, isSpecial: true, specialColor: "orange" },
-                    { label: "Bulk Delete", action: () => setShowBulkDeleteModal(true), icon: Trash2, isSpecial: true, specialColor: "rose" },
-                    { label: "Recycle Bin", action: () => setShowRecycleBinModal(true), icon: ArchiveRestore, isSpecial: true, specialColor: "amber" },
-                    { label: "Quick Add", action: () => props.onShowAddQuestions(undefined, undefined, undefined, "paste"), icon: PlusCircle, isSpecial: false },
-                    { 
-                      label: "Duplicates (≥90%)", 
-                      action: () => setShowDuplicateHubModal(true), 
-                      icon: ShieldAlert,
-                      isSpecial: true,
-                      specialColor: "amber"
-                    },
-                  ].map((item) => (
-                    <button
-                      key={item.label}
-                      onClick={item.action}
-                      className={`p-3 sm:p-4 bg-white dark:bg-slate-800 border rounded-2xl shadow-xs flex flex-col items-center gap-2 transition-all text-center group cursor-pointer active:scale-95 ${
-                        item.isSpecial
-                          ? item.specialColor === "emerald"
-                            ? "border-emerald-300 dark:border-emerald-900/60 hover:border-emerald-600 bg-emerald-50/20 dark:bg-emerald-950/10"
-                            : item.specialColor === "amber"
-                            ? "border-amber-300 dark:border-amber-900/60 hover:border-amber-600 bg-amber-50/20 dark:bg-amber-950/10"
-                            : item.specialColor === "rose"
-                            ? "border-rose-300 dark:border-rose-900/60 hover:border-rose-600 bg-rose-50/20 dark:bg-rose-950/10"
-                            : "border-orange-300 dark:border-orange-900/60 hover:border-orange-600 bg-orange-50/20 dark:bg-orange-950/10"
-                          : "border-slate-100 dark:border-slate-800 hover:border-slate-900 dark:hover:border-slate-400"
-                      }`}
-                    >
-                      <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center transition-colors ${
-                        item.isSpecial
-                          ? item.specialColor === "emerald"
-                            ? "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 group-hover:scale-105"
-                            : item.specialColor === "amber"
-                            ? "bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 group-hover:scale-105"
-                            : item.specialColor === "rose"
-                            ? "bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 group-hover:scale-105"
-                            : "bg-orange-100 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400 group-hover:scale-105"
-                          : "bg-slate-50 dark:bg-slate-800 text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white"
-                      }`}>
-                        <item.icon className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
-                      </div>
-                      <span className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-tight ${
-                        item.isSpecial
-                          ? item.specialColor === "emerald"
-                            ? "text-emerald-700 dark:text-emerald-400 font-extrabold"
-                            : item.specialColor === "amber"
-                            ? "text-amber-700 dark:text-amber-400 font-extrabold"
-                            : item.specialColor === "rose"
-                            ? "text-rose-700 dark:text-rose-400 font-extrabold"
-                            : "text-orange-700 dark:text-orange-400 font-extrabold"
-                          : "text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white"
-                      }`}>{item.label}</span>
-                    </button>
-                  ))}
-                </div>
-
-                <div id="duplicate-scanner-widget">
-                  <React.Suspense fallback={<AdminSectionLoader type="list" />}>
-                    <McqDuplicateScannerWidget />
+                {/* Subtab 1: Syllabus Tree */}
+                {subTabAcademic === "syllabus" && (
+                  <React.Suspense fallback={<AdminSectionLoader type="list" title="Loading Syllabus Tree..." />}>
+                    <AdminSyllabusSection
+                      subjects={combinedSubjectsList}
+                      chapters={combinedChaptersList}
+                      questionsStore={props.questionsStore}
+                      onShowAddSubject={props.onShowAddSubject}
+                      onShowAddChapter={props.onShowAddChapter}
+                      onShowAddTopic={props.onShowAddTopic}
+                      onShowAddQuestions={props.onShowAddQuestions}
+                      onShowManageQuestions={props.onShowManageQuestions}
+                      onRequestDeleteSubject={(subjectId, subjectTitle) => {
+                        setDeleteConfirmTarget({ type: "subject", id: subjectId, title: subjectTitle });
+                      }}
+                      onRequestDeleteChapter={(chapterId, chapterTitle) => {
+                        setDeleteConfirmTarget({ type: "chapter", id: chapterId, title: chapterTitle });
+                      }}
+                    />
                   </React.Suspense>
-                </div>
+                )}
+
+                {/* Subtab 2: Question Directory (Streamlined, Zero Duplicate Clutter) */}
+                {subTabAcademic === "questions" && (
+                  <div className="space-y-6">
+                    {/* Clean Executive Action Banner */}
+                    <div className="bg-white dark:bg-[#1A1435] rounded-3xl p-5 border border-slate-200 dark:border-[#352B63] shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <Database className="w-5 h-5 text-[#800020] dark:text-[#F59E0B]" />
+                          <h2 className="text-base font-bold text-slate-900 dark:text-white">
+                            Master Question Directory
+                          </h2>
+                          <span className="text-xs font-black px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                            {totalQuestionsCount.toLocaleString()} MCQs
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                          Search, inspect, edit, or filter active questions across all 21 RPSC / RSMSSB subjects.
+                        </p>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-2">
+                        <button
+                          onClick={props.onShowManageQuestions}
+                          className="px-4 py-2 bg-[#800020] hover:bg-[#991B1E] text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                        >
+                          <Search className="w-3.5 h-3.5" />
+                          <span>Browse Repository</span>
+                        </button>
+
+                        <button
+                          onClick={() => props.onShowAddQuestions(undefined, undefined, undefined, "paste")}
+                          className="px-4 py-2 bg-slate-900 dark:bg-slate-700 hover:bg-slate-800 text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                        >
+                          <PlusCircle className="w-3.5 h-3.5 text-amber-400" />
+                          <span>+ Add New Question</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Quick Access to Unified Import & QA Hub */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div
+                        onClick={() => setSubTabAcademic("import")}
+                        className="p-5 rounded-3xl bg-gradient-to-br from-emerald-500/10 via-teal-500/5 to-transparent border border-emerald-500/20 hover:border-emerald-500/40 transition-all cursor-pointer group flex items-center justify-between"
+                      >
+                        <div className="flex items-center gap-3.5">
+                          <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                            <Upload className="w-6 h-6" />
+                          </div>
+                          <div>
+                            <h3 className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                              Unified Import Hub
+                            </h3>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                              Batch import via Excel/CSV, AI Smart Parser, HTML or Quick Paste.
+                            </p>
+                          </div>
+                        </div>
+                        <ChevronRight className="w-5 h-5 text-slate-400 group-hover:translate-x-1 transition-transform" />
+                      </div>
+
+                      <div
+                        onClick={() => setSubTabAcademic("qa")}
+                        className="p-5 rounded-3xl bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-transparent border border-amber-500/20 hover:border-amber-500/40 transition-all cursor-pointer group flex items-center justify-between"
+                      >
+                        <div className="flex items-center gap-3.5">
+                          <div className="w-12 h-12 rounded-2xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                            <Stethoscope className="w-6 h-6" />
+                          </div>
+                          <div>
+                            <h3 className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+                              Content QA &amp; Health Station
+                            </h3>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                              Duplicate Control (≥90%), Error Auditor, Outdated Facts &amp; Recycle Bin.
+                            </p>
+                          </div>
+                        </div>
+                        <ChevronRight className="w-5 h-5 text-slate-400 group-hover:translate-x-1 transition-transform" />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Subtab 3: Unified Import Hub (Replaces Scattered Import Buttons) */}
+                {subTabAcademic === "import" && (
+                  <div className="space-y-6">
+                    <div className="border-b border-slate-200 dark:border-slate-800 pb-3">
+                      <h2 className="text-base font-black text-slate-900 dark:text-white">
+                        Unified Question Import Hub
+                      </h2>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        Choose your preferred ingestion pipeline. All formats support Hindi Unicode, RPSC 5-option format, and subject/chapter auto-tagging.
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                      {/* 1. Excel / CSV Spreadsheet */}
+                      <div className="bg-white dark:bg-[#1A1435] rounded-3xl p-5 border border-slate-200 dark:border-[#352B63] shadow-xs flex flex-col justify-between hover:border-emerald-500 transition-all group">
+                        <div className="space-y-3">
+                          <div className="w-11 h-11 rounded-2xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center group-hover:scale-105 transition-transform">
+                            <FileSpreadsheet className="w-6 h-6" />
+                          </div>
+                          <div>
+                            <h3 className="text-sm font-bold text-slate-900 dark:text-white">Excel / CSV Importer</h3>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                              Upload standard `.xlsx`, `.csv` or `.tsv` files. Column mapper automatically detects Question, Options A-E, and Explanation.
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => setShowExcelCsvImporter(true)}
+                          className="mt-4 w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition-all active:scale-95 cursor-pointer"
+                        >
+                          Launch Excel Importer
+                        </button>
+                      </div>
+
+                      {/* 2. AI Smart Parser */}
+                      <div className="bg-white dark:bg-[#1A1435] rounded-3xl p-5 border border-slate-200 dark:border-[#352B63] shadow-xs flex flex-col justify-between hover:border-amber-500 transition-all group">
+                        <div className="space-y-3">
+                          <div className="w-11 h-11 rounded-2xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center group-hover:scale-105 transition-transform">
+                            <Sparkles className="w-6 h-6" />
+                          </div>
+                          <div>
+                            <h3 className="text-sm font-bold text-slate-900 dark:text-white">AI Smart Parser</h3>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                              Paste raw unformatted text or PDF extracts in Hindi or English. Disha AI instantly structures questions, answers, and tags.
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={props.onShowAIImport}
+                          className="mt-4 w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold text-xs shadow-xs transition-all active:scale-95 cursor-pointer"
+                        >
+                          Open AI Parser
+                        </button>
+                      </div>
+
+                      {/* 3. HTML Code / Web Importer */}
+                      <div className="bg-white dark:bg-[#1A1435] rounded-3xl p-5 border border-slate-200 dark:border-[#352B63] shadow-xs flex flex-col justify-between hover:border-orange-500 transition-all group">
+                        <div className="space-y-3">
+                          <div className="w-11 h-11 rounded-2xl bg-orange-500/15 text-orange-600 dark:text-orange-400 flex items-center justify-center group-hover:scale-105 transition-transform">
+                            <FileCode className="w-6 h-6" />
+                          </div>
+                          <div>
+                            <h3 className="text-sm font-bold text-slate-900 dark:text-white">HTML File &amp; Code</h3>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                              Ingest questions directly from HTML web files, online test platforms, or DOM source tables with automated sanitization.
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={props.onShowHTMLImport}
+                          className="mt-4 w-full py-2.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs shadow-xs transition-all active:scale-95 cursor-pointer"
+                        >
+                          Open HTML Parser
+                        </button>
+                      </div>
+
+                      {/* 4. Quick Paste / Manual Builder */}
+                      <div className="bg-white dark:bg-[#1A1435] rounded-3xl p-5 border border-slate-200 dark:border-[#352B63] shadow-xs flex flex-col justify-between hover:border-[#800020] transition-all group">
+                        <div className="space-y-3">
+                          <div className="w-11 h-11 rounded-2xl bg-[#800020]/15 text-[#800020] dark:text-amber-400 flex items-center justify-center group-hover:scale-105 transition-transform">
+                            <PlusCircle className="w-6 h-6" />
+                          </div>
+                          <div>
+                            <h3 className="text-sm font-bold text-slate-900 dark:text-white">Quick Paste &amp; Manual</h3>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                              Paste formatted lines or type questions individually with complete formatting controls, hints, and explanations.
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => props.onShowAddQuestions(undefined, undefined, undefined, "paste")}
+                          className="mt-4 w-full py-2.5 rounded-xl bg-slate-900 dark:bg-slate-700 hover:bg-slate-800 text-white font-bold text-xs shadow-xs transition-all active:scale-95 cursor-pointer"
+                        >
+                          Quick Add Questions
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Subtab 4: Content QA & Health Station (Unified Station for 5 QA Tools) */}
+                {subTabAcademic === "qa" && (
+                  <div className="space-y-6">
+                    {/* Tool Bar Switcher */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800 pb-3">
+                      <div>
+                        <h2 className="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
+                          <Stethoscope className="w-5 h-5 text-amber-500" />
+                          <span>Content Quality Assurance &amp; Health Station</span>
+                        </h2>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                          Detect similarity duplicates, audit question structure, archive outdated district data, or manage the recycle bin.
+                        </p>
+                      </div>
+
+                      {/* Tool Tabs */}
+                      <div className="flex items-center p-1 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-x-auto max-w-full">
+                        {[
+                          { id: "duplicate", label: "Duplicate Control (≥90%)", icon: ShieldAlert },
+                          { id: "health", label: "Health Auditor", icon: Activity },
+                          { id: "outdated", label: "2024-25 Outdated Facts", icon: CalendarClock },
+                          { id: "recycle", label: `Recycle Bin (${props.questionsStore?.recycleBinQuestions?.length || 0})`, icon: ArchiveRestore },
+                          { id: "bulk", label: "Bulk Delete", icon: Trash2 },
+                        ].map((tool) => {
+                          const Icon = tool.icon;
+                          const isActive = activeQATool === tool.id;
+                          return (
+                            <button
+                              key={tool.id}
+                              onClick={() => {
+                                setActiveQATool(tool.id as any);
+                                if (tool.id === "duplicate") setShowDuplicateHubModal(true);
+                                if (tool.id === "recycle") setShowRecycleBinModal(true);
+                                if (tool.id === "bulk") setShowBulkDeleteModal(true);
+                              }}
+                              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                                isActive
+                                  ? "bg-white dark:bg-[#1A1435] text-slate-900 dark:text-white shadow-2xs"
+                                  : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                              }`}
+                            >
+                              <Icon className="w-3.5 h-3.5" />
+                              <span>{tool.label}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Active QA Tool View */}
+                    {activeQATool === "health" && (
+                      <React.Suspense fallback={<AdminSectionLoader type="cards" title="Auditing Content Health..." />}>
+                        <QuestionHealthAuditor
+                          chapters={combinedChaptersList}
+                          subjects={combinedSubjectsList}
+                          questionsStore={props.questionsStore}
+                          onStoreUpdated={props.onStoreUpdated}
+                        />
+                      </React.Suspense>
+                    )}
+
+                    {activeQATool === "outdated" && (
+                      <React.Suspense fallback={<AdminSectionLoader type="cards" title="Analyzing Outdated Facts..." />}>
+                        <OutdatedQuestionArchiver
+                          chapters={combinedChaptersList}
+                          subjects={combinedSubjectsList}
+                          questionsStore={props.questionsStore}
+                          onStoreUpdated={props.onStoreUpdated}
+                        />
+                      </React.Suspense>
+                    )}
+
+                    {/* Card overview when duplicate / recycle / bulk modal is triggerable */}
+                    {(activeQATool === "duplicate" || activeQATool === "recycle" || activeQATool === "bulk") && (
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                        <div className="bg-white dark:bg-[#1A1435] rounded-3xl p-5 border border-slate-200 dark:border-[#352B63] shadow-xs flex flex-col justify-between">
+                          <div className="space-y-2">
+                            <div className="w-10 h-10 rounded-xl bg-amber-500/15 text-amber-600 flex items-center justify-center">
+                              <ShieldAlert className="w-5 h-5" />
+                            </div>
+                            <h3 className="text-sm font-bold text-slate-900 dark:text-white">Duplicate Detection (≥90%)</h3>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                              Scans the entire database with fuzzy string matching. Lets you merge duplicates, preserve high-quality explanations, and delete redundant entries.
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => setShowDuplicateHubModal(true)}
+                            className="mt-4 w-full py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-xs transition-all active:scale-95 cursor-pointer"
+                          >
+                            Launch Duplicate Hub
+                          </button>
+                        </div>
+
+                        <div className="bg-white dark:bg-[#1A1435] rounded-3xl p-5 border border-slate-200 dark:border-[#352B63] shadow-xs flex flex-col justify-between">
+                          <div className="space-y-2">
+                            <div className="w-10 h-10 rounded-xl bg-blue-500/15 text-blue-600 flex items-center justify-center">
+                              <ArchiveRestore className="w-5 h-5" />
+                            </div>
+                            <h3 className="text-sm font-bold text-slate-900 dark:text-white">Question Recycle Bin</h3>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                              Soft-deleted questions are staged here safely. Restore accidentally removed questions with 1-click or permanently purge trash.
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => setShowRecycleBinModal(true)}
+                            className="mt-4 w-full py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-xs transition-all active:scale-95 cursor-pointer"
+                          >
+                            Open Recycle Bin ({props.questionsStore?.recycleBinQuestions?.length || 0})
+                          </button>
+                        </div>
+
+                        <div className="bg-white dark:bg-[#1A1435] rounded-3xl p-5 border border-slate-200 dark:border-[#352B63] shadow-xs flex flex-col justify-between">
+                          <div className="space-y-2">
+                            <div className="w-10 h-10 rounded-xl bg-rose-500/15 text-rose-600 flex items-center justify-center">
+                              <Trash2 className="w-5 h-5" />
+                            </div>
+                            <h3 className="text-sm font-bold text-slate-900 dark:text-white">Bulk Safe Delete</h3>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                              Selectively remove large batches of obsolete questions by Subject, Chapter, or Topic with audit confirmations.
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => setShowBulkDeleteModal(true)}
+                            className="mt-4 w-full py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-xs transition-all active:scale-95 cursor-pointer"
+                          >
+                            Open Bulk Delete Tool
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Subtab 5: Teacher Review & Approval Workflow */}
+                {subTabAcademic === "approval" && (
+                  <React.Suspense fallback={<AdminSectionLoader type="list" title="Loading Approval Workflow..." />}>
+                    <QuestionApprovalWorkflowSection
+                      questionsStore={props.questionsStore}
+                      subjects={combinedSubjectsList}
+                      chapters={combinedChaptersList}
+                      onStoreUpdated={props.onStoreUpdated}
+                    />
+                  </React.Suspense>
+                )}
               </div>
             )}
 
-            {/* Exams Section */}
-            {activeGroup === "tests" && (
-              <div className="space-y-5 sm:space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
-                  <div className="space-y-0.5">
-                    <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">Exam Series & Live Battle</h2>
-                    <p className="text-xs sm:text-sm text-slate-500 font-medium">Historical papers, live mock schedules, and real-time quiz battles.</p>
+            {/* ============================================================== */}
+            {/* PILLAR 3: TESTS & LIVE BATTLE ARENA                            */}
+            {/* ============================================================== */}
+            {activePillar === "tests" && (
+              <div className="space-y-6">
+                {/* Header & Subtab Selector */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+                      Examinations &amp; Live Battle Arena
+                    </h1>
+                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+                      Full-length RPSC mock test schedules, PYQ papers vault, coaching tiers &amp; real-time battle telemetry.
+                    </p>
                   </div>
-                  <div className="flex items-center p-1 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xs self-start sm:self-auto">
+
+                  <div className="flex items-center p-1 bg-white dark:bg-[#1A1435] rounded-2xl border border-slate-200 dark:border-[#352B63] shadow-xs self-start sm:self-auto overflow-x-auto max-w-full">
                     <button
                       onClick={() => setSubTabTests("mock")}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
                         subTabTests === "mock"
-                          ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs"
+                          ? "bg-slate-900 dark:bg-[#800020] text-white shadow-xs"
                           : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                       }`}
                     >
                       <Timer className="w-3.5 h-3.5" />
-                      <span>Mock & PYQs</span>
+                      <span>Mock Tests &amp; PYQs</span>
                     </button>
+
                     <button
                       onClick={() => setSubTabTests("battle")}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
                         subTabTests === "battle"
                           ? "bg-gradient-to-r from-amber-600 to-[#800020] text-white shadow-xs font-extrabold"
                           : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                       }`}
                     >
                       <Swords className="w-3.5 h-3.5 text-amber-400" />
-                      <span>Live Battle Monitor</span>
+                      <span>Live Battle Telemetry</span>
                       <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                     </button>
                   </div>
@@ -1583,192 +1434,130 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                   </React.Suspense>
                 ) : (
                   <>
-                    <div className="flex flex-wrap items-center justify-end gap-1.5 sm:gap-2">
+                    {/* Top Action Bar for Tests */}
+                    <div className="flex flex-wrap items-center justify-end gap-2">
                       <button
                         onClick={() => setShowMeritListModal(true)}
-                        className="px-3.5 py-2 bg-gradient-to-r from-amber-600 via-orange-600 to-amber-700 hover:from-amber-700 hover:to-orange-800 text-white text-xs font-black rounded-xl shadow-md flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
-                        title="Generate official merit list PDF and Telegram / WhatsApp announcement"
+                        className="px-3.5 py-2 bg-gradient-to-r from-amber-600 via-orange-600 to-amber-700 hover:from-amber-700 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
                       >
-                        <Trophy className="w-3.5 h-3.5" />
-                        <span>Merit List & Telegram</span>
+                        <Trophy className="w-3.5 h-3.5 text-amber-200" />
+                        <span>Merit PDF &amp; Telegram</span>
                       </button>
+
                       <button
                         onClick={() => setShowCoachingHierarchyModal(true)}
-                        className="px-3 py-2 bg-[#7045D8] hover:bg-[#5B32BF] text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
+                        className="px-3.5 py-2 bg-[#7045D8] hover:bg-[#5B32BF] text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
                       >
                         <Building2 className="w-3.5 h-3.5" />
                         <span>Coaching Hierarchy</span>
                       </button>
+
                       <button
                         onClick={props.onShowManagePYQVault}
-                        className="px-3 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
+                        className="px-3.5 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
                       >
                         <PlusCircle className="w-3.5 h-3.5" />
                         <span>+ PYQ Paper</span>
                       </button>
+
                       <button
                         onClick={props.onShowManageLiveTests}
-                        className="px-3 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
+                        className="px-3.5 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
                       >
                         <PlusCircle className="w-3.5 h-3.5" />
                         <span>+ Live Test</span>
                       </button>
                     </div>
 
-                    {/* Responsive Test Management Card Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                      {/* 1. Live Mock Tests Overview Card */}
-                      <div className="bg-white dark:bg-[#111A2E] rounded-3xl p-5 sm:p-6 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between hover:border-rose-300 dark:hover:border-rose-900/50 transition-all group">
+                    {/* Clean Test Management Cards */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      {/* Live Mock Tests Card */}
+                      <div className="bg-white dark:bg-[#1A1435] rounded-3xl p-6 border border-slate-200 dark:border-[#352B63] shadow-xs flex flex-col justify-between hover:border-rose-400 transition-all group">
                         <div className="space-y-4">
-                          <div className="flex items-start justify-between gap-3">
-                            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                              <Timer className="w-5.5 h-5.5 sm:w-6 sm:h-6" />
+                          <div className="flex items-start justify-between">
+                            <div className="w-12 h-12 rounded-2xl bg-rose-500/15 text-rose-600 flex items-center justify-center group-hover:scale-105 transition-transform">
+                              <Timer className="w-6 h-6" />
                             </div>
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 border border-rose-200/60 dark:border-rose-800/40">
-                              <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
+                            <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-rose-500/10 text-rose-600 border border-rose-500/20">
                               {testsStats.liveActiveCount} Active
                             </span>
                           </div>
-
                           <div>
-                            <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                              Live Mock Tests
-                            </h3>
+                            <h3 className="text-base font-bold text-slate-900 dark:text-white">Live Mock Examinations</h3>
                             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                              Full-length timed examinations with state percentile scoring, RPSC 5th-option compliance, and live ranks.
+                              Timed full-length examinations with state percentile scoring, RPSC negative marking &amp; instant merit generation.
                             </p>
                           </div>
-
-                          <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs">
-                            <span className="text-slate-500 dark:text-slate-400 font-medium">Total Test Series:</span>
-                            <span className="font-bold text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">
-                              {testsStats.liveTestsTotal} {testsStats.liveTestsTotal === 1 ? "Test" : "Tests"}
-                            </span>
+                          <div className="pt-2 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-500 flex justify-between">
+                            <span>Total Test Series:</span>
+                            <span className="font-bold text-slate-900 dark:text-white">{testsStats.liveTestsTotal} Tests</span>
                           </div>
                         </div>
-
                         <button
                           onClick={props.onShowManageLiveTests}
-                          className="w-full mt-5 py-2.5 sm:py-3 px-4 bg-rose-600 hover:bg-rose-700 active:scale-98 text-white rounded-2xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer"
+                          className="mt-6 w-full py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-xs transition-all active:scale-95 cursor-pointer"
                         >
-                          <span>Manage Live Tests</span>
-                          <ArrowRight className="w-4 h-4" />
+                          Manage Live Tests
                         </button>
                       </div>
 
-                      {/* 2. Previous Year Papers (PYQ Vault) Overview Card */}
-                      <div className="bg-white dark:bg-[#111A2E] rounded-3xl p-5 sm:p-6 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between hover:border-amber-300 dark:hover:border-amber-900/50 transition-all group">
+                      {/* PYQ Vault Card */}
+                      <div className="bg-white dark:bg-[#1A1435] rounded-3xl p-6 border border-slate-200 dark:border-[#352B63] shadow-xs flex flex-col justify-between hover:border-amber-400 transition-all group">
                         <div className="space-y-4">
-                          <div className="flex items-start justify-between gap-3">
-                            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                              <FileText className="w-5.5 h-5.5 sm:w-6 sm:h-6" />
+                          <div className="flex items-start justify-between">
+                            <div className="w-12 h-12 rounded-2xl bg-amber-500/15 text-amber-600 flex items-center justify-center group-hover:scale-105 transition-transform">
+                              <Archive className="w-6 h-6" />
                             </div>
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/40">
-                              <Archive className="w-3.5 h-3.5" />
-                              {testsStats.pyqPapersTotal} Papers
+                            <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/10 text-amber-600 border border-amber-500/20">
+                              {testsStats.pyqTotal} Papers
                             </span>
                           </div>
-
                           <div>
-                            <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                              PYQ Paper Vault
-                            </h3>
+                            <h3 className="text-base font-bold text-slate-900 dark:text-white">Official PYQ Paper Vault</h3>
                             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                              Official past question papers indexed by examination, commission, year, and subject with authentic answer keys.
+                              RPSC RAS Pre, 1st/2nd Grade, Patwar, REET &amp; Police Constable previous year papers with official answer keys.
                             </p>
                           </div>
-
-                          <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs">
-                            <span className="text-slate-500 dark:text-slate-400 font-medium">Archived MCQs:</span>
-                            <span className="font-bold text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">
-                              {testsStats.pyqQuestionsTotal.toLocaleString()} Questions
-                            </span>
+                          <div className="pt-2 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-500 flex justify-between">
+                            <span>Total PYQ MCQs:</span>
+                            <span className="font-bold text-slate-900 dark:text-white">{testsStats.pyqQuestionsTotal} MCQs</span>
                           </div>
                         </div>
-
                         <button
                           onClick={props.onShowManagePYQVault}
-                          className="w-full mt-5 py-2.5 sm:py-3 px-4 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 active:scale-98 text-white rounded-2xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer"
+                          className="mt-6 w-full py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-xs transition-all active:scale-95 cursor-pointer"
                         >
-                          <span>Open PYQ Vault</span>
-                          <ArrowRight className="w-4 h-4" />
+                          Manage PYQ Papers
                         </button>
                       </div>
 
-                      {/* 3. Live Quiz Battle Arena Card */}
-                      <div className="bg-white dark:bg-[#111A2E] rounded-3xl p-5 sm:p-6 border-2 border-amber-500/40 dark:border-amber-500/30 shadow-xs flex flex-col justify-between hover:border-amber-400 transition-all group">
+                      {/* Coaching Batches Card */}
+                      <div className="bg-white dark:bg-[#1A1435] rounded-3xl p-6 border border-slate-200 dark:border-[#352B63] shadow-xs flex flex-col justify-between hover:border-indigo-400 transition-all group">
                         <div className="space-y-4">
-                          <div className="flex items-start justify-between gap-3">
-                            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-amber-400/20 to-[#800020]/20 text-[#800020] dark:text-amber-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                              <Swords className="w-5.5 h-5.5 sm:w-6 sm:h-6" />
+                          <div className="flex items-start justify-between">
+                            <div className="w-12 h-12 rounded-2xl bg-indigo-500/15 text-indigo-600 flex items-center justify-center group-hover:scale-105 transition-transform">
+                              <Building2 className="w-6 h-6" />
                             </div>
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-black bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/40">
-                              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                              Live Realtime
+                            <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-500/10 text-indigo-600 border border-indigo-500/20">
+                              Enterprise
                             </span>
                           </div>
-
                           <div>
-                            <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                              Live Quiz Battle Telemetry
-                            </h3>
+                            <h3 className="text-base font-bold text-slate-900 dark:text-white">Coaching Institutes &amp; Batches</h3>
                             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                              Live monitor for active battle rooms, currently playing students, and complete match history.
+                              Multi-tenant hierarchy to create private test series, batch-specific student rosters, and branded rank reports.
                             </p>
                           </div>
-
-                          <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs">
-                            <span className="text-slate-500 dark:text-slate-400 font-medium">Realtime Engine:</span>
-                            <span className="font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-md">
-                              Supabase Live Monitor
-                            </span>
+                          <div className="pt-2 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-500 flex justify-between">
+                            <span>Status:</span>
+                            <span className="font-bold text-emerald-600 dark:text-emerald-400">Integrated</span>
                           </div>
                         </div>
-
-                        <button
-                          onClick={() => setSubTabTests("battle")}
-                          className="w-full mt-5 py-2.5 sm:py-3 px-4 bg-gradient-to-r from-amber-600 via-[#800020] to-rose-700 hover:brightness-110 active:scale-98 text-white rounded-2xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer"
-                        >
-                          <span>Open Battle Telemetry</span>
-                          <ArrowRight className="w-4 h-4" />
-                        </button>
-                      </div>
-
-                      {/* 4. Coaching Hierarchy & Batches Overview Card */}
-                      <div className="bg-white dark:bg-[#111A2E] rounded-3xl p-5 sm:p-6 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between hover:border-blue-300 dark:hover:border-blue-900/50 transition-all group">
-                        <div className="space-y-4">
-                          <div className="flex items-start justify-between gap-3">
-                            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                              <Building2 className="w-5.5 h-5.5 sm:w-6 sm:h-6" />
-                            </div>
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200/60 dark:border-blue-800/40">
-                              Multi-Tenant
-                            </span>
-                          </div>
-
-                          <div>
-                            <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                              Coaching & Batches
-                            </h3>
-                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                              Manage coaching partner institutions, branch centers, and private batches to restrict exclusive test schedules.
-                            </p>
-                          </div>
-
-                          <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs">
-                            <span className="text-slate-500 dark:text-slate-400 font-medium">Access Control:</span>
-                            <span className="font-bold text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">
-                              Batch Gated
-                            </span>
-                          </div>
-                        </div>
-
                         <button
                           onClick={() => setShowCoachingHierarchyModal(true)}
-                          className="w-full mt-5 py-2.5 sm:py-3 px-4 bg-[#7045D8] hover:bg-[#5B32BF] active:scale-98 text-white rounded-2xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer"
+                          className="mt-6 w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-xs transition-all active:scale-95 cursor-pointer"
                         >
-                          <span>Configure Hierarchy</span>
-                          <ArrowRight className="w-4 h-4" />
+                          Manage Coaching Centers
                         </button>
                       </div>
                     </div>
@@ -1777,58 +1566,56 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
               </div>
             )}
 
-            {/* Content Section */}
-            {activeGroup === "content" && (
-              <div className="space-y-5 sm:space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+            {/* ============================================================== */}
+            {/* PILLAR 4: EDITORIAL & LEARNERS                                 */}
+            {/* ============================================================== */}
+            {activePillar === "editorial" && (
+              <div className="space-y-6">
+                {/* Header & Subtabs */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
-                    <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">Editorial Content</h2>
-                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">Manage articles, news feed and app-wide banners.</p>
+                    <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+                      Editorial Content &amp; Learner Community
+                    </h1>
+                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+                      Publish exam notifications &amp; news, manage banners, student profiles, doubt desk &amp; push notifications.
+                    </p>
                   </div>
-                  <div className="flex items-center p-1 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xs overflow-x-auto max-w-full no-scrollbar self-start sm:self-auto">
-                    <button onClick={() => setSubTabContent("news")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${subTabContent === "news" ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}>Articles</button>
-                    <button onClick={() => setSubTabContent("banners")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${subTabContent === "banners" ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}>Banners</button>
+
+                  <div className="flex items-center p-1 bg-white dark:bg-[#1A1435] rounded-2xl border border-slate-200 dark:border-[#352B63] shadow-xs self-start sm:self-auto overflow-x-auto max-w-full">
+                    {[
+                      { id: "news", label: "Articles CMS" },
+                      { id: "banners", label: "App Banners" },
+                      { id: "directory", label: "Student Directory" },
+                      { id: "doubts", label: "Doubt Desk" },
+                      { id: "notifications", label: "Push Broadcasts" },
+                      { id: "messages", label: "Inquiries" }
+                    ].map((tab) => (
+                      <button
+                        key={tab.id}
+                        onClick={() => setSubTabEditorial(tab.id as any)}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                          subTabEditorial === tab.id
+                            ? "bg-slate-900 dark:bg-[#800020] text-white shadow-xs"
+                            : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                        }`}
+                      >
+                        {tab.label}
+                      </button>
+                    ))}
                   </div>
                 </div>
 
-                <React.Suspense fallback={<AdminSectionLoader type="cards" title="Loading Content..." />}>
-                  {subTabContent === "news" ? (
-                    <AdminNewsSection onBackToAdmin={() => handleSelectGroup("dashboard")} />
-                  ) : (
-                    <AdminBannerManagementSection />
-                  )}
-                </React.Suspense>
-              </div>
-            )}
-
-            {/* Users Section */}
-            {activeGroup === "users" && (
-              <div className="space-y-5 sm:space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
-                  <div>
-                    <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">Students & Objections</h2>
-                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">Manage student directory, inquiries, question objections & alerts.</p>
-                  </div>
-                  <div className="flex items-center p-1 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xs overflow-x-auto max-w-full no-scrollbar self-start sm:self-auto">
-                    <button onClick={() => setSubTabUsers("directory")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${subTabUsers === "directory" ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}>Students</button>
-                    <button onClick={() => setSubTabUsers("messages")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${subTabUsers === "messages" ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}>Inquiries</button>
-                    <button onClick={() => setSubTabUsers("reports")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${subTabUsers === "reports" ? "bg-amber-600 text-white shadow-xs" : "text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/20"}`}>
-                      <AlertCircle className="w-3.5 h-3.5" />
-                      <span>Doubt Desk</span>
-                    </button>
-                    <button onClick={() => setSubTabUsers("notifications")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${subTabUsers === "notifications" ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}>Broadcasts</button>
-                  </div>
-                </div>
-
-                <React.Suspense fallback={<AdminSectionLoader type="cards" title="Loading Users..." />}>
-                  {subTabUsers === "directory" && (
+                <React.Suspense fallback={<AdminSectionLoader type="cards" title="Loading Editorial..." />}>
+                  {subTabEditorial === "news" && <AdminNewsSection onBackToAdmin={() => handleSelectPillar("dashboard")} />}
+                  {subTabEditorial === "banners" && <AdminBannerManagementSection />}
+                  {subTabEditorial === "directory" && (
                     <AdminUserManagementSection
                       initialSelectedUser={selectedUserForDetails}
                       onClearInitialUser={() => setSelectedUserForDetails(null)}
                     />
                   )}
-                  {subTabUsers === "messages" && <AdminMessagesSection onBackToAdmin={() => handleSelectGroup("dashboard")} />}
-                  {subTabUsers === "reports" && (
+                  {subTabEditorial === "doubts" && (
                     <QuestionReportDesk
                       questions={getCombinedQuestions(combinedChaptersList, props.questionsStore)}
                       subjects={combinedSubjectsList}
@@ -1847,234 +1634,174 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                       }}
                     />
                   )}
-                  {subTabUsers === "notifications" && <AdminNotificationBroadcastSection />}
+                  {subTabEditorial === "notifications" && <AdminNotificationBroadcastSection />}
+                  {subTabEditorial === "messages" && <AdminMessagesSection onBackToAdmin={() => handleSelectPillar("dashboard")} />}
                 </React.Suspense>
               </div>
             )}
 
-            {/* Staff Management & RBAC Section */}
-            {activeGroup === "staff" && (
-              <React.Suspense fallback={<AdminSectionLoader type="cards" title="Loading Staff Directory..." />}>
-                <StaffManagementSection currentUserProfile={props.userProfile} />
-              </React.Suspense>
-            )}
-
-            {/* Supabase PostgreSQL Section */}
-            {activeGroup === "supabase" && (
-              <div className="space-y-5 sm:space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
-                  <div>
-                    <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">Supabase Cloud Database</h2>
-                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">Authoritative PostgreSQL tables, PostgREST explorer, schema diagnostics & live sync.</p>
-                  </div>
-                  <div className="flex items-center p-1 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xs overflow-x-auto max-w-full no-scrollbar self-start sm:self-auto">
-                    <button onClick={() => setSubTabSupabase("overview")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${subTabSupabase === "overview" ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}>Overview</button>
-                    <button onClick={() => setSubTabSupabase("explorer")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${subTabSupabase === "explorer" ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}>Explorer</button>
-                    <button onClick={() => setSubTabSupabase("diagnostics")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${subTabSupabase === "diagnostics" ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}>Diagnostics</button>
-                    <button onClick={() => setSubTabSupabase("report")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${subTabSupabase === "report" ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}>Row Counts</button>
-                    <button onClick={() => setSubTabSupabase("audit")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${subTabSupabase === "audit" ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}>Audit</button>
-                    <button onClick={() => setSubTabSupabase("sync")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${subTabSupabase === "sync" ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"}`}>Sync</button>
-                  </div>
-                </div>
-
-                <React.Suspense fallback={<AdminSectionLoader type="table" title="Loading Database Tools..." />}>
-                  {subTabSupabase === "overview" && (
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                      <ProductionStabilityPanel />
-                      <SupabaseHealthPanel onBulkSync={handleSyncInit} />
-                    </div>
-                  )}
-                  {subTabSupabase === "explorer" && <SupabaseDataExplorer userProfile={props.userProfile} />}
-                  {subTabSupabase === "diagnostics" && <AdminDiagnosticsSection userProfile={props.userProfile} subjects={combinedSubjectsList} chapters={combinedChaptersList} />}
-                  {subTabSupabase === "report" && <DiagnosticReport userProfile={props.userProfile} />}
-                  {subTabSupabase === "audit" && <SupabaseAuditConsole userProfile={props.userProfile} />}
-                  {subTabSupabase === "sync" && <SyncHealthMonitorPanel questionsStore={props.questionsStore} onStoreUpdated={props.onStoreUpdated} userProfile={props.userProfile} />}
-                </React.Suspense>
-              </div>
-            )}
-
-            {/* Diagnostics Report Section */}
-            {activeGroup === "diagnostics" && (
-              <React.Suspense fallback={<AdminSectionLoader type="cards" title="Loading Diagnostics Report..." />}>
-                <DiagnosticReport userProfile={props.userProfile} />
-              </React.Suspense>
-            )}
-
-            {/* Live Crash & Telemetry Reports Section */}
-            {activeGroup === "crashes" && (
-              <React.Suspense fallback={<AdminSectionLoader type="cards" title="Loading Live Crash Reports..." />}>
-                <CrashReportsSection />
-              </React.Suspense>
-            )}
-
-            {/* Group 8: Disha AI Companion & Model Telemetry */}
-            {activeGroup === "integrations" && (
+            {/* ============================================================== */}
+            {/* PILLAR 5: DISHA AI ENGINE & TOKEN ANALYTICS                   */}
+            {/* ============================================================== */}
+            {activePillar === "ai" && (
               <div className="space-y-6">
-                <div className="bg-white dark:bg-[#111A2E] p-4 sm:p-5 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#800020] to-[#F47B20] text-white flex items-center justify-center shrink-0 shadow-xs">
+                    <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#800020] to-[#F59E0B] text-white flex items-center justify-center shrink-0 shadow-xs">
                       <Bot className="w-5 h-5 text-white" />
                     </div>
                     <div>
-                      <h2 className="text-base font-black text-slate-900 dark:text-white">
-                        Group 8: Disha AI Engine & Token Analytics
-                      </h2>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                        Input/output messages, real-time token tracking, query audit & API key rotation
+                      <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+                        Disha AI Engine &amp; Quota Manager
+                      </h1>
+                      <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+                        Token telemetry, latency analytics, question explanation generator &amp; API key rotation.
                       </p>
                     </div>
                   </div>
 
-                  {/* Subtab Toggle */}
-                  <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl border border-slate-200 dark:border-slate-700 self-start sm:self-auto">
+                  <div className="flex items-center p-1 bg-white dark:bg-[#1A1435] rounded-2xl border border-slate-200 dark:border-[#352B63] shadow-xs self-start sm:self-auto">
                     <button
-                      type="button"
-                      onClick={() => setSubTabAI("dashboard")}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-1.5 ${
-                        subTabAI === "dashboard"
-                          ? "bg-[#800020] text-white shadow-2xs"
-                          : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+                      onClick={() => setSubTabAI("tokens")}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                        subTabAI === "tokens"
+                          ? "bg-slate-900 dark:bg-[#800020] text-white shadow-xs"
+                          : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                       }`}
                     >
-                      <Bot className="w-3.5 h-3.5" />
-                      <span>AI Analytics & Tokens</span>
+                      <BarChart3 className="w-3.5 h-3.5" />
+                      <span>Token Usage &amp; Logs</span>
                     </button>
                     <button
-                      type="button"
-                      onClick={() => setSubTabAI("configs")}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-1.5 ${
-                        subTabAI === "configs"
-                          ? "bg-[#800020] text-white shadow-2xs"
-                          : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+                      onClick={() => setSubTabAI("keys")}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                        subTabAI === "keys"
+                          ? "bg-slate-900 dark:bg-[#800020] text-white shadow-xs"
+                          : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                       }`}
                     >
                       <Cpu className="w-3.5 h-3.5" />
-                      <span>API Keys & Rotation</span>
+                      <span>Gemini API Key Rotation</span>
                     </button>
                   </div>
                 </div>
 
-                {subTabAI === "dashboard" ? (
-                  <React.Suspense fallback={<AdminSectionLoader type="cards" title="Loading Disha AI Telemetry..." />}>
-                    <DishaAIDashboard />
-                  </React.Suspense>
-                ) : (
-                  <React.Suspense fallback={<AdminSectionLoader type="cards" title="Loading API Configurations..." />}>
-                    <AIApiManagementSection />
-                  </React.Suspense>
-                )}
+                <React.Suspense fallback={<AdminSectionLoader type="cards" title="Loading Disha AI Telemetry..." />}>
+                  {subTabAI === "tokens" ? <DishaAIDashboard /> : <AIApiManagementSection />}
+                </React.Suspense>
               </div>
             )}
 
-
-            {/* Disaster Recovery: Backup & Restore Section */}
-            {activeGroup === "backup" && (
-              <React.Suspense fallback={<AdminSectionLoader type="cards" title="Loading Disaster Recovery..." />}>
-                <BackupRestoreSection userProfile={props.userProfile} />
-              </React.Suspense>
-            )}
-
-            {/* Settings Section */}
-            {activeGroup === "settings" && (
+            {/* ============================================================== */}
+            {/* PILLAR 6: CLOUD DATABASE & SYSTEM CONTROLS                     */}
+            {/* ============================================================== */}
+            {activePillar === "system" && (
               <div className="space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
-                    <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                      <Settings className="w-5 h-5 text-[#800020] dark:text-amber-400" />
-                      <span>Application Settings &amp; Feature Control</span>
-                    </h2>
+                    <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+                      Cloud Database &amp; System Settings
+                    </h1>
                     <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-                      Control student app feature toggles, manage database backups, and run diagnostics.
+                      PostgreSQL Supabase explorer, client feature toggles, maintenance mode, staff RBAC &amp; backups.
                     </p>
                   </div>
-                  <div className="flex items-center p-1 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xs overflow-x-auto max-w-full no-scrollbar self-start sm:self-auto">
-                    <button
-                      onClick={() => setSubTabSettings("features")}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
-                        subTabSettings === "features"
-                          ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs"
-                          : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-                      }`}
-                    >
-                      <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
-                      <span>App Feature Toggles</span>
-                    </button>
-                    <button
-                      onClick={() => setSubTabSettings("leaderboard")}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
-                        subTabSettings === "leaderboard"
-                          ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs"
-                          : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-                      }`}
-                    >
-                      <Trophy className="w-3.5 h-3.5 text-amber-400" />
-                      <span>Leaderboard Manager</span>
-                    </button>
-                    <button
-                      onClick={() => setSubTabSettings("appconfig")}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
-                        subTabSettings === "appconfig"
-                          ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs"
-                          : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-                      }`}
-                    >
-                      <AlertTriangle className="w-3.5 h-3.5 text-rose-400" />
-                      <span>App Config & Maintenance</span>
-                    </button>
-                    <button
-                      onClick={() => setSubTabSettings("maintenance")}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
-                        subTabSettings === "maintenance"
-                          ? "bg-slate-900 dark:bg-slate-700 text-white shadow-xs"
-                          : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-                      }`}
-                    >
-                      <Settings className="w-3.5 h-3.5" />
-                      <span>Backup & Maintenance</span>
-                    </button>
+
+                  <div className="flex items-center p-1 bg-white dark:bg-[#1A1435] rounded-2xl border border-slate-200 dark:border-[#352B63] shadow-xs self-start sm:self-auto overflow-x-auto max-w-full">
+                    {[
+                      { id: "database", label: "PostgreSQL Supabase" },
+                      { id: "features", label: "Feature Toggles" },
+                      { id: "config", label: "Maintenance Mode" },
+                      { id: "leaderboard", label: "Leaderboard" },
+                      { id: "staff", label: "Staff RBAC" },
+                      { id: "crashes", label: "Crash Sentry" },
+                      { id: "backups", label: "Disaster Recovery" },
+                      { id: "diagnostics", label: "Diagnostics" }
+                    ].map((tab) => (
+                      <button
+                        key={tab.id}
+                        onClick={() => setSubTabSystem(tab.id as any)}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                          subTabSystem === tab.id
+                            ? "bg-slate-900 dark:bg-[#800020] text-white shadow-xs"
+                            : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                        }`}
+                      >
+                        {tab.label}
+                      </button>
+                    ))}
                   </div>
                 </div>
 
-                {subTabSettings === "features" ? (
-                  <React.Suspense fallback={<AdminSectionLoader type="cards" title="Loading Feature Controls..." />}>
+                <React.Suspense fallback={<AdminSectionLoader type="cards" title="Loading System Panel..." />}>
+                  {/* PostgreSQL Supabase Explorer */}
+                  {subTabSystem === "database" && (
+                    <div className="space-y-6">
+                      <div className="flex items-center p-1 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-x-auto max-w-full">
+                        <button onClick={() => setSubTabSupabase("overview")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${subTabSupabase === "overview" ? "bg-white dark:bg-[#1A1435] text-slate-900 dark:text-white shadow-2xs" : "text-slate-500"}`}>Overview</button>
+                        <button onClick={() => setSubTabSupabase("explorer")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${subTabSupabase === "explorer" ? "bg-white dark:bg-[#1A1435] text-slate-900 dark:text-white shadow-2xs" : "text-slate-500"}`}>Tables Explorer</button>
+                        <button onClick={() => setSubTabSupabase("diagnostics")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${subTabSupabase === "diagnostics" ? "bg-white dark:bg-[#1A1435] text-slate-900 dark:text-white shadow-2xs" : "text-slate-500"}`}>Diagnostics</button>
+                        <button onClick={() => setSubTabSupabase("report")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${subTabSupabase === "report" ? "bg-white dark:bg-[#1A1435] text-slate-900 dark:text-white shadow-2xs" : "text-slate-500"}`}>Row Counts</button>
+                        <button onClick={() => setSubTabSupabase("audit")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${subTabSupabase === "audit" ? "bg-white dark:bg-[#1A1435] text-slate-900 dark:text-white shadow-2xs" : "text-slate-500"}`}>Audit Log</button>
+                        <button onClick={() => setSubTabSupabase("sync")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${subTabSupabase === "sync" ? "bg-white dark:bg-[#1A1435] text-slate-900 dark:text-white shadow-2xs" : "text-slate-500"}`}>Sync Monitor</button>
+                      </div>
+
+                      {subTabSupabase === "overview" && (
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                          <ProductionStabilityPanel />
+                          <SupabaseHealthPanel onBulkSync={handleSyncInit} />
+                        </div>
+                      )}
+                      {subTabSupabase === "explorer" && <SupabaseDataExplorer userProfile={props.userProfile} />}
+                      {subTabSupabase === "diagnostics" && <AdminDiagnosticsSection userProfile={props.userProfile} subjects={combinedSubjectsList} chapters={combinedChaptersList} />}
+                      {subTabSupabase === "report" && <DiagnosticReport userProfile={props.userProfile} />}
+                      {subTabSupabase === "audit" && <SupabaseAuditConsole userProfile={props.userProfile} />}
+                      {subTabSupabase === "sync" && <SyncHealthMonitorPanel questionsStore={props.questionsStore} onStoreUpdated={props.onStoreUpdated} userProfile={props.userProfile} />}
+                    </div>
+                  )}
+
+                  {subTabSystem === "features" && (
                     <AdminFeatureControlSection adminEmail={cloudAuthState.userEmail || props.userProfile?.email || "admin"} />
-                  </React.Suspense>
-                ) : subTabSettings === "leaderboard" ? (
-                  <React.Suspense fallback={<AdminSectionLoader type="list" title="Loading Leaderboard Manager..." />}>
-                    <LeaderboardManagerSection />
-                  </React.Suspense>
-                ) : subTabSettings === "appconfig" ? (
-                  <React.Suspense fallback={<AdminSectionLoader type="cards" title="Loading App Config & Maintenance..." />}>
-                    <AppConfigMaintenanceSection />
-                  </React.Suspense>
-                ) : (
-                  <React.Suspense fallback={<AdminSectionLoader type="list" title="Loading Settings..." />}>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-3">
-                        <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest px-1">Backup &amp; Registry</h3>
+                  )}
+
+                  {subTabSystem === "config" && <AppConfigMaintenanceSection />}
+
+                  {subTabSystem === "leaderboard" && <LeaderboardManagerSection />}
+
+                  {subTabSystem === "staff" && (
+                    <StaffManagementSection currentUserProfile={props.userProfile} />
+                  )}
+
+                  {subTabSystem === "crashes" && <CrashReportsSection />}
+
+                  {subTabSystem === "backups" && (
+                    <div className="space-y-6">
+                      <BackupRestoreSection userProfile={props.userProfile} />
+                      <div className="border-t border-slate-200 dark:border-slate-800 pt-6">
                         <ExportDataWidget questionsStore={props.questionsStore} />
                       </div>
-
-                      <div className="space-y-3">
-                        <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest px-1">QA Debug Suite</h3>
-                        <div className="p-4 bg-white dark:bg-[#111A2E] rounded-3xl border border-slate-200/80 dark:border-slate-800 space-y-3">
-                          <p className="text-xs text-slate-500 font-medium">
-                            Execute automated QA tests for questions, parser verification, and performance benchmarks.
-                          </p>
-                          <button
-                            onClick={() => setShowQATestRunner(true)}
-                            className="w-full py-3 px-4 bg-slate-900 dark:bg-slate-800 text-white rounded-2xl text-xs font-black flex items-center justify-center gap-2 active:scale-95 transition-all shadow-md cursor-pointer"
-                          >
-                            <Terminal className="w-4 h-4 text-emerald-400" />
-                            <span>Launch Automated QA Runner</span>
-                          </button>
-                        </div>
-                      </div>
                     </div>
+                  )}
 
-                    <AuditLogWidget />
-                  </React.Suspense>
-                )}
+                  {subTabSystem === "diagnostics" && (
+                    <div className="space-y-6">
+                      <div className="bg-white dark:bg-[#1A1435] rounded-3xl p-5 border border-slate-200 dark:border-[#352B63] flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <div>
+                          <h3 className="text-base font-bold text-slate-900 dark:text-white">Automated QA Test Runner</h3>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Run automated parser verifications, question schema checks, and memory profiling.</p>
+                        </div>
+                        <button
+                          onClick={() => setShowQATestRunner(true)}
+                          className="px-4 py-2.5 rounded-xl bg-slate-900 dark:bg-slate-700 text-white font-bold text-xs flex items-center gap-2 shadow-xs cursor-pointer active:scale-95"
+                        >
+                          <Terminal className="w-4 h-4 text-emerald-400" />
+                          <span>Launch QA Runner</span>
+                        </button>
+                      </div>
+                      <DiagnosticReport userProfile={props.userProfile} />
+                    </div>
+                  )}
+                </React.Suspense>
               </div>
             )}
 
@@ -2082,12 +1809,13 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
         </main>
       </div>
 
-      {/* Modals & Dialogs */}
+      {/* 4. MODALS & SUBCOMPONENT DIALOGS */}
       {showQATestRunner && (
         <React.Suspense fallback={null}>
           <QATestRunnerModal isOpen={showQATestRunner} onClose={() => setShowQATestRunner(false)} />
         </React.Suspense>
       )}
+
       {showCoachingHierarchyModal && (
         <React.Suspense fallback={null}>
           <ManageCoachingHierarchyModal
@@ -2096,6 +1824,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
           />
         </React.Suspense>
       )}
+
       {showExcelCsvImporter && (
         <React.Suspense fallback={null}>
           <ExcelCsvQuestionImporter
@@ -2145,6 +1874,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
           />
         </React.Suspense>
       )}
+
       {showMeritListModal && (
         <React.Suspense fallback={null}>
           <MeritListPdfModal
@@ -2153,6 +1883,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
           />
         </React.Suspense>
       )}
+
       {showBulkDeleteModal && (
         <React.Suspense fallback={null}>
           <BulkQuestionDeleteModal
@@ -2170,6 +1901,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
           />
         </React.Suspense>
       )}
+
       {showRecycleBinModal && (
         <React.Suspense fallback={null}>
           <QuestionRecycleBinModal
@@ -2182,6 +1914,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
           />
         </React.Suspense>
       )}
+
       {showDuplicateHubModal && (
         <React.Suspense fallback={null}>
           <DuplicateQuestionsHubModal
@@ -2196,11 +1929,13 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
           />
         </React.Suspense>
       )}
+
       {syncProgress && (
         <React.Suspense fallback={null}>
           <SyncProgressModal progress={syncProgress} onClose={() => setSyncProgress(null)} />
         </React.Suspense>
       )}
+
       {showConfirm && (
         <React.Suspense fallback={null}>
           <SyncConfirmationModal itemCount={getSyncCost()} onConfirm={handleSyncClick} onClose={() => setShowConfirm(false)} />
@@ -2212,8 +1947,8 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
         title={deleteConfirmTarget?.type === "subject" ? "Delete Subject from Supabase" : "Delete Chapter from Supabase"}
         message={
           deleteConfirmTarget?.type === "subject"
-            ? `Are you sure you want to delete subject "${deleteConfirmTarget?.title}"? This action triggers deleteSubjectFromSupabase, removing the subject and its associated chapters/topics from Supabase Database. This cannot be undone.`
-            : `Are you sure you want to delete chapter "${deleteConfirmTarget?.title}"? This action triggers deleteChapterFromSupabase, removing the chapter and its associated topics/questions from Supabase Database. This cannot be undone.`
+            ? `Are you sure you want to delete subject "${deleteConfirmTarget?.title}"? This will delete the subject and its associated chapters/topics from Supabase Database.`
+            : `Are you sure you want to delete chapter "${deleteConfirmTarget?.title}"? This will delete the chapter and its associated topics/questions from Supabase Database.`
         }
         confirmText="Confirm Delete"
         cancelText="Cancel"
@@ -2224,33 +1959,33 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
         }}
       />
 
-      {/* 4. Mobile Fixed Bottom Action Bar (lg:hidden) */}
+      {/* 5. MOBILE FIXED BOTTOM ACTION BAR (lg:hidden) */}
       <nav
-        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#1F2330]/95 backdrop-blur-md border-t border-[#E8D9C0] dark:border-[#31374A] shadow-[0_-4px_20px_rgba(0,0,0,0.06)] px-1 py-1 safe-area-pb"
-        aria-label="Mobile Navigation"
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#16102E]/95 backdrop-blur-md border-t border-[#E8D9C0] dark:border-[#2E2556] shadow-[0_-4px_20px_rgba(0,0,0,0.06)] px-1 py-1 safe-area-pb"
+        aria-label="Admin Mobile Navigation"
       >
         <div className="flex items-center justify-around max-w-lg mx-auto">
-          {mobileBottomShortcuts.map((item) => {
-            const Icon = item.icon;
-            const isActive = activeGroup === item.id;
+          {executivePillars.slice(0, 5).map((pillar) => {
+            const Icon = pillar.icon;
+            const isActive = activePillar === pillar.id;
             return (
               <button
-                key={item.id}
-                onClick={() => handleSelectGroup(item.id)}
+                key={pillar.id}
+                onClick={() => handleSelectPillar(pillar.id)}
                 className={`flex-1 flex flex-col items-center justify-center py-1 px-1 rounded-xl transition-all cursor-pointer min-h-[46px] relative ${
                   isActive
-                    ? "text-[#800020] dark:text-[#F47B20] font-black"
-                    : "text-[#787D91] dark:text-[#929AB0] hover:text-[#171923] dark:hover:text-[#FFF9EF]"
+                    ? "text-[#800020] dark:text-[#F59E0B] font-black"
+                    : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                 }`}
               >
-                <div className={`p-1 rounded-lg transition-transform ${isActive ? "scale-110 bg-[#800020]/10 dark:bg-[#F47B20]/15" : ""}`}>
+                <div className={`p-1 rounded-lg transition-transform ${isActive ? "scale-110 bg-[#800020]/10 dark:bg-[#F59E0B]/15" : ""}`}>
                   <Icon className="w-4.5 h-4.5" />
                 </div>
-                <span className="text-[10px] tracking-tight truncate max-w-[58px]">
-                  {item.label}
+                <span className="text-[10px] tracking-tight truncate max-w-[56px]">
+                  {pillar.title.split(" ")[0]}
                 </span>
                 {isActive && (
-                  <span className="w-4 h-0.5 bg-[#800020] dark:bg-[#F47B20] rounded-full mt-0.5" />
+                  <span className="w-4 h-0.5 bg-[#800020] dark:bg-[#F59E0B] rounded-full mt-0.5" />
                 )}
               </button>
             );
@@ -2259,17 +1994,17 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
           <button
             onClick={() => setIsSidebarOpen(true)}
             className={`flex-1 flex flex-col items-center justify-center py-1 px-1 rounded-xl transition-all cursor-pointer min-h-[46px] ${
-              ["content", "users", "integrations", "backup", "settings"].includes(activeGroup)
-                ? "text-[#800020] dark:text-[#F47B20] font-black"
-                : "text-[#787D91] dark:text-[#929AB0] hover:text-[#171923] dark:hover:text-[#FFF9EF]"
+              activePillar === "system"
+                ? "text-[#800020] dark:text-[#F59E0B] font-black"
+                : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
             <div className="p-1 rounded-lg">
               <Menu className="w-4.5 h-4.5" />
             </div>
             <span className="text-[10px] tracking-tight">More</span>
-            {["content", "users", "integrations", "backup", "settings"].includes(activeGroup) && (
-              <span className="w-4 h-0.5 bg-[#800020] dark:bg-[#F47B20] rounded-full mt-0.5" />
+            {activePillar === "system" && (
+              <span className="w-4 h-0.5 bg-[#800020] dark:bg-[#F59E0B] rounded-full mt-0.5" />
             )}
           </button>
         </div>
