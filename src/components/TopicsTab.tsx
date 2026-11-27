@@ -823,25 +823,25 @@ function TopicDetailView({
             This test session contains <strong>{questionCount}</strong> high-yield standard questions designed to test your accuracy and exam readiness.
           </p>
 
-          {/* Test Specs Grid */}
-          <div className="grid grid-cols-2 gap-3 mb-5">
-            <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-[#241D48]/70 border border-slate-200/60 dark:border-white/5 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-300 flex items-center justify-center shrink-0">
-                <HelpCircle className="w-5 h-5" />
+          {/* Compact Premium Specs Grid */}
+          <div className="grid grid-cols-2 gap-2.5 mb-4">
+            <div className="py-2.5 px-3 rounded-xl bg-slate-50/90 dark:bg-white/5 border border-slate-200/60 dark:border-white/10 flex items-center gap-2.5 backdrop-blur-sm">
+              <div className="w-8 h-8 rounded-lg bg-purple-500/10 dark:bg-purple-400/15 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center shrink-0">
+                <HelpCircle className="w-4 h-4" />
               </div>
-              <div>
-                <p className="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-400">Total Questions</p>
-                <p className="text-base font-black text-slate-900 dark:text-white tabular-nums">{questionCount} MCQs</p>
+              <div className="min-w-0">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-400 truncate">Total Questions</p>
+                <p className="text-sm font-black text-slate-900 dark:text-white tabular-nums">{questionCount} MCQs</p>
               </div>
             </div>
 
-            <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-[#241D48]/70 border border-slate-200/60 dark:border-white/5 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-300 flex items-center justify-center shrink-0">
-                <Award className="w-5 h-5" />
+            <div className="py-2.5 px-3 rounded-xl bg-slate-50/90 dark:bg-white/5 border border-slate-200/60 dark:border-white/10 flex items-center gap-2.5 backdrop-blur-sm">
+              <div className="w-8 h-8 rounded-lg bg-amber-500/10 dark:bg-amber-400/15 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                <Award className="w-4 h-4" />
               </div>
-              <div>
-                <p className="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-400">Marking Rule</p>
-                <p className="text-base font-black text-slate-900 dark:text-white">1/3 Penalty / 5th OMR</p>
+              <div className="min-w-0">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-400 truncate">Marking Rule</p>
+                <p className="text-sm font-black text-slate-900 dark:text-white truncate">1/3 Penalty / 5th OMR</p>
               </div>
             </div>
           </div>
