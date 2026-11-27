@@ -69,5 +69,8 @@ describe('DishaAIIcon & Mobile Header Polish', () => {
     expect(homeTabContent).toContain('aria-label="Open menu drawer"');
     expect(homeTabContent).toContain('aria-label="Login to Disha PYQ"');
     expect(homeTabContent).toContain('<span>Sign In</span>');
+
+    // View AI Diagnostic Report must be removed from HomeTab per user request
+    expect(homeTabContent).not.toContain('View AI Diagnostic Report');
   });
 });

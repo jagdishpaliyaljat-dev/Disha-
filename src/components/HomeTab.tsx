@@ -350,17 +350,6 @@ export const HomeTab: React.FC<HomeTabProps> = ({
                 </div>
               </div>
             </div>
-
-            <div className="mt-3 pt-2.5 border-t border-slate-200/80 dark:border-[#31275E]">
-              <button
-                type="button"
-                onClick={() => onNavigateTab?.("analytics")}
-                className="w-full min-h-[44px] text-center text-xs font-extrabold text-[#7045D8] dark:text-[#A78BFA] hover:opacity-80 flex items-center justify-center gap-1 active:scale-95 transition-all cursor-pointer rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
-              >
-                <span>View AI Diagnostic Report</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
           </section>
 
           {/* 4-Card Core Practice Grid */}
