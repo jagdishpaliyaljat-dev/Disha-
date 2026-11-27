@@ -10,7 +10,14 @@ export function isGenericPlaceholder(text?: string | null): boolean {
     !t ||
     t === "unnamed topic" ||
     t === "unnamed chapter" ||
-    t === "unnamed subject"
+    t === "unnamed subject" ||
+    t === "mcq" ||
+    t === "mcqs" ||
+    t === "practice" ||
+    t === "test" ||
+    t === "quiz" ||
+    t === "untitled" ||
+    t === "untitled topic"
   );
 }
 

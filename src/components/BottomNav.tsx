@@ -45,10 +45,10 @@ export const BottomNav: React.FC<BottomNavProps> = ({
     <nav
       id="bottom-navigation-bar"
       aria-label="Primary Navigation"
-      className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-[#130E26]/95 backdrop-blur-xl border-t border-slate-200 dark:border-[#31275E] shadow-[0_-2px_12px_rgba(23,19,41,0.06)] md:hidden"
+      className="fixed bottom-0 left-0 right-0 z-50 bg-white/90 dark:bg-[#0F0A1E]/90 backdrop-blur-2xl border-t border-slate-200/70 dark:border-white/10 shadow-[0_-4px_24px_rgba(112,69,216,0.06)] md:hidden transition-all"
       style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
     >
-      <div className="max-w-3xl mx-auto w-full flex items-center justify-around px-2 sm:px-4 min-h-[58px]">
+      <div className="max-w-md mx-auto w-full flex items-center justify-around px-3 min-h-[64px]">
         {items.map((item) => {
           const isActive = activeTab === item.id;
           const Icon = item.icon;
@@ -58,30 +58,28 @@ export const BottomNav: React.FC<BottomNavProps> = ({
               type="button"
               onClick={() => handleTabClick(item.id)}
               aria-current={isActive ? "page" : undefined}
-              className="flex-1 min-h-[48px] flex flex-col items-center justify-center py-1 transition-all duration-150 select-none active:scale-95 cursor-pointer relative group rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
+              className="flex-1 min-h-[52px] flex flex-col items-center justify-center py-1 transition-all duration-200 select-none active:scale-90 cursor-pointer relative group rounded-2xl focus-visible:outline-none"
             >
               <div
-                className={`flex items-center justify-center transition-all duration-200 px-3 py-1 rounded-xl ${
+                className={`relative flex items-center justify-center transition-all duration-300 px-4 py-1.5 rounded-full ${
                   isActive
-                    ? "bg-[#7045D8]/12 dark:bg-[#7045D8]/25 text-[#7045D8] dark:text-[#A78BFA]"
-                    : "text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white"
+                    ? "bg-[#7045D8] text-white shadow-md shadow-[#7045D8]/35 scale-105"
+                    : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
                 }`}
               >
-                <div className="relative">
-                  <Icon
-                    className="w-5 h-5 sm:w-5.5 sm:h-5.5 transition-transform duration-200"
-                    strokeWidth={isActive ? 2.4 : 1.9}
-                  />
-                  {item.hasLiveIndicator && !isActive && (
-                    <span className="absolute -top-0.5 -right-1 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-[#171329]" />
-                  )}
-                </div>
+                <Icon
+                  className="w-5 h-5 transition-transform duration-200"
+                  strokeWidth={isActive ? 2.5 : 1.8}
+                />
+                {item.hasLiveIndicator && !isActive && (
+                  <span className="absolute 1 top-1 right-2 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-[#0F0A1E] animate-pulse" />
+                )}
               </div>
               <span
-                className={`text-[11px] sm:text-xs mt-0.5 tracking-tight transition-colors duration-150 truncate max-w-full px-0.5 leading-none ${
+                className={`text-[11px] mt-1 tracking-tight transition-all duration-200 truncate max-w-full leading-tight ${
                   isActive
-                    ? "text-[#7045D8] dark:text-[#A78BFA] font-black"
-                    : "text-slate-600 dark:text-slate-400 font-semibold"
+                    ? "text-[#7045D8] dark:text-[#A78BFA] font-black scale-105"
+                    : "text-slate-600 dark:text-slate-400 font-medium"
                 }`}
               >
                 {item.label}

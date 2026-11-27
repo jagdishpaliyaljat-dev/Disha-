@@ -11,7 +11,7 @@ export const FloatingAIAssistant: React.FC<FloatingAIAssistantProps> = ({ onOpen
   if (isHidden) return null;
 
   return (
-    <div className="fixed bottom-20 md:bottom-6 right-4 sm:right-6 z-40 group">
+    <div className="fixed bottom-22 md:bottom-8 right-4 sm:right-6 z-40 group">
       <button
         type="button"
         onClick={() => {
@@ -20,13 +20,12 @@ export const FloatingAIAssistant: React.FC<FloatingAIAssistantProps> = ({ onOpen
         }}
         aria-label="Open Disha AI Companion"
         title="Disha AI Companion — Ask any question or doubt"
-        className="relative min-h-[46px] flex items-center gap-2 px-4 py-2.5 bg-[#7045D8] hover:bg-[#5B32BF] text-white font-black rounded-full shadow-lg shadow-[#7045D8]/30 hover:shadow-[#7045D8]/50 transition-all duration-200 active:scale-95 cursor-pointer border border-[#A78BFA]/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8] focus-visible:ring-offset-2"
+        className="relative min-h-[44px] flex items-center gap-2 px-3.5 py-2 bg-gradient-to-r from-[#7045D8] to-[#5B32BF] hover:from-[#6339CA] hover:to-[#4F29AC] text-white font-bold rounded-full shadow-lg shadow-[#7045D8]/25 hover:shadow-[#7045D8]/45 transition-all duration-200 active:scale-95 cursor-pointer border border-white/20 backdrop-blur-md"
       >
-        <span className="relative flex items-center justify-center">
-          <Bot className="w-5 h-5 text-white" />
-          <Sparkles className="w-3 h-3 text-amber-300 absolute -top-1.5 -right-1.5" />
-        </span>
-        <span className="text-xs tracking-tight font-black pr-0.5 text-white">
+        <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center">
+          <Sparkles className="w-3.5 h-3.5 text-amber-300 fill-amber-300" />
+        </div>
+        <span className="text-xs tracking-tight font-black pr-1 text-white">
           Disha AI
         </span>
       </button>
