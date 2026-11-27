@@ -9,6 +9,11 @@ import {
   CheckCircle2,
   Globe,
   UserCheck,
+  Mail,
+  KeyRound,
+  ArrowRight,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { UserProfile } from "../types";
 import { supabase, isSupabaseConfigured } from "../lib/supabase";
@@ -22,6 +27,7 @@ import {
   performNativeGoogleLogin,
 } from "../utils/mobileAuthService";
 import { createGuestUserProfile } from "../utils/guestManager";
+import { triggerHaptic } from "../utils/audioFeedback";
 
 interface LoginPageProps {
   onLoginSuccess: (profile: UserProfile) => void;
@@ -33,6 +39,12 @@ export function LoginPage({ onLoginSuccess, onClose, isMandatory = false }: Logi
   const [isLoading, setIsLoading] = useState(false);
   const [configNotice, setConfigNotice] = useState<string | null>(null);
   const [successNotice, setSuccessNotice] = useState<string | null>(null);
+
+  // Email OTP state
+  const [showEmailLogin, setShowEmailLogin] = useState(false);
+  const [emailInput, setEmailInput] = useState("");
+  const [otpInput, setOtpInput] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
 
   // Helper to establish user profile from Supabase session
   const syncProfileFromSession = async (session: any) => {
@@ -70,7 +82,7 @@ export function LoginPage({ onLoginSuccess, onClose, isMandatory = false }: Logi
   React.useEffect(() => {
     const cleanup = registerMobileDeepLinkListener(async (session) => {
       if (session?.user) {
-        setSuccessNotice("Login successful! Syncing profile...");
+        setSuccessNotice("Login successful! Welcome back.");
         await syncProfileFromSession(session);
       }
     });
@@ -98,7 +110,7 @@ export function LoginPage({ onLoginSuccess, onClose, isMandatory = false }: Logi
       setSuccessNotice(null);
       console.warn("Supabase Google OAuth error:", error.message);
       if (error.message?.toLowerCase().includes("not enabled")) {
-        setConfigNotice("Google Sign-In is currently being initialized. Please try again shortly.");
+        setConfigNotice("Google Sign-In is currently initializing. Please try again or use Guest mode.");
       } else {
         setConfigNotice(`Authentication notice: ${error.message}`);
       }
@@ -110,12 +122,13 @@ export function LoginPage({ onLoginSuccess, onClose, isMandatory = false }: Logi
     }
   };
 
-  // Supabase Google Login (Native Account Picker on Android with Browser OAuth fallback)
+  // Supabase Google Login (Native Account Picker on Android with Browser OAuth auto-fallback)
   const handleGoogleLogin = async () => {
     setIsLoading(true);
     setConfigNotice(null);
     setSuccessNotice(null);
     productionMonitor.recordUserJourney("login", "start");
+    triggerHaptic("light");
 
     try {
       if (!isSupabaseConfigured()) {
@@ -137,15 +150,17 @@ export function LoginPage({ onLoginSuccess, onClose, isMandatory = false }: Logi
 
         setSuccessNotice(null);
 
-        // If native picker was cancelled/dismissed, inform user and offer 1-tap browser fallback
-        if (nativeResult.cancelled || nativeResult.error?.toLowerCase().includes("cancel")) {
+        // If user explicitly cancelled / dismissed sheet, inform them cleanly
+        if (nativeResult.cancelled) {
           setConfigNotice(
-            "Google account picker was cancelled or unavailable. Tap 'Sign in via Browser' below if it doesn't open."
+            "Google account picker was dismissed. Tap 'Continue with Google' again, use Browser Sign-In, or Continue as Guest."
           );
           return;
         }
 
-        console.warn("Native Google login fallback to browser:", nativeResult.error);
+        // If native picker failed due to system/services issue, auto-fallback to browser
+        console.warn("Native Google login error, auto-falling back to browser:", nativeResult.error);
+        setSuccessNotice("Switching to secure browser sign-in...");
       }
 
       // 2. Standard OAuth Flow (Web or automatic fallback on native failure)
@@ -163,6 +178,7 @@ export function LoginPage({ onLoginSuccess, onClose, isMandatory = false }: Logi
     setIsLoading(true);
     setConfigNotice(null);
     setSuccessNotice(null);
+    triggerHaptic("light");
     try {
       if (!isSupabaseConfigured()) {
         setConfigNotice("Supabase credentials not configured in environment.");
@@ -177,27 +193,91 @@ export function LoginPage({ onLoginSuccess, onClose, isMandatory = false }: Logi
     }
   };
 
+  // Email OTP - Send Code
+  const handleSendOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!emailInput.trim() || !emailInput.includes("@")) {
+      setConfigNotice("Please enter a valid email address.");
+      return;
+    }
+    setIsLoading(true);
+    setConfigNotice(null);
+    setSuccessNotice(null);
+    triggerHaptic("light");
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email: emailInput.trim(),
+        options: {
+          emailRedirectTo: getOAuthRedirectUrl(),
+        },
+      });
+      if (error) {
+        setConfigNotice(error.message);
+      } else {
+        setOtpSent(true);
+        setSuccessNotice("Login code / magic link sent to your email!");
+      }
+    } catch (err: any) {
+      setConfigNotice(err?.message || "Failed to send login email.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Email OTP - Verify Code
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!otpInput.trim()) return;
+    setIsLoading(true);
+    setConfigNotice(null);
+    triggerHaptic("light");
+    try {
+      const { data, error } = await supabase.auth.verifyOtp({
+        email: emailInput.trim(),
+        token: otpInput.trim(),
+        type: "email",
+      });
+      if (error) {
+        setConfigNotice(error.message);
+      } else if (data?.session) {
+        setSuccessNotice("OTP verified successfully!");
+        await syncProfileFromSession(data.session);
+      }
+    } catch (err: any) {
+      setConfigNotice(err?.message || "Invalid OTP code.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleContinueAsGuest = () => {
+    triggerHaptic("medium");
+    const guest = createGuestUserProfile();
+    onLoginSuccess(guest);
+  };
+
   return (
     <div className="fixed inset-0 z-[100] bg-[#F8FAFC] dark:bg-[#130E26] text-slate-900 dark:text-slate-50 flex flex-col justify-between overflow-y-auto overflow-x-hidden selection:bg-[#7045D8] selection:text-white pt-[env(safe-area-inset-top,0px)]">
       {/* Top Bar */}
       <div className="w-full max-w-md mx-auto pt-4 px-5 flex justify-between items-center shrink-0 z-20">
-        <span className="text-[11px] font-extrabold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
+        <span className="text-[11px] font-extrabold text-[#7045D8] dark:text-[#A78BFA] uppercase tracking-wider">
           Disha PYQ Account
         </span>
         {!isMandatory && onClose && (
           <button
             type="button"
             onClick={onClose}
-            className="min-h-[44px] px-3.5 py-2 rounded-xl bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] text-slate-900 dark:text-slate-50 transition-all shadow-2xs cursor-pointer text-xs font-bold flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
+            className="min-h-[40px] px-3.5 py-1.5 rounded-xl bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white transition-all shadow-2xs cursor-pointer text-xs font-bold flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
+            title="Explore as Guest"
           >
-            <span>Close</span>
+            <span>Skip / Close</span>
             <X className="w-3.5 h-3.5" />
           </button>
         )}
       </div>
 
-      {/* Main Content */}
-      <main className="w-full max-w-md mx-auto flex-1 flex flex-col items-center justify-center px-5 py-4 space-y-4">
+      {/* Main Highlights */}
+      <main className="w-full max-w-md mx-auto flex-1 flex flex-col items-center justify-center px-5 py-3 space-y-4">
         <AppLogo size="hero" variant="primary" showTagline={true} />
 
         {/* 4 Highlight Modules */}
@@ -219,7 +299,7 @@ export function LoginPage({ onLoginSuccess, onClose, isMandatory = false }: Logi
                 <p className="text-xs font-extrabold text-slate-900 dark:text-slate-50 leading-tight">
                   {feat.label}
                 </p>
-                <p className="text-[11px] font-medium text-slate-600 dark:text-slate-300 leading-tight mt-0.5">
+                <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400 leading-tight mt-0.5">
                   {feat.sub}
                 </p>
               </div>
@@ -228,29 +308,29 @@ export function LoginPage({ onLoginSuccess, onClose, isMandatory = false }: Logi
         </div>
       </main>
 
-      {/* Bottom Sign-In Card: Exclusively Google Sign-In */}
-      <footer className="w-full max-w-md mx-auto bg-white dark:bg-[#1B1536] rounded-t-3xl sm:rounded-3xl px-5 sm:px-6 pt-6 pb-[calc(24px+env(safe-area-inset-bottom,0px))] sm:pb-6 shadow-[0_-10px_30px_rgba(23,19,41,0.08)] sm:shadow-xl border-t sm:border border-slate-200 dark:border-[#31275E] space-y-4 shrink-0 z-30 sm:mb-6">
+      {/* Bottom Sign-In Card */}
+      <footer className="w-full max-w-md mx-auto bg-white dark:bg-[#1B1536] rounded-t-3xl sm:rounded-3xl px-5 sm:px-6 pt-5 pb-[calc(20px+env(safe-area-inset-bottom,0px))] sm:pb-6 shadow-[0_-10px_30px_rgba(23,19,41,0.08)] sm:shadow-xl border-t sm:border border-slate-200 dark:border-[#31275E] space-y-3.5 shrink-0 z-30 sm:mb-6">
         <div className="text-center space-y-1">
           <h1 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-slate-50 tracking-tight">
             Welcome to DISHA <span className="text-[#7045D8] dark:text-[#A78BFA]">PYQ</span>
           </h1>
-          <p className="text-xs text-slate-600 dark:text-slate-300 font-medium">
+          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
             Sign in with Google to sync bookmarks, test results &amp; PYQ progress
           </p>
         </div>
 
-        {/* Prominent Google Sign-In Button */}
+        {/* Primary 1-Tap Google Sign-In Button */}
         <button
           type="button"
           onClick={handleGoogleLogin}
           disabled={isLoading}
-          className="w-full min-h-[48px] py-3 px-4 bg-white dark:bg-[#241D48] border-2 border-slate-200 dark:border-[#31275E] hover:border-[#7045D8] dark:hover:border-[#A78BFA] hover:bg-slate-50 dark:hover:bg-[#31275E] text-slate-900 dark:text-slate-50 rounded-2xl flex items-center justify-center gap-3 shadow-sm hover:shadow-md active:scale-[0.98] transition-all cursor-pointer font-bold text-sm sm:text-base disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
+          className="w-full min-h-[48px] py-3 px-4 bg-white dark:bg-[#241D48] border-2 border-slate-200 dark:border-[#31275E] hover:border-[#7045D8] dark:hover:border-[#A78BFA] hover:bg-slate-50 dark:hover:bg-[#31275E] text-slate-900 dark:text-slate-50 rounded-2xl flex items-center justify-center gap-3 shadow-xs hover:shadow-md active:scale-[0.98] transition-all cursor-pointer font-bold text-sm sm:text-base disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
         >
           {isLoading ? (
             <div className="w-5 h-5 border-2 border-[#7045D8] dark:border-[#A78BFA] border-t-transparent rounded-full animate-spin" />
           ) : (
             <>
-              <span className="w-6 h-6 rounded-full bg-white flex items-center justify-center shrink-0 shadow-xs p-1">
+              <span className="w-6 h-6 rounded-full bg-white flex items-center justify-center shrink-0 shadow-2xs p-1">
                 <svg className="w-full h-full" viewBox="0 0 24 24">
                   <path
                     fill="#4285F4"
@@ -277,59 +357,121 @@ export function LoginPage({ onLoginSuccess, onClose, isMandatory = false }: Logi
 
         {/* Notices */}
         {configNotice && (
-          <div className="p-2.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 rounded-xl text-xs text-amber-800 dark:text-amber-300 leading-relaxed text-center font-hindi">
+          <div className="p-2.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 rounded-xl text-xs text-amber-800 dark:text-amber-300 leading-relaxed text-center">
             {configNotice}
           </div>
         )}
 
-        {isNativePlatform() && (
-          <button
-            type="button"
-            onClick={handleBrowserGoogleLogin}
-            disabled={isLoading}
-            className={`w-full min-h-[44px] py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all active:scale-[0.99] cursor-pointer disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8] ${
-              configNotice
-                ? "bg-[#7045D8] hover:bg-[#5B32BF] text-white shadow-sm"
-                : "bg-slate-100 dark:bg-[#241D48] hover:bg-slate-200/80 dark:hover:bg-[#31275E] text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-[#31275E]"
-            }`}
-          >
-            <Globe className="w-4 h-4 shrink-0" />
-            <span>Sign in via Browser (Alternative)</span>
-          </button>
-        )}
-
-        {/* Guest Mode Onboarding Button */}
-        <button
-          type="button"
-          onClick={() => {
-            const guest = createGuestUserProfile();
-            onLoginSuccess(guest);
-          }}
-          className="w-full min-h-[44px] py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 bg-slate-50 dark:bg-[#1f193d] hover:bg-slate-100 dark:hover:bg-[#2a2254] text-slate-700 dark:text-slate-300 border border-dashed border-slate-300 dark:border-slate-700 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
-        >
-          <UserCheck className="w-4 h-4 text-[#7045D8] dark:text-[#A78BFA] shrink-0" />
-          <span>बिना लॉगिन जारी रखें (Continue as Guest)</span>
-        </button>
-
         {successNotice && (
-          <div className="p-2.5 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/60 rounded-xl text-xs text-emerald-800 dark:text-emerald-300 leading-relaxed text-center font-hindi flex items-center justify-center gap-1.5">
+          <div className="p-2.5 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/60 rounded-xl text-xs text-emerald-800 dark:text-emerald-300 leading-relaxed text-center flex items-center justify-center gap-1.5">
             <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
             <span>{successNotice}</span>
           </div>
         )}
 
+        {/* Browser Sign-In Alternative on Native */}
+        {isNativePlatform() && (
+          <button
+            type="button"
+            onClick={handleBrowserGoogleLogin}
+            disabled={isLoading}
+            className="w-full min-h-[42px] py-2 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 bg-slate-100 dark:bg-[#241D48] hover:bg-slate-200/80 dark:hover:bg-[#31275E] text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-[#31275E] transition-all cursor-pointer disabled:opacity-60"
+          >
+            <Globe className="w-4 h-4 text-[#7045D8] dark:text-[#A78BFA] shrink-0" />
+            <span>Sign in via Browser (Alternative)</span>
+          </button>
+        )}
+
+        {/* Expandable Email OTP Section */}
+        <div className="pt-0.5">
+          <button
+            type="button"
+            onClick={() => setShowEmailLogin(!showEmailLogin)}
+            className="w-full flex items-center justify-center gap-1.5 text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-[#7045D8] dark:hover:text-[#A78BFA] transition-colors py-1 cursor-pointer"
+          >
+            <Mail className="w-3.5 h-3.5" />
+            <span>Sign in with Email OTP</span>
+            {showEmailLogin ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+          </button>
+
+          {showEmailLogin && (
+            <div className="mt-2.5 p-3 rounded-2xl bg-slate-50 dark:bg-[#130E26] border border-slate-200 dark:border-[#31275E] space-y-2.5">
+              {!otpSent ? (
+                <form onSubmit={handleSendOtp} className="space-y-2">
+                  <div className="relative">
+                    <input
+                      type="email"
+                      value={emailInput}
+                      onChange={(e) => setEmailInput(e.target.value)}
+                      placeholder="student@example.com"
+                      className="w-full px-3 py-2 rounded-xl bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] text-xs font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#7045D8]"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="w-full py-2 bg-[#7045D8] hover:bg-[#5B32BF] text-white rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                  >
+                    <span>Send Login Code</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                </form>
+              ) : (
+                <form onSubmit={handleVerifyOtp} className="space-y-2">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={otpInput}
+                      onChange={(e) => setOtpInput(e.target.value)}
+                      placeholder="Enter 6-digit OTP"
+                      maxLength={6}
+                      className="w-full px-3 py-2 rounded-xl bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] text-xs font-bold text-center tracking-widest text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#7045D8]"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="w-full py-2 bg-[#7045D8] hover:bg-[#5B32BF] text-white rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                  >
+                    <KeyRound className="w-3.5 h-3.5" />
+                    <span>Verify &amp; Sign In</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setOtpSent(false)}
+                    className="w-full text-center text-[11px] text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                  >
+                    Change Email
+                  </button>
+                </form>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Guest Mode Onboarding Button (Instant Access) */}
+        <button
+          type="button"
+          onClick={handleContinueAsGuest}
+          className="w-full min-h-[44px] py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 bg-slate-50 dark:bg-[#241D48]/60 hover:bg-slate-100 dark:hover:bg-[#241D48] text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-[#31275E] transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8]"
+        >
+          <UserCheck className="w-4 h-4 text-[#7045D8] dark:text-[#A78BFA] shrink-0" />
+          <span>बिना लॉगिन जारी रखें (Continue as Guest)</span>
+        </button>
+
         <div className="flex items-center justify-center gap-2 pt-0.5">
-          <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-          <span className="text-[11px] font-medium text-slate-600 dark:text-slate-300">
-            Supabase encrypted cloud sync for bookmarks &amp; mock history
+          <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+          <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
+            Encrypted cloud sync for bookmarks &amp; mock history
           </span>
         </div>
 
-        <p className="text-[11px] font-medium text-slate-600 dark:text-slate-300 text-center leading-relaxed">
+        <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400 text-center leading-relaxed">
           By continuing, you agree to our{" "}
           <button
             type="button"
             onClick={() => {
+              if (onClose) onClose();
               window.location.href = "/terms-of-service";
             }}
             className="text-[#7045D8] dark:text-[#A78BFA] font-bold hover:underline cursor-pointer"
@@ -340,6 +482,7 @@ export function LoginPage({ onLoginSuccess, onClose, isMandatory = false }: Logi
           <button
             type="button"
             onClick={() => {
+              if (onClose) onClose();
               window.location.href = "/privacy-policy";
             }}
             className="text-[#7045D8] dark:text-[#A78BFA] font-bold hover:underline cursor-pointer"
@@ -351,3 +494,5 @@ export function LoginPage({ onLoginSuccess, onClose, isMandatory = false }: Logi
     </div>
   );
 }
+
+export default LoginPage;

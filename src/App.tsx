@@ -59,6 +59,7 @@ import { useCurriculumManager } from './hooks/useCurriculumManager';
 import { useAppFeatures } from './utils/featureControlService';
 import { isFeatureVipLocked } from './services/payment/premiumConfigService';
 import { loadUserProfile, saveUserProfile, isUserAdmin, isProfileAuthenticated } from './utils/userProfileStorage';
+import { createGuestUserProfile } from './utils/guestManager';
 import { setSentryUser, clearSentryUser } from './utils/sentryInit';
 import { resolvePathToNavigationState, buildCanonicalPath, isKnownTab } from './utils/routeNavigation';
 import { updateSEOHead } from './utils/seoHelper';
@@ -1956,15 +1957,50 @@ export default function App() {
     );
   }
 
-  // 2. Unauthenticated Gate:
-  // Always allow legal/info routes (so Terms & Privacy links from LoginPage never trap users).
-  // On Web (!isNativePlatform()), allow public SEO routes so search engines & visitors can browse,
-  // while keeping private routes (admin, profile, wrong, analytics, etc.) and native app gated.
-  const hasValidSession = Boolean(isAuthenticated && userProfile && isProfileAuthenticated(userProfile));
-  const allowUnauthenticatedRoute =
-    isLegalInfoTab(activeTab) || (!isNativePlatform() && isPublicWebSEOTab(activeTab));
+  // 2. Access & Authentication Gate:
+  // - Authenticated cloud users have full access across the entire app.
+  // - Guest users (who chose "Continue as Guest" or tapped Close) have full access to study materials (Home, Syllabus, Practice, etc.).
+  // - Protected administrative routes ('admin') strictly require authenticated staff credentials.
+  // - Legal/info routes (Terms, Privacy, Disclaimer) are always accessible.
+  // - Web visitors can browse public SEO routes.
+  const isProfileAuth = Boolean(userProfile && isProfileAuthenticated(userProfile));
+  const isGuestActive = Boolean(
+    (userProfile && userProfile.id === 'guest') ||
+    safeGetLocalStorageItem('disha_guest_mode_active') === 'true'
+  );
+  const hasAppAccess = isProfileAuth || isGuestActive || (!isNativePlatform() && isPublicWebSEOTab(activeTab));
+  const allowLegalRoute = isLegalInfoTab(activeTab);
 
-  if (!hasValidSession && !allowUnauthenticatedRoute) {
+  // If unauthenticated user tries to open the Admin Panel:
+  if (activeTab === 'admin' && !isProfileAuth) {
+    return (
+      <React.Suspense fallback={<TabContentSkeleton className="min-h-[60vh] py-8" />}>
+        <ToastNotificationContainer toasts={toasts} onDismiss={handleDismissToast} />
+        <LoginPage
+          isMandatory={false}
+          onClose={() => setActiveTab('home')}
+          onLoginSuccess={(profile: UserProfile) => {
+            setUserProfile(profile);
+            const isAuth = isProfileAuthenticated(profile);
+            setIsAuthenticated(isAuth);
+            saveUserProfile(profile);
+            if (isAuth) {
+              safeRemoveLocalStorageItem('disha_guest_mode_active');
+            }
+            setIsLoginOpen(false);
+            if (isUserAdmin(profile)) {
+              setActiveTab('admin');
+            } else {
+              setActiveTab('home');
+            }
+          }}
+        />
+      </React.Suspense>
+    );
+  }
+
+  // First-time Onboarding Gate: If user has never signed in AND has never chosen guest mode:
+  if (!hasAppAccess && !allowLegalRoute) {
     return (
       <React.Suspense
         fallback={
@@ -1977,11 +2013,24 @@ export default function App() {
         <ToastNotificationContainer toasts={toasts} onDismiss={handleDismissToast} />
         <LoginPage
           isMandatory={false}
-          onClose={() => setActiveTab('home')}
+          onClose={() => {
+            const guest = createGuestUserProfile();
+            setUserProfile(guest);
+            saveUserProfile(guest);
+            safeSetLocalStorageItem('disha_guest_mode_active', 'true');
+            setIsAuthenticated(false);
+            setActiveTab('home');
+          }}
           onLoginSuccess={(profile: UserProfile) => {
             setUserProfile(profile);
-            setIsAuthenticated(true);
+            const isAuth = isProfileAuthenticated(profile);
+            setIsAuthenticated(isAuth);
             saveUserProfile(profile);
+            if (!isAuth) {
+              safeSetLocalStorageItem('disha_guest_mode_active', 'true');
+            } else {
+              safeRemoveLocalStorageItem('disha_guest_mode_active');
+            }
             setIsLoginOpen(false);
             if (isUserAdmin(profile)) {
               setActiveTab('admin');
@@ -2541,8 +2590,14 @@ export default function App() {
             onClose={() => setIsLoginOpen(false)}
             onLoginSuccess={(profile: any) => {
               setUserProfile(profile);
-              setIsAuthenticated(true);
+              const isAuth = isProfileAuthenticated(profile);
+              setIsAuthenticated(isAuth);
               saveUserProfile(profile);
+              if (isAuth) {
+                safeRemoveLocalStorageItem('disha_guest_mode_active');
+              } else {
+                safeSetLocalStorageItem('disha_guest_mode_active', 'true');
+              }
               setIsLoginOpen(false);
               if (isUserAdmin(profile)) {
                 setActiveTab('admin');
