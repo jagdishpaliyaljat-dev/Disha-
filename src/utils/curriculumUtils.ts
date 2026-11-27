@@ -17,7 +17,11 @@ export function isGenericPlaceholder(text?: string | null): boolean {
     t === "test" ||
     t === "quiz" ||
     t === "untitled" ||
-    t === "untitled topic"
+    t === "untitled topic" ||
+    /^mcq\s*\d*$/i.test(t) ||
+    /^practice\s*\d*$/i.test(t) ||
+    /^test\s*\d*$/i.test(t) ||
+    /^set\s*\d*$/i.test(t)
   );
 }
 

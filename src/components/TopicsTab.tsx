@@ -707,8 +707,8 @@ function TopicDetailView({
 
   return (
     <div className="flex flex-col h-full bg-[#F8FAFC] dark:bg-[#0F0A1E]" id="topic-detail-view">
-      {/* Premium Sticky Header */}
-      <header className="bg-white/90 dark:bg-[#130E26]/90 backdrop-blur-xl border-b border-slate-200/80 dark:border-white/10 sticky top-0 md:top-14 z-30 shadow-xs pt-[env(safe-area-inset-top,0px)] md:pt-0">
+      {/* Modern Sticky App Bar */}
+      <header className="bg-white/95 dark:bg-[#130E26]/95 backdrop-blur-xl border-b border-slate-200/80 dark:border-white/10 sticky top-0 md:top-14 z-30 shadow-xs pt-[env(safe-area-inset-top,0px)] md:pt-0">
         <div className="px-4 py-3 min-h-[64px] flex items-center justify-between gap-3 max-w-4xl mx-auto w-full">
           <div className="flex items-center gap-3 min-w-0">
             <button
@@ -725,7 +725,7 @@ function TopicDetailView({
                 <span className="w-1.5 h-1.5 rounded-full bg-purple-500 inline-block animate-pulse" />
                 {getSubjectDisplayName(activeSubject)} · {getChapterDisplayName(activeChapter)}
               </p>
-              <h2 className="text-base font-black text-slate-900 dark:text-white truncate font-hindi">
+              <h2 className="text-base font-black text-slate-900 dark:text-white truncate">
                 {getTopicDisplayName(topic)}
               </h2>
             </div>
@@ -733,24 +733,23 @@ function TopicDetailView({
         </div>
       </header>
 
-      {/* Main Coaching Content */}
-      <main className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 sm:space-y-6 max-w-4xl mx-auto w-full pb-32 md:pb-12">
-        {/* HERO CARD - Modern Gradient Aura */}
+      {/* Main MCQ Practice & Test Series Canvas */}
+      <main className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 max-w-4xl mx-auto w-full pb-36 md:pb-16">
+        {/* TOPIC BANNER - Professional Test Series Aesthetic */}
         <div className="relative overflow-hidden rounded-3xl p-5 sm:p-7 bg-gradient-to-br from-[#7045D8] via-[#5B32BF] to-[#3B1F8E] text-white shadow-xl shadow-purple-600/20 border border-white/15">
-          {/* Subtle Ambient Decorative Circles */}
           <div className="absolute -top-12 -right-12 w-48 h-48 bg-white/10 rounded-full blur-2xl pointer-events-none" />
           <div className="absolute -bottom-10 -left-10 w-44 h-44 bg-amber-400/20 rounded-full blur-2xl pointer-events-none" />
 
-          {/* Top Badges Row */}
-          <div className="relative z-10 flex flex-wrap items-center justify-between gap-2.5 mb-4">
+          {/* Badges Row */}
+          <div className="relative z-10 flex flex-wrap items-center justify-between gap-2.5 mb-3.5">
             <div className="flex items-center gap-2">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-white/20 backdrop-blur-md text-white border border-white/20 shadow-xs">
                 <Sparkle className="w-3.5 h-3.5 text-amber-300 fill-amber-300" />
-                Topic Mastery
+                Test Series Module
               </span>
               <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-400/20 border border-amber-300/30 text-amber-200">
                 <Zap className="w-3 h-3 text-amber-300" />
-                High Yield
+                High Yield PYQs
               </span>
             </div>
 
@@ -767,17 +766,17 @@ function TopicDetailView({
               {isDownloaded ? (
                 <>
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />
-                  <span>सेव है (Offline Ready)</span>
+                  <span>Offline Ready</span>
                 </>
               ) : isDownloading ? (
                 <>
                   <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  <span>डाउनलोड...</span>
+                  <span>Downloading...</span>
                 </>
               ) : (
                 <>
                   <Download className="w-3.5 h-3.5 text-white" />
-                  <span>ऑफलाइन सेव करें</span>
+                  <span>Save Offline</span>
                 </>
               )}
             </button>
@@ -785,21 +784,21 @@ function TopicDetailView({
 
           {/* Title Area */}
           <div className="relative z-10">
-            <h1 className="text-xl sm:text-3xl font-black text-white font-hindi leading-tight tracking-tight drop-shadow-xs">
+            <h1 className="text-xl sm:text-3xl font-black text-white leading-tight tracking-tight drop-shadow-xs">
               {getTopicDisplayName(topic)}
             </h1>
             {getTopicSecondaryTitle(topic) && (
-              <p className="text-xs sm:text-sm text-purple-100/90 font-hindi mt-1.5">
+              <p className="text-xs sm:text-sm text-purple-100/90 mt-1">
                 {getTopicSecondaryTitle(topic)}
               </p>
             )}
-            <p className="text-xs sm:text-sm text-purple-200/80 mt-2 font-medium">
-              इस टॉपिक से संबंधित आरपीएससी व राजस्थान कर्मचारी चयन बोर्ड के विगत वर्षों के प्रश्न।
+            <p className="text-xs sm:text-sm text-purple-200/90 mt-2 font-medium">
+              Previous year exam questions (PYQs) and mock questions for RPSC and RSMSSB exams.
             </p>
           </div>
         </div>
 
-        {/* 20-20 PRACTICE SIMULATION CARD */}
+        {/* MCQ PRACTICE & TEST SIMULATION CARD */}
         <div className="bg-white dark:bg-[#1B1536] border border-slate-200/80 dark:border-white/10 rounded-3xl p-5 sm:p-6 shadow-sm hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2.5">
@@ -808,23 +807,23 @@ function TopicDetailView({
               </div>
               <div>
                 <h2 className="text-base font-extrabold text-slate-900 dark:text-white">
-                  20–20 Practice Test Simulation
+                  Exam Practice &amp; Test Simulation
                 </h2>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
-                  Real Exam Environment with Instant Analytics
+                  Real Exam Simulation with Instant Analytics &amp; Explanations
                 </p>
               </div>
             </div>
             <span className="hidden sm:inline-block text-xs font-bold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50 px-3 py-1 rounded-full">
-              OMR 5th Option Enabled
+              OMR 5th Option
             </span>
           </div>
 
           <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
-            इस अभ्यास सत्र में कुल <strong>{questionCount}</strong> मानक एवं परीक्षा उपयोगी प्रश्न संकलित हैं, जो आपकी गति और सटीकता को निखारेंगे।
+            This test session contains <strong>{questionCount}</strong> high-yield standard questions designed to test your accuracy and exam readiness.
           </p>
 
-          {/* Interactive Stat Pills */}
+          {/* Test Specs Grid */}
           <div className="grid grid-cols-2 gap-3 mb-5">
             <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-[#241D48]/70 border border-slate-200/60 dark:border-white/5 flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-300 flex items-center justify-center shrink-0">
@@ -841,13 +840,13 @@ function TopicDetailView({
                 <Award className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-400">Negative Penalty</p>
+                <p className="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-400">Marking Rule</p>
                 <p className="text-base font-black text-slate-900 dark:text-white">1/3 Penalty / 5th OMR</p>
               </div>
             </div>
           </div>
 
-          {/* Primary Action Button */}
+          {/* Primary Full Width Start Button */}
           <button
             onClick={handleStartTopicMCQ}
             disabled={isFetching}
@@ -856,7 +855,7 @@ function TopicDetailView({
             {isFetching ? (
               <>
                 <RefreshCw className="w-5 h-5 animate-spin text-amber-300" />
-                <span>लोड हो रहा है (Loading)...</span>
+                <span>Loading Test Session...</span>
               </>
             ) : (
               <>
