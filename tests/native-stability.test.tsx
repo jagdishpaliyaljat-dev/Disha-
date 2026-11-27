@@ -93,6 +93,63 @@ describe('Task 1: Native Android Stability', () => {
       expect(handled).toBe(true);
       expect(onExitApp).toHaveBeenCalledTimes(1);
     });
+
+    it('navigates back within hierarchical subview before touching tab or app exit', () => {
+      const onCloseModal = vi.fn();
+      const onCloseDrawer = vi.fn();
+      const onBackSubView = vi.fn(() => true);
+      const onNavigateBackTab = vi.fn();
+      const onNavigateHome = vi.fn();
+      const onExitApp = vi.fn();
+
+      const handled = handleHardwareBackAction({
+        activeModal: null,
+        isDrawerOpen: false,
+        activeTab: 'topics',
+        hasSubView: true,
+        canGoBackTab: true,
+        onCloseModal,
+        onCloseDrawer,
+        onBackSubView,
+        onNavigateBackTab,
+        onNavigateHome,
+        onExitApp,
+      });
+
+      expect(handled).toBe(true);
+      expect(onBackSubView).toHaveBeenCalledTimes(1);
+      expect(onNavigateBackTab).not.toHaveBeenCalled();
+      expect(onNavigateHome).not.toHaveBeenCalled();
+      expect(onExitApp).not.toHaveBeenCalled();
+    });
+
+    it('navigates back in tab history when no subview is open', () => {
+      const onCloseModal = vi.fn();
+      const onCloseDrawer = vi.fn();
+      const onBackSubView = vi.fn();
+      const onNavigateBackTab = vi.fn();
+      const onNavigateHome = vi.fn();
+      const onExitApp = vi.fn();
+
+      const handled = handleHardwareBackAction({
+        activeModal: null,
+        isDrawerOpen: false,
+        activeTab: 'profile',
+        hasSubView: false,
+        canGoBackTab: true,
+        onCloseModal,
+        onCloseDrawer,
+        onBackSubView,
+        onNavigateBackTab,
+        onNavigateHome,
+        onExitApp,
+      });
+
+      expect(handled).toBe(true);
+      expect(onNavigateBackTab).toHaveBeenCalledTimes(1);
+      expect(onNavigateHome).not.toHaveBeenCalled();
+      expect(onExitApp).not.toHaveBeenCalled();
+    });
   });
 
   describe('Guest Onboarding profile generator', () => {

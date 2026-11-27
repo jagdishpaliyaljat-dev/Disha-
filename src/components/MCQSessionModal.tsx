@@ -589,8 +589,10 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
     };
 
     window.addEventListener("popstate", handleTestPopState);
+    window.addEventListener("disha:sessionHardwareBack", handleTestPopState);
     return () => {
       window.removeEventListener("popstate", handleTestPopState);
+      window.removeEventListener("disha:sessionHardwareBack", handleTestPopState);
     };
   }, [isExamMode, isCompleted, showExitConfirm, showPalette, showSettingsModal, showSubmitConfirm, onClose]);
 

@@ -5,8 +5,12 @@ export interface HardwareBackContext {
   activeModal: string | null;
   isDrawerOpen: boolean;
   activeTab: string;
+  hasSubView?: boolean;
+  canGoBackTab?: boolean;
   onCloseModal: (modalName: string) => void;
   onCloseDrawer: () => void;
+  onBackSubView?: () => boolean | void;
+  onNavigateBackTab?: () => void;
   onNavigateHome: () => void;
   onExitApp: () => void;
 }
@@ -14,35 +18,63 @@ export interface HardwareBackContext {
 let lastBackPressTime = 0;
 
 /**
+ * Resets the double-tap exit timer (useful for deterministic unit tests).
+ */
+export function _resetBackPressTimeForTests(): void {
+  lastBackPressTime = 0;
+}
+
+/**
  * Pure evaluation function that determines and executes the priority back action.
  * Priority order:
- * 1. Close active modal if open
+ * 1. Close active modal overlay if open
  * 2. Close navigation drawer if open
- * 3. Navigate to 'home' tab if on any sub-tab/view
- * 4. Exit application if already on root 'home' tab
+ * 3. Step back in nested hierarchical subview (Topic -> Chapter -> Subject -> Root)
+ * 4. Step back through tab navigation history (Profile -> Live Tests -> Home)
+ * 5. Navigate to 'home' tab if currently on any other tab
+ * 6. Exit application if already on root 'home' screen
  */
 export function handleHardwareBackAction(ctx: HardwareBackContext): boolean {
+  // 1. Close active modal if open
   if (ctx.activeModal) {
     ctx.onCloseModal(ctx.activeModal);
     return true;
   }
 
+  // 2. Close navigation drawer if open
   if (ctx.isDrawerOpen) {
     ctx.onCloseDrawer();
     return true;
   }
 
+  // 3. Hierarchical drill-down subview navigation
+  if (ctx.hasSubView && ctx.onBackSubView) {
+    const handled = ctx.onBackSubView();
+    if (handled !== false) {
+      return true;
+    }
+  }
+
+  // 4. Tab navigation history stack
+  if (ctx.canGoBackTab && ctx.onNavigateBackTab) {
+    ctx.onNavigateBackTab();
+    return true;
+  }
+
+  // 5. Navigate to root 'home' tab if on another tab
   if (ctx.activeTab !== 'home') {
     ctx.onNavigateHome();
     return true;
   }
 
+  // 6. Already at root 'home' screen: trigger exit logic
   ctx.onExitApp();
   return true;
 }
 
 /**
  * Registers native Capacitor hardware back button listener with 2-second double-tap exit safeguard.
+ * Double-tap exit triggers ONLY when at the root home view with no modals, drawers, subviews, or tab history.
  */
 export function registerCapacitorBackListener(
   getContext: () => HardwareBackContext,
@@ -58,8 +90,15 @@ export function registerCapacitorBackListener(
     const handle = CapacitorApp.addListener('backButton', () => {
       const ctx = getContext();
 
-      // If we are on root home tab with no open overlays, enforce double-tap within 2000ms
-      if (!ctx.activeModal && !ctx.isDrawerOpen && ctx.activeTab === 'home') {
+      // Only prompt or exit when completely at root home (no overlays, no subviews, no tab history)
+      const isAtRootHome =
+        !ctx.activeModal &&
+        !ctx.isDrawerOpen &&
+        !ctx.hasSubView &&
+        ctx.activeTab === 'home' &&
+        !ctx.canGoBackTab;
+
+      if (isAtRootHome) {
         const now = Date.now();
         if (now - lastBackPressTime < 2000) {
           CapacitorApp.exitApp();

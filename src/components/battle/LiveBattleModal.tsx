@@ -414,6 +414,31 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
     }
   }, [initialRoomCode]);
 
+  // Hardware back button support for Battle Arena
+  useEffect(() => {
+    const handleBattleHardwareBack = () => {
+      if (showExitConfirm) {
+        setShowExitConfirm(false);
+        return;
+      }
+      if (isQuestionPickerOpen) {
+        setIsQuestionPickerOpen(false);
+        return;
+      }
+      if (phase === "initial" || phase === "podium") {
+        onClose();
+        return;
+      }
+      // In active game, waiting room, or countdown: prompt confirmation
+      setShowExitConfirm(true);
+    };
+
+    window.addEventListener("disha:battleHardwareBack", handleBattleHardwareBack);
+    return () => {
+      window.removeEventListener("disha:battleHardwareBack", handleBattleHardwareBack);
+    };
+  }, [showExitConfirm, isQuestionPickerOpen, phase, onClose]);
+
   // Handle Create Room
   const handleCreateRoom = () => {
     triggerHaptic("medium");
@@ -1690,6 +1715,7 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
             isRevealing={isRevealing}
             onSelectOption={handleSelectOption}
             onSendEmoji={handleSendEmoji}
+            onLeaveRoom={() => setShowExitConfirm(true)}
           />
         )}
 

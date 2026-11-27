@@ -9,6 +9,7 @@ import {
   Trophy,
   Users,
   X,
+  ArrowLeft,
 } from "lucide-react";
 import type { BattlePlayer, BattleQuestion } from "./types";
 import { triggerHaptic, playClickSound } from "../../utils/audioFeedback";
@@ -28,6 +29,7 @@ interface BattleArenaViewProps {
   isRevealing: boolean;
   onSelectOption: (optionIndex: number) => void;
   onSendEmoji: (emoji: string) => void;
+  onLeaveRoom?: () => void;
 }
 
 const OPTION_LETTERS = ["A", "B", "C", "D"];
@@ -42,10 +44,10 @@ export function formatCategoryLabel(category?: string): string {
     return "राजस्थान ज्ञान";
   }
   // Check if it's a raw database ID like Subj-... or ch-... or top-...
-  if (/^(Subj|ch|top|q|test)-/i.test(category)) {
+  if (/^(Subj|ch|top|q|test)-/i.test(category) || category.includes("Subj-") || category.includes("ch-") || category.includes("top-")) {
     try {
       const subjects = getCombinedSubjects();
-      const match = subjects.find((s) => s.id === category);
+      const match = subjects.find((s) => s.id === category || category.includes(s.id));
       if (match) return match.hindiName || match.name || "राजस्थान ज्ञान";
     } catch {
       // safe fallback
@@ -68,6 +70,7 @@ export const BattleArenaView: React.FC<BattleArenaViewProps> = ({
   isRevealing,
   onSelectOption,
   onSendEmoji,
+  onLeaveRoom,
 }) => {
   const [showAllRanks, setShowAllRanks] = useState(false);
   const myPlayer = players.find((p) => p.id === myPlayerId);
@@ -96,6 +99,22 @@ export const BattleArenaView: React.FC<BattleArenaViewProps> = ({
         {/* Top Info Bar */}
         <div className="flex items-center justify-between gap-2 mb-2.5">
           <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+            {/* On-screen Back / Leave Room Button */}
+            {onLeaveRoom && (
+              <button
+                type="button"
+                onClick={() => {
+                  triggerHaptic("light");
+                  onLeaveRoom();
+                }}
+                className="p-1 sm:p-1.5 rounded-full bg-white/15 hover:bg-white/25 active:scale-95 transition text-white border border-white/20 shadow-xs shrink-0 cursor-pointer"
+                title="Leave Battle"
+                aria-label="Leave Battle"
+              >
+                <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
+              </button>
+            )}
+
             {/* Question Counter Pill */}
             <span className="text-[11px] sm:text-xs font-black font-mono px-3 py-1 rounded-full bg-white/15 backdrop-blur-md text-white border border-white/20 shadow-xs tabular-nums uppercase tracking-wider shrink-0">
               Q {questionIndex + 1} / {totalQuestions}

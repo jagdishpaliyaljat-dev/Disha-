@@ -270,6 +270,16 @@ export default function App() {
 
   const isPopStateRef = React.useRef(false);
   const isInitialMountRef = React.useRef(true);
+  const tabHistoryRef = React.useRef<ActiveTab[]>([initialNavState.tab || 'home']);
+
+  // Keep track of visited tabs for native Android and browser back navigation
+  React.useEffect(() => {
+    const history = tabHistoryRef.current;
+    const last = history[history.length - 1];
+    if (last !== activeTab) {
+      tabHistoryRef.current = [...history.slice(-19), activeTab];
+    }
+  }, [activeTab]);
 
   const [userProfile, setUserProfile] = React.useState<UserProfile | null>(() => loadUserProfile());
   const [isAuthenticated, setIsAuthenticated] = React.useState<boolean>(() => isProfileAuthenticated(userProfile));
@@ -1297,6 +1307,7 @@ export default function App() {
       if (activeSession) activeModal = 'activeSession';
       else if (isLoginOpen) activeModal = 'isLoginOpen';
       else if (isSettingsOpen) activeModal = 'isSettingsOpen';
+      else if (isApiSettingsOpen) activeModal = 'isApiSettingsOpen';
       else if (isKeyboardShortcutsOpen) activeModal = 'isKeyboardShortcutsOpen';
       else if (isGlobalSearchOpen) activeModal = 'isGlobalSearchOpen';
       else if (isPDFOpen) activeModal = 'isPDFOpen';
@@ -1307,27 +1318,142 @@ export default function App() {
       else if (isAITutorOpen) activeModal = 'isAITutorOpen';
       else if (isLeaderboardOpen) activeModal = 'isLeaderboardOpen';
       else if (isPremiumModalOpen) activeModal = 'isPremiumModalOpen';
+      else if (isAddSubjectOpen) activeModal = 'isAddSubjectOpen';
+      else if (isAddChapterOpen) activeModal = 'isAddChapterOpen';
+      else if (isAddTopicOpen) activeModal = 'isAddTopicOpen';
+      else if (isAddQuestionsOpen) activeModal = 'isAddQuestionsOpen';
+      else if (isManageSyllabusOpen) activeModal = 'isManageSyllabusOpen';
+      else if (isManageQuestionsOpen) activeModal = 'isManageQuestionsOpen';
+      else if (isManageCategoriesOpen) activeModal = 'isManageCategoriesOpen';
+      else if (isManagePYQVaultOpen) activeModal = 'isManagePYQVaultOpen';
+      else if (isManageLiveTestsOpen) activeModal = 'isManageLiveTestsOpen';
+      else if (isAIImportOpen) activeModal = 'isAIImportOpen';
+      else if (isHTMLImportOpen) activeModal = 'isHTMLImportOpen';
+
+      const hasSubView = Boolean(
+        (activeTab === 'topics' && (selectedTopicId || selectedChapterId || selectedSubjectId)) ||
+        (activeTab === 'news' && selectedArticleSlug) ||
+        (activeTab === 'test_series' && (selectedSeriesId || selectedExamId || selectedCoachingId)) ||
+        (activeTab === 'wrong' && selectedChapterId)
+      );
+
+      const onBackSubView = () => {
+        if (activeTab === 'topics') {
+          if (selectedTopicId) {
+            setSelectedTopicId(null);
+            return true;
+          }
+          if (selectedChapterId) {
+            setSelectedChapterId(null);
+            return true;
+          }
+          if (selectedSubjectId) {
+            setSelectedSubjectId(null);
+            return true;
+          }
+        } else if (activeTab === 'news') {
+          if (selectedArticleSlug) {
+            setSelectedArticleSlug(null);
+            return true;
+          }
+        } else if (activeTab === 'test_series') {
+          if (selectedSeriesId) {
+            setSelectedSeriesId(null);
+            return true;
+          }
+          if (selectedExamId) {
+            setSelectedExamId(null);
+            return true;
+          }
+          if (selectedCoachingId) {
+            setSelectedCoachingId(null);
+            return true;
+          }
+        } else if (activeTab === 'wrong') {
+          if (selectedChapterId) {
+            setSelectedChapterId(null);
+            return true;
+          }
+        }
+        return false;
+      };
+
+      const canGoBackTab = tabHistoryRef.current.length > 1;
+      const onNavigateBackTab = () => {
+        const history = tabHistoryRef.current;
+        if (history.length > 1) {
+          const newHistory = history.slice(0, -1);
+          const previousTab = newHistory[newHistory.length - 1];
+          tabHistoryRef.current = newHistory;
+          setActiveTab(previousTab);
+        } else {
+          setActiveTab('home');
+        }
+      };
 
       return {
         activeModal,
         isDrawerOpen: isStudentDrawerOpen,
         activeTab,
+        hasSubView,
+        canGoBackTab,
         onCloseModal: (modalName: string) => {
-          if (modalName === 'activeSession') setActiveSession(null);
-          else if (modalName === 'isLoginOpen') setIsLoginOpen(false);
-          else if (modalName === 'isSettingsOpen') setIsSettingsOpen(false);
-          else if (modalName === 'isKeyboardShortcutsOpen') setIsKeyboardShortcutsOpen(false);
-          else if (modalName === 'isGlobalSearchOpen') setIsGlobalSearchOpen(false);
-          else if (modalName === 'isPDFOpen') setIsPDFOpen(false);
-          else if (modalName === 'isFullExamOpen') setIsFullExamOpen(false);
-          else if (modalName === 'isCustomTestOpen') setIsCustomTestOpen(false);
-          else if (modalName === 'isExamAnalyzerOpen') setIsExamAnalyzerOpen(false);
-          else if (modalName === 'isLiveBattleOpen') setIsLiveBattleOpen(false);
-          else if (modalName === 'isAITutorOpen') setIsAITutorOpen(false);
-          else if (modalName === 'isLeaderboardOpen') setIsLeaderboardOpen(false);
-          else if (modalName === 'isPremiumModalOpen') setIsPremiumModalOpen(false);
+          if (modalName === 'activeSession') {
+            window.dispatchEvent(new CustomEvent('disha:sessionHardwareBack'));
+          } else if (modalName === 'isLiveBattleOpen') {
+            window.dispatchEvent(new CustomEvent('disha:battleHardwareBack'));
+          } else if (modalName === 'isLoginOpen') {
+            setIsLoginOpen(false);
+          } else if (modalName === 'isSettingsOpen') {
+            setIsSettingsOpen(false);
+          } else if (modalName === 'isApiSettingsOpen') {
+            setIsApiSettingsOpen(false);
+          } else if (modalName === 'isKeyboardShortcutsOpen') {
+            setIsKeyboardShortcutsOpen(false);
+          } else if (modalName === 'isGlobalSearchOpen') {
+            setIsGlobalSearchOpen(false);
+          } else if (modalName === 'isPDFOpen') {
+            setIsPDFOpen(false);
+          } else if (modalName === 'isFullExamOpen') {
+            setIsFullExamOpen(false);
+          } else if (modalName === 'isCustomTestOpen') {
+            setIsCustomTestOpen(false);
+          } else if (modalName === 'isExamAnalyzerOpen') {
+            setIsExamAnalyzerOpen(false);
+          } else if (modalName === 'isAITutorOpen') {
+            setIsAITutorOpen(false);
+            setAiTutorContextQuestion(null);
+          } else if (modalName === 'isLeaderboardOpen') {
+            setIsLeaderboardOpen(false);
+          } else if (modalName === 'isPremiumModalOpen') {
+            setIsPremiumModalOpen(false);
+          } else if (modalName === 'isAddSubjectOpen') {
+            setIsAddSubjectOpen(false);
+          } else if (modalName === 'isAddChapterOpen') {
+            setIsAddChapterOpen(false);
+          } else if (modalName === 'isAddTopicOpen') {
+            setIsAddTopicOpen(false);
+          } else if (modalName === 'isAddQuestionsOpen') {
+            setIsAddQuestionsOpen(false);
+          } else if (modalName === 'isManageSyllabusOpen') {
+            setIsManageSyllabusOpen(false);
+          } else if (modalName === 'isManageQuestionsOpen') {
+            setIsManageQuestionsOpen(false);
+          } else if (modalName === 'isManageCategoriesOpen') {
+            setIsManageCategoriesOpen(false);
+          } else if (modalName === 'isManagePYQVaultOpen') {
+            setIsManagePYQVaultOpen(false);
+          } else if (modalName === 'isManageLiveTestsOpen') {
+            setIsManageLiveTestsOpen(false);
+          } else if (modalName === 'isAIImportOpen') {
+            setIsAIImportOpen(false);
+          } else if (modalName === 'isHTMLImportOpen') {
+            setIsHTMLImportOpen(false);
+          }
         },
         onCloseDrawer: () => setIsStudentDrawerOpen(false),
+        onBackSubView,
+        onNavigateBackTab,
         onNavigateHome: () => setActiveTab('home'),
         onExitApp: () => {},
       };
@@ -1338,6 +1464,7 @@ export default function App() {
     activeSession,
     isLoginOpen,
     isSettingsOpen,
+    isApiSettingsOpen,
     isKeyboardShortcutsOpen,
     isGlobalSearchOpen,
     isPDFOpen,
@@ -1348,9 +1475,35 @@ export default function App() {
     isAITutorOpen,
     isLeaderboardOpen,
     isPremiumModalOpen,
+    isAddSubjectOpen,
+    isAddChapterOpen,
+    isAddTopicOpen,
+    isAddQuestionsOpen,
+    isManageSyllabusOpen,
+    isManageQuestionsOpen,
+    isManageCategoriesOpen,
+    isManagePYQVaultOpen,
+    isManageLiveTestsOpen,
+    isAIImportOpen,
+    isHTMLImportOpen,
     isStudentDrawerOpen,
     activeTab,
+    selectedTopicId,
+    selectedChapterId,
+    selectedSubjectId,
+    selectedArticleSlug,
+    selectedSeriesId,
+    selectedExamId,
+    selectedCoachingId,
     addToast,
+    setSelectedTopicId,
+    setSelectedChapterId,
+    setSelectedSubjectId,
+    setSelectedArticleSlug,
+    setSelectedSeriesId,
+    setSelectedExamId,
+    setSelectedCoachingId,
+    setActiveTab,
   ]);
 
   // Real-time listener for user profile role updates (e.g., Super Admin promotes user)
@@ -2288,6 +2441,11 @@ export default function App() {
                 setSelectedChapterId(null);
               } else if (selectedSubjectId) {
                 setSelectedSubjectId(null);
+              } else if (tabHistoryRef.current.length > 1) {
+                const newHistory = tabHistoryRef.current.slice(0, -1);
+                const prevTab = newHistory[newHistory.length - 1];
+                tabHistoryRef.current = newHistory;
+                setActiveTab(prevTab);
               } else if (typeof window !== 'undefined' && window.history.length > 1) {
                 window.history.back();
               } else {
