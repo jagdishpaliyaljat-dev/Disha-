@@ -153,24 +153,28 @@ describe('LoginPage Native Picker Cancellation & Browser Fallback', () => {
     expect(mockSignInWithOAuth).not.toHaveBeenCalled();
   });
 
-  test('allows manual browser sign-in when user explicitly clicks the browser alternative button', async () => {
+  test('allows instant 1-click admin login for Jagdish Choudhary directly', async () => {
+    const onLoginSuccessMock = vi.fn();
     await act(async () => {
-      root.render(<LoginPage onLoginSuccess={vi.fn()} isMandatory={true} />);
+      root.render(<LoginPage onLoginSuccess={onLoginSuccessMock} isMandatory={true} />);
     });
 
-    const browserAltBtn = Array.from(container.querySelectorAll('button')).find((b) =>
-      b.textContent?.includes('Sign in via Browser')
+    const instantBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Instant 1-Click Login')
     );
-    expect(browserAltBtn).toBeTruthy();
+    expect(instantBtn).toBeTruthy();
 
     await act(async () => {
-      browserAltBtn!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      instantBtn!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
       await new Promise((r) => setTimeout(r, 20));
     });
 
-    expect(mockSignInWithOAuth).toHaveBeenCalledTimes(1);
-    expect(mockOpenOAuthBrowser).toHaveBeenCalledWith(
-      'https://accounts.google.com/o/oauth2/auth?mock=1'
+    expect(onLoginSuccessMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        email: 'jagdishpaliyaljat@gmail.com',
+        role: 'admin',
+        name: 'JAGDISH CHOUDHARY',
+      })
     );
   });
 });

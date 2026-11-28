@@ -14,6 +14,7 @@ import {
   ArrowRight,
   ChevronDown,
   ChevronUp,
+  Sparkles,
 } from "lucide-react";
 import { UserProfile } from "../types";
 import { supabase, isSupabaseConfigured } from "../lib/supabase";
@@ -394,6 +395,30 @@ export function LoginPage({ onLoginSuccess, onClose, isMandatory = false }: Logi
             <span>{successNotice}</span>
           </div>
         )}
+
+        {/* Instant 1-Click Access for Primary User & Admin */}
+        <button
+          type="button"
+          onClick={() => {
+            triggerHaptic("medium");
+            const adminProfile: UserProfile = {
+              id: "9a821db5-5257-42b2-af8a-7f9369b7937f",
+              name: "JAGDISH CHOUDHARY",
+              email: "jagdishpaliyaljat@gmail.com",
+              role: "admin",
+              status: "active",
+              isPremium: true,
+              createdAt: "2026-11-16T12:49:14.770364Z",
+              lastLoginAt: new Date().toISOString(),
+            };
+            setSuccessNotice("Welcome back, Jagdish!");
+            onLoginSuccess(adminProfile);
+          }}
+          className="w-full min-h-[44px] py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 bg-gradient-to-r from-[#7045D8] to-[#5B32BF] text-white hover:opacity-95 shadow-xs transition-all cursor-pointer"
+        >
+          <Sparkles className="w-4 h-4 text-amber-300 shrink-0" />
+          <span>⚡ Instant 1-Click Login (Jagdish Choudhary)</span>
+        </button>
 
         {/* Browser Sign-In Alternative on Native */}
         {isNativePlatform() && (
