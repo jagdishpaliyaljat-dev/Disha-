@@ -7,14 +7,12 @@ import {
   ShieldCheck,
   X,
   CheckCircle2,
-  Globe,
   UserCheck,
   Mail,
   KeyRound,
   ArrowRight,
   ChevronDown,
   ChevronUp,
-  Sparkles,
 } from "lucide-react";
 import { UserProfile } from "../types";
 import { supabase, isSupabaseConfigured } from "../lib/supabase";
@@ -25,7 +23,6 @@ import {
   getOAuthRedirectUrl,
   openOAuthBrowser,
   registerMobileDeepLinkListener,
-  performNativeGoogleLogin,
 } from "../utils/mobileAuthService";
 import { createGuestUserProfile } from "../utils/guestManager";
 import { triggerHaptic } from "../utils/audioFeedback";
@@ -91,10 +88,10 @@ export function LoginPage({ onLoginSuccess, onClose, isMandatory = false }: Logi
     return cleanup;
   }, [onLoginSuccess]);
 
-  // Start Browser-based Google OAuth flow directly
+  // Start Google Sign-In via In-App Chrome Custom Tab OAuth Flow
   const startBrowserOAuth = async () => {
     setConfigNotice(null);
-    setSuccessNotice("Opening Google Sign-In in browser...");
+    setSuccessNotice("Connecting to Google Sign-In...");
     setIsLoading(true);
 
     try {
@@ -115,27 +112,26 @@ export function LoginPage({ onLoginSuccess, onClose, isMandatory = false }: Logi
         setSuccessNotice(null);
         console.warn("Supabase Google OAuth error:", error.message);
         if (error.message?.toLowerCase().includes("not enabled")) {
-          setConfigNotice("Google Sign-In is initializing. Please try again or use Email OTP / Guest mode.");
+          setConfigNotice("Google Sign-In is initializing. Please try again or use Email OTP.");
         } else {
           setConfigNotice(`Authentication notice: ${error.message}`);
         }
       } else if (data?.url) {
         await openOAuthBrowser(data.url);
-        setSuccessNotice("Complete Google Sign-In in the browser window to return to Disha PYQ.");
         setIsLoading(false);
       } else {
         setIsLoading(false);
         setSuccessNotice(null);
-        setConfigNotice("Unable to open Google Sign-In URL. Please try again or use Email OTP.");
+        setConfigNotice("Unable to open Google Sign-In. Please check your internet connection.");
       }
     } catch (err: any) {
       setIsLoading(false);
       setSuccessNotice(null);
-      setConfigNotice(`Login error: ${err?.message || "Failed to open browser sign-in."}`);
+      setConfigNotice(`Login error: ${err?.message || "Failed to initialize Google Sign-In."}`);
     }
   };
 
-  // Supabase Google Login (Seamless Native Account Picker with auto-fallback to Browser OAuth)
+  // Primary Google Login Handler
   const handleGoogleLogin = async () => {
     setIsLoading(true);
     setConfigNotice(null);
@@ -150,72 +146,11 @@ export function LoginPage({ onLoginSuccess, onClose, isMandatory = false }: Logi
         return;
       }
 
-      // 1. Try Native One-Tap / Account Picker first on Android / iOS
-      if (isNativePlatform()) {
-        setSuccessNotice("Connecting with Google...");
-        try {
-          const nativeResult = await performNativeGoogleLogin();
-
-          if (nativeResult.success) {
-            setConfigNotice(null);
-            setSuccessNotice("Login successful! Welcome.");
-            if (nativeResult.session) {
-              await syncProfileFromSession(nativeResult.session);
-            } else if (nativeResult.profile) {
-              onLoginSuccess(nativeResult.profile);
-            }
-            return;
-          }
-
-          if (nativeResult.cancelled) {
-            setIsLoading(false);
-            setSuccessNotice(null);
-            return;
-          }
-
-          // If native account picker could not complete, stay in app and inform the user
-          // Never force-redirect to external web without explicit user action
-          console.info("[LoginPage] Native account picker result:", nativeResult.error);
-          setIsLoading(false);
-          setSuccessNotice(null);
-          setConfigNotice(
-            nativeResult.error || "Google Sign-In could not complete on this device. You can try Browser Sign-In below or Continue as Guest."
-          );
-          return;
-        } catch (nativeErr: any) {
-          console.warn("[LoginPage] Native login exception:", nativeErr);
-          setIsLoading(false);
-          setSuccessNotice(null);
-          setConfigNotice("Unable to complete Google Sign-In. You can try Browser Sign-In below or Continue as Guest.");
-          return;
-        }
-      }
-
-      // 2. Standard OAuth Flow (Web Platform)
       await startBrowserOAuth();
     } catch (err: any) {
       console.warn("Login attempt error:", err);
       setSuccessNotice(null);
       setConfigNotice(`Login note: ${err?.message || "Failed to initialize login."}`);
-      setIsLoading(false);
-    }
-  };
-
-  const handleBrowserGoogleLogin = async () => {
-    setIsLoading(true);
-    setConfigNotice(null);
-    setSuccessNotice(null);
-    triggerHaptic("light");
-    try {
-      if (!isSupabaseConfigured()) {
-        setConfigNotice("Supabase credentials not configured in environment.");
-        setIsLoading(false);
-        return;
-      }
-      await startBrowserOAuth();
-    } catch (err: any) {
-      setSuccessNotice(null);
-      setConfigNotice(`Login note: ${err?.message || "Failed to launch browser sign-in."}`);
       setIsLoading(false);
     }
   };
@@ -394,43 +329,6 @@ export function LoginPage({ onLoginSuccess, onClose, isMandatory = false }: Logi
             <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
             <span>{successNotice}</span>
           </div>
-        )}
-
-        {/* Instant 1-Click Access for Primary User & Admin */}
-        <button
-          type="button"
-          onClick={() => {
-            triggerHaptic("medium");
-            const adminProfile: UserProfile = {
-              id: "9a821db5-5257-42b2-af8a-7f9369b7937f",
-              name: "JAGDISH CHOUDHARY",
-              email: "jagdishpaliyaljat@gmail.com",
-              role: "admin",
-              status: "active",
-              isPremium: true,
-              createdAt: "2026-11-16T12:49:14.770364Z",
-              lastLoginAt: new Date().toISOString(),
-            };
-            setSuccessNotice("Welcome back, Jagdish!");
-            onLoginSuccess(adminProfile);
-          }}
-          className="w-full min-h-[44px] py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 bg-gradient-to-r from-[#7045D8] to-[#5B32BF] text-white hover:opacity-95 shadow-xs transition-all cursor-pointer"
-        >
-          <Sparkles className="w-4 h-4 text-amber-300 shrink-0" />
-          <span>⚡ Instant 1-Click Login (Jagdish Choudhary)</span>
-        </button>
-
-        {/* Browser Sign-In Alternative on Native */}
-        {isNativePlatform() && (
-          <button
-            type="button"
-            onClick={handleBrowserGoogleLogin}
-            disabled={isLoading}
-            className="w-full min-h-[42px] py-2 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 bg-slate-100 dark:bg-[#241D48] hover:bg-slate-200/80 dark:hover:bg-[#31275E] text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-[#31275E] transition-all cursor-pointer disabled:opacity-60"
-          >
-            <Globe className="w-4 h-4 text-[#7045D8] dark:text-[#A78BFA] shrink-0" />
-            <span>Sign in via Browser (Alternative)</span>
-          </button>
         )}
 
         {/* Expandable Email OTP Section */}

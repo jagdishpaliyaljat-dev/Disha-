@@ -238,7 +238,7 @@ export const openOAuthBrowser = async (url: string): Promise<void> => {
     try {
       await Browser.open({
         url,
-        windowName: '_system',
+        toolbarColor: '#7045D8',
       });
       return;
     } catch (err) {

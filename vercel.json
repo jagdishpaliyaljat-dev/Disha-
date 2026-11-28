@@ -27,6 +27,7 @@
       "destination": "/api/og-crawler?slug=:slug"
     },
     { "source": "/api/(.*)", "destination": "/api/$1" },
+    { "source": "/auth-callback", "destination": "/auth-callback.html" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
