@@ -28,11 +28,8 @@ import { fetchAllBanners, getLocalBanners } from "../../utils/bannerStorage";
 import { supabase, isSupabaseConfigured } from "../../lib/supabase";
 import { RecentActivityWidget } from "./RecentActivityWidget";
 import { DatabaseStatusWidget, DatabaseInventoryCounts } from "./DatabaseStatusWidget";
-import { AuditLogWidget } from "./AuditLogWidget";
 import { ContentLoader } from "../ui/LoadingScreen";
-import { ExportDataWidget } from "./ExportDataWidget";
 import { QuickActionsWidget } from "./QuickActionsWidget";
-import { SupabaseHealthPanel } from "./SupabaseHealthPanel";
 import { getTotalDisplayCount } from "../../utils/questionsStorage";
 import { getAIUsageSummary, fetchLiveAIUsageSummary, AIUsageSummary } from "../../utils/aiUsageTracker";
 import { getBattleAnalyticsSummary, fetchLiveBattleAnalyticsSummary, BattleAnalyticsSummary, initGlobalBattleMonitor } from "../../utils/battleTracker";
@@ -211,9 +208,6 @@ export const AdminDashboardSection: React.FC<AdminDashboardSectionProps> = ({
         })}
       </div>
 
-      {/* Supabase Health & PostgreSQL Overview */}
-      <SupabaseHealthPanel />
-
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6">
         
@@ -378,8 +372,6 @@ export const AdminDashboardSection: React.FC<AdminDashboardSectionProps> = ({
           </div>
 
           <RecentActivityWidget refreshTrigger={refreshTrigger} />
-          <AuditLogWidget />
-          <ExportDataWidget questionsStore={questionsStore} />
           
           {/* System Info Box */}
           <div className="bg-slate-900 dark:bg-[#0B1220] rounded-3xl p-6 text-white border border-slate-800 shadow-xl relative overflow-hidden">

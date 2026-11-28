@@ -68,15 +68,12 @@ const ManageCoachingHierarchyModal = adminSafeLazy<any>(() => import("./admin/Ma
 const ExcelCsvQuestionImporter = adminSafeLazy<any>(() => import("./admin/ExcelCsvQuestionImporter"), "ExcelCsvQuestionImporter");
 const BulkQuestionDeleteModal = adminSafeLazy<any>(() => import("./admin/BulkQuestionDeleteModal"), "BulkQuestionDeleteModal");
 const QuestionReportDesk = adminSafeLazy<any>(() => import("./admin/QuestionReportDesk"), "QuestionReportDesk");
-const MeritListPdfModal = adminSafeLazy<any>(() => import("./admin/MeritListPdfModal"), "MeritListPdfModal");
 const LiveBattleDashboard = adminSafeLazy<any>(() => import("./admin/LiveBattleDashboard"), "LiveBattleDashboard");
 const DuplicateQuestionsHubModal = adminSafeLazy<any>(() => import("./admin/DuplicateQuestionsHubModal"), "DuplicateQuestionsHubModal");
 const QuestionRecycleBinModal = adminSafeLazy<any>(() => import("./admin/QuestionRecycleBinModal"), "QuestionRecycleBinModal");
 const StaffManagementSection = adminSafeLazy<any>(() => import("./admin/StaffManagementSection"), "StaffManagementSection");
-const QuestionApprovalWorkflowSection = adminSafeLazy<any>(() => import("./admin/QuestionApprovalWorkflowSection"), "QuestionApprovalWorkflowSection");
 const QuestionHealthAuditor = adminSafeLazy<any>(() => import("./admin/QuestionHealthAuditor"), "QuestionHealthAuditor");
 const OutdatedQuestionArchiver = adminSafeLazy<any>(() => import("./admin/OutdatedQuestionArchiver"), "OutdatedQuestionArchiver");
-const EnterpriseAdminCategoryGrid = adminSafeLazy<any>(() => import("./admin/EnterpriseAdminCategoryGrid"), "EnterpriseAdminCategoryGrid");
 const LeaderboardManagerSection = adminSafeLazy<any>(() => import("./admin/LeaderboardManagerSection"), "LeaderboardManagerSection");
 const AppConfigMaintenanceSection = adminSafeLazy<any>(() => import("./admin/AppConfigMaintenanceSection"), "AppConfigMaintenanceSection");
 const SubjectTopicAccuracyHeatmap = adminSafeLazy<any>(() => import("./admin/SubjectTopicAccuracyHeatmap"), "SubjectTopicAccuracyHeatmap");
@@ -146,7 +143,7 @@ function resolvePillarAndSubTab(input: string | null): { pillar: AdminPillar; su
     case "archiver":
       return { pillar: "academic", subTab: "qa" };
     case "approval":
-      return { pillar: "academic", subTab: "approval" };
+      return { pillar: "academic", subTab: "qa" };
     case "tests":
     case "mocks":
       return { pillar: "tests", subTab: "mock" };
@@ -224,10 +221,10 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
   const [activePillar, setActivePillar] = React.useState<AdminPillar>(initialNav.pillar);
 
   // Subtabs per pillar (clean, shallow hierarchy)
-  const [subTabDashboard, setSubTabDashboard] = React.useState<"overview" | "analytics" | "heatmap" | "grid">(
+  const [subTabDashboard, setSubTabDashboard] = React.useState<"overview" | "analytics" | "heatmap">(
     initialNav.pillar === "dashboard" && initialNav.subTab ? (initialNav.subTab as any) : "overview"
   );
-  const [subTabAcademic, setSubTabAcademic] = React.useState<"syllabus" | "questions" | "import" | "qa" | "approval">(
+  const [subTabAcademic, setSubTabAcademic] = React.useState<"syllabus" | "questions" | "import" | "qa">(
     initialNav.pillar === "academic" && initialNav.subTab ? (initialNav.subTab as any) : "syllabus"
   );
   const [activeQATool, setActiveQATool] = React.useState<"duplicate" | "health" | "outdated" | "recycle" | "bulk">("health");
@@ -275,7 +272,6 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
   const [showExcelCsvImporter, setShowExcelCsvImporter] = React.useState(false);
   const [showBulkDeleteModal, setShowBulkDeleteModal] = React.useState(false);
   const [showRecycleBinModal, setShowRecycleBinModal] = React.useState(false);
-  const [showMeritListModal, setShowMeritListModal] = React.useState(false);
   const [showDuplicateHubModal, setShowDuplicateHubModal] = React.useState(false);
   const [isAdminMenuOpen, setIsAdminMenuOpen] = React.useState(false);
   const adminMenuRef = React.useRef<HTMLDivElement>(null);
@@ -795,7 +791,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                     {currentPillarMeta.title}
                   </h1>
                   <span className="hidden sm:inline-flex text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#7045D8]/10 text-[#7045D8] dark:bg-[#A78BFA]/15 dark:text-[#A78BFA] border border-[#7045D8]/20">
-                    v1.0.70
+                    v1.0.71
                   </span>
                 </div>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate hidden md:block">
@@ -916,8 +912,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                   {[
                     { id: "overview", label: "KPI Summary" },
                     { id: "analytics", label: "Analytics" },
-                    { id: "heatmap", label: "Accuracy Heatmap" },
-                    { id: "grid", label: "21 Category Matrix" }
+                    { id: "heatmap", label: "Accuracy Heatmap" }
                   ].map((tab) => (
                     <button
                       key={tab.id}
@@ -958,14 +953,6 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                       questionsStore={props.questionsStore}
                     />
                   )}
-                  {subTabDashboard === "grid" && (
-                    <EnterpriseAdminCategoryGrid
-                      subjects={combinedSubjectsList}
-                      chapters={combinedChaptersList}
-                      questionsStore={props.questionsStore}
-                      onSelectSubject={() => handleSelectPillar("academic", "syllabus")}
-                    />
-                  )}
                 </React.Suspense>
               </div>
             )}
@@ -982,7 +969,6 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                     { id: "questions", label: "Question Bank", icon: Database },
                     { id: "import", label: "Import Hub", icon: Upload },
                     { id: "qa", label: "QA & Health", icon: Stethoscope },
-                    { id: "approval", label: "Review Queue", icon: FileCheck },
                   ].map((tab) => {
                     const Icon = tab.icon;
                     const isActive = subTabAcademic === tab.id;
@@ -1274,17 +1260,6 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                   </div>
                 )}
 
-                {/* 5. Review Queue */}
-                {subTabAcademic === "approval" && (
-                  <React.Suspense fallback={<AdminSectionLoader type="list" title="Loading Review Queue..." />}>
-                    <QuestionApprovalWorkflowSection
-                      questionsStore={props.questionsStore}
-                      subjects={combinedSubjectsList}
-                      chapters={combinedChaptersList}
-                      onStoreUpdated={props.onStoreUpdated}
-                    />
-                  </React.Suspense>
-                )}
               </div>
             )}
 
@@ -1320,16 +1295,6 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                       <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                     </button>
                   </div>
-
-                  {subTabTests === "mock" && (
-                    <button
-                      onClick={() => setShowMeritListModal(true)}
-                      className="self-start sm:self-auto px-3.5 py-2 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer active:scale-95 min-h-[40px]"
-                    >
-                      <Trophy className="w-3.5 h-3.5" />
-                      <span>Merit PDF &amp; Telegram</span>
-                    </button>
-                  )}
                 </div>
 
                 {subTabTests === "battle" ? (
@@ -1771,15 +1736,6 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                 );
               }
             }}
-          />
-        </React.Suspense>
-      )}
-
-      {showMeritListModal && (
-        <React.Suspense fallback={null}>
-          <MeritListPdfModal
-            testTitle="RPSC RAS / CET Live Mock Examination"
-            onClose={() => setShowMeritListModal(false)}
           />
         </React.Suspense>
       )}
