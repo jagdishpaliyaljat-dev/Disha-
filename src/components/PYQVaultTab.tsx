@@ -488,6 +488,11 @@ export const PYQVaultTab: React.FC<PYQVaultTabProps> = ({
                         
                         setViewingSolutionPaper(paperWithQs);
                         setActiveQuestionIndex(0);
+                        try {
+                          import("../utils/analytics").then(({ trackPyqPaperView }) => {
+                            trackPyqPaperView(paper.titleHindi || paper.title, paper.id, isUserAdmin);
+                          }).catch(() => {});
+                        } catch {}
                       }}
                       className="bg-white hover:bg-slate-100 dark:bg-[#1A2234] dark:hover:bg-[#252E42] border border-slate-200 dark:border-[#31275E] text-slate-900 dark:text-slate-50 py-2.5 px-2 rounded-xl font-semibold text-xs flex items-center justify-center gap-1.5 active:scale-95 transition-all duration-180 cursor-pointer shadow-xs"
                     >

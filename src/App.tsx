@@ -78,7 +78,7 @@ import { loadNotifications, saveNotifications } from './utils/notificationsStora
 import { getTodayDateString, calculateNextProgress } from './utils/revision';
 import { appConfigService, GlobalAppConfig } from './utils/appConfigService';
 import { CURRENT_APP_VERSION, checkAppUpdateStatus } from './utils/versionUtils';
-import { trackPageView, detectAndCacheDistrict } from './utils/analytics';
+import { trackPageView, detectAndCacheDistrict, trackQuizStart, trackQuizComplete } from './utils/analytics';
 import { triggerHaptic } from './utils/audioFeedback';
 import { 
   loadUserQuestionsStore, 
@@ -1788,6 +1788,10 @@ export default function App() {
       });
     }
     setActiveSession(session);
+    try {
+      const qCount = session.questionIds?.length || session.extraQuestions?.length || 0;
+      trackQuizStart(session.topicId || session.chapterId || "session", session.title || "Practice Session", qCount, isAdmin);
+    } catch {}
   };
 
   const handleLogout = async () => {

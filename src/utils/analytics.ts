@@ -1,5 +1,6 @@
 import { SITE_CONFIG } from "../config/siteConfig";
 import { supabase, isSupabaseConfigured } from "../lib/supabase";
+import { isNativePlatform } from "./mobileAuthService";
 
 declare global {
   interface Window {
@@ -234,6 +235,10 @@ export async function trackPageView(
         page_path: pagePath,
         page_title: pageTitle,
         page_location: window.location.href,
+        platform: getAppPlatform(),
+        district: getVisitorDistrict(),
+        traffic_source: getTrafficSource(),
+        device: getDeviceCategory(),
       });
     }
 
@@ -318,8 +323,12 @@ async function logVisitorAnalyticsToFirestore(pagePath: string, isLoggedIn: bool
   }
 }
 
+export function getAppPlatform(): "android_app" | "web" {
+  return isNativePlatform() ? "android_app" : "web";
+}
+
 /**
- * Generic custom event dispatcher.
+ * Generic custom event dispatcher with platform and district awareness.
  */
 export function trackCustomEvent(
   eventName: string,
@@ -329,8 +338,18 @@ export function trackCustomEvent(
   if (getAnalyticsConsent() !== "granted" || isUserAdmin) return;
 
   try {
+    const platform = getAppPlatform();
+    const district = getVisitorDistrict();
+    const payload = {
+      platform,
+      district,
+      traffic_source: getTrafficSource(),
+      device: getDeviceCategory(),
+      ...(eventParams || {}),
+    };
+
     if (typeof window !== "undefined" && window.gtag) {
-      window.gtag("event", eventName, eventParams || {});
+      window.gtag("event", eventName, payload);
     }
   } catch (err) {
     console.warn(`Custom event ${eventName} error:`, err);
@@ -349,8 +368,19 @@ export function trackTopicView(topicSlug: string, isUserAdmin?: boolean): void {
   trackCustomEvent("topic_view", { topic_slug: topicSlug }, isUserAdmin);
 }
 
+export function trackPyqPaperView(paperTitle: string, paperId?: string, isUserAdmin?: boolean): void {
+  trackCustomEvent("pyq_paper_view", {
+    paper_title: paperTitle,
+    paper_id: paperId || paperTitle,
+  }, isUserAdmin);
+}
+
 export function trackQuizStart(topicId: string, topicTitle?: string, questionCount?: number, isUserAdmin?: boolean): void {
-  trackCustomEvent("quiz_start", { topic_id: topicId, topic_title: topicTitle || topicId, question_count: questionCount || 0 }, isUserAdmin);
+  trackCustomEvent("quiz_start", {
+    topic_id: topicId,
+    topic_title: topicTitle || topicId,
+    question_count: questionCount || 0,
+  }, isUserAdmin);
 }
 
 export function trackQuizComplete(
@@ -385,6 +415,11 @@ export function trackSearch(searchTerm: string, isUserAdmin?: boolean): void {
 
 export function trackShareClick(articleSlug: string, platform: string, isUserAdmin?: boolean): void {
   trackCustomEvent("share_click", { article_slug: articleSlug, platform }, isUserAdmin);
+}
+
+export function trackAppDownloadClick(source: string, isUserAdmin?: boolean): void {
+  trackCustomEvent("app_download_click", { source }, isUserAdmin);
+  trackAppCtaClick(source, isUserAdmin);
 }
 
 export function trackAppCtaClick(source: string, isUserAdmin?: boolean): void {

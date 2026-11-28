@@ -26,6 +26,7 @@ import {
 } from "../utils/mobileAuthService";
 import { createGuestUserProfile } from "../utils/guestManager";
 import { triggerHaptic } from "../utils/audioFeedback";
+import { trackLogin } from "../utils/analytics";
 
 interface LoginPageProps {
   onLoginSuccess: (profile: UserProfile) => void;
@@ -62,6 +63,7 @@ export function LoginPage({ onLoginSuccess, onClose, isMandatory = false }: Logi
         status: "active",
         createdAt: remote?.createdAt || session.user.created_at || new Date().toISOString(),
       };
+      trackLogin("google", authoritativeRole === "admin");
       onLoginSuccess(profile);
     } catch {
       const profile: UserProfile = {
@@ -72,6 +74,7 @@ export function LoginPage({ onLoginSuccess, onClose, isMandatory = false }: Logi
         status: "active",
         createdAt: session.user.created_at || new Date().toISOString(),
       };
+      trackLogin("google", false);
       onLoginSuccess(profile);
     }
   };
