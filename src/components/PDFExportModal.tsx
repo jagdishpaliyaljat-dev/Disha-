@@ -33,6 +33,7 @@ import {
   PDFExportOptions,
   PDFGenerationProgress,
   filterQuestionsForExport,
+  chunkQuestionsIntoPages,
   generateDisha2020PDFHTML,
   generateAndDownloadPDF,
   openQuestionBankInNewTab,
@@ -158,7 +159,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
   const [layout, setLayout] = useState<"single" | "compact">("compact");
   const [fontSize, setFontSize] = useState<"normal" | "large">("normal");
   const [colorMode, setColorMode] = useState<"color" | "bw">(() => pdfConfig.defaultColorMode || "color");
-  const [includeCoverPage, setIncludeCoverPage] = useState(true);
+  const [includeCoverPage, setIncludeCoverPage] = useState(false);
   const [showPageNumbers, setShowPageNumbers] = useState(true);
   const [includeTestInstructions, setIncludeTestInstructions] = useState(true);
   const [showPersonalize, setShowPersonalize] = useState(false);
@@ -341,6 +342,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
     formatCard,
     layout,
     fontSize,
+    colorMode,
     includeCoverPage,
     showPageNumbers,
     includeTestInstructions,
@@ -350,6 +352,27 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
     progressStore,
     pdfConfig,
   ]);
+
+  // Dynamic estimated print page calculation for paper saving transparency
+  const estimatedPages = useMemo(() => {
+    if (filteredResult.count === 0) return 0;
+    if (formatCard === "json") return 1;
+    const isSolutionsMode = formatCard === "detailed_solutions";
+    const isCompact = layout === "compact";
+    const hasCover = includeCoverPage;
+    const hasOMR = formatCard === "question_paper_omr";
+    const hasAnswerKey = formatCard === "answer_key";
+    if (hasAnswerKey) {
+      return (hasCover ? 1 : 0) + Math.ceil(filteredResult.count / 100);
+    }
+    const qBuckets = chunkQuestionsIntoPages(
+      filteredResult.questions,
+      isSolutionsMode,
+      isCompact,
+      fontSize
+    );
+    return (hasCover ? 1 : 0) + qBuckets.length + (hasOMR ? 1 : 0);
+  }, [filteredResult, formatCard, layout, includeCoverPage, fontSize]);
 
   // Access Guard Checks from Admin Policy
   const accessBlockReason = useMemo(() => {
@@ -769,14 +792,19 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
 
             {/* STEP 3: QUESTION COUNT & PRINT OPTIONS */}
             <section className="space-y-3">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-1.5">
                 <span className="text-xs font-black text-[#7045D8] dark:text-[#A78BFA] uppercase tracking-wider flex items-center gap-1.5">
                   <Hash className="w-3.5 h-3.5" />
                   3. Count &amp; Layout
                 </span>
-                <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400">
-                  {filteredResult.totalCandidateCount} Available
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
+                    🌿 प्रिंट सेवर: ~{estimatedPages} पेज
+                  </span>
+                  <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400">
+                    ({filteredResult.count} Qs)
+                  </span>
+                </div>
               </div>
 
               <div className="grid grid-cols-5 gap-1.5">
@@ -845,7 +873,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 <div className="flex p-1 bg-white dark:bg-[#1B1536] rounded-xl border border-slate-200 dark:border-[#31275E]">
                   {[
-                    { id: "compact", label: "Book 2-Col" },
+                    { id: "compact", label: "Book 2-Col (सघन)" },
                     { id: "single", label: "1-Column" },
                   ].map((l) => (
                     <button

@@ -251,118 +251,297 @@ export function filterQuestionsForExport(
 /**
  * Renders parsed question content for printable HTML.
  */
-export function renderParsedQuestionHTML(rawText: string, fontSize: "normal" | "large" = "normal", question?: Question): string {
-  let statements: { label: string; body: string }[] = [];
+export interface ParsedQuestionComponents {
+  intro: string;
+  examBadge?: string;
+  assertion?: { label: string; body: string };
+  reason?: { label: string; body: string };
+  statements: { label: string; body: string }[];
+  matchPairs: { left: string; right: string }[];
+  leftTitle: string;
+  rightTitle: string;
+  instruction?: string;
+  sequenceItems: string[];
+  tableData?: { headers: string[]; rows: string[][] };
+  imageUrl?: string;
+}
+
+export function parseExamQuestion(rawText: string, question?: Question): ParsedQuestionComponents {
+  let intro = formatMathAndChemistryLatex(rawText || (question as any)?.question || "");
+  let examBadge: string | undefined = undefined;
   let assertion: { label: string; body: string } | undefined = undefined;
   let reason: { label: string; body: string } | undefined = undefined;
-  let instruction: string | undefined = undefined;
+  let statements: { label: string; body: string }[] = [];
   let matchPairs: { left: string; right: string }[] = [];
+  let leftTitle = "सूची-I";
+  let rightTitle = "सूची-II";
+  let instruction: string | undefined = undefined;
   let sequenceItems: string[] = [];
   let tableData: { headers: string[]; rows: string[][] } | undefined = undefined;
-  let intro = formatMathAndChemistryLatex(rawText);
+  let imageUrl: string | undefined = question?.imageUrl || (question as any)?.image?.url || (question as any)?.image?.dataUrl;
 
+  // 1. Extract exam reference from metadata or text
+  if (question) {
+    if (question.exam || question.year) {
+      examBadge = [question.exam, question.year].filter(Boolean).join(" ");
+    } else if (Array.isArray(question.examHistory) && question.examHistory.length > 0) {
+      const first = question.examHistory[0];
+      examBadge = [first.examName, first.year].filter(Boolean).join(" ");
+    } else if (question.examName || question.examYear) {
+      examBadge = [question.examName, question.examYear].filter(Boolean).join(" ");
+    }
+  }
+
+  // Check inline exam badge if none in metadata (e.g. [RAS Pre 2021] or (RPSC 2nd Grade 2022))
+  if (!examBadge) {
+    const inlineBadgeMatch = intro.match(/(?:\[|\()([A-Z0-9\s\.\-–\/]+(?:Pre|Mains|Grade|Exam|Paper|REET|RAS|RPSC|CET|SI|Police|LDC|Patwar|Teacher)[\s\S]*?)(?:\]|\))/i);
+    if (inlineBadgeMatch) {
+      examBadge = inlineBadgeMatch[1].trim();
+      intro = intro.replace(inlineBadgeMatch[0], "").trim();
+    }
+  }
+
+  // 2. Structured properties from Question object
   if (question) {
     const q = question as any;
     if (Array.isArray(q.statements) && q.statements.length > 0) {
       statements = q.statements.map((s: any, idx: number) => {
-        if (typeof s === "string") return { label: `${idx + 1}.`, body: s };
-        return { label: s.label || `${idx + 1}.`, body: s.body || s.text || String(s) };
+        if (typeof s === "string") return { label: `(${idx + 1})`, body: s };
+        return { label: s.label || `(${s.number || idx + 1})`, body: s.body || s.text || String(s) };
       });
     }
     if (q.assertion) {
-      assertion = typeof q.assertion === "string" ? { label: "Assertion (A)", body: q.assertion } : q.assertion;
+      assertion = typeof q.assertion === "string"
+        ? { label: "कथन (A)", body: q.assertion }
+        : { label: q.assertion.label || "कथन (A)", body: q.assertion.body || String(q.assertion) };
     }
     if (q.reason) {
-      reason = typeof q.reason === "string" ? { label: "Reason (R)", body: q.reason } : q.reason;
+      reason = typeof q.reason === "string"
+        ? { label: "कारण (R)", body: q.reason }
+        : { label: q.reason.label || "कारण (R)", body: q.reason.body || String(q.reason) };
     }
     if (q.instruction) {
       instruction = q.instruction;
     }
-    if (q.sequenceItems && Array.isArray(q.sequenceItems) && q.sequenceItems.length > 0) {
-      sequenceItems = q.sequenceItems.map((item: any) => typeof item === "string" ? item : (item?.text || String(item)));
+    if (Array.isArray(q.sequenceItems) && q.sequenceItems.length > 0) {
+      sequenceItems = q.sequenceItems.map((item: any) => (typeof item === "string" ? item : (item?.text || String(item))));
     }
     if (q.tableData && q.tableData.headers) {
       tableData = q.tableData;
+    } else if (q.table && q.table.headers) {
+      const safeRows = (q.table.rows || []).map((r: any) => (Array.isArray(r) ? r : (r.cells || [])));
+      tableData = { headers: q.table.headers, rows: safeRows };
     }
-    if (q.matchData || (q.listI && q.listII)) {
+
+    if (q.matchTable) {
+      leftTitle = q.matchTable.leftTitle || "सूची-I";
+      rightTitle = q.matchTable.rightTitle || "सूची-II";
+      const pairs = q.matchTable.pairs || q.matchTable.rows || [];
+      pairs.forEach((p: any) => {
+        if (p) matchPairs.push({ left: p.left || p.col1 || "—", right: p.right || p.col2 || "—" });
+      });
+    } else if (q.matchData || (q.listI && q.listII)) {
       const list1 = q.matchData?.listI || q.listI || [];
       const list2 = q.matchData?.listII || q.listII || [];
       const maxL = Math.max(list1.length, list2.length);
       for (let k = 0; k < maxL; k++) {
-        matchPairs.push({ left: list1[k] || "", right: list2[k] || "" });
+        matchPairs.push({ left: list1[k] || "—", right: list2[k] || "—" });
+      }
+    } else if (Array.isArray(q.pairData) && q.pairData.length > 0) {
+      q.pairData.forEach((p: any) => {
+        if (p) matchPairs.push({ left: p.left || "—", right: p.right || "—" });
+      });
+    }
+  }
+
+  // 3. Fallback: Parse unparsed text if structured attributes are not set
+  if (statements.length === 0 && !assertion && matchPairs.length === 0 && sequenceItems.length === 0 && !tableData) {
+    // 3A. Assertion & Reason detection
+    const arMatch = intro.match(
+      /(?:^|\n|\s)(?:अभिकथन|कथन|Assertion)\s*\(?\s*A\s*\)?\s*[:\-–]\s*([\s\S]*?)(?:(?:\n|\s)(?:कारण|Reason)\s*\(?\s*R\s*\)?\s*[:\-–]\s*([\s\S]*))$/i
+    );
+    if (arMatch) {
+      const introPart = intro.slice(0, arMatch.index).trim();
+      const aText = arMatch[1].trim();
+      const rRaw = arMatch[2].trim();
+
+      const outroMatch = rRaw.match(/(?:\n|\s)(?:उपर्युक्त|उपरोक्त|नीचे\s+दिए|सही\s+कूट|कूट|Which\s+of|Select)[\s\S]*$/i);
+      let rText = rRaw;
+      if (outroMatch && outroMatch.index) {
+        rText = rRaw.slice(0, outroMatch.index).trim();
+        instruction = outroMatch[0].trim();
+      }
+
+      intro = introPart;
+      assertion = { label: "कथन (A)", body: aText };
+      reason = { label: "कारण (R)", body: rText };
+    }
+  }
+
+  // 3B. Match the following detection from text
+  if (matchPairs.length === 0 && !assertion) {
+    let capturedIntroL1Title: string | undefined = undefined;
+    let capturedIntroL2Title: string | undefined = undefined;
+
+    const introSentenceMatch = intro.match(
+      /(?:सूची|List)\s*[-–]?(?:I|1)\s*(\([^\)]+\))?\s*को\s*(?:सूची|List)\s*[-–]?(?:II|2)\s*(\([^\)]+\))?\s*से\s*सुमेलित\s*(?:कीजिए|करें)?(?:[^\n\:]*)?[\:\-\s]*/i
+    );
+    if (introSentenceMatch) {
+      if (introSentenceMatch[1]) capturedIntroL1Title = `सूची-I ${introSentenceMatch[1].trim()}`;
+      if (introSentenceMatch[2]) capturedIntroL2Title = `सूची-II ${introSentenceMatch[2].trim()}`;
+    }
+    const cleanWithoutIntroSentence = introSentenceMatch
+      ? intro.replace(introSentenceMatch[0], "").trim()
+      : intro;
+
+    const listMatch = cleanWithoutIntroSentence.match(
+      /(?:^|\n|\s)(?:सूची|List)\s*[-–]?\s*(?:I|1)\s*(\([^\)]+\))?[\:\-\s]*([\s\S]*?)(?:सूची|List)\s*[-–]?\s*(?:II|2)\s*(\([^\)]+\))?[\:\-\s]*([\s\S]*?)(?:(?:कूट|Code|नीचे|सही\s+कूट)[\s\S]*|$)/i
+    );
+    if (listMatch) {
+      if (listMatch[1]) leftTitle = `सूची-I ${listMatch[1].trim()}`;
+      else if (capturedIntroL1Title) leftTitle = capturedIntroL1Title;
+
+      if (listMatch[3]) rightTitle = `सूची-II ${listMatch[3].trim()}`;
+      else if (capturedIntroL2Title) rightTitle = capturedIntroL2Title;
+
+      const l1Text = listMatch[2].trim();
+      const l2Raw = listMatch[4].trim();
+
+      const outroMatch = l2Raw.match(/(?:\n|\s)(?:कूट|नीचे\s+दिए|सही\s+कूट|उपर्युक्त|Code)[\s\S]*$/i);
+      let l2Text = l2Raw;
+      if (outroMatch && outroMatch.index) {
+        l2Text = l2Raw.slice(0, outroMatch.index).trim();
+        instruction = outroMatch[0].trim();
+      }
+
+      const splitItems = (t: string) => {
+        const trimmed = t.trim();
+        const lines = trimmed.split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
+        if (lines.length >= 2) {
+          return lines;
+        }
+        return trimmed.split(/\s+(?=[(][a-dA-D1-4ivxIVX]+[)]|[A-D1-4]\.|\([1-4]\))/).map((s) => s.trim()).filter(Boolean);
+      };
+
+      const l1Items = splitItems(l1Text);
+      const l2Items = splitItems(l2Text);
+      const max = Math.max(l1Items.length, l2Items.length);
+      for (let i = 0; i < max; i++) {
+        matchPairs.push({ left: l1Items[i] || "—", right: l2Items[i] || "—" });
+      }
+
+      const l1Index = intro.indexOf("सूची-I");
+      if (l1Index > 0) {
+        intro = intro.slice(0, l1Index).trim();
       }
     }
   }
 
-  // Fallback to text parsing if structured attributes weren't present
-  if (statements.length === 0 && !assertion && matchPairs.length === 0 && sequenceItems.length === 0 && !tableData) {
-    const parsed = parseQuestionContent(rawText);
-    intro = parsed.intro || rawText;
-    statements = parsed.statements || [];
-    assertion = parsed.assertion;
-    reason = parsed.reason;
-    instruction = parsed.instruction;
-    matchPairs = parsed.matchPairs || [];
-    sequenceItems = (parsed.sequenceItems || []).map((item: any) => typeof item === "string" ? item : (item?.text || String(item)));
-    tableData = parsed.tableData;
+  // 3C. Numbered statements detection: 1. ... 2. ...
+  if (statements.length === 0 && !assertion && matchPairs.length === 0) {
+    const markerRegex = /(?:^|\n|\s)([1-9]\.|\([1-9]\)|\([a-d]\))\s+/g;
+    const markers: { label: string; index: number; endIndex: number }[] = [];
+    let match: RegExpExecArray | null;
+
+    while ((match = markerRegex.exec(intro)) !== null) {
+      markers.push({
+        label: match[1],
+        index: match.index + (match[0].startsWith("\n") || match[0].startsWith(" ") ? 1 : 0),
+        endIndex: match.index + match[0].length,
+      });
+    }
+
+    if (markers.length >= 2) {
+      const introPart = intro.slice(0, markers[0].index).trim();
+      const stmts: { label: string; body: string }[] = [];
+
+      for (let i = 0; i < markers.length; i++) {
+        const start = markers[i].endIndex;
+        const end = i + 1 < markers.length ? markers[i + 1].index : intro.length;
+        stmts.push({ label: markers[i].label, body: intro.slice(start, end).trim() });
+      }
+
+      const lastIdx = stmts.length - 1;
+      const outroMatch = stmts[lastIdx].body.match(/(?:\n|\s)(?:उपर्युक्त|उपरोक्त|नीचे\s+दिए|सही\s+कूट|कूट|Which\s+of|Select)[\s\S]*$/i);
+      if (outroMatch && outroMatch.index) {
+        instruction = outroMatch[0].trim();
+        stmts[lastIdx].body = stmts[lastIdx].body.slice(0, outroMatch.index).trim();
+      }
+
+      intro = introPart;
+      statements = stmts.filter((s) => s.body.length > 0);
+    }
   }
 
+  return {
+    intro,
+    examBadge,
+    assertion,
+    reason,
+    statements,
+    matchPairs,
+    leftTitle,
+    rightTitle,
+    instruction,
+    sequenceItems,
+    tableData,
+    imageUrl,
+  };
+}
+
+export function renderParsedQuestionHTML(
+  rawText: string,
+  fontSize: "normal" | "large" = "normal",
+  question?: Question,
+  qNum?: number
+): string {
+  const parsed = parseExamQuestion(rawText, question);
   let html = `<div class="q-parsed-wrapper">`;
 
-  // Question Prompt / Intro
-  if (intro) {
-    html += `<div class="q-intro-text">${escapeHTML(intro)}</div>`;
-  }
+  // Question Prompt / Intro (with Inline Question Number & Exam Badge)
+  html += `
+    <div class="q-text-block">
+      ${typeof qNum === "number" ? `<span class="q-num-inline">${qNum}.</span>` : ""}
+      <span class="q-text-inline">${escapeHTML(parsed.intro)}</span>
+      ${parsed.examBadge ? `<span class="exam-tag">[${escapeHTML(parsed.examBadge)}]</span>` : ""}
+    </div>
+  `;
 
-  // Assertion & Reason
-  if (assertion || reason) {
-    html += `<div class="q-assertion-reason-container">`;
-    if (assertion) {
-      html += `<div class="q-assertion-item"><strong>${escapeHTML(assertion.label || "Assertion (A)")}:</strong> <span>${escapeHTML(assertion.body)}</span></div>`;
+  // Assertion & Reason (कथन एवं कारण)
+  if (parsed.assertion || parsed.reason) {
+    html += `<div class="book-ar-box">`;
+    if (parsed.assertion) {
+      html += `<div class="ar-line"><span class="ar-tag">${escapeHTML(parsed.assertion.label)}:</span> <span class="ar-content">${escapeHTML(parsed.assertion.body)}</span></div>`;
     }
-    if (reason) {
-      html += `<div class="q-reason-item"><strong>${escapeHTML(reason.label || "Reason (R)")}:</strong> <span>${escapeHTML(reason.body)}</span></div>`;
+    if (parsed.reason) {
+      html += `<div class="ar-line"><span class="ar-tag">${escapeHTML(parsed.reason.label)}:</span> <span class="ar-content">${escapeHTML(parsed.reason.body)}</span></div>`;
     }
     html += `</div>`;
   }
 
-  // Multiple Statements
-  if (statements.length > 0) {
-    html += `<div class="q-multiple-statements-container">`;
-    statements.forEach((stmt) => {
-      html += `<div class="q-statement-item"><span class="stmt-lbl">${escapeHTML(stmt.label)}</span><span class="stmt-body">${escapeHTML(stmt.body)}</span></div>`;
+  // Multiple Statements (कथन 1, 2, 3)
+  if (parsed.statements.length > 0) {
+    html += `<div class="book-statements-box">`;
+    parsed.statements.forEach((stmt) => {
+      html += `<div class="stmt-item"><span class="stmt-tag">${escapeHTML(stmt.label)}</span> <span class="stmt-content">${escapeHTML(stmt.body)}</span></div>`;
     });
     html += `</div>`;
   }
 
-  // Question Instruction Prompt
-  if (instruction) {
-    html += `<div class="q-statement-instruction">${escapeHTML(instruction)}</div>`;
-  }
-
-  // Sequence Items
-  if (sequenceItems.length > 0) {
-    html += `<div class="q-sequence-container">`;
-    sequenceItems.forEach((seq, idx) => {
-      html += `<div class="q-seq-item"><span class="seq-lbl">${idx + 1}.</span><span>${escapeHTML(seq)}</span></div>`;
-    });
-    html += `</div>`;
-  }
-
-  // Match the Following
-  if (matchPairs.length > 0) {
+  // Match the Following (सुमेलित कीजिए - Academic 2-Column Table)
+  if (parsed.matchPairs.length > 0) {
     html += `
-      <div class="q-match-following-container">
-        <table class="academic-match-table">
+      <div class="book-match-container">
+        <table class="book-match-table">
           <thead>
             <tr>
-              <th>LIST-I</th>
-              <th>LIST-II</th>
+              <th>${escapeHTML(parsed.leftTitle)}</th>
+              <th>${escapeHTML(parsed.rightTitle)}</th>
             </tr>
           </thead>
           <tbody>
     `;
-    matchPairs.forEach((pair) => {
+    parsed.matchPairs.forEach((pair) => {
       html += `
         <tr>
           <td>${escapeHTML(pair.left || "—")}</td>
@@ -378,14 +557,14 @@ export function renderParsedQuestionHTML(rawText: string, fontSize: "normal" | "
   }
 
   // Data Table
-  if (tableData && Array.isArray(tableData.headers) && tableData.headers.length > 0) {
-    const safeRows = Array.isArray(tableData.rows) ? tableData.rows : [];
+  if (parsed.tableData && Array.isArray(parsed.tableData.headers) && parsed.tableData.headers.length > 0) {
+    const safeRows = Array.isArray(parsed.tableData.rows) ? parsed.tableData.rows : [];
     html += `
-      <div class="q-table-container">
-        <table class="academic-match-table">
+      <div class="book-table-container">
+        <table class="book-match-table">
           <thead>
             <tr>
-              ${tableData.headers.map((h) => `<th>${escapeHTML(String(h ?? ""))}</th>`).join("")}
+              ${parsed.tableData.headers.map((h) => `<th>${escapeHTML(String(h ?? ""))}</th>`).join("")}
             </tr>
           </thead>
           <tbody>
@@ -403,14 +582,33 @@ export function renderParsedQuestionHTML(rawText: string, fontSize: "normal" | "
     `;
   }
 
+  // Instruction / Outro Prompt
+  if (parsed.instruction) {
+    html += `<div class="book-instruction">${escapeHTML(parsed.instruction)}</div>`;
+  }
+
+  // Sequence Items
+  if (parsed.sequenceItems.length > 0) {
+    html += `<div class="book-statements-box">`;
+    parsed.sequenceItems.forEach((seq, idx) => {
+      html += `<div class="stmt-item"><span class="stmt-tag">(${idx + 1})</span> <span class="stmt-content">${escapeHTML(seq)}</span></div>`;
+    });
+    html += `</div>`;
+  }
+
+  // Diagram / Image
+  if (parsed.imageUrl) {
+    html += `<div class="q-diagram-wrap"><img src="${escapeHTML(parsed.imageUrl)}" alt="Diagram" class="q-diagram-img" /></div>`;
+  }
+
   html += `</div>`;
   return html;
 }
 
 /**
- * Accurately calculates height requirements for a single question content block in pixels.
- * Accounts for font scale, text line wrapping, option layouts, statements, assertion/reasons,
- * match tables, sequence items, and detailed explanation boxes.
+ * Accurately calculates realistic height requirements for a single question content block in pixels.
+ * Accounts for 2-column book density, multi-tier options (1-line inline, 2x2 grid, or vertical),
+ * assertion-reasons, match tables, and compact explanation boxes.
  */
 function estimateQuestionHeight(
   q: Question,
@@ -418,100 +616,94 @@ function estimateQuestionHeight(
   isCompact: boolean,
   fontSize: "normal" | "large" = "normal"
 ): number {
-  const fontMultiplier = fontSize === "large" ? 1.18 : 1.0;
-  const charsPerLine = fontSize === "large" ? 50 : 60;
-  const lineHeightPx = Math.round(20 * fontMultiplier);
-
-  let totalHeight = Math.round(35 * fontMultiplier); // Q Header + Q Number badge
+  const fontMultiplier = fontSize === "large" ? 1.15 : 1.0;
+  const charsPerLine = isCompact ? 38 : 65;
+  const linePx = Math.round(15 * fontMultiplier);
 
   // 1. Question Text
-  const text = q.text || "";
-  const lines = text.split("\n").reduce((acc, line) => {
+  const text = q.text || (q as any).question || "";
+  const linesCount = text.split("\n").reduce((acc, line) => {
     return acc + Math.max(1, Math.ceil(line.length / charsPerLine));
   }, 0);
-  totalHeight += lines * lineHeightPx;
+  let totalHeight = linesCount * linePx;
 
   // 2. Structured Sub-elements
   const qAny = q as any;
-  if (Array.isArray(qAny.statements) && qAny.statements.length > 0) {
-    totalHeight += qAny.statements.length * Math.round(24 * fontMultiplier);
-  }
   if (qAny.assertion || qAny.reason) {
-    totalHeight += Math.round(48 * fontMultiplier);
+    totalHeight += Math.round(30 * fontMultiplier);
   }
-  if (Array.isArray(qAny.sequenceItems) && qAny.sequenceItems.length > 0) {
-    totalHeight += qAny.sequenceItems.length * Math.round(22 * fontMultiplier);
+  if (Array.isArray(qAny.statements) && qAny.statements.length > 0) {
+    totalHeight += qAny.statements.length * Math.round(16 * fontMultiplier);
   }
-  if (qAny.matchData || (qAny.listI && qAny.listII)) {
-    const maxL = Math.max((qAny.listI || []).length, (qAny.listII || []).length);
-    totalHeight += 32 + maxL * Math.round(26 * fontMultiplier);
+  if (qAny.matchTable || qAny.matchData || qAny.pairData) {
+    const pairCount = (qAny.matchTable?.pairs || qAny.matchTable?.rows || qAny.matchData?.listI || []).length || 4;
+    totalHeight += Math.round((16 + pairCount * 14) * fontMultiplier);
   }
   if (qAny.tableData && qAny.tableData.headers) {
     const rowCount = (qAny.tableData.rows || []).length;
-    totalHeight += 32 + rowCount * Math.round(26 * fontMultiplier);
+    totalHeight += Math.round((16 + rowCount * 14) * fontMultiplier);
   }
 
-  // 3. Options Grid
-  if (q.options && q.options.length > 0) {
-    const isShortOptions = q.options.every((opt) => (opt || "").length <= 25);
-    if (isCompact && isShortOptions) {
-      // 2x2 grid
-      totalHeight += Math.round(52 * fontMultiplier);
+  // 3. Multi-tier Options Grid
+  const safeOptions = Array.isArray(q.options) && q.options.length > 0 ? q.options : [];
+  if (safeOptions.length > 0) {
+    const maxOptLen = Math.max(...safeOptions.map((o) => String(o || "").trim().length));
+    if (safeOptions.length === 4 && maxOptLen <= 18) {
+      // Tier 1: 1 single row (4-cols inline)
+      totalHeight += Math.round(17 * fontMultiplier);
+    } else if (maxOptLen <= 36) {
+      // Tier 2: 2x2 grid (2 rows)
+      totalHeight += Math.round(34 * fontMultiplier);
     } else {
-      // Vertical list
-      q.options.forEach((opt) => {
-        const optText = opt || "";
-        const optLines = Math.max(1, Math.ceil(optText.length / (charsPerLine - 5)));
-        totalHeight += Math.round(20 * fontMultiplier) + (optLines - 1) * Math.round(16 * fontMultiplier) + 6;
-      });
+      // Tier 3: Vertical list
+      totalHeight += safeOptions.length * Math.round(17 * fontMultiplier);
     }
   }
 
-  // 4. Explanation & Facts in Solutions Mode
+  // 4. Solutions Mode: Compact Inline Answer & Explanation
   if (isSolutionsMode) {
     const expText = (q.explanation || "").trim();
     if (expText.length > 0) {
-      const expLines = expText.split("\n").reduce((acc, line) => {
-        return acc + Math.max(1, Math.ceil(line.length / (charsPerLine - 5)));
-      }, 0);
-      totalHeight += 32 + expLines * Math.round(18 * fontMultiplier); // Header + text + box padding
+      const expLines = Math.ceil(expText.length / (charsPerLine - 4));
+      totalHeight += Math.round((16 + expLines * 13) * fontMultiplier);
     } else {
-      totalHeight += Math.round(32 * fontMultiplier); // Fallback message box
+      totalHeight += Math.round(18 * fontMultiplier);
     }
-
     if (q.importantFact) {
-      const factLines = Math.ceil((q.importantFact || "").length / (charsPerLine - 5));
-      totalHeight += 24 + factLines * Math.round(16 * fontMultiplier);
+      totalHeight += Math.round(16 * fontMultiplier);
     }
   }
 
-  // Card padding and margin
-  totalHeight += Math.round(16 * fontMultiplier);
+  // Margin and bottom divider
+  totalHeight += 6;
 
-  return Math.max(isCompact ? 120 : 150, Math.round(totalHeight));
+  // Ultra-compact minimum height (35px for compact book mode, 45px for single col)
+  return Math.max(isCompact ? 35 : 45, Math.round(totalHeight));
 }
 
 /**
  * Intelligent Page Chunking:
  * Dynamically groups question blocks into A4 page containers so that:
- * 1. Complete questions (header + options + explanation) fit inside the page budget.
- * 2. Page breaks are inserted ONLY between questions (or major sections).
- * 3. Prevents orphaned question headers or cut-off explanation boxes at the bottom of pages.
+ * 1. Complete questions fit inside the page budget.
+ * 2. Page breaks occur only between questions.
+ * 3. 2-column mode packs 20-30 questions per page to minimize printing costs.
  */
-function chunkQuestionsIntoPages(
+export function chunkQuestionsIntoPages(
   questions: Question[],
   isSolutionsMode: boolean,
   isCompact: boolean,
   fontSize: "normal" | "large" = "normal"
 ): Question[][] {
-  // 2-column book mode holds ~2x questions per A4 sheet
+  // Column height in A4 (297mm @ 96dpi = 1123px - ~118px overhead) = ~1005px.
+  // In 2-column book mode, total usable height across both columns is ~2010px.
   const PAGE_HEIGHT_BUDGET = isCompact
     ? fontSize === "large"
-      ? 1320
-      : 1560
+      ? 1820
+      : 2020
     : fontSize === "large"
-    ? 800
-    : 900;
+    ? 900
+    : 1000;
+
   const pages: Question[][] = [];
   let currentChunk: Question[] = [];
   let currentHeight = 0;
@@ -519,7 +711,7 @@ function chunkQuestionsIntoPages(
   for (const q of questions) {
     const qHeight = estimateQuestionHeight(q, isSolutionsMode, isCompact, fontSize);
 
-    // If adding this question exceeds current page budget, push current chunk and start a fresh page
+    // If adding this question exceeds current page budget, start a fresh page
     if (currentChunk.length > 0 && currentHeight + qHeight > PAGE_HEIGHT_BUDGET) {
       pages.push(currentChunk);
       currentChunk = [q];
@@ -603,7 +795,7 @@ export function generateDisha2020PDFHTML(
   const hasAnswerKey = meta.format === "answer_key";
 
   const questionPagesCount = questionPageBuckets.length;
-  const answerKeyPagesCount = hasAnswerKey ? Math.ceil(questions.length / 50) : 0;
+  const answerKeyPagesCount = hasAnswerKey ? Math.ceil(questions.length / 100) : 0;
   const omrPagesCount = hasOMR ? 1 : 0;
 
   const totalDocumentPages =
@@ -734,7 +926,7 @@ export function generateDisha2020PDFHTML(
   let currentQuestionIndex = 0;
 
   if (meta.format !== "answer_key") {
-    questionPageBuckets.forEach((bucket) => {
+    questionPageBuckets.forEach((bucket, bIdx) => {
       const pageNumberStr = `Page ${currentOverallPageNum} of ${totalDocumentPages}`;
       currentOverallPageNum++;
 
@@ -743,57 +935,59 @@ export function generateDisha2020PDFHTML(
           currentQuestionIndex++;
           const qNum = currentQuestionIndex;
 
-          // Options Markup
+          // Options Markup with Multi-tier Book Layout
           const safeOptions = Array.isArray(q.options) && q.options.length > 0
             ? q.options
             : (q && typeof (q as any).options === "string"
                 ? [(q as any).options]
                 : ["Option A", "Option B", "Option C", "Option D"]);
 
+          // Tier 1: 4 options and all <= 18 chars -> opts-inline-four (1 row)
+          // Tier 2: all <= 38 chars -> opts-two-by-two (2 rows)
+          // Tier 3: opts-vertical
+          const maxOptLen = Math.max(...safeOptions.map((o) => String(o || "").trim().length));
+          const optionLayoutClass =
+            safeOptions.length === 4 && maxOptLen <= 18
+              ? "opts-inline-four"
+              : maxOptLen <= 38
+              ? "opts-two-by-two"
+              : "opts-vertical";
+
           const optionsMarkup = safeOptions
             .map((opt, oIdx) => {
               const isCorrect = oIdx === q.correctIndex;
               const letter = optionLetters[oIdx] || "A";
+              const isSolutionHighlighted = isSolutionsMode && isCorrect;
 
-              if (isSolutionsMode) {
-                return `
-                  <div class="opt-row ${isCorrect ? "opt-row-correct" : "opt-row-default"}">
-                    <span class="opt-circle-badge ${isCorrect ? "badge-green" : "badge-blue"}">${letter}</span>
-                    <span class="opt-text ${isCorrect ? "font-bold" : ""}">${escapeHTML(opt || "")}</span>
-                    ${isCorrect ? '<span class="correct-badge">✓ Correct</span>' : ""}
-                  </div>
-                `;
-              }
-
-              // Question Paper Mode (A, B, C, D badges, NO correct answer badges)
               return `
-                <div class="opt-row opt-row-default">
-                  <span class="opt-circle-badge badge-blue">${letter}</span>
-                  <span class="opt-text">${escapeHTML(opt || "")}</span>
+                <div class="opt-item ${isSolutionHighlighted ? "opt-item-correct" : ""}">
+                  <span class="opt-lbl">(${letter})</span>
+                  <span class="opt-txt">${escapeHTML(opt || "")}</span>
                 </div>
               `;
             })
             .join("");
 
-          // Explanation Box (Solutions mode only)
+          // Explanation Box (Solutions mode only - Ultra-Compact Academic Style)
           let explanationMarkup = "";
           if (isSolutionsMode) {
             const expText = q.explanation && q.explanation.trim().length > 0
               ? q.explanation
-              : "Detailed explanation is not available for this question.";
+              : "";
+            const correctLetter = typeof q.correctIndex === "number" ? optionLetters[q.correctIndex] || "A" : "A";
 
             explanationMarkup = `
-              <div class="explanation-box">
-                <div class="exp-header">
-                  <span class="exp-title">💡 Detailed Explanation:</span>
+              <div class="book-exp-box">
+                <div class="exp-ans-line">
+                  <span class="exp-ans-tag">[उत्तर: (${correctLetter})]</span>
+                  <span class="exp-body">${escapeHTML(expText || "उत्तर की विस्तृत व्याख्या उपलब्ध नहीं है।")}</span>
                 </div>
-                <div class="exp-content">${escapeHTML(expText)}</div>
                 ${
                   q.importantFact
                     ? `
-                    <div class="fact-box">
-                      <span class="fact-badge">★ Key Facts:</span>
-                      <span class="fact-text">${escapeHTML(q.importantFact)}</span>
+                    <div class="exp-fact-line">
+                      <span class="fact-tag">★ मुख्य तथ्य:</span>
+                      <span class="fact-body">${escapeHTML(q.importantFact)}</span>
                     </div>
                   `
                     : ""
@@ -802,14 +996,10 @@ export function generateDisha2020PDFHTML(
             `;
           }
 
-          const allShortOpts = safeOptions.every((o) => String(o || "").trim().length <= 22);
           return `
             <article class="mcq-card">
-              <div class="q-header">
-                <span class="q-number">Q.${qNum}.</span>
-              </div>
-              ${renderParsedQuestionHTML(q.text, meta.fontSize, q)}
-              <div class="options-grid ${allShortOpts ? "opts-two-col" : ""} ${isCompact ? "compact-grid" : ""}">
+              ${renderParsedQuestionHTML(q.text, meta.fontSize, q, qNum)}
+              <div class="${optionLayoutClass}">
                 ${optionsMarkup}
               </div>
               ${explanationMarkup}
@@ -834,6 +1024,23 @@ export function generateDisha2020PDFHTML(
               <div class="hdr-sub">${escapeHTML(subjectHeaderName)} • ${escapeHTML(topicOrSubName)}</div>
             </div>
           </header>
+
+          ${
+            !hasCover && bIdx === 0
+              ? `
+            <div class="first-page-exam-strip">
+              <div class="exam-strip-title">${escapeHTML(documentHeaderTitle)}</div>
+              <div class="exam-strip-details">
+                <span><strong>विषय:</strong> ${escapeHTML(subjectHeaderName)}</span>
+                ${topicOrSubName ? `<span><strong>अध्याय/टॉपिक:</strong> ${escapeHTML(topicOrSubName)}</span>` : ""}
+                <span><strong>कुल प्रश्न:</strong> ${questions.length}</span>
+                <span><strong>समय:</strong> ${durationMins} मिनट</span>
+                <span><strong>पूर्णांक:</strong> ${totalMarks}</span>
+              </div>
+            </div>
+          `
+              : ""
+          }
 
           <main class="page-main-content ${isCompact ? "book-two-col" : ""}">
             ${questionsMarkup}
@@ -935,80 +1142,83 @@ export function generateDisha2020PDFHTML(
     `;
   }
 
-  // 4. ANSWER KEY PAGE
+  // 4. ANSWER KEY PAGE (5-Column Ultra-Dense Book Grid - up to 100 Qs per page)
   let answerKeyPageHTML = "";
   if (hasAnswerKey) {
-    const pageNumberStr = `Page ${currentOverallPageNum} of ${totalDocumentPages}`;
-    currentOverallPageNum++;
+    const questionsPerKeyPage = 100;
+    const keyPagesCount = Math.ceil(questions.length / questionsPerKeyPage);
 
-    const halfCount = Math.ceil(questions.length / 2);
-    let leftKeyRows = "";
-    let rightKeyRows = "";
+    for (let pIdx = 0; pIdx < keyPagesCount; pIdx++) {
+      const pageNumberStr = `Page ${currentOverallPageNum} of ${totalDocumentPages}`;
+      currentOverallPageNum++;
 
-    for (let i = 0; i < halfCount; i++) {
-      const qNumLeft = i + 1;
-      const qLeft = questions[i];
-      const ansLeft = qLeft && typeof qLeft.correctIndex === "number" ? optionLetters[qLeft.correctIndex] || "A" : "A";
-      leftKeyRows += `
-        <tr>
-          <td class="ans-qnum">Q.${qNumLeft}</td>
-          <td class="ans-letter">${ansLeft}</td>
-        </tr>
-      `;
+      const pageQuestions = questions.slice(pIdx * questionsPerKeyPage, (pIdx + 1) * questionsPerKeyPage);
+      const totalInPage = pageQuestions.length;
+      const numCols = Math.min(5, Math.max(2, Math.ceil(totalInPage / 20)));
+      const rowsPerCol = Math.ceil(totalInPage / numCols);
 
-      const qNumRight = i + 1 + halfCount;
-      if (qNumRight <= questions.length) {
-        const qRight = questions[qNumRight - 1];
-        const ansRight = qRight && typeof qRight.correctIndex === "number" ? optionLetters[qRight.correctIndex] || "A" : "A";
-        rightKeyRows += `
-          <tr>
-            <td class="ans-qnum">Q.${qNumRight}</td>
-            <td class="ans-letter">${ansRight}</td>
-          </tr>
+      let colsHTML = "";
+      for (let c = 0; c < numCols; c++) {
+        const colStart = c * rowsPerCol;
+        const colEnd = Math.min(colStart + rowsPerCol, totalInPage);
+        if (colStart >= totalInPage) break;
+
+        let rowsHTML = "";
+        for (let r = colStart; r < colEnd; r++) {
+          const actualQIndex = pIdx * questionsPerKeyPage + r;
+          const qObj = questions[actualQIndex];
+          const ansLetter = qObj && typeof qObj.correctIndex === "number" ? optionLetters[qObj.correctIndex] || "—" : "—";
+          rowsHTML += `
+            <tr>
+              <td class="ans-qnum">${actualQIndex + 1}</td>
+              <td class="ans-val">${ansLetter}</td>
+            </tr>
+          `;
+        }
+
+        colsHTML += `
+          <div class="ans-key-col">
+            <table class="ans-col-table">
+              <thead>
+                <tr><th>प्र.सं.</th><th>उत्तर</th></tr>
+              </thead>
+              <tbody>
+                ${rowsHTML}
+              </tbody>
+            </table>
+          </div>
         `;
       }
+
+      answerKeyPageHTML += `
+        <section class="a4-page answer-key-page">
+          <header class="paper-top-header">
+            <div class="logo-wrapper">
+              <svg viewBox="0 0 200 200" class="header-logo-svg">
+                <circle cx="100" cy="95" r="52" fill="${primarySoftBg}" stroke="${primaryAccent}" stroke-width="6" />
+                <rect x="48" y="80" width="104" height="42" rx="12" fill="${primaryAccent}" />
+              </svg>
+              <div class="header-brand-name">DISHA <span style="color:${primaryBright};">PYQ</span></div>
+            </div>
+            <div class="header-right-title">
+              <div class="hdr-main-title">OFFICIAL ANSWER KEY (उत्तरमाला)</div>
+              <div class="hdr-sub">${escapeHTML(subjectHeaderName)} • ${escapeHTML(topicOrSubName)}</div>
+            </div>
+          </header>
+
+          <main class="page-main-content">
+            <div class="ans-key-grid-5" style="grid-template-columns: repeat(${numCols}, 1fr);">
+              ${colsHTML}
+            </div>
+          </main>
+
+          <footer class="paper-footer">
+            <span>Disha PYQ • Verified Answer Key</span>
+            <span class="footer-page-num">${pageNumberStr}</span>
+          </footer>
+        </section>
+      `;
     }
-
-    answerKeyPageHTML = `
-      <section class="a4-page answer-key-page">
-        <header class="paper-top-header">
-          <div class="logo-wrapper">
-            <svg viewBox="0 0 200 200" class="header-logo-svg">
-              <circle cx="100" cy="95" r="52" fill="#F4F1FA" stroke="#7045D8" stroke-width="6" />
-              <rect x="48" y="80" width="104" height="42" rx="12" fill="#7045D8" />
-            </svg>
-            <div class="header-brand-name">DISHA <span style="color:#7045D8;">PYQ</span></div>
-          </div>
-          <div class="header-right-title">
-            <div class="hdr-main-title">OFFICIAL ANSWER KEY</div>
-            <div class="hdr-sub">${escapeHTML(subjectHeaderName)} • ${escapeHTML(topicOrSubName)}</div>
-          </div>
-        </header>
-
-        <main class="page-main-content">
-          <div class="ans-key-two-col">
-            <table class="ans-key-table">
-              <thead>
-                <tr><th>Q.No.</th><th>Correct Answer</th></tr>
-              </thead>
-              <tbody>${leftKeyRows}</tbody>
-            </table>
-
-            <table class="ans-key-table">
-              <thead>
-                <tr><th>Q.No.</th><th>Correct Answer</th></tr>
-              </thead>
-              <tbody>${rightKeyRows}</tbody>
-            </table>
-          </div>
-        </main>
-
-        <footer class="paper-footer">
-          <span>Disha PYQ • Verified Answer Key</span>
-          <span class="footer-page-num">${pageNumberStr}</span>
-        </footer>
-      </section>
-    `;
   }
 
   return `<!DOCTYPE html>
@@ -1034,8 +1244,8 @@ export function generateDisha2020PDFHTML(
 
     body {
       font-family: 'Noto Sans Devanagari', 'Plus Jakarta Sans', system-ui, sans-serif;
-      font-size: ${meta.fontSize === "large" ? "10.2pt" : "8.8pt"};
-      line-height: 1.42;
+      font-size: ${meta.fontSize === "large" ? "9.8pt" : "8.6pt"};
+      line-height: 1.38;
       color: ${textMain};
       background-color: ${pagePreviewBg};
       padding: 12px 0;
@@ -1050,7 +1260,7 @@ export function generateDisha2020PDFHTML(
       box-sizing: border-box;
       background: #FFFFFF;
       margin: 0 auto 14px auto;
-      padding: 8mm 10mm 8mm 10mm;
+      padding: 7mm 8mm;
       position: relative;
       display: flex;
       flex-direction: column;
@@ -1071,12 +1281,44 @@ export function generateDisha2020PDFHTML(
         width: 210mm;
         height: 297mm;
         max-height: 297mm;
-        padding: 9mm 10mm;
+        padding: 7mm 8mm;
         border: none;
         box-shadow: none;
         page-break-after: always;
         break-after: page;
       }
+    }
+
+    /* First Page Exam Strip (When Cover Page is disabled) */
+    .first-page-exam-strip {
+      border: 1.5px solid ${primaryAccent};
+      background: ${primarySoftBg};
+      border-radius: 6px;
+      padding: 4px 8px;
+      margin-bottom: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .exam-strip-title {
+      font-size: 10.5pt;
+      font-weight: 900;
+      color: ${primaryAccent};
+      text-align: center;
+      letter-spacing: -0.3px;
+    }
+
+    .exam-strip-details {
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      gap: 2px 10px;
+      font-size: 7.6pt;
+      color: ${textMain};
+      font-weight: 600;
+      border-top: 0.5px solid ${borderMuted};
+      padding-top: 2px;
     }
 
     /* COVER PAGE STYLES */
@@ -1276,24 +1518,24 @@ export function generateDisha2020PDFHTML(
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 2px solid ${primaryAccent};
-      padding-bottom: 8px;
-      margin-bottom: 12px;
+      border-bottom: 1.5px solid ${primaryAccent};
+      padding-bottom: 4px;
+      margin-bottom: 6px;
     }
 
     .logo-wrapper {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
     }
 
     .header-logo-svg {
-      width: 28px;
-      height: 28px;
+      width: 22px;
+      height: 22px;
     }
 
     .header-brand-name {
-      font-size: 15pt;
+      font-size: 13pt;
       font-weight: 900;
       color: ${primaryAccent};
     }
@@ -1303,14 +1545,14 @@ export function generateDisha2020PDFHTML(
     }
 
     .hdr-main-title {
-      font-size: 10pt;
+      font-size: 9pt;
       font-weight: 900;
       color: ${primaryAccent};
-      letter-spacing: 0.5px;
+      letter-spacing: 0.3px;
     }
 
     .hdr-sub {
-      font-size: 8pt;
+      font-size: 7.5pt;
       font-weight: 700;
       color: ${textMuted};
     }
@@ -1320,27 +1562,27 @@ export function generateDisha2020PDFHTML(
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
     }
 
     .page-main-content.book-two-col {
       display: block;
       column-count: 2;
-      column-gap: 6mm;
+      column-gap: 5mm;
       column-rule: 1px solid ${borderMuted};
     }
 
     .page-main-content.book-two-col .mcq-card {
       display: inline-block;
       width: 100%;
-      margin-bottom: 6px;
-      padding-bottom: 6px;
+      margin-bottom: 5px;
+      padding-bottom: 5px;
     }
 
     /* MCQ CARD */
     .mcq-card {
-      padding-bottom: 6px;
-      border-bottom: 1px dashed ${borderMuted};
+      padding-bottom: 5px;
+      border-bottom: 0.5px dashed ${borderMuted};
       break-inside: avoid;
       page-break-inside: avoid;
     }
@@ -1349,130 +1591,224 @@ export function generateDisha2020PDFHTML(
       border-bottom: none;
     }
 
-    .q-header {
-      margin-bottom: 4px;
-      break-after: avoid;
-      page-break-after: avoid;
+    .q-text-block {
+      font-size: ${meta.fontSize === "large" ? "9.8pt" : "8.6pt"};
+      font-weight: 700;
+      line-height: 1.38;
+      color: ${textMain};
+      margin-bottom: 3px;
+      text-align: justify;
     }
 
-    .q-number {
-      font-size: 9.2pt;
+    .q-num-inline {
+      font-weight: 900;
+      color: ${primaryAccent};
+      margin-right: 4px;
+      font-size: ${meta.fontSize === "large" ? "10pt" : "8.8pt"};
+    }
+
+    .q-text-inline {
+      font-weight: 700;
+    }
+
+    .exam-tag {
+      display: inline-block;
+      font-size: 6.8pt;
+      font-weight: 800;
+      color: ${isBW ? "#000000" : "#5B32BF"};
+      background: ${primarySoftBg};
+      border: 0.5px solid ${borderMuted};
+      padding: 0px 4px;
+      border-radius: 3px;
+      margin-left: 4px;
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+
+    /* Assertion & Reason (कथन एवं कारण) */
+    .book-ar-box {
+      background: ${isBW ? "#FAFAFA" : "#FBF9FE"};
+      border-left: 2.5px solid ${primaryAccent};
+      border-radius: 3px;
+      padding: 3px 6px;
+      margin: 3px 0 4px 0;
+      font-size: ${meta.fontSize === "large" ? "9pt" : "8pt"};
+      line-height: 1.35;
+    }
+
+    .ar-line {
+      margin-bottom: 2px;
+    }
+
+    .ar-line:last-child {
+      margin-bottom: 0;
+    }
+
+    .ar-tag {
       font-weight: 900;
       color: ${primaryAccent};
     }
 
-    .q-intro-text {
-      font-weight: 700;
+    .ar-content {
       color: ${textMain};
-      margin-bottom: 6px;
+      font-weight: 600;
     }
 
-    .options-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-      margin-left: 4px;
-      margin-top: 4px;
-      break-inside: avoid;
-      page-break-inside: avoid;
+    /* Multiple Statements (कथन 1, 2, 3) */
+    .book-statements-box {
+      margin: 3px 0 4px 2px;
+      font-size: ${meta.fontSize === "large" ? "9pt" : "8pt"};
+      line-height: 1.35;
     }
 
-    .options-grid.opts-two-col {
+    .stmt-item {
+      margin-bottom: 2px;
+    }
+
+    .stmt-tag {
+      font-weight: 800;
+      color: ${primaryAccent};
+    }
+
+    .stmt-content {
+      color: ${textMain};
+      font-weight: 600;
+    }
+
+    /* Match the Following Table (सुमेलित कीजिए) */
+    .book-match-container {
+      margin: 3px 0 4px 0;
+    }
+
+    .book-match-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: ${meta.fontSize === "large" ? "8.8pt" : "7.8pt"};
+      line-height: 1.3;
+    }
+
+    .book-match-table th, .book-match-table td {
+      border: 0.5px solid ${borderMuted};
+      padding: 2px 5px;
+      vertical-align: middle;
+    }
+
+    .book-match-table th {
+      background: ${primarySoftBg};
+      color: ${primaryAccent};
+      font-weight: 800;
+      text-align: center;
+      font-size: 7.5pt;
+    }
+
+    .book-match-table td {
+      color: ${textMain};
+      font-weight: 600;
+    }
+
+    .book-instruction {
+      font-size: 7.8pt;
+      font-weight: 800;
+      color: ${primaryAccent};
+      margin: 3px 0 2px 0;
+    }
+
+    .q-diagram-wrap {
+      text-align: center;
+      margin: 4px 0;
+    }
+
+    .q-diagram-img {
+      max-width: 100%;
+      max-height: 140px;
+      object-fit: contain;
+    }
+
+    /* Multi-Tier Options Layout */
+    .opts-inline-four {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2px 4px;
+      margin: 3px 0 2px 0;
+      font-size: ${meta.fontSize === "large" ? "9pt" : "8pt"};
+    }
+
+    .opts-two-by-two {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 3px 8px;
+      gap: 2px 6px;
+      margin: 3px 0 2px 0;
+      font-size: ${meta.fontSize === "large" ? "9pt" : "8pt"};
     }
 
-    .opt-row {
+    .opts-vertical {
       display: flex;
-      align-items: flex-start;
-      gap: 5px;
-      font-size: 8.5pt;
+      flex-direction: column;
+      gap: 2px;
+      margin: 3px 0 2px 0;
+      font-size: ${meta.fontSize === "large" ? "9pt" : "8pt"};
+    }
+
+    .opt-item {
+      display: flex;
+      align-items: baseline;
+      gap: 3px;
+      color: ${textMain};
       font-weight: 600;
-      color: ${textMain};
+      line-height: 1.3;
     }
 
-    .opt-circle-badge {
-      width: 17px;
-      height: 17px;
-      border-radius: 50%;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 7.5pt;
-      font-weight: 900;
+    .opt-lbl {
+      font-weight: 800;
+      color: ${primaryAccent};
       flex-shrink: 0;
-      margin-top: 1px;
+      font-size: 0.95em;
     }
 
-    .badge-blue {
-      border: 1.5px solid ${primaryAccent};
-      color: ${primaryAccent};
-      background: #FFFFFF;
+    .opt-txt {
+      word-break: break-word;
     }
 
-    .badge-green {
-      background: ${correctBadgeBg};
-      color: #FFFFFF;
-      border: 1.5px solid ${correctBadgeBg};
-    }
-
-    .badge-red {
-      background: #EF4444;
-      color: #FFFFFF;
-      border: 1.5px solid #EF4444;
-    }
-
-    .opt-text {
-      flex: 1;
-    }
-
-    .correct-badge {
-      font-size: 7.5pt;
-      font-weight: 800;
+    .opt-item-correct {
       color: ${correctText};
-      background: ${correctLightBg};
-      padding: 1px 6px;
-      border-radius: 4px;
-      margin-left: 6px;
-    }
-
-    .user-wrong-badge {
-      font-size: 7.5pt;
       font-weight: 800;
-      color: #B91C1C;
-      background: #FEE2E2;
-      padding: 1px 6px;
-      border-radius: 4px;
-      margin-left: 6px;
     }
 
-    /* Explanation Box */
-    .explanation-box {
-      margin-top: 8px;
-      padding: 8px 12px;
+    .opt-item-correct .opt-lbl {
+      color: ${correctText};
+    }
+
+    /* Solutions Mode Book-Style Explanation Box */
+    .book-exp-box {
+      margin-top: 3px;
+      padding: 3px 6px;
       background: ${primarySoftBg};
-      border-left: 3px solid ${primaryAccent};
-      border-radius: 4px;
-      font-size: 8.5pt;
+      border-left: 2px solid ${primaryAccent};
+      border-radius: 3px;
+      font-size: ${meta.fontSize === "large" ? "8.6pt" : "7.6pt"};
+      line-height: 1.32;
       color: ${textMain};
-      break-inside: avoid;
-      page-break-inside: avoid;
     }
 
-    .exp-title {
+    .exp-ans-line {
+      font-weight: 600;
+    }
+
+    .exp-ans-tag {
+      font-weight: 900;
+      color: ${correctText};
+      margin-right: 3px;
+    }
+
+    .exp-fact-line {
+      margin-top: 2px;
+      color: ${isBW ? "#000000" : "#92400E"};
+      font-weight: 600;
+    }
+
+    .fact-tag {
       font-weight: 800;
-      color: ${primaryAccent};
-    }
-
-    .fact-box {
-      margin-top: 4px;
-      padding: 4px 8px;
-      background: #FFFBEB;
-      border: 1px solid #FEF3C7;
-      border-radius: 4px;
-      font-size: 8pt;
-      color: #92400E;
+      color: ${isBW ? "#000000" : "#B45309"};
     }
 
     /* OMR Sheet */
@@ -1528,53 +1864,58 @@ export function generateDisha2020PDFHTML(
       color: ${textMuted};
     }
 
-    /* Answer Key */
-    .ans-key-two-col {
+    /* Answer Key 5-Column Grid */
+    .ans-key-grid-5 {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-top: 10px;
+      gap: 6px;
+      margin-top: 6px;
     }
 
-    .ans-key-table {
+    .ans-key-col {
+      flex: 1;
+    }
+
+    .ans-col-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 9pt;
+      font-size: 7.8pt;
     }
 
-    .ans-key-table th, .ans-key-table td {
-      border: 1px solid ${borderMuted};
-      padding: 5px 10px;
+    .ans-col-table th, .ans-col-table td {
+      border: 0.5px solid ${borderMuted};
+      padding: 2px 4px;
       text-align: center;
     }
 
-    .ans-key-table th {
+    .ans-col-table th {
       background: ${primaryAccent};
       color: #FFFFFF;
-      font-weight: 900;
-    }
-
-    .ans-qnum {
       font-weight: 800;
-      color: ${primaryAccent};
-      background: ${primarySoftBg};
+      font-size: 7.2pt;
     }
 
-    .ans-letter {
+    .ans-col-table .ans-qnum {
+      background: ${primarySoftBg};
+      font-weight: 700;
+      color: ${textMain};
+      width: 48%;
+    }
+
+    .ans-col-table .ans-val {
       font-weight: 900;
       color: ${primaryBright};
-      font-size: 9.2pt;
+      width: 52%;
     }
 
     /* Footer */
     .paper-footer {
-      border-top: 1px solid #E8D9C0;
-      padding-top: 6px;
-      margin-top: 8px;
+      border-top: 0.5px solid ${borderMuted};
+      padding-top: 4px;
+      margin-top: 6px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 8pt;
+      font-size: 7.5pt;
       font-weight: 700;
       color: ${textMuted};
     }
@@ -1583,8 +1924,8 @@ export function generateDisha2020PDFHTML(
       font-weight: 900;
       color: ${primaryAccent};
       background: ${primarySoftBg};
-      border: 1px solid ${borderMuted};
-      padding: 2px 8px;
+      border: 0.5px solid ${borderMuted};
+      padding: 1px 6px;
       border-radius: 999px;
     }
   </style>
