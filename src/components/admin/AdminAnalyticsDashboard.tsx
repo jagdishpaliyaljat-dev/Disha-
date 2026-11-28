@@ -353,18 +353,18 @@ export const AdminAnalyticsDashboard: React.FC<AdminAnalyticsDashboardProps> = (
     <div className="space-y-6 sm:space-y-8 pb-16 animate-in fade-in slide-in-from-bottom-3 duration-700">
       
       {/* 1. Header Banner & Section Switcher */}
-      <div className="bg-gradient-to-br from-white via-[#FFF9EF] to-white dark:from-[#171923] dark:via-[#1F2330] dark:to-[#171923] rounded-3xl border border-[#E8D9C0] dark:border-[#31374A] shadow-sm p-4 sm:p-7 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-[#C99A45]/15 via-[#800020]/10 to-transparent rounded-bl-full pointer-events-none" />
+      <div className="bg-gradient-to-br from-white via-[#F8F6FF] to-white dark:from-[#171923] dark:via-[#1F2330] dark:to-[#171923] rounded-3xl border border-[rgba(112,69,216,0.18)] dark:border-[#31374A] shadow-sm p-4 sm:p-7 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-[#C99A45]/15 via-[#7045D8]/10 to-transparent rounded-bl-full pointer-events-none" />
         
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="space-y-2.5">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#800020]/10 dark:bg-[#F47B20]/15 border border-[#800020]/20 dark:border-[#F47B20]/30 text-[#800020] dark:text-[#F47B20] text-[10px] font-black uppercase tracking-wider">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#7045D8]/10 dark:bg-[#A78BFA]/15 border border-[#7045D8]/20 dark:border-[#A78BFA]/30 text-[#7045D8] dark:text-[#A78BFA] text-[10px] font-black uppercase tracking-wider">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               <span>Real-Time Cloud Telemetry</span>
             </div>
             
             <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-              एनालिटिक्स एवं <span className="text-[#800020] dark:text-[#F47B20]">लाइव इनसाइट्स</span>
+              एनालिटिक्स एवं <span className="text-[#7045D8] dark:text-[#A78BFA]">लाइव इनसाइट्स</span>
             </h1>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 font-medium max-w-xl">
               वेबसाइट विजिटर्स, अधिग्रहण स्रोत (Telegram, WhatsApp, Search) एवं छात्र अभ्यास का लाइव डेटा।
@@ -376,8 +376,8 @@ export const AdminAnalyticsDashboard: React.FC<AdminAnalyticsDashboardProps> = (
                 onClick={() => setActiveSection("website")}
                 className={`px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-2 ${
                   activeSection === "website"
-                    ? "bg-[#800020] dark:bg-[#F47B20] text-white shadow-sm"
-                    : "bg-white dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] text-slate-600 dark:text-slate-300 hover:bg-[#F7EFE2]"
+                    ? "bg-[#7045D8] dark:bg-[#A78BFA] text-white shadow-sm"
+                    : "bg-white dark:bg-[#252A3A] border border-[rgba(112,69,216,0.18)] dark:border-[#31374A] text-slate-600 dark:text-slate-300 hover:bg-[#F1ECFF]"
                 }`}
               >
                 <Globe className="w-3.5 h-3.5" />
@@ -388,8 +388,8 @@ export const AdminAnalyticsDashboard: React.FC<AdminAnalyticsDashboardProps> = (
                 onClick={() => setActiveSection("students")}
                 className={`px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-2 ${
                   activeSection === "students"
-                    ? "bg-[#800020] dark:bg-[#F47B20] text-white shadow-sm"
-                    : "bg-white dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] text-slate-600 dark:text-slate-300 hover:bg-[#F7EFE2]"
+                    ? "bg-[#7045D8] dark:bg-[#A78BFA] text-white shadow-sm"
+                    : "bg-white dark:bg-[#252A3A] border border-[rgba(112,69,216,0.18)] dark:border-[#31374A] text-slate-600 dark:text-slate-300 hover:bg-[#F1ECFF]"
                 }`}
               >
                 <Users className="w-3.5 h-3.5" />
@@ -400,8 +400,8 @@ export const AdminAnalyticsDashboard: React.FC<AdminAnalyticsDashboardProps> = (
                 onClick={() => setActiveSection("heatmap")}
                 className={`px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-2 ${
                   activeSection === "heatmap"
-                    ? "bg-[#800020] dark:bg-[#F47B20] text-white shadow-sm"
-                    : "bg-white dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] text-slate-600 dark:text-slate-300 hover:bg-[#F7EFE2]"
+                    ? "bg-[#7045D8] dark:bg-[#A78BFA] text-white shadow-sm"
+                    : "bg-white dark:bg-[#252A3A] border border-[rgba(112,69,216,0.18)] dark:border-[#31374A] text-slate-600 dark:text-slate-300 hover:bg-[#F1ECFF]"
                 }`}
               >
                 <Target className="w-3.5 h-3.5" />
@@ -443,7 +443,7 @@ export const AdminAnalyticsDashboard: React.FC<AdminAnalyticsDashboardProps> = (
               </button>
             </div>
 
-            <div className="flex items-center justify-between gap-3 bg-white/80 dark:bg-[#252A3A]/80 p-2.5 px-3 rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] shadow-xs">
+            <div className="flex items-center justify-between gap-3 bg-white/80 dark:bg-[#252A3A]/80 p-2.5 px-3 rounded-2xl border border-[rgba(112,69,216,0.18)] dark:border-[#31374A] shadow-xs">
               <div>
                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">कुल पेज व्यूज</p>
                 <p className="text-base font-black text-slate-900 dark:text-white tabular-nums">
@@ -475,14 +475,14 @@ export const AdminAnalyticsDashboard: React.FC<AdminAnalyticsDashboardProps> = (
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="text-xs font-black uppercase text-slate-600 dark:text-slate-400">समय सीमा:</span>
-              <div className="flex items-center bg-white dark:bg-[#1F2330] p-1 rounded-xl border border-[#E8D9C0] dark:border-[#31374A] shadow-xs">
+              <div className="flex items-center bg-white dark:bg-[#1F2330] p-1 rounded-xl border border-[rgba(112,69,216,0.18)] dark:border-[#31374A] shadow-xs">
                 {[7, 14, 30].map((days) => (
                   <button
                     key={days}
                     onClick={() => setTrafficDays(days)}
                     className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase transition-all cursor-pointer ${
                       trafficDays === days
-                        ? "bg-[#800020] text-white shadow-xs"
+                        ? "bg-[#7045D8] text-white shadow-xs"
                         : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
                     }`}
                   >
@@ -505,7 +505,7 @@ export const AdminAnalyticsDashboard: React.FC<AdminAnalyticsDashboardProps> = (
 
           {/* 4 Cards: Visits, Unique, Mobile %, App Downloads */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            <AdminCard className="p-4 space-y-2 border-[#E8D9C0] dark:border-[#31374A]">
+            <AdminCard className="p-4 space-y-2 border-[rgba(112,69,216,0.18)] dark:border-[#31374A]">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">कुल पेज व्यूज</span>
                 <div className="w-8 h-8 rounded-xl bg-blue-500/10 text-blue-600 flex items-center justify-center">
@@ -518,7 +518,7 @@ export const AdminAnalyticsDashboard: React.FC<AdminAnalyticsDashboardProps> = (
               <p className="text-[10px] font-bold text-slate-400">पिछले {trafficDays} दिनों में</p>
             </AdminCard>
 
-            <AdminCard className="p-4 space-y-2 border-[#E8D9C0] dark:border-[#31374A]">
+            <AdminCard className="p-4 space-y-2 border-[rgba(112,69,216,0.18)] dark:border-[#31374A]">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">यूनिक विजिटर्स</span>
                 <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center">
@@ -531,7 +531,7 @@ export const AdminAnalyticsDashboard: React.FC<AdminAnalyticsDashboardProps> = (
               <p className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">नए छात्र एवं आगंतुक</p>
             </AdminCard>
 
-            <AdminCard className="p-4 space-y-2 border-[#E8D9C0] dark:border-[#31374A]">
+            <AdminCard className="p-4 space-y-2 border-[rgba(112,69,216,0.18)] dark:border-[#31374A]">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">मोबाइल शेयर</span>
                 <div className="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center">
@@ -551,7 +551,7 @@ export const AdminAnalyticsDashboard: React.FC<AdminAnalyticsDashboardProps> = (
               </p>
             </AdminCard>
 
-            <AdminCard className="p-4 space-y-2 border-[#E8D9C0] dark:border-[#31374A]">
+            <AdminCard className="p-4 space-y-2 border-[rgba(112,69,216,0.18)] dark:border-[#31374A]">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">APK डाउनलोड सीटीए</span>
                 <div className="w-8 h-8 rounded-xl bg-purple-500/10 text-purple-600 flex items-center justify-center">
@@ -566,11 +566,11 @@ export const AdminAnalyticsDashboard: React.FC<AdminAnalyticsDashboardProps> = (
           </div>
 
           {/* Daily Traffic Volume Bar Chart */}
-          <AdminCard className="p-4 sm:p-6 space-y-4 border-[#E8D9C0] dark:border-[#31374A]">
+          <AdminCard className="p-4 sm:p-6 space-y-4 border-[rgba(112,69,216,0.18)] dark:border-[#31374A]">
             <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
               <div className="space-y-0.5">
                 <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight flex items-center gap-2">
-                  <TrendingUp className="w-4 h-4 text-[#800020] dark:text-[#F47B20]" />
+                  <TrendingUp className="w-4 h-4 text-[#7045D8] dark:text-[#A78BFA]" />
                   <span>दैनिक विजिट ट्रेंड (Daily Visits Timeline)</span>
                 </h3>
                 <p className="text-[10px] text-slate-400 font-bold">प्रतिदिन वेबसाइट पर आने वाले छात्रों का वितरण</p>
@@ -582,7 +582,7 @@ export const AdminAnalyticsDashboard: React.FC<AdminAnalyticsDashboardProps> = (
 
             {loading ? (
               <div className="h-40 flex items-center justify-center">
-                <Loader2 className="w-6 h-6 text-[#800020] animate-spin" />
+                <Loader2 className="w-6 h-6 text-[#7045D8] animate-spin" />
               </div>
             ) : !siteTraffic?.history || siteTraffic.history.length === 0 ? (
               <div className="h-40 flex items-center justify-center text-xs text-slate-400 font-bold">
@@ -595,12 +595,12 @@ export const AdminAnalyticsDashboard: React.FC<AdminAnalyticsDashboardProps> = (
                   const heightPercent = Math.max(Math.round((visits / maxDailyVisits) * 100), 6);
                   return (
                     <div key={item.date} className="flex-1 flex flex-col items-center gap-1.5 group h-full justify-end">
-                      <div className="text-[8px] font-bold text-[#800020] dark:text-[#F47B20] opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="text-[8px] font-bold text-[#7045D8] dark:text-[#A78BFA] opacity-0 group-hover:opacity-100 transition-opacity">
                         {visits}
                       </div>
                       <div
                         style={{ height: `${heightPercent}%` }}
-                        className="w-full max-w-[28px] sm:max-w-[36px] rounded-t-xl bg-gradient-to-t from-[#800020] to-[#F47B20] hover:brightness-110 transition-all shadow-xs"
+                        className="w-full max-w-[28px] sm:max-w-[36px] rounded-t-xl bg-gradient-to-t from-[#7045D8] to-[#A78BFA] hover:brightness-110 transition-all shadow-xs"
                       />
                       <span className="text-[8px] font-black text-slate-400 uppercase hidden sm:block">
                         {new Date(item.date).toLocaleDateString("hi-IN", { weekday: "short" })}
@@ -615,7 +615,7 @@ export const AdminAnalyticsDashboard: React.FC<AdminAnalyticsDashboardProps> = (
           {/* ────────────────────────────────────────────────────────── */}
           {/* PEAK STUDY HOURS & 24-HOUR ACTIVITY HEATMAP */}
           {/* ────────────────────────────────────────────────────────── */}
-          <AdminCard className="p-4 sm:p-6 space-y-5 border-[#E8D9C0] dark:border-[#31374A]">
+          <AdminCard className="p-4 sm:p-6 space-y-5 border-[rgba(112,69,216,0.18)] dark:border-[#31374A]">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
@@ -637,8 +637,8 @@ export const AdminAnalyticsDashboard: React.FC<AdminAnalyticsDashboardProps> = (
               </div>
 
               {/* Peak Hour Highlight Pill */}
-              <div className="flex items-center gap-2.5 bg-[#FFF9EF] dark:bg-[#1C202F] p-2.5 px-3.5 rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] shadow-2xs self-start sm:self-auto">
-                <Flame className="w-4 h-4 text-[#F47B20] animate-pulse" />
+              <div className="flex items-center gap-2.5 bg-[#F8F6FF] dark:bg-[#1C202F] p-2.5 px-3.5 rounded-2xl border border-[rgba(112,69,216,0.18)] dark:border-[#31374A] shadow-2xs self-start sm:self-auto">
+                <Flame className="w-4 h-4 text-[#A78BFA] animate-pulse" />
                 <div className="text-left">
                   <span className="text-[9px] font-black uppercase text-slate-400 tracking-wider block">
                     सर्वाधिक सक्रिय समय
@@ -657,7 +657,7 @@ export const AdminAnalyticsDashboard: React.FC<AdminAnalyticsDashboardProps> = (
               {hourlyActivity.slots.map((slot, idx) => (
                 <div
                   key={idx}
-                  className="p-3 rounded-2xl bg-[#FFFDF9] dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] space-y-1.5"
+                  className="p-3 rounded-2xl bg-[#FAF9FD] dark:bg-[#1F2330] border border-[rgba(112,69,216,0.18)] dark:border-[#31374A] space-y-1.5"
                 >
                   <div className="flex items-center justify-between text-xs font-black text-slate-800 dark:text-slate-200">
                     <span className="truncate text-[11px]">{slot.label}</span>
@@ -668,7 +668,7 @@ export const AdminAnalyticsDashboard: React.FC<AdminAnalyticsDashboardProps> = (
                   <div className="w-full h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
                     <div
                       style={{ width: `${slot.percent}%` }}
-                      className="h-full bg-gradient-to-r from-amber-500 to-[#F47B20] rounded-full transition-all duration-700"
+                      className="h-full bg-gradient-to-r from-amber-500 to-[#A78BFA] rounded-full transition-all duration-700"
                     />
                   </div>
                   <div className="flex items-center justify-between text-[10px] text-slate-400 font-bold">
@@ -716,7 +716,7 @@ export const AdminAnalyticsDashboard: React.FC<AdminAnalyticsDashboardProps> = (
                             : isCurrent
                             ? "bg-gradient-to-t from-emerald-600 to-teal-400"
                             : h.hits > 0
-                            ? "bg-gradient-to-t from-[#800020] to-[#F47B20] opacity-80 hover:opacity-100"
+                            ? "bg-gradient-to-t from-[#7045D8] to-[#A78BFA] opacity-80 hover:opacity-100"
                             : "bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700"
                         }`}
                       />
@@ -747,7 +747,7 @@ export const AdminAnalyticsDashboard: React.FC<AdminAnalyticsDashboardProps> = (
                     <span>वर्तमान समय ({hourlyActivity.currentHourIST}:00)</span>
                   </span>
                   <span className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-xs bg-gradient-to-t from-[#800020] to-[#F47B20]" />
+                    <span className="w-2.5 h-2.5 rounded-xs bg-gradient-to-t from-[#7045D8] to-[#A78BFA]" />
                     <span>सामान्य ट्रैफिक</span>
                   </span>
                 </div>
@@ -774,17 +774,17 @@ export const AdminAnalyticsDashboard: React.FC<AdminAnalyticsDashboardProps> = (
           {/* ────────────────────────────────────────────────────────── */}
           {/* RAJASTHAN DISTRICT-WISE STUDENT & VISITOR ANALYTICS */}
           {/* ────────────────────────────────────────────────────────── */}
-          <AdminCard className="p-4 sm:p-6 space-y-5 border-[#E8D9C0] dark:border-[#31374A]">
+          <AdminCard className="p-4 sm:p-6 space-y-5 border-[rgba(112,69,216,0.18)] dark:border-[#31374A]">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-rose-500/10 text-[#800020] dark:text-[#F47B20] flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-xl bg-rose-500/10 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center">
                     <MapPin className="w-4 h-4" />
                   </div>
                   <div>
                     <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight flex items-center gap-2">
                       <span>राजस्थान जिलावार छात्र व ट्रैफिक वितरण</span>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950/60 text-[#800020] dark:text-rose-300 border border-rose-200 dark:border-rose-900/50">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950/60 text-[#7045D8] dark:text-rose-300 border border-rose-200 dark:border-rose-900/50">
                         District Footprint
                       </span>
                     </h3>
@@ -796,8 +796,8 @@ export const AdminAnalyticsDashboard: React.FC<AdminAnalyticsDashboardProps> = (
               </div>
 
               {/* Top District Pill */}
-              <div className="flex items-center gap-2.5 bg-[#FFF9EF] dark:bg-[#1C202F] p-2.5 px-3.5 rounded-2xl border border-[#E8D9C0] dark:border-[#31374A] shadow-2xs self-start sm:self-auto">
-                <Landmark className="w-4 h-4 text-[#800020] dark:text-[#F47B20]" />
+              <div className="flex items-center gap-2.5 bg-[#F8F6FF] dark:bg-[#1C202F] p-2.5 px-3.5 rounded-2xl border border-[rgba(112,69,216,0.18)] dark:border-[#31374A] shadow-2xs self-start sm:self-auto">
+                <Landmark className="w-4 h-4 text-[#7045D8] dark:text-[#A78BFA]" />
                 <div className="text-left">
                   <span className="text-[9px] font-black uppercase text-slate-400 tracking-wider block">
                     शीर्ष सक्रिय जिला
@@ -822,7 +822,7 @@ export const AdminAnalyticsDashboard: React.FC<AdminAnalyticsDashboardProps> = (
                 return (
                   <div
                     key={hub.name}
-                    className="p-3 rounded-2xl bg-[#FFFDF9] dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] space-y-1.5"
+                    className="p-3 rounded-2xl bg-[#FAF9FD] dark:bg-[#1F2330] border border-[rgba(112,69,216,0.18)] dark:border-[#31374A] space-y-1.5"
                   >
                     <div className="flex items-center justify-between">
                       <span className="text-[11px] font-black text-slate-800 dark:text-slate-200 truncate">{hub.name}</span>
@@ -853,7 +853,7 @@ export const AdminAnalyticsDashboard: React.FC<AdminAnalyticsDashboardProps> = (
                     value={districtSearchQuery}
                     onChange={(e) => setDistrictSearchQuery(e.target.value)}
                     placeholder="जिला खोजें (उदा. सीकर, कोटा)..."
-                    className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl bg-white dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] focus:outline-hidden focus:border-[#800020] text-slate-900 dark:text-white"
+                    className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl bg-white dark:bg-[#171923] border border-[rgba(112,69,216,0.18)] dark:border-[#31374A] focus:outline-hidden focus:border-[#7045D8] text-slate-900 dark:text-white"
                   />
                 </div>
               </div>
@@ -872,7 +872,7 @@ export const AdminAnalyticsDashboard: React.FC<AdminAnalyticsDashboardProps> = (
                     return (
                       <div
                         key={district}
-                        className="p-3 rounded-2xl bg-[#FFF9EF]/50 dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-between gap-3 group hover:border-[#800020] transition-colors"
+                        className="p-3 rounded-2xl bg-[#F8F6FF]/50 dark:bg-[#171923] border border-[rgba(112,69,216,0.18)] dark:border-[#31374A] flex items-center justify-between gap-3 group hover:border-[#7045D8] transition-colors"
                       >
                         <div className="flex items-center gap-2.5 min-w-0 flex-1">
                           <span className="text-xs font-bold text-slate-400 font-mono shrink-0 w-6 text-center">
@@ -890,7 +890,7 @@ export const AdminAnalyticsDashboard: React.FC<AdminAnalyticsDashboardProps> = (
                             <div className="w-full h-1.5 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
                               <div
                                 style={{ width: `${Math.max(percent, 4)}%` }}
-                                className="h-full bg-gradient-to-r from-[#800020] to-[#F47B20] rounded-full transition-all duration-700"
+                                className="h-full bg-gradient-to-r from-[#7045D8] to-[#A78BFA] rounded-full transition-all duration-700"
                               />
                             </div>
                           </div>
@@ -904,7 +904,7 @@ export const AdminAnalyticsDashboard: React.FC<AdminAnalyticsDashboardProps> = (
 
             {/* Actionable Regional Strategy Box */}
             <div className="flex items-start gap-3 p-3.5 rounded-2xl bg-rose-500/10 border border-rose-300/60 dark:border-rose-900/50">
-              <Landmark className="w-4 h-4 text-[#800020] dark:text-[#F47B20] shrink-0 mt-0.5" />
+              <Landmark className="w-4 h-4 text-[#7045D8] dark:text-[#A78BFA] shrink-0 mt-0.5" />
               <div className="space-y-0.5 text-xs">
                 <p className="font-black text-rose-950 dark:text-rose-200">
                   रणनीतिक क्षेत्रीय सुझाव (Regional Strategy Insight)
@@ -922,7 +922,7 @@ export const AdminAnalyticsDashboard: React.FC<AdminAnalyticsDashboardProps> = (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
             
             {/* Traffic Acquisition Channels */}
-            <AdminCard className="p-4 sm:p-6 space-y-4 border-[#E8D9C0] dark:border-[#31374A]">
+            <AdminCard className="p-4 sm:p-6 space-y-4 border-[rgba(112,69,216,0.18)] dark:border-[#31374A]">
               <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
                 <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight flex items-center gap-2">
                   <Share2 className="w-4 h-4 text-emerald-600" />
@@ -947,7 +947,7 @@ export const AdminAnalyticsDashboard: React.FC<AdminAnalyticsDashboardProps> = (
                       ? "bg-[#7045D8]"
                       : source.includes("youtube")
                       ? "bg-rose-500"
-                      : "bg-[#800020]";
+                      : "bg-[#7045D8]";
 
                     return (
                       <div key={source} className="space-y-1.5">
@@ -971,7 +971,7 @@ export const AdminAnalyticsDashboard: React.FC<AdminAnalyticsDashboardProps> = (
             </AdminCard>
 
             {/* Top Visited Pages */}
-            <AdminCard className="p-4 sm:p-6 space-y-4 border-[#E8D9C0] dark:border-[#31374A]">
+            <AdminCard className="p-4 sm:p-6 space-y-4 border-[rgba(112,69,216,0.18)] dark:border-[#31374A]">
               <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
                 <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight flex items-center gap-2">
                   <BookOpen className="w-4 h-4 text-purple-600" />
@@ -992,7 +992,7 @@ export const AdminAnalyticsDashboard: React.FC<AdminAnalyticsDashboardProps> = (
                     return (
                       <div
                         key={page}
-                        className="p-3 rounded-2xl bg-[#FFF9EF]/60 dark:bg-[#171923] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-between gap-3"
+                        className="p-3 rounded-2xl bg-[#F8F6FF]/60 dark:bg-[#171923] border border-[rgba(112,69,216,0.18)] dark:border-[#31374A] flex items-center justify-between gap-3"
                       >
                         <div className="min-w-0 flex-1">
                           <p className="text-xs font-extrabold text-slate-900 dark:text-white font-mono truncate">
@@ -1030,7 +1030,7 @@ export const AdminAnalyticsDashboard: React.FC<AdminAnalyticsDashboardProps> = (
           
           {/* Key Metrics 4-Grid */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            <AdminCard className="p-4 space-y-2 border-[#E8D9C0] dark:border-[#31374A]">
+            <AdminCard className="p-4 space-y-2 border-[rgba(112,69,216,0.18)] dark:border-[#31374A]">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">सक्रिय अभ्यर्थी</span>
                 <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
@@ -1046,10 +1046,10 @@ export const AdminAnalyticsDashboard: React.FC<AdminAnalyticsDashboardProps> = (
               </p>
             </AdminCard>
 
-            <AdminCard className="p-4 space-y-2 border-[#E8D9C0] dark:border-[#31374A]">
+            <AdminCard className="p-4 space-y-2 border-[rgba(112,69,216,0.18)] dark:border-[#31374A]">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">कुल प्रश्न बैंक</span>
-                <div className="w-9 h-9 rounded-xl bg-[#800020]/10 text-[#800020] dark:text-[#F47B20] flex items-center justify-center">
+                <div className="w-9 h-9 rounded-xl bg-[#7045D8]/10 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center">
                   <Database className="w-4.5 h-4.5" />
                 </div>
               </div>
@@ -1061,7 +1061,7 @@ export const AdminAnalyticsDashboard: React.FC<AdminAnalyticsDashboardProps> = (
               </p>
             </AdminCard>
 
-            <AdminCard className="p-4 space-y-2 border-[#E8D9C0] dark:border-[#31374A]">
+            <AdminCard className="p-4 space-y-2 border-[rgba(112,69,216,0.18)] dark:border-[#31374A]">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">लाइव टेस्ट सहभागिता</span>
                 <div className="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
@@ -1076,7 +1076,7 @@ export const AdminAnalyticsDashboard: React.FC<AdminAnalyticsDashboardProps> = (
               </p>
             </AdminCard>
 
-            <AdminCard className="p-4 space-y-2 border-[#E8D9C0] dark:border-[#31374A]">
+            <AdminCard className="p-4 space-y-2 border-[rgba(112,69,216,0.18)] dark:border-[#31374A]">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">त्रुटि रिपोर्टें / टिकट</span>
                 <div className="w-9 h-9 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center">
@@ -1096,10 +1096,10 @@ export const AdminAnalyticsDashboard: React.FC<AdminAnalyticsDashboardProps> = (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
             
             {/* Target Exams Breakdown */}
-            <AdminCard className="p-4 sm:p-6 space-y-4 border-[#E8D9C0] dark:border-[#31374A]">
+            <AdminCard className="p-4 sm:p-6 space-y-4 border-[rgba(112,69,216,0.18)] dark:border-[#31374A]">
               <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
                 <h3 className="text-sm font-black text-slate-900 dark:text-white flex items-center gap-2">
-                  <Target className="w-4 h-4 text-[#800020] dark:text-[#F47B20]" />
+                  <Target className="w-4 h-4 text-[#7045D8] dark:text-[#A78BFA]" />
                   <span>अभ्यर्थियों के लक्षित परीक्षा वर्ग (Target Exams)</span>
                 </h3>
                 <span className="text-[10px] font-mono text-slate-400 font-bold uppercase">
@@ -1109,7 +1109,7 @@ export const AdminAnalyticsDashboard: React.FC<AdminAnalyticsDashboardProps> = (
 
               {loading ? (
                 <div className="py-12 flex justify-center">
-                  <Loader2 className="w-6 h-6 text-[#800020] animate-spin" />
+                  <Loader2 className="w-6 h-6 text-[#7045D8] animate-spin" />
                 </div>
               ) : examList.length === 0 ? (
                 <div className="py-8 text-center text-xs text-slate-400 font-bold">
@@ -1130,7 +1130,7 @@ export const AdminAnalyticsDashboard: React.FC<AdminAnalyticsDashboardProps> = (
                         <div className="w-full h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
                           <div
                             style={{ width: `${percent}%` }}
-                            className="h-full bg-gradient-to-r from-[#800020] to-[#F47B20] rounded-full transition-all duration-700"
+                            className="h-full bg-gradient-to-r from-[#7045D8] to-[#A78BFA] rounded-full transition-all duration-700"
                           />
                         </div>
                       </div>
@@ -1141,7 +1141,7 @@ export const AdminAnalyticsDashboard: React.FC<AdminAnalyticsDashboardProps> = (
             </AdminCard>
 
             {/* Most Practiced Subjects */}
-            <AdminCard className="p-4 sm:p-6 space-y-4 border-[#E8D9C0] dark:border-[#31374A]">
+            <AdminCard className="p-4 sm:p-6 space-y-4 border-[rgba(112,69,216,0.18)] dark:border-[#31374A]">
               <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
                 <h3 className="text-sm font-black text-slate-900 dark:text-white flex items-center gap-2">
                   <Flame className="w-4 h-4 text-amber-500" />
@@ -1154,7 +1154,7 @@ export const AdminAnalyticsDashboard: React.FC<AdminAnalyticsDashboardProps> = (
 
               {loading ? (
                 <div className="py-12 flex justify-center">
-                  <Loader2 className="w-6 h-6 text-[#800020] animate-spin" />
+                  <Loader2 className="w-6 h-6 text-[#7045D8] animate-spin" />
                 </div>
               ) : subjectList.length === 0 ? (
                 <div className="py-8 text-center text-xs text-slate-400 font-bold">
