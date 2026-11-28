@@ -162,6 +162,12 @@ export function LoginPage({ onLoginSuccess, onClose, isMandatory = false }: Logi
             return;
           }
 
+          if (nativeResult.cancelled) {
+            setIsLoading(false);
+            setSuccessNotice(null);
+            return;
+          }
+
           // If native one-tap could not complete (SHA-1 pending, dismissed, or restricted Play Services):
           // NEVER halt the user — seamlessly auto-fallback to Browser OAuth!
           console.info("[LoginPage] Native account picker not available, switching to browser sign-in:", nativeResult.error);

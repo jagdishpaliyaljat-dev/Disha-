@@ -56,7 +56,14 @@ describe('LoginPage Native Picker Cancellation & Browser Fallback', () => {
     container.remove();
   });
 
-  test('clears stale picker banner on cancel and enables 1-tap Browser OAuth fallback', async () => {
+  test('does not launch browser OAuth when user explicitly cancels native picker', async () => {
+    mockPerformNativeGoogleLogin.mockResolvedValueOnce({
+      success: false,
+      cancelled: true,
+      error: 'Google Sign-In cancelled by user',
+      isNative: true,
+    });
+
     await act(async () => {
       root.render(<LoginPage onLoginSuccess={vi.fn()} isMandatory={true} />);
     });
@@ -71,8 +78,35 @@ describe('LoginPage Native Picker Cancellation & Browser Fallback', () => {
       await new Promise((r) => setTimeout(r, 20));
     });
 
-    const textAfterCancel = container.textContent || '';
-    expect(textAfterCancel).toContain('Complete Google Sign-In in the browser window');
+    // Browser OAuth should NOT have been triggered on user cancellation
+    expect(mockSignInWithOAuth).not.toHaveBeenCalled();
+    expect(mockOpenOAuthBrowser).not.toHaveBeenCalled();
+  });
+
+  test('automatically falls back to browser OAuth when native picker encounters an error', async () => {
+    mockPerformNativeGoogleLogin.mockResolvedValueOnce({
+      success: false,
+      cancelled: false,
+      error: '10: Developer error / SHA-1 mismatch',
+      isNative: true,
+    });
+
+    await act(async () => {
+      root.render(<LoginPage onLoginSuccess={vi.fn()} isMandatory={true} />);
+    });
+
+    const primaryBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Continue with Google')
+    );
+    expect(primaryBtn).toBeTruthy();
+
+    await act(async () => {
+      primaryBtn!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      await new Promise((r) => setTimeout(r, 20));
+    });
+
+    const textAfterError = container.textContent || '';
+    expect(textAfterError).toContain('Complete Google Sign-In in the browser window');
     expect(mockSignInWithOAuth).toHaveBeenCalledTimes(1);
     expect(mockOpenOAuthBrowser).toHaveBeenCalledWith(
       'https://accounts.google.com/o/oauth2/auth?mock=1'

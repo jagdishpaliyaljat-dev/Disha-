@@ -65,7 +65,18 @@ export const performNativeGoogleLogin = async (): Promise<{
         },
       });
     } catch (bottomErr: any) {
-      console.info('[MobileAuth] Bottom sheet One-Tap skipped, trying standard UI:', bottomErr?.message);
+      const bottomMsg = String(bottomErr?.message || '');
+      const isUserCancelled =
+        bottomErr?.code === 'USER_CANCELLED' ||
+        bottomMsg.toLowerCase().includes('cancel') ||
+        bottomMsg.toLowerCase().includes('dismiss');
+
+      if (isUserCancelled) {
+        console.info('[MobileAuth] User cancelled Google account selection.');
+        return { success: false, cancelled: true, error: 'User cancelled', isNative: true };
+      }
+
+      console.info('[MobileAuth] Bottom sheet One-Tap skipped, trying standard UI:', bottomMsg);
       // Fallback to standard Google sign-in UI if bottom sheet fails
       response = await SocialLogin.login({
         provider: 'google',
@@ -154,7 +165,7 @@ export const openOAuthBrowser = async (url: string): Promise<void> => {
     try {
       await Browser.open({
         url,
-        windowName: '_system',
+        windowName: '_blank',
         presentationStyle: 'popover',
       });
       return;
