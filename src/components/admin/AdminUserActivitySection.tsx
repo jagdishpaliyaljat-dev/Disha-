@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { AdminCard } from "./AdminCard";
 import { supabase, isSupabaseConfigured } from "../../lib/supabase";
+import { AdminUserDetailDrawer, SelectedActivityUser } from "./AdminUserDetailDrawer";
 
 interface UserFunnelData {
   period_days: number;
@@ -65,6 +66,7 @@ export const AdminUserActivitySection: React.FC = () => {
   const [features, setFeatures] = React.useState<FeatureAdoptionRow[]>([]);
   const [subjects, setSubjects] = React.useState<SubjectAnalyticsRow[]>([]);
   const [topUsers, setTopUsers] = React.useState<TopActiveUserRow[]>([]);
+  const [selectedUser, setSelectedUser] = React.useState<SelectedActivityUser | null>(null);
 
   const fetchActivityData = React.useCallback(async () => {
     if (!isSupabaseConfigured()) {
@@ -329,7 +331,11 @@ export const AdminUserActivitySection: React.FC = () => {
                     </tr>
                   ) : (
                     filteredUsers.map((u) => (
-                      <tr key={u.user_id} className="hover:bg-slate-50 dark:hover:bg-[#241D48]/40">
+                      <tr
+                        key={u.user_id}
+                        onClick={() => setSelectedUser(u)}
+                        className="hover:bg-slate-50 dark:hover:bg-[#241D48]/40 cursor-pointer transition-colors"
+                      >
                         <td className="py-2.5 pr-2">
                           <div className="font-bold text-slate-900 dark:text-white">{u.user_name}</div>
                           <div className="text-[10px] text-slate-500 truncate max-w-[180px]">
@@ -370,6 +376,11 @@ export const AdminUserActivitySection: React.FC = () => {
           </AdminCard>
         </>
       )}
+
+      <AdminUserDetailDrawer
+        user={selectedUser}
+        onClose={() => setSelectedUser(null)}
+      />
     </div>
   );
 };
