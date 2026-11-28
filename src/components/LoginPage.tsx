@@ -206,6 +206,7 @@ export function LoginPage({ onLoginSuccess, onClose, isMandatory = false }: Logi
         setConfigNotice(error.message);
       } else if (data?.session) {
         setSuccessNotice("OTP verified successfully!");
+        trackLogin("email_otp");
         await syncProfileFromSession(data.session);
       }
     } catch (err: any) {

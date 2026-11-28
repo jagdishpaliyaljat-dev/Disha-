@@ -1,6 +1,9 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import { MCQSession, AppSettings, Question, Chapter, UserProfile, ProgressStore, BookmarkReasonTag } from "../types";
 import { SmartBookmarkButton } from "./SmartBookmarkButton";
+import { trackQuizComplete } from "../utils/analytics";
+import { supabase, isSupabaseConfigured } from "../lib/supabase";
+import { isNativePlatform } from "../utils/mobileAuthService";
 import { useProgress } from "../context/ProgressContext";
 import { useQuestions } from "../context/QuestionsContext";
 import { QUESTIONS_MAP, CHAPTERS_MAP, TOPICS_MAP } from "../data/questions";
@@ -225,6 +228,56 @@ export const MCQSessionModal: React.FC<MCQSessionModalProps> = ({
       const totalAttempted = Object.keys(sessionResults).length;
       const totalCorrect = Object.values(sessionResults).filter((r) => r.isCorrect).length;
       const accuracy = totalAttempted > 0 ? Math.round((totalCorrect / totalAttempted) * 100) : 0;
+
+      // Track quiz_complete in GA4
+      trackQuizComplete(
+        session.topicId || "practice",
+        session.title || "Practice Session",
+        totalCorrect,
+        questions.length,
+        accuracy,
+        userProfile?.role === "admin"
+      );
+
+      // Persist attempt & activity to Supabase (non-blocking)
+      if (isSupabaseConfigured() && userProfile?.id && !userProfile.id.startsWith("guest")) {
+        const platform = isNativePlatform() ? "android" : "web";
+        const wrongCount = Math.max(0, totalAttempted - totalCorrect);
+        const skippedCount = Math.max(0, questions.length - totalAttempted);
+        supabase
+          .from("quiz_attempts")
+          .insert({
+            user_id: userProfile.id,
+            topic_id: session.topicId || null,
+            topic_name: session.title || "Practice Session",
+            subject: (session as any).subject || null,
+            exam_type: (session as any).examType || null,
+            total_q: questions.length,
+            correct_q: totalCorrect,
+            wrong_q: wrongCount,
+            skipped_q: skippedCount,
+            score_pct: accuracy,
+            duration_sec: elapsedSeconds || 0,
+            platform,
+          })
+          .then(() => {});
+        supabase
+          .from("user_activity_log")
+          .insert({
+            user_id: userProfile.id,
+            event_name: "quiz_complete",
+            properties: {
+              topic_id: session.topicId || "practice",
+              topic_title: session.title || "Practice Session",
+              score: totalCorrect,
+              total_questions: questions.length,
+              accuracy_pct: accuracy,
+            },
+            platform,
+          })
+          .then(() => {});
+      }
+
       ratingReviewService.recordTestCompletion();
       if (ratingReviewService.shouldTriggerReviewPrompt(accuracy)) {
         const timer = setTimeout(() => {
