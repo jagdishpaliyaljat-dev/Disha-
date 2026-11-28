@@ -305,10 +305,10 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                     return;
                   }
                   triggerHaptic("light");
-                  setShowEditProfileModal(true);
+                  setShowSettingsModal(true);
                 }}
                 className="absolute -bottom-1 -right-1 w-7 h-7 rounded-lg bg-[#7045D8] hover:bg-[#5B32BF] text-white flex items-center justify-center shadow-xs border-2 border-white dark:border-[#1B1536] active:scale-90 transition-transform cursor-pointer"
-                aria-label="Edit Profile"
+                aria-label="Edit Profile & Settings"
               >
                 <Edit2 size={12} />
               </button>
@@ -422,10 +422,10 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
             3. GROUPED MINIMAL ACTION LISTS
         ───────────────────────────────────────────────────────────── */}
 
-        {/* Group A: Study & App Experience */}
+        {/* Group A: App Settings & Preferences */}
         <section className="space-y-1.5">
           <h3 className="text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 px-1">
-            Study Experience
+            App Settings &amp; Preferences
           </h3>
           <div className="bg-white dark:bg-[#1B1536] rounded-2xl border border-slate-200 dark:border-[#31275E] shadow-xs overflow-hidden divide-y divide-slate-100 dark:divide-[#31275E]/60">
             {/* Practice Settings */}
@@ -446,7 +446,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
                     Practice Preferences
                   </span>
                   <span className="text-[11px] text-slate-500 dark:text-slate-400 block truncate">
-                    Daily Goal: {dailyGoal} Qs • Audio • Vibrations
+                    Display, Audio, Haptics &amp; Profile Settings
                   </span>
                 </div>
               </div>
@@ -1209,6 +1209,13 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
           onClose={() => setShowSettingsModal(false)}
           settings={settings}
           onUpdateSettings={onUpdateSettings}
+          userProfile={activeProfile}
+          onUpdateProfile={(updated) => {
+            const merged = { ...activeProfile, ...updated };
+            setActiveProfile(merged);
+            saveUserProfile(merged);
+            onUpdateProfile?.(merged);
+          }}
         />
       )}
 

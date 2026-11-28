@@ -2788,6 +2788,14 @@ export default function App() {
             settings={settings}
             onUpdateSettings={(newSettings: Partial<AppSettings>) => setSettings(prev => ({ ...prev, ...newSettings }))}
             onClose={() => setIsSettingsOpen(false)}
+            userProfile={userProfile}
+            onUpdateProfile={(updated) => {
+              if (userProfile) {
+                const merged = { ...userProfile, ...updated };
+                setUserProfile(merged);
+                saveUserProfile(merged);
+              }
+            }}
           />
         </OverlayErrorBoundary>
       )}
