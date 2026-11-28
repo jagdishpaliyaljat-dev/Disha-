@@ -1672,31 +1672,43 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
           />
         )}
 
-        {/* Phase: 3-2-1 Countdown (Stadium Experience) */}
+        {/* Phase: 3-2-1 Countdown (Minimal Royal Violet Brand Theme) */}
         {phase === "countdown" && (
-          <div className="flex-1 flex flex-col items-center justify-center bg-gradient-to-b from-[#5B32BF] via-[#7045D8] to-[#3A000E] text-white p-6 text-center select-none relative overflow-hidden">
-            <div className="absolute top-0 left-0 right-0 h-40 bg-radial from-amber-400/20 to-transparent pointer-events-none" />
+          <div className="flex-1 flex flex-col items-center justify-center bg-gradient-to-b from-[#4A154B] via-[#7045D8] to-[#130E26] dark:from-[#1E1238] dark:via-[#2D1B54] dark:to-[#130E26] text-white p-6 text-center select-none relative overflow-hidden">
+            {/* Subtle Radial Glow */}
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_42%,rgba(167,139,250,0.22),transparent_65%)] pointer-events-none" />
 
-            <div className="mb-4 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/20 text-amber-300 text-xs font-bold uppercase tracking-wider border border-amber-300/30">
-              <Zap className="w-4 h-4 fill-current animate-bounce" />
-              <span>Preparing the Arena!</span>
+            {/* Top Pill */}
+            <div className="relative z-10 mb-5 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/12 backdrop-blur-md text-[#E9D5FF] text-xs font-extrabold uppercase tracking-wider border border-white/20 shadow-xs">
+              <Zap className="w-3.5 h-3.5 text-amber-300 fill-current animate-pulse" />
+              <span>Preparing Arena</span>
             </div>
 
-            <div className="relative w-36 h-36 rounded-full border-4 border-amber-400 flex items-center justify-center shadow-[0_0_50px_rgba(245,158,11,0.5)] bg-black/40 my-6 transform animate-pulse">
-              <span
-                key={countdownNum}
-                className="text-8xl font-black font-mono text-amber-300 drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)] animate-in zoom-in-50 duration-300"
-              >
-                {countdownNum}
-              </span>
+            {/* Clean Countdown Ring */}
+            <div className="relative z-10 w-36 h-36 sm:w-40 sm:h-40 rounded-full p-1 bg-gradient-to-tr from-[#A78BFA] via-white/80 to-amber-300 shadow-[0_0_45px_rgba(112,69,216,0.55)] my-4">
+              <div className="w-full h-full rounded-full bg-[#1B1536]/90 backdrop-blur-md flex items-center justify-center border border-white/15">
+                <span
+                  key={countdownNum}
+                  className="text-7xl sm:text-8xl font-black font-mono text-white drop-shadow-[0_4px_16px_rgba(167,139,250,0.6)] animate-in zoom-in-50 duration-300"
+                >
+                  {countdownNum}
+                </span>
+              </div>
             </div>
 
-            <h3 className="text-xl font-extrabold text-white">
+            <h3 className="relative z-10 text-xl sm:text-2xl font-black tracking-tight text-white mt-3">
               Get Ready!
             </h3>
-            <p className="text-xs text-amber-200/90 mt-1 max-w-xs">
-              ⚡ 10s per question • Faster and correct answers score more points!
+            <p className="relative z-10 text-xs sm:text-sm font-medium text-white/80 mt-1.5 max-w-xs leading-relaxed">
+              {roomConfig.timePerQuestionSec}s per question • Faster &amp; accurate answers earn bonus points
             </p>
+
+            {/* Match Info Pill */}
+            <div className="relative z-10 mt-5 inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-white/10 border border-white/15 text-[11px] font-bold text-white/85">
+              <span>{roomConfig.questionCount} Questions</span>
+              <span className="opacity-40">•</span>
+              <span>{players.length} Players</span>
+            </div>
           </div>
         )}
 

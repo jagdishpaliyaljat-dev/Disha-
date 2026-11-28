@@ -74,17 +74,17 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
   return (
     <div className="space-y-4 max-w-2xl mx-auto pb-14">
       {/* Top Header Card */}
-      <div className="bg-gradient-to-r from-[#4A154B] via-[#7045D8] to-[#5B32BF] text-white rounded-3xl p-4 sm:p-5 shadow-xl border border-[#7045D8]/30 relative overflow-hidden">
+      <div className="bg-gradient-to-r from-[#7045D8] via-[#5B32BF] to-[#31275E] text-white rounded-3xl p-4 sm:p-5 shadow-xl border border-[#7045D8]/30 relative overflow-hidden">
         <div className="relative z-10 space-y-2">
           <div className="flex items-center justify-between gap-2">
             <span className="px-2.5 py-0.5 rounded-md bg-[#7045D8] text-white text-[10px] font-black uppercase tracking-wider flex items-center gap-1 shadow-xs">
-              <Sparkles className="w-3 h-3 text-[#FFF9EF] fill-[#FFF9EF]" />
+              <Sparkles className="w-3 h-3 text-[#FFFFFF] fill-[#FFFFFF]" />
               Disha PYQ • Verified Analysis Report
             </span>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => generateExamAnalysisPDF(analysis)}
-                className="px-2.5 py-1 rounded-xl bg-white/15 hover:bg-white/25 border border-[#7045D8]/30 text-[11px] font-bold text-[#FFF9EF] flex items-center gap-1 backdrop-blur-xs transition-colors cursor-pointer"
+                className="px-2.5 py-1 rounded-xl bg-white/15 hover:bg-white/25 border border-[#7045D8]/30 text-[11px] font-bold text-[#FFFFFF] flex items-center gap-1 backdrop-blur-xs transition-colors cursor-pointer"
                 title="Download PDF Report"
               >
                 <Download className="w-3.5 h-3.5 text-[#7045D8] dark:text-[#A78BFA]" />
@@ -94,10 +94,10 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
           </div>
 
           <div>
-            <h1 className="text-lg sm:text-xl font-black tracking-tight leading-tight text-[#FFF9EF]">
+            <h1 className="text-lg sm:text-xl font-black tracking-tight leading-tight text-[#FFFFFF]">
               {analysis.examName} ({analysis.paperYear})
             </h1>
-            <p className="text-xs text-[#F7EFE2]/90 font-medium mt-0.5">
+            <p className="text-xs text-[#F8FAFC]/90 font-medium mt-0.5">
               {analysis.paperName} {analysis.shiftCode ? `• ${analysis.shiftCode}` : ""} • Analyzed {new Date(analysis.createdAt).toLocaleDateString()}
             </p>
           </div>
@@ -125,25 +125,25 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
         </div>
 
         {/* Metric 2: Near-Exact Coverage */}
-        <div className="bg-teal-50/70 dark:bg-teal-950/20 border border-teal-200 dark:border-teal-900/40 rounded-2xl p-3.5 space-y-1">
-          <span className="text-[10px] font-black uppercase text-teal-800 dark:text-teal-400 tracking-wider block">
+        <div className="bg-[#7045D8]/5 dark:bg-[#7045D8]/15 border border-[#7045D8]/20 dark:border-[#31275E] rounded-2xl p-3.5 space-y-1">
+          <span className="text-[10px] font-black uppercase text-[#7045D8] dark:text-[#A78BFA] tracking-wider block">
             Near-Exact Coverage
           </span>
           <div className="flex items-baseline gap-1.5 tabular-nums">
-            <span className="text-2xl font-black text-teal-900 dark:text-teal-200">
+            <span className="text-2xl font-black text-slate-900 dark:text-slate-50">
               {coverage.nearExactCoverage}%
             </span>
-            <span className="text-[10px] font-bold text-teal-700/80 dark:text-teal-400/80">
+            <span className="text-[10px] font-bold text-[#7045D8]/80 dark:text-[#A78BFA]/80">
               ({coverage.exact + coverage.nearExact}/{coverage.total})
             </span>
           </div>
-          <p className="text-[9.5px] font-medium text-teal-800/80 dark:text-teal-300/80 leading-snug">
+          <p className="text-[9.5px] font-medium text-slate-600 dark:text-slate-400 leading-snug">
             Exact + minor rephrasing with identical answers.
           </p>
         </div>
 
         {/* Metric 3: Related Question Coverage */}
-        <div className="bg-[#F8FAFC] dark:bg-[#1B1536] border border-[#C99A45]/60 dark:border-[#A78BFA]/40 rounded-2xl p-3.5 space-y-1">
+        <div className="bg-[#F8FAFC] dark:bg-[#1B1536] border border-[#7045D8]/60 dark:border-[#A78BFA]/40 rounded-2xl p-3.5 space-y-1">
           <span className="text-[10px] font-black uppercase text-[#7045D8] dark:text-[#A78BFA] tracking-wider block">
             Related Question Coverage
           </span>
@@ -172,11 +172,11 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
           </span>
         </div>
 
-        <div className="p-2 rounded-xl bg-teal-50 dark:bg-teal-950/30">
-          <span className="text-[9.5px] font-bold text-teal-700 dark:text-teal-400 block uppercase">
+        <div className="p-2 rounded-xl bg-[#7045D8]/10 dark:bg-[#7045D8]/20">
+          <span className="text-[9.5px] font-bold text-[#7045D8] dark:text-[#A78BFA] block uppercase">
             Near-Exact
           </span>
-          <span className="text-base font-black text-teal-900 dark:text-teal-200">
+          <span className="text-base font-black text-slate-900 dark:text-slate-50">
             {coverage.nearExact}
           </span>
         </div>
@@ -301,7 +301,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                 categoryTextColor = "text-emerald-700 dark:text-emerald-400";
                 badgeText = "Exact Match";
               } else if (q.primaryMatchCategory === "near_exact") {
-                categoryTextColor = "text-teal-700 dark:text-teal-400";
+                categoryTextColor = "text-[#7045D8] dark:text-[#A78BFA]";
                 badgeText = "Near-Exact Match";
               } else if (q.primaryMatchCategory === "similar") {
                 categoryTextColor = "text-[#5B32BF] dark:text-[#A78BFA]";

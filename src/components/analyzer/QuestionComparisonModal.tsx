@@ -62,9 +62,9 @@ export const QuestionComparisonModal: React.FC<QuestionComparisonModalProps> = (
       case "exact":
         return "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800";
       case "near_exact":
-        return "bg-teal-100 text-teal-800 dark:bg-teal-950/60 dark:text-teal-300 border-teal-300 dark:border-teal-800";
+        return "bg-teal-100 text-teal-800 dark:bg-[#241D48]/60 dark:text-teal-300 border-[#7045D8]/30 dark:border-[#31275E]";
       case "similar":
-        return "bg-[#7045D8]/15 text-[#9A3412] dark:text-[#A78BFA] border-[#F47B20]/40";
+        return "bg-[#7045D8]/15 text-[#9A3412] dark:text-[#A78BFA] border-[#7045D8]/40";
       case "concept_related":
         return "bg-[#7045D8]/10 text-[#7045D8] dark:bg-[#7045D8]/25 dark:text-[#7045D8] dark:text-[#A78BFA] border-[#7045D8]/30 dark:border-[#7045D8]/30";
       default:
@@ -114,7 +114,7 @@ export const QuestionComparisonModal: React.FC<QuestionComparisonModalProps> = (
           {/* Header */}
           <div className="px-5 py-4 border-b border-slate-200 dark:border-[#31275E] flex items-center justify-between shrink-0 bg-white dark:bg-[#241D48]">
             <div className="flex items-center gap-2.5">
-              <span className="w-8 h-8 rounded-xl bg-[#7045D8] text-[#FFF9EF] font-black text-xs tabular-nums flex items-center justify-center">
+              <span className="w-8 h-8 rounded-xl bg-[#7045D8] text-[#FFFFFF] font-black text-xs tabular-nums flex items-center justify-center">
                 Q{questionMatch.originalQuestionNumber}
               </span>
               <div>
@@ -213,7 +213,7 @@ export const QuestionComparisonModal: React.FC<QuestionComparisonModalProps> = (
               </div>
 
               {/* Right Column: Question Bank Match */}
-              <div className="p-3.5 rounded-2xl bg-white dark:bg-[#241D48] border-2 border-[#C99A45]/60 dark:border-[#A78BFA]/40 space-y-2.5">
+              <div className="p-3.5 rounded-2xl bg-white dark:bg-[#241D48] border-2 border-[#7045D8]/60 dark:border-[#A78BFA]/40 space-y-2.5">
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-black uppercase text-[#7045D8] dark:text-[#A78BFA] tracking-wider">
                     Disha PYQ Question Bank Match
@@ -365,7 +365,7 @@ export const QuestionComparisonModal: React.FC<QuestionComparisonModalProps> = (
                     placeholder="Optional review notes..."
                     value={reviewNotes}
                     onChange={(e) => setReviewNotes(e.target.value)}
-                    className="flex-1 px-3 py-1.5 rounded-xl bg-[#F8FAFC] dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] text-[11px] text-slate-900 dark:text-slate-50 focus:outline-hidden focus:ring-1 focus:ring-[#800020] dark:focus:ring-[#F47B20]"
+                    className="flex-1 px-3 py-1.5 rounded-xl bg-[#F8FAFC] dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] text-[11px] text-slate-900 dark:text-slate-50 focus:outline-hidden focus:ring-1 focus:ring-[#7045D8] dark:focus:ring-[#7045D8]"
                   />
                   <button
                     onClick={handleSaveReview}

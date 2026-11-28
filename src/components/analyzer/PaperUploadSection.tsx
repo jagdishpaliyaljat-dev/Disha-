@@ -330,8 +330,8 @@ export const PaperUploadSection: React.FC<PaperUploadSectionProps> = ({
       {/* 1. Compact Brand Header Card (Replaces Oversized Hero Banner) */}
       <div className="bg-white dark:bg-[#1B1536] rounded-2xl p-3.5 sm:p-4 border border-slate-200 dark:border-[#31275E] shadow-xs flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#701530] via-[#800020] to-[#C99A45] flex items-center justify-center text-white shadow-xs shrink-0 ring-1 ring-[#C99A45]/30">
-            <Sparkles className="w-5 h-5 text-amber-200" />
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#7045D8] via-[#5B32BF] to-[#4527A0] flex items-center justify-center text-white shadow-xs shrink-0 ring-1 ring-[#7045D8]/30">
+            <Sparkles className="w-5 h-5 text-white" />
           </div>
           <div>
             <div className="flex items-center gap-2">
@@ -376,7 +376,7 @@ export const PaperUploadSection: React.FC<PaperUploadSectionProps> = ({
       </div>
 
       {/* 3. Modern Segmented Tab Controller */}
-      <div className="bg-[#F4EBE0]/80 dark:bg-[#1A1D27] p-1 rounded-2xl border border-[#E4D6BF] dark:border-[#2D3344] flex items-center gap-1 shadow-inner overflow-x-auto no-scrollbar">
+      <div className="bg-[#F1F5F9]/80 dark:bg-[#130E26] p-1 rounded-2xl border border-[#E2E8F0] dark:border-[#31275E] flex items-center gap-1 shadow-inner overflow-x-auto no-scrollbar">
         {tabsConfig.map((tab) => {
           const Icon = tab.icon;
           const isActive = uploadMode === tab.id;
@@ -386,11 +386,11 @@ export const PaperUploadSection: React.FC<PaperUploadSectionProps> = ({
               onClick={() => setUploadMode(tab.id)}
               className={`flex-1 min-w-[76px] sm:min-w-0 py-2 px-2 sm:px-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
                 isActive
-                  ? "bg-gradient-to-r from-[#701530] via-[#800020] to-[#5B32BF] text-white shadow-sm ring-1 ring-[#C99A45]/40"
-                  : "text-[#6A5E50] dark:text-[#9EA8B6] hover:text-[#7045D8] dark:hover:text-white hover:bg-white/50 dark:hover:bg-white/5"
+                  ? "bg-gradient-to-r from-[#7045D8] via-[#5B32BF] to-[#4527A0] text-white shadow-sm ring-1 ring-[#7045D8]/40"
+                  : "text-[#64748B] dark:text-[#94A3B8] hover:text-[#7045D8] dark:hover:text-white hover:bg-white/50 dark:hover:bg-white/5"
               }`}
             >
-              <Icon className={`w-3.5 h-3.5 shrink-0 ${isActive ? "text-amber-300" : ""}`} />
+              <Icon className={`w-3.5 h-3.5 shrink-0 ${isActive ? "text-white" : ""}`} />
               <span className="text-[11px] sm:text-xs">{tab.label}</span>
             </button>
           );
@@ -436,14 +436,14 @@ export const PaperUploadSection: React.FC<PaperUploadSectionProps> = ({
         onDrop={handleDrop}
         className={`bg-white dark:bg-[#1B1536] rounded-2xl p-4 sm:p-5 border transition-all duration-200 shadow-xs space-y-3.5 ${
           isDragging
-            ? "border-[#7045D8] dark:border-[#C99A45] ring-2 ring-[#800020]/20 bg-[#F8FAFC] dark:bg-[#241D48]"
+            ? "border-[#7045D8] dark:border-[#7045D8] ring-2 ring-[#7045D8]/20 bg-[#F8FAFC] dark:bg-[#241D48]"
             : "border-slate-200 dark:border-[#31275E]"
         }`}
       >
         {/* Mode A: Scan Camera */}
         {uploadMode === "camera" && (
-          <div className="border-2 border-dashed border-[#7045D8]/25 dark:border-[#C99A45]/30 hover:border-[#7045D8] dark:hover:border-[#7045D8] rounded-xl bg-gradient-to-b from-[#FFFDF9] via-[#FAF5EC]/70 to-[#FFF9EF] dark:from-[#1F2330] dark:via-[#1A1D28] dark:to-[#171923] p-5 sm:p-6 text-center transition-all duration-200 group">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#7045D8]/10 to-[#C99A45]/20 dark:from-[#7045D8]/30 dark:to-[#C99A45]/30 text-[#7045D8] dark:text-slate-300 flex items-center justify-center mx-auto shadow-2xs mb-2.5 group-hover:scale-105 transition-transform ring-1 ring-[#C99A45]/20">
+          <div className="border-2 border-dashed border-[#7045D8]/25 dark:border-[#7045D8]/30 hover:border-[#7045D8] dark:hover:border-[#7045D8] rounded-xl bg-gradient-to-b from-[#FFFFFF] via-[#F8FAFC]/70 to-[#FFFFFF] dark:from-[#1B1536] dark:via-[#130E26] dark:to-[#130E26] p-5 sm:p-6 text-center transition-all duration-200 group">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#7045D8]/10 to-[#A78BFA]/20 dark:from-[#7045D8]/30 dark:to-[#7045D8]/30 text-[#7045D8] dark:text-slate-300 flex items-center justify-center mx-auto shadow-2xs mb-2.5 group-hover:scale-105 transition-transform ring-1 ring-[#7045D8]/20">
               <Camera className="w-6 h-6 stroke-[2]" />
             </div>
             <h3 className="text-xs sm:text-sm font-black text-slate-900 dark:text-slate-50">
@@ -454,9 +454,9 @@ export const PaperUploadSection: React.FC<PaperUploadSectionProps> = ({
             </p>
             <button
               onClick={() => cameraInputRef.current?.click()}
-              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#701530] via-[#800020] to-[#5B32BF] hover:brightness-105 text-white font-bold text-xs flex items-center gap-2 mx-auto shadow-sm active:scale-[0.98] transition-all cursor-pointer ring-1 ring-[#C99A45]/30"
+              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#7045D8] via-[#5B32BF] to-[#4527A0] hover:brightness-105 text-white font-bold text-xs flex items-center gap-2 mx-auto shadow-sm active:scale-[0.98] transition-all cursor-pointer ring-1 ring-[#7045D8]/30"
             >
-              <Camera className="w-4 h-4 text-amber-300" />
+              <Camera className="w-4 h-4 text-white" />
               <span>Capture Page {uploadedFiles.length + 1}</span>
             </button>
           </div>
@@ -464,8 +464,8 @@ export const PaperUploadSection: React.FC<PaperUploadSectionProps> = ({
 
         {/* Mode B: Images Gallery */}
         {uploadMode === "images" && (
-          <div className="border-2 border-dashed border-[#7045D8]/25 dark:border-[#C99A45]/30 hover:border-[#7045D8] dark:hover:border-[#7045D8] rounded-xl bg-gradient-to-b from-[#FFFDF9] via-[#FAF5EC]/70 to-[#FFF9EF] dark:from-[#1F2330] dark:via-[#1A1D28] dark:to-[#171923] p-5 sm:p-6 text-center transition-all duration-200 group">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#7045D8]/10 to-[#C99A45]/20 dark:from-[#7045D8]/30 dark:to-[#C99A45]/30 text-[#7045D8] dark:text-slate-300 flex items-center justify-center mx-auto shadow-2xs mb-2.5 group-hover:scale-105 transition-transform ring-1 ring-[#C99A45]/20">
+          <div className="border-2 border-dashed border-[#7045D8]/25 dark:border-[#7045D8]/30 hover:border-[#7045D8] dark:hover:border-[#7045D8] rounded-xl bg-gradient-to-b from-[#FFFFFF] via-[#F8FAFC]/70 to-[#FFFFFF] dark:from-[#1B1536] dark:via-[#130E26] dark:to-[#130E26] p-5 sm:p-6 text-center transition-all duration-200 group">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#7045D8]/10 to-[#A78BFA]/20 dark:from-[#7045D8]/30 dark:to-[#7045D8]/30 text-[#7045D8] dark:text-slate-300 flex items-center justify-center mx-auto shadow-2xs mb-2.5 group-hover:scale-105 transition-transform ring-1 ring-[#7045D8]/20">
               <Upload className="w-6 h-6 stroke-[2]" />
             </div>
             <h3 className="text-xs sm:text-sm font-black text-slate-900 dark:text-slate-50">
@@ -476,9 +476,9 @@ export const PaperUploadSection: React.FC<PaperUploadSectionProps> = ({
             </p>
             <button
               onClick={() => imageInputRef.current?.click()}
-              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#701530] via-[#800020] to-[#5B32BF] hover:brightness-105 text-white font-bold text-xs flex items-center gap-2 mx-auto shadow-sm active:scale-[0.98] transition-all cursor-pointer ring-1 ring-[#C99A45]/30"
+              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#7045D8] via-[#5B32BF] to-[#4527A0] hover:brightness-105 text-white font-bold text-xs flex items-center gap-2 mx-auto shadow-sm active:scale-[0.98] transition-all cursor-pointer ring-1 ring-[#7045D8]/30"
             >
-              <FileUp className="w-4 h-4 text-amber-300" />
+              <FileUp className="w-4 h-4 text-white" />
               <span>Browse Photos from Storage</span>
             </button>
           </div>
@@ -486,8 +486,8 @@ export const PaperUploadSection: React.FC<PaperUploadSectionProps> = ({
 
         {/* Mode C: PDF Document */}
         {uploadMode === "pdf" && (
-          <div className="border-2 border-dashed border-[#7045D8]/25 dark:border-[#C99A45]/30 hover:border-[#7045D8] dark:hover:border-[#7045D8] rounded-xl bg-gradient-to-b from-[#FFFDF9] via-[#FAF5EC]/70 to-[#FFF9EF] dark:from-[#1F2330] dark:via-[#1A1D28] dark:to-[#171923] p-5 sm:p-6 text-center transition-all duration-200 group">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#7045D8]/10 to-[#C99A45]/20 dark:from-[#7045D8]/30 dark:to-[#C99A45]/30 text-[#7045D8] dark:text-slate-300 flex items-center justify-center mx-auto shadow-2xs mb-2.5 group-hover:scale-105 transition-transform ring-1 ring-[#C99A45]/20">
+          <div className="border-2 border-dashed border-[#7045D8]/25 dark:border-[#7045D8]/30 hover:border-[#7045D8] dark:hover:border-[#7045D8] rounded-xl bg-gradient-to-b from-[#FFFFFF] via-[#F8FAFC]/70 to-[#FFFFFF] dark:from-[#1B1536] dark:via-[#130E26] dark:to-[#130E26] p-5 sm:p-6 text-center transition-all duration-200 group">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#7045D8]/10 to-[#A78BFA]/20 dark:from-[#7045D8]/30 dark:to-[#7045D8]/30 text-[#7045D8] dark:text-slate-300 flex items-center justify-center mx-auto shadow-2xs mb-2.5 group-hover:scale-105 transition-transform ring-1 ring-[#7045D8]/20">
               <FileText className="w-6 h-6 stroke-[2]" />
             </div>
             <h3 className="text-xs sm:text-sm font-black text-slate-900 dark:text-slate-50">
@@ -498,9 +498,9 @@ export const PaperUploadSection: React.FC<PaperUploadSectionProps> = ({
             </p>
             <button
               onClick={() => pdfInputRef.current?.click()}
-              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#701530] via-[#800020] to-[#5B32BF] hover:brightness-105 text-white font-bold text-xs flex items-center gap-2 mx-auto shadow-sm active:scale-[0.98] transition-all cursor-pointer ring-1 ring-[#C99A45]/30"
+              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#7045D8] via-[#5B32BF] to-[#4527A0] hover:brightness-105 text-white font-bold text-xs flex items-center gap-2 mx-auto shadow-sm active:scale-[0.98] transition-all cursor-pointer ring-1 ring-[#7045D8]/30"
             >
-              <FileText className="w-4 h-4 text-amber-300" />
+              <FileText className="w-4 h-4 text-white" />
               <span>Select Exam PDF File</span>
             </button>
           </div>
@@ -508,8 +508,8 @@ export const PaperUploadSection: React.FC<PaperUploadSectionProps> = ({
 
         {/* Mode D: JSON File */}
         {uploadMode === "json" && (
-          <div className="border-2 border-dashed border-[#7045D8]/25 dark:border-[#C99A45]/30 hover:border-[#7045D8] dark:hover:border-[#7045D8] rounded-xl bg-gradient-to-b from-[#FFFDF9] via-[#FAF5EC]/70 to-[#FFF9EF] dark:from-[#1F2330] dark:via-[#1A1D28] dark:to-[#171923] p-5 sm:p-6 text-center transition-all duration-200 group">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#7045D8]/10 to-[#C99A45]/20 dark:from-[#7045D8]/30 dark:to-[#C99A45]/30 text-[#7045D8] dark:text-slate-300 flex items-center justify-center mx-auto shadow-2xs mb-2.5 group-hover:scale-105 transition-transform ring-1 ring-[#C99A45]/20">
+          <div className="border-2 border-dashed border-[#7045D8]/25 dark:border-[#7045D8]/30 hover:border-[#7045D8] dark:hover:border-[#7045D8] rounded-xl bg-gradient-to-b from-[#FFFFFF] via-[#F8FAFC]/70 to-[#FFFFFF] dark:from-[#1B1536] dark:via-[#130E26] dark:to-[#130E26] p-5 sm:p-6 text-center transition-all duration-200 group">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#7045D8]/10 to-[#A78BFA]/20 dark:from-[#7045D8]/30 dark:to-[#7045D8]/30 text-[#7045D8] dark:text-slate-300 flex items-center justify-center mx-auto shadow-2xs mb-2.5 group-hover:scale-105 transition-transform ring-1 ring-[#7045D8]/20">
               <Layers className="w-6 h-6 stroke-[2]" />
             </div>
             <h3 className="text-xs sm:text-sm font-black text-slate-900 dark:text-slate-50">
@@ -520,9 +520,9 @@ export const PaperUploadSection: React.FC<PaperUploadSectionProps> = ({
             </p>
             <button
               onClick={() => jsonInputRef.current?.click()}
-              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#701530] via-[#800020] to-[#5B32BF] hover:brightness-105 text-white font-bold text-xs flex items-center gap-2 mx-auto shadow-sm active:scale-[0.98] transition-all cursor-pointer ring-1 ring-[#C99A45]/30"
+              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#7045D8] via-[#5B32BF] to-[#4527A0] hover:brightness-105 text-white font-bold text-xs flex items-center gap-2 mx-auto shadow-sm active:scale-[0.98] transition-all cursor-pointer ring-1 ring-[#7045D8]/30"
             >
-              <Upload className="w-4 h-4 text-amber-300" />
+              <Upload className="w-4 h-4 text-white" />
               <span>Choose JSON File</span>
             </button>
           </div>
@@ -560,9 +560,9 @@ export const PaperUploadSection: React.FC<PaperUploadSectionProps> = ({
               value={pastedText}
               onChange={(e) => setPastedText(e.target.value)}
               placeholder="Paste exam questions text or JSON here...&#10;&#10;Example:&#10;Q1. When was the Rajasthan Solar Energy Policy declared?&#10;(A) 2018 (B) 2019 (C) 2021 (D) 2022"
-              className="w-full p-3 rounded-xl bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] text-xs text-slate-900 dark:text-slate-50 focus:outline-hidden focus:ring-1 focus:ring-[#800020] dark:focus:ring-[#C99A45] leading-relaxed font-sans placeholder:text-[#9B8C7A]"
+              className="w-full p-3 rounded-xl bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] text-xs text-slate-900 dark:text-slate-50 focus:outline-hidden focus:ring-1 focus:ring-[#7045D8] dark:focus:ring-[#7045D8] leading-relaxed font-sans placeholder:text-[#94A3B8]"
             />
-            <div className="flex justify-between text-[10px] text-[#7C6E5E] dark:text-[#9EA8B6] px-1">
+            <div className="flex justify-between text-[10px] text-[#64748B] dark:text-[#94A3B8] px-1">
               <span>Supports both bilingual text & JSON</span>
               <span className="tabular-nums">{pastedText.length} characters</span>
             </div>
@@ -608,7 +608,7 @@ export const PaperUploadSection: React.FC<PaperUploadSectionProps> = ({
                       </span>
                     </div>
                   ) : file.type === "json" ? (
-                    <div className="w-full h-24 rounded-lg bg-amber-50/50 dark:bg-amber-950/20 flex flex-col items-center justify-center p-2 text-center">
+                    <div className="w-full h-24 rounded-lg bg-[#7045D8]/5 dark:bg-[#7045D8]/15 flex flex-col items-center justify-center p-2 text-center">
                       <Layers className="w-7 h-7 text-[#7045D8] dark:text-[#A78BFA] mb-1" />
                       <span className="text-[10px] font-bold text-slate-900 dark:text-slate-50 truncate w-full">
                         {file.name}
@@ -632,7 +632,7 @@ export const PaperUploadSection: React.FC<PaperUploadSectionProps> = ({
                       {idx > 0 && (
                         <button
                           onClick={() => handleMoveFile(idx, "up")}
-                          className="p-1 rounded-md text-slate-500 hover:text-[#7045D8] dark:hover:text-white hover:bg-white dark:hover:bg-[#31374A] transition-colors cursor-pointer"
+                          className="p-1 rounded-md text-slate-500 hover:text-[#7045D8] dark:hover:text-white hover:bg-white dark:hover:bg-[#31275E] transition-colors cursor-pointer"
                           title="Move earlier"
                         >
                           <ArrowUp className="w-3 h-3" />
@@ -641,7 +641,7 @@ export const PaperUploadSection: React.FC<PaperUploadSectionProps> = ({
                       {idx < uploadedFiles.length - 1 && (
                         <button
                           onClick={() => handleMoveFile(idx, "down")}
-                          className="p-1 rounded-md text-slate-500 hover:text-[#7045D8] dark:hover:text-white hover:bg-white dark:hover:bg-[#31374A] transition-colors cursor-pointer"
+                          className="p-1 rounded-md text-slate-500 hover:text-[#7045D8] dark:hover:text-white hover:bg-white dark:hover:bg-[#31275E] transition-colors cursor-pointer"
                           title="Move later"
                         >
                           <ArrowDown className="w-3 h-3" />
@@ -712,7 +712,7 @@ export const PaperUploadSection: React.FC<PaperUploadSectionProps> = ({
                 value={metadata.examName}
                 onChange={(e) => setMetadata({ ...metadata, examName: e.target.value })}
                 placeholder="e.g. RAS Pre, CET 12th, Patwar"
-                className="w-full px-3 py-2 rounded-xl bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] text-xs font-medium text-slate-900 dark:text-white focus:outline-hidden focus:ring-1 focus:ring-[#800020] dark:focus:ring-[#C99A45]"
+                className="w-full px-3 py-2 rounded-xl bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] text-xs font-medium text-slate-900 dark:text-white focus:outline-hidden focus:ring-1 focus:ring-[#7045D8] dark:focus:ring-[#7045D8]"
               />
             </div>
 
@@ -727,7 +727,7 @@ export const PaperUploadSection: React.FC<PaperUploadSectionProps> = ({
                   value={metadata.paperYear}
                   onChange={(e) => setMetadata({ ...metadata, paperYear: e.target.value })}
                   placeholder="2025"
-                  className="w-full px-3 py-2 rounded-xl bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] text-xs font-medium tabular-nums text-slate-900 dark:text-white focus:outline-hidden focus:ring-1 focus:ring-[#800020] dark:focus:ring-[#C99A45]"
+                  className="w-full px-3 py-2 rounded-xl bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] text-xs font-medium tabular-nums text-slate-900 dark:text-white focus:outline-hidden focus:ring-1 focus:ring-[#7045D8] dark:focus:ring-[#7045D8]"
                 />
               </div>
 
@@ -741,7 +741,7 @@ export const PaperUploadSection: React.FC<PaperUploadSectionProps> = ({
                   value={metadata.shiftCode}
                   onChange={(e) => setMetadata({ ...metadata, shiftCode: e.target.value })}
                   placeholder="Series A, Shift 1"
-                  className="w-full px-3 py-2 rounded-xl bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] text-xs font-medium text-slate-900 dark:text-white focus:outline-hidden focus:ring-1 focus:ring-[#800020] dark:focus:ring-[#C99A45]"
+                  className="w-full px-3 py-2 rounded-xl bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] text-xs font-medium text-slate-900 dark:text-white focus:outline-hidden focus:ring-1 focus:ring-[#7045D8] dark:focus:ring-[#7045D8]"
                 />
               </div>
             </div>
@@ -765,7 +765,7 @@ export const PaperUploadSection: React.FC<PaperUploadSectionProps> = ({
               <select
                 value={metadata.selectedSubjectId || "all"}
                 onChange={(e) => setMetadata({ ...metadata, selectedSubjectId: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] text-xs font-medium text-slate-900 dark:text-white focus:outline-hidden focus:ring-1 focus:ring-[#800020] dark:focus:ring-[#C99A45] cursor-pointer"
+                className="w-full px-3 py-2 rounded-xl bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] text-xs font-medium text-slate-900 dark:text-white focus:outline-hidden focus:ring-1 focus:ring-[#7045D8] dark:focus:ring-[#7045D8] cursor-pointer"
               >
                 <option value="all">Entire Question Bank (All Subjects)</option>
                 {subjects.map((s) => (
@@ -819,7 +819,7 @@ export const PaperUploadSection: React.FC<PaperUploadSectionProps> = ({
       <button
         onClick={handleSubmit}
         disabled={isLoading}
-        className="w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-[#701530] via-[#800020] to-[#5C0F22] hover:brightness-105 active:scale-[0.99] text-white font-black text-sm flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all cursor-pointer disabled:opacity-50 ring-1 ring-[#C99A45]/40"
+        className="w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-[#5B32BF] via-[#7045D8] to-[#5B32BF] hover:brightness-105 active:scale-[0.99] text-white font-black text-sm flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all cursor-pointer disabled:opacity-50 ring-1 ring-[#7045D8]/40"
       >
         {isLoading ? (
           <div className="flex items-center gap-2">
@@ -828,7 +828,7 @@ export const PaperUploadSection: React.FC<PaperUploadSectionProps> = ({
           </div>
         ) : (
           <>
-            <Sparkles className="w-4 h-4 text-amber-300" />
+            <Sparkles className="w-4 h-4 text-white" />
             <span>Start AI Extraction & Match Questions ➔</span>
           </>
         )}

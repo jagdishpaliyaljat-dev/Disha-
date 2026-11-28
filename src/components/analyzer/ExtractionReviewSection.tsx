@@ -175,7 +175,7 @@ export const ExtractionReviewSection: React.FC<ExtractionReviewSectionProps> = (
                       rows={3}
                       value={editText}
                       onChange={(e) => setEditText(e.target.value)}
-                      className="w-full p-2.5 rounded-xl bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] text-xs text-slate-900 dark:text-slate-50 leading-relaxed focus:outline-hidden focus:ring-1 focus:ring-[#800020] dark:focus:ring-[#F47B20]"
+                      className="w-full p-2.5 rounded-xl bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] text-xs text-slate-900 dark:text-slate-50 leading-relaxed focus:outline-hidden focus:ring-1 focus:ring-[#7045D8] dark:focus:ring-[#7045D8]"
                     />
                   </div>
 
@@ -258,7 +258,7 @@ export const ExtractionReviewSection: React.FC<ExtractionReviewSectionProps> = (
         <button
           onClick={() => onProceedToMatch(questions)}
           disabled={isMatching || questions.length === 0}
-          className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#7045D8] to-[#5B32BF] hover:from-[#6A001A] hover:to-[#4A0012] dark:from-[#F47B20] dark:to-[#E06A12] text-white font-black text-xs flex items-center gap-2 shadow-md transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50"
+          className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#7045D8] to-[#5B32BF] hover:from-[#5B32BF] hover:to-[#241D48] dark:from-[#7045D8] dark:to-[#7045D8] text-white font-black text-xs flex items-center gap-2 shadow-md transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50"
         >
           {isMatching ? (
             <>
