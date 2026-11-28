@@ -33,6 +33,7 @@ import { QuickActionsWidget } from "./QuickActionsWidget";
 import { getTotalDisplayCount } from "../../utils/questionsStorage";
 import { getAIUsageSummary, fetchLiveAIUsageSummary, AIUsageSummary } from "../../utils/aiUsageTracker";
 import { getBattleAnalyticsSummary, fetchLiveBattleAnalyticsSummary, BattleAnalyticsSummary, initGlobalBattleMonitor } from "../../utils/battleTracker";
+import { AdminLiveUserPulseStrip } from "./AdminLiveUserPulseStrip";
 
 interface AdminDashboardSectionProps {
   onNavigateSection: (section: "dashboard" | "users" | "banners" | "curriculum" | "health" | "ai-api" | "analytics" | "news" | "messages" | "tests" | "battle") => void;
@@ -176,6 +177,9 @@ export const AdminDashboardSection: React.FC<AdminDashboardSectionProps> = ({
 
   return (
     <div className="space-y-6">
+      {/* Real-time Live Student Pulse & Daily Velocity Strip */}
+      <AdminLiveUserPulseStrip onNavigateSection={onNavigateSection} />
+
       {/* 4 Metric Highlights */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {quickMetricCards.map((card, idx) => {

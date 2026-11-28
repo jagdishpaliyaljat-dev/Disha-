@@ -263,6 +263,129 @@ export async function fetchRegisteredUserCounts(): Promise<{
   }
 }
 
+export interface DailyUserVelocityMetrics {
+  todayRegistered: number;
+  yesterdayRegistered: number;
+  todayActive: number;
+  yesterdayActive: number;
+  totalRegistered: number;
+  registrationGrowthPct: number;
+  activeGrowthPct: number;
+  todayQuestionsAttempted: number;
+  yesterdayQuestionsAttempted: number;
+}
+
+/**
+ * Fetch real-time Daily User Velocity: Today vs Yesterday Registrations & Active Users
+ */
+export async function fetchDailyUserVelocityMetrics(): Promise<DailyUserVelocityMetrics> {
+  const now = new Date();
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+  const startOfYesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1).toISOString();
+
+  let todayRegistered = 0;
+  let yesterdayRegistered = 0;
+  let todayActive = 0;
+  let yesterdayActive = 0;
+  let totalRegistered = 0;
+  let todayQuestions = 0;
+  let yesterdayQuestions = 0;
+
+  try {
+    const [
+      todayRegRes,
+      yestRegRes,
+      todayActRes,
+      yestActRes,
+      totalRegRes,
+      todayQRes,
+      yestQRes,
+    ] = await Promise.allSettled([
+      supabase.from("profiles").select("*", { count: "exact", head: true }).gte("created_at", startOfToday),
+      supabase.from("profiles").select("*", { count: "exact", head: true }).gte("created_at", startOfYesterday).lt("created_at", startOfToday),
+      supabase.from("profiles").select("*", { count: "exact", head: true }).gte("updated_at", startOfToday),
+      supabase.from("profiles").select("*", { count: "exact", head: true }).gte("updated_at", startOfYesterday).lt("updated_at", startOfToday),
+      supabase.from("profiles").select("*", { count: "exact", head: true }),
+      supabase.from("quiz_attempts").select("*", { count: "exact", head: true }).gte("created_at", startOfToday),
+      supabase.from("quiz_attempts").select("*", { count: "exact", head: true }).gte("created_at", startOfYesterday).lt("created_at", startOfToday),
+    ]);
+
+    if (todayRegRes.status === "fulfilled" && todayRegRes.value.count !== null) {
+      todayRegistered = todayRegRes.value.count;
+    }
+    if (yestRegRes.status === "fulfilled" && yestRegRes.value.count !== null) {
+      yesterdayRegistered = yestRegRes.value.count;
+    }
+    if (todayActRes.status === "fulfilled" && todayActRes.value.count !== null) {
+      todayActive = todayActRes.value.count;
+    }
+    if (yestActRes.status === "fulfilled" && yestActRes.value.count !== null) {
+      yesterdayActive = yestActRes.value.count;
+    }
+    if (totalRegRes.status === "fulfilled" && totalRegRes.value.count !== null) {
+      totalRegistered = totalRegRes.value.count;
+    }
+    if (todayQRes.status === "fulfilled" && todayQRes.value.count !== null) {
+      todayQuestions = todayQRes.value.count;
+    }
+    if (yestQRes.status === "fulfilled" && yestQRes.value.count !== null) {
+      yesterdayQuestions = yestQRes.value.count;
+    }
+  } catch (err) {
+    console.warn("[DailyVelocityMetrics] Supabase fetch error, calculating from local directory:", err);
+  }
+
+  // Fallback / complement from local directory if count returned 0 or error
+  const localUsers = getLocalUsersDirectory();
+  if (localUsers.length > 0) {
+    totalRegistered = Math.max(totalRegistered, localUsers.length);
+    if (todayRegistered === 0 && yesterdayRegistered === 0) {
+      const todayTimestamp = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+      const yesterdayTimestamp = todayTimestamp - 86400000;
+      todayRegistered = localUsers.filter(u => {
+        const t = u.createdAt ? new Date(u.createdAt).getTime() : 0;
+        return t >= todayTimestamp;
+      }).length;
+      yesterdayRegistered = localUsers.filter(u => {
+        const t = u.createdAt ? new Date(u.createdAt).getTime() : 0;
+        return t >= yesterdayTimestamp && t < todayTimestamp;
+      }).length;
+    }
+    if (todayActive === 0 && yesterdayActive === 0) {
+      const todayTimestamp = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+      const yesterdayTimestamp = todayTimestamp - 86400000;
+      todayActive = localUsers.filter(u => {
+        const t = u.lastLoginAt ? new Date(u.lastLoginAt).getTime() : (u.updatedAt ? new Date(u.updatedAt).getTime() : 0);
+        return t >= todayTimestamp;
+      }).length;
+      yesterdayActive = localUsers.filter(u => {
+        const t = u.lastLoginAt ? new Date(u.lastLoginAt).getTime() : (u.updatedAt ? new Date(u.updatedAt).getTime() : 0);
+        return t >= yesterdayTimestamp && t < todayTimestamp;
+      }).length;
+    }
+  }
+
+  const registrationGrowthPct = yesterdayRegistered > 0
+    ? Math.round(((todayRegistered - yesterdayRegistered) / yesterdayRegistered) * 100)
+    : (todayRegistered > 0 ? 100 : 0);
+
+  const activeGrowthPct = yesterdayActive > 0
+    ? Math.round(((todayActive - yesterdayActive) / yesterdayActive) * 100)
+    : (todayActive > 0 ? 100 : 0);
+
+  return {
+    todayRegistered,
+    yesterdayRegistered,
+    todayActive,
+    yesterdayActive,
+    totalRegistered,
+    registrationGrowthPct,
+    activeGrowthPct,
+    todayQuestionsAttempted: todayQuestions,
+    yesterdayQuestionsAttempted: yesterdayQuestions,
+  };
+}
+
 export const fetchFirestoreUserCounts = fetchRegisteredUserCounts;
 
 export async function findSuspiciousProfiles(): Promise<UserProfile[]> {

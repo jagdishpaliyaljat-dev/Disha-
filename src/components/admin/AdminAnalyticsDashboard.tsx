@@ -39,6 +39,7 @@ import { supabase, isSupabaseConfigured } from "../../lib/supabase";
 import { subscribeToAdminLivePresence, LivePresenceSummary } from "../../utils/presenceService";
 import { SubjectTopicAccuracyHeatmap } from "./SubjectTopicAccuracyHeatmap";
 import { AdminUserActivitySection } from "./AdminUserActivitySection";
+import { AdminLiveUserPulseStrip } from "./AdminLiveUserPulseStrip";
 
 interface CloudTelemetrySummary {
   timestamp: string;
@@ -353,6 +354,9 @@ export const AdminAnalyticsDashboard: React.FC<AdminAnalyticsDashboardProps> = (
   return (
     <div className="space-y-6 sm:space-y-8 pb-16 animate-in fade-in slide-in-from-bottom-3 duration-700">
       
+      {/* Real-time Live Student Pulse & Daily Velocity Strip */}
+      <AdminLiveUserPulseStrip />
+
       {/* 1. Header Banner & Section Switcher */}
       <div className="bg-gradient-to-br from-white via-[#F8F6FF] to-white dark:from-[#171923] dark:via-[#1F2330] dark:to-[#171923] rounded-3xl border border-[rgba(112,69,216,0.18)] dark:border-[#31374A] shadow-sm p-4 sm:p-7 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-[#C99A45]/15 via-[#7045D8]/10 to-transparent rounded-bl-full pointer-events-none" />

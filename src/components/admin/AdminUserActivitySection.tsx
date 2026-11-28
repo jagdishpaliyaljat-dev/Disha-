@@ -17,6 +17,7 @@ import {
 import { AdminCard } from "./AdminCard";
 import { supabase, isSupabaseConfigured } from "../../lib/supabase";
 import { AdminUserDetailDrawer, SelectedActivityUser } from "./AdminUserDetailDrawer";
+import { AdminLiveUserPulseStrip } from "./AdminLiveUserPulseStrip";
 
 interface UserFunnelData {
   period_days: number;
@@ -126,6 +127,9 @@ export const AdminUserActivitySection: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* Real-time Live Student Pulse & Daily Velocity Strip */}
+      <AdminLiveUserPulseStrip />
+
       {/* Header & Period Filter */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
