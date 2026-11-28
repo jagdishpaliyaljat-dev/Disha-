@@ -380,59 +380,54 @@ export function parseExamQuestion(rawText: string, question?: Question): ParsedQ
 
   // 3B. Match the following detection from text
   if (matchPairs.length === 0 && !assertion) {
-    let capturedIntroL1Title: string | undefined = undefined;
-    let capturedIntroL2Title: string | undefined = undefined;
+    // Match the actual list headers that precede list items (avoiding earlier mentions in the intro sentence)
+    const l1HeaderRegex = /(?:^|\n|\s)(?:सूची|List)\s*[-–]?\s*(?:I|1)\b(?:\s*\(([^\)]+)\))?\s*[:\-–]?\s*(?=(?:[A-D]\.|\([A-Da-d]\)|[1-9]\.|\([1-9]\)|\(i\)))/i;
+    const l1Match = intro.match(l1HeaderRegex);
 
-    const introSentenceMatch = intro.match(
-      /(?:सूची|List)\s*[-–]?(?:I|1)\s*(\([^\)]+\))?\s*को\s*(?:सूची|List)\s*[-–]?(?:II|2)\s*(\([^\)]+\))?\s*से\s*सुमेलित\s*(?:कीजिए|करें)?(?:[^\n\:]*)?[\:\-\s]*/i
-    );
-    if (introSentenceMatch) {
-      if (introSentenceMatch[1]) capturedIntroL1Title = `सूची-I ${introSentenceMatch[1].trim()}`;
-      if (introSentenceMatch[2]) capturedIntroL2Title = `सूची-II ${introSentenceMatch[2].trim()}`;
-    }
-    const cleanWithoutIntroSentence = introSentenceMatch
-      ? intro.replace(introSentenceMatch[0], "").trim()
-      : intro;
+    if (l1Match && typeof l1Match.index === "number") {
+      const l1Start = l1Match.index;
+      const l1ContentStart = l1Start + l1Match[0].length;
+      if (l1Match[1]) leftTitle = `सूची-I (${l1Match[1].trim()})`;
 
-    const listMatch = cleanWithoutIntroSentence.match(
-      /(?:^|\n|\s)(?:सूची|List)\s*[-–]?\s*(?:I|1)\s*(\([^\)]+\))?[\:\-\s]*([\s\S]*?)(?:सूची|List)\s*[-–]?\s*(?:II|2)\s*(\([^\)]+\))?[\:\-\s]*([\s\S]*?)(?:(?:कूट|Code|नीचे|सही\s+कूट)[\s\S]*|$)/i
-    );
-    if (listMatch) {
-      if (listMatch[1]) leftTitle = `सूची-I ${listMatch[1].trim()}`;
-      else if (capturedIntroL1Title) leftTitle = capturedIntroL1Title;
+      const afterL1 = intro.slice(l1ContentStart);
+      const l2HeaderRegex = /(?:^|\n|\s)(?:सूची|List)\s*[-–]?\s*(?:II|2)\b(?:\s*\(([^\)]+)\))?\s*[:\-–]?\s*(?=(?:[1-9]\.|\([1-9]\)|\(i\)|[A-D]\.|\([A-Da-d]\)))/i;
+      const l2Match = afterL1.match(l2HeaderRegex);
 
-      if (listMatch[3]) rightTitle = `सूची-II ${listMatch[3].trim()}`;
-      else if (capturedIntroL2Title) rightTitle = capturedIntroL2Title;
+      if (l2Match && typeof l2Match.index === "number") {
+        if (l2Match[1]) rightTitle = `सूची-II (${l2Match[1].trim()})`;
 
-      const l1Text = listMatch[2].trim();
-      const l2Raw = listMatch[4].trim();
+        const l1Text = afterL1.slice(0, l2Match.index).trim();
+        const l2Raw = afterL1.slice(l2Match.index + l2Match[0].length).trim();
 
-      const outroMatch = l2Raw.match(/(?:\n|\s)(?:कूट|नीचे\s+दिए|सही\s+कूट|उपर्युक्त|Code)[\s\S]*$/i);
-      let l2Text = l2Raw;
-      if (outroMatch && outroMatch.index) {
-        l2Text = l2Raw.slice(0, outroMatch.index).trim();
-        instruction = outroMatch[0].trim();
-      }
-
-      const splitItems = (t: string) => {
-        const trimmed = t.trim();
-        const lines = trimmed.split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
-        if (lines.length >= 2) {
-          return lines;
+        const outroMatch = l2Raw.match(
+          /(?:\n|\s)(?:सही\s+कूट|नीचे\s+दिए\s+गए\s+कूट|नीचे\s+दिए|कूट|उपर्युक्त|सूची\s*[-–]?\s*(?:I|1)\s*को\s*सूची|Code|Select)[\s\S]*$/i
+        );
+        let l2Text = l2Raw;
+        if (outroMatch && typeof outroMatch.index === "number") {
+          l2Text = l2Raw.slice(0, outroMatch.index).trim();
+          instruction = outroMatch[0].trim();
         }
-        return trimmed.split(/\s+(?=[(][a-dA-D1-4ivxIVX]+[)]|[A-D1-4]\.|\([1-4]\))/).map((s) => s.trim()).filter(Boolean);
-      };
 
-      const l1Items = splitItems(l1Text);
-      const l2Items = splitItems(l2Text);
-      const max = Math.max(l1Items.length, l2Items.length);
-      for (let i = 0; i < max; i++) {
-        matchPairs.push({ left: l1Items[i] || "—", right: l2Items[i] || "—" });
-      }
+        const splitItems = (t: string) => {
+          const trimmed = t.trim();
+          const lines = trimmed.split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
+          if (lines.length >= 2) {
+            return lines;
+          }
+          return trimmed
+            .split(/\s+(?=\([a-dA-D1-9ivxIVX]+\)|[A-D]\.|[1-9]\.)/)
+            .map((s) => s.trim())
+            .filter(Boolean);
+        };
 
-      const l1Index = intro.indexOf("सूची-I");
-      if (l1Index > 0) {
-        intro = intro.slice(0, l1Index).trim();
+        const l1Items = splitItems(l1Text);
+        const l2Items = splitItems(l2Text);
+        const max = Math.max(l1Items.length, l2Items.length);
+        for (let i = 0; i < max; i++) {
+          matchPairs.push({ left: l1Items[i] || "—", right: l2Items[i] || "—" });
+        }
+
+        intro = intro.slice(0, l1Start).trim();
       }
     }
   }
@@ -698,11 +693,11 @@ export function chunkQuestionsIntoPages(
   // In 2-column book mode, total usable height across both columns is ~2010px.
   const PAGE_HEIGHT_BUDGET = isCompact
     ? fontSize === "large"
-      ? 1820
-      : 2020
+      ? 1520
+      : 1700
     : fontSize === "large"
-    ? 900
-    : 1000;
+    ? 760
+    : 840;
 
   const pages: Question[][] = [];
   let currentChunk: Question[] = [];
@@ -1244,7 +1239,7 @@ export function generateDisha2020PDFHTML(
 
     body {
       font-family: 'Noto Sans Devanagari', 'Plus Jakarta Sans', system-ui, sans-serif;
-      font-size: ${meta.fontSize === "large" ? "9.8pt" : "8.6pt"};
+      font-size: ${meta.fontSize === "large" ? "11.5pt" : "10.3pt"};
       line-height: 1.38;
       color: ${textMain};
       background-color: ${pagePreviewBg};
@@ -1592,11 +1587,11 @@ export function generateDisha2020PDFHTML(
     }
 
     .q-text-block {
-      font-size: ${meta.fontSize === "large" ? "9.8pt" : "8.6pt"};
+      font-size: ${meta.fontSize === "large" ? "11.5pt" : "10.3pt"};
       font-weight: 700;
-      line-height: 1.38;
+      line-height: 1.42;
       color: ${textMain};
-      margin-bottom: 3px;
+      margin-bottom: 4px;
       text-align: justify;
     }
 
@@ -1604,7 +1599,7 @@ export function generateDisha2020PDFHTML(
       font-weight: 900;
       color: ${primaryAccent};
       margin-right: 4px;
-      font-size: ${meta.fontSize === "large" ? "10pt" : "8.8pt"};
+      font-size: ${meta.fontSize === "large" ? "11.8pt" : "10.5pt"};
     }
 
     .q-text-inline {
@@ -1613,7 +1608,7 @@ export function generateDisha2020PDFHTML(
 
     .exam-tag {
       display: inline-block;
-      font-size: 6.8pt;
+      font-size: 8pt;
       font-weight: 800;
       color: ${isBW ? "#000000" : "#5B32BF"};
       background: ${primarySoftBg};
@@ -1630,10 +1625,10 @@ export function generateDisha2020PDFHTML(
       background: ${isBW ? "#FAFAFA" : "#FBF9FE"};
       border-left: 2.5px solid ${primaryAccent};
       border-radius: 3px;
-      padding: 3px 6px;
-      margin: 3px 0 4px 0;
-      font-size: ${meta.fontSize === "large" ? "9pt" : "8pt"};
-      line-height: 1.35;
+      padding: 4px 7px;
+      margin: 4px 0 5px 0;
+      font-size: ${meta.fontSize === "large" ? "10.8pt" : "9.6pt"};
+      line-height: 1.38;
     }
 
     .ar-line {
@@ -1656,9 +1651,9 @@ export function generateDisha2020PDFHTML(
 
     /* Multiple Statements (कथन 1, 2, 3) */
     .book-statements-box {
-      margin: 3px 0 4px 2px;
-      font-size: ${meta.fontSize === "large" ? "9pt" : "8pt"};
-      line-height: 1.35;
+      margin: 4px 0 5px 2px;
+      font-size: ${meta.fontSize === "large" ? "10.8pt" : "9.6pt"};
+      line-height: 1.38;
     }
 
     .stmt-item {
@@ -1677,19 +1672,19 @@ export function generateDisha2020PDFHTML(
 
     /* Match the Following Table (सुमेलित कीजिए) */
     .book-match-container {
-      margin: 3px 0 4px 0;
+      margin: 4px 0 5px 0;
     }
 
     .book-match-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: ${meta.fontSize === "large" ? "8.8pt" : "7.8pt"};
-      line-height: 1.3;
+      font-size: ${meta.fontSize === "large" ? "10.4pt" : "9.3pt"};
+      line-height: 1.34;
     }
 
     .book-match-table th, .book-match-table td {
       border: 0.5px solid ${borderMuted};
-      padding: 2px 5px;
+      padding: 3px 6px;
       vertical-align: middle;
     }
 
@@ -1698,7 +1693,7 @@ export function generateDisha2020PDFHTML(
       color: ${primaryAccent};
       font-weight: 800;
       text-align: center;
-      font-size: 7.5pt;
+      font-size: 9pt;
     }
 
     .book-match-table td {
@@ -1707,7 +1702,7 @@ export function generateDisha2020PDFHTML(
     }
 
     .book-instruction {
-      font-size: 7.8pt;
+      font-size: 9.4pt;
       font-weight: 800;
       color: ${primaryAccent};
       margin: 3px 0 2px 0;
@@ -1728,25 +1723,25 @@ export function generateDisha2020PDFHTML(
     .opts-inline-four {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 2px 4px;
-      margin: 3px 0 2px 0;
-      font-size: ${meta.fontSize === "large" ? "9pt" : "8pt"};
+      gap: 3px 5px;
+      margin: 4px 0 2px 0;
+      font-size: ${meta.fontSize === "large" ? "10.8pt" : "9.6pt"};
     }
 
     .opts-two-by-two {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 2px 6px;
-      margin: 3px 0 2px 0;
-      font-size: ${meta.fontSize === "large" ? "9pt" : "8pt"};
+      gap: 3px 7px;
+      margin: 4px 0 2px 0;
+      font-size: ${meta.fontSize === "large" ? "10.8pt" : "9.6pt"};
     }
 
     .opts-vertical {
       display: flex;
       flex-direction: column;
-      gap: 2px;
-      margin: 3px 0 2px 0;
-      font-size: ${meta.fontSize === "large" ? "9pt" : "8pt"};
+      gap: 3px;
+      margin: 4px 0 2px 0;
+      font-size: ${meta.fontSize === "large" ? "10.8pt" : "9.6pt"};
     }
 
     .opt-item {
@@ -1755,7 +1750,7 @@ export function generateDisha2020PDFHTML(
       gap: 3px;
       color: ${textMain};
       font-weight: 600;
-      line-height: 1.3;
+      line-height: 1.34;
     }
 
     .opt-lbl {
@@ -1780,13 +1775,13 @@ export function generateDisha2020PDFHTML(
 
     /* Solutions Mode Book-Style Explanation Box */
     .book-exp-box {
-      margin-top: 3px;
-      padding: 3px 6px;
+      margin-top: 4px;
+      padding: 4px 7px;
       background: ${primarySoftBg};
       border-left: 2px solid ${primaryAccent};
       border-radius: 3px;
-      font-size: ${meta.fontSize === "large" ? "8.6pt" : "7.6pt"};
-      line-height: 1.32;
+      font-size: ${meta.fontSize === "large" ? "10.2pt" : "9pt"};
+      line-height: 1.36;
       color: ${textMain};
     }
 
