@@ -1,38 +1,31 @@
-import React, { useState, useMemo, useEffect, useRef } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { Chapter, ProgressStore, Subject, PYQPaper, LiveTest } from "../types";
 import {
   X,
   Printer,
   Eye,
-  BookOpen,
-  Filter,
-  Sparkles,
   Layers,
   ArrowLeft,
-  AlertCircle,
   Sliders,
   Check,
-  Share2,
   FileText,
   FileCheck,
   FileCode,
   FileQuestion,
-  RotateCcw,
   CheckCircle2,
   Download,
   Loader2,
   AlertTriangle,
-  HelpCircle,
-  Info,
-  ChevronRight,
   ZoomIn,
   ZoomOut,
-  Maximize2,
-  Calendar,
-  Award,
   Hash,
-  Shield,
-  FileDown,
+  Lock,
+  Sparkles,
+  ChevronDown,
+  ChevronUp,
+  BookOpen,
+  Bookmark,
+  XCircle,
 } from "lucide-react";
 import {
   PDFFormatCard,
@@ -43,8 +36,6 @@ import {
   generateDisha2020PDFHTML,
   generateAndDownloadPDF,
   openQuestionBankInNewTab,
-  printQuestionBankHTML,
-  downloadQuestionBankHTML,
   downloadJSON,
 } from "../utils/pdfGenerator";
 import { loadLocalPYQPapers, fetchPYQPapers, INITIAL_PYQ_PAPERS } from "../utils/pyqStorage";
@@ -54,6 +45,12 @@ import {
   getChapterDisplayName,
   getTopicDisplayName,
 } from "../utils/curriculumUtils";
+import {
+  usePdfConfig,
+  getTodayPDFDownloadCount,
+  incrementTodayPDFDownloadCount,
+} from "../utils/pdfConfigService";
+import { loadUserProfile, isUserAdmin } from "../utils/userProfileStorage";
 
 interface PDFExportModalProps {
   subjects: Subject[];
@@ -76,10 +73,12 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
   initialFilterType = "all",
   onClose,
 }) => {
-  // Mobile Top Tab: "config" vs "preview"
-  const [activeTab, setActiveTab] = useState<"config" | "preview">("config");
+  const { config: pdfConfig } = usePdfConfig();
+  const userProfile = useMemo(() => loadUserProfile(), []);
+  const isVipOrAdmin = Boolean(userProfile?.isPremium || isUserAdmin(userProfile));
+  const isLoggedIn = Boolean(userProfile?.email);
 
-  // Dynamic Data Sources
+  const [activeTab, setActiveTab] = useState<"config" | "preview">("config");
   const [pyqPapers, setPyqPapers] = useState<PYQPaper[]>(INITIAL_PYQ_PAPERS);
   const [liveTests, setLiveTests] = useState<LiveTest[]>(INITIAL_LIVE_TESTS);
 
@@ -87,91 +86,110 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
     async function loadData() {
       try {
         const localPYQs = loadLocalPYQPapers();
-        if (localPYQs && localPYQs.length > 0) setPyqPapers(localPYQs);
+        if (localPYQs?.length) setPyqPapers(localPYQs);
         const remotePYQs = await fetchPYQPapers();
-        if (remotePYQs && remotePYQs.length > 0) setPyqPapers(remotePYQs);
+        if (remotePYQs?.length) setPyqPapers(remotePYQs);
 
         const localLive = loadLocalLiveTests();
-        if (localLive && localLive.length > 0) setLiveTests(localLive);
+        if (localLive?.length) setLiveTests(localLive);
         const remoteLive = await fetchLiveTests();
-        if (remoteLive && remoteLive.length > 0) setLiveTests(remoteLive);
-      } catch (e) {
-        // Fallback to initial seeds
-      }
+        if (remoteLive?.length) setLiveTests(remoteLive);
+      } catch {}
     }
     loadData();
   }, []);
 
-  // 1. CONTENT SOURCE SELECTION
-  const [contentType, setContentType] = useState<ContentSourceType>(
-    initialTopicId ? "topic" : initialChapterId ? "chapter" : initialSubjectId ? "subject" : "question_bank"
-  );
+  // 1. Clean 5-mode Content Source
+  const initialSource: ContentSourceType =
+    initialFilterType === "wrong"
+      ? "wrong_review"
+      : initialFilterType === "bookmarked"
+      ? "bookmarked"
+      : initialTopicId
+      ? "topic"
+      : initialChapterId
+      ? "chapter"
+      : "subject";
 
-  const [selectedSubjectId, setSelectedSubjectId] = useState<string | "all">(
-    initialSubjectId || "all"
-  );
-  const [selectedChapterId, setSelectedChapterId] = useState<string | "all">(
-    initialChapterId || "all"
-  );
-  const [selectedTopicId, setSelectedTopicId] = useState<string | "all">(
-    initialTopicId || "all"
-  );
+  const [contentType, setContentType] = useState<ContentSourceType>(initialSource);
+  const [selectedSubjectId, setSelectedSubjectId] = useState<string | "all">(initialSubjectId || "all");
+  const [selectedChapterId, setSelectedChapterId] = useState<string | "all">(initialChapterId || "all");
+  const [selectedTopicId, setSelectedTopicId] = useState<string | "all">(initialTopicId || "all");
   const [selectedPYQId, setSelectedPYQId] = useState<string>(pyqPapers[0]?.id || "");
   const [selectedTestId, setSelectedTestId] = useState<string>(liveTests[0]?.id || "");
 
-  const [filterType, setFilterType] = useState<"all" | "wrong" | "bookmarked">(
-    initialFilterType
-  );
+  // Derive filterType automatically from contentType
+  const filterType: "all" | "wrong" | "bookmarked" =
+    contentType === "wrong_practice" || contentType === "wrong_review"
+      ? "wrong"
+      : contentType === "bookmarked"
+      ? "bookmarked"
+      : "all";
 
-  // 2. QUESTION COUNT & RANGE
+  // 2. Question Limit & Range (respecting Admin maxQuestionsFree)
   const [questionLimit, setQuestionLimit] = useState<number | "all">("all");
   const [useCustomRange, setUseCustomRange] = useState(false);
   const [customRangeStart, setCustomRangeStart] = useState<number>(1);
   const [customRangeEnd, setCustomRangeEnd] = useState<number>(25);
 
-  // 3. PDF FORMAT CARD (The 4 Primary Options)
-  const [formatCard, setFormatCard] = useState<PDFFormatCard>("question_paper");
+  const effectiveMaxQuestions =
+    !isVipOrAdmin && pdfConfig.maxQuestionsFree > 0 ? pdfConfig.maxQuestionsFree : 0;
 
-  // 4. DOCUMENT SETTINGS (TOGGLES)
-  const [includeCoverPage, setIncludeCoverPage] = useState(true);
-  const [showPageNumbers, setShowPageNumbers] = useState(true);
-  const [showHeaderFooter, setShowHeaderFooter] = useState(true);
-  const [includeTestInstructions, setIncludeTestInstructions] = useState(true);
-  const [includeSubjectTopicNames, setIncludeSubjectTopicNames] = useState(true);
-  const [includeBlankAnswerSheet, setIncludeBlankAnswerSheet] = useState(false);
+  // 3. PDF Format (auto-pick first enabled format from Admin config)
+  const enabledFormats = useMemo(() => {
+    const list: PDFFormatCard[] = [];
+    if (pdfConfig.allowedFormats.question_paper) list.push("question_paper");
+    if (pdfConfig.allowedFormats.question_paper_omr) list.push("question_paper_omr");
+    if (pdfConfig.allowedFormats.answer_key) list.push("answer_key");
+    if (pdfConfig.allowedFormats.detailed_solutions) list.push("detailed_solutions");
+    if (pdfConfig.allowJsonExport) list.push("json");
+    return list.length > 0 ? list : (["question_paper"] as PDFFormatCard[]);
+  }, [pdfConfig]);
 
-  // Layout & Formatting
+  const [formatCard, setFormatCard] = useState<PDFFormatCard>(enabledFormats[0]);
+
+  useEffect(() => {
+    if (!enabledFormats.includes(formatCard)) {
+      setFormatCard(enabledFormats[0]);
+    }
+  }, [enabledFormats, formatCard]);
+
+  // 4. Document Settings
   const [layout, setLayout] = useState<"single" | "compact">("single");
   const [fontSize, setFontSize] = useState<"normal" | "large">("normal");
-  const [shuffle, setShuffle] = useState(false);
-
-  // Personalization
-  const [studentName, setStudentName] = useState("");
+  const [includeCoverPage, setIncludeCoverPage] = useState(true);
+  const [showPageNumbers, setShowPageNumbers] = useState(true);
+  const [includeTestInstructions, setIncludeTestInstructions] = useState(true);
+  const [showPersonalize, setShowPersonalize] = useState(false);
+  const [studentName, setStudentName] = useState(userProfile?.name && userProfile?.email ? userProfile.name : "");
   const [rollNumber, setRollNumber] = useState("");
   const [customTitle, setCustomTitle] = useState("");
 
-  // Preview & Zoom States
+  // Preview & Generation States
   const [previewZoom, setPreviewZoom] = useState<number>(100);
-
-  // Generation state & Progress
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const [pdfProgress, setPdfProgress] = useState<PDFGenerationProgress | null>(null);
   const [toastMessage, setToastMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
+  const [dailyDownloadsUsed, setDailyDownloadsUsed] = useState<number>(() => getTodayPDFDownloadCount());
 
-  // Available chapters for selected subject
   const availableChapters = useMemo(() => {
     if (selectedSubjectId === "all") return chapters;
     return chapters.filter((c) => c.subjectId === selectedSubjectId);
   }, [chapters, selectedSubjectId]);
 
-  // Available topics for selected chapter
   const availableTopics = useMemo(() => {
     if (selectedChapterId === "all") return [];
     const ch = chapters.find((c) => c.id === selectedChapterId);
     return ch ? ch.topics : [];
   }, [chapters, selectedChapterId]);
 
-  // Compute filtered questions
+  // Apply Admin Free-tier question cap cleanly
+  const resolvedLimit = useMemo(() => {
+    if (effectiveMaxQuestions <= 0) return questionLimit;
+    if (questionLimit === "all") return effectiveMaxQuestions;
+    return Math.min(questionLimit, effectiveMaxQuestions);
+  }, [questionLimit, effectiveMaxQuestions]);
+
   const exportOptions: PDFExportOptions = useMemo(
     () => ({
       contentType,
@@ -184,21 +202,29 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
       format: formatCard,
       layout,
       fontSize,
-      questionLimit,
+      questionLimit: resolvedLimit,
       customRangeStart: useCustomRange ? customRangeStart : undefined,
-      customRangeEnd: useCustomRange ? customRangeEnd : undefined,
-      shuffle,
-
+      customRangeEnd: useCustomRange
+        ? effectiveMaxQuestions > 0
+          ? Math.min(customRangeEnd, customRangeStart + effectiveMaxQuestions - 1)
+          : customRangeEnd
+        : undefined,
+      shuffle: false,
       includeCoverPage,
       showPageNumbers,
-      showHeaderFooter,
+      showHeaderFooter: pdfConfig.forceBranding ? true : true,
       includeTestInstructions,
-      includeSubjectTopicNames,
-      includeBlankAnswerSheet: formatCard === "question_paper_omr" ? true : includeBlankAnswerSheet,
-
-      customTitle: customTitle.trim() || undefined,
+      includeSubjectTopicNames: true,
+      includeBlankAnswerSheet: formatCard === "question_paper_omr",
+      customTitle:
+        customTitle.trim() ||
+        (pdfConfig.forceBranding && pdfConfig.brandTitle ? pdfConfig.brandTitle : undefined),
       studentName: studentName.trim() || undefined,
       rollNumber: rollNumber.trim() || undefined,
+      instructionsText:
+        pdfConfig.forceBranding && pdfConfig.watermarkText
+          ? pdfConfig.watermarkText
+          : undefined,
     }),
     [
       contentType,
@@ -211,20 +237,18 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
       formatCard,
       layout,
       fontSize,
-      questionLimit,
+      resolvedLimit,
       useCustomRange,
       customRangeStart,
       customRangeEnd,
-      shuffle,
+      effectiveMaxQuestions,
       includeCoverPage,
       showPageNumbers,
-      showHeaderFooter,
       includeTestInstructions,
-      includeSubjectTopicNames,
-      includeBlankAnswerSheet,
       customTitle,
       studentName,
       rollNumber,
+      pdfConfig,
     ]
   );
 
@@ -239,7 +263,6 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
     );
   }, [subjects, chapters, progressStore, exportOptions, pyqPapers, liveTests]);
 
-  // Generate document HTML
   const generatedHTML = useMemo(() => {
     if (filteredResult.count === 0) return "";
     return generateDisha2020PDFHTML(filteredResult.questions, {
@@ -255,11 +278,13 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
       fontSize,
       includeCoverPage,
       showPageNumbers,
-      showHeaderFooter,
+      showHeaderFooter: true,
       includeTestInstructions,
-      includeSubjectTopicNames,
-      includeBlankAnswerSheet: formatCard === "question_paper_omr" ? true : includeBlankAnswerSheet,
-      customTitle: customTitle.trim() || undefined,
+      includeSubjectTopicNames: true,
+      includeBlankAnswerSheet: formatCard === "question_paper_omr",
+      customTitle:
+        customTitle.trim() ||
+        (pdfConfig.forceBranding && pdfConfig.brandTitle ? pdfConfig.brandTitle : undefined),
       studentName: studentName.trim() || undefined,
       rollNumber: rollNumber.trim() || undefined,
       maxMarks: filteredResult.maxMarks,
@@ -275,24 +300,44 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
     fontSize,
     includeCoverPage,
     showPageNumbers,
-    showHeaderFooter,
     includeTestInstructions,
-    includeSubjectTopicNames,
-    includeBlankAnswerSheet,
     customTitle,
     studentName,
     rollNumber,
     progressStore,
+    pdfConfig,
   ]);
 
-  // Handle Export
+  // Access Guard Checks from Admin Policy
+  const accessBlockReason = useMemo(() => {
+    if (!pdfConfig.enabled) {
+      return pdfConfig.disabledMessage || "PDF Downloads are currently paused by Admin.";
+    }
+    if (pdfConfig.accessTier === "vip_only" && !isVipOrAdmin) {
+      return "PDF Downloads are currently enabled for Disha VIP members only.";
+    }
+    if (pdfConfig.accessTier === "login_required" && !isLoggedIn && !isVipOrAdmin) {
+      return "Please sign in with your account to download PDFs.";
+    }
+    if (!isVipOrAdmin && pdfConfig.dailyQuotaFree > 0 && dailyDownloadsUsed >= pdfConfig.dailyQuotaFree) {
+      return `Daily free limit reached (${dailyDownloadsUsed}/${pdfConfig.dailyQuotaFree} PDFs today). Upgrade to VIP for unlimited downloads.`;
+    }
+    return null;
+  }, [pdfConfig, isVipOrAdmin, isLoggedIn, dailyDownloadsUsed]);
+
   const handleExport = async () => {
+    if (accessBlockReason) {
+      setToastMessage({ text: accessBlockReason, type: "error" });
+      return;
+    }
+
     if (formatCard === "json") {
-      const cleanTitle = (filteredResult.testTitle || filteredResult.subjectTitle || "DISHA_20_20_Data")
+      const cleanTitle = (filteredResult.testTitle || filteredResult.subjectTitle || "Disha_PYQ")
         .replace(/[^a-zA-Z0-9\u0900-\u097F]/g, "_");
-      downloadJSON(filteredResult.questions, `DISHA_20_20_${cleanTitle}.json`);
-      setToastMessage({ text: `✓ JSON data successfully downloaded!`, type: "success" });
-      setTimeout(() => setToastMessage(null), 5000);
+      downloadJSON(filteredResult.questions, `Disha_PYQ_${cleanTitle}.json`);
+      setDailyDownloadsUsed(incrementTodayPDFDownloadCount());
+      setToastMessage({ text: "JSON exported successfully!", type: "success" });
+      setTimeout(() => setToastMessage(null), 4000);
       return;
     }
 
@@ -300,34 +345,21 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
     setIsGeneratingPDF(true);
     setToastMessage(null);
 
-    const cleanTitle = (filteredResult.testTitle || filteredResult.subjectTitle || "DISHA_20_20_Paper")
+    const cleanTitle = (filteredResult.testTitle || filteredResult.subjectTitle || "Disha_PYQ_Paper")
       .replace(/[^a-zA-Z0-9\u0900-\u097F]/g, "_");
-    
-    let formatSuffix = "Question_Paper";
-    if (formatCard === "question_paper_omr") formatSuffix = "Question_Paper_With_Answer_Sheet";
-    else if (formatCard === "answer_key") formatSuffix = "Answer_Key";
-    else if (formatCard === "detailed_solutions") formatSuffix = "Detailed_Solutions";
-
-    const filename = `DISHA_20_20_${cleanTitle}_${formatSuffix}.pdf`;
+    const filename = `Disha_PYQ_${cleanTitle}_${formatCard}.pdf`;
 
     try {
-      const success = await generateAndDownloadPDF(
-        generatedHTML,
-        filename,
-        (progress) => setPdfProgress(progress)
-      );
-
+      const success = await generateAndDownloadPDF(generatedHTML, filename, (p) => setPdfProgress(p));
       if (success) {
-        setToastMessage({ text: `✓ ${filename} successfully downloaded!`, type: "success" });
-        setTimeout(() => setToastMessage(null), 5000);
+        setDailyDownloadsUsed(incrementTodayPDFDownloadCount());
+        setToastMessage({ text: `${filename} downloaded successfully!`, type: "success" });
+        setTimeout(() => setToastMessage(null), 4000);
       } else {
-        setToastMessage({ text: "Error generating PDF binary. Use 'Open in New Tab' to save directly.", type: "error" });
-        setTimeout(() => setToastMessage(null), 6000);
+        setToastMessage({ text: "Could not save binary PDF. Use 'Print / Save' button.", type: "error" });
       }
-    } catch (err) {
-      console.error("PDF generation caught error:", err);
-      setToastMessage({ text: "PDF generation issue. Opening in new tab for direct print/save.", type: "error" });
-      setTimeout(() => setToastMessage(null), 6000);
+    } catch {
+      setToastMessage({ text: "PDF export error. Try 'Print / Save' instead.", type: "error" });
     } finally {
       setIsGeneratingPDF(false);
       setPdfProgress(null);
@@ -335,14 +367,48 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
   };
 
   const handleOpenNewTab = () => {
-    if (!generatedHTML) return;
+    if (!generatedHTML || accessBlockReason) return;
     openQuestionBankInNewTab(generatedHTML);
   };
 
-  const handlePrint = () => {
-    if (!generatedHTML) return;
-    printQuestionBankHTML(generatedHTML);
-  };
+  const sourceCards = [
+    { id: "subject", label: "Syllabus", sub: "Subject / Topic", icon: BookOpen },
+    { id: "pyq", label: "PYQ Papers", sub: "Official Exams", icon: FileText },
+    { id: "mock_test", label: "Mock Tests", sub: "Test Series", icon: Layers },
+    { id: "wrong_review", label: "Mistakes", sub: "Wrong Qs", icon: XCircle },
+    { id: "bookmarked", label: "Bookmarks", sub: "Saved Qs", icon: Bookmark },
+  ];
+
+  const formatCards = [
+    {
+      id: "question_paper" as PDFFormatCard,
+      title: "Question Paper",
+      badge: "Practice",
+      desc: "Clean questions & options for offline solving",
+      icon: FileQuestion,
+    },
+    {
+      id: "question_paper_omr" as PDFFormatCard,
+      title: "Paper + OMR",
+      badge: "Exam Mode",
+      desc: "Questions with printable 5-option OMR sheet",
+      icon: FileCode,
+    },
+    {
+      id: "answer_key" as PDFFormatCard,
+      title: "Answer Key",
+      badge: "Quick Check",
+      desc: "Questions with compact answer key grid",
+      icon: FileCheck,
+    },
+    {
+      id: "detailed_solutions" as PDFFormatCard,
+      title: "With Solutions",
+      badge: "Complete",
+      desc: "Questions, answers & detailed explanations",
+      icon: Sparkles,
+    },
+  ].filter((f) => enabledFormats.includes(f.id));
 
   return (
     <div
@@ -351,56 +417,52 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
     >
       <div
         id="pdf-export-modal-dialog"
-        className="w-full h-full sm:h-[92vh] sm:max-w-3xl bg-[#F8FAFC] dark:bg-[#130E26] sm:rounded-3xl border border-slate-200 dark:border-[#31275E] shadow-2xl flex flex-col overflow-hidden animate-in fade-in sm:zoom-in-95 duration-200"
+        className="w-full h-full sm:h-[92vh] sm:max-w-3xl bg-[#F8FAFC] dark:bg-[#130E26] sm:rounded-3xl border border-slate-200 dark:border-[#31275E] shadow-2xl flex flex-col overflow-hidden"
       >
-        {/* STICKY HEADER */}
-        <header className="px-4 py-3 bg-gradient-to-r from-[#7045D8] via-[#5B32BF] to-[#5B32BF] text-white shrink-0 flex flex-col gap-2.5 z-10 border-b border-[#A78BFA]/30">
+        {/* TOP HEADER */}
+        <header className="px-4 pt-[calc(0.75rem+env(safe-area-inset-top,0px))] pb-3 bg-gradient-to-r from-[#4A154B] via-[#7045D8] to-[#5B32BF] dark:from-[#1E1238] dark:via-[#2D1B54] dark:to-[#1B1536] text-white shrink-0 flex flex-col gap-3 border-b border-white/10">
           <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3 min-w-0">
+            <div className="flex items-center gap-2.5 min-w-0">
               <button
                 id="btn-close-pdf-export"
                 onClick={onClose}
-                className="w-9 h-9 rounded-xl bg-white/10 text-white hover:bg-white/20 active:scale-95 flex items-center justify-center transition-all cursor-pointer shrink-0 border border-white/10"
+                className="w-9 h-9 rounded-xl bg-white/15 hover:bg-white/25 active:scale-95 flex items-center justify-center transition-all cursor-pointer shrink-0 border border-white/15"
                 aria-label="Close"
               >
-                <ArrowLeft className="w-5 h-5 sm:hidden" />
-                <X className="w-5 h-5 hidden sm:block" />
+                <ArrowLeft className="w-4.5 h-4.5 sm:hidden" />
+                <X className="w-4.5 h-4.5 hidden sm:block" />
               </button>
 
               <div className="min-w-0">
-                <h2 className="text-base sm:text-lg font-black tracking-tight text-white flex items-center gap-2 flex-wrap">
-                  <span>Download Your PDF</span>
-                  <span className="text-[11px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-[#7045D8] text-white shrink-0 shadow-xs">
-                    Disha PYQ
-                  </span>
+                <h2 className="text-sm sm:text-base font-black tracking-tight text-white truncate">
+                  Download Study PDF
                 </h2>
-                <p className="text-xs text-slate-100/90 truncate font-medium">
-                  Create your personalized practice paper • Printable MCQ Exam PDF
+                <p className="text-[11px] text-white/80 truncate">
+                  {pdfConfig.brandTitle || "Disha PYQ"} • Printable Exam Sheet
                 </p>
               </div>
             </div>
 
-            {/* Quick Action Badges */}
             <div className="flex items-center gap-2 shrink-0">
-              <span className="text-xs font-bold tabular-nums text-white bg-[#7045D8]/25 border border-[#A78BFA]/40 px-2.5 py-1 rounded-lg">
-                {filteredResult.count} Questions
+              <span className="text-xs font-extrabold tabular-nums text-white bg-white/15 border border-white/20 px-2.5 py-1 rounded-xl">
+                {filteredResult.count} Qs
               </span>
             </div>
           </div>
 
-          {/* Segmented Controls: Customizer vs PDF Preview */}
+          {/* 2-Tab Switcher */}
           <div className="flex bg-black/25 p-1 rounded-xl border border-white/10">
             <button
               id="tab-btn-config"
               onClick={() => setActiveTab("config")}
               className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                 activeTab === "config"
-                  ? "bg-[#F8FAFC] text-[#7045D8] shadow-xs font-black"
+                  ? "bg-white text-[#7045D8] shadow-xs font-black"
                   : "text-white/80 hover:text-white"
               }`}
             >
-              <Sliders className="w-4 h-4" />
-              <span>Configure Paper Settings</span>
+              <Sliders className="w-3.5 h-3.5" />
+              <span>Customize PDF</span>
             </button>
 
             <button
@@ -409,26 +471,24 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
               disabled={filteredResult.count === 0}
               className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                 activeTab === "preview"
-                  ? "bg-[#F8FAFC] text-[#7045D8] shadow-xs font-black"
+                  ? "bg-white text-[#7045D8] shadow-xs font-black"
                   : "text-white/80 hover:text-white disabled:opacity-40"
               }`}
             >
-              <Eye className="w-4 h-4" />
-              <span>PDF Live Preview</span>
+              <Eye className="w-3.5 h-3.5" />
+              <span>Live Preview</span>
             </button>
           </div>
         </header>
 
-        {/* Toast Alerts */}
+        {/* Toast Alert */}
         {toastMessage && (
           <div
-            className={`py-2 px-4 text-xs font-bold flex items-center justify-between shrink-0 shadow-md ${
-              toastMessage.type === "success"
-                ? "bg-emerald-600 text-white"
-                : "bg-rose-600 text-white"
+            className={`py-2 px-4 text-xs font-bold flex items-center justify-between shrink-0 ${
+              toastMessage.type === "success" ? "bg-emerald-600 text-white" : "bg-rose-600 text-white"
             }`}
           >
-            <div className="flex items-center gap-2 mx-auto">
+            <div className="flex items-center gap-2">
               {toastMessage.type === "success" ? (
                 <CheckCircle2 className="w-4 h-4 shrink-0" />
               ) : (
@@ -436,129 +496,100 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
               )}
               <span>{toastMessage.text}</span>
             </div>
-            <button
-              onClick={() => setToastMessage(null)}
-              className="p-1 hover:bg-black/20 rounded cursor-pointer"
-            >
+            <button onClick={() => setToastMessage(null)} className="p-1 cursor-pointer">
               <X className="w-3.5 h-3.5" />
             </button>
           </div>
         )}
 
-        {/* TAB 1: CONFIGURATION SCREEN */}
+        {/* Admin Restriction / Quota Notice */}
+        {accessBlockReason && (
+          <div className="m-4 p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 flex items-start gap-3">
+            <Lock className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
+            <div>
+              <p className="text-xs font-extrabold text-rose-900 dark:text-rose-200">
+                PDF Download Restricted
+              </p>
+              <p className="text-xs text-rose-700 dark:text-rose-300 mt-0.5">{accessBlockReason}</p>
+            </div>
+          </div>
+        )}
+
+        {/* BODY */}
         {activeTab === "config" ? (
-          <div className="flex-1 overflow-y-auto overscroll-contain p-4 sm:p-6 space-y-6 text-slate-900 dark:text-slate-50">
-            {/* SECTION A: SELECT CONTENT */}
-            <section className="space-y-3">
+          <div className="flex-1 overflow-y-auto overscroll-contain p-4 sm:p-5 space-y-5">
+            {/* Free Tier Limits Pill (only if Admin set limits) */}
+            {!isVipOrAdmin && (effectiveMaxQuestions > 0 || pdfConfig.dailyQuotaFree > 0) && (
+              <div className="px-3.5 py-2 rounded-xl bg-[#7045D8]/10 border border-[#7045D8]/20 flex flex-wrap items-center justify-between gap-2 text-[11px] font-bold text-[#7045D8] dark:text-[#A78BFA]">
+                <span>
+                  {effectiveMaxQuestions > 0 && `Max ${effectiveMaxQuestions} Qs/PDF`}
+                  {effectiveMaxQuestions > 0 && pdfConfig.dailyQuotaFree > 0 && " · "}
+                  {pdfConfig.dailyQuotaFree > 0 &&
+                    `Daily Quota: ${dailyDownloadsUsed}/${pdfConfig.dailyQuotaFree}`}
+                </span>
+                <span className="text-[10px] uppercase tracking-wider">Free Plan</span>
+              </div>
+            )}
+
+            {/* STEP 1: CONTENT SOURCE */}
+            <section className="space-y-2.5">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-xs font-black text-[#7045D8] dark:text-[#A78BFA] uppercase tracking-wider">
-                  <Layers className="w-4 h-4 text-[#7045D8]" />
-                  <span>A. Select Content Source</span>
-                </div>
-                <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400">
-                  Dynamic Database
+                <span className="text-xs font-black text-[#7045D8] dark:text-[#A78BFA] uppercase tracking-wider flex items-center gap-1.5">
+                  <Layers className="w-3.5 h-3.5" />
+                  1. Select Content
                 </span>
               </div>
 
-              {/* Content Type Selector Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {[
-                  {
-                    id: "subject",
-                    label: "Subject-wise",
-                    sub: "By Subject",
-                  },
-                  {
-                    id: "chapter",
-                    label: "Chapter-wise",
-                    sub: "By Chapter",
-                  },
-                  {
-                    id: "topic",
-                    label: "Topic-wise",
-                    sub: "Specific Topics",
-                  },
-                  {
-                    id: "practice_test",
-                    label: "Practice Test",
-                    sub: "MCQ Sets",
-                  },
-                  {
-                    id: "mock_test",
-                    label: "Mock Test",
-                    sub: "Full Exam",
-                  },
-                  {
-                    id: "pyq",
-                    label: "PYQs",
-                    sub: "Previous Years",
-                  },
-                  {
-                    id: "wrong_practice",
-                    label: "Wrong (Practice)",
-                    sub: "Unanswered",
-                  },
-                  {
-                    id: "wrong_review",
-                    label: "Wrong (Review)",
-                    sub: "With Solution",
-                  },
-                  {
-                    id: "bookmarked",
-                    label: "Bookmarks",
-                    sub: "Important Qs",
-                  },
-                  {
-                    id: "question_bank",
-                    label: "Full Bank",
-                    sub: "All MCQs",
-                  },
-                ].map((item) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => {
-                      setContentType(item.id as ContentSourceType);
-                      setSelectedSubjectId("all");
-                      setSelectedChapterId("all");
-                      setSelectedTopicId("all");
-                    }}
-                    className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer active:scale-95 flex flex-col ${
-                      contentType === item.id
-                        ? "bg-[#7045D8] text-white border-[#7045D8] shadow-md"
-                        : "bg-white dark:bg-[#1B1536] border-slate-200 dark:border-[#31275E] text-slate-900 dark:text-slate-50 hover:border-[#A78BFA]"
-                    }`}
-                  >
-                    <span className="text-xs font-bold truncate">{item.label}</span>
-                    <span
-                      className={`text-[11px] ${
-                        contentType === item.id ? "text-slate-100/80" : "text-slate-500 dark:text-slate-400"
-                      }`}
-                    >
-                      {item.sub}
-                    </span>
-                  </button>
-                ))}
-              </div>
-
-              {/* Dynamic Select Dropdowns based on Content Type */}
-              <div className="p-3.5 bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] rounded-2xl space-y-3 shadow-2xs">
-                {/* Subject Selector */}
-                {(contentType === "subject" || contentType === "chapter" || contentType === "topic" || contentType === "question_bank") && (
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-bold text-slate-600 dark:text-slate-300">
-                      Subject
-                    </label>
-                    <select
-                      value={selectedSubjectId}
-                      onChange={(e) => {
-                        setSelectedSubjectId(e.target.value);
+              <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+                {sourceCards.map((item) => {
+                  const Icon = item.icon;
+                  const isSelected =
+                    item.id === "subject"
+                      ? contentType === "subject" || contentType === "chapter" || contentType === "topic" || contentType === "question_bank"
+                      : contentType === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => {
+                        setContentType(item.id as ContentSourceType);
+                        setSelectedSubjectId("all");
                         setSelectedChapterId("all");
                         setSelectedTopicId("all");
                       }}
-                      className="w-full h-10 px-3 bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] rounded-xl text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8] focus:border-[#7045D8] dark:focus:border-[#A78BFA]"
+                      className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer active:scale-95 flex flex-col gap-1 ${
+                        isSelected
+                          ? "bg-[#7045D8] text-white border-[#7045D8] shadow-sm"
+                          : "bg-white dark:bg-[#1B1536] border-slate-200 dark:border-[#31275E] text-slate-900 dark:text-slate-50 hover:border-[#7045D8]"
+                      }`}
                     >
-                      <option value="all">★ All Subjects</option>
+                      <Icon className={`w-4 h-4 ${isSelected ? "text-white" : "text-[#7045D8] dark:text-[#A78BFA]"}`} />
+                      <span className="text-xs font-bold truncate">{item.label}</span>
+                      <span className={`text-[10px] truncate ${isSelected ? "text-white/80" : "text-slate-500 dark:text-slate-400"}`}>
+                        {item.sub}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Cascading Selectors */}
+              {(contentType === "subject" || contentType === "chapter" || contentType === "topic" || contentType === "question_bank") && (
+                <div className="p-3.5 bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] rounded-2xl grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400">Subject</label>
+                    <select
+                      value={selectedSubjectId}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setSelectedSubjectId(val);
+                        setSelectedChapterId("all");
+                        setSelectedTopicId("all");
+                        setContentType(val === "all" ? "question_bank" : "subject");
+                      }}
+                      className="w-full h-10 px-3 bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] rounded-xl text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#7045D8]"
+                    >
+                      <option value="all">All Subjects</option>
                       {subjects.map((s) => (
                         <option key={s.id} value={s.id}>
                           {getSubjectDisplayName(s)}
@@ -566,124 +597,162 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
                       ))}
                     </select>
                   </div>
-                )}
 
-                {/* Chapter Selector */}
-                {(contentType === "chapter" || contentType === "topic") && (
                   <div className="space-y-1">
-                    <label className="text-[11px] font-bold text-slate-600 dark:text-slate-300">
-                      Chapter
-                    </label>
+                    <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400">Chapter</label>
                     <select
                       value={selectedChapterId}
                       onChange={(e) => {
-                        setSelectedChapterId(e.target.value);
+                        const val = e.target.value;
+                        setSelectedChapterId(val);
                         setSelectedTopicId("all");
+                        if (val !== "all") setContentType("chapter");
                       }}
-                      className="w-full h-10 px-3 bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] rounded-xl text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8] focus:border-[#7045D8] dark:focus:border-[#A78BFA]"
+                      className="w-full h-10 px-3 bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] rounded-xl text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#7045D8]"
                     >
-                      <option value="all">★ All Chapters</option>
+                      <option value="all">All Chapters</option>
                       {availableChapters.map((ch) => (
                         <option key={ch.id} value={ch.id}>
-                          Chapter {ch.number}: {getChapterDisplayName(ch)}
+                          Ch {ch.number}: {getChapterDisplayName(ch)}
                         </option>
                       ))}
                     </select>
                   </div>
-                )}
 
-                {/* Topic Selector */}
-                {contentType === "topic" && availableTopics.length > 0 && (
                   <div className="space-y-1">
-                    <label className="text-[11px] font-bold text-slate-600 dark:text-slate-300">
-                      Topic
-                    </label>
+                    <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400">Topic</label>
                     <select
                       value={selectedTopicId}
-                      onChange={(e) => setSelectedTopicId(e.target.value)}
-                      className="w-full h-10 px-3 bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] rounded-xl text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8] focus:border-[#7045D8] dark:focus:border-[#A78BFA]"
+                      disabled={selectedChapterId === "all" || availableTopics.length === 0}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setSelectedTopicId(val);
+                        if (val !== "all") setContentType("topic");
+                      }}
+                      className="w-full h-10 px-3 bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] rounded-xl text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#7045D8] disabled:opacity-50"
                     >
-                      <option value="all">★ All Topics in Chapter</option>
-                      {availableTopics.map((top, topIdx) => (
-                        <option key={`${top.id}-${topIdx}`} value={top.id}>
-                          {getTopicDisplayName(top)} ({top.questions.length} Qs)
+                      <option value="all">All Topics</option>
+                      {availableTopics.map((top, idx) => (
+                        <option key={`${top.id}-${idx}`} value={top.id}>
+                          {getTopicDisplayName(top)} ({top.questions.length})
                         </option>
                       ))}
                     </select>
                   </div>
-                )}
+                </div>
+              )}
 
-                {/* PYQ Paper Selector */}
-                {contentType === "pyq" && (
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-bold text-slate-600 dark:text-slate-300">
-                      Previous Year Exam Paper
-                    </label>
-                    <select
-                      value={selectedPYQId}
-                      onChange={(e) => setSelectedPYQId(e.target.value)}
-                      className="w-full h-10 px-3 bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] rounded-xl text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8] focus:border-[#7045D8] dark:focus:border-[#A78BFA]"
-                    >
-                      {pyqPapers.map((paper) => (
-                        <option key={paper.id} value={paper.id}>
-                          {paper.hindiTitle || paper.title} ({paper.paperYear})
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
+              {contentType === "pyq" && (
+                <div className="p-3.5 bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] rounded-2xl space-y-1">
+                  <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400">Select Exam Paper</label>
+                  <select
+                    value={selectedPYQId}
+                    onChange={(e) => setSelectedPYQId(e.target.value)}
+                    className="w-full h-10 px-3 bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] rounded-xl text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#7045D8]"
+                  >
+                    {pyqPapers.map((paper) => (
+                      <option key={paper.id} value={paper.id}>
+                        {paper.hindiTitle || paper.title} ({paper.paperYear})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
-                {/* Test Selector */}
-                {(contentType === "practice_test" || contentType === "mock_test" || contentType === "live_test") && (
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-bold text-slate-600 dark:text-slate-300">
-                      Select Test Series
-                    </label>
-                    <select
-                      value={selectedTestId}
-                      onChange={(e) => setSelectedTestId(e.target.value)}
-                      className="w-full h-10 px-3 bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] rounded-xl text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8] focus:border-[#7045D8] dark:focus:border-[#A78BFA]"
+              {(contentType === "practice_test" || contentType === "mock_test" || contentType === "live_test") && (
+                <div className="p-3.5 bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] rounded-2xl space-y-1">
+                  <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400">Select Mock Test</label>
+                  <select
+                    value={selectedTestId}
+                    onChange={(e) => setSelectedTestId(e.target.value)}
+                    className="w-full h-10 px-3 bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] rounded-xl text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#7045D8]"
+                  >
+                    {liveTests.map((t) => (
+                      <option key={t.id} value={t.id}>
+                        {t.hindiTitle || t.title} ({t.examCategory})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </section>
+
+            {/* STEP 2: PDF FORMAT */}
+            <section className="space-y-2.5">
+              <span className="text-xs font-black text-[#7045D8] dark:text-[#A78BFA] uppercase tracking-wider flex items-center gap-1.5">
+                <FileText className="w-3.5 h-3.5" />
+                2. Choose PDF Format
+              </span>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {formatCards.map((card) => {
+                  const Icon = card.icon;
+                  const isSelected = formatCard === card.id;
+                  return (
+                    <button
+                      key={card.id}
+                      type="button"
+                      onClick={() => setFormatCard(card.id)}
+                      className={`p-3.5 rounded-2xl border-2 text-left transition-all cursor-pointer flex items-start justify-between gap-2 ${
+                        isSelected
+                          ? "bg-white dark:bg-[#1B1536] border-[#7045D8] dark:border-[#A78BFA] shadow-sm ring-2 ring-[#7045D8]/15"
+                          : "bg-white/80 dark:bg-[#1B1536]/60 border-slate-200 dark:border-[#31275E] hover:border-[#A78BFA]"
+                      }`}
                     >
-                      {liveTests.map((t) => (
-                        <option key={t.id} value={t.id}>
-                          {t.hindiTitle || t.title} ({t.examCategory})
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
+                      <div className="flex items-start gap-2.5">
+                        <div className="w-9 h-9 rounded-xl bg-[#7045D8]/10 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center shrink-0">
+                          <Icon className="w-4.5 h-4.5" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-1.5">
+                            <h4 className="text-xs font-black text-slate-900 dark:text-white">{card.title}</h4>
+                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#7045D8]/10 text-[#7045D8] dark:text-[#A78BFA]">
+                              {card.badge}
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{card.desc}</p>
+                        </div>
+                      </div>
+                      {isSelected && (
+                        <div className="w-5 h-5 rounded-full bg-[#7045D8] text-white flex items-center justify-center shrink-0">
+                          <Check className="w-3 h-3" />
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             </section>
 
-            {/* SECTION B: QUESTION COUNT */}
+            {/* STEP 3: QUESTION COUNT & PRINT OPTIONS */}
             <section className="space-y-3">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-xs font-black text-[#7045D8] dark:text-[#A78BFA] uppercase tracking-wider">
-                  <Hash className="w-4 h-4 text-[#7045D8]" />
-                  <span>B. Question Count</span>
-                </div>
-                <span className="text-xs font-black tabular-nums text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-900/50 px-2 py-0.5 rounded-md">
-                  Available: {filteredResult.totalCandidateCount} Questions
+                <span className="text-xs font-black text-[#7045D8] dark:text-[#A78BFA] uppercase tracking-wider flex items-center gap-1.5">
+                  <Hash className="w-3.5 h-3.5" />
+                  3. Count &amp; Layout
+                </span>
+                <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400">
+                  {filteredResult.totalCandidateCount} Available
                 </span>
               </div>
 
               <div className="grid grid-cols-5 gap-1.5">
                 {[
                   { val: "all", label: "All" },
-                  { val: 25, label: "25 Qs" },
-                  { val: 50, label: "50 Qs" },
-                  { val: 100, label: "100 Qs" },
-                  { val: "custom", label: "Custom" },
+                  { val: 25, label: "25" },
+                  { val: 50, label: "50" },
+                  { val: 100, label: "100" },
+                  { val: "custom", label: "Range" },
                 ].map((lim) => {
                   const isCustomBtn = lim.val === "custom";
                   const isSelected = isCustomBtn ? useCustomRange : !useCustomRange && questionLimit === lim.val;
-                  const isDisabled = !isCustomBtn && typeof lim.val === "number" && filteredResult.totalCandidateCount < lim.val;
-
+                  const isBlockedByAdmin =
+                    effectiveMaxQuestions > 0 && typeof lim.val === "number" && lim.val > effectiveMaxQuestions;
                   return (
                     <button
                       key={String(lim.val)}
                       type="button"
-                      disabled={isDisabled}
+                      disabled={isBlockedByAdmin}
                       onClick={() => {
                         if (isCustomBtn) {
                           setUseCustomRange(true);
@@ -692,10 +761,10 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
                           setQuestionLimit(lim.val as any);
                         }
                       }}
-                      className={`py-2 rounded-xl text-xs font-bold tabular-nums transition-all border cursor-pointer active:scale-95 disabled:opacity-30 ${
+                      className={`py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer disabled:opacity-40 ${
                         isSelected
                           ? "bg-[#7045D8] text-white border-[#7045D8] shadow-xs"
-                          : "bg-white dark:bg-[#1B1536] border-slate-200 dark:border-[#31275E] text-slate-900 dark:text-slate-50 hover:border-[#A78BFA]"
+                          : "bg-white dark:bg-[#1B1536] border-slate-200 dark:border-[#31275E] text-slate-700 dark:text-slate-200"
                       }`}
                     >
                       {lim.label}
@@ -704,341 +773,159 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
                 })}
               </div>
 
-              {/* Custom Range Inputs */}
               {useCustomRange && (
-                <div className="p-3 bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] rounded-xl flex items-center gap-3 animate-in fade-in duration-150">
-                  <div className="flex-1 space-y-1">
-                    <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase block">From Question</label>
+                <div className="grid grid-cols-2 gap-2.5 p-3 rounded-xl bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E]">
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-slate-500">From Q#</label>
                     <input
                       type="number"
                       min={1}
-                      max={filteredResult.totalCandidateCount || 1}
                       value={customRangeStart}
-                      onChange={(e) => setCustomRangeStart(Math.max(1, parseInt(e.target.value) || 1))}
-                      className="w-full h-9 px-3 bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] rounded-lg text-xs font-bold tabular-nums text-slate-900 dark:text-white"
+                      onChange={(e) => setCustomRangeStart(Math.max(1, Number(e.target.value) || 1))}
+                      className="w-full h-9 px-3 rounded-lg bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] text-xs font-bold"
                     />
                   </div>
-                  <span className="text-slate-500 font-bold pt-4">to</span>
-                  <div className="flex-1 space-y-1">
-                    <label className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase block">To Question</label>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-slate-500">To Q#</label>
                     <input
                       type="number"
                       min={customRangeStart}
-                      max={filteredResult.totalCandidateCount || 1}
                       value={customRangeEnd}
-                      onChange={(e) => setCustomRangeEnd(Math.min(filteredResult.totalCandidateCount, parseInt(e.target.value) || customRangeStart))}
-                      className="w-full h-9 px-3 bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] rounded-lg text-xs font-bold tabular-nums text-slate-900 dark:text-white"
+                      onChange={(e) => setCustomRangeEnd(Math.max(customRangeStart, Number(e.target.value) || customRangeStart))}
+                      className="w-full h-9 px-3 rounded-lg bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] text-xs font-bold"
                     />
                   </div>
                 </div>
               )}
-            </section>
 
-            {/* SECTION C: PDF FORMAT (THE 5 SELECTION CARDS) */}
-            <section className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-xs font-black text-[#7045D8] dark:text-[#A78BFA] uppercase tracking-wider">
-                  <FileText className="w-4 h-4 text-[#7045D8]" />
-                  <span>C. PDF Format Selection</span>
-                </div>
-                <span className="text-[11px] font-bold text-[#7045D8]">
-                  Select Format
-                </span>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {/* CARD 1: Question Paper Only */}
-                <div
-                  id="card-format-question-paper"
-                  onClick={() => setFormatCard("question_paper")}
-                  className={`p-3.5 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between relative overflow-hidden ${
-                    formatCard === "question_paper"
-                      ? "bg-white dark:bg-[#1B1536] border-[#7045D8] dark:border-[#A78BFA] shadow-md ring-2 ring-[#7045D8]/15 dark:ring-[#A78BFA]/20"
-                      : "bg-white/70 dark:bg-[#1B1536]/60 border-slate-200 dark:border-[#31275E] hover:border-[#A78BFA]"
-                  }`}
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-9 h-9 rounded-xl bg-[#7045D8]/10 dark:bg-[#7045D8]/25 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center font-bold">
-                        <FileQuestion className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <h4 className="text-xs font-black text-slate-900 dark:text-white">Question Paper Only</h4>
-                        <span className="text-[11px] font-extrabold text-[#7045D8] dark:text-[#A78BFA] uppercase">No Answers</span>
-                      </div>
-                    </div>
-                    {formatCard === "question_paper" && (
-                      <div className="w-5 h-5 rounded-full bg-[#7045D8] dark:bg-[#7045D8] text-white flex items-center justify-center">
-                        <Check className="w-3.5 h-3.5" />
-                      </div>
-                    )}
-                  </div>
-                  <p className="text-[11px] font-medium text-slate-600 dark:text-slate-400 mt-2.5">
-                    Questions and options without answers for offline solving.
-                  </p>
+              {/* Compact Layout & Font Pills */}
+              <div className="grid grid-cols-2 gap-2.5">
+                <div className="flex p-1 bg-white dark:bg-[#1B1536] rounded-xl border border-slate-200 dark:border-[#31275E]">
+                  {[
+                    { id: "single", label: "Single Col" },
+                    { id: "compact", label: "2-Column" },
+                  ].map((l) => (
+                    <button
+                      key={l.id}
+                      type="button"
+                      onClick={() => setLayout(l.id as any)}
+                      className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                        layout === l.id
+                          ? "bg-[#7045D8] text-white"
+                          : "text-slate-600 dark:text-slate-300"
+                      }`}
+                    >
+                      {l.label}
+                    </button>
+                  ))}
                 </div>
 
-                {/* CARD 2: Question Paper + Blank Answer Sheet */}
-                <div
-                  id="card-format-question-paper-omr"
-                  onClick={() => setFormatCard("question_paper_omr")}
-                  className={`p-3.5 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between relative overflow-hidden ${
-                    formatCard === "question_paper_omr"
-                      ? "bg-white dark:bg-[#1B1536] border-[#7045D8] dark:border-[#A78BFA] shadow-md ring-2 ring-[#7045D8]/15 dark:ring-[#A78BFA]/20"
-                      : "bg-white/70 dark:bg-[#1B1536]/60 border-slate-200 dark:border-[#31275E] hover:border-[#A78BFA]"
-                  }`}
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-9 h-9 rounded-xl bg-[#7045D8]/15 text-[#7045D8] flex items-center justify-center font-bold">
-                        <FileCode className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <h4 className="text-xs font-black text-slate-900 dark:text-white">Question Paper + Answer Sheet</h4>
-                        <span className="text-[11px] font-extrabold text-[#7045D8] uppercase">Printable OMR</span>
-                      </div>
-                    </div>
-                    {formatCard === "question_paper_omr" && (
-                      <div className="w-5 h-5 rounded-full bg-[#7045D8] dark:bg-[#7045D8] text-white flex items-center justify-center">
-                        <Check className="w-3.5 h-3.5" />
-                      </div>
-                    )}
-                  </div>
-                  <p className="text-[11px] font-medium text-slate-600 dark:text-slate-400 mt-2.5">
-                    Printable question paper with a separate OMR answer sheet.
-                  </p>
-                </div>
-
-                {/* CARD 3: Answer Key Only */}
-                <div
-                  id="card-format-answer-key"
-                  onClick={() => setFormatCard("answer_key")}
-                  className={`p-3.5 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between relative overflow-hidden ${
-                    formatCard === "answer_key"
-                      ? "bg-white dark:bg-[#1B1536] border-[#7045D8] dark:border-[#A78BFA] shadow-md ring-2 ring-[#7045D8]/15 dark:ring-[#A78BFA]/20"
-                      : "bg-white/70 dark:bg-[#1B1536]/60 border-slate-200 dark:border-[#31275E] hover:border-[#A78BFA]"
-                  }`}
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-9 h-9 rounded-xl bg-emerald-100 dark:bg-emerald-950 text-emerald-600 flex items-center justify-center font-bold">
-                        <FileCheck className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <h4 className="text-xs font-black text-slate-900 dark:text-white">Answer Key Only</h4>
-                        <span className="text-[11px] font-extrabold text-emerald-600 uppercase">Verification Table</span>
-                      </div>
-                    </div>
-                    {formatCard === "answer_key" && (
-                      <div className="w-5 h-5 rounded-full bg-[#7045D8] dark:bg-[#7045D8] text-white flex items-center justify-center">
-                        <Check className="w-3.5 h-3.5" />
-                      </div>
-                    )}
-                  </div>
-                  <p className="text-[11px] font-medium text-slate-600 dark:text-slate-400 mt-2.5">
-                    Correct answers for checking your responses quickly.
-                  </p>
-                </div>
-
-                {/* CARD 4: Detailed Solutions */}
-                <div
-                  id="card-format-detailed-solutions"
-                  onClick={() => setFormatCard("detailed_solutions")}
-                  className={`p-3.5 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between relative overflow-hidden ${
-                    formatCard === "detailed_solutions"
-                      ? "bg-white dark:bg-[#1B1536] border-[#7045D8] dark:border-[#A78BFA] shadow-md ring-2 ring-[#7045D8]/15 dark:ring-[#A78BFA]/20"
-                      : "bg-white/70 dark:bg-[#1B1536]/60 border-slate-200 dark:border-[#31275E] hover:border-[#A78BFA]"
-                  }`}
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-9 h-9 rounded-xl bg-[#A78BFA]/20 text-[#9A7026] dark:text-[#A78BFA] flex items-center justify-center font-bold">
-                        <BookOpen className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <h4 className="text-xs font-black text-slate-900 dark:text-white">Detailed Solutions</h4>
-                        <span className="text-[11px] font-extrabold text-[#9A7026] dark:text-[#A78BFA] uppercase">Complete Explanations</span>
-                      </div>
-                    </div>
-                    {formatCard === "detailed_solutions" && (
-                      <div className="w-5 h-5 rounded-full bg-[#7045D8] dark:bg-[#7045D8] text-white flex items-center justify-center">
-                        <Check className="w-3.5 h-3.5" />
-                      </div>
-                    )}
-                  </div>
-                  <p className="text-[11px] font-medium text-slate-600 dark:text-slate-400 mt-2.5">
-                    Questions, correct answers, and detailed explanations.
-                  </p>
-                </div>
-                
-                {/* CARD 5: JSON Export */}
-                <div
-                  id="card-format-json"
-                  onClick={() => setFormatCard("json")}
-                  className={`p-3.5 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between relative overflow-hidden ${
-                    formatCard === "json"
-                      ? "bg-white dark:bg-[#1B1536] border-[#7045D8] dark:border-[#A78BFA] shadow-md ring-2 ring-[#7045D8]/15 dark:ring-[#A78BFA]/20"
-                      : "bg-white/70 dark:bg-[#1B1536]/60 border-slate-200 dark:border-[#31275E] hover:border-[#A78BFA]"
-                  }`}
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-[#241D48] text-slate-600 dark:text-slate-300 flex items-center justify-center font-bold">
-                        <FileCode className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <h4 className="text-xs font-black text-slate-900 dark:text-white">JSON Export</h4>
-                        <span className="text-[11px] font-extrabold text-slate-500 dark:text-slate-400 uppercase">Raw Data</span>
-                      </div>
-                    </div>
-                    {formatCard === "json" && (
-                      <div className="w-5 h-5 rounded-full bg-[#7045D8] dark:bg-[#7045D8] text-white flex items-center justify-center">
-                        <Check className="w-3.5 h-3.5" />
-                      </div>
-                    )}
-                  </div>
-                  <p className="text-[11px] font-medium text-slate-600 dark:text-slate-400 mt-2.5">
-                    Download raw question data in JSON format.
-                  </p>
+                <div className="flex p-1 bg-white dark:bg-[#1B1536] rounded-xl border border-slate-200 dark:border-[#31275E]">
+                  {[
+                    { id: "normal", label: "Normal Text" },
+                    { id: "large", label: "Large Text" },
+                  ].map((f) => (
+                    <button
+                      key={f.id}
+                      type="button"
+                      onClick={() => setFontSize(f.id as any)}
+                      className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                        fontSize === f.id
+                          ? "bg-[#7045D8] text-white"
+                          : "text-slate-600 dark:text-slate-300"
+                      }`}
+                    >
+                      {f.label}
+                    </button>
+                  ))}
                 </div>
               </div>
-            </section>
 
+              {/* Compact Toggle Chips */}
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { label: "Cover Page", val: includeCoverPage, set: setIncludeCoverPage },
+                  { label: "Instructions", val: includeTestInstructions, set: setIncludeTestInstructions },
+                  { label: "Page Numbers", val: showPageNumbers, set: setShowPageNumbers },
+                ].map((tog) => (
+                  <button
+                    key={tog.label}
+                    type="button"
+                    onClick={() => tog.set(!tog.val)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer flex items-center gap-1.5 ${
+                      tog.val
+                        ? "bg-[#7045D8]/10 text-[#7045D8] dark:text-[#A78BFA] border-[#7045D8]/30"
+                        : "bg-white dark:bg-[#1B1536] text-slate-500 dark:text-slate-400 border-slate-200 dark:border-[#31275E]"
+                    }`}
+                  >
+                    <Check className={`w-3.5 h-3.5 ${tog.val ? "opacity-100" : "opacity-30"}`} />
+                    <span>{tog.label}</span>
+                  </button>
+                ))}
 
-            {/* SECTION D: DOCUMENT SETTINGS */}
-            <section className="space-y-3">
-              <div className="flex items-center gap-2 text-xs font-black text-[#7045D8] dark:text-[#A78BFA] uppercase tracking-wider">
-                <Sliders className="w-4 h-4 text-[#7045D8]" />
-                <span>D. Document Toggles & Settings</span>
+                <button
+                  type="button"
+                  onClick={() => setShowPersonalize(!showPersonalize)}
+                  className="px-3 py-1.5 rounded-xl text-xs font-bold border bg-white dark:bg-[#1B1536] text-slate-700 dark:text-slate-200 border-slate-200 dark:border-[#31275E] flex items-center gap-1 cursor-pointer"
+                >
+                  <span>Personalize</span>
+                  {showPersonalize ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                </button>
               </div>
 
-              <div className="p-3.5 bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] rounded-2xl grid grid-cols-1 sm:grid-cols-2 gap-2.5 shadow-2xs">
-                {/* Toggle: Cover Page */}
-                <label className="flex items-center justify-between p-2.5 rounded-xl bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] cursor-pointer">
-                  <span className="text-xs font-bold text-slate-900 dark:text-slate-50">Include A4 Cover Page</span>
+              {showPersonalize && (
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 p-3 rounded-2xl bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E]">
                   <input
-                    type="checkbox"
-                    checked={includeCoverPage}
-                    onChange={(e) => setIncludeCoverPage(e.target.checked)}
-                    className="w-4 h-4 accent-[#7045D8] dark:accent-[#7045D8] rounded cursor-pointer"
+                    type="text"
+                    placeholder="Paper Title (Optional)"
+                    value={customTitle}
+                    onChange={(e) => setCustomTitle(e.target.value)}
+                    className="px-3 py-2 bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] rounded-xl text-xs font-bold text-slate-900 dark:text-white"
                   />
-                </label>
-
-                {/* Toggle: Page Numbers */}
-                <label className="flex items-center justify-between p-2.5 rounded-xl bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] cursor-pointer">
-                  <span className="text-xs font-bold text-slate-900 dark:text-slate-50">Show Page Numbers</span>
                   <input
-                    type="checkbox"
-                    checked={showPageNumbers}
-                    onChange={(e) => setShowPageNumbers(e.target.checked)}
-                    className="w-4 h-4 accent-[#7045D8] dark:accent-[#7045D8] rounded cursor-pointer"
+                    type="text"
+                    placeholder="Candidate Name"
+                    value={studentName}
+                    onChange={(e) => setStudentName(e.target.value)}
+                    className="px-3 py-2 bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] rounded-xl text-xs font-bold text-slate-900 dark:text-white"
                   />
-                </label>
-
-                {/* Toggle: Header and Footer */}
-                <label className="flex items-center justify-between p-2.5 rounded-xl bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] cursor-pointer">
-                  <span className="text-xs font-bold text-slate-900 dark:text-slate-50">Show Header and Footer</span>
                   <input
-                    type="checkbox"
-                    checked={showHeaderFooter}
-                    onChange={(e) => setShowHeaderFooter(e.target.checked)}
-                    className="w-4 h-4 accent-[#7045D8] dark:accent-[#7045D8] rounded cursor-pointer"
+                    type="text"
+                    placeholder="Roll Number"
+                    value={rollNumber}
+                    onChange={(e) => setRollNumber(e.target.value)}
+                    className="px-3 py-2 bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] rounded-xl text-xs font-bold text-slate-900 dark:text-white"
                   />
-                </label>
-
-                {/* Toggle: Test Instructions */}
-                <label className="flex items-center justify-between p-2.5 rounded-xl bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] cursor-pointer">
-                  <span className="text-xs font-bold text-slate-900 dark:text-slate-50">Include Test Instructions</span>
-                  <input
-                    type="checkbox"
-                    checked={includeTestInstructions}
-                    onChange={(e) => setIncludeTestInstructions(e.target.checked)}
-                    className="w-4 h-4 accent-[#7045D8] dark:accent-[#7045D8] rounded cursor-pointer"
-                  />
-                </label>
-
-                {/* Toggle: Subject and Topic Names */}
-                <label className="flex items-center justify-between p-2.5 rounded-xl bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] cursor-pointer">
-                  <span className="text-xs font-bold text-slate-900 dark:text-slate-50">Include Subject & Topic Names</span>
-                  <input
-                    type="checkbox"
-                    checked={includeSubjectTopicNames}
-                    onChange={(e) => setIncludeSubjectTopicNames(e.target.checked)}
-                    className="w-4 h-4 accent-[#7045D8] dark:accent-[#7045D8] rounded cursor-pointer"
-                  />
-                </label>
-
-                {/* Toggle: Blank Answer Sheet Append */}
-                <label className="flex items-center justify-between p-2.5 rounded-xl bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] cursor-pointer">
-                  <span className="text-xs font-bold text-slate-900 dark:text-slate-50">Append Blank Answer Sheet</span>
-                  <input
-                    type="checkbox"
-                    checked={includeBlankAnswerSheet}
-                    onChange={(e) => setIncludeBlankAnswerSheet(e.target.checked)}
-                    className="w-4 h-4 accent-[#7045D8] dark:accent-[#7045D8] rounded cursor-pointer"
-                  />
-                </label>
-              </div>
-
-              {/* Personalization Inputs */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
-                <input
-                  type="text"
-                  placeholder="Candidate Name (Optional)"
-                  value={studentName}
-                  onChange={(e) => setStudentName(e.target.value)}
-                  className="px-3 py-2.5 bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] rounded-xl text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8] focus:border-[#7045D8] dark:focus:border-[#A78BFA]"
-                />
-                <input
-                  type="text"
-                  placeholder="Roll Number (Optional)"
-                  value={rollNumber}
-                  onChange={(e) => setRollNumber(e.target.value)}
-                  className="px-3 py-2.5 bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] rounded-xl text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7045D8] focus:border-[#7045D8] dark:focus:border-[#A78BFA]"
-                />
-              </div>
+                </div>
+              )}
             </section>
           </div>
         ) : (
-          /* TAB 2: LIVE PDF PREVIEW SCREEN */
-          <div className="flex-1 flex flex-col bg-slate-100 dark:bg-[#130E26] overflow-hidden relative">
-            {/* Preview Toolbar */}
+          /* TAB 2: LIVE PDF PREVIEW */
+          <div className="flex-1 flex flex-col bg-slate-100 dark:bg-[#130E26] overflow-hidden">
             <div className="px-4 py-2.5 bg-white dark:bg-[#1B1536] border-b border-slate-200 dark:border-[#31275E] flex items-center justify-between shrink-0">
               <div className="flex items-center gap-2 text-xs font-bold text-slate-900 dark:text-slate-50">
                 <Eye className="w-4 h-4 text-[#7045D8] dark:text-[#A78BFA]" />
-                <span>Page Preview ({filteredResult.count} Questions)</span>
+                <span>Preview ({filteredResult.count} Questions)</span>
               </div>
 
-              {/* Zoom Controls */}
               <div className="flex items-center gap-1.5">
                 <button
                   onClick={() => setPreviewZoom((z) => Math.max(50, z - 15))}
-                  className="w-7 h-7 rounded-lg bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] flex items-center justify-center text-slate-900 dark:text-slate-50 hover:border-[#7045D8]"
-                  title="Zoom Out"
+                  className="w-7 h-7 rounded-lg bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] flex items-center justify-center cursor-pointer"
                 >
                   <ZoomOut className="w-3.5 h-3.5" />
                 </button>
-                <span className="text-[11px] font-bold tabular-nums text-slate-600 dark:text-slate-300 w-10 text-center">
-                  {previewZoom}%
-                </span>
+                <span className="text-[11px] font-bold tabular-nums w-10 text-center">{previewZoom}%</span>
                 <button
                   onClick={() => setPreviewZoom((z) => Math.min(150, z + 15))}
-                  className="w-7 h-7 rounded-lg bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] flex items-center justify-center text-slate-900 dark:text-slate-50 hover:border-[#7045D8]"
-                  title="Zoom In"
+                  className="w-7 h-7 rounded-lg bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] flex items-center justify-center cursor-pointer"
                 >
                   <ZoomIn className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  onClick={() => setPreviewZoom(100)}
-                  className="w-8 h-7 rounded-lg bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] flex items-center justify-center text-slate-900 dark:text-slate-50 hover:border-[#7045D8] text-[11px] font-extrabold tabular-nums"
-                  title="Reset Zoom"
-                >
-                  100%
                 </button>
               </div>
             </div>
 
-            {/* Live Render Frame */}
             <div className="flex-1 overflow-auto p-4 flex justify-center items-start">
               <div
                 className="bg-white shadow-2xl transition-all duration-150 origin-top rounded-md overflow-hidden border border-slate-200"
@@ -1057,42 +944,42 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
           </div>
         )}
 
-        {/* SECTION E: ACTION BUTTONS (STICKY FOOTER) */}
-        <footer className="p-4 bg-white dark:bg-[#1B1536] border-t border-slate-200 dark:border-[#31275E] shrink-0 flex flex-col gap-2">
-          {/* Progress Indicator */}
+        {/* STICKY FOOTER */}
+        <footer className="px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] bg-white dark:bg-[#1B1536] border-t border-slate-200 dark:border-[#31275E] shrink-0 flex flex-col gap-2">
           {isGeneratingPDF && pdfProgress && (
             <div className="space-y-1">
               <div className="flex items-center justify-between text-xs font-bold tabular-nums text-[#7045D8] dark:text-[#A78BFA]">
                 <span>{pdfProgress.message}</span>
                 <span>{pdfProgress.percent}%</span>
               </div>
-              <div className="w-full h-2 bg-slate-100 dark:bg-[#241D48] rounded-full overflow-hidden">
+              <div className="w-full h-1.5 bg-slate-100 dark:bg-[#241D48] rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-[#7045D8] to-[#7045D8] transition-all duration-200"
+                  className="h-full bg-[#7045D8] transition-all duration-200"
                   style={{ width: `${pdfProgress.percent}%` }}
                 />
               </div>
             </div>
           )}
 
-          {/* Primary Action Buttons */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          <div className="flex items-center gap-2">
             <button
               id="btn-generate-pdf-primary"
               type="button"
-              disabled={filteredResult.count === 0 || isGeneratingPDF}
+              disabled={filteredResult.count === 0 || isGeneratingPDF || Boolean(accessBlockReason)}
               onClick={handleExport}
-              className="col-span-2 py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#7045D8] to-[#5B32BF] hover:from-[#5B32BF] hover:to-[#5B32BF] dark:from-[#7045D8] dark:to-[#5B32BF] dark:hover:from-[#5B32BF] dark:hover:to-[#5B32BF] text-white font-semibold text-xs sm:text-sm border border-[#A78BFA]/35 shadow-sm active:scale-98 transition-all duration-180 cursor-pointer flex items-center justify-center gap-2 disabled:opacity-40 group"
+              className="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-[#7045D8] to-[#5B32BF] hover:brightness-105 text-white font-bold text-xs sm:text-sm shadow-sm active:scale-98 transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-40"
             >
               {isGeneratingPDF ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Generating Export...</span>
+                  <span>Generating...</span>
                 </>
               ) : (
                 <>
-                  <Download className="w-4 h-4 text-amber-500 dark:text-white" />
-                  <span>Generate & Download {formatCard === "json" ? "JSON" : "PDF"}</span>
+                  <Download className="w-4 h-4" />
+                  <span>
+                    Download {formatCard === "json" ? "JSON" : "PDF"} ({filteredResult.count} Qs)
+                  </span>
                 </>
               )}
             </button>
@@ -1102,22 +989,25 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
               type="button"
               disabled={filteredResult.count === 0}
               onClick={() => setActiveTab(activeTab === "config" ? "preview" : "config")}
-              className="py-3 px-3 rounded-xl bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] text-[#7045D8] dark:text-slate-50 font-bold text-xs hover:bg-slate-100 dark:hover:bg-[#31275E] transition-all cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-40"
+              className="py-3 px-3.5 rounded-xl bg-slate-100 dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] text-[#7045D8] dark:text-[#A78BFA] font-bold text-xs cursor-pointer flex items-center gap-1.5 disabled:opacity-40"
             >
-              <Eye className="w-4 h-4 text-[#7045D8]" />
-              <span>{activeTab === "config" ? "Preview PDF" : "Edit Config"}</span>
+              <Eye className="w-4 h-4" />
+              <span className="hidden sm:inline">{activeTab === "config" ? "Preview" : "Edit"}</span>
             </button>
 
-            <button
-              id="btn-open-new-tab"
-              type="button"
-              disabled={filteredResult.count === 0}
-              onClick={handleOpenNewTab}
-              className="py-3 px-3 rounded-xl bg-slate-100 dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] text-slate-900 dark:text-slate-50 font-bold text-xs hover:bg-slate-200/60 dark:hover:bg-[#31275E] transition-all cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-40"
-            >
-              <Printer className="w-4 h-4 text-[#7045D8]" />
-              <span>Print / Open</span>
-            </button>
+            {pdfConfig.allowPrint && (
+              <button
+                id="btn-open-new-tab"
+                type="button"
+                disabled={filteredResult.count === 0 || Boolean(accessBlockReason)}
+                onClick={handleOpenNewTab}
+                className="py-3 px-3.5 rounded-xl bg-slate-100 dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] text-slate-800 dark:text-slate-100 font-bold text-xs cursor-pointer flex items-center gap-1.5 disabled:opacity-40"
+                title="Print / Open in New Tab"
+              >
+                <Printer className="w-4 h-4 text-[#7045D8] dark:text-[#A78BFA]" />
+                <span className="hidden sm:inline">Print</span>
+              </button>
+            )}
           </div>
         </footer>
       </div>

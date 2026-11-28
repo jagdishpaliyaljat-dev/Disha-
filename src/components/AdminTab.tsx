@@ -61,6 +61,7 @@ const AIApiManagementSection = adminSafeLazy<any>(() => import("./admin/AIApiMan
 const ExportDataWidget = adminSafeLazy<any>(() => import("./admin/ExportDataWidget"), "ExportDataWidget");
 const BackupRestoreSection = adminSafeLazy<any>(() => import("./admin/BackupRestoreSection"), "BackupRestoreSection");
 const AdminFeatureControlSection = adminSafeLazy<any>(() => import("./admin/AdminFeatureControlSection"), "AdminFeatureControlSection");
+const AdminPDFControlSection = adminSafeLazy<any>(() => import("./admin/AdminPDFControlSection"), "AdminPDFControlSection");
 const SyncProgressModal = adminSafeLazy<any>(() => import("./admin/SyncProgressModal"), "SyncProgressModal");
 const SyncConfirmationModal = adminSafeLazy<any>(() => import("./admin/SyncConfirmationModal"), "SyncConfirmationModal");
 const QATestRunnerModal = adminSafeLazy<any>(() => import("./QATestRunnerModal"), "QATestRunnerModal");
@@ -242,7 +243,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
   );
   const [dbToolView, setDbToolView] = React.useState<"overview" | "explorer" | "sync">("overview");
   const [staffOrLeaderboard, setStaffOrLeaderboard] = React.useState<"staff" | "leaderboard">("staff");
-  const [featureOrConfig, setFeatureOrConfig] = React.useState<"features" | "config">("features");
+  const [featureOrConfig, setFeatureOrConfig] = React.useState<"features" | "pdf" | "config">("features");
 
   // Layout & Theme State
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
@@ -791,7 +792,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                     {currentPillarMeta.title}
                   </h1>
                   <span className="hidden sm:inline-flex text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#7045D8]/10 text-[#7045D8] dark:bg-[#A78BFA]/15 dark:text-[#A78BFA] border border-[#7045D8]/20">
-                    v1.0.71
+                    v1.0.73
                   </span>
                 </div>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate hidden md:block">
@@ -1582,6 +1583,16 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                           Feature Toggles &amp; Ads
                         </button>
                         <button
+                          onClick={() => setFeatureOrConfig("pdf")}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+                            featureOrConfig === "pdf"
+                              ? "bg-[#7045D8]/10 text-[#7045D8] dark:text-[#A78BFA] border-[#7045D8]/30"
+                              : "bg-white dark:bg-[#1B1536] text-slate-600 dark:text-slate-300 border-slate-200 dark:border-[#31275E]"
+                          }`}
+                        >
+                          PDF Controls
+                        </button>
+                        <button
                           onClick={() => setFeatureOrConfig("config")}
                           className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
                             featureOrConfig === "config"
@@ -1593,11 +1604,13 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                         </button>
                       </div>
 
-                      {featureOrConfig === "features" ? (
+                      {featureOrConfig === "features" && (
                         <AdminFeatureControlSection adminEmail={cloudAuthState.userEmail || props.userProfile?.email || "admin"} />
-                      ) : (
-                        <AppConfigMaintenanceSection />
                       )}
+                      {featureOrConfig === "pdf" && (
+                        <AdminPDFControlSection adminEmail={cloudAuthState.userEmail || props.userProfile?.email || "admin"} />
+                      )}
+                      {featureOrConfig === "config" && <AppConfigMaintenanceSection />}
                     </div>
                   )}
 
