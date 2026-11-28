@@ -20,6 +20,7 @@ export interface AdminPDFConfig {
   brandTitle: string;
   watermarkText: string;
   forceBranding: boolean;
+  defaultColorMode: "color" | "bw";
   updatedAt: string;
   updatedBy: string;
 }
@@ -44,6 +45,7 @@ export const DEFAULT_PDF_CONFIG: AdminPDFConfig = {
   brandTitle: "Disha PYQ — Rajasthan Exam Prep",
   watermarkText: "Downloaded from Disha PYQ App",
   forceBranding: true,
+  defaultColorMode: "color",
   updatedAt: new Date().toISOString(),
   updatedBy: "system",
 };

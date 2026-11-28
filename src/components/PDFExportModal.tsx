@@ -154,9 +154,10 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
     }
   }, [enabledFormats, formatCard]);
 
-  // 4. Document Settings
-  const [layout, setLayout] = useState<"single" | "compact">("single");
+  // 4. Document Settings (default to Book 2-Column layout & Admin default Color Mode)
+  const [layout, setLayout] = useState<"single" | "compact">("compact");
   const [fontSize, setFontSize] = useState<"normal" | "large">("normal");
+  const [colorMode, setColorMode] = useState<"color" | "bw">(() => pdfConfig.defaultColorMode || "color");
   const [includeCoverPage, setIncludeCoverPage] = useState(true);
   const [showPageNumbers, setShowPageNumbers] = useState(true);
   const [includeTestInstructions, setIncludeTestInstructions] = useState(true);
@@ -202,6 +203,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
       format: formatCard,
       layout,
       fontSize,
+      colorMode,
       questionLimit: resolvedLimit,
       customRangeStart: useCustomRange ? customRangeStart : undefined,
       customRangeEnd: useCustomRange
@@ -276,6 +278,7 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
       format: formatCard,
       layout,
       fontSize,
+      colorMode,
       includeCoverPage,
       showPageNumbers,
       showHeaderFooter: true,
@@ -798,12 +801,12 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
                 </div>
               )}
 
-              {/* Compact Layout & Font Pills */}
-              <div className="grid grid-cols-2 gap-2.5">
+              {/* Compact Layout, Font & Color Mode Pills */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 <div className="flex p-1 bg-white dark:bg-[#1B1536] rounded-xl border border-slate-200 dark:border-[#31275E]">
                   {[
-                    { id: "single", label: "Single Col" },
-                    { id: "compact", label: "2-Column" },
+                    { id: "compact", label: "Book 2-Col" },
+                    { id: "single", label: "1-Column" },
                   ].map((l) => (
                     <button
                       key={l.id}
@@ -836,6 +839,28 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
                       }`}
                     >
                       {f.label}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="flex p-1 bg-white dark:bg-[#1B1536] rounded-xl border border-slate-200 dark:border-[#31275E]">
+                  {[
+                    { id: "color", label: "Color" },
+                    { id: "bw", label: "Black & White" },
+                  ].map((m) => (
+                    <button
+                      key={m.id}
+                      type="button"
+                      onClick={() => setColorMode(m.id as "color" | "bw")}
+                      className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                        colorMode === m.id
+                          ? m.id === "bw"
+                            ? "bg-slate-900 text-white"
+                            : "bg-[#7045D8] text-white"
+                          : "text-slate-600 dark:text-slate-300"
+                      }`}
+                    >
+                      {m.label}
                     </button>
                   ))}
                 </div>

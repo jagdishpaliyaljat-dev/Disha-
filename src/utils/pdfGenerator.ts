@@ -49,6 +49,7 @@ export interface PDFExportOptions {
   format: PDFFormatCard;
   layout: "single" | "compact";
   fontSize: "normal" | "large";
+  colorMode?: "color" | "bw";
   questionLimit?: number | "all";
   customRangeStart?: number;
   customRangeEnd?: number;
@@ -503,7 +504,14 @@ function chunkQuestionsIntoPages(
   isCompact: boolean,
   fontSize: "normal" | "large" = "normal"
 ): Question[][] {
-  const PAGE_HEIGHT_BUDGET = fontSize === "large" ? 720 : 750;
+  // 2-column book mode holds ~2x questions per A4 sheet
+  const PAGE_HEIGHT_BUDGET = isCompact
+    ? fontSize === "large"
+      ? 1320
+      : 1560
+    : fontSize === "large"
+    ? 800
+    : 900;
   const pages: Question[][] = [];
   let currentChunk: Question[] = [];
   let currentHeight = 0;
@@ -545,6 +553,7 @@ export function generateDisha2020PDFHTML(
     format: PDFFormatCard;
     layout: "single" | "compact";
     fontSize: "normal" | "large";
+    colorMode?: "color" | "bw";
     includeCoverPage: boolean;
     showPageNumbers: boolean;
     showHeaderFooter: boolean;
@@ -569,6 +578,20 @@ export function generateDisha2020PDFHTML(
 
   const isSolutionsMode = meta.format === "detailed_solutions";
   const isCompact = meta.layout === "compact";
+  const isBW = meta.colorMode === "bw";
+
+  // Theme tokens: Royal Violet Color Mode vs High-Contrast Black & White Print Mode
+  const primaryAccent = isBW ? "#000000" : "#5B32BF";
+  const primaryBright = isBW ? "#111111" : "#7045D8";
+  const primarySoftBg = isBW ? "#F1F5F9" : "#F3EFFE";
+  const borderMain = isBW ? "#000000" : "#CBD5E1";
+  const borderMuted = isBW ? "#64748B" : "#E2E8F0";
+  const textMain = isBW ? "#000000" : "#0F172A";
+  const textMuted = isBW ? "#334155" : "#475569";
+  const correctBadgeBg = isBW ? "#000000" : "#16A34A";
+  const correctText = isBW ? "#000000" : "#15803D";
+  const correctLightBg = isBW ? "#E2E8F0" : "#DCFCE7";
+  const pagePreviewBg = isBW ? "#E2E8F0" : "#F1F5F9";
 
   // Chunk questions into page buckets using fontSize parameter
   const questionPageBuckets = meta.format !== "answer_key"
@@ -665,7 +688,7 @@ export function generateDisha2020PDFHTML(
         <!-- Instructions Card -->
         <div class="cover-instructions-box">
           <div class="cover-inst-header">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#800020" stroke-width="2.5"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="${primaryAccent}" stroke-width="2.5"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
             <span>Important Exam Instructions</span>
           </div>
           <ol class="cover-inst-list">
@@ -692,13 +715,13 @@ export function generateDisha2020PDFHTML(
         <!-- Cover Footer Wave & Tagline -->
         <div class="cover-footer-waves-container">
           <svg class="cover-wave-svg" viewBox="0 0 500 110" preserveAspectRatio="none">
-            <path d="M0,110 L500,110 L500,50 C380,90 280,20 0,60 Z" fill="#C99A45" />
-            <path d="M0,110 L500,110 L500,65 C350,95 250,35 0,75 Z" fill="#F47B20" />
-            <path d="M0,110 L500,110 L500,75 C320,100 220,45 0,85 Z" fill="#6A001A" />
-            <path d="M0,110 L500,110 L500,85 C300,105 180,60 0,95 Z" fill="#800020" />
+            <path d="M0,110 L500,110 L500,50 C380,90 280,20 0,60 Z" fill="${isBW ? "#E2E8F0" : "#C4B5FD"}" />
+            <path d="M0,110 L500,110 L500,65 C350,95 250,35 0,75 Z" fill="${isBW ? "#94A3B8" : "#8B5CF6"}" />
+            <path d="M0,110 L500,110 L500,75 C320,100 220,45 0,85 Z" fill="${primaryBright}" />
+            <path d="M0,110 L500,110 L500,85 C300,105 180,60 0,95 Z" fill="${primaryAccent}" />
           </svg>
           <div class="cover-footer-content-row">
-            <div class="cover-foot-tag">Disha PYQ • Previous Year Questions & Precision Learning</div>
+            <div class="cover-foot-tag">${escapeHTML(meta.instructionsText || "Disha PYQ • Previous Year Questions & Precision Learning")}</div>
             <div class="cover-foot-num">${coverPageNumberStr}</div>
           </div>
         </div>
@@ -779,13 +802,14 @@ export function generateDisha2020PDFHTML(
             `;
           }
 
+          const allShortOpts = safeOptions.every((o) => String(o || "").trim().length <= 22);
           return `
             <article class="mcq-card">
               <div class="q-header">
                 <span class="q-number">Q.${qNum}.</span>
               </div>
               ${renderParsedQuestionHTML(q.text, meta.fontSize, q)}
-              <div class="options-grid ${isCompact ? "compact-grid" : ""}">
+              <div class="options-grid ${allShortOpts ? "opts-two-col" : ""} ${isCompact ? "compact-grid" : ""}">
                 ${optionsMarkup}
               </div>
               ${explanationMarkup}
@@ -799,12 +823,11 @@ export function generateDisha2020PDFHTML(
           <header class="paper-top-header">
             <div class="logo-wrapper">
               <svg viewBox="0 0 200 200" class="header-logo-svg">
-                <circle cx="100" cy="95" r="52" fill="#FFF3E0" stroke="#C99A45" stroke-width="6" />
-                <path d="M 55 95 C 85 52, 130 50, 155 68" fill="none" stroke="#F47B20" stroke-width="16" stroke-linecap="round" />
-                <rect x="48" y="108" width="104" height="38" rx="12" fill="#800020" />
-                <path d="M 35 168 Q 68 150 100 172 Q 132 150 165 168" fill="none" stroke="#800020" stroke-width="10" stroke-linecap="round" />
+                <circle cx="100" cy="95" r="52" fill="${primarySoftBg}" stroke="${primaryAccent}" stroke-width="8" />
+                <rect x="48" y="80" width="104" height="42" rx="12" fill="${primaryAccent}" />
+                <text x="100" y="108" text-anchor="middle" fill="#FFFFFF" font-size="22" font-weight="900" font-family="Plus Jakarta Sans, sans-serif">PYQ</text>
               </svg>
-              <div class="header-brand-name">DISHA <span style="color:#F47B20;">20-20</span></div>
+              <div class="header-brand-name">DISHA <span style="color:${primaryBright};">PYQ</span></div>
             </div>
             <div class="header-right-title">
               <div class="hdr-main-title">${escapeHTML(documentHeaderTitle)}</div>
@@ -812,12 +835,12 @@ export function generateDisha2020PDFHTML(
             </div>
           </header>
 
-          <main class="page-main-content">
+          <main class="page-main-content ${isCompact ? "book-two-col" : ""}">
             ${questionsMarkup}
           </main>
 
           <footer class="paper-footer">
-            <span>Disha PYQ • Previous Year Questions & Precision Learning</span>
+            <span>${escapeHTML(meta.instructionsText || "Disha PYQ • Previous Year Questions & Precision Learning")}</span>
             <span class="footer-page-num">${pageNumberStr}</span>
           </footer>
         </section>
@@ -1011,10 +1034,10 @@ export function generateDisha2020PDFHTML(
 
     body {
       font-family: 'Noto Sans Devanagari', 'Plus Jakarta Sans', system-ui, sans-serif;
-      font-size: ${meta.fontSize === "large" ? "11pt" : "9.5pt"};
-      line-height: 1.65;
-      color: #171923;
-      background-color: #F7EFE2;
+      font-size: ${meta.fontSize === "large" ? "10.2pt" : "8.8pt"};
+      line-height: 1.42;
+      color: ${textMain};
+      background-color: ${pagePreviewBg};
       padding: 20px 0;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
@@ -1027,13 +1050,13 @@ export function generateDisha2020PDFHTML(
       box-sizing: border-box;
       background: #FFFFFF;
       margin: 0 auto 20px auto;
-      padding: 10mm 12mm 10mm 12mm;
+      padding: 8mm 10mm 8mm 10mm;
       position: relative;
       overflow: hidden;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      border: 1px solid #E8D9C0;
+      border: 1px solid ${borderMuted};
       box-shadow: 0 4px 12px rgba(23, 25, 35, 0.08);
       page-break-after: always;
       break-after: page;
@@ -1049,7 +1072,7 @@ export function generateDisha2020PDFHTML(
         width: 210mm;
         height: 297mm;
         max-height: 297mm;
-        padding: 12mm;
+        padding: 9mm 10mm;
         border: none;
         box-shadow: none;
         page-break-after: always;
@@ -1083,7 +1106,7 @@ export function generateDisha2020PDFHTML(
     .cover-brand-name {
       font-size: 24pt;
       font-weight: 900;
-      color: #800020;
+      color: ${primaryAccent};
       letter-spacing: -0.5px;
       line-height: 1;
       margin-top: 2px;
@@ -1095,7 +1118,7 @@ export function generateDisha2020PDFHTML(
       align-items: flex-end;
       font-size: 7pt;
       font-weight: 900;
-      color: #6E6254;
+      color: ${textMuted};
       letter-spacing: 1.5px;
       line-height: 1.3;
     }
@@ -1107,11 +1130,11 @@ export function generateDisha2020PDFHTML(
 
     .cover-tag-badge {
       display: inline-block;
-      font-size: 8pt;
+      font-size: 7.5pt;
       font-weight: 900;
-      color: #800020;
-      background: #FFF9EF;
-      border: 1px solid #C99A45;
+      color: ${primaryAccent};
+      background: ${primarySoftBg};
+      border: 1px solid ${primaryAccent};
       padding: 4px 14px;
       border-radius: 999px;
       letter-spacing: 1px;
@@ -1121,7 +1144,7 @@ export function generateDisha2020PDFHTML(
     .cover-main-title {
       font-size: 26pt;
       font-weight: 900;
-      color: #800020;
+      color: ${primaryAccent};
       letter-spacing: -0.5px;
       line-height: 1.15;
     }
@@ -1130,11 +1153,11 @@ export function generateDisha2020PDFHTML(
       display: inline-block;
       font-size: 11pt;
       font-weight: 800;
-      color: #171923;
-      background: #FFF9EF;
+      color: ${textMain};
+      background: ${primarySoftBg};
       padding: 6px 18px;
       border-radius: 999px;
-      border: 1px solid #E8D9C0;
+      border: 1px solid ${borderMuted};
       margin-top: 10px;
     }
 
@@ -1148,19 +1171,19 @@ export function generateDisha2020PDFHTML(
 
     .cover-stat-card {
       background: #FFFFFF;
-      border: 1.5px solid #E8D9C0;
+      border: 1.5px solid ${borderMuted};
       border-radius: 12px;
       padding: 12px 8px;
       text-align: center;
     }
 
-    .blue-icon { color: #800020; }
-    .orange-icon { color: #F47B20; }
+    .blue-icon { color: ${primaryAccent}; }
+    .orange-icon { color: ${primaryBright}; }
 
     .stat-num {
       font-size: 22pt;
       font-weight: 900;
-      color: #800020;
+      color: ${primaryAccent};
       line-height: 1.1;
       margin-top: 2px;
     }
@@ -1168,15 +1191,15 @@ export function generateDisha2020PDFHTML(
     .stat-lbl {
       font-size: 7.5pt;
       font-weight: 800;
-      color: #6E6254;
+      color: ${textMuted};
       letter-spacing: 0.5px;
       margin-top: 2px;
     }
 
     /* Instructions Box */
     .cover-instructions-box {
-      background: #FFF9EF;
-      border: 1px solid #E8D9C0;
+      background: ${primarySoftBg};
+      border: 1px solid ${borderMuted};
       border-radius: 12px;
       padding: 12px 16px;
       margin: 8px 0;
@@ -1188,7 +1211,7 @@ export function generateDisha2020PDFHTML(
       gap: 6px;
       font-size: 9.5pt;
       font-weight: 900;
-      color: #800020;
+      color: ${primaryAccent};
       margin-bottom: 6px;
     }
 
@@ -1198,19 +1221,19 @@ export function generateDisha2020PDFHTML(
       flex-direction: column;
       gap: 4px;
       font-size: 8.5pt;
-      color: #171923;
+      color: ${textMain};
       font-weight: 600;
     }
 
     .candidate-info-strip {
       display: flex;
       justify-content: space-between;
-      background: #FFF9EF;
-      border: 1px solid #C99A45;
+      background: ${primarySoftBg};
+      border: 1px solid ${primaryAccent};
       padding: 8px 14px;
       border-radius: 8px;
       font-size: 8.5pt;
-      color: #800020;
+      color: ${primaryAccent};
       margin-top: 6px;
     }
 
@@ -1254,7 +1277,7 @@ export function generateDisha2020PDFHTML(
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 2px solid #800020;
+      border-bottom: 2px solid ${primaryAccent};
       padding-bottom: 8px;
       margin-bottom: 12px;
     }
@@ -1273,7 +1296,7 @@ export function generateDisha2020PDFHTML(
     .header-brand-name {
       font-size: 15pt;
       font-weight: 900;
-      color: #800020;
+      color: ${primaryAccent};
     }
 
     .header-right-title {
@@ -1283,14 +1306,14 @@ export function generateDisha2020PDFHTML(
     .hdr-main-title {
       font-size: 10pt;
       font-weight: 900;
-      color: #800020;
+      color: ${primaryAccent};
       letter-spacing: 0.5px;
     }
 
     .hdr-sub {
       font-size: 8pt;
       font-weight: 700;
-      color: #6E6254;
+      color: ${textMuted};
     }
 
     .page-main-content {
@@ -1298,13 +1321,27 @@ export function generateDisha2020PDFHTML(
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 8px;
+    }
+
+    .page-main-content.book-two-col {
+      display: block;
+      column-count: 2;
+      column-gap: 6mm;
+      column-rule: 1px solid ${borderMuted};
+    }
+
+    .page-main-content.book-two-col .mcq-card {
+      display: inline-block;
+      width: 100%;
+      margin-bottom: 6px;
+      padding-bottom: 6px;
     }
 
     /* MCQ CARD */
     .mcq-card {
-      padding-bottom: 10px;
-      border-bottom: 1px dashed #E8D9C0;
+      padding-bottom: 6px;
+      border-bottom: 1px dashed ${borderMuted};
       break-inside: avoid;
       page-break-inside: avoid;
     }
@@ -1320,59 +1357,65 @@ export function generateDisha2020PDFHTML(
     }
 
     .q-number {
-      font-size: 10.5pt;
+      font-size: 9.2pt;
       font-weight: 900;
-      color: #800020;
+      color: ${primaryAccent};
     }
 
     .q-intro-text {
       font-weight: 700;
-      color: #171923;
+      color: ${textMain};
       margin-bottom: 6px;
     }
 
     .options-grid {
       display: flex;
       flex-direction: column;
-      gap: 6px;
-      margin-left: 6px;
-      margin-top: 6px;
+      gap: 3px;
+      margin-left: 4px;
+      margin-top: 4px;
       break-inside: avoid;
       page-break-inside: avoid;
+    }
+
+    .options-grid.opts-two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3px 8px;
     }
 
     .opt-row {
       display: flex;
       align-items: flex-start;
-      gap: 8px;
-      font-size: 9.5pt;
+      gap: 5px;
+      font-size: 8.5pt;
       font-weight: 600;
-      color: #171923;
+      color: ${textMain};
     }
 
     .opt-circle-badge {
-      width: 20px;
-      height: 20px;
+      width: 17px;
+      height: 17px;
       border-radius: 50%;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: 8pt;
+      font-size: 7.5pt;
       font-weight: 900;
       flex-shrink: 0;
       margin-top: 1px;
     }
 
     .badge-blue {
-      border: 1.5px solid #800020;
-      color: #800020;
+      border: 1.5px solid ${primaryAccent};
+      color: ${primaryAccent};
       background: #FFFFFF;
     }
 
     .badge-green {
-      background: #22C55E;
+      background: ${correctBadgeBg};
       color: #FFFFFF;
-      border: 1.5px solid #22C55E;
+      border: 1.5px solid ${correctBadgeBg};
     }
 
     .badge-red {
@@ -1388,8 +1431,8 @@ export function generateDisha2020PDFHTML(
     .correct-badge {
       font-size: 7.5pt;
       font-weight: 800;
-      color: #15803D;
-      background: #DCFCE7;
+      color: ${correctText};
+      background: ${correctLightBg};
       padding: 1px 6px;
       border-radius: 4px;
       margin-left: 6px;
@@ -1409,18 +1452,18 @@ export function generateDisha2020PDFHTML(
     .explanation-box {
       margin-top: 8px;
       padding: 8px 12px;
-      background: #FFF9EF;
-      border-left: 3.5px solid #F47B20;
+      background: ${primarySoftBg};
+      border-left: 3px solid ${primaryAccent};
       border-radius: 4px;
       font-size: 8.5pt;
-      color: #171923;
+      color: ${textMain};
       break-inside: avoid;
       page-break-inside: avoid;
     }
 
     .exp-title {
       font-weight: 800;
-      color: #800020;
+      color: ${primaryAccent};
     }
 
     .fact-box {
@@ -1435,14 +1478,14 @@ export function generateDisha2020PDFHTML(
 
     /* OMR Sheet */
     .omr-fields-card {
-      background: #FFF9EF;
-      border: 1px solid #E8D9C0;
+      background: ${primarySoftBg};
+      border: 1px solid ${borderMuted};
       border-radius: 8px;
       padding: 10px 14px;
       margin-bottom: 12px;
       font-size: 9pt;
       font-weight: 600;
-      color: #800020;
+      color: ${primaryAccent};
     }
 
     .omr-field-row {
@@ -1463,27 +1506,27 @@ export function generateDisha2020PDFHTML(
     }
 
     .omr-table th, .omr-table td {
-      border: 1px solid #E8D9C0;
+      border: 1px solid ${borderMuted};
       padding: 4px 6px;
       text-align: center;
     }
 
     .omr-table th {
-      background: #800020;
+      background: ${primaryAccent};
       color: #FFFFFF;
       font-weight: 800;
     }
 
     .omr-qnum {
       font-weight: 800;
-      color: #800020;
-      background: #FFF9EF;
+      color: ${primaryAccent};
+      background: ${primarySoftBg};
       width: 45px;
     }
 
     .omr-circle {
       font-size: 11pt;
-      color: #6E6254;
+      color: ${textMuted};
     }
 
     /* Answer Key */
@@ -1501,27 +1544,27 @@ export function generateDisha2020PDFHTML(
     }
 
     .ans-key-table th, .ans-key-table td {
-      border: 1px solid #E8D9C0;
+      border: 1px solid ${borderMuted};
       padding: 5px 10px;
       text-align: center;
     }
 
     .ans-key-table th {
-      background: #800020;
+      background: ${primaryAccent};
       color: #FFFFFF;
       font-weight: 900;
     }
 
     .ans-qnum {
       font-weight: 800;
-      color: #800020;
-      background: #FFF9EF;
+      color: ${primaryAccent};
+      background: ${primarySoftBg};
     }
 
     .ans-letter {
       font-weight: 900;
-      color: #F47B20;
-      font-size: 10.5pt;
+      color: ${primaryBright};
+      font-size: 9.2pt;
     }
 
     /* Footer */
@@ -1534,14 +1577,14 @@ export function generateDisha2020PDFHTML(
       align-items: center;
       font-size: 8pt;
       font-weight: 700;
-      color: #6E6254;
+      color: ${textMuted};
     }
 
     .footer-page-num {
       font-weight: 900;
-      color: #800020;
-      background: #FFF9EF;
-      border: 1px solid #E8D9C0;
+      color: ${primaryAccent};
+      background: ${primarySoftBg};
+      border: 1px solid ${borderMuted};
       padding: 2px 8px;
       border-radius: 999px;
     }

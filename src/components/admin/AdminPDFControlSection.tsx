@@ -316,6 +316,31 @@ export const AdminPDFControlSection: React.FC<AdminPDFControlSectionProps> = ({
                 className="w-full px-3 py-2 rounded-xl bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#7045D8]"
               />
             </div>
+
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-slate-600 dark:text-slate-300">
+                Default Print Color Mode
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { id: "color", label: "Brand Color" },
+                  { id: "bw", label: "Black & White (Print)" },
+                ].map((m) => (
+                  <button
+                    key={m.id}
+                    type="button"
+                    onClick={() => setDraft((d) => ({ ...d, defaultColorMode: m.id as "color" | "bw" }))}
+                    className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+                      (draft.defaultColorMode || "color") === m.id
+                        ? "bg-[#7045D8] text-white border-[#7045D8]"
+                        : "bg-[#F8FAFC] dark:bg-[#241D48] text-slate-700 dark:text-slate-200 border-slate-200 dark:border-[#31275E]"
+                    }`}
+                  >
+                    {m.label}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
 
           <div className="pt-1 flex justify-end">
