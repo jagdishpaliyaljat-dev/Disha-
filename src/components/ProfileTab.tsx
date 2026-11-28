@@ -425,65 +425,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
             3. GROUPED MINIMAL ACTION LISTS
         ───────────────────────────────────────────────────────────── */}
 
-        {/* Group A: App Settings & Preferences */}
-        <section className="space-y-1.5">
-          <h3 className="text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 px-1">
-            App Settings &amp; Preferences
-          </h3>
-          <div className="bg-white dark:bg-[#1B1536] rounded-2xl border border-slate-200 dark:border-[#31275E] shadow-xs overflow-hidden divide-y divide-slate-100 dark:divide-[#31275E]/60">
-            {/* Practice Settings */}
-            <button
-              type="button"
-              onClick={() => {
-                triggerHaptic("light");
-                setShowSettingsModal(true);
-              }}
-              className="w-full flex items-center justify-between p-3.5 hover:bg-slate-50 dark:hover:bg-[#241D48]/50 transition-colors cursor-pointer text-left group"
-            >
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="w-9 h-9 rounded-xl bg-[#7045D8]/10 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center shrink-0">
-                  <Settings size={17} />
-                </div>
-                <div className="min-w-0">
-                  <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-50 block truncate">
-                    Practice Preferences
-                  </span>
-                  <span className="text-[11px] text-slate-500 dark:text-slate-400 block truncate">
-                    Display, Audio, Haptics &amp; Profile Settings
-                  </span>
-                </div>
-              </div>
-              <ChevronRight size={16} className="text-slate-400 group-hover:text-[#7045D8] transition-colors shrink-0" />
-            </button>
-
-            {/* AI Assistant Configuration */}
-            <button
-              type="button"
-              onClick={() => {
-                triggerHaptic("light");
-                setShowApiSettingsModal(true);
-              }}
-              className="w-full flex items-center justify-between p-3.5 hover:bg-slate-50 dark:hover:bg-[#241D48]/50 transition-colors cursor-pointer text-left group"
-            >
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="w-9 h-9 rounded-xl bg-[#A78BFA]/15 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center shrink-0">
-                  <Sparkles size={17} />
-                </div>
-                <div className="min-w-0">
-                  <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-50 block truncate">
-                    AI Doubt Solver
-                  </span>
-                  <span className="text-[11px] text-slate-500 dark:text-slate-400 block truncate">
-                    {settings.aiMode === "personal_keys" ? "Custom Gemini API Key" : "Default Built-in AI Model"}
-                  </span>
-                </div>
-              </div>
-              <ChevronRight size={16} className="text-slate-400 group-hover:text-[#7045D8] transition-colors shrink-0" />
-            </button>
-          </div>
-        </section>
-
-        {/* Group B: Community & Support */}
+        {/* Group A: Community & Support */}
         <section className="space-y-1.5">
           <h3 className="text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 px-1">
             Community &amp; Sharing
