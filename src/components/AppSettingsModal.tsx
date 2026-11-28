@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { AppSettings, UserProfile } from "../types";
+import { AppSettings, UserProfile, ActiveTab } from "../types";
 import {
   X,
   Shuffle,
@@ -21,6 +21,13 @@ import {
   ShieldCheck,
   CheckCircle2,
   SlidersHorizontal,
+  ChevronDown,
+  ChevronRight,
+  Shield,
+  FileText,
+  AlertCircle,
+  Mail,
+  Info,
 } from "lucide-react";
 import {
   exportStudentBackupToFile,
@@ -50,7 +57,9 @@ export interface AppSettingsModalProps {
   onClose: () => void;
   userProfile?: UserProfile | null;
   onUpdateProfile?: (updated: Partial<UserProfile>) => void;
-  initialTab?: "all" | "profile" | "display" | "practice" | "ai" | "backup";
+  initialTab?: "all" | "profile" | "display" | "practice" | "ai" | "backup" | "legal";
+  onNavigateTab?: (tab: ActiveTab) => void;
+  onOpenAbout?: () => void;
 }
 
 export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
@@ -60,14 +69,23 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
   userProfile,
   onUpdateProfile,
   initialTab = "all",
+  onNavigateTab,
+  onOpenAbout,
 }) => {
-  const [activeTab, setActiveTab] = useState<"all" | "profile" | "display" | "practice" | "ai" | "backup">(initialTab);
+  const [activeTab, setActiveTab] = useState<"all" | "profile" | "display" | "practice" | "ai" | "backup" | "legal">(initialTab);
   const [backupNotice, setBackupNotice] = useState<string | null>(null);
+  const [isLegalExpanded, setIsLegalExpanded] = useState(initialTab === "legal");
 
   // Profile Edit State
   const [nameInput, setNameInput] = useState(userProfile?.name || "");
   const [targetExamInput, setTargetExamInput] = useState(userProfile?.targetExam || "RPSC RAS (Prelims & Mains)");
   const [profileSavedNotice, setProfileSavedNotice] = useState(false);
+
+  useEffect(() => {
+    if (activeTab === "legal") {
+      setIsLegalExpanded(true);
+    }
+  }, [activeTab]);
 
   useEffect(() => {
     if (userProfile?.name) setNameInput(userProfile.name);
@@ -227,6 +245,18 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
           >
             <Database size={13} />
             <span>Backup</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab("legal")}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
+              activeTab === "legal"
+                ? "bg-[#7045D8] text-white shadow-xs"
+                : "bg-white dark:bg-[#1B1536] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-[#31275E] hover:border-[#7045D8]"
+            }`}
+          >
+            <ShieldCheck size={13} />
+            <span>Legal &amp; Policy</span>
           </button>
         </div>
 
@@ -733,6 +763,196 @@ export const AppSettingsModal: React.FC<AppSettingsModalProps> = ({
                   <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 text-center pt-1 font-hindi">
                     {backupNotice}
                   </p>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* ─────────────────────────────────────────────────────────────
+              SECTION 6: TRANSPARENCY & LEGAL (पारदर्शिता व नीतियां)
+          ───────────────────────────────────────────────────────────── */}
+          {(activeTab === "all" || activeTab === "legal") && (
+            <div className="space-y-2.5">
+              <div className="flex items-center justify-between px-1">
+                <h4 className="text-[11px] font-black text-[#7045D8] dark:text-[#A78BFA] uppercase tracking-[0.18em] flex items-center gap-1.5">
+                  <ShieldCheck size={13} />
+                  <span>Transparency &amp; Legal (पारदर्शिता व नीतियां)</span>
+                </h4>
+              </div>
+
+              <div className="bg-white dark:bg-[#1B1536] rounded-2xl border border-slate-200 dark:border-[#31275E] shadow-2xs overflow-hidden transition-all duration-200">
+                {/* Main Transparency & Legal Button */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    triggerHaptic("light");
+                    setIsLegalExpanded((prev) => !prev);
+                  }}
+                  aria-expanded={isLegalExpanded}
+                  className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-[#241D48]/50 transition-colors cursor-pointer text-left group"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+                      <ShieldCheck size={20} />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-bold text-slate-900 dark:text-slate-50 block truncate">
+                          Transparency &amp; Legal
+                        </span>
+                        <span className="px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 text-[10px] font-black uppercase tracking-wider">
+                          5 Sub-buttons
+                        </span>
+                      </div>
+                      <span className="text-xs text-slate-500 dark:text-slate-400 block truncate mt-0.5">
+                        Privacy Policy, Terms, Disclaimer &amp; Help Desk
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0 text-slate-400 group-hover:text-[#7045D8] transition-colors ml-2">
+                    <ChevronDown
+                      size={18}
+                      className={`transition-transform duration-200 ${
+                        isLegalExpanded ? "rotate-180 text-[#7045D8]" : ""
+                      }`}
+                    />
+                  </div>
+                </button>
+
+                {/* Sub-buttons Container */}
+                {isLegalExpanded && (
+                  <div className="border-t border-slate-100 dark:border-[#31275E]/60 bg-slate-50/60 dark:bg-[#140F2D]/50 divide-y divide-slate-100 dark:divide-[#31275E]/40">
+                    {/* Sub-button 1: About Disha PYQ */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        triggerHaptic("light");
+                        onClose();
+                        if (onOpenAbout) onOpenAbout();
+                        else if (onNavigateTab) onNavigateTab("about" as ActiveTab);
+                      }}
+                      className="w-full flex items-center justify-between p-3.5 pl-6 hover:bg-white dark:hover:bg-[#241D48]/80 transition-colors cursor-pointer text-left group"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-8 h-8 rounded-lg bg-[#7045D8]/10 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center shrink-0">
+                          <Info size={16} />
+                        </div>
+                        <div className="min-w-0">
+                          <span className="text-xs font-bold text-slate-800 dark:text-slate-100 block truncate">
+                            About Disha PYQ
+                          </span>
+                          <span className="text-[10px] text-slate-500 dark:text-slate-400 block truncate">
+                            Mission, version &amp; key features
+                          </span>
+                        </div>
+                      </div>
+                      <ChevronRight size={15} className="text-slate-400 group-hover:text-[#7045D8] transition-colors shrink-0" />
+                    </button>
+
+                    {/* Sub-button 2: Privacy Policy */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        triggerHaptic("light");
+                        onClose();
+                        onNavigateTab?.("privacy-policy");
+                      }}
+                      className="w-full flex items-center justify-between p-3.5 pl-6 hover:bg-white dark:hover:bg-[#241D48]/80 transition-colors cursor-pointer text-left group"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                          <Shield size={16} />
+                        </div>
+                        <div className="min-w-0">
+                          <span className="text-xs font-bold text-slate-800 dark:text-slate-100 block truncate">
+                            Privacy Policy
+                          </span>
+                          <span className="text-[10px] text-slate-500 dark:text-slate-400 block truncate">
+                            Data protection &amp; Google Play compliance
+                          </span>
+                        </div>
+                      </div>
+                      <ChevronRight size={15} className="text-slate-400 group-hover:text-emerald-500 transition-colors shrink-0" />
+                    </button>
+
+                    {/* Sub-button 3: Terms of Service */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        triggerHaptic("light");
+                        onClose();
+                        onNavigateTab?.("terms-of-service");
+                      }}
+                      className="w-full flex items-center justify-between p-3.5 pl-6 hover:bg-white dark:hover:bg-[#241D48]/80 transition-colors cursor-pointer text-left group"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-8 h-8 rounded-lg bg-slate-200 dark:bg-[#241D48] text-slate-700 dark:text-slate-300 flex items-center justify-center shrink-0">
+                          <FileText size={16} />
+                        </div>
+                        <div className="min-w-0">
+                          <span className="text-xs font-bold text-slate-800 dark:text-slate-100 block truncate">
+                            Terms of Service
+                          </span>
+                          <span className="text-[10px] text-slate-500 dark:text-slate-400 block truncate">
+                            Fair usage &amp; intellectual property
+                          </span>
+                        </div>
+                      </div>
+                      <ChevronRight size={15} className="text-slate-400 group-hover:text-slate-600 transition-colors shrink-0" />
+                    </button>
+
+                    {/* Sub-button 4: Government Disclaimer */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        triggerHaptic("light");
+                        onClose();
+                        onNavigateTab?.("disclaimer");
+                      }}
+                      className="w-full flex items-center justify-between p-3.5 pl-6 hover:bg-white dark:hover:bg-[#241D48]/80 transition-colors cursor-pointer text-left group"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                          <AlertCircle size={16} />
+                        </div>
+                        <div className="min-w-0">
+                          <span className="text-xs font-bold text-slate-800 dark:text-slate-100 block truncate">
+                            Government Disclaimer
+                          </span>
+                          <span className="text-[10px] text-slate-500 dark:text-slate-400 block truncate">
+                            Independent private education platform
+                          </span>
+                        </div>
+                      </div>
+                      <ChevronRight size={15} className="text-slate-400 group-hover:text-amber-500 transition-colors shrink-0" />
+                    </button>
+
+                    {/* Sub-button 5: Help & Contact Desk */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        triggerHaptic("light");
+                        onClose();
+                        onNavigateTab?.("contact");
+                      }}
+                      className="w-full flex items-center justify-between p-3.5 pl-6 hover:bg-white dark:hover:bg-[#241D48]/80 transition-colors cursor-pointer text-left group"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-8 h-8 rounded-lg bg-[#7045D8]/10 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center shrink-0">
+                          <Mail size={16} />
+                        </div>
+                        <div className="min-w-0">
+                          <span className="text-xs font-bold text-slate-800 dark:text-slate-100 block truncate">
+                            Help &amp; Contact Desk
+                          </span>
+                          <span className="text-[10px] text-slate-500 dark:text-slate-400 block truncate">
+                            Support query &amp; student assistance
+                          </span>
+                        </div>
+                      </div>
+                      <ChevronRight size={15} className="text-slate-400 group-hover:text-[#7045D8] transition-colors shrink-0" />
+                    </button>
+                  </div>
                 )}
               </div>
             </div>

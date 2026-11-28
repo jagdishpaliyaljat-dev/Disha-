@@ -2800,6 +2800,14 @@ export default function App() {
                 saveUserProfile(merged);
               }
             }}
+            onNavigateTab={(tab) => {
+              setIsSettingsOpen(false);
+              setActiveTab(tab);
+            }}
+            onOpenAbout={() => {
+              setIsSettingsOpen(false);
+              setActiveTab("about");
+            }}
           />
         </OverlayErrorBoundary>
       )}

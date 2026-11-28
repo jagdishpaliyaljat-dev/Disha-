@@ -40,6 +40,8 @@ import {
   ArrowLeft,
   Eye,
   FileText,
+  ChevronDown,
+  ShieldCheck,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import ShareModal, { ShareData } from "./ShareModal";
@@ -101,6 +103,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
   const [showEditProfileModal, setShowEditProfileModal] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [shareData, setShareData] = useState<ShareData | null>(null);
+  const [isLegalExpanded, setIsLegalExpanded] = useState(false);
 
   const [activeProfile, setActiveProfile] = useState<UserProfile>(user || DEFAULT_USER_PROFILE);
 
@@ -560,136 +563,184 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
           </div>
         </section>
 
-        {/* Group C: Legal & Transparency */}
+        {/* Group C: Transparency & Legal Button with Sub-Buttons */}
         <section className="space-y-1.5">
-          <h3 className="text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 px-1">
-            Transparency &amp; Legal
-          </h3>
-          <div className="bg-white dark:bg-[#1B1536] rounded-2xl border border-slate-200 dark:border-[#31275E] shadow-xs overflow-hidden divide-y divide-slate-100 dark:divide-[#31275E]/60">
-            {/* About Us */}
+          <div className="bg-white dark:bg-[#1B1536] rounded-2xl border border-slate-200 dark:border-[#31275E] shadow-xs overflow-hidden transition-all duration-200">
+            {/* Main Transparency & Legal Button */}
             <button
               type="button"
               onClick={() => {
                 triggerHaptic("light");
-                setShowAboutModal(true);
+                setIsLegalExpanded((prev) => !prev);
               }}
+              aria-expanded={isLegalExpanded}
               className="w-full flex items-center justify-between p-3.5 hover:bg-slate-50 dark:hover:bg-[#241D48]/50 transition-colors cursor-pointer text-left group"
             >
               <div className="flex items-center gap-3 min-w-0">
-                <div className="w-9 h-9 rounded-xl bg-[#7045D8]/10 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center shrink-0">
-                  <Info size={17} />
+                <div className="w-9 h-9 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+                  <ShieldCheck size={18} />
                 </div>
                 <div className="min-w-0">
-                  <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-50 block truncate">
-                    About Disha PYQ
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-50 block truncate">
+                      Transparency &amp; Legal
+                    </span>
+                    <span className="px-1.5 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 text-[10px] font-black uppercase tracking-wider">
+                      5 Sub-items
+                    </span>
+                  </div>
                   <span className="text-[11px] text-slate-500 dark:text-slate-400 block truncate">
-                    Mission, version &amp; features
+                    Privacy Policy, Terms, Disclaimer &amp; Help Desk
                   </span>
                 </div>
               </div>
-              <ChevronRight size={16} className="text-slate-400 group-hover:text-[#7045D8] transition-colors shrink-0" />
+              <div className="flex items-center gap-1.5 shrink-0 text-slate-400 group-hover:text-[#7045D8] transition-colors ml-2">
+                <ChevronDown
+                  size={18}
+                  className={`transition-transform duration-200 ${
+                    isLegalExpanded ? "rotate-180 text-[#7045D8]" : ""
+                  }`}
+                />
+              </div>
             </button>
 
-            {/* Privacy Policy */}
-            <button
-              type="button"
-              onClick={() => {
-                triggerHaptic("light");
-                onNavigateTab?.("privacy-policy");
-              }}
-              className="w-full flex items-center justify-between p-3.5 hover:bg-slate-50 dark:hover:bg-[#241D48]/50 transition-colors cursor-pointer text-left group"
-            >
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
-                  <Shield size={17} />
-                </div>
-                <div className="min-w-0">
-                  <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-50 block truncate">
-                    Privacy Policy
-                  </span>
-                  <span className="text-[11px] text-slate-500 dark:text-slate-400 block truncate">
-                    Data protection &amp; Google Play compliance
-                  </span>
-                </div>
-              </div>
-              <ChevronRight size={16} className="text-slate-400 group-hover:text-[#7045D8] transition-colors shrink-0" />
-            </button>
+            {/* Sub-buttons Accordion */}
+            <AnimatePresence>
+              {isLegalExpanded && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.2, ease: "easeInOut" }}
+                  className="overflow-hidden border-t border-slate-100 dark:border-[#31275E]/60 bg-slate-50/50 dark:bg-[#150F2E]/60 divide-y divide-slate-100 dark:divide-[#31275E]/40"
+                >
+                  {/* Sub-button 1: About Us */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      triggerHaptic("light");
+                      setShowAboutModal(true);
+                    }}
+                    className="w-full flex items-center justify-between p-3 pl-5 hover:bg-white dark:hover:bg-[#241D48]/80 transition-colors cursor-pointer text-left group"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-8 h-8 rounded-lg bg-[#7045D8]/10 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center shrink-0">
+                        <Info size={15} />
+                      </div>
+                      <div className="min-w-0">
+                        <span className="text-xs font-bold text-slate-800 dark:text-slate-100 block truncate">
+                          About Disha PYQ
+                        </span>
+                        <span className="text-[10px] text-slate-500 dark:text-slate-400 block truncate">
+                          Mission, version &amp; key features
+                        </span>
+                      </div>
+                    </div>
+                    <ChevronRight size={15} className="text-slate-400 group-hover:text-[#7045D8] transition-colors shrink-0" />
+                  </button>
 
-            {/* Terms of Service */}
-            <button
-              type="button"
-              onClick={() => {
-                triggerHaptic("light");
-                onNavigateTab?.("terms-of-service");
-              }}
-              className="w-full flex items-center justify-between p-3.5 hover:bg-slate-50 dark:hover:bg-[#241D48]/50 transition-colors cursor-pointer text-left group"
-            >
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-[#241D48] text-slate-600 dark:text-slate-300 flex items-center justify-center shrink-0">
-                  <FileText size={17} />
-                </div>
-                <div className="min-w-0">
-                  <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-50 block truncate">
-                    Terms of Service
-                  </span>
-                  <span className="text-[11px] text-slate-500 dark:text-slate-400 block truncate">
-                    Fair usage &amp; intellectual property
-                  </span>
-                </div>
-              </div>
-              <ChevronRight size={16} className="text-slate-400 group-hover:text-[#7045D8] transition-colors shrink-0" />
-            </button>
+                  {/* Sub-button 2: Privacy Policy */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      triggerHaptic("light");
+                      onNavigateTab?.("privacy-policy");
+                    }}
+                    className="w-full flex items-center justify-between p-3 pl-5 hover:bg-white dark:hover:bg-[#241D48]/80 transition-colors cursor-pointer text-left group"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                        <Shield size={15} />
+                      </div>
+                      <div className="min-w-0">
+                        <span className="text-xs font-bold text-slate-800 dark:text-slate-100 block truncate">
+                          Privacy Policy
+                        </span>
+                        <span className="text-[10px] text-slate-500 dark:text-slate-400 block truncate">
+                          Data protection &amp; Google Play compliance
+                        </span>
+                      </div>
+                    </div>
+                    <ChevronRight size={15} className="text-slate-400 group-hover:text-emerald-500 transition-colors shrink-0" />
+                  </button>
 
-            {/* Disclaimer */}
-            <button
-              type="button"
-              onClick={() => {
-                triggerHaptic("light");
-                onNavigateTab?.("disclaimer");
-              }}
-              className="w-full flex items-center justify-between p-3.5 hover:bg-slate-50 dark:hover:bg-[#241D48]/50 transition-colors cursor-pointer text-left group"
-            >
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
-                  <AlertCircle size={17} />
-                </div>
-                <div className="min-w-0">
-                  <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-50 block truncate">
-                    Government Disclaimer
-                  </span>
-                  <span className="text-[11px] text-slate-500 dark:text-slate-400 block truncate">
-                    Independent private education platform
-                  </span>
-                </div>
-              </div>
-              <ChevronRight size={16} className="text-slate-400 group-hover:text-[#7045D8] transition-colors shrink-0" />
-            </button>
+                  {/* Sub-button 3: Terms of Service */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      triggerHaptic("light");
+                      onNavigateTab?.("terms-of-service");
+                    }}
+                    className="w-full flex items-center justify-between p-3 pl-5 hover:bg-white dark:hover:bg-[#241D48]/80 transition-colors cursor-pointer text-left group"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-8 h-8 rounded-lg bg-slate-200 dark:bg-[#241D48] text-slate-700 dark:text-slate-300 flex items-center justify-center shrink-0">
+                        <FileText size={15} />
+                      </div>
+                      <div className="min-w-0">
+                        <span className="text-xs font-bold text-slate-800 dark:text-slate-100 block truncate">
+                          Terms of Service
+                        </span>
+                        <span className="text-[10px] text-slate-500 dark:text-slate-400 block truncate">
+                          Fair usage &amp; intellectual property
+                        </span>
+                      </div>
+                    </div>
+                    <ChevronRight size={15} className="text-slate-400 group-hover:text-slate-600 transition-colors shrink-0" />
+                  </button>
 
-            {/* Contact Us */}
-            <button
-              type="button"
-              onClick={() => {
-                triggerHaptic("light");
-                onNavigateTab?.("contact");
-              }}
-              className="w-full flex items-center justify-between p-3.5 hover:bg-slate-50 dark:hover:bg-[#241D48]/50 transition-colors cursor-pointer text-left group"
-            >
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="w-9 h-9 rounded-xl bg-[#7045D8]/10 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center shrink-0">
-                  <Mail size={17} />
-                </div>
-                <div className="min-w-0">
-                  <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-50 block truncate">
-                    Help &amp; Contact Desk
-                  </span>
-                  <span className="text-[11px] text-slate-500 dark:text-slate-400 block truncate">
-                    Support query &amp; feedback
-                  </span>
-                </div>
-              </div>
-              <ChevronRight size={16} className="text-slate-400 group-hover:text-[#7045D8] transition-colors shrink-0" />
-            </button>
+                  {/* Sub-button 4: Government Disclaimer */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      triggerHaptic("light");
+                      onNavigateTab?.("disclaimer");
+                    }}
+                    className="w-full flex items-center justify-between p-3 pl-5 hover:bg-white dark:hover:bg-[#241D48]/80 transition-colors cursor-pointer text-left group"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                        <AlertCircle size={15} />
+                      </div>
+                      <div className="min-w-0">
+                        <span className="text-xs font-bold text-slate-800 dark:text-slate-100 block truncate">
+                          Government Disclaimer
+                        </span>
+                        <span className="text-[10px] text-slate-500 dark:text-slate-400 block truncate">
+                          Independent private education platform
+                        </span>
+                      </div>
+                    </div>
+                    <ChevronRight size={15} className="text-slate-400 group-hover:text-amber-500 transition-colors shrink-0" />
+                  </button>
+
+                  {/* Sub-button 5: Help & Contact Desk */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      triggerHaptic("light");
+                      onNavigateTab?.("contact");
+                    }}
+                    className="w-full flex items-center justify-between p-3 pl-5 hover:bg-white dark:hover:bg-[#241D48]/80 transition-colors cursor-pointer text-left group"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-8 h-8 rounded-lg bg-[#7045D8]/10 text-[#7045D8] dark:text-[#A78BFA] flex items-center justify-center shrink-0">
+                        <Mail size={15} />
+                      </div>
+                      <div className="min-w-0">
+                        <span className="text-xs font-bold text-slate-800 dark:text-slate-100 block truncate">
+                          Help &amp; Contact Desk
+                        </span>
+                        <span className="text-[10px] text-slate-500 dark:text-slate-400 block truncate">
+                          Support query &amp; feedback desk
+                        </span>
+                      </div>
+                    </div>
+                    <ChevronRight size={15} className="text-slate-400 group-hover:text-[#7045D8] transition-colors shrink-0" />
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </section>
 
@@ -1215,6 +1266,14 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
             setActiveProfile(merged);
             saveUserProfile(merged);
             onUpdateProfile?.(merged);
+          }}
+          onNavigateTab={(tab) => {
+            setShowSettingsModal(false);
+            onNavigateTab?.(tab);
+          }}
+          onOpenAbout={() => {
+            setShowSettingsModal(false);
+            setShowAboutModal(true);
           }}
         />
       )}
