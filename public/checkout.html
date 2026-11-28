@@ -99,9 +99,9 @@
       256-Bit बैंक एन्क्रिप्टेड पेमेंट
     </div>
     <div class="spinner"></div>
-    <h2>आधिकारिक Cashfree गेटवे खोला जा रहा है...</h2>
-    <p>Google Pay, PhonePe, Paytm व कार्ड्स लोड हो रहे हैं, कृपया प्रतीक्षा करें।</p>
-    <div class="note">पेज को रिफ्रेश या बंद न करें।</div>
+    <h2 id="checkout-title">आधिकारिक Cashfree गेटवे खोला जा रहा है...</h2>
+    <p id="checkout-subtitle">Google Pay, PhonePe, Paytm व कार्ड्स लोड हो रहे हैं, कृपया प्रतीक्षा करें।</p>
+    <div class="note" id="checkout-note">पेज को रिफ्रेश या बंद न करें।</div>
     <div id="fallback-action" style="display: none;">
       <button class="btn" id="retry-btn">पेमेंट पेज दोबारा खोलें</button>
     </div>
@@ -111,43 +111,78 @@
     (function() {
       try {
         var params = new URLSearchParams(window.location.search);
-        var sessionId = params.get("session_id") || params.get("payment_session_id");
+        var isAutoPay = params.get("autopay") === "1" || !!params.get("subscription_id");
+        var sessionId = params.get("subs_session_id") ||
+          (isAutoPay ? params.get("session_id") : null) ||
+          params.get("payment_session_id") || params.get("session_id");
+        var subscriptionId = params.get("subscription_id") || "";
         var mode = (params.get("mode") || "production").toLowerCase();
+        var card = document.querySelector(".card");
 
-        if (!sessionId) {
-          document.querySelector(".card").innerHTML =
-            "<h2 style='color:#f87171;'>त्रुटि: अमान्य पेमेंट सेशन</h2>" +
-            "<p>पेमेंट सेशन आईडी नहीं मिली। कृपया ऐप से दोबारा प्रयास करें।</p>";
+        function fail(title, msg) {
+          if (card) card.innerHTML = "<h2 style='color:#f87171;'>" + title + "</h2><p>" + msg + "</p>";
+        }
+
+        if (!sessionId || (isAutoPay && !subscriptionId)) {
+          fail("त्रुटि: अमान्य पेमेंट सेशन", "पेमेंट सेशन आईडी नहीं मिली। कृपया ऐप से दोबारा प्रयास करें।");
           return;
+        }
+
+        if (isAutoPay) {
+          var title = document.getElementById("checkout-title");
+          var subtitle = document.getElementById("checkout-subtitle");
+          if (title) title.textContent = "UPI AutoPay मैंडेट शुरू किया जा रहा है...";
+          if (subtitle) subtitle.textContent =
+            "₹1 ट्रायल और 7 दिन बाद मासिक रिन्यूअल के लिए UPI मैंडेट सत्यापित करें।";
         }
 
         function launchCheckout() {
           if (window.Cashfree) {
             try {
               var cashfree = window.Cashfree({ mode: mode });
-              cashfree.checkout({
-                paymentSessionId: sessionId,
-                redirectTarget: "_self"
-              });
-              return;
+              // Mandates MUST use the subscription session, not a payment session.
+              if (isAutoPay && typeof cashfree.subscriptionsCheckout === "function") {
+                cashfree.subscriptionsCheckout({
+                  subsSessionId: sessionId,
+                  redirectTarget: "_self"
+                });
+                return;
+              }
+              if (!isAutoPay && typeof cashfree.checkout === "function") {
+                cashfree.checkout({
+                  paymentSessionId: sessionId,
+                  redirectTarget: "_self"
+                });
+                return;
+              }
             } catch (sdkErr) {
               console.warn("Cashfree checkout error:", sdkErr);
             }
           }
-          // Direct fallback
-          var form = document.createElement("form");
-          form.method = "POST";
-          form.action = mode === "sandbox" || mode === "test"
-            ? "https://sandbox.cashfree.com/pg/view/sessions/checkout"
-            : "https://api.cashfree.com/pg/view/sessions/checkout";
-          form.target = "_self";
-          var inp = document.createElement("input");
-          inp.type = "hidden";
-          inp.name = "payment_session_id";
-          inp.value = sessionId;
-          form.appendChild(inp);
-          document.body.appendChild(form);
-          form.submit();
+
+          if (!isAutoPay) {
+            // One-time orders have a safe direct POST fallback.
+            var form = document.createElement("form");
+            form.method = "POST";
+            form.action = mode === "sandbox" || mode === "test"
+              ? "https://sandbox.cashfree.com/pg/view/sessions/checkout"
+              : "https://api.cashfree.com/pg/view/sessions/checkout";
+            form.target = "_self";
+            var inp = document.createElement("input");
+            inp.type = "hidden";
+            inp.name = "payment_session_id";
+            inp.value = sessionId;
+            form.appendChild(inp);
+            document.body.appendChild(form);
+            form.submit();
+            return;
+          }
+
+          // Subscription sessions have NO direct-POST fallback. Offer a retry.
+          var fb = document.getElementById("fallback-action");
+          if (fb) fb.style.display = "block";
+          var note = document.getElementById("checkout-note");
+          if (note) note.textContent = "AutoPay पेज लोड नहीं हो सका। नीचे दिए बटन से दोबारा प्रयास करें।";
         }
 
         // Wait for SDK script to load if not already ready
@@ -170,7 +205,9 @@
         }
         setTimeout(function() {
           var fb = document.getElementById("fallback-action");
-          if (fb) fb.style.display = "block";
+          // For one-time orders this only reveals a redundant retry button;
+          // for AutoPay it is the only recovery path when the SDK is blocked.
+          if (fb && isAutoPay) fb.style.display = "block";
         }, 3000);
       } catch (err) {
         console.error("Checkout init error:", err);

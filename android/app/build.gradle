@@ -1,14 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace = "com.disha2020.examprep"
+    namespace = "com.rajexam.prep"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.disha2020.examprep"
+        applicationId "com.rajexam.prep"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 48
-        versionName "1.0.62"
+        versionCode 49
+        versionName "1.0.63"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
