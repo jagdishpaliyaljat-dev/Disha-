@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import { Chapter, ProgressStore, Subject, PYQPaper, LiveTest } from "../types";
 import {
   X,
@@ -166,8 +166,48 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
   const [rollNumber, setRollNumber] = useState("");
   const [customTitle, setCustomTitle] = useState("");
 
-  // Preview & Generation States
+  // Preview & Generation States (Mobile-friendly Fit-to-Screen scaling)
   const [previewZoom, setPreviewZoom] = useState<number>(100);
+  const previewContainerRef = useRef<HTMLDivElement>(null);
+  const previewIframeRef = useRef<HTMLIFrameElement>(null);
+  const [previewContainerWidth, setPreviewContainerWidth] = useState<number>(
+    typeof window !== "undefined" ? Math.min(window.innerWidth, 768) : 360
+  );
+  const [previewDocHeight, setPreviewDocHeight] = useState<number>(1120);
+
+  useEffect(() => {
+    if (activeTab !== "preview") return;
+    const el = previewContainerRef.current;
+    if (!el) return;
+    const updateWidth = () => {
+      if (el.clientWidth > 0) setPreviewContainerWidth(el.clientWidth);
+    };
+    updateWidth();
+    if (typeof ResizeObserver !== "undefined") {
+      const ro = new ResizeObserver(updateWidth);
+      ro.observe(el);
+      return () => ro.disconnect();
+    }
+  }, [activeTab]);
+
+  const fitScale = useMemo(() => {
+    const naturalPagePx = 740;
+    return Math.min(1, Math.max(0.32, (previewContainerWidth - 16) / naturalPagePx));
+  }, [previewContainerWidth]);
+
+  const effectiveScale = useMemo(() => {
+    return (fitScale * previewZoom) / 100;
+  }, [fitScale, previewZoom]);
+
+  const handlePreviewIframeLoad = () => {
+    try {
+      const doc = previewIframeRef.current?.contentDocument;
+      if (doc?.documentElement) {
+        const h = Math.max(doc.documentElement.scrollHeight, doc.body?.scrollHeight || 0, 1050);
+        setPreviewDocHeight(h + 24);
+      }
+    } catch {}
+  };
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const [pdfProgress, setPdfProgress] = useState<PDFGenerationProgress | null>(null);
   const [toastMessage, setToastMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
@@ -936,34 +976,56 @@ export const PDFExportModal: React.FC<PDFExportModalProps> = ({
 
               <div className="flex items-center gap-1.5">
                 <button
-                  onClick={() => setPreviewZoom((z) => Math.max(50, z - 15))}
+                  onClick={() => setPreviewZoom((z) => Math.max(60, z - 20))}
                   className="w-7 h-7 rounded-lg bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] flex items-center justify-center cursor-pointer"
+                  title="Zoom Out"
                 >
                   <ZoomOut className="w-3.5 h-3.5" />
                 </button>
-                <span className="text-[11px] font-bold tabular-nums w-10 text-center">{previewZoom}%</span>
                 <button
-                  onClick={() => setPreviewZoom((z) => Math.min(150, z + 15))}
+                  onClick={() => setPreviewZoom(100)}
+                  className="px-2 h-7 rounded-lg bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] text-[11px] font-bold tabular-nums cursor-pointer"
+                  title="Fit to Screen"
+                >
+                  {previewZoom === 100 ? "Fit" : `${previewZoom}%`}
+                </button>
+                <button
+                  onClick={() => setPreviewZoom((z) => Math.min(200, z + 20))}
                   className="w-7 h-7 rounded-lg bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] flex items-center justify-center cursor-pointer"
+                  title="Zoom In"
                 >
                   <ZoomIn className="w-3.5 h-3.5" />
                 </button>
               </div>
             </div>
 
-            <div className="flex-1 overflow-auto p-4 flex justify-center items-start">
+            <div
+              ref={previewContainerRef}
+              className="flex-1 overflow-auto p-2 sm:p-4 flex justify-center items-start"
+            >
               <div
-                className="bg-white shadow-2xl transition-all duration-150 origin-top rounded-md overflow-hidden border border-slate-200"
+                className="relative shrink-0"
                 style={{
-                  width: `${(794 * previewZoom) / 100}px`,
-                  minHeight: `${(1123 * previewZoom) / 100}px`,
+                  width: `${Math.round(740 * effectiveScale)}px`,
+                  height: `${Math.round(previewDocHeight * effectiveScale)}px`,
                 }}
               >
-                <iframe
-                  title="Disha PYQ Live PDF Preview"
-                  srcDoc={generatedHTML}
-                  className="w-full h-full border-none min-h-[900px]"
-                />
+                <div
+                  className="bg-white shadow-xl rounded-md overflow-hidden border border-slate-200 origin-top-left"
+                  style={{
+                    width: "740px",
+                    height: `${previewDocHeight}px`,
+                    transform: `scale(${effectiveScale})`,
+                  }}
+                >
+                  <iframe
+                    ref={previewIframeRef}
+                    onLoad={handlePreviewIframeLoad}
+                    title="Disha PYQ Live PDF Preview"
+                    srcDoc={generatedHTML}
+                    className="w-full h-full border-none"
+                  />
+                </div>
               </div>
             </div>
           </div>

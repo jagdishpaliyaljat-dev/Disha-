@@ -1038,21 +1038,20 @@ export function generateDisha2020PDFHTML(
       line-height: 1.42;
       color: ${textMain};
       background-color: ${pagePreviewBg};
-      padding: 20px 0;
+      padding: 12px 0;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
     }
 
     .a4-page {
       width: 190mm;
-      height: 268mm;
-      max-height: 268mm;
+      min-height: 268mm;
+      height: auto;
       box-sizing: border-box;
       background: #FFFFFF;
-      margin: 0 auto 20px auto;
+      margin: 0 auto 14px auto;
       padding: 8mm 10mm 8mm 10mm;
       position: relative;
-      overflow: hidden;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
