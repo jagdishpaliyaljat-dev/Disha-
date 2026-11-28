@@ -2,7 +2,7 @@ import { App as CapacitorApp, URLOpenListenerEvent } from '@capacitor/app';
 import { Browser } from '@capacitor/browser';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 
-export const GOOGLE_WEB_CLIENT_ID = '30041667176-63sq18vqm32a3fj465kb845ubc6cku44.apps.googleusercontent.com';
+export const GOOGLE_WEB_CLIENT_ID = '30041667176-vftn1ar5sj8qmtsv3rh81hl11kdd18b0.apps.googleusercontent.com';
 export const NATIVE_CUSTOM_SCHEME = 'com.rajexam.prep://auth-callback';
 export const NATIVE_FALLBACK_SCHEME = 'disha2020://auth-callback';
 export const PRODUCTION_WEB_ORIGIN = 'https://disha-2020.vercel.app';
