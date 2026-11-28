@@ -11,6 +11,8 @@ import {
   Activity,
   Loader2,
   Award,
+  Bell,
+  Send,
 } from "lucide-react";
 import { supabase, isSupabaseConfigured } from "../../lib/supabase";
 
@@ -53,6 +55,16 @@ interface SubjectStatItem {
   avg_score: number;
 }
 
+interface DirectNotificationItem {
+  id: string;
+  title: string;
+  message: string;
+  type: "info" | "reminder" | "reward" | "warning";
+  is_read: boolean;
+  read_at: string | null;
+  created_at: string;
+}
+
 interface AdminUserDetailDrawerProps {
   user: SelectedActivityUser | null;
   onClose: () => void;
@@ -66,7 +78,13 @@ export const AdminUserDetailDrawer: React.FC<AdminUserDetailDrawerProps> = ({
   const [attempts, setAttempts] = React.useState<QuizAttemptItem[]>([]);
   const [events, setEvents] = React.useState<ActivityEventItem[]>([]);
   const [subjects, setSubjects] = React.useState<SubjectStatItem[]>([]);
-  const [activeTab, setActiveTab] = React.useState<"attempts" | "timeline">("attempts");
+  const [notifications, setNotifications] = React.useState<DirectNotificationItem[]>([]);
+  const [activeTab, setActiveTab] = React.useState<"attempts" | "timeline" | "notifications">("attempts");
+  const [notifTitle, setNotifTitle] = React.useState("");
+  const [notifMessage, setNotifMessage] = React.useState("");
+  const [notifType, setNotifType] = React.useState<"info" | "reminder" | "reward" | "warning">("info");
+  const [sendingNotif, setSendingNotif] = React.useState(false);
+  const [notifFeedback, setNotifFeedback] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     if (!user || !isSupabaseConfigured()) return;
@@ -86,12 +104,58 @@ export const AdminUserDetailDrawer: React.FC<AdminUserDetailDrawerProps> = ({
         setLoading(false);
       });
 
+    supabase
+      .from("user_direct_notifications")
+      .select("id, title, message, type, is_read, read_at, created_at")
+      .eq("user_id", user.user_id)
+      .order("created_at", { ascending: false })
+      .limit(20)
+      .then(({ data }) => {
+        if (!cancelled && data) {
+          setNotifications(data as DirectNotificationItem[]);
+        }
+      });
+
     return () => {
       cancelled = true;
     };
   }, [user]);
 
   if (!user) return null;
+
+  const handleSendNotification = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!notifTitle.trim() || !notifMessage.trim() || !isSupabaseConfigured()) return;
+    setSendingNotif(true);
+    setNotifFeedback(null);
+
+    try {
+      const { data: authData } = await supabase.auth.getUser();
+      const { data, error } = await supabase
+        .from("user_direct_notifications")
+        .insert({
+          user_id: user.user_id,
+          sent_by: authData?.user?.id || null,
+          title: notifTitle.trim(),
+          message: notifMessage.trim(),
+          type: notifType,
+        })
+        .select("id, title, message, type, is_read, read_at, created_at")
+        .single();
+
+      if (error) throw error;
+      if (data) {
+        setNotifications((prev) => [data as DirectNotificationItem, ...prev]);
+      }
+      setNotifTitle("");
+      setNotifMessage("");
+      setNotifFeedback("Notification sent & recorded!");
+    } catch (err: any) {
+      setNotifFeedback(err?.message || "Failed to send notification.");
+    } finally {
+      setSendingNotif(false);
+    }
+  };
 
   const formatTime = (iso: string) => {
     try {
@@ -215,6 +279,18 @@ export const AdminUserDetailDrawer: React.FC<AdminUserDetailDrawerProps> = ({
                 >
                   Activity Timeline ({events.length})
                 </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("notifications")}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold cursor-pointer inline-flex items-center gap-1 ${
+                    activeTab === "notifications"
+                      ? "bg-[#7045D8] text-white"
+                      : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#241D48]"
+                  }`}
+                >
+                  <Bell className="w-3.5 h-3.5" />
+                  <span>Notify ({notifications.length})</span>
+                </button>
               </div>
 
               {activeTab === "attempts" ? (
@@ -251,7 +327,8 @@ export const AdminUserDetailDrawer: React.FC<AdminUserDetailDrawerProps> = ({
                     ))}
                   </div>
                 )
-              ) : events.length === 0 ? (
+              ) : activeTab === "timeline" ? (
+                events.length === 0 ? (
                 <p className="text-xs text-slate-500 text-center py-6">
                   Koi activity event record nahi mila.
                 </p>
@@ -280,6 +357,98 @@ export const AdminUserDetailDrawer: React.FC<AdminUserDetailDrawerProps> = ({
                       </div>
                     </div>
                   ))}
+                </div>
+              )
+              ) : (
+                <div className="space-y-4">
+                  {/* Send Direct Notification Form */}
+                  <form
+                    onSubmit={handleSendNotification}
+                    className="p-3.5 rounded-2xl bg-slate-50 dark:bg-[#130E26] border border-slate-200 dark:border-[#31275E] space-y-2.5"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-extrabold text-slate-800 dark:text-white">
+                        Send Direct Notification
+                      </span>
+                      <select
+                        value={notifType}
+                        onChange={(e) => setNotifType(e.target.value as any)}
+                        className="px-2 py-1 rounded-lg bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] text-[11px] font-bold text-slate-700 dark:text-slate-200"
+                      >
+                        <option value="info">Info</option>
+                        <option value="reminder">Reminder</option>
+                        <option value="reward">Reward</option>
+                        <option value="warning">Warning</option>
+                      </select>
+                    </div>
+                    <input
+                      type="text"
+                      value={notifTitle}
+                      onChange={(e) => setNotifTitle(e.target.value)}
+                      placeholder="Notification Title..."
+                      required
+                      className="w-full px-3 py-2 rounded-xl bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#7045D8]"
+                    />
+                    <textarea
+                      value={notifMessage}
+                      onChange={(e) => setNotifMessage(e.target.value)}
+                      placeholder="Write message for this student..."
+                      rows={2}
+                      required
+                      className="w-full px-3 py-2 rounded-xl bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#7045D8]"
+                    />
+                    {notifFeedback && (
+                      <div className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
+                        {notifFeedback}
+                      </div>
+                    )}
+                    <button
+                      type="submit"
+                      disabled={sendingNotif}
+                      className="w-full py-2 rounded-xl bg-[#7045D8] hover:bg-[#5B32BF] text-white text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                    >
+                      <Send className="w-3.5 h-3.5" />
+                      <span>{sendingNotif ? "Sending..." : "Send & Save Record"}</span>
+                    </button>
+                  </form>
+
+                  {/* Sent History */}
+                  <div className="space-y-2">
+                    <h6 className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500">
+                      Sent Notification History ({notifications.length})
+                    </h6>
+                    {notifications.length === 0 ? (
+                      <p className="text-xs text-slate-500 text-center py-4">
+                        Is user ko abhi tak koi direct notification nahi bheja gaya.
+                      </p>
+                    ) : (
+                      notifications.map((n) => (
+                        <div
+                          key={n.id}
+                          className="p-3 rounded-xl bg-slate-50 dark:bg-[#130E26] border border-slate-200 dark:border-[#31275E] space-y-1"
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="text-xs font-bold text-slate-900 dark:text-white">
+                              {n.title}
+                            </span>
+                            <span
+                              className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                                n.is_read
+                                  ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                                  : "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                              }`}
+                            >
+                              {n.is_read ? "✓✓ Seen" : "⏳ Pending"}
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-slate-600 dark:text-slate-300">{n.message}</p>
+                          <div className="text-[10px] text-slate-400">
+                            {formatTime(n.created_at)}
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
                 </div>
               )}
             </>
