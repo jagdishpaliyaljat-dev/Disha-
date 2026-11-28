@@ -792,7 +792,7 @@ export const AdminTab: React.FC<AdminTabProps> = (props) => {
                     {currentPillarMeta.title}
                   </h1>
                   <span className="hidden sm:inline-flex text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#7045D8]/10 text-[#7045D8] dark:bg-[#A78BFA]/15 dark:text-[#A78BFA] border border-[#7045D8]/20">
-                    v1.0.74
+                    v1.0.75
                   </span>
                 </div>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate hidden md:block">

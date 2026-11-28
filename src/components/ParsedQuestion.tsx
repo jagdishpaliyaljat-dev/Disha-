@@ -60,6 +60,7 @@ interface ParsedQuestionProps {
  * and renders any optional table or matchTable after the question text.
  */
 import { detectQuestionExams } from "../lib/mcqImport/examDetector";
+import { formatStructuredQuestion } from "../utils/questionFormatter";
 
 export const ParsedQuestion: React.FC<ParsedQuestionProps> = ({ 
   text, 
@@ -199,11 +200,53 @@ export const ParsedQuestion: React.FC<ParsedQuestionProps> = ({
               </button>
             </div>
           )}
-          <RichText 
-            text={fullText} 
-            enablePronunciation={true}
-            className={`font-hindi text-slate-900 dark:text-slate-100 font-bold select-none leading-relaxed ${fontSizeClass}`} 
-          />
+          {(() => {
+            const structured = formatStructuredQuestion(fullText);
+            if (!structured.isStructured) {
+              return (
+                <RichText
+                  text={fullText}
+                  enablePronunciation={true}
+                  className={`font-hindi text-slate-900 dark:text-slate-100 font-bold select-none leading-relaxed ${fontSizeClass}`}
+                />
+              );
+            }
+            return (
+              <div className="space-y-2.5 text-left font-hindi">
+                {structured.intro && (
+                  <RichText
+                    text={structured.intro}
+                    enablePronunciation={true}
+                    className={`font-hindi text-slate-900 dark:text-slate-100 font-bold select-none leading-relaxed ${fontSizeClass}`}
+                  />
+                )}
+                <div className="space-y-1.5">
+                  {structured.items.map((item, sIdx) => (
+                    <div
+                      key={sIdx}
+                      className="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-50 dark:bg-[#241D48]/70 border border-slate-200/80 dark:border-[#31275E]"
+                    >
+                      <span className="text-xs font-black text-[#7045D8] dark:text-[#A78BFA] bg-[#7045D8]/10 dark:bg-[#7045D8]/25 px-2 py-0.5 rounded-md shrink-0 mt-0.5">
+                        {item.label}
+                      </span>
+                      <RichText
+                        text={item.text}
+                        enablePronunciation={true}
+                        className="text-sm sm:text-base font-semibold text-slate-800 dark:text-slate-100 leading-relaxed select-none"
+                      />
+                    </div>
+                  ))}
+                </div>
+                {structured.outro && (
+                  <RichText
+                    text={structured.outro}
+                    enablePronunciation={true}
+                    className="text-sm sm:text-base font-extrabold text-[#7045D8] dark:text-[#A78BFA] pt-0.5 select-none"
+                  />
+                )}
+              </div>
+            );
+          })()}
         </div>
       </div>
       {matchTable && Array.isArray(matchTable.rows) && matchTable.rows.length > 0 && (

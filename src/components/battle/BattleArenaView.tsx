@@ -15,6 +15,7 @@ import type { BattlePlayer, BattleQuestion } from "./types";
 import { triggerHaptic, playClickSound } from "../../utils/audioFeedback";
 import { BattleAvatar } from "./BattleAvatar";
 import { getCombinedSubjects } from "../../utils/questionsStorage";
+import { formatStructuredQuestion } from "../../utils/questionFormatter";
 
 interface BattleArenaViewProps {
   question: BattleQuestion;
@@ -260,12 +261,48 @@ export const BattleArenaView: React.FC<BattleArenaViewProps> = ({
           </div>
 
           {/* Premium Question Text Card */}
-          <div className="bg-white dark:bg-[#1B1536] rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-sm border border-slate-200/90 dark:border-[#31275E] mt-2 relative overflow-hidden">
+          <div className="bg-white dark:bg-[#1B1536] rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-sm border border-slate-200/90 dark:border-[#31275E] mt-2 relative overflow-hidden">
             {/* Subtle Brand Accent line */}
             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#7045D8] via-[#A78BFA] to-[#7045D8] opacity-75" />
-            <h3 className="text-base sm:text-lg font-bold font-hindi text-slate-900 dark:text-slate-50 leading-relaxed text-center break-words [overflow-wrap:anywhere]">
-              {question.text}
-            </h3>
+            {(() => {
+              const structured = formatStructuredQuestion(question.text);
+              if (!structured.isStructured) {
+                return (
+                  <h3 className="text-base sm:text-lg font-bold font-hindi text-slate-900 dark:text-slate-50 leading-relaxed text-center break-words [overflow-wrap:anywhere]">
+                    {question.text}
+                  </h3>
+                );
+              }
+              return (
+                <div className="space-y-2.5 text-left font-hindi break-words [overflow-wrap:anywhere]">
+                  {structured.intro && (
+                    <p className="text-sm sm:text-base font-bold text-slate-900 dark:text-slate-50 leading-snug">
+                      {structured.intro}
+                    </p>
+                  )}
+                  <div className="space-y-1.5">
+                    {structured.items.map((item, sIdx) => (
+                      <div
+                        key={sIdx}
+                        className="flex items-start gap-2 p-2 sm:p-2.5 rounded-xl bg-slate-50 dark:bg-[#241D48]/80 border border-slate-200/80 dark:border-[#31275E]"
+                      >
+                        <span className="text-xs font-black text-[#7045D8] dark:text-[#A78BFA] bg-[#7045D8]/10 dark:bg-[#7045D8]/25 px-1.5 py-0.5 rounded-md shrink-0 mt-0.5">
+                          {item.label}
+                        </span>
+                        <span className="text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-100 leading-relaxed whitespace-pre-line">
+                          {item.text}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  {structured.outro && (
+                    <p className="text-xs sm:text-sm font-extrabold text-[#7045D8] dark:text-[#A78BFA] pt-0.5">
+                      {structured.outro}
+                    </p>
+                  )}
+                </div>
+              );
+            })()}
           </div>
         </div>
 
