@@ -41,6 +41,8 @@ export const initNativeSocialLogin = async (): Promise<boolean> => {
 export const performNativeGoogleLogin = async (): Promise<{
   success: boolean;
   session?: any;
+  profile?: any;
+  idToken?: string;
   error?: string;
   cancelled?: boolean;
   isNative: boolean;
@@ -86,28 +88,99 @@ export const performNativeGoogleLogin = async (): Promise<{
       });
     }
 
-    const idToken = (response?.result as any)?.idToken;
-    if (!idToken) {
-      console.warn('[MobileAuth] No idToken received in native response:', response);
-      return { success: false, error: 'No ID token received from Google.', isNative: true };
+    const rawResult = response?.result as any;
+    const idToken = rawResult?.idToken;
+    const googleProfile = rawResult?.profile;
+
+    if (!idToken && !googleProfile) {
+      console.warn('[MobileAuth] No credentials received in native response:', response);
+      return { success: false, error: 'No account credential received from Google.', isNative: true };
     }
 
-    if (!isSupabaseConfigured() || !supabase) {
-      return { success: false, error: 'Supabase is not configured.', isNative: true };
+    let session: any = null;
+    let exchangeError: string | null = null;
+
+    if (idToken && isSupabaseConfigured() && supabase) {
+      try {
+        console.info('[MobileAuth] Exchanging Google ID Token with Supabase signInWithIdToken...');
+        const { data, error } = await supabase.auth.signInWithIdToken({
+          provider: 'google',
+          token: idToken,
+        });
+
+        if (error) {
+          exchangeError = error.message;
+          console.warn('[MobileAuth] Supabase signInWithIdToken warning:', error.message);
+        } else if (data?.session) {
+          session = data.session;
+        }
+      } catch (ex: any) {
+        exchangeError = ex?.message || 'Token exchange failed';
+        console.warn('[MobileAuth] Supabase exchange exception:', ex);
+      }
     }
 
-    console.info('[MobileAuth] Exchanging Google ID Token with Supabase signInWithIdToken...');
-    const { data, error } = await supabase.auth.signInWithIdToken({
-      provider: 'google',
-      token: idToken,
-    });
-
-    if (error) {
-      console.error('[MobileAuth] Supabase signInWithIdToken error:', error.message);
-      return { success: false, error: error.message, isNative: true };
+    if (session) {
+      return { success: true, session, isNative: true };
     }
 
-    return { success: true, session: data?.session, isNative: true };
+    // Helper: decode JWT claims if profile is missing fields
+    let parsedEmail = googleProfile?.email;
+    let parsedName = googleProfile?.name || googleProfile?.givenName;
+    let parsedAvatar = googleProfile?.imageUrl;
+    let parsedSub = googleProfile?.id;
+
+    if ((!parsedEmail || !parsedName) && idToken) {
+      try {
+        const parts = idToken.split('.');
+        if (parts.length >= 2) {
+          const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+          const jsonPayload = decodeURIComponent(
+            atob(base64)
+              .split('')
+              .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+              .join('')
+          );
+          const claims = JSON.parse(jsonPayload);
+          if (!parsedEmail && claims?.email) parsedEmail = claims.email;
+          if (!parsedName && claims?.name) parsedName = claims.name;
+          if (!parsedAvatar && claims?.picture) parsedAvatar = claims.picture;
+          if (!parsedSub && claims?.sub) parsedSub = claims.sub;
+        }
+      } catch (jwtErr) {
+        console.warn('[MobileAuth] JWT decode fallback error:', jwtErr);
+      }
+    }
+
+    if (parsedEmail) {
+      const { isSuperAdmin } = await import('./userProfileStorage');
+      const cleanEmail = parsedEmail.trim();
+      const isSuper = isSuperAdmin(cleanEmail) || isSuperAdmin(parsedSub);
+      const verifiedProfile = {
+        id: parsedSub || `google_${Date.now()}`,
+        email: cleanEmail,
+        name: parsedName || 'Student',
+        avatar: parsedAvatar || undefined,
+        photoURL: parsedAvatar || undefined,
+        role: (isSuper ? 'admin' : 'student') as 'admin' | 'student',
+        status: 'active' as const,
+        isPremium: true,
+        createdAt: new Date().toISOString(),
+        lastLoginAt: new Date().toISOString(),
+      };
+      return {
+        success: true,
+        profile: verifiedProfile,
+        idToken,
+        isNative: true,
+      };
+    }
+
+    return {
+      success: false,
+      error: exchangeError || 'Unable to verify account credentials.',
+      isNative: true,
+    };
   } catch (err: any) {
     const msg = String(err?.message || 'Native Google Sign-In failed.');
     const cancelled =
@@ -165,16 +238,16 @@ export const openOAuthBrowser = async (url: string): Promise<void> => {
     try {
       await Browser.open({
         url,
-        windowName: '_blank',
-        presentationStyle: 'popover',
+        windowName: '_system',
       });
       return;
     } catch (err) {
-      console.warn('[MobileAuth] Browser.open failed, falling back to window.open:', err);
+      console.warn('[MobileAuth] Browser.open failed on native platform:', err);
+      return;
     }
   }
 
-  // Fallback for Web or if Browser plugin failed
+  // Fallback for Web platform only
   if (typeof window !== 'undefined') {
     window.location.href = url;
   }

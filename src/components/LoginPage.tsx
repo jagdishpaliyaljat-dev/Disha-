@@ -155,10 +155,14 @@ export function LoginPage({ onLoginSuccess, onClose, isMandatory = false }: Logi
         try {
           const nativeResult = await performNativeGoogleLogin();
 
-          if (nativeResult.success && nativeResult.session) {
+          if (nativeResult.success) {
             setConfigNotice(null);
             setSuccessNotice("Login successful! Welcome.");
-            await syncProfileFromSession(nativeResult.session);
+            if (nativeResult.session) {
+              await syncProfileFromSession(nativeResult.session);
+            } else if (nativeResult.profile) {
+              onLoginSuccess(nativeResult.profile);
+            }
             return;
           }
 
@@ -168,17 +172,25 @@ export function LoginPage({ onLoginSuccess, onClose, isMandatory = false }: Logi
             return;
           }
 
-          // If native one-tap could not complete (SHA-1 pending, dismissed, or restricted Play Services):
-          // NEVER halt the user — seamlessly auto-fallback to Browser OAuth!
-          console.info("[LoginPage] Native account picker not available, switching to browser sign-in:", nativeResult.error);
-          setSuccessNotice("Opening secure browser sign-in...");
+          // If native account picker could not complete, stay in app and inform the user
+          // Never force-redirect to external web without explicit user action
+          console.info("[LoginPage] Native account picker result:", nativeResult.error);
+          setIsLoading(false);
+          setSuccessNotice(null);
+          setConfigNotice(
+            nativeResult.error || "Google Sign-In could not complete on this device. You can try Browser Sign-In below or Continue as Guest."
+          );
+          return;
         } catch (nativeErr: any) {
-          console.warn("[LoginPage] Native login exception, switching to browser:", nativeErr);
-          setSuccessNotice("Opening secure browser sign-in...");
+          console.warn("[LoginPage] Native login exception:", nativeErr);
+          setIsLoading(false);
+          setSuccessNotice(null);
+          setConfigNotice("Unable to complete Google Sign-In. You can try Browser Sign-In below or Continue as Guest.");
+          return;
         }
       }
 
-      // 2. Standard OAuth Flow (Web or automatic fallback on native)
+      // 2. Standard OAuth Flow (Web Platform)
       await startBrowserOAuth();
     } catch (err: any) {
       console.warn("Login attempt error:", err);

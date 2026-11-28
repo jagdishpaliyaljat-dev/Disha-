@@ -83,7 +83,7 @@ describe('LoginPage Native Picker Cancellation & Browser Fallback', () => {
     expect(mockOpenOAuthBrowser).not.toHaveBeenCalled();
   });
 
-  test('automatically falls back to browser OAuth when native picker encounters an error', async () => {
+  test('does not auto-redirect to browser when native picker encounters an error, displays notice', async () => {
     mockPerformNativeGoogleLogin.mockResolvedValueOnce({
       success: false,
       cancelled: false,
@@ -105,8 +105,69 @@ describe('LoginPage Native Picker Cancellation & Browser Fallback', () => {
       await new Promise((r) => setTimeout(r, 20));
     });
 
+    // Should NOT automatically open browser or navigate away!
+    expect(mockSignInWithOAuth).not.toHaveBeenCalled();
+    expect(mockOpenOAuthBrowser).not.toHaveBeenCalled();
+
+    // Should show clear error notice on screen
     const textAfterError = container.textContent || '';
-    expect(textAfterError).toContain('Complete Google Sign-In in the browser window');
+    expect(textAfterError).toContain('10: Developer error / SHA-1 mismatch');
+  });
+
+  test('successfully completes login when native picker returns verified profile directly', async () => {
+    const onLoginSuccessMock = vi.fn();
+    mockPerformNativeGoogleLogin.mockResolvedValueOnce({
+      success: true,
+      profile: {
+        id: 'google_12345',
+        email: 'student@example.com',
+        name: 'Jagdish Student',
+        role: 'student',
+        status: 'active',
+        createdAt: '2026-11-28T00:00:00.000Z',
+      },
+      isNative: true,
+    });
+
+    await act(async () => {
+      root.render(<LoginPage onLoginSuccess={onLoginSuccessMock} isMandatory={true} />);
+    });
+
+    const primaryBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Continue with Google')
+    );
+    expect(primaryBtn).toBeTruthy();
+
+    await act(async () => {
+      primaryBtn!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      await new Promise((r) => setTimeout(r, 20));
+    });
+
+    expect(onLoginSuccessMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        email: 'student@example.com',
+        name: 'Jagdish Student',
+        role: 'student',
+      })
+    );
+    expect(mockSignInWithOAuth).not.toHaveBeenCalled();
+  });
+
+  test('allows manual browser sign-in when user explicitly clicks the browser alternative button', async () => {
+    await act(async () => {
+      root.render(<LoginPage onLoginSuccess={vi.fn()} isMandatory={true} />);
+    });
+
+    const browserAltBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Sign in via Browser')
+    );
+    expect(browserAltBtn).toBeTruthy();
+
+    await act(async () => {
+      browserAltBtn!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      await new Promise((r) => setTimeout(r, 20));
+    });
+
     expect(mockSignInWithOAuth).toHaveBeenCalledTimes(1);
     expect(mockOpenOAuthBrowser).toHaveBeenCalledWith(
       'https://accounts.google.com/o/oauth2/auth?mock=1'
