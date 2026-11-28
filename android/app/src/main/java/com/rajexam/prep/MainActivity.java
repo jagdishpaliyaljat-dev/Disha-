@@ -1,4 +1,4 @@
-package com.disha2020.examprep;
+package com.rajexam.prep;
 
 import android.os.Bundle;
 import android.view.View;

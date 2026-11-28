@@ -30,7 +30,7 @@ vi.mock('../src/lib/supabase', () => ({
 
 vi.mock('../src/utils/mobileAuthService', () => ({
   isNativePlatform: () => true,
-  getOAuthRedirectUrl: () => 'com.disha2020.examprep://auth-callback',
+  getOAuthRedirectUrl: () => 'com.rajexam.prep://auth-callback',
   openOAuthBrowser: mockOpenOAuthBrowser,
   registerMobileDeepLinkListener: () => () => {},
   performNativeGoogleLogin: mockPerformNativeGoogleLogin,
@@ -72,19 +72,7 @@ describe('LoginPage Native Picker Cancellation & Browser Fallback', () => {
     });
 
     const textAfterCancel = container.textContent || '';
-    expect(textAfterCancel).toContain('cancelled or unavailable');
-    expect(textAfterCancel).not.toContain('Opening Google account picker...');
-
-    const browserFallbackBtn = Array.from(container.querySelectorAll('button')).find((b) =>
-      b.textContent?.includes('Sign in via Browser')
-    );
-    expect(browserFallbackBtn).toBeTruthy();
-
-    await act(async () => {
-      browserFallbackBtn!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-      await new Promise((r) => setTimeout(r, 20));
-    });
-
+    expect(textAfterCancel).toContain('Complete Google Sign-In in the browser window');
     expect(mockSignInWithOAuth).toHaveBeenCalledTimes(1);
     expect(mockOpenOAuthBrowser).toHaveBeenCalledWith(
       'https://accounts.google.com/o/oauth2/auth?mock=1'

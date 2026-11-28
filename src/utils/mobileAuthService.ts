@@ -3,7 +3,7 @@ import { Browser } from '@capacitor/browser';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 
 export const GOOGLE_WEB_CLIENT_ID = '30041667176-vftn1ar5sj8qmtsv3rh81hl11kdd18b0.apps.googleusercontent.com';
-export const NATIVE_CUSTOM_SCHEME = 'com.disha2020.examprep://auth-callback';
+export const NATIVE_CUSTOM_SCHEME = 'com.rajexam.prep://auth-callback';
 export const NATIVE_FALLBACK_SCHEME = 'disha2020://auth-callback';
 export const PRODUCTION_WEB_ORIGIN = 'https://disha-2020.vercel.app';
 
@@ -332,13 +332,18 @@ export const registerMobileDeepLinkListener = (
           await handleIncomingAuthUrl(incomingUrl, onSessionEstablished);
         }
 
-        if (incomingUrl.includes('order_id=')) {
-          const match = incomingUrl.match(/order_id=([^&]+)/);
-          const orderId = match ? decodeURIComponent(match[1]) : null;
-          if (orderId) {
-            import('../services/payment/cashfreeService').then(async ({ verifyCashfreeOrder }) => {
-              await verifyCashfreeOrder(orderId);
-            });
+        if (incomingUrl.includes('order_id=') || incomingUrl.includes('subscription_id=')) {
+          const orderMatch = incomingUrl.match(/order_id=([^&]+)/);
+          const subMatch = incomingUrl.match(/subscription_id=([^&]+)/);
+          const orderId = orderMatch ? decodeURIComponent(orderMatch[1]) : null;
+          const subscriptionId = subMatch ? decodeURIComponent(subMatch[1]) : null;
+          if (orderId || subscriptionId) {
+            import('../services/payment/cashfreeService').then(
+              async ({ verifyCashfreeOrder, verifyCashfreeSubscription }) => {
+                if (subscriptionId) await verifyCashfreeSubscription(subscriptionId);
+                else if (orderId) await verifyCashfreeOrder(orderId);
+              }
+            );
           }
         }
       }

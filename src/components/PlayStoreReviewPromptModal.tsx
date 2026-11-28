@@ -14,7 +14,7 @@ interface PlayStoreReviewPromptModalProps {
 export const PlayStoreReviewPromptModal: React.FC<PlayStoreReviewPromptModalProps> = ({
   isOpen,
   onClose,
-  appPackageName = "com.disha2020.examprep",
+  appPackageName = "com.rajexam.prep",
   userScorePercent,
 }) => {
   const [rating, setRating] = useState<number>(5);

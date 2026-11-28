@@ -675,35 +675,46 @@ export default function App() {
     };
   }, [userProfile?.id]);
 
-  // Check for return from Cashfree official hosted payment page (?order_id=...)
+  // Check for return from Cashfree official hosted payment page
+  // (?order_id=... for one-time orders, ?subscription_id=... for AutoPay)
   React.useEffect(() => {
     try {
       if (typeof window === "undefined") return;
       const urlParams = new URLSearchParams(window.location.search);
       const returnedOrderId = urlParams.get("order_id");
-      if (returnedOrderId) {
-        import("./services/payment/cashfreeService").then(async ({ verifyCashfreeOrder }) => {
-          const res = await verifyCashfreeOrder(returnedOrderId);
-          if (res.success || res.isPremium) {
-            addToast('success', 'VIP पास सक्रिय!', '🎉 बधाई हो! आपका Disha VIP पास आधिकारिक रूप से सक्रिय हो गया है!');
+      const returnedSubscriptionId = urlParams.get("subscription_id");
+      if (returnedOrderId || returnedSubscriptionId) {
+        import("./services/payment/cashfreeService").then(
+          async ({ verifyCashfreeOrder, verifyCashfreeSubscription }) => {
+            const res = returnedSubscriptionId
+              ? await verifyCashfreeSubscription(returnedSubscriptionId)
+              : await verifyCashfreeOrder(returnedOrderId || "");
+            if (res.success || res.isPremium) {
+              addToast('success', 'VIP पास सक्रिय!', '🎉 बधाई हो! आपका Disha VIP पास आधिकारिक रूप से सक्रिय हो गया है!');
+            }
+            const deepLinkParams: string[] = [];
+            if (returnedOrderId) deepLinkParams.push(`order_id=${encodeURIComponent(returnedOrderId)}`);
+            if (returnedSubscriptionId) deepLinkParams.push(`subscription_id=${encodeURIComponent(returnedSubscriptionId)}`);
+            // If user paid in Chrome Custom Tabs or mobile browser, return to app via deep link
+            if (window.location.hostname !== "localhost" && /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent)) {
+              setTimeout(() => {
+                try {
+                  window.location.href = `disha2020://auth-callback?${deepLinkParams.join("&")}`;
+                } catch (_) {}
+              }, 1500);
+            } else {
+              // Clean payment params from browser URL without reloading
+              const cleanUrl = new URL(window.location.href);
+              cleanUrl.searchParams.delete("order_id");
+              cleanUrl.searchParams.delete("subscription_id");
+              cleanUrl.searchParams.delete("autopay");
+              window.history.replaceState({}, document.title, cleanUrl.pathname + (cleanUrl.search ? cleanUrl.search : ""));
+            }
           }
-          // If user paid in Chrome Custom Tabs or mobile browser, return to app via deep link
-          if (window.location.hostname !== "localhost" && /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent)) {
-            setTimeout(() => {
-              try {
-                window.location.href = `disha2020://auth-callback?order_id=${returnedOrderId}`;
-              } catch (_) {}
-            }, 1500);
-          } else {
-            // Clean order_id from browser URL without reloading
-            const cleanUrl = new URL(window.location.href);
-            cleanUrl.searchParams.delete("order_id");
-            window.history.replaceState({}, document.title, cleanUrl.pathname + (cleanUrl.search ? cleanUrl.search : ""));
-          }
-        });
+        );
       }
     } catch (e) {
-      console.warn("[Cashfree Return] Error checking order_id:", e);
+      console.warn("[Cashfree Return] Error checking payment return params:", e);
     }
   }, []);
 

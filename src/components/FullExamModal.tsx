@@ -1664,7 +1664,7 @@ export const FullExamModal: React.FC<FullExamModalProps> = ({
     <PlayStoreReviewPromptModal
       isOpen={showReviewPrompt}
       onClose={() => setShowReviewPrompt(false)}
-      appPackageName="com.disha2020.examprep"
+      appPackageName="com.rajexam.prep"
       userScorePercent={accuracy}
     />
   </>

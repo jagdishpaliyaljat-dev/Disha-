@@ -57,7 +57,7 @@ https://disha-2020.vercel.app/checkout.html?session_id=...&order_id=...&mode=pro
 - `capacitor.config.ts` `allowNavigation` must include that domain and
   `*.cashfree.com` so the WebView/Custom Tab can navigate to the gateway.
 - If you switch to the Cashfree Android SDK directly, also register the app
-  package `com.disha2020.examprep` under **Developers → App/SDK settings** in
+  package `com.rajexam.prep` under **Developers → App/SDK settings** in
   the same dashboard.
 
 ## 3. Configure environment variables

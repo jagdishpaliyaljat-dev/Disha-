@@ -11,6 +11,13 @@ const PLANS: Record<string, { name: string; amount: number; days: number }> = {
   lifetime: { name: "Lifetime VIP Pass", amount: 249.00, days: 3650 },
 };
 
+// Plans that must be created as Cashfree SUBSCRIPTIONS (UPI AutoPay mandate),
+// not as ordinary one-time orders.
+const AUTOPAY_PLANS: Record<string, { trialDays: number; recurringPlanId: string }> = {
+  trial_weekly: { trialDays: 7, recurringPlanId: "monthly" },
+  weekly: { trialDays: 7, recurringPlanId: "monthly" },
+};
+
 // Public HTTPS origin registered/whitelisted with Cashfree. Configure with
 // APP_URL (or NEXT_PUBLIC_APP_URL / SITE_URL) in Supabase Edge Function secrets.
 // localhost/capacitor origins are NEVER accepted as return URLs.
@@ -43,10 +50,6 @@ function configuredOrigins(): string[] {
 
 const DEFAULT_RETURN_ORIGIN = configuredOrigins()[0];
 
-function allowlistedOrigins(_envValue: string): string[] {
-  return configuredOrigins();
-}
-
 function corsHeaders(origin: string | null, allowed: string[]) {
   const allowedOrigin = origin && allowed.includes(origin) ? origin : allowed[0];
   return {
@@ -70,15 +73,28 @@ function safeReturnUrl(requested: unknown, orderId: string, allowed: string[]): 
   }
 }
 
-function makeOrderId(): string {
+function makeId(prefix: string): string {
   const bytes = new Uint8Array(8);
   crypto.getRandomValues(bytes);
   const suffix = Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
-  return `DPYQ_${Date.now()}_${suffix}`;
+  return `${prefix}_${Date.now()}_${suffix}`;
+}
+
+/** Configured payment methods for the mandate. UPI AutoPay only by default. */
+function subscriptionPaymentMethods(): string[] {
+  const configured = (Deno.env.get("CASHFREE_SUBSCRIPTION_PAYMENT_METHODS") || "upi")
+    .split(",")
+    .map((s) => s.trim().toLowerCase())
+    .filter((s) => ["upi", "card", "enach"].includes(s));
+  return configured.length ? Array.from(new Set(configured)) : ["upi"];
+}
+
+function isoAfterDays(days: number): string {
+  return new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
 }
 
 Deno.serve(async (req: Request) => {
-  const returnOrigins = allowlistedOrigins();
+  const returnOrigins = configuredOrigins();
   // These localhost entries are for CORS responses ONLY (native WebView needs
   // capacitor://localhost). They are NOT in `returnOrigins`, so safeReturnUrl
   // can never emit a localhost return URL to Cashfree.
@@ -169,14 +185,12 @@ Deno.serve(async (req: Request) => {
       .eq("key", "premium_plans_config")
       .maybeSingle();
 
-    if (configRow?.value && Array.isArray(configRow.value)) {
-      const found = configRow.value.find((p: any) => p.id === planId);
-      if (found && typeof found.amount === "number" && found.amount > 0 && found.amount < 1000000) {
-        plan = { name: found.name || found.hindiName || plan.name, amount: Number(found.amount), days: plan.days };
-      }
+    const configuredPlans: any[] = Array.isArray(configRow?.value) ? configRow.value : [];
+    const configuredPlan = configuredPlans.find((p: any) => p.id === planId);
+    if (configuredPlan && typeof configuredPlan.amount === "number" && configuredPlan.amount > 0 && configuredPlan.amount < 1000000) {
+      plan = { name: configuredPlan.name || configuredPlan.hindiName || plan.name, amount: Number(configuredPlan.amount), days: plan.days };
     }
 
-    const orderId = makeOrderId();
     const baseUrl = cashfreeEnv === "SANDBOX" || cashfreeEnv === "TEST"
       ? "https://sandbox.cashfree.com/pg"
       : "https://api.cashfree.com/pg";
@@ -184,17 +198,165 @@ Deno.serve(async (req: Request) => {
     const customerEmail = user.email || `student_${user.id.slice(0, 8)}@disha-pyq.app`;
     const customerName = user.user_metadata?.full_name || user.user_metadata?.name || "Student Aspirant";
     const customerPhone = user.phone || "9999999999";
+    const customer = {
+      customer_id: user.id.substring(0, 50),
+      customer_email: customerEmail,
+      customer_phone: customerPhone,
+      customer_name: customerName,
+    };
+
+    // ======================================================================
+    // AUTOPAY BRANCH: create a Cashfree SUBSCRIPTION (UPI mandate), not an order
+    // ======================================================================
+    if (Object.prototype.hasOwnProperty.call(AUTOPAY_PLANS, planId)) {
+      const autopay = AUTOPAY_PLANS[planId];
+      const recurringPlan = configuredPlans.find((p: any) => p.id === autopay.recurringPlanId);
+      const recurringAmount = typeof recurringPlan?.amount === "number" && recurringPlan.amount > 0
+        ? Number(recurringPlan.amount)
+        : PLANS[autopay.recurringPlanId].amount;
+
+      const subscriptionId = makeId("DTSUB");          // merchant-generated id
+      const orderId = subscriptionId;                 // 1:1 with the mandate order
+      const returnUrl = new URL(safeReturnUrl(body?.returnUrl, orderId, returnOrigins));
+      returnUrl.searchParams.set("subscription_id", subscriptionId);
+      returnUrl.searchParams.set("autopay", "1");
+
+      const subscriptionPayload = {
+        subscription_id: subscriptionId,
+        customer_details: customer,
+        plan_details: {
+          plan_name: "Disha PYQ VIP Monthly AutoPay",
+          plan_type: "PERIODIC",
+          plan_amount: recurringAmount,
+          plan_max_amount: recurringAmount,
+          plan_max_cycles: 24,
+          plan_intervals: 1,
+          plan_interval_type: "MONTH",
+          plan_currency: "INR",
+          plan_note: `Disha PYQ ${plan.name} -> monthly recurring`,
+        },
+        authorization_details: {
+          // ₹1 is charged immediately as the 7-day trial fee and is NOT refunded.
+          authorization_amount: plan.amount,
+          authorization_amount_refund: false,
+          payment_methods: subscriptionPaymentMethods(),
+        },
+        // Trial ends here; the first ₹49 debit is scheduled after 7 days.
+        subscription_first_charge_time: isoAfterDays(autopay.trialDays),
+        subscription_expiry_time: isoAfterDays(365),
+        subscription_meta: {
+          return_url: returnUrl.toString(),
+          notification_channel: ["EMAIL"],
+        },
+        subscription_note: `Disha PYQ ${plan.name}`,
+        subscription_tags: {
+          plan_id: planId,
+          user_id: user.id.substring(0, 50),
+          order_id: orderId,
+        },
+      };
+
+      const cfResponse = await fetch(`${baseUrl}/subscriptions`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-version": "2026-01-01",
+          "x-client-id": cashfreeAppId,
+          "x-client-secret": cashfreeSecret,
+          "x-idempotency-key": crypto.randomUUID(),
+        },
+        body: JSON.stringify(subscriptionPayload),
+      });
+      const cfData = await cfResponse.json().catch(() => ({}));
+
+      if (!cfResponse.ok || !cfData.subscription_session_id || !cfData.cf_subscription_id) {
+        console.error("[create-cashfree-order] Cashfree rejected subscription:",
+          cfResponse.status, cfData?.message || cfData?.code);
+        return new Response(JSON.stringify({ error: "Could not start AutoPay. Please try again." }), {
+          status: 502,
+          headers: { ...cors, "Content-Type": "application/json" },
+        });
+      }
+
+      const firstChargeAt = cfData.subscription_first_charge_time
+        ? new Date(cfData.subscription_first_charge_time).toISOString()
+        : isoAfterDays(autopay.trialDays);
+
+      // Persist BEFORE handing the session to the browser.
+      const { error: orderErr } = await supabaseAdmin.from("orders").insert({
+        order_id: orderId,
+        user_id: user.id,
+        amount: plan.amount,                 // ₹1 trial authorisation charge
+        currency: "INR",
+        plan_id: planId,
+        status: "PENDING",
+        payment_session_id: cfData.subscription_session_id,
+        is_autopay: true,
+        cf_subscription_id: String(cfData.cf_subscription_id),
+        recurring_amount: recurringAmount,
+        next_charge_at: firstChargeAt,
+        subscription_status: cfData.subscription_status || "INITIALIZED",
+      });
+
+      if (orderErr) {
+        console.error("[create-cashfree-order] Failed to persist subscription order:", orderErr.message);
+        return new Response(JSON.stringify({ error: "Could not record your AutoPay. Please try again." }), {
+          status: 500,
+          headers: { ...cors, "Content-Type": "application/json" },
+        });
+      }
+
+      const { error: subErr } = await supabaseAdmin.from("cashfree_subscriptions").insert({
+        subscription_id: subscriptionId,
+        cf_subscription_id: String(cfData.cf_subscription_id),
+        user_id: user.id,
+        order_id: orderId,
+        plan_id: planId,
+        recurring_amount: recurringAmount,
+        trial_days: autopay.trialDays,
+        status: cfData.subscription_status || "INITIALIZED",
+        authorization_status: cfData.authorization_details?.authorization_status || "INITIALIZED",
+        next_charge_at: firstChargeAt,
+      });
+
+      if (subErr) {
+        console.error("[create-cashfree-order] Failed to persist subscription state:", subErr.message);
+        return new Response(JSON.stringify({ error: "Could not record your AutoPay. Please try again." }), {
+          status: 500,
+          headers: { ...cors, "Content-Type": "application/json" },
+        });
+      }
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          isAutoPay: true,
+          orderId,
+          subscriptionId,
+          subscriptionSessionId: cfData.subscription_session_id,
+          // Alias so generic checkout launchers keep working.
+          paymentSessionId: cfData.subscription_session_id,
+          amount: plan.amount,
+          recurringAmount,
+          trialDays: autopay.trialDays,
+          planId,
+          planName: plan.name,
+          environment: cashfreeEnv,
+        }),
+        { status: 200, headers: { ...cors, "Content-Type": "application/json" } },
+      );
+    }
+
+    // ======================================================================
+    // NORMAL ONE-TIME ORDER BRANCH (unchanged behaviour)
+    // ======================================================================
+    const orderId = makeId("DPYQ");
 
     const orderPayload = {
       order_id: orderId,
       order_amount: plan.amount,
       order_currency: "INR",
-      customer_details: {
-        customer_id: user.id.substring(0, 50),
-        customer_email: customerEmail,
-        customer_phone: customerPhone,
-        customer_name: customerName,
-      },
+      customer_details: customer,
       order_meta: {
         return_url: safeReturnUrl(body?.returnUrl, orderId, returnOrigins),
         notify_url: `${supabaseUrl}/functions/v1/cashfree-webhook`,
@@ -203,7 +365,6 @@ Deno.serve(async (req: Request) => {
       order_tags: { plan_id: planId, user_id: user.id },
     };
 
-    // ---- 5. Create the Cashfree order ----
     const cfResponse = await fetch(`${baseUrl}/orders`, {
       method: "POST",
       headers: {
@@ -224,7 +385,6 @@ Deno.serve(async (req: Request) => {
       });
     }
 
-    // ---- 6. Persist the order BEFORE handing the session to the browser ----
     const { error: dbError } = await supabaseAdmin.from("orders").insert({
       order_id: orderId,
       user_id: user.id,
@@ -246,6 +406,7 @@ Deno.serve(async (req: Request) => {
     return new Response(
       JSON.stringify({
         success: true,
+        isAutoPay: false,
         orderId,
         paymentSessionId: cfData.payment_session_id,
         amount: plan.amount,

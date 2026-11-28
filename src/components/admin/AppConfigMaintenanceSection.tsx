@@ -38,7 +38,7 @@ export const AppConfigMaintenanceSection: React.FC = () => {
     latestVersion: CURRENT_APP_VERSION,
     minSupportedVersion: '1.0.51',
     forceUpdate: false,
-    downloadUrl: 'https://play.google.com/store/apps/details?id=com.disha2020.examprep',
+    downloadUrl: 'https://play.google.com/store/apps/details?id=com.rajexam.prep',
     releaseNotes: '• Fixed English vocabulary audio pronunciation in MCQs\n• High performance native Speech Synthesis engine\n• Offline stability and crash safeguards',
     title: 'New Update Available!',
     message: 'A newer, faster version of Disha 20-20 is available with new exam features and bug fixes.',
@@ -566,7 +566,7 @@ export const AppConfigMaintenanceSection: React.FC = () => {
         <PlayStoreReviewPromptModal
           isOpen={showReviewPreview}
           onClose={() => setShowReviewPreview(false)}
-          appPackageName="com.disha2020.examprep"
+          appPackageName="com.rajexam.prep"
           userScorePercent={88}
         />
       )}

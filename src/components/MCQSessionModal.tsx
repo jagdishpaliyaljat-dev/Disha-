@@ -5480,7 +5480,7 @@ const RedesignedTestResultView: React.FC<RedesignedTestResultViewProps> = ({
       <PlayStoreReviewPromptModal
         isOpen={showReviewPrompt}
         onClose={() => setShowReviewPrompt(false)}
-        appPackageName="com.disha2020.examprep"
+        appPackageName="com.rajexam.prep"
       />
       </div>
     </motion.div>

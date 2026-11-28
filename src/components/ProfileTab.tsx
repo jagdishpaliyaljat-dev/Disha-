@@ -1234,7 +1234,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
       <PlayStoreReviewPromptModal
         isOpen={showReviewModal}
         onClose={() => setShowReviewModal(false)}
-        appPackageName="com.disha2020.examprep"
+        appPackageName="com.rajexam.prep"
       />
 
       {/* Toast Notification */}

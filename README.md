@@ -253,7 +253,7 @@ APK download: **[GitHub Releases → v1.0.15](https://github.com/jagdishpaliyalj
 ### Android App Details
 | Property | Value |
 |----------|-------|
-| App ID | `com.disha2020.examprep` |
+| App ID | `com.rajexam.prep` |
 | Version Name | `1.0.15` |
 | Version Code | `6` |
 | Min SDK | 23 (Android 6.0) |

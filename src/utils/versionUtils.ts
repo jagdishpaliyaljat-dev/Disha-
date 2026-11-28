@@ -4,7 +4,7 @@
 
 import { GlobalAppConfig } from './appConfigService';
 
-export const CURRENT_APP_VERSION = '1.0.63';
+export const CURRENT_APP_VERSION = '1.0.64';
 
 /**
  * Compares two semantic version strings (e.g. '1.0.52' vs '1.0.51').

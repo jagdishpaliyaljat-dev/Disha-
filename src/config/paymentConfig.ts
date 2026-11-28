@@ -110,3 +110,23 @@ export function getCheckoutBridgeUrl(
   url.searchParams.set("mode", mode);
   return url.toString();
 }
+
+/**
+ * Public bridge page for UPI AutoPay mandates. `subscriptionsCheckout` needs
+ * the subscription session id (not a payment session id), and the subscription
+ * id is required for the post-return verification fallback.
+ */
+export function getSubscriptionCheckoutBridgeUrl(
+  subscriptionSessionId: string,
+  subscriptionId: string,
+  orderId: string,
+  mode: "production" | "sandbox"
+): string {
+  const url = new URL("/checkout.html", getAppOrigin());
+  url.searchParams.set("subs_session_id", subscriptionSessionId);
+  url.searchParams.set("subscription_id", subscriptionId);
+  url.searchParams.set("order_id", orderId);
+  url.searchParams.set("autopay", "1");
+  url.searchParams.set("mode", mode);
+  return url.toString();
+}

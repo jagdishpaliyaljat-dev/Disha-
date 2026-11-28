@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.disha2020.examprep',
+  appId: 'com.rajexam.prep',
   appName: 'Disha PYQ',
   webDir: 'dist',
   server: {

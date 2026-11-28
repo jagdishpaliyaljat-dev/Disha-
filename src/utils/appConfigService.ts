@@ -97,7 +97,7 @@ export const DEFAULT_APP_CONFIG: GlobalAppConfig = {
     latestVersion: '1.0.55',
     minSupportedVersion: '1.0.50',
     forceUpdate: false,
-    downloadUrl: 'https://play.google.com/store/apps/details?id=com.disha2020.examprep',
+    downloadUrl: 'https://play.google.com/store/apps/details?id=com.rajexam.prep',
     releaseNotes: '• Full Length RPSC & RSMSSB Mock Test Simulation\n• Real-time State Merit Rank & Percentile\n• Detailed Hindi Solutions & AI Remedial Revision\n• Offline Bookmark & High Performance Engine',
     title: 'New Update Available on Play Store!',
     message: 'A newer, faster version of Disha PYQ is available with latest exam papers and speed optimizations.',
