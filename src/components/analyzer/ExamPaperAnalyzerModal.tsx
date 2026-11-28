@@ -408,9 +408,9 @@ export const ExamPaperAnalyzerModal: React.FC<ExamPaperAnalyzerModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-x-0 top-0 bottom-[60px] md:bottom-0 z-40 overflow-y-auto bg-[#FFF9EF] dark:bg-[#171923] flex flex-col pb-32 md:pb-12">
+    <div className="fixed inset-x-0 top-0 bottom-[60px] md:bottom-0 z-40 overflow-y-auto bg-[#F8FAFC] dark:bg-[#130E26] flex flex-col pb-32 md:pb-12">
       {/* Top Navigation Bar with Step Progression */}
-      <header className="sticky top-0 z-30 bg-[#FFF9EF]/95 dark:bg-[#1F2330]/95 backdrop-blur-md border-b border-[#E8D9C0] dark:border-[#31374A] px-3.5 sm:px-5 py-2.5 shadow-2xs">
+      <header className="sticky top-0 z-30 bg-white/95 dark:bg-[#130E26]/95 backdrop-blur-md border-b border-slate-200 dark:border-[#31275E] px-3.5 sm:px-5 pt-[calc(0.625rem+env(safe-area-inset-top,0px))] pb-2.5 shadow-2xs">
         <div className="max-w-4xl mx-auto flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
             <button
@@ -419,7 +419,7 @@ export const ExamPaperAnalyzerModal: React.FC<ExamPaperAnalyzerModalProps> = ({
                 else if (currentStep === "review_extracted") setCurrentStep("upload");
                 else onClose();
               }}
-              className="p-2 rounded-xl bg-white dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] text-[#800020] dark:text-[#FFF9EF] hover:border-[#C99A45] transition-colors cursor-pointer shadow-2xs"
+              className="p-2 rounded-xl bg-white dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] text-[#7045D8] dark:text-slate-50 hover:border-[#7045D8] transition-colors cursor-pointer shadow-2xs"
               title="Go Back"
             >
               <ArrowLeft className="w-4.5 h-4.5" />
@@ -427,15 +427,15 @@ export const ExamPaperAnalyzerModal: React.FC<ExamPaperAnalyzerModalProps> = ({
 
             <div>
               <div className="flex items-center gap-1.5 flex-wrap">
-                <Sparkles className="w-4 h-4 text-[#C99A45]" />
-                <h1 className="text-sm font-black text-[#171923] dark:text-[#FFF9EF] leading-tight">
+                <Sparkles className="w-4 h-4 text-[#7045D8] dark:text-[#A78BFA]" />
+                <h1 className="text-sm font-black text-slate-900 dark:text-slate-50 leading-tight">
                   AI Exam Paper Analyzer
                 </h1>
                 <span className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-[#7045D8] text-[#FFFFFF] border border-[#A78BFA]/30">
                   Disha PYQ
                 </span>
               </div>
-              <p className="text-[10px] font-medium text-[#6E6254] dark:text-[#A39887]">
+              <p className="text-[10px] font-medium text-slate-500 dark:text-slate-400">
                 {currentStep === "upload" && "Upload or capture exam paper to cross-match syllabus questions"}
                 {currentStep === "review_extracted" && "Review extracted questions before database matching"}
                 {currentStep === "report" && "Verified coverage & question similarity analysis"}
@@ -446,16 +446,16 @@ export const ExamPaperAnalyzerModal: React.FC<ExamPaperAnalyzerModalProps> = ({
           <div className="flex items-center gap-1.5">
             <button
               onClick={() => setShowHistoryModal(true)}
-              className="px-2.5 py-1.5 rounded-xl bg-white dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] hover:border-[#800020] text-[#800020] dark:text-[#FFF9EF] text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
+              className="px-2.5 py-1.5 rounded-xl bg-white dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] hover:border-[#7045D8] text-[#7045D8] dark:text-slate-50 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
               title="Analysis History"
             >
-              <History className="w-3.5 h-3.5 text-[#C99A45]" />
+              <History className="w-3.5 h-3.5 text-[#7045D8] dark:text-[#A78BFA]" />
               <span className="hidden sm:inline">History</span>
             </button>
 
             <button
               onClick={onClose}
-              className="p-1.5 rounded-xl hover:bg-[#F7EFE2] dark:hover:bg-[#252A3A] text-[#6E6254] hover:text-[#800020] dark:hover:text-white transition-colors cursor-pointer"
+              className="p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-[#31275E] text-slate-500 hover:text-[#7045D8] dark:hover:text-white transition-colors cursor-pointer"
               title="Close"
             >
               <X className="w-5 h-5" />
@@ -464,48 +464,48 @@ export const ExamPaperAnalyzerModal: React.FC<ExamPaperAnalyzerModalProps> = ({
         </div>
 
         {/* 3-Step Breadcrumbs Bar */}
-        <div className="max-w-4xl mx-auto mt-2 pt-2 border-t border-[#E8D9C0]/50 dark:border-[#31374A]/50 flex items-center justify-between gap-1 text-[11px]">
+        <div className="max-w-4xl mx-auto mt-2 pt-2 border-t border-slate-200/50 dark:border-[#31275E]/50 flex items-center justify-between gap-1 text-[11px]">
           <div
             className={`flex-1 flex items-center justify-center gap-1.5 py-1 px-2 rounded-lg transition-all ${
               currentStep === "upload"
-                ? "bg-[#800020]/10 dark:bg-[#800020]/30 text-[#800020] dark:text-amber-300 font-black border border-[#800020]/20"
-                : "text-[#8C7A68] dark:text-[#A39887] font-medium"
+                ? "bg-[#7045D8]/10 dark:bg-[#7045D8]/25 text-[#7045D8] dark:text-[#A78BFA] font-black border border-[#7045D8]/25"
+                : "text-slate-500 dark:text-slate-400 font-medium"
             }`}
           >
-            <span className="w-4 h-4 rounded-full bg-[#800020] text-white text-[9px] font-black flex items-center justify-center">
+            <span className="w-4 h-4 rounded-full bg-[#7045D8] text-white text-[9px] font-black flex items-center justify-center">
               1
             </span>
             <span>Upload & Scan</span>
           </div>
 
-          <span className="text-[#C99A45]/60 text-xs">➔</span>
+          <span className="text-slate-400 text-xs">➔</span>
 
           <div
             className={`flex-1 flex items-center justify-center gap-1.5 py-1 px-2 rounded-lg transition-all ${
               currentStep === "review_extracted"
-                ? "bg-[#800020]/10 dark:bg-[#800020]/30 text-[#800020] dark:text-amber-300 font-black border border-[#800020]/20"
-                : "text-[#8C7A68] dark:text-[#A39887] font-medium"
+                ? "bg-[#7045D8]/10 dark:bg-[#7045D8]/25 text-[#7045D8] dark:text-[#A78BFA] font-black border border-[#7045D8]/25"
+                : "text-slate-500 dark:text-slate-400 font-medium"
             }`}
           >
             <span className={`w-4 h-4 rounded-full text-white text-[9px] font-black flex items-center justify-center ${
-              currentStep === "report" ? "bg-emerald-600" : currentStep === "review_extracted" ? "bg-[#800020]" : "bg-stone-400"
+              currentStep === "report" ? "bg-emerald-600" : currentStep === "review_extracted" ? "bg-[#7045D8]" : "bg-stone-400"
             }`}>
               2
             </span>
             <span>Review OCR</span>
           </div>
 
-          <span className="text-[#C99A45]/60 text-xs">➔</span>
+          <span className="text-slate-400 text-xs">➔</span>
 
           <div
             className={`flex-1 flex items-center justify-center gap-1.5 py-1 px-2 rounded-lg transition-all ${
               currentStep === "report"
-                ? "bg-[#800020]/10 dark:bg-[#800020]/30 text-[#800020] dark:text-amber-300 font-black border border-[#800020]/20"
-                : "text-[#8C7A68] dark:text-[#A39887] font-medium"
+                ? "bg-[#7045D8]/10 dark:bg-[#7045D8]/25 text-[#7045D8] dark:text-[#A78BFA] font-black border border-[#7045D8]/25"
+                : "text-slate-500 dark:text-slate-400 font-medium"
             }`}
           >
             <span className={`w-4 h-4 rounded-full text-white text-[9px] font-black flex items-center justify-center ${
-              currentStep === "report" ? "bg-[#800020]" : "bg-stone-400"
+              currentStep === "report" ? "bg-[#7045D8]" : "bg-stone-400"
             }`}>
               3
             </span>
@@ -518,11 +518,11 @@ export const ExamPaperAnalyzerModal: React.FC<ExamPaperAnalyzerModalProps> = ({
       <main className="flex-1 p-4 sm:p-6 max-w-4xl w-full mx-auto">
         {/* Real-time Extraction Status Banner */}
         {isExtracting && extractionProgress && (
-          <div className="mb-4 p-4 rounded-2xl bg-white dark:bg-[#111622] border border-[#C99A45]/40 flex items-center gap-3.5 shadow-xs">
+          <div className="mb-4 p-4 rounded-2xl bg-white dark:bg-[#1B1536] border border-[#7045D8]/30 flex items-center gap-3.5 shadow-xs">
             <InlineSpinner size="md" />
             <div>
-              <p className="text-xs font-bold text-[#171923] dark:text-[#FFF9EF]">{extractionProgress}</p>
-              <p className="text-[11px] text-[#6F768A] dark:text-[#9AA2B8]">Processing Hindi & English text with Disha PYQ Vision OCR...</p>
+              <p className="text-xs font-bold text-slate-900 dark:text-slate-50">{extractionProgress}</p>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">Processing Hindi & English text with Disha PYQ Vision OCR...</p>
             </div>
           </div>
         )}
@@ -543,7 +543,7 @@ export const ExamPaperAnalyzerModal: React.FC<ExamPaperAnalyzerModalProps> = ({
             <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
               <button
                 onClick={() => setIsApiSettingsOpen(true)}
-                className="px-3 py-1.5 rounded-xl bg-[#800020] hover:bg-[#5E0017] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] text-white font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+                className="px-3 py-1.5 rounded-xl bg-[#7045D8] hover:bg-[#5B32BF] dark:bg-[#7045D8] dark:hover:bg-[#5B32BF] text-white font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
               >
                 <Key className="w-3.5 h-3.5" />
                 <span>AI Settings</span>

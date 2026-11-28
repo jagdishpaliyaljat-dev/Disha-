@@ -1132,12 +1132,12 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
       `}</style>
 
       {/* Main Container */}
-      <div className="relative w-full max-w-lg h-full sm:h-[90vh] sm:max-h-[760px] bg-[#F8FAFC] dark:bg-[#130E26] sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-stone-200 dark:border-[#31275E]">
+      <div className="relative w-full max-w-lg h-full sm:h-[90vh] sm:max-h-[760px] bg-[#F8FAFC] dark:bg-[#130E26] sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-slate-200 dark:border-[#31275E]">
         {/* Phase: Initial Screen (Create or Join) */}
         {phase === "initial" && (
           <div className="flex flex-col h-full overflow-y-auto">
             {/* Minimal Premium Dark Header */}
-            <div className="bg-stone-900 text-white p-5 sm:p-6 text-center relative border-b border-stone-800">
+            <div className="bg-gradient-to-r from-[#4A154B] via-[#7045D8] to-[#5B32BF] dark:from-[#1E1238] dark:via-[#2D1B54] dark:to-[#1B1536] text-white p-5 sm:p-6 text-center relative border-b border-white/10">
               <button
                 onClick={onClose}
                 className="absolute top-4 right-4 p-2 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 transition border border-white/10"
@@ -1150,7 +1150,7 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                 <Swords className="w-6 h-6" />
               </div>
 
-              <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-white/10 text-stone-300 text-[11px] font-semibold border border-white/10 mb-1.5">
+              <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-white/10 text-slate-300 text-[11px] font-semibold border border-white/10 mb-1.5">
                 <Sparkles className="w-3 h-3 text-amber-400" />
                 <span>Live Multiplayer Arena</span>
               </div>
@@ -1158,13 +1158,13 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
               <h2 className="text-xl sm:text-2xl font-bold tracking-tight">
                 Live Quiz Battle
               </h2>
-              <p className="text-xs text-stone-400 max-w-xs mx-auto mt-1">
+              <p className="text-xs text-slate-400 max-w-xs mx-auto mt-1">
                 Fast-paced real-time competition • Direct link joining supported
               </p>
             </div>
 
             {/* Profile Avatar & Name Card with Anime Character Selection */}
-            <div className="p-4 bg-white dark:bg-[#1B1536] border-b border-stone-200 dark:border-[#31275E] space-y-3">
+            <div className="p-4 bg-white dark:bg-[#1B1536] border-b border-slate-200 dark:border-[#31275E] space-y-3">
               <div className="flex items-center gap-3">
                 <BattleAvatar
                   avatar={selectedAvatar}
@@ -1174,11 +1174,11 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                 />
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-1">
-                    <label className="text-[11px] font-bold text-stone-600 dark:text-stone-300 flex items-center gap-1 uppercase tracking-wider">
+                    <label className="text-[11px] font-bold text-slate-600 dark:text-slate-300 flex items-center gap-1 uppercase tracking-wider">
                       <User className="w-3 h-3 text-[#7045D8] dark:text-amber-400" />
                       <span>Player Name</span>
                     </label>
-                    <span className="text-[11px] text-stone-400 dark:text-stone-500 font-mono">
+                    <span className="text-[11px] text-slate-400 dark:text-slate-500 font-mono">
                       {playerName.length}/20
                     </span>
                   </div>
@@ -1188,14 +1188,14 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                     onChange={(e) => setPlayerName(e.target.value)}
                     maxLength={20}
                     placeholder="Enter your name..."
-                    className="w-full text-sm font-bold text-stone-800 dark:text-slate-50 bg-stone-50 dark:bg-[#241D48] border border-stone-200 dark:border-[#31275E] rounded-xl px-3.5 py-2 focus:outline-none focus:ring-2 focus:ring-[#7045D8] dark:focus:ring-amber-400 transition"
+                    className="w-full text-sm font-bold text-slate-800 dark:text-slate-50 bg-slate-50 dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] rounded-xl px-3.5 py-2 focus:outline-none focus:ring-2 focus:ring-[#7045D8] dark:focus:ring-amber-400 transition"
                   />
                 </div>
               </div>
 
               {/* Anime Character Selector Strip */}
               <div>
-                <div className="text-[11px] font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5 flex items-center justify-between">
                   <span>Choose Anime Character Avatar:</span>
                   <span className="text-[11px] text-[#7045D8] dark:text-amber-400 font-bold">16 Characters</span>
                 </div>
@@ -1213,7 +1213,7 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                         className={`flex-shrink-0 flex flex-col items-center p-1.5 rounded-2xl border transition-all ${
                           isSelected
                             ? "bg-amber-50 dark:bg-amber-950/40 border-[#7045D8] dark:border-amber-400 ring-2 ring-[#7045D8]/20 dark:ring-amber-400/30 scale-105 shadow-sm"
-                            : "bg-stone-50 dark:bg-[#241D48] hover:bg-stone-100 dark:hover:bg-[#2E3448] border-stone-200 dark:border-[#31275E]"
+                            : "bg-slate-50 dark:bg-[#241D48] hover:bg-slate-100 dark:hover:bg-[#31275E] border-slate-200 dark:border-[#31275E]"
                         }`}
                       >
                         <BattleAvatar
@@ -1221,7 +1221,7 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                           name={char.name}
                           size="md"
                         />
-                        <span className="text-[11px] font-bold text-stone-700 dark:text-stone-200 mt-1 max-w-[56px] truncate text-center">
+                        <span className="text-[11px] font-bold text-slate-700 dark:text-slate-200 mt-1 max-w-[56px] truncate text-center">
                           {char.name}
                         </span>
                       </button>
@@ -1233,7 +1233,7 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
 
             {/* Mode Switch: Host Room vs Join Room */}
             <div className="p-4 flex-1 space-y-4">
-              <div className="flex bg-stone-100 dark:bg-[#241D48] p-1 rounded-2xl border border-stone-200 dark:border-[#31275E]">
+              <div className="flex bg-slate-100 dark:bg-[#241D48] p-1 rounded-2xl border border-slate-200 dark:border-[#31275E]">
                 <button
                   onClick={() => {
                     triggerHaptic("light");
@@ -1241,8 +1241,8 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                   }}
                   className={`flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 transition-all ${
                     activeTab === "create"
-                      ? "bg-white dark:bg-[#1B1536] text-stone-900 dark:text-slate-50 shadow-sm border border-stone-200 dark:border-[#31275E]"
-                      : "text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white"
+                      ? "bg-white dark:bg-[#1B1536] text-slate-900 dark:text-slate-50 shadow-sm border border-slate-200 dark:border-[#31275E]"
+                      : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                   }`}
                 >
                   <Swords className="w-4 h-4 text-[#7045D8] dark:text-amber-400" />
@@ -1255,8 +1255,8 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                   }}
                   className={`flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 transition-all ${
                     activeTab === "join"
-                      ? "bg-white dark:bg-[#1B1536] text-stone-900 dark:text-slate-50 shadow-sm border border-stone-200 dark:border-[#31275E]"
-                      : "text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white"
+                      ? "bg-white dark:bg-[#1B1536] text-slate-900 dark:text-slate-50 shadow-sm border border-slate-200 dark:border-[#31275E]"
+                      : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                   }`}
                 >
                   <Users className="w-4 h-4 text-[#7045D8] dark:text-amber-400" />
@@ -1268,9 +1268,9 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                 <div className="space-y-4">
                   {/* Question Source Selection */}
                   <div>
-                    <label className="block text-xs font-bold text-stone-700 dark:text-stone-200 mb-2 flex items-center justify-between">
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-2 flex items-center justify-between">
                       <span>Question Source</span>
-                      <span className="text-[11px] text-stone-500 dark:text-stone-400 font-semibold">
+                      <span className="text-[11px] text-slate-500 dark:text-slate-400 font-semibold">
                         {questionSource === "curated" && "Curated GK Pool"}
                         {questionSource === "subject" && "Subject-Wise"}
                         {questionSource === "chapter" && "Chapter-Wise"}
@@ -1287,11 +1287,11 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                         className={`p-2.5 rounded-2xl text-left border transition text-xs ${
                           questionSource === "curated"
                             ? "bg-amber-50/80 dark:bg-amber-950/40 border-[#7045D8] dark:border-amber-400 text-[#7045D8] dark:text-amber-300 font-bold shadow-xs"
-                            : "bg-white dark:bg-[#1B1536] border-stone-200 dark:border-[#31275E] text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-[#241D48]"
+                            : "bg-white dark:bg-[#1B1536] border-slate-200 dark:border-[#31275E] text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-[#241D48]"
                         }`}
                       >
                         <span className="block font-bold">Curated GK</span>
-                        <span className="text-[11px] text-stone-500 dark:text-stone-400 block truncate">High-Yield</span>
+                        <span className="text-[11px] text-slate-500 dark:text-slate-400 block truncate">High-Yield</span>
                       </button>
 
                       <button
@@ -1300,11 +1300,11 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                         className={`p-2.5 rounded-2xl text-left border transition text-xs ${
                           questionSource === "subject"
                             ? "bg-amber-50/80 dark:bg-amber-950/40 border-[#7045D8] dark:border-amber-400 text-[#7045D8] dark:text-amber-300 font-bold shadow-xs"
-                            : "bg-white dark:bg-[#1B1536] border-stone-200 dark:border-[#31275E] text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-[#241D48]"
+                            : "bg-white dark:bg-[#1B1536] border-slate-200 dark:border-[#31275E] text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-[#241D48]"
                         }`}
                       >
                         <span className="block font-bold">By Subject</span>
-                        <span className="text-[11px] text-stone-500 dark:text-stone-400 block truncate">Select Sub</span>
+                        <span className="text-[11px] text-slate-500 dark:text-slate-400 block truncate">Select Sub</span>
                       </button>
 
                       <button
@@ -1313,11 +1313,11 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                         className={`p-2.5 rounded-2xl text-left border transition text-xs ${
                           questionSource === "chapter"
                             ? "bg-amber-50/80 dark:bg-amber-950/40 border-[#7045D8] dark:border-amber-400 text-[#7045D8] dark:text-amber-300 font-bold shadow-xs"
-                            : "bg-white dark:bg-[#1B1536] border-stone-200 dark:border-[#31275E] text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-[#241D48]"
+                            : "bg-white dark:bg-[#1B1536] border-slate-200 dark:border-[#31275E] text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-[#241D48]"
                         }`}
                       >
                         <span className="block font-bold">By Chapter</span>
-                        <span className="text-[11px] text-stone-500 dark:text-stone-400 block truncate">Select Chap</span>
+                        <span className="text-[11px] text-slate-500 dark:text-slate-400 block truncate">Select Chap</span>
                       </button>
 
                       <button
@@ -1326,11 +1326,11 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                         className={`p-2.5 rounded-2xl text-left border transition text-xs ${
                           questionSource === "topic"
                             ? "bg-amber-50/80 dark:bg-amber-950/40 border-[#7045D8] dark:border-amber-400 text-[#7045D8] dark:text-amber-300 font-bold shadow-xs"
-                            : "bg-white dark:bg-[#1B1536] border-stone-200 dark:border-[#31275E] text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-[#241D48]"
+                            : "bg-white dark:bg-[#1B1536] border-slate-200 dark:border-[#31275E] text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-[#241D48]"
                         }`}
                       >
                         <span className="block font-bold">By Topic</span>
-                        <span className="text-[11px] text-stone-500 dark:text-stone-400 block truncate">Specific Topic</span>
+                        <span className="text-[11px] text-slate-500 dark:text-slate-400 block truncate">Specific Topic</span>
                       </button>
 
                       <button
@@ -1342,11 +1342,11 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                         className={`p-2.5 rounded-2xl text-left border transition text-xs ${
                           questionSource === "manual_pick"
                             ? "bg-amber-50/80 dark:bg-amber-950/40 border-[#7045D8] dark:border-amber-400 text-[#7045D8] dark:text-amber-300 font-bold shadow-xs"
-                            : "bg-white dark:bg-[#1B1536] border-stone-200 dark:border-[#31275E] text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-[#241D48]"
+                            : "bg-white dark:bg-[#1B1536] border-slate-200 dark:border-[#31275E] text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-[#241D48]"
                         }`}
                       >
                         <span className="block font-bold">Hand-Pick</span>
-                        <span className="text-[11px] text-stone-500 dark:text-stone-400 block truncate">
+                        <span className="text-[11px] text-slate-500 dark:text-slate-400 block truncate">
                           {selectedQuestionIds.length > 0 ? `${selectedQuestionIds.length} Picked` : "Select"}
                         </span>
                       </button>
@@ -1357,11 +1357,11 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                         className={`p-2.5 rounded-2xl text-left border transition text-xs ${
                           questionSource === "custom_bank"
                             ? "bg-amber-50/80 dark:bg-amber-950/40 border-[#7045D8] dark:border-amber-400 text-[#7045D8] dark:text-amber-300 font-bold shadow-xs"
-                            : "bg-white dark:bg-[#1B1536] border-stone-200 dark:border-[#31275E] text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-[#241D48]"
+                            : "bg-white dark:bg-[#1B1536] border-slate-200 dark:border-[#31275E] text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-[#241D48]"
                         }`}
                       >
                         <span className="block font-bold">Custom Bank</span>
-                        <span className="text-[11px] text-stone-500 dark:text-stone-400 block truncate">
+                        <span className="text-[11px] text-slate-500 dark:text-slate-400 block truncate">
                           {customQuestions.length} Questions
                         </span>
                       </button>
@@ -1371,7 +1371,7 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                   {/* Sub-selector for Subject */}
                   {questionSource === "subject" && (
                     <div className="bg-amber-50/60 dark:bg-amber-950/30 p-3 rounded-2xl border border-amber-200/80 dark:border-amber-800/40">
-                      <label className="block text-xs font-bold text-stone-700 dark:text-stone-300 mb-1">
+                      <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                         Select Subject
                       </label>
                       <select
@@ -1381,7 +1381,7 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                           setSelectedSubjectId(e.target.value);
                           setSelectedSubjectTitle(s?.title || "");
                         }}
-                        className="w-full text-xs font-semibold bg-white dark:bg-[#241D48] border border-amber-300 dark:border-amber-500/50 rounded-xl p-2.5 text-stone-800 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#7045D8] dark:focus:ring-amber-400"
+                        className="w-full text-xs font-semibold bg-white dark:bg-[#241D48] border border-amber-300 dark:border-amber-500/50 rounded-xl p-2.5 text-slate-800 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#7045D8] dark:focus:ring-amber-400"
                       >
                         <option value="">-- Choose Subject --</option>
                         {availableSubjects.map((sub) => (
@@ -1396,7 +1396,7 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                   {/* Sub-selector for Chapter */}
                   {questionSource === "chapter" && (
                     <div className="bg-amber-50/60 dark:bg-amber-950/30 p-3 rounded-2xl border border-amber-200/80 dark:border-amber-800/40">
-                      <label className="block text-xs font-bold text-stone-700 dark:text-stone-300 mb-1">
+                      <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                         Select Chapter
                       </label>
                       <select
@@ -1406,7 +1406,7 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                           setSelectedChapterId(e.target.value);
                           setSelectedChapterTitle(ch?.title || "");
                         }}
-                        className="w-full text-xs font-semibold bg-white dark:bg-[#241D48] border border-amber-300 dark:border-amber-500/50 rounded-xl p-2.5 text-stone-800 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#7045D8] dark:focus:ring-amber-400"
+                        className="w-full text-xs font-semibold bg-white dark:bg-[#241D48] border border-amber-300 dark:border-amber-500/50 rounded-xl p-2.5 text-slate-800 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#7045D8] dark:focus:ring-amber-400"
                       >
                         <option value="">-- Choose Chapter --</option>
                         {availableChapters.map((ch) => (
@@ -1422,7 +1422,7 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                   {questionSource === "topic" && (
                     <div className="bg-amber-50/60 dark:bg-amber-950/30 p-3 rounded-2xl border border-amber-200/80 dark:border-amber-800/40 space-y-2.5">
                       <div>
-                        <label className="block text-[11px] font-bold text-stone-700 dark:text-stone-300 mb-1">
+                        <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
                           1. Filter by Chapter
                         </label>
                         <select
@@ -1434,7 +1434,7 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                             setSelectedTopicId("");
                             setSelectedTopicTitle("");
                           }}
-                          className="w-full text-xs font-semibold bg-white dark:bg-[#241D48] border border-amber-300 dark:border-amber-500/50 rounded-xl p-2 text-stone-800 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#7045D8] dark:focus:ring-amber-400"
+                          className="w-full text-xs font-semibold bg-white dark:bg-[#241D48] border border-amber-300 dark:border-amber-500/50 rounded-xl p-2 text-slate-800 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#7045D8] dark:focus:ring-amber-400"
                         >
                           <option value="">-- All Chapters --</option>
                           {availableChapters.map((ch) => (
@@ -1446,7 +1446,7 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                       </div>
 
                       <div>
-                        <label className="block text-[11px] font-bold text-stone-700 dark:text-stone-300 mb-1">
+                        <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
                           2. Select Topic
                         </label>
                         <select
@@ -1456,7 +1456,7 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                             setSelectedTopicId(e.target.value);
                             setSelectedTopicTitle(top?.title || "");
                           }}
-                          className="w-full text-xs font-semibold bg-white dark:bg-[#241D48] border border-amber-300 dark:border-amber-500/50 rounded-xl p-2 text-stone-800 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#7045D8] dark:focus:ring-amber-400"
+                          className="w-full text-xs font-semibold bg-white dark:bg-[#241D48] border border-amber-300 dark:border-amber-500/50 rounded-xl p-2 text-slate-800 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#7045D8] dark:focus:ring-amber-400"
                         >
                           <option value="">-- Choose Topic --</option>
                           {availableTopics.map((top) => (
@@ -1471,8 +1471,8 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
 
                   {/* Category Selector if curated */}
                   {questionSource === "curated" && (
-                    <div className="bg-white dark:bg-[#1B1536] p-3 rounded-2xl border border-stone-200 dark:border-[#31275E] shadow-xs">
-                      <label className="block text-xs font-bold text-stone-700 dark:text-stone-200 mb-1.5">
+                    <div className="bg-white dark:bg-[#1B1536] p-3 rounded-2xl border border-slate-200 dark:border-[#31275E] shadow-xs">
+                      <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">
                         Category
                       </label>
                       <select
@@ -1480,7 +1480,7 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                         onChange={(e) =>
                           setSelectedCategory(e.target.value as BattleCategory)
                         }
-                        className="w-full text-sm font-semibold bg-stone-50 dark:bg-[#241D48] border border-stone-200 dark:border-[#31275E] rounded-xl px-3 py-2 text-stone-800 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#7045D8] dark:focus:ring-amber-400"
+                        className="w-full text-sm font-semibold bg-slate-50 dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] rounded-xl px-3 py-2 text-slate-800 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#7045D8] dark:focus:ring-amber-400"
                       >
                         <option value="all">All Subjects (Mixed GK)</option>
                         <option value="history">Rajasthan History</option>
@@ -1493,13 +1493,13 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                   )}
 
                   {/* Time per Question: 5s, 10s, 15s */}
-                  <div className="bg-white dark:bg-[#1B1536] p-3 rounded-2xl border border-stone-200 dark:border-[#31275E] shadow-xs">
-                    <label className="block text-xs font-bold text-stone-700 dark:text-stone-200 mb-1.5 flex items-center justify-between">
+                  <div className="bg-white dark:bg-[#1B1536] p-3 rounded-2xl border border-slate-200 dark:border-[#31275E] shadow-xs">
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5 flex items-center justify-between">
                       <span className="flex items-center gap-1">
                         <Clock className="w-3.5 h-3.5 text-[#7045D8] dark:text-amber-400" />
                         <span>Time per Question</span>
                       </span>
-                      <span className="text-[11px] text-stone-500 dark:text-stone-400 font-bold">
+                      <span className="text-[11px] text-slate-500 dark:text-slate-400 font-bold">
                         {timePerQuestionSec} seconds
                       </span>
                     </label>
@@ -1515,7 +1515,7 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                           className={`flex-1 py-2 text-xs font-bold rounded-xl border transition ${
                             timePerQuestionSec === sec
                               ? "bg-[#7045D8] text-white border-[#7045D8] shadow-xs"
-                              : "bg-stone-50 dark:bg-[#241D48] text-stone-700 dark:text-stone-200 border-stone-200 dark:border-[#31275E] hover:bg-stone-100 dark:hover:bg-[#2E3448]"
+                              : "bg-slate-50 dark:bg-[#241D48] text-slate-700 dark:text-slate-200 border-slate-200 dark:border-[#31275E] hover:bg-slate-100 dark:hover:bg-[#31275E]"
                           }`}
                         >
                           {sec}s {sec === 10 && "⚡"}
@@ -1525,8 +1525,8 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                   </div>
 
                   {/* Total Questions: 30, 50, 60, or Customize */}
-                  <div className="bg-white dark:bg-[#1B1536] p-3 rounded-2xl border border-stone-200 dark:border-[#31275E] shadow-xs">
-                    <label className="block text-xs font-bold text-stone-700 dark:text-stone-200 mb-1.5 flex items-center justify-between">
+                  <div className="bg-white dark:bg-[#1B1536] p-3 rounded-2xl border border-slate-200 dark:border-[#31275E] shadow-xs">
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5 flex items-center justify-between">
                       <span>Total Questions</span>
                       <span className="text-[11px] font-bold text-[#7045D8] dark:text-amber-400">
                         {questionCount} Questions
@@ -1546,7 +1546,7 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                             className={`py-2 text-xs font-bold rounded-xl border transition ${
                               !isCustomCountMode && questionCount === cnt
                                 ? "bg-[#7045D8] text-white border-[#7045D8] shadow-xs"
-                                : "bg-stone-50 dark:bg-[#241D48] text-stone-700 dark:text-stone-200 border-stone-200 dark:border-[#31275E] hover:bg-stone-100 dark:hover:bg-[#2E3448]"
+                                : "bg-slate-50 dark:bg-[#241D48] text-slate-700 dark:text-slate-200 border-slate-200 dark:border-[#31275E] hover:bg-slate-100 dark:hover:bg-[#31275E]"
                             }`}
                           >
                             {cnt}
@@ -1561,7 +1561,7 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                           className={`py-2 text-xs font-bold rounded-xl border transition ${
                             isCustomCountMode
                               ? "bg-[#7045D8] text-white border-[#7045D8] shadow-xs"
-                              : "bg-stone-50 dark:bg-[#241D48] text-stone-700 dark:text-stone-200 border-stone-200 dark:border-[#31275E] hover:bg-stone-100 dark:hover:bg-[#2E3448]"
+                              : "bg-slate-50 dark:bg-[#241D48] text-slate-700 dark:text-slate-200 border-slate-200 dark:border-[#31275E] hover:bg-slate-100 dark:hover:bg-[#31275E]"
                           }`}
                         >
                           Custom
@@ -1584,9 +1584,9 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                               }
                             }}
                             placeholder="e.g. 40"
-                            className="flex-1 px-3 py-2 text-xs font-bold bg-stone-50 dark:bg-[#241D48] border border-stone-300 dark:border-[#31275E] rounded-xl text-stone-800 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#7045D8] dark:focus:ring-amber-400"
+                            className="flex-1 px-3 py-2 text-xs font-bold bg-slate-50 dark:bg-[#241D48] border border-slate-300 dark:border-[#31275E] rounded-xl text-slate-800 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#7045D8] dark:focus:ring-amber-400"
                           />
-                          <span className="text-xs text-stone-500 dark:text-stone-400 font-medium">questions</span>
+                          <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">questions</span>
                         </div>
                       )}
                     </div>
@@ -1604,8 +1604,8 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
               ) : (
                 <div className="space-y-4">
                   {/* Join Room Code Input Card */}
-                  <div className="bg-white dark:bg-[#1B1536] p-5 rounded-2xl border border-stone-200 dark:border-[#31275E] shadow-xs space-y-3">
-                    <label className="block text-xs font-bold text-stone-700 dark:text-stone-200 text-center">
+                  <div className="bg-white dark:bg-[#1B1536] p-5 rounded-2xl border border-slate-200 dark:border-[#31275E] shadow-xs space-y-3">
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 text-center">
                       Enter 6-Digit Room Code
                     </label>
 
@@ -1618,13 +1618,13 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                         }
                         placeholder="e.g. 849201"
                         maxLength={6}
-                        className="w-full text-center text-3xl font-mono font-extrabold tracking-widest text-[#7045D8] dark:text-amber-400 bg-stone-50 dark:bg-[#241D48] border-2 border-stone-300 dark:border-[#31275E] rounded-2xl py-3.5 px-4 focus:outline-none focus:ring-2 focus:ring-[#7045D8] dark:focus:ring-amber-400 shadow-inner"
+                        className="w-full text-center text-3xl font-mono font-extrabold tracking-widest text-[#7045D8] dark:text-amber-400 bg-slate-50 dark:bg-[#241D48] border-2 border-slate-300 dark:border-[#31275E] rounded-2xl py-3.5 px-4 focus:outline-none focus:ring-2 focus:ring-[#7045D8] dark:focus:ring-amber-400 shadow-inner"
                       />
 
                       <button
                         type="button"
                         onClick={handlePasteCode}
-                        className="mt-2.5 w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-stone-100 dark:bg-[#241D48] hover:bg-stone-200 dark:hover:bg-[#2E3448] text-stone-700 dark:text-stone-200 text-xs font-bold transition border border-stone-200 dark:border-[#31275E] active:scale-95"
+                        className="mt-2.5 w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-slate-100 dark:bg-[#241D48] hover:bg-slate-200 dark:hover:bg-[#31275E] text-slate-700 dark:text-slate-200 text-xs font-bold transition border border-slate-200 dark:border-[#31275E] active:scale-95"
                       >
                         <ClipboardPaste className="w-4 h-4 text-[#7045D8] dark:text-amber-400" />
                         <span>Paste from Clipboard</span>
@@ -1644,7 +1644,7 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
                     className={`w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl font-bold text-base shadow-sm active:scale-98 transition ${
                       inputRoomCode && inputRoomCode.length >= 4
                         ? "bg-[#7045D8] hover:bg-[#68001a] text-white shadow-sm"
-                        : "bg-stone-200 dark:bg-stone-800 text-stone-400 dark:text-stone-500 cursor-not-allowed"
+                        : "bg-slate-200 dark:bg-stone-800 text-slate-400 dark:text-slate-500 cursor-not-allowed"
                     }`}
                   >
                     <span>Join Battle</span>
@@ -1733,18 +1733,18 @@ export const LiveBattleModal: React.FC<LiveBattleModalProps> = ({
         {/* Safety Exit Confirmation Modal */}
         {showExitConfirm && (
           <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-            <div className="bg-white dark:bg-[#1B1536] rounded-2xl p-5 max-w-xs w-full text-center shadow-2xl border border-stone-200 dark:border-[#31275E]">
+            <div className="bg-white dark:bg-[#1B1536] rounded-2xl p-5 max-w-xs w-full text-center shadow-2xl border border-slate-200 dark:border-[#31275E]">
               <AlertCircle className="w-10 h-10 text-red-500 mx-auto mb-2" />
-              <h3 className="text-base font-bold text-stone-900 dark:text-slate-50">
+              <h3 className="text-base font-bold text-slate-900 dark:text-slate-50">
                 Do you want to leave the battle?
               </h3>
-              <p className="text-xs text-stone-600 dark:text-stone-300 mt-1 mb-4">
+              <p className="text-xs text-slate-600 dark:text-slate-300 mt-1 mb-4">
                 Leaving the room will forfeit your score and progress.
               </p>
               <div className="flex gap-2">
                 <button
                   onClick={() => setShowExitConfirm(false)}
-                  className="flex-1 py-2 text-xs font-bold text-stone-700 dark:text-stone-200 bg-stone-100 dark:bg-[#241D48] hover:bg-stone-200 dark:hover:bg-[#2E3448] rounded-xl"
+                  className="flex-1 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-[#241D48] hover:bg-slate-200 dark:hover:bg-[#31275E] rounded-xl"
                 >
                   No, Stay
                 </button>

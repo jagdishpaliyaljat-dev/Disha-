@@ -328,7 +328,7 @@ export const PaperUploadSection: React.FC<PaperUploadSectionProps> = ({
   return (
     <div className="space-y-4 max-w-2xl mx-auto pb-8">
       {/* 1. Compact Brand Header Card (Replaces Oversized Hero Banner) */}
-      <div className="bg-white dark:bg-[#1F2330] rounded-2xl p-3.5 sm:p-4 border border-[#E8D9C0] dark:border-[#31374A] shadow-xs flex items-center justify-between gap-3">
+      <div className="bg-white dark:bg-[#1B1536] rounded-2xl p-3.5 sm:p-4 border border-slate-200 dark:border-[#31275E] shadow-xs flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#701530] via-[#800020] to-[#C99A45] flex items-center justify-center text-white shadow-xs shrink-0 ring-1 ring-[#C99A45]/30">
             <Sparkles className="w-5 h-5 text-amber-200" />
@@ -338,14 +338,14 @@ export const PaperUploadSection: React.FC<PaperUploadSectionProps> = ({
               <span className="text-[10px] font-black uppercase tracking-wider text-[#7045D8] dark:text-[#A78BFA] bg-[#7045D8]/10 dark:bg-[#7045D8]/20 px-2 py-0.5 rounded-md border border-[#7045D8]/20">
                 DISHA PYQ AI VISION
               </span>
-              <span className="hidden sm:inline-block text-[10px] font-semibold text-[#8C7A68] dark:text-[#A39887]">
+              <span className="hidden sm:inline-block text-[10px] font-semibold text-slate-500 dark:text-slate-400">
                 OCR 2.0
               </span>
             </div>
-            <h2 className="text-sm sm:text-base font-black text-[#171923] dark:text-[#FFF9EF] tracking-tight mt-0.5">
+            <h2 className="text-sm sm:text-base font-black text-slate-900 dark:text-slate-50 tracking-tight mt-0.5">
               Exam Paper Analyzer
             </h2>
-            <p className="text-[11px] text-[#6E6254] dark:text-[#A39887] leading-tight">
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-tight">
               Scan exam pages to cross-match questions with your Disha PYQ Question Bank.
             </p>
           </div>
@@ -353,10 +353,10 @@ export const PaperUploadSection: React.FC<PaperUploadSectionProps> = ({
 
         <button
           onClick={onOpenHistory}
-          className="px-2.5 py-1.5 rounded-xl border border-[#E8D9C0] dark:border-[#31374A] hover:border-[#800020] dark:hover:border-[#C99A45] bg-[#FFF9EF] dark:bg-[#252A3A] text-[#800020] dark:text-[#E8D9C0] text-xs font-bold flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer shrink-0"
+          className="px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-[#31275E] hover:border-[#7045D8] dark:hover:border-[#7045D8] bg-[#F8FAFC] dark:bg-[#241D48] text-[#7045D8] dark:text-slate-300 text-xs font-bold flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer shrink-0"
           title="Past Analyses History"
         >
-          <History className="w-3.5 h-3.5 text-[#C99A45]" />
+          <History className="w-3.5 h-3.5 text-[#7045D8] dark:text-[#A78BFA]" />
           <span className="hidden sm:inline">Past Analyses</span>
         </button>
       </div>
@@ -386,8 +386,8 @@ export const PaperUploadSection: React.FC<PaperUploadSectionProps> = ({
               onClick={() => setUploadMode(tab.id)}
               className={`flex-1 min-w-[76px] sm:min-w-0 py-2 px-2 sm:px-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
                 isActive
-                  ? "bg-gradient-to-r from-[#701530] via-[#800020] to-[#5E0017] text-white shadow-sm ring-1 ring-[#C99A45]/40"
-                  : "text-[#6A5E50] dark:text-[#9EA8B6] hover:text-[#800020] dark:hover:text-white hover:bg-white/50 dark:hover:bg-white/5"
+                  ? "bg-gradient-to-r from-[#701530] via-[#800020] to-[#5B32BF] text-white shadow-sm ring-1 ring-[#C99A45]/40"
+                  : "text-[#6A5E50] dark:text-[#9EA8B6] hover:text-[#7045D8] dark:hover:text-white hover:bg-white/50 dark:hover:bg-white/5"
               }`}
             >
               <Icon className={`w-3.5 h-3.5 shrink-0 ${isActive ? "text-amber-300" : ""}`} />
@@ -434,27 +434,27 @@ export const PaperUploadSection: React.FC<PaperUploadSectionProps> = ({
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        className={`bg-white dark:bg-[#1F2330] rounded-2xl p-4 sm:p-5 border transition-all duration-200 shadow-xs space-y-3.5 ${
+        className={`bg-white dark:bg-[#1B1536] rounded-2xl p-4 sm:p-5 border transition-all duration-200 shadow-xs space-y-3.5 ${
           isDragging
-            ? "border-[#800020] dark:border-[#C99A45] ring-2 ring-[#800020]/20 bg-[#FFF9EF] dark:bg-[#252A3A]"
-            : "border-[#E8D9C0] dark:border-[#31374A]"
+            ? "border-[#7045D8] dark:border-[#C99A45] ring-2 ring-[#800020]/20 bg-[#F8FAFC] dark:bg-[#241D48]"
+            : "border-slate-200 dark:border-[#31275E]"
         }`}
       >
         {/* Mode A: Scan Camera */}
         {uploadMode === "camera" && (
-          <div className="border-2 border-dashed border-[#800020]/25 dark:border-[#C99A45]/30 hover:border-[#800020] dark:hover:border-[#C99A45] rounded-xl bg-gradient-to-b from-[#FFFDF9] via-[#FAF5EC]/70 to-[#FFF9EF] dark:from-[#1F2330] dark:via-[#1A1D28] dark:to-[#171923] p-5 sm:p-6 text-center transition-all duration-200 group">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#800020]/10 to-[#C99A45]/20 dark:from-[#800020]/30 dark:to-[#C99A45]/30 text-[#800020] dark:text-[#E8D9C0] flex items-center justify-center mx-auto shadow-2xs mb-2.5 group-hover:scale-105 transition-transform ring-1 ring-[#C99A45]/20">
+          <div className="border-2 border-dashed border-[#7045D8]/25 dark:border-[#C99A45]/30 hover:border-[#7045D8] dark:hover:border-[#7045D8] rounded-xl bg-gradient-to-b from-[#FFFDF9] via-[#FAF5EC]/70 to-[#FFF9EF] dark:from-[#1F2330] dark:via-[#1A1D28] dark:to-[#171923] p-5 sm:p-6 text-center transition-all duration-200 group">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#7045D8]/10 to-[#C99A45]/20 dark:from-[#7045D8]/30 dark:to-[#C99A45]/30 text-[#7045D8] dark:text-slate-300 flex items-center justify-center mx-auto shadow-2xs mb-2.5 group-hover:scale-105 transition-transform ring-1 ring-[#C99A45]/20">
               <Camera className="w-6 h-6 stroke-[2]" />
             </div>
-            <h3 className="text-xs sm:text-sm font-black text-[#171923] dark:text-[#FFF9EF]">
+            <h3 className="text-xs sm:text-sm font-black text-slate-900 dark:text-slate-50">
               Capture Exam Paper with Camera
             </h3>
-            <p className="text-[11px] text-[#6E6254] dark:text-[#A39887] max-w-xs mx-auto mt-1 mb-3">
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 max-w-xs mx-auto mt-1 mb-3">
               Hold camera parallel to the paper with good lighting. Scan page by page.
             </p>
             <button
               onClick={() => cameraInputRef.current?.click()}
-              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#701530] via-[#800020] to-[#5E0017] hover:brightness-105 text-white font-bold text-xs flex items-center gap-2 mx-auto shadow-sm active:scale-[0.98] transition-all cursor-pointer ring-1 ring-[#C99A45]/30"
+              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#701530] via-[#800020] to-[#5B32BF] hover:brightness-105 text-white font-bold text-xs flex items-center gap-2 mx-auto shadow-sm active:scale-[0.98] transition-all cursor-pointer ring-1 ring-[#C99A45]/30"
             >
               <Camera className="w-4 h-4 text-amber-300" />
               <span>Capture Page {uploadedFiles.length + 1}</span>
@@ -464,19 +464,19 @@ export const PaperUploadSection: React.FC<PaperUploadSectionProps> = ({
 
         {/* Mode B: Images Gallery */}
         {uploadMode === "images" && (
-          <div className="border-2 border-dashed border-[#800020]/25 dark:border-[#C99A45]/30 hover:border-[#800020] dark:hover:border-[#C99A45] rounded-xl bg-gradient-to-b from-[#FFFDF9] via-[#FAF5EC]/70 to-[#FFF9EF] dark:from-[#1F2330] dark:via-[#1A1D28] dark:to-[#171923] p-5 sm:p-6 text-center transition-all duration-200 group">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#800020]/10 to-[#C99A45]/20 dark:from-[#800020]/30 dark:to-[#C99A45]/30 text-[#800020] dark:text-[#E8D9C0] flex items-center justify-center mx-auto shadow-2xs mb-2.5 group-hover:scale-105 transition-transform ring-1 ring-[#C99A45]/20">
+          <div className="border-2 border-dashed border-[#7045D8]/25 dark:border-[#C99A45]/30 hover:border-[#7045D8] dark:hover:border-[#7045D8] rounded-xl bg-gradient-to-b from-[#FFFDF9] via-[#FAF5EC]/70 to-[#FFF9EF] dark:from-[#1F2330] dark:via-[#1A1D28] dark:to-[#171923] p-5 sm:p-6 text-center transition-all duration-200 group">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#7045D8]/10 to-[#C99A45]/20 dark:from-[#7045D8]/30 dark:to-[#C99A45]/30 text-[#7045D8] dark:text-slate-300 flex items-center justify-center mx-auto shadow-2xs mb-2.5 group-hover:scale-105 transition-transform ring-1 ring-[#C99A45]/20">
               <Upload className="w-6 h-6 stroke-[2]" />
             </div>
-            <h3 className="text-xs sm:text-sm font-black text-[#171923] dark:text-[#FFF9EF]">
+            <h3 className="text-xs sm:text-sm font-black text-slate-900 dark:text-slate-50">
               Upload Exam Paper Images
             </h3>
-            <p className="text-[11px] text-[#6E6254] dark:text-[#A39887] max-w-xs mx-auto mt-1 mb-3">
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 max-w-xs mx-auto mt-1 mb-3">
               Drag & drop photos or select from phone storage (JPG, PNG, WEBP).
             </p>
             <button
               onClick={() => imageInputRef.current?.click()}
-              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#701530] via-[#800020] to-[#5E0017] hover:brightness-105 text-white font-bold text-xs flex items-center gap-2 mx-auto shadow-sm active:scale-[0.98] transition-all cursor-pointer ring-1 ring-[#C99A45]/30"
+              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#701530] via-[#800020] to-[#5B32BF] hover:brightness-105 text-white font-bold text-xs flex items-center gap-2 mx-auto shadow-sm active:scale-[0.98] transition-all cursor-pointer ring-1 ring-[#C99A45]/30"
             >
               <FileUp className="w-4 h-4 text-amber-300" />
               <span>Browse Photos from Storage</span>
@@ -486,19 +486,19 @@ export const PaperUploadSection: React.FC<PaperUploadSectionProps> = ({
 
         {/* Mode C: PDF Document */}
         {uploadMode === "pdf" && (
-          <div className="border-2 border-dashed border-[#800020]/25 dark:border-[#C99A45]/30 hover:border-[#800020] dark:hover:border-[#C99A45] rounded-xl bg-gradient-to-b from-[#FFFDF9] via-[#FAF5EC]/70 to-[#FFF9EF] dark:from-[#1F2330] dark:via-[#1A1D28] dark:to-[#171923] p-5 sm:p-6 text-center transition-all duration-200 group">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#800020]/10 to-[#C99A45]/20 dark:from-[#800020]/30 dark:to-[#C99A45]/30 text-[#800020] dark:text-[#E8D9C0] flex items-center justify-center mx-auto shadow-2xs mb-2.5 group-hover:scale-105 transition-transform ring-1 ring-[#C99A45]/20">
+          <div className="border-2 border-dashed border-[#7045D8]/25 dark:border-[#C99A45]/30 hover:border-[#7045D8] dark:hover:border-[#7045D8] rounded-xl bg-gradient-to-b from-[#FFFDF9] via-[#FAF5EC]/70 to-[#FFF9EF] dark:from-[#1F2330] dark:via-[#1A1D28] dark:to-[#171923] p-5 sm:p-6 text-center transition-all duration-200 group">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#7045D8]/10 to-[#C99A45]/20 dark:from-[#7045D8]/30 dark:to-[#C99A45]/30 text-[#7045D8] dark:text-slate-300 flex items-center justify-center mx-auto shadow-2xs mb-2.5 group-hover:scale-105 transition-transform ring-1 ring-[#C99A45]/20">
               <FileText className="w-6 h-6 stroke-[2]" />
             </div>
-            <h3 className="text-xs sm:text-sm font-black text-[#171923] dark:text-[#FFF9EF]">
+            <h3 className="text-xs sm:text-sm font-black text-slate-900 dark:text-slate-50">
               Upload Exam Question Paper PDF
             </h3>
-            <p className="text-[11px] text-[#6E6254] dark:text-[#A39887] max-w-xs mx-auto mt-1 mb-3">
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 max-w-xs mx-auto mt-1 mb-3">
               Official exam PDFs supported (up to 4MB). Multi-page papers auto-scanned.
             </p>
             <button
               onClick={() => pdfInputRef.current?.click()}
-              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#701530] via-[#800020] to-[#5E0017] hover:brightness-105 text-white font-bold text-xs flex items-center gap-2 mx-auto shadow-sm active:scale-[0.98] transition-all cursor-pointer ring-1 ring-[#C99A45]/30"
+              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#701530] via-[#800020] to-[#5B32BF] hover:brightness-105 text-white font-bold text-xs flex items-center gap-2 mx-auto shadow-sm active:scale-[0.98] transition-all cursor-pointer ring-1 ring-[#C99A45]/30"
             >
               <FileText className="w-4 h-4 text-amber-300" />
               <span>Select Exam PDF File</span>
@@ -508,19 +508,19 @@ export const PaperUploadSection: React.FC<PaperUploadSectionProps> = ({
 
         {/* Mode D: JSON File */}
         {uploadMode === "json" && (
-          <div className="border-2 border-dashed border-[#800020]/25 dark:border-[#C99A45]/30 hover:border-[#800020] dark:hover:border-[#C99A45] rounded-xl bg-gradient-to-b from-[#FFFDF9] via-[#FAF5EC]/70 to-[#FFF9EF] dark:from-[#1F2330] dark:via-[#1A1D28] dark:to-[#171923] p-5 sm:p-6 text-center transition-all duration-200 group">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#800020]/10 to-[#C99A45]/20 dark:from-[#800020]/30 dark:to-[#C99A45]/30 text-[#800020] dark:text-[#E8D9C0] flex items-center justify-center mx-auto shadow-2xs mb-2.5 group-hover:scale-105 transition-transform ring-1 ring-[#C99A45]/20">
+          <div className="border-2 border-dashed border-[#7045D8]/25 dark:border-[#C99A45]/30 hover:border-[#7045D8] dark:hover:border-[#7045D8] rounded-xl bg-gradient-to-b from-[#FFFDF9] via-[#FAF5EC]/70 to-[#FFF9EF] dark:from-[#1F2330] dark:via-[#1A1D28] dark:to-[#171923] p-5 sm:p-6 text-center transition-all duration-200 group">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#7045D8]/10 to-[#C99A45]/20 dark:from-[#7045D8]/30 dark:to-[#C99A45]/30 text-[#7045D8] dark:text-slate-300 flex items-center justify-center mx-auto shadow-2xs mb-2.5 group-hover:scale-105 transition-transform ring-1 ring-[#C99A45]/20">
               <Layers className="w-6 h-6 stroke-[2]" />
             </div>
-            <h3 className="text-xs sm:text-sm font-black text-[#171923] dark:text-[#FFF9EF]">
+            <h3 className="text-xs sm:text-sm font-black text-slate-900 dark:text-slate-50">
               Upload Structured MCQ JSON
             </h3>
-            <p className="text-[11px] text-[#6E6254] dark:text-[#A39887] max-w-xs mx-auto mt-1 mb-3">
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 max-w-xs mx-auto mt-1 mb-3">
               Direct import for pre-formatted question banks with options & keys.
             </p>
             <button
               onClick={() => jsonInputRef.current?.click()}
-              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#701530] via-[#800020] to-[#5E0017] hover:brightness-105 text-white font-bold text-xs flex items-center gap-2 mx-auto shadow-sm active:scale-[0.98] transition-all cursor-pointer ring-1 ring-[#C99A45]/30"
+              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#701530] via-[#800020] to-[#5B32BF] hover:brightness-105 text-white font-bold text-xs flex items-center gap-2 mx-auto shadow-sm active:scale-[0.98] transition-all cursor-pointer ring-1 ring-[#C99A45]/30"
             >
               <Upload className="w-4 h-4 text-amber-300" />
               <span>Choose JSON File</span>
@@ -532,15 +532,15 @@ export const PaperUploadSection: React.FC<PaperUploadSectionProps> = ({
         {uploadMode === "paste" && (
           <div className="space-y-2">
             <div className="flex items-center justify-between gap-2">
-              <label className="text-xs font-bold text-[#171923] dark:text-[#FFF9EF] flex items-center gap-1.5">
-                <ClipboardPaste className="w-3.5 h-3.5 text-[#800020] dark:text-[#C99A45]" />
+              <label className="text-xs font-bold text-slate-900 dark:text-slate-50 flex items-center gap-1.5">
+                <ClipboardPaste className="w-3.5 h-3.5 text-[#7045D8] dark:text-[#7045D8] dark:text-[#A78BFA]" />
                 <span>Paste Exam Questions (Hindi / English)</span>
               </label>
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={handleInsertSampleText}
-                  className="text-[10px] font-bold text-[#800020] dark:text-[#C99A45] hover:underline cursor-pointer"
+                  className="text-[10px] font-bold text-[#7045D8] dark:text-[#7045D8] dark:text-[#A78BFA] hover:underline cursor-pointer"
                 >
                   Insert Sample
                 </button>
@@ -560,7 +560,7 @@ export const PaperUploadSection: React.FC<PaperUploadSectionProps> = ({
               value={pastedText}
               onChange={(e) => setPastedText(e.target.value)}
               placeholder="Paste exam questions text or JSON here...&#10;&#10;Example:&#10;Q1. When was the Rajasthan Solar Energy Policy declared?&#10;(A) 2018 (B) 2019 (C) 2021 (D) 2022"
-              className="w-full p-3 rounded-xl bg-[#FFF9EF] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] text-xs text-[#171923] dark:text-[#FFF9EF] focus:outline-hidden focus:ring-1 focus:ring-[#800020] dark:focus:ring-[#C99A45] leading-relaxed font-sans placeholder:text-[#9B8C7A]"
+              className="w-full p-3 rounded-xl bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] text-xs text-slate-900 dark:text-slate-50 focus:outline-hidden focus:ring-1 focus:ring-[#800020] dark:focus:ring-[#C99A45] leading-relaxed font-sans placeholder:text-[#9B8C7A]"
             />
             <div className="flex justify-between text-[10px] text-[#7C6E5E] dark:text-[#9EA8B6] px-1">
               <span>Supports both bilingual text & JSON</span>
@@ -571,10 +571,10 @@ export const PaperUploadSection: React.FC<PaperUploadSectionProps> = ({
 
         {/* 4. Uploaded Pages Shelf Preview (When files exist) */}
         {uploadedFiles.length > 0 && uploadMode !== "paste" && (
-          <div className="space-y-2.5 pt-3 border-t border-[#E8D9C0] dark:border-[#31374A]">
+          <div className="space-y-2.5 pt-3 border-t border-slate-200 dark:border-[#31275E]">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-black text-[#171923] dark:text-[#FFF9EF] flex items-center gap-1.5">
-                <Layers className="w-3.5 h-3.5 text-[#800020] dark:text-[#C99A45]" />
+              <span className="text-xs font-black text-slate-900 dark:text-slate-50 flex items-center gap-1.5">
+                <Layers className="w-3.5 h-3.5 text-[#7045D8] dark:text-[#7045D8] dark:text-[#A78BFA]" />
                 <span>Uploaded Exam Pages ({uploadedFiles.length})</span>
               </span>
               <button
@@ -583,7 +583,7 @@ export const PaperUploadSection: React.FC<PaperUploadSectionProps> = ({
                   else if (uploadMode === "images") imageInputRef.current?.click();
                   else pdfInputRef.current?.click();
                 }}
-                className="text-[11px] font-bold text-[#800020] dark:text-[#C99A45] flex items-center gap-1 hover:underline cursor-pointer"
+                className="text-[11px] font-bold text-[#7045D8] dark:text-[#7045D8] dark:text-[#A78BFA] flex items-center gap-1 hover:underline cursor-pointer"
               >
                 <Plus className="w-3 h-3" />
                 <span>Add Next Page</span>
@@ -594,37 +594,37 @@ export const PaperUploadSection: React.FC<PaperUploadSectionProps> = ({
               {uploadedFiles.map((file, idx) => (
                 <div
                   key={file.id}
-                  className="group relative rounded-xl border border-[#E8D9C0] dark:border-[#31374A] overflow-hidden bg-[#FFF9EF] dark:bg-[#252A3A] p-2 flex flex-col justify-between shadow-2xs transition-all hover:border-[#800020]/40"
+                  className="group relative rounded-xl border border-slate-200 dark:border-[#31275E] overflow-hidden bg-[#F8FAFC] dark:bg-[#241D48] p-2 flex flex-col justify-between shadow-2xs transition-all hover:border-[#7045D8]/40"
                 >
                   {file.type === "image" ? (
-                    <div className="w-full h-24 rounded-lg overflow-hidden bg-[#F7EFE2] dark:bg-[#171923] relative">
+                    <div className="w-full h-24 rounded-lg overflow-hidden bg-slate-100 dark:bg-[#130E26] relative">
                       <img
                         src={file.previewUrl}
                         alt={`Page ${file.pageNumber}`}
                         className="w-full h-full object-cover"
                       />
-                      <span className="absolute bottom-1 left-1 bg-[#800020]/90 text-white text-[9px] font-black px-1.5 py-0.5 rounded-md tabular-nums shadow-xs">
+                      <span className="absolute bottom-1 left-1 bg-[#7045D8]/90 text-white text-[9px] font-black px-1.5 py-0.5 rounded-md tabular-nums shadow-xs">
                         Page {file.pageNumber}
                       </span>
                     </div>
                   ) : file.type === "json" ? (
                     <div className="w-full h-24 rounded-lg bg-amber-50/50 dark:bg-amber-950/20 flex flex-col items-center justify-center p-2 text-center">
-                      <Layers className="w-7 h-7 text-[#C99A45] mb-1" />
-                      <span className="text-[10px] font-bold text-[#171923] dark:text-[#FFF9EF] truncate w-full">
+                      <Layers className="w-7 h-7 text-[#7045D8] dark:text-[#A78BFA] mb-1" />
+                      <span className="text-[10px] font-bold text-slate-900 dark:text-slate-50 truncate w-full">
                         {file.name}
                       </span>
                     </div>
                   ) : (
                     <div className="w-full h-24 rounded-lg bg-rose-50/50 dark:bg-rose-950/20 flex flex-col items-center justify-center p-2 text-center">
                       <FileText className="w-7 h-7 text-rose-500 mb-1" />
-                      <span className="text-[10px] font-bold text-[#171923] dark:text-[#FFF9EF] truncate w-full">
+                      <span className="text-[10px] font-bold text-slate-900 dark:text-slate-50 truncate w-full">
                         {file.name}
                       </span>
                     </div>
                   )}
 
                   <div className="flex items-center justify-between pt-2 px-0.5">
-                    <span className="text-[10px] font-bold text-[#6E6254] dark:text-[#A39887] truncate max-w-[65px]">
+                    <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 truncate max-w-[65px]">
                       {file.name}
                     </span>
 
@@ -632,7 +632,7 @@ export const PaperUploadSection: React.FC<PaperUploadSectionProps> = ({
                       {idx > 0 && (
                         <button
                           onClick={() => handleMoveFile(idx, "up")}
-                          className="p-1 rounded-md text-[#6E6254] hover:text-[#800020] dark:hover:text-white hover:bg-white dark:hover:bg-[#31374A] transition-colors cursor-pointer"
+                          className="p-1 rounded-md text-slate-500 hover:text-[#7045D8] dark:hover:text-white hover:bg-white dark:hover:bg-[#31374A] transition-colors cursor-pointer"
                           title="Move earlier"
                         >
                           <ArrowUp className="w-3 h-3" />
@@ -641,7 +641,7 @@ export const PaperUploadSection: React.FC<PaperUploadSectionProps> = ({
                       {idx < uploadedFiles.length - 1 && (
                         <button
                           onClick={() => handleMoveFile(idx, "down")}
-                          className="p-1 rounded-md text-[#6E6254] hover:text-[#800020] dark:hover:text-white hover:bg-white dark:hover:bg-[#31374A] transition-colors cursor-pointer"
+                          className="p-1 rounded-md text-slate-500 hover:text-[#7045D8] dark:hover:text-white hover:bg-white dark:hover:bg-[#31374A] transition-colors cursor-pointer"
                           title="Move later"
                         >
                           <ArrowDown className="w-3 h-3" />
@@ -650,7 +650,7 @@ export const PaperUploadSection: React.FC<PaperUploadSectionProps> = ({
                       {file.type === "image" && (
                         <button
                           onClick={() => handleRotateFile(file.id)}
-                          className="p-1 rounded-md text-[#800020] dark:text-[#C99A45] hover:bg-[#800020]/10 transition-colors cursor-pointer"
+                          className="p-1 rounded-md text-[#7045D8] dark:text-[#7045D8] dark:text-[#A78BFA] hover:bg-[#7045D8]/10 transition-colors cursor-pointer"
                           title="Rotate 90 degrees"
                         >
                           <RotateCw className="w-3 h-3" />
@@ -675,17 +675,17 @@ export const PaperUploadSection: React.FC<PaperUploadSectionProps> = ({
       {/* 5. Clean, Compact Form Sections: Exam Details & Target Syllabus */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
         {/* Section A: Examination Identification */}
-        <div className="bg-white dark:bg-[#1F2330] rounded-2xl p-4 border border-[#E8D9C0] dark:border-[#31374A] shadow-xs space-y-3">
-          <div className="flex items-center gap-1.5 pb-1 border-b border-[#E8D9C0]/50 dark:border-[#31374A]">
-            <GraduationCap className="w-4 h-4 text-[#800020] dark:text-[#C99A45]" />
-            <h3 className="text-xs font-black uppercase text-[#800020] dark:text-[#FFF9EF] tracking-wider">
+        <div className="bg-white dark:bg-[#1B1536] rounded-2xl p-4 border border-slate-200 dark:border-[#31275E] shadow-xs space-y-3">
+          <div className="flex items-center gap-1.5 pb-1 border-b border-slate-200/50 dark:border-[#31275E]">
+            <GraduationCap className="w-4 h-4 text-[#7045D8] dark:text-[#7045D8] dark:text-[#A78BFA]" />
+            <h3 className="text-xs font-black uppercase text-[#7045D8] dark:text-slate-50 tracking-wider">
               Exam Details
             </h3>
           </div>
 
           {/* Quick Preset Chips */}
           <div className="space-y-1">
-            <span className="text-[10px] font-bold text-[#8C7A68] dark:text-[#A39887] block">
+            <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 block">
               Quick Presets:
             </span>
             <div className="flex flex-wrap gap-1">
@@ -694,7 +694,7 @@ export const PaperUploadSection: React.FC<PaperUploadSectionProps> = ({
                   key={preset}
                   type="button"
                   onClick={() => handlePresetSelect(preset)}
-                  className="px-2 py-0.5 rounded-lg bg-[#FFF9EF] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] text-[10px] font-semibold text-[#5C5346] dark:text-[#C4B9A8] hover:border-[#800020] hover:text-[#800020] transition-colors cursor-pointer"
+                  className="px-2 py-0.5 rounded-lg bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] text-[10px] font-semibold text-slate-600 dark:text-slate-300 hover:border-[#7045D8] hover:text-[#7045D8] transition-colors cursor-pointer"
                 >
                   {preset}
                 </button>
@@ -704,7 +704,7 @@ export const PaperUploadSection: React.FC<PaperUploadSectionProps> = ({
 
           <div className="space-y-2.5">
             <div>
-              <label className="text-[10px] font-bold text-[#5C5346] dark:text-[#C4B9A8] block mb-1">
+              <label className="text-[10px] font-bold text-slate-600 dark:text-slate-300 block mb-1">
                 Exam Title / Post
               </label>
               <input
@@ -712,14 +712,14 @@ export const PaperUploadSection: React.FC<PaperUploadSectionProps> = ({
                 value={metadata.examName}
                 onChange={(e) => setMetadata({ ...metadata, examName: e.target.value })}
                 placeholder="e.g. RAS Pre, CET 12th, Patwar"
-                className="w-full px-3 py-2 rounded-xl bg-[#FFF9EF] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] text-xs font-medium text-[#171923] dark:text-white focus:outline-hidden focus:ring-1 focus:ring-[#800020] dark:focus:ring-[#C99A45]"
+                className="w-full px-3 py-2 rounded-xl bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] text-xs font-medium text-slate-900 dark:text-white focus:outline-hidden focus:ring-1 focus:ring-[#800020] dark:focus:ring-[#C99A45]"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="text-[10px] font-bold text-[#5C5346] dark:text-[#C4B9A8] block mb-1 flex items-center gap-1">
-                  <Calendar className="w-3 h-3 text-[#800020] dark:text-[#C99A45]" />
+                <label className="text-[10px] font-bold text-slate-600 dark:text-slate-300 block mb-1 flex items-center gap-1">
+                  <Calendar className="w-3 h-3 text-[#7045D8] dark:text-[#7045D8] dark:text-[#A78BFA]" />
                   <span>Exam Year</span>
                 </label>
                 <input
@@ -727,13 +727,13 @@ export const PaperUploadSection: React.FC<PaperUploadSectionProps> = ({
                   value={metadata.paperYear}
                   onChange={(e) => setMetadata({ ...metadata, paperYear: e.target.value })}
                   placeholder="2025"
-                  className="w-full px-3 py-2 rounded-xl bg-[#FFF9EF] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] text-xs font-medium tabular-nums text-[#171923] dark:text-white focus:outline-hidden focus:ring-1 focus:ring-[#800020] dark:focus:ring-[#C99A45]"
+                  className="w-full px-3 py-2 rounded-xl bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] text-xs font-medium tabular-nums text-slate-900 dark:text-white focus:outline-hidden focus:ring-1 focus:ring-[#800020] dark:focus:ring-[#C99A45]"
                 />
               </div>
 
               <div>
-                <label className="text-[10px] font-bold text-[#5C5346] dark:text-[#C4B9A8] block mb-1 flex items-center gap-1">
-                  <Clock className="w-3 h-3 text-[#800020] dark:text-[#C99A45]" />
+                <label className="text-[10px] font-bold text-slate-600 dark:text-slate-300 block mb-1 flex items-center gap-1">
+                  <Clock className="w-3 h-3 text-[#7045D8] dark:text-[#7045D8] dark:text-[#A78BFA]" />
                   <span>Shift / Series</span>
                 </label>
                 <input
@@ -741,7 +741,7 @@ export const PaperUploadSection: React.FC<PaperUploadSectionProps> = ({
                   value={metadata.shiftCode}
                   onChange={(e) => setMetadata({ ...metadata, shiftCode: e.target.value })}
                   placeholder="Series A, Shift 1"
-                  className="w-full px-3 py-2 rounded-xl bg-[#FFF9EF] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] text-xs font-medium text-[#171923] dark:text-white focus:outline-hidden focus:ring-1 focus:ring-[#800020] dark:focus:ring-[#C99A45]"
+                  className="w-full px-3 py-2 rounded-xl bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] text-xs font-medium text-slate-900 dark:text-white focus:outline-hidden focus:ring-1 focus:ring-[#800020] dark:focus:ring-[#C99A45]"
                 />
               </div>
             </div>
@@ -749,23 +749,23 @@ export const PaperUploadSection: React.FC<PaperUploadSectionProps> = ({
         </div>
 
         {/* Section B: Target Syllabus Scope */}
-        <div className="bg-white dark:bg-[#1F2330] rounded-2xl p-4 border border-[#E8D9C0] dark:border-[#31374A] shadow-xs space-y-3 flex flex-col justify-between">
+        <div className="bg-white dark:bg-[#1B1536] rounded-2xl p-4 border border-slate-200 dark:border-[#31275E] shadow-xs space-y-3 flex flex-col justify-between">
           <div className="space-y-3">
-            <div className="flex items-center gap-1.5 pb-1 border-b border-[#E8D9C0]/50 dark:border-[#31374A]">
-              <BookOpen className="w-4 h-4 text-[#800020] dark:text-[#C99A45]" />
-              <h3 className="text-xs font-black uppercase text-[#800020] dark:text-[#FFF9EF] tracking-wider">
+            <div className="flex items-center gap-1.5 pb-1 border-b border-slate-200/50 dark:border-[#31275E]">
+              <BookOpen className="w-4 h-4 text-[#7045D8] dark:text-[#7045D8] dark:text-[#A78BFA]" />
+              <h3 className="text-xs font-black uppercase text-[#7045D8] dark:text-slate-50 tracking-wider">
                 Target Syllabus Scope
               </h3>
             </div>
 
             <div>
-              <label className="text-[10px] font-bold text-[#5C5346] dark:text-[#C4B9A8] block mb-1">
+              <label className="text-[10px] font-bold text-slate-600 dark:text-slate-300 block mb-1">
                 Compare Against Subject
               </label>
               <select
                 value={metadata.selectedSubjectId || "all"}
                 onChange={(e) => setMetadata({ ...metadata, selectedSubjectId: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl bg-[#FFF9EF] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] text-xs font-medium text-[#171923] dark:text-white focus:outline-hidden focus:ring-1 focus:ring-[#800020] dark:focus:ring-[#C99A45] cursor-pointer"
+                className="w-full px-3 py-2 rounded-xl bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] text-xs font-medium text-slate-900 dark:text-white focus:outline-hidden focus:ring-1 focus:ring-[#800020] dark:focus:ring-[#C99A45] cursor-pointer"
               >
                 <option value="all">Entire Question Bank (All Subjects)</option>
                 {subjects.map((s) => (
@@ -776,24 +776,24 @@ export const PaperUploadSection: React.FC<PaperUploadSectionProps> = ({
               </select>
             </div>
 
-            <div className="p-2.5 rounded-xl bg-[#FFF9EF] dark:bg-[#252A3A] border border-[#E8D9C0]/60 dark:border-[#31374A] space-y-1">
-              <div className="flex items-center gap-1.5 text-[#800020] dark:text-[#C99A45] text-[11px] font-bold">
+            <div className="p-2.5 rounded-xl bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200/60 dark:border-[#31275E] space-y-1">
+              <div className="flex items-center gap-1.5 text-[#7045D8] dark:text-[#7045D8] dark:text-[#A78BFA] text-[11px] font-bold">
                 <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
                 <span>Intelligent Question Matching</span>
               </div>
-              <p className="text-[10px] text-[#6E6254] dark:text-[#A39887] leading-relaxed">
+              <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">
                 Matches questions via full text, Hindi/English terminology, options, and key concepts against Disha PYQ verified PYQ archives.
               </p>
             </div>
           </div>
 
-          <div className="text-[10px] text-[#8C7A68] dark:text-[#A39887] flex items-center justify-between pt-1">
+          <div className="text-[10px] text-slate-500 dark:text-slate-400 flex items-center justify-between pt-1">
             <span>Exam Date:</span>
             <input
               type="date"
               value={metadata.paperDate}
               onChange={(e) => setMetadata({ ...metadata, paperDate: e.target.value })}
-              className="px-2 py-1 rounded-lg bg-[#FFF9EF] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] text-[10px] text-[#171923] dark:text-white"
+              className="px-2 py-1 rounded-lg bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] text-[10px] text-slate-900 dark:text-white"
             />
           </div>
         </div>

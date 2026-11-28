@@ -64,11 +64,11 @@ export const QuestionComparisonModal: React.FC<QuestionComparisonModalProps> = (
       case "near_exact":
         return "bg-teal-100 text-teal-800 dark:bg-teal-950/60 dark:text-teal-300 border-teal-300 dark:border-teal-800";
       case "similar":
-        return "bg-[#F47B20]/15 text-[#9A3412] dark:text-[#F47B20] border-[#F47B20]/40";
+        return "bg-[#7045D8]/15 text-[#9A3412] dark:text-[#A78BFA] border-[#F47B20]/40";
       case "concept_related":
-        return "bg-[#800020]/10 text-[#800020] dark:bg-[#800020]/25 dark:text-[#C99A45] border-[#800020]/30 dark:border-[#C99A45]/40";
+        return "bg-[#7045D8]/10 text-[#7045D8] dark:bg-[#7045D8]/25 dark:text-[#7045D8] dark:text-[#A78BFA] border-[#7045D8]/30 dark:border-[#7045D8]/30";
       default:
-        return "bg-[#F7EFE2] text-[#5C5346] dark:bg-[#252A3A] dark:text-[#C4B9A8] border-[#E8D9C0] dark:border-[#31374A]";
+        return "bg-slate-100 text-slate-600 dark:bg-[#241D48] dark:text-slate-300 border-slate-200 dark:border-[#31275E]";
     }
   };
 
@@ -104,24 +104,24 @@ export const QuestionComparisonModal: React.FC<QuestionComparisonModalProps> = (
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-[#171923]/75 backdrop-blur-xs">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/75 backdrop-blur-xs">
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 10 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 10 }}
-          className="bg-[#FFF9EF] dark:bg-[#1F2330] rounded-3xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-[#E8D9C0] dark:border-[#31374A] overflow-hidden"
+          className="bg-[#F8FAFC] dark:bg-[#1B1536] rounded-3xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-slate-200 dark:border-[#31275E] overflow-hidden"
         >
           {/* Header */}
-          <div className="px-5 py-4 border-b border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-between shrink-0 bg-white dark:bg-[#252A3A]">
+          <div className="px-5 py-4 border-b border-slate-200 dark:border-[#31275E] flex items-center justify-between shrink-0 bg-white dark:bg-[#241D48]">
             <div className="flex items-center gap-2.5">
-              <span className="w-8 h-8 rounded-xl bg-[#800020] text-[#FFF9EF] font-black text-xs tabular-nums flex items-center justify-center">
+              <span className="w-8 h-8 rounded-xl bg-[#7045D8] text-[#FFF9EF] font-black text-xs tabular-nums flex items-center justify-center">
                 Q{questionMatch.originalQuestionNumber}
               </span>
               <div>
-                <h3 className="text-sm font-black text-[#171923] dark:text-[#FFF9EF]">
+                <h3 className="text-sm font-black text-slate-900 dark:text-slate-50">
                   Exam Question vs Disha PYQ Question Bank
                 </h3>
-                <p className="text-[11px] font-medium tabular-nums text-[#6E6254] dark:text-[#A39887]">
+                <p className="text-[11px] font-medium tabular-nums text-slate-500 dark:text-slate-400">
                   Source Page: {questionMatch.sourcePageNumber} • Score: {questionMatch.matchScore}%
                 </p>
               </div>
@@ -129,7 +129,7 @@ export const QuestionComparisonModal: React.FC<QuestionComparisonModalProps> = (
 
             <button
               onClick={onClose}
-              className="p-1.5 rounded-xl hover:bg-[#FFF9EF] dark:hover:bg-[#1F2330] text-[#6E6254] hover:text-[#800020] dark:hover:text-white transition-colors"
+              className="p-1.5 rounded-xl hover:bg-[#F8FAFC] dark:hover:bg-[#241D48] text-slate-500 hover:text-[#7045D8] dark:hover:text-white transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -167,7 +167,7 @@ export const QuestionComparisonModal: React.FC<QuestionComparisonModalProps> = (
             {/* Meaningful Differences (if any) */}
             {questionMatch.meaningfulDifferences && questionMatch.meaningfulDifferences.length > 0 && (
               <div className="p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/40 rounded-2xl">
-                <div className="flex items-center gap-1.5 text-amber-800 dark:text-amber-300 font-bold mb-1">
+                <div className="flex items-center gap-1.5 text-amber-800 dark:text-[#A78BFA] font-bold mb-1">
                   <AlertTriangle className="w-3.5 h-3.5" />
                   <span>Important Differences Detected:</span>
                 </div>
@@ -182,29 +182,29 @@ export const QuestionComparisonModal: React.FC<QuestionComparisonModalProps> = (
             {/* Comparison Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
               {/* Left Column: Exam Paper Question */}
-              <div className="p-3.5 rounded-2xl bg-white dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] space-y-2.5">
+              <div className="p-3.5 rounded-2xl bg-white dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] space-y-2.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-black uppercase text-[#6E6254] dark:text-[#A39887] tracking-wider">
+                  <span className="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 tracking-wider">
                     Exam Paper Question
                   </span>
-                  <span className="text-[10px] font-bold tabular-nums text-[#6E6254] dark:text-[#A39887]">
+                  <span className="text-[10px] font-bold tabular-nums text-slate-500 dark:text-slate-400">
                     Page {questionMatch.sourcePageNumber}
                   </span>
                 </div>
 
-                <p className="text-[#171923] dark:text-[#FFF9EF] font-semibold leading-relaxed whitespace-pre-line">
+                <p className="text-slate-900 dark:text-slate-50 font-semibold leading-relaxed whitespace-pre-line">
                   {questionMatch.originalText}
                 </p>
 
                 {questionMatch.extractedOptions && questionMatch.extractedOptions.length > 0 && (
                   <div className="space-y-1 pt-1">
-                    <span className="text-[10px] font-bold text-[#6E6254] dark:text-[#A39887] uppercase">Extracted Options:</span>
+                    <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">Extracted Options:</span>
                     {questionMatch.extractedOptions.map((opt, i) => (
                       <div
                         key={i}
-                        className="px-2.5 py-1.5 rounded-xl bg-[#FFF9EF] dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] text-[11px] text-[#171923] dark:text-[#FFF9EF] flex items-start gap-1.5"
+                        className="px-2.5 py-1.5 rounded-xl bg-[#F8FAFC] dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] text-[11px] text-slate-900 dark:text-slate-50 flex items-start gap-1.5"
                       >
-                        <span className="font-bold text-[#800020] dark:text-[#F47B20]">{String.fromCharCode(65 + i)}.</span>
+                        <span className="font-bold text-[#7045D8] dark:text-[#A78BFA]">{String.fromCharCode(65 + i)}.</span>
                         <span>{opt}</span>
                       </div>
                     ))}
@@ -213,13 +213,13 @@ export const QuestionComparisonModal: React.FC<QuestionComparisonModalProps> = (
               </div>
 
               {/* Right Column: Question Bank Match */}
-              <div className="p-3.5 rounded-2xl bg-white dark:bg-[#252A3A] border-2 border-[#C99A45]/60 dark:border-[#F47B20]/40 space-y-2.5">
+              <div className="p-3.5 rounded-2xl bg-white dark:bg-[#241D48] border-2 border-[#C99A45]/60 dark:border-[#A78BFA]/40 space-y-2.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-black uppercase text-[#800020] dark:text-[#F47B20] tracking-wider">
+                  <span className="text-[10px] font-black uppercase text-[#7045D8] dark:text-[#A78BFA] tracking-wider">
                     Disha PYQ Question Bank Match
                   </span>
                   {questionMatch.bestMatchQuestionId && (
-                    <span className="text-[10px] font-mono text-[#800020] dark:text-[#F47B20]">
+                    <span className="text-[10px] font-mono text-[#7045D8] dark:text-[#A78BFA]">
                       ID: {questionMatch.bestMatchQuestionId.slice(0, 10)}
                     </span>
                   )}
@@ -227,13 +227,13 @@ export const QuestionComparisonModal: React.FC<QuestionComparisonModalProps> = (
 
                 {questionMatch.bestMatchQuestion ? (
                   <>
-                    <p className="text-[#171923] dark:text-[#FFF9EF] font-semibold leading-relaxed whitespace-pre-line">
+                    <p className="text-slate-900 dark:text-slate-50 font-semibold leading-relaxed whitespace-pre-line">
                       {questionMatch.bestMatchQuestion.text}
                     </p>
 
                     {questionMatch.bestMatchQuestion.options && (
                       <div className="space-y-1 pt-1">
-                        <span className="text-[10px] font-bold text-[#800020] dark:text-[#F47B20] uppercase">
+                        <span className="text-[10px] font-bold text-[#7045D8] dark:text-[#A78BFA] uppercase">
                           Options & Correct Answer:
                         </span>
                         {questionMatch.bestMatchQuestion.options.map((opt, i) => {
@@ -244,7 +244,7 @@ export const QuestionComparisonModal: React.FC<QuestionComparisonModalProps> = (
                               className={`px-2.5 py-1.5 rounded-xl border text-[11px] flex items-start gap-1.5 ${
                                 isCorrect
                                   ? "bg-emerald-50 dark:bg-emerald-950/50 border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 font-bold"
-                                  : "bg-[#FFF9EF] dark:bg-[#1F2330] border-[#E8D9C0] dark:border-[#31374A] text-[#171923] dark:text-[#FFF9EF]"
+                                  : "bg-[#F8FAFC] dark:bg-[#1B1536] border-slate-200 dark:border-[#31275E] text-slate-900 dark:text-slate-50"
                               }`}
                             >
                               <span className="font-bold">{String.fromCharCode(65 + i)}.</span>
@@ -259,8 +259,8 @@ export const QuestionComparisonModal: React.FC<QuestionComparisonModalProps> = (
                     )}
 
                     {questionMatch.bestMatchQuestion.explanation && (
-                      <div className="p-2.5 rounded-xl bg-[#FFF9EF] dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] text-[11px] text-[#5C5346] dark:text-[#C4B9A8]">
-                        <span className="font-bold text-[#800020] dark:text-[#F47B20] block mb-0.5">
+                      <div className="p-2.5 rounded-xl bg-[#F8FAFC] dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] text-[11px] text-slate-600 dark:text-slate-300">
+                        <span className="font-bold text-[#7045D8] dark:text-[#A78BFA] block mb-0.5">
                           Explanation:
                         </span>
                         <RichText text={questionMatch.bestMatchQuestion.explanation} enablePronunciation={true} />
@@ -275,7 +275,7 @@ export const QuestionComparisonModal: React.FC<QuestionComparisonModalProps> = (
                             onClose();
                           }
                         }}
-                        className="w-full mt-2 py-2 px-3 rounded-xl bg-[#800020] hover:bg-[#5E0017] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm transition-colors cursor-pointer"
+                        className="w-full mt-2 py-2 px-3 rounded-xl bg-[#7045D8] hover:bg-[#5B32BF] dark:bg-[#7045D8] dark:hover:bg-[#5B32BF] text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm transition-colors cursor-pointer"
                       >
                         <BookOpen className="w-3.5 h-3.5" />
                         <span>Open in Question Bank</span>
@@ -283,7 +283,7 @@ export const QuestionComparisonModal: React.FC<QuestionComparisonModalProps> = (
                     )}
                   </>
                 ) : (
-                  <div className="py-8 text-center text-[#6E6254] dark:text-[#A39887]">
+                  <div className="py-8 text-center text-slate-500 dark:text-slate-400">
                     <p className="font-medium text-xs">No candidate question matched from Question Bank.</p>
                   </div>
                 )}
@@ -293,20 +293,20 @@ export const QuestionComparisonModal: React.FC<QuestionComparisonModalProps> = (
             {/* Alternative Candidate Matches */}
             {questionMatch.alternativeMatches && questionMatch.alternativeMatches.length > 0 && (
               <div className="space-y-1.5 pt-2">
-                <span className="text-[10px] font-black uppercase text-[#6E6254] dark:text-[#A39887] tracking-wider">
+                <span className="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 tracking-wider">
                   Alternative Candidates Considered:
                 </span>
                 <div className="space-y-1.5">
                   {questionMatch.alternativeMatches.map((alt, idx) => (
                     <div
                       key={idx}
-                      className="p-2.5 rounded-xl bg-white dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-between gap-2"
+                      className="p-2.5 rounded-xl bg-white dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] flex items-center justify-between gap-2"
                     >
                       <div className="min-w-0 flex-1">
-                        <p className="text-[11px] font-medium text-[#171923] dark:text-[#FFF9EF] truncate">
+                        <p className="text-[11px] font-medium text-slate-900 dark:text-slate-50 truncate">
                           "{alt.questionText}"
                         </p>
-                        <span className="text-[9.5px] tabular-nums text-[#6E6254] dark:text-[#A39887]">
+                        <span className="text-[9.5px] tabular-nums text-slate-500 dark:text-slate-400">
                           {alt.category} • {alt.score}% match
                         </span>
                       </div>
@@ -316,7 +316,7 @@ export const QuestionComparisonModal: React.FC<QuestionComparisonModalProps> = (
                             onOpenInQuestionBank(alt.questionId);
                             onClose();
                           }}
-                          className="px-2.5 py-1 rounded-lg bg-[#800020]/10 dark:bg-[#F47B20]/15 hover:bg-[#800020] hover:text-white text-[10px] font-bold text-[#800020] dark:text-[#F47B20] transition-colors"
+                          className="px-2.5 py-1 rounded-lg bg-[#7045D8]/10 dark:bg-[#7045D8]/20 hover:bg-[#7045D8] hover:text-white text-[10px] font-bold text-[#7045D8] dark:text-[#A78BFA] transition-colors"
                         >
                           View
                         </button>
@@ -329,8 +329,8 @@ export const QuestionComparisonModal: React.FC<QuestionComparisonModalProps> = (
 
             {/* Manual Review / Reclassify Section */}
             {onUpdateCategory && (
-              <div className="p-3.5 rounded-2xl bg-white dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] space-y-2">
-                <span className="text-[10px] font-black uppercase text-[#800020] dark:text-[#F47B20] tracking-wider flex items-center gap-1">
+              <div className="p-3.5 rounded-2xl bg-white dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] space-y-2">
+                <span className="text-[10px] font-black uppercase text-[#7045D8] dark:text-[#A78BFA] tracking-wider flex items-center gap-1">
                   <Edit3 className="w-3 h-3" />
                   Manual Match Review & Override:
                 </span>
@@ -350,8 +350,8 @@ export const QuestionComparisonModal: React.FC<QuestionComparisonModalProps> = (
                       onClick={() => setSelectedCategory(cat.id)}
                       className={`py-1.5 px-2 rounded-xl text-[10.5px] font-bold border transition-all cursor-pointer ${
                         selectedCategory === cat.id
-                          ? "bg-[#800020] dark:bg-[#F47B20] text-white border-[#800020] dark:border-[#F47B20] shadow-xs"
-                          : "bg-[#FFF9EF] dark:bg-[#1F2330] text-[#171923] dark:text-[#FFF9EF] border-[#E8D9C0] dark:border-[#31374A]"
+                          ? "bg-[#7045D8] dark:bg-[#7045D8] text-white border-[#7045D8] dark:border-[#A78BFA] shadow-xs"
+                          : "bg-[#F8FAFC] dark:bg-[#1B1536] text-slate-900 dark:text-slate-50 border-slate-200 dark:border-[#31275E]"
                       }`}
                     >
                       {cat.label}
@@ -365,12 +365,12 @@ export const QuestionComparisonModal: React.FC<QuestionComparisonModalProps> = (
                     placeholder="Optional review notes..."
                     value={reviewNotes}
                     onChange={(e) => setReviewNotes(e.target.value)}
-                    className="flex-1 px-3 py-1.5 rounded-xl bg-[#FFF9EF] dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] text-[11px] text-[#171923] dark:text-[#FFF9EF] focus:outline-hidden focus:ring-1 focus:ring-[#800020] dark:focus:ring-[#F47B20]"
+                    className="flex-1 px-3 py-1.5 rounded-xl bg-[#F8FAFC] dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] text-[11px] text-slate-900 dark:text-slate-50 focus:outline-hidden focus:ring-1 focus:ring-[#800020] dark:focus:ring-[#F47B20]"
                   />
                   <button
                     onClick={handleSaveReview}
                     disabled={isSaved}
-                    className="px-4 py-1.5 rounded-xl bg-[#800020] hover:bg-[#5E0017] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] text-white font-bold text-xs transition-colors shrink-0 cursor-pointer"
+                    className="px-4 py-1.5 rounded-xl bg-[#7045D8] hover:bg-[#5B32BF] dark:bg-[#7045D8] dark:hover:bg-[#5B32BF] text-white font-bold text-xs transition-colors shrink-0 cursor-pointer"
                   >
                     {isSaved ? "Saved!" : "Confirm Review"}
                   </button>

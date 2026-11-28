@@ -31,22 +31,22 @@ export const AnalysesHistoryModal: React.FC<AnalysesHistoryModalProps> = ({
 }) => {
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-[#171923]/75 backdrop-blur-xs">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/75 backdrop-blur-xs">
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 10 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 10 }}
-          className="bg-[#FFF9EF] dark:bg-[#1F2330] rounded-3xl max-w-xl w-full max-h-[85vh] flex flex-col shadow-2xl border border-[#E8D9C0] dark:border-[#31374A] overflow-hidden"
+          className="bg-[#F8FAFC] dark:bg-[#1B1536] rounded-3xl max-w-xl w-full max-h-[85vh] flex flex-col shadow-2xl border border-slate-200 dark:border-[#31275E] overflow-hidden"
         >
           {/* Header */}
-          <div className="px-5 py-4 border-b border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-between shrink-0 bg-white dark:bg-[#252A3A]">
+          <div className="px-5 py-4 border-b border-slate-200 dark:border-[#31275E] flex items-center justify-between shrink-0 bg-white dark:bg-[#241D48]">
             <div className="flex items-center gap-2">
-              <History className="w-5 h-5 text-[#800020] dark:text-[#F47B20]" />
+              <History className="w-5 h-5 text-[#7045D8] dark:text-[#A78BFA]" />
               <div>
-                <h3 className="text-sm font-black text-[#171923] dark:text-[#FFF9EF]">
+                <h3 className="text-sm font-black text-slate-900 dark:text-slate-50">
                   Past Exam Paper Analyses
                 </h3>
-                <p className="text-[11px] font-medium text-[#6E6254] dark:text-[#A39887]">
+                <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
                   Revisit your previously matched examination papers
                 </p>
               </div>
@@ -54,7 +54,7 @@ export const AnalysesHistoryModal: React.FC<AnalysesHistoryModalProps> = ({
 
             <button
               onClick={onClose}
-              className="p-1.5 rounded-xl hover:bg-[#FFF9EF] dark:hover:bg-[#1F2330] text-[#6E6254] hover:text-[#800020] dark:hover:text-white transition-colors"
+              className="p-1.5 rounded-xl hover:bg-[#F8FAFC] dark:hover:bg-[#241D48] text-slate-500 hover:text-[#7045D8] dark:hover:text-white transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -86,12 +86,12 @@ export const AnalysesHistoryModal: React.FC<AnalysesHistoryModalProps> = ({
           {/* List */}
           <div className="p-4 overflow-y-auto space-y-3">
             {analyses.length === 0 ? (
-              <div className="py-12 text-center text-[#6E6254] dark:text-[#A39887] space-y-2">
-                <History className="w-8 h-8 mx-auto text-[#C99A45]" />
-                <p className="text-xs font-bold text-[#171923] dark:text-[#FFF9EF]">
+              <div className="py-12 text-center text-slate-500 dark:text-slate-400 space-y-2">
+                <History className="w-8 h-8 mx-auto text-[#7045D8] dark:text-[#A78BFA]" />
+                <p className="text-xs font-bold text-slate-900 dark:text-slate-50">
                   No previous analyses found
                 </p>
-                <p className="text-[11px] text-[#6E6254] dark:text-[#A39887]">
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">
                   Scan or upload an exam paper to view coverage matches here.
                 </p>
               </div>
@@ -108,7 +108,7 @@ export const AnalysesHistoryModal: React.FC<AnalysesHistoryModalProps> = ({
                 return (
                   <div
                     key={a.analysisId}
-                    className="p-4 rounded-2xl bg-white dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] hover:border-[#800020] dark:hover:border-[#F47B20] transition-all space-y-3"
+                    className="p-4 rounded-2xl bg-white dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] hover:border-[#7045D8] dark:hover:border-[#A78BFA] transition-all space-y-3"
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div
@@ -118,12 +118,12 @@ export const AnalysesHistoryModal: React.FC<AnalysesHistoryModalProps> = ({
                         }}
                         className="cursor-pointer flex-1 min-w-0"
                       >
-                        <h4 className="text-xs sm:text-sm font-black text-[#171923] dark:text-[#FFF9EF] leading-tight">
+                        <h4 className="text-xs sm:text-sm font-black text-slate-900 dark:text-slate-50 leading-tight">
                           {a.examName} ({a.paperYear})
                         </h4>
-                        <div className="flex items-center gap-2 mt-1 text-[11px] tabular-nums text-[#6E6254] dark:text-[#A39887]">
+                        <div className="flex items-center gap-2 mt-1 text-[11px] tabular-nums text-slate-500 dark:text-slate-400">
                           <span className="flex items-center gap-1">
-                            <Calendar className="w-3 h-3 text-[#F47B20]" />
+                            <Calendar className="w-3 h-3 text-[#7045D8]" />
                             {new Date(a.createdAt).toLocaleDateString()}
                           </span>
                           <span>•</span>
@@ -137,7 +137,7 @@ export const AnalysesHistoryModal: React.FC<AnalysesHistoryModalProps> = ({
                             e.stopPropagation();
                             generateExamAnalysisPDF(a);
                           }}
-                          className="p-2 rounded-xl text-[#6E6254] hover:text-[#800020] dark:hover:text-[#F47B20] hover:bg-[#FFF9EF] dark:hover:bg-[#1F2330] transition-colors"
+                          className="p-2 rounded-xl text-slate-500 hover:text-[#7045D8] dark:hover:text-[#A78BFA] hover:bg-[#F8FAFC] dark:hover:bg-[#241D48] transition-colors"
                           title="Download PDF"
                         >
                           <Download className="w-4 h-4" />
@@ -148,7 +148,7 @@ export const AnalysesHistoryModal: React.FC<AnalysesHistoryModalProps> = ({
                             e.stopPropagation();
                             onDeleteAnalysis(a.analysisId);
                           }}
-                          className="p-2 rounded-xl text-[#6E6254] hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+                          className="p-2 rounded-xl text-slate-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
                           title="Delete Analysis"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -162,13 +162,13 @@ export const AnalysesHistoryModal: React.FC<AnalysesHistoryModalProps> = ({
                         onSelectAnalysis(a);
                         onClose();
                       }}
-                      className="cursor-pointer grid grid-cols-2 gap-2 pt-1 border-t border-[#E8D9C0] dark:border-[#31374A] tabular-nums"
+                      className="cursor-pointer grid grid-cols-2 gap-2 pt-1 border-t border-slate-200 dark:border-[#31275E] tabular-nums"
                     >
                       <div className="px-2.5 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 text-[11px] font-bold">
                         Exact Matches: {a.exactMatchCount}
                       </div>
 
-                      <div className="px-2.5 py-1.5 rounded-xl bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] text-[11px] font-bold">
+                      <div className="px-2.5 py-1.5 rounded-xl bg-[#7045D8]/10 dark:bg-[#7045D8]/20 text-[#7045D8] dark:text-[#A78BFA] text-[11px] font-bold">
                         Related Coverage: {relatedPct}%
                       </div>
                     </div>

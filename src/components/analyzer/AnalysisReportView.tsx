@@ -74,20 +74,20 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
   return (
     <div className="space-y-4 max-w-2xl mx-auto pb-14">
       {/* Top Header Card */}
-      <div className="bg-gradient-to-r from-[#800020] via-[#6A001A] to-[#4A0012] text-white rounded-3xl p-4 sm:p-5 shadow-xl border border-[#C99A45]/40 relative overflow-hidden">
+      <div className="bg-gradient-to-r from-[#4A154B] via-[#7045D8] to-[#5B32BF] text-white rounded-3xl p-4 sm:p-5 shadow-xl border border-[#7045D8]/30 relative overflow-hidden">
         <div className="relative z-10 space-y-2">
           <div className="flex items-center justify-between gap-2">
-            <span className="px-2.5 py-0.5 rounded-md bg-[#F47B20] text-white text-[10px] font-black uppercase tracking-wider flex items-center gap-1 shadow-xs">
+            <span className="px-2.5 py-0.5 rounded-md bg-[#7045D8] text-white text-[10px] font-black uppercase tracking-wider flex items-center gap-1 shadow-xs">
               <Sparkles className="w-3 h-3 text-[#FFF9EF] fill-[#FFF9EF]" />
               Disha PYQ • Verified Analysis Report
             </span>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => generateExamAnalysisPDF(analysis)}
-                className="px-2.5 py-1 rounded-xl bg-white/15 hover:bg-white/25 border border-[#C99A45]/40 text-[11px] font-bold text-[#FFF9EF] flex items-center gap-1 backdrop-blur-xs transition-colors cursor-pointer"
+                className="px-2.5 py-1 rounded-xl bg-white/15 hover:bg-white/25 border border-[#7045D8]/30 text-[11px] font-bold text-[#FFF9EF] flex items-center gap-1 backdrop-blur-xs transition-colors cursor-pointer"
                 title="Download PDF Report"
               >
-                <Download className="w-3.5 h-3.5 text-[#C99A45]" />
+                <Download className="w-3.5 h-3.5 text-[#7045D8] dark:text-[#A78BFA]" />
                 <span>Export PDF</span>
               </button>
             </div>
@@ -143,26 +143,26 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
         </div>
 
         {/* Metric 3: Related Question Coverage */}
-        <div className="bg-[#FFF9EF] dark:bg-[#1F2330] border border-[#C99A45]/60 dark:border-[#F47B20]/40 rounded-2xl p-3.5 space-y-1">
-          <span className="text-[10px] font-black uppercase text-[#800020] dark:text-[#F47B20] tracking-wider block">
+        <div className="bg-[#F8FAFC] dark:bg-[#1B1536] border border-[#C99A45]/60 dark:border-[#A78BFA]/40 rounded-2xl p-3.5 space-y-1">
+          <span className="text-[10px] font-black uppercase text-[#7045D8] dark:text-[#A78BFA] tracking-wider block">
             Related Question Coverage
           </span>
           <div className="flex items-baseline gap-1.5 tabular-nums">
-            <span className="text-2xl font-black text-[#800020] dark:text-[#FFF9EF]">
+            <span className="text-2xl font-black text-[#7045D8] dark:text-slate-50">
               {coverage.relatedCoverage}%
             </span>
-            <span className="text-[10px] font-bold text-[#6E6254] dark:text-[#C4B9A8]">
+            <span className="text-[10px] font-bold text-slate-500 dark:text-slate-300">
               ({coverage.exact + coverage.nearExact + coverage.similar + coverage.concept}/{coverage.total})
             </span>
           </div>
-          <p className="text-[9.5px] font-medium text-[#5C5346] dark:text-[#A39887] leading-snug">
+          <p className="text-[9.5px] font-medium text-slate-600 dark:text-slate-400 leading-snug">
             All questions covering the same tested concepts.
           </p>
         </div>
       </div>
 
       {/* Primary KPI Breakdown Row */}
-      <div className="bg-white dark:bg-[#1F2330] rounded-3xl p-3.5 border border-[#E8D9C0] dark:border-[#31374A] shadow-xs grid grid-cols-2 sm:grid-cols-6 gap-2 text-center tabular-nums">
+      <div className="bg-white dark:bg-[#1B1536] rounded-3xl p-3.5 border border-slate-200 dark:border-[#31275E] shadow-xs grid grid-cols-2 sm:grid-cols-6 gap-2 text-center tabular-nums">
         <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/30">
           <span className="text-[9.5px] font-bold text-emerald-700 dark:text-emerald-400 block uppercase">
             Exact
@@ -181,29 +181,29 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
           </span>
         </div>
 
-        <div className="p-2 rounded-xl bg-[#F47B20]/10 dark:bg-[#F47B20]/15">
-          <span className="text-[9.5px] font-bold text-[#E06A12] dark:text-[#F47B20] block uppercase">
+        <div className="p-2 rounded-xl bg-[#7045D8]/10 dark:bg-[#7045D8]/20">
+          <span className="text-[9.5px] font-bold text-[#5B32BF] dark:text-[#A78BFA] block uppercase">
             Similar
           </span>
-          <span className="text-base font-black text-[#171923] dark:text-[#FFF9EF]">
+          <span className="text-base font-black text-slate-900 dark:text-slate-50">
             {coverage.similar}
           </span>
         </div>
 
-        <div className="p-2 rounded-xl bg-[#800020]/10 dark:bg-[#800020]/25">
-          <span className="text-[9.5px] font-bold text-[#800020] dark:text-[#F47B20] block uppercase">
+        <div className="p-2 rounded-xl bg-[#7045D8]/10 dark:bg-[#7045D8]/25">
+          <span className="text-[9.5px] font-bold text-[#7045D8] dark:text-[#A78BFA] block uppercase">
             Related
           </span>
-          <span className="text-base font-black text-[#800020] dark:text-[#FFF9EF]">
+          <span className="text-base font-black text-[#7045D8] dark:text-slate-50">
             {coverage.concept}
           </span>
         </div>
 
-        <div className="p-2 rounded-xl bg-[#F7EFE2] dark:bg-[#252A3A]">
-          <span className="text-[9.5px] font-bold text-[#6E6254] dark:text-[#A39887] block uppercase">
+        <div className="p-2 rounded-xl bg-slate-100 dark:bg-[#241D48]">
+          <span className="text-[9.5px] font-bold text-slate-500 dark:text-slate-400 block uppercase">
             Unmatched
           </span>
-          <span className="text-base font-black text-[#171923] dark:text-[#FFF9EF]">
+          <span className="text-base font-black text-slate-900 dark:text-slate-50">
             {coverage.unmatched}
           </span>
         </div>
@@ -223,7 +223,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
         {coverage.exact + coverage.nearExact + coverage.similar + coverage.concept > 0 && onStartSession && (
           <button
             onClick={handlePracticeMatched}
-            className="flex-1 py-2.5 px-3 rounded-2xl bg-[#800020] hover:bg-[#5E0017] dark:bg-[#F47B20] dark:hover:bg-[#E06A12] text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm transition-colors cursor-pointer tabular-nums"
+            className="flex-1 py-2.5 px-3 rounded-2xl bg-[#7045D8] hover:bg-[#5B32BF] dark:bg-[#7045D8] dark:hover:bg-[#5B32BF] text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm transition-colors cursor-pointer tabular-nums"
           >
             <Play className="w-3.5 h-3.5 fill-white" />
             <span>Practice Matched Questions ({coverage.exact + coverage.nearExact + coverage.similar + coverage.concept})</span>
@@ -232,21 +232,21 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
 
         <button
           onClick={onNewAnalysis}
-          className="py-2.5 px-3 rounded-2xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] hover:border-[#800020] text-[#171923] dark:text-[#FFF9EF] font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer"
+          className="py-2.5 px-3 rounded-2xl bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] hover:border-[#7045D8] text-slate-900 dark:text-slate-50 font-bold text-xs flex items-center gap-1 transition-colors cursor-pointer"
         >
-          <RotateCcw className="w-3.5 h-3.5 text-[#F47B20]" />
+          <RotateCcw className="w-3.5 h-3.5 text-[#7045D8]" />
           <span>New Paper</span>
         </button>
       </div>
 
       {/* Tabs: Questions List vs Breakdowns */}
-      <div className="flex border-b border-[#E8D9C0] dark:border-[#31374A]">
+      <div className="flex border-b border-slate-200 dark:border-[#31275E]">
         <button
           onClick={() => setActiveTab("questions")}
           className={`py-2 px-4 text-xs font-black border-b-2 transition-colors cursor-pointer tabular-nums ${
             activeTab === "questions"
-              ? "border-[#800020] dark:border-[#F47B20] text-[#800020] dark:text-[#F47B20]"
-              : "border-transparent text-[#6E6254] dark:text-[#A39887] hover:text-[#171923] dark:hover:text-white"
+              ? "border-[#7045D8] dark:border-[#A78BFA] text-[#7045D8] dark:text-[#A78BFA]"
+              : "border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
           }`}
         >
           Questions List ({analysis.questions.length})
@@ -256,8 +256,8 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
           onClick={() => setActiveTab("breakdowns")}
           className={`py-2 px-4 text-xs font-black border-b-2 transition-colors cursor-pointer ${
             activeTab === "breakdowns"
-              ? "border-[#800020] dark:border-[#F47B20] text-[#800020] dark:text-[#F47B20]"
-              : "border-transparent text-[#6E6254] dark:text-[#A39887] hover:text-[#171923] dark:hover:text-white"
+              ? "border-[#7045D8] dark:border-[#A78BFA] text-[#7045D8] dark:text-[#A78BFA]"
+              : "border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
           }`}
         >
           Subject & Chapter Breakdown
@@ -267,7 +267,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
       {activeTab === "questions" && (
         <div className="space-y-3">
           {/* Category Filter Controls */}
-          <div className="flex items-center gap-1 p-1 bg-[#F7EFE2] dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] rounded-2xl overflow-x-auto scrollbar-none">
+          <div className="flex items-center gap-1 p-1 bg-slate-100 dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] rounded-2xl overflow-x-auto scrollbar-none">
             {[
               { id: "all", label: "All Questions" },
               { id: "exact", label: "Exact" },
@@ -282,8 +282,8 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                 onClick={() => setFilterCategory(f.id)}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer min-h-[36px] ${
                   filterCategory === f.id
-                    ? "bg-[#800020] dark:bg-[#F47B20] text-white shadow-xs"
-                    : "text-[#5C5346] dark:text-[#C4B9A8] hover:text-[#800020] dark:hover:text-white"
+                    ? "bg-[#7045D8] dark:bg-[#7045D8] text-white shadow-xs"
+                    : "text-slate-600 dark:text-slate-300 hover:text-[#7045D8] dark:hover:text-white"
                 }`}
               >
                 {f.label}
@@ -294,7 +294,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
           {/* Question Match Cards */}
           <div className="space-y-2.5">
             {filteredQuestions.map((q, idx) => {
-              let categoryTextColor = "text-[#6E6254] dark:text-[#A39887]";
+              let categoryTextColor = "text-slate-500 dark:text-slate-400";
               let badgeText = "Unmatched";
 
               if (q.primaryMatchCategory === "exact") {
@@ -304,10 +304,10 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                 categoryTextColor = "text-teal-700 dark:text-teal-400";
                 badgeText = "Near-Exact Match";
               } else if (q.primaryMatchCategory === "similar") {
-                categoryTextColor = "text-[#E06A12] dark:text-[#F47B20]";
+                categoryTextColor = "text-[#5B32BF] dark:text-[#A78BFA]";
                 badgeText = "Similar Question";
               } else if (q.primaryMatchCategory === "concept_related") {
-                categoryTextColor = "text-[#800020] dark:text-[#C99A45]";
+                categoryTextColor = "text-[#7045D8] dark:text-[#7045D8] dark:text-[#A78BFA]";
                 badgeText = "Related Concept";
               }
 
@@ -315,11 +315,11 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                 <div
                   key={q.examQuestionId || idx}
                   onClick={() => onOpenQuestionComparison(q)}
-                  className="p-4 rounded-2xl bg-white dark:bg-[#1F2330] border border-[#E8D9C0] dark:border-[#31374A] shadow-2xs hover:border-[#800020] dark:hover:border-[#F47B20] hover:shadow-xs transition-all cursor-pointer group space-y-2.5"
+                  className="p-4 rounded-2xl bg-white dark:bg-[#1B1536] border border-slate-200 dark:border-[#31275E] shadow-2xs hover:border-[#7045D8] dark:hover:border-[#A78BFA] hover:shadow-xs transition-all cursor-pointer group space-y-2.5"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 text-xs">
-                      <span className="w-6 h-6 rounded-lg bg-[#800020]/10 dark:bg-[#F47B20]/15 text-[#800020] dark:text-[#F47B20] font-bold text-[11px] tabular-nums flex items-center justify-center shrink-0">
+                      <span className="w-6 h-6 rounded-lg bg-[#7045D8]/10 dark:bg-[#7045D8]/20 text-[#7045D8] dark:text-[#A78BFA] font-bold text-[11px] tabular-nums flex items-center justify-center shrink-0">
                         Q{q.originalQuestionNumber || idx + 1}
                       </span>
                       <span className={`font-black ${categoryTextColor}`}>
@@ -327,19 +327,19 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                       </span>
                       {q.matchScore > 0 && (
                         <>
-                          <span className="text-[#E8D9C0] dark:text-[#31374A]" aria-hidden="true">·</span>
-                          <span className="text-[#6E6254] dark:text-[#A39887] font-semibold text-[11px] tabular-nums">
+                          <span className="text-slate-300 dark:text-[#31275E]" aria-hidden="true">·</span>
+                          <span className="text-slate-500 dark:text-slate-400 font-semibold text-[11px] tabular-nums">
                             {q.matchScore}% Score
                           </span>
                         </>
                       )}
-                      <span className="text-[#E8D9C0] dark:text-[#31374A]" aria-hidden="true">·</span>
-                      <span className="text-[#6E6254] dark:text-[#A39887] text-[10.5px] tabular-nums">
+                      <span className="text-slate-300 dark:text-[#31275E]" aria-hidden="true">·</span>
+                      <span className="text-slate-500 dark:text-slate-400 text-[10.5px] tabular-nums">
                         Page {q.sourcePageNumber}
                       </span>
                       {q.processingStatus === "needs_review" && (
                         <>
-                          <span className="text-[#E8D9C0] dark:text-[#31374A]" aria-hidden="true">·</span>
+                          <span className="text-slate-300 dark:text-[#31275E]" aria-hidden="true">·</span>
                           <span className="text-amber-600 dark:text-amber-400 text-[10.5px] font-bold flex items-center gap-0.5">
                             <AlertTriangle className="w-3 h-3" />
                             Needs Review
@@ -348,21 +348,21 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                       )}
                     </div>
 
-                    <div className="flex items-center gap-1 text-[11px] font-bold text-[#800020] dark:text-[#F47B20] group-hover:translate-x-0.5 transition-transform shrink-0">
+                    <div className="flex items-center gap-1 text-[11px] font-bold text-[#7045D8] dark:text-[#A78BFA] group-hover:translate-x-0.5 transition-transform shrink-0">
                       <span>Side-by-side</span>
                       <ChevronRight className="w-3.5 h-3.5" />
                     </div>
                   </div>
 
-                  <p className="text-xs font-medium text-[#171923] dark:text-[#FFF9EF] line-clamp-2 leading-relaxed">
+                  <p className="text-xs font-medium text-slate-900 dark:text-slate-50 line-clamp-2 leading-relaxed">
                     {q.originalText}
                   </p>
 
                   {q.bestMatchQuestion && (
-                    <div className="p-2.5 rounded-xl bg-[#FFF9EF] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] text-[11px] text-[#5C5346] dark:text-[#C4B9A8] flex items-start gap-2">
-                      <BookOpen className="w-3.5 h-3.5 text-[#F47B20] shrink-0 mt-0.5" />
+                    <div className="p-2.5 rounded-xl bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] text-[11px] text-slate-600 dark:text-slate-300 flex items-start gap-2">
+                      <BookOpen className="w-3.5 h-3.5 text-[#7045D8] shrink-0 mt-0.5" />
                       <div className="min-w-0 flex-1">
-                        <span className="font-bold text-[#800020] dark:text-[#FFF9EF] mr-1">
+                        <span className="font-bold text-[#7045D8] dark:text-slate-50 mr-1">
                           Question Bank Match:
                         </span>
                         <span className="italic line-clamp-1">
@@ -382,8 +382,8 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
         <div className="space-y-4">
           {/* Chapter / Subject Breakdown Table */}
           {analysis.chapterBreakdown && Object.keys(analysis.chapterBreakdown).length > 0 ? (
-            <div className="bg-white dark:bg-[#1F2330] rounded-3xl p-4 border border-[#E8D9C0] dark:border-[#31374A] shadow-xs space-y-3">
-              <h3 className="text-xs font-black uppercase text-[#800020] dark:text-[#F47B20] tracking-wider">
+            <div className="bg-white dark:bg-[#1B1536] rounded-3xl p-4 border border-slate-200 dark:border-[#31275E] shadow-xs space-y-3">
+              <h3 className="text-xs font-black uppercase text-[#7045D8] dark:text-[#A78BFA] tracking-wider">
                 Chapter-Wise Coverage Breakdown
               </h3>
 
@@ -391,19 +391,19 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                 {Object.entries(analysis.chapterBreakdown).map(([chId, stats]) => (
                   <div
                     key={chId}
-                    className="p-3 rounded-2xl bg-[#FFF9EF] dark:bg-[#252A3A] border border-[#E8D9C0] dark:border-[#31374A] flex items-center justify-between"
+                    className="p-3 rounded-2xl bg-[#F8FAFC] dark:bg-[#241D48] border border-slate-200 dark:border-[#31275E] flex items-center justify-between"
                   >
                     <div>
-                      <h4 className="text-xs font-bold text-[#171923] dark:text-[#FFF9EF]">
+                      <h4 className="text-xs font-bold text-slate-900 dark:text-slate-50">
                         {stats.name || chId}
                       </h4>
-                      <p className="text-[10px] text-[#6E6254] dark:text-[#A39887] mt-0.5 tabular-nums">
+                      <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 tabular-nums">
                         Exact: {stats.exact} • Near-Exact: {stats.nearExact} • Similar: {stats.similar} • Related: {stats.concept}
                       </p>
                     </div>
 
                     <div className="text-right">
-                      <span className="text-xs font-black tabular-nums text-[#800020] dark:text-[#F47B20]">
+                      <span className="text-xs font-black tabular-nums text-[#7045D8] dark:text-[#A78BFA]">
                         {stats.total} Questions
                       </span>
                     </div>
@@ -412,7 +412,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
               </div>
             </div>
           ) : (
-            <div className="py-8 text-center text-[#6E6254] dark:text-[#A39887] bg-white dark:bg-[#1F2330] rounded-3xl border border-[#E8D9C0] dark:border-[#31374A]">
+            <div className="py-8 text-center text-slate-500 dark:text-slate-400 bg-white dark:bg-[#1B1536] rounded-3xl border border-slate-200 dark:border-[#31275E]">
               <p className="text-xs font-medium">Chapter breakdown will appear when questions are mapped to syllabus.</p>
             </div>
           )}

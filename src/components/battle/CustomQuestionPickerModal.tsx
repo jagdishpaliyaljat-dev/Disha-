@@ -139,21 +139,21 @@ export const CustomQuestionPickerModal: React.FC<CustomQuestionPickerModalProps>
         </div>
 
         {/* Filter & Search Bar */}
-        <div className="p-3.5 bg-white dark:bg-[#1B1536] border-b border-stone-200/90 dark:border-[#31275E] space-y-2.5">
+        <div className="p-3.5 bg-white dark:bg-[#1B1536] border-b border-slate-200/90 dark:border-[#31275E] space-y-2.5">
           {/* Search box */}
           <div className="relative">
-            <Search className="absolute left-3.5 top-1/2 transform -translate-y-1/2 w-4 h-4 text-stone-400" />
+            <Search className="absolute left-3.5 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search questions, options or topics..."
-              className="w-full pl-10 pr-9 py-2 text-sm bg-stone-50 dark:bg-[#241D48] border border-stone-300 dark:border-[#31275E] rounded-xl text-stone-800 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#7045D8] dark:focus:ring-amber-400"
+              className="w-full pl-10 pr-9 py-2 text-sm bg-slate-50 dark:bg-[#241D48] border border-slate-300 dark:border-[#31275E] rounded-xl text-slate-800 dark:text-slate-50 focus:outline-none focus:ring-2 focus:ring-[#7045D8] dark:focus:ring-amber-400"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-stone-200"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -162,14 +162,14 @@ export const CustomQuestionPickerModal: React.FC<CustomQuestionPickerModalProps>
 
           {/* Quick Filter tabs & Selection helpers */}
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="flex gap-1 bg-stone-100 dark:bg-[#241D48] p-1 rounded-xl text-xs font-semibold">
+            <div className="flex gap-1 bg-slate-100 dark:bg-[#241D48] p-1 rounded-xl text-xs font-semibold">
               <button
                 type="button"
                 onClick={() => setFilterSource("all")}
                 className={`px-3 py-1 rounded-lg transition ${
                   filterSource === "all"
                     ? "bg-white dark:bg-[#1B1536] text-[#7045D8] dark:text-amber-300 shadow-xs font-bold"
-                    : "text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white"
+                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                 }`}
               >
                 All ({allAvailableQuestions.length})
@@ -180,7 +180,7 @@ export const CustomQuestionPickerModal: React.FC<CustomQuestionPickerModalProps>
                 className={`px-3 py-1 rounded-lg transition ${
                   filterSource === "custom"
                     ? "bg-white dark:bg-[#1B1536] text-[#7045D8] dark:text-amber-300 shadow-xs font-bold"
-                    : "text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white"
+                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                 }`}
               >
                 Custom Questions ({customQuestions.length})
@@ -191,7 +191,7 @@ export const CustomQuestionPickerModal: React.FC<CustomQuestionPickerModalProps>
                 className={`px-3 py-1 rounded-lg transition ${
                   filterSource === "curated"
                     ? "bg-white dark:bg-[#1B1536] text-[#7045D8] dark:text-amber-300 shadow-xs font-bold"
-                    : "text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white"
+                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                 }`}
               >
                 Rajasthan GK ({curatedQuestions.length})
@@ -210,14 +210,14 @@ export const CustomQuestionPickerModal: React.FC<CustomQuestionPickerModalProps>
               <button
                 type="button"
                 onClick={handleSelectAllFiltered}
-                className="px-2.5 py-1.5 rounded-xl bg-stone-100 dark:bg-[#241D48] hover:bg-stone-200 dark:hover:bg-[#2E3448] text-stone-700 dark:text-stone-300 active:scale-95 transition"
+                className="px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-[#241D48] hover:bg-slate-200 dark:hover:bg-[#31275E] text-slate-700 dark:text-slate-300 active:scale-95 transition"
               >
                 All
               </button>
               <button
                 type="button"
                 onClick={handleClearAll}
-                className="px-2.5 py-1.5 rounded-xl bg-stone-100 dark:bg-[#241D48] hover:bg-stone-200 dark:hover:bg-[#2E3448] text-stone-700 dark:text-stone-300 active:scale-95 transition"
+                className="px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-[#241D48] hover:bg-slate-200 dark:hover:bg-[#31275E] text-slate-700 dark:text-slate-300 active:scale-95 transition"
               >
                 Clear
               </button>
@@ -228,10 +228,10 @@ export const CustomQuestionPickerModal: React.FC<CustomQuestionPickerModalProps>
         {/* Questions List */}
         <div className="flex-1 overflow-y-auto p-3.5 space-y-2.5">
           {filteredQuestions.length === 0 ? (
-            <div className="text-center py-16 text-stone-500 dark:text-stone-400">
+            <div className="text-center py-16 text-slate-500 dark:text-slate-400">
               <Sparkles className="w-10 h-10 text-amber-500 mx-auto mb-2 opacity-50" />
               <p className="text-sm font-bold">No questions found.</p>
-              <p className="text-xs text-stone-400 dark:text-stone-500 mt-1">
+              <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
                 Please try a different search keyword or select another tab.
               </p>
             </div>
@@ -245,20 +245,20 @@ export const CustomQuestionPickerModal: React.FC<CustomQuestionPickerModalProps>
                   className={`p-3.5 rounded-2xl border-2 transition cursor-pointer flex items-start gap-3 active:scale-99 ${
                     isSelected
                       ? "bg-amber-50/90 dark:bg-amber-950/40 border-[#7045D8] dark:border-amber-400 ring-1 ring-amber-400/50 dark:ring-amber-400/30 shadow-xs"
-                      : "bg-white dark:bg-[#1B1536] border-stone-200/90 dark:border-[#31275E] hover:border-amber-300 dark:hover:border-amber-500/50"
+                      : "bg-white dark:bg-[#1B1536] border-slate-200/90 dark:border-[#31275E] hover:border-amber-300 dark:hover:border-amber-500/50"
                   }`}
                 >
                   <div className="mt-0.5">
                     {isSelected ? (
                       <CheckSquare className="w-5 h-5 text-[#7045D8] dark:text-amber-400" />
                     ) : (
-                      <Square className="w-5 h-5 text-stone-300 dark:text-stone-600" />
+                      <Square className="w-5 h-5 text-slate-300 dark:text-slate-600" />
                     )}
                   </div>
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-extrabold text-stone-500 dark:text-stone-400">
+                      <span className="text-xs font-extrabold text-slate-500 dark:text-slate-400">
                         #{idx + 1}
                       </span>
                       {q.source === "custom" ? (
@@ -271,24 +271,24 @@ export const CustomQuestionPickerModal: React.FC<CustomQuestionPickerModalProps>
                         </span>
                       )}
                       {q.category && (
-                        <span className="text-[11px] font-semibold text-stone-500 dark:text-stone-400 capitalize">
+                        <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 capitalize">
                           {q.category}
                         </span>
                       )}
                     </div>
 
-                    <p className="text-xs sm:text-sm font-bold text-stone-800 dark:text-slate-50 leading-snug">
+                    <p className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-50 leading-snug">
                       {q.text}
                     </p>
 
-                    <div className="grid grid-cols-2 gap-1 mt-2 text-[11px] text-stone-600 dark:text-stone-300">
+                    <div className="grid grid-cols-2 gap-1 mt-2 text-[11px] text-slate-600 dark:text-slate-300">
                       {q.options.slice(0, 4).map((opt, oIdx) => (
                         <div
                           key={oIdx}
                           className={`truncate px-2 py-0.5 rounded-lg ${
                             oIdx === q.correctIndex
                               ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 font-semibold border border-emerald-200 dark:border-emerald-800/60"
-                              : "bg-stone-50 dark:bg-[#241D48]"
+                              : "bg-slate-50 dark:bg-[#241D48]"
                           }`}
                         >
                           {String.fromCharCode(65 + oIdx)}. {opt}
@@ -303,8 +303,8 @@ export const CustomQuestionPickerModal: React.FC<CustomQuestionPickerModalProps>
         </div>
 
         {/* Footer */}
-        <div className="p-3.5 bg-white dark:bg-[#1B1536] border-t border-stone-200 dark:border-[#31275E] flex items-center justify-between shadow-lg">
-          <div className="text-xs font-semibold text-stone-700 dark:text-stone-300">
+        <div className="p-3.5 bg-white dark:bg-[#1B1536] border-t border-slate-200 dark:border-[#31275E] flex items-center justify-between shadow-lg">
+          <div className="text-xs font-semibold text-slate-700 dark:text-slate-300">
             Selected: <span className="text-[#7045D8] dark:text-amber-400 font-black text-sm">{selectedIds.length}</span> / {targetCount} Questions
           </div>
 
@@ -312,7 +312,7 @@ export const CustomQuestionPickerModal: React.FC<CustomQuestionPickerModalProps>
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl text-xs font-bold text-stone-600 dark:text-stone-300 bg-stone-100 dark:bg-[#241D48] hover:bg-stone-200 dark:hover:bg-[#2E3448] active:scale-95 transition"
+              className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-[#241D48] hover:bg-slate-200 dark:hover:bg-[#31275E] active:scale-95 transition"
             >
               Cancel
             </button>

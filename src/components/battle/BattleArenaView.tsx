@@ -153,11 +153,11 @@ export const BattleArenaView: React.FC<BattleArenaViewProps> = ({
                 key={player.id}
                 className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs whitespace-nowrap transition-all duration-200 border shrink-0 ${
                   isMe
-                    ? "bg-amber-400 text-stone-950 border-amber-300 font-black shadow-md shadow-amber-500/20 ring-2 ring-amber-400/30"
+                    ? "bg-amber-400 text-slate-950 border-amber-300 font-black shadow-md shadow-amber-500/20 ring-2 ring-amber-400/30"
                     : "bg-white/10 backdrop-blur-md border-white/15 text-white/95 font-semibold"
                 }`}
               >
-                <span className={`text-[10px] font-black font-mono ${isMe ? "text-stone-900" : isFirst ? "text-amber-300" : "text-white/60"}`}>
+                <span className={`text-[10px] font-black font-mono ${isMe ? "text-slate-900" : isFirst ? "text-amber-300" : "text-white/60"}`}>
                   #{idx + 1}
                 </span>
 
@@ -175,7 +175,7 @@ export const BattleArenaView: React.FC<BattleArenaViewProps> = ({
                   {player.name}
                 </span>
 
-                <span className={`font-mono font-black text-xs ${isMe ? "text-stone-950" : "text-amber-300"}`}>
+                <span className={`font-mono font-black text-xs ${isMe ? "text-slate-950" : "text-amber-300"}`}>
                   {player.score}
                 </span>
 
@@ -397,8 +397,8 @@ export const BattleArenaView: React.FC<BattleArenaViewProps> = ({
           <div className="bg-white dark:bg-[#1B1536] rounded-t-[32px] max-h-[80%] flex flex-col overflow-hidden shadow-2xl border-t border-slate-200 dark:border-[#31275E] max-w-2xl mx-auto w-full animate-in slide-in-from-bottom duration-300">
             <div className="p-4 sm:p-5 bg-gradient-to-r from-[#4A154B] via-[#7045D8] to-[#5B32BF] text-white flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-amber-400 text-stone-900 flex items-center justify-center font-bold shadow-sm">
-                  <Trophy className="w-5 h-5 text-stone-950" />
+                <div className="w-9 h-9 rounded-xl bg-amber-400 text-slate-900 flex items-center justify-center font-bold shadow-sm">
+                  <Trophy className="w-5 h-5 text-slate-950" />
                 </div>
                 <div>
                   <h3 className="text-sm font-black uppercase tracking-wider">
